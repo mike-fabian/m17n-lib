@@ -2441,6 +2441,8 @@ main (int argc, char **argv)
 	m17n_object_unref (face);
       }
     frame = mframe (plist);
+    if (! frame)
+      FATAL_ERROR ("%s\n", "Fail to create a frame!");
     m17n_object_unref (plist);
     face_default = mface_copy ((MFace *) mframe_get_prop (frame, Mface));
     default_face_list = mplist ();
@@ -2879,13 +2881,6 @@ main (int argc, char **argv)
   m17n_object_unref (default_face_list);
   m17n_object_unref (selection);
 
-  M17N_FINI ();
-
-  free (fontset_name);
-  free (filename);
-  free (input_method_table);
-  free (InputMethodMenus);
-
   XFreeGC (display, mono_gc);
   XFreeGC (display, mono_gc_inv);
   XFreeGC (display, gc_inv);
@@ -2893,6 +2888,13 @@ main (int argc, char **argv)
   XtUninstallTranslations (TextWidget);
   XtDestroyWidget (ShellWidget);
   XtDestroyApplicationContext (context);
+
+  M17N_FINI ();
+
+  free (fontset_name);
+  free (filename);
+  free (input_method_table);
+  free (InputMethodMenus);
 
   exit (0);
 }
