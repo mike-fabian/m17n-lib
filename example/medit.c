@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page medit edit multilingual text
+    @enpage medit edit multilingual text
 
     @section medit-synopsis SYNOPSIS
 
@@ -53,7 +53,7 @@
     direct use from application programs.
 */
 /***ja
-    @page medit 多言語テキストの編集
+    @japage medit 多言語テキストの編集
 
     @section medit-synopsis SYNOPSIS
 

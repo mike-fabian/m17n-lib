@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mview view file
+    @enpage mview view file
 
     @section mview-synopsis SYNOPSIS
 
@@ -59,7 +59,7 @@
     </ul>
 */
 /***ja
-    @page mview ファイルを見る
+    @japage mview ファイルを見る
 
     @section mview-synopsis SYNOPSIS
 
