@@ -89,7 +89,7 @@
 
     @li
     TAG0 が #Mchar_table でも #Mcharset でもない場合、そのデータは @e
-    plist タイプ である。詳細に関しては関数 mdatabase_load () の説明を
+    plistタイプ である。詳細に関しては関数 mdatabase_load () の説明を
     参照のこと。この場合 TAG1、TAG2、TAG3 は任意のシンボルでよい。
 
     特定のタグを持つデータベースを \<TAG0, TAG1, TAG2, TAG3\> という形
@@ -832,10 +832,10 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
     returns the contents.  The type of contents depends on the type of
     the data.
 
-    If the data is of the @e plist type, this function returns a
+    If the data is of the @e plist @e type, this function returns a
     pointer to @e plist.
 
-    If the database is of the @e chartable type, it returns a
+    If the database is of the @e chartable @e type, it returns a
     chartable.  The default value of the chartable is set according to
     the second tag of the data as below:
 
@@ -843,7 +843,7 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
     @li If the tag is #Minteger, the default value is -1.
     @li Otherwise, the default value is @c NULL.
 
-    If the data is of the @e charset type, it returns a plist of length 2
+    If the data is of the @e charset @e type, it returns a plist of length 2
     (keys are both #Mt).  The value of the first element is an array
     of integers that maps code points to the corresponding character
     codes.  The value of the second element is a chartable of integers
@@ -857,16 +857,16 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
     関数 mdatabase_load () は $MDB が指すデータをロードし、その
     中身を返す。返されるものはデータのタイプによって異なる。
 
-    データが @e plist タイプならば、 @e plist へのポインタを返す。
+    データが @e plistタイプ ならば、 @e plist へのポインタを返す。
 
-    データが @e chartable タイプならば文字テーブルを返す。文字テーブル
+    データが @e chartableタイプ ならば文字テーブルを返す。文字テーブル
     のデフォルト値は、データの第2タグによって以下のように決まる。
 
     @li タグが #Msymbol なら、デフォルト値は #Mnil
     @li タグが #Minteger なら、デフォルト値は -1
     @li それ以外なら、デフォルト値は @c NULL
 
-    データが @e charset タイプならば長さ 2 の plist を返す（キーは共に 
+    データが @e charsetタイプ ならば長さ 2 の plist を返す（キーは共に 
     #Mt ）。最初の要素の値はコードポイントを対応する文字コードにマップ
     する整数の配列である。２番目の要素の値は逆のマップをする文字テーブ
     ルである。この文字セットは予め定義されていなければならない。
