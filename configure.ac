@@ -67,6 +67,17 @@ AC_FUNC_STRTOD
 AC_CHECK_FUNCS(memmove memset nl_langinfo putenv regcomp setlocale)
 AC_CHECK_FUNCS(strchr strdup gettimeofday)
 
+dnl Checks where the m17n database is installed.
+
+AC_CHECK_PROG(HAVE_M17N_DB, m17n-db, yes)
+if test "x$HAVE_M17N_DB" = "xyes"; then
+  M17NDIR=`m17n-db`
+else
+  M17NDIR="${datadir}/m17n"
+fi
+AC_SUBST(M17NDIR)
+
+
 dnl Checks if dlopen exists, and if it's in libc or libdl.
 
 AC_SEARCH_LIBS(dlopen, dl,
