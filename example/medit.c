@@ -1685,7 +1685,7 @@ read_file ()
 
   if (! fp)
     FATAL_ERROR ("Can't read \"%s\"!\n", filename);
-  mt = mconv_decode_stream (Mcoding_utf_8, fp);
+  mt = mconv_decode_stream (Mcoding_utf_8_full, fp);
   fclose (fp);
   if (! mt)
     FATAL_ERROR ("Can't decode \"%s\" by UTF-8!\n", filename);
