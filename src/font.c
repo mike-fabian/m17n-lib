@@ -1736,7 +1736,7 @@ mfont_set_selection_priority (MSymbol *keys)
     that matches best the specification $SPEC on frame $FRAME.
 
     $SCORE, if not NULL, must point to a place to store the score
-    value that indicates how well the found font matches to $SPEC.  A
+    value that indicates how well the found font matches to $SPEC.  The
     smaller score means a better match.  */
 /***ja
     @brief フォントを探す.
