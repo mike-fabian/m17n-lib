@@ -44,6 +44,7 @@ m17n_init (void)
 
   if (m17n__shell_initialized++)
     return;
+  merror_code == MERROR_NONE;
   m17n_init_core ();
   if (merror_code != MERROR_NONE)
     {
