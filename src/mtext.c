@@ -1531,11 +1531,14 @@ mtext_dup (MText *mt)
   int unit_bytes = UNIT_BYTES (mt->format);
 
   *new = *mt;
-  new->allocated = (mt->nbytes + 1) * unit_bytes;
-  MTABLE_MALLOC (new->data, new->allocated, MERROR_MTEXT);
-  memcpy (new->data, mt->data, new->allocated);
-  if (mt->plist)
-    new->plist = mtext__copy_plist (mt->plist, 0, mt->nchars, new, 0);
+  if (mt->nchars > 0)
+    {
+      new->allocated = (mt->nbytes + 1) * unit_bytes;
+      MTABLE_MALLOC (new->data, new->allocated, MERROR_MTEXT);
+      memcpy (new->data, mt->data, new->allocated);
+      if (mt->plist)
+	new->plist = mtext__copy_plist (mt->plist, 0, mt->nchars, new, 0);
+    }
   return new;
 }
 
@@ -1572,7 +1575,9 @@ mtext_cat (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
 
-  return insert (mt1, mt1->nchars, mt2, 0, mt2->nchars);
+  if (mt2->nchars > 0)
+    insert (mt1, mt1->nchars, mt2, 0, mt2->nchars);
+  return mt1;
 }
 
 
@@ -1621,7 +1626,9 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
   M_CHECK_READONLY (mt1, NULL);
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
-  return insert (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  if (mt2->nchars > 0)
+    insert (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  return mt1;
 }
 
 
@@ -1659,7 +1666,9 @@ mtext_cpy (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
   mtext_del (mt1, 0, mt1->nchars);
-  return insert (mt1, 0, mt2, 0, mt2->nchars);
+  if (mt2->nchars > 0)
+    insert (mt1, 0, mt2, 0, mt2->nchars);
+  return mt1;
 }
 
 /*=*/
@@ -1708,7 +1717,9 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
   mtext_del (mt1, 0, mt1->nchars);
-  return insert (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  if (mt2->nchars > 0)
+    insert (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  return mt1;
 }
 
 /*=*/
@@ -1752,10 +1763,12 @@ mtext_duplicate (MText *mt, int from, int to)
 {
   MText *new;
 
-  M_CHECK_RANGE (mt, from, to, NULL, new);
+  M_CHECK_RANGE_X (mt, from, to, NULL);
   new = mtext ();
   new->format = mt->format;
-  return insert (new, 0, mt, from, to);
+  if (from < to)
+    insert (new, 0, mt, from, to);
+  return new;
 }
 
 /*=*/
