@@ -41,6 +41,10 @@ struct MFrame
       with the frame.  */
   MWDevice *device;
 
+  MSymbol foreground, background, videomode;
+
+  MFont *font;
+
   /** The default face of the frame.  */
   MFace *face;
 
@@ -77,7 +81,7 @@ enum glyph_type
     GLYPH_TYPE_MAX
   };
 
-struct MGlyph
+typedef struct
 {
   int pos, to;
   int c;
@@ -93,9 +97,7 @@ struct MGlyph
   unsigned bidi_level : 6;
   enum glyph_type type : 3;
   int combining_code;
-};
-
-typedef struct MGlyph MGlyph;
+} MGlyph;
 
 struct MGlyphString
 {
@@ -112,6 +114,10 @@ struct MGlyphString
 
   /* Members to keep temporary data while layouting.  */
   short sub_width, sub_lbearing, sub_rbearing;
+
+  /* Copied for <control>.anti_alias but never set if the frame's
+     depth is less than 8.  */
+  unsigned anti_alias : 1;
 
   MDrawControl control;
 
@@ -182,6 +188,11 @@ typedef struct MGlyphString MGlyphString;
 
 typedef struct MFontDriver MFontDriver;
 
+typedef struct
+{
+  short x, y;
+} MDrawPoint;
+
 extern int mfont__init ();
 extern void mfont__fini ();
 
@@ -229,11 +240,9 @@ extern void mwin__draw_box (MFrame *frame, MDrawWindow win,
 			    MGlyph *g, int x, int y, int width,
 			    MDrawRegion region);
 
-extern void mwin__draw_bitmap (MFrame *frame, MDrawWindow win,
-			       MRealizedFace *rface, int reverse,
-			       int x, int y,
-			       int width, int height, int row_bytes,
-			       unsigned char *bmp,
+extern void mwin__draw_points (MFrame *frame, MDrawWindow win,
+			       MRealizedFace *rface,
+			       int intensity, MDrawPoint *points, int num,
 			       MDrawRegion region);
 
 extern MDrawRegion mwin__region_from_rect (MDrawMetric *rect);

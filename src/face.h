@@ -67,19 +67,6 @@ struct MFace
 };
 
 
-enum face_gc
-  {
-    MFACE_GC_NORMAL,
-    MFACE_GC_INVERSE,
-    MFACE_GC_SCRATCH,
-    MFACE_GC_HLINE,
-    MFACE_GC_BOX_TOP,
-    MFACE_GC_BOX_BOTTOM,
-    MFACE_GC_BOX_LEFT,
-    MFACE_GC_BOX_RIGHT,
-    MFACE_GCS
-  };
-
 /** A realized face is registered in MFrame->face_list, thus it does
     not have to be a managed object.  */
 

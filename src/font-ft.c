@@ -261,7 +261,7 @@ build_font_list ()
 static MRealizedFont *ft_select (MFrame *, MFont *, MFont *, int);
 static int ft_open (MRealizedFont *);
 static void ft_close (MRealizedFont *);
-static void ft_find_metric (MRealizedFont *, MGlyph *);
+static void ft_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned ft_encode_char (MRealizedFont *, int, unsigned);
 static void ft_render (MDrawWindow, int, int, MGlyphString *,
 		       MGlyph *, MGlyph *, int, MDrawRegion);
@@ -400,39 +400,54 @@ ft_close (MRealizedFont *rfont)
 /* The FreeType font driver function FIND_METRIC.  */
 
 static void
-ft_find_metric (MRealizedFont *rfont, MGlyph *g)
+ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
+		int from, int to)
 {
   MFTInfo *ft_info = (MFTInfo *) rfont->info;
   FT_Face ft_face = ft_info->ft_face;
+  MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
+  FT_Int32 load_flags = FT_LOAD_RENDER;
 
-  if (g->code == MCHAR_INVALID_CODE)
+  if (! gstring->anti_alias)
     {
-      unsigned unitsPerEm = ft_face->units_per_EM;
-      int size = rfont->font.property[MFONT_SIZE] / 10;
-
-      g->lbearing = 0;
-      g->rbearing = ft_face->max_advance_width * size / unitsPerEm;
-      g->width = ft_face->max_advance_width * size / unitsPerEm;
-      g->ascent = ft_face->ascender * size / unitsPerEm;
-      g->descent = (- ft_face->descender) * size / unitsPerEm;
+#ifdef FT_LOAD_TARGET_MONO
+      load_flags |= FT_LOAD_TARGET_MONO;
+#else
+      load_flags |= FT_LOAD_MONOCHROME;
+#endif
     }
-  else
+
+  for (; g != gend; g++)
     {
-      FT_Glyph_Metrics *metrics;
-      FT_UInt code;
+      if (g->code == MCHAR_INVALID_CODE)
+	{
+	  unsigned unitsPerEm = ft_face->units_per_EM;
+	  int size = rfont->font.property[MFONT_SIZE] / 10;
 
-      if (g->otf_encoded)
-	code = g->code;
+	  g->lbearing = 0;
+	  g->rbearing = ft_face->max_advance_width * size / unitsPerEm;
+	  g->width = ft_face->max_advance_width * size / unitsPerEm;
+	  g->ascent = ft_face->ascender * size / unitsPerEm;
+	  g->descent = (- ft_face->descender) * size / unitsPerEm;
+	}
       else
-	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+	{
+	  FT_Glyph_Metrics *metrics;
+	  FT_UInt code;
 
-      FT_Load_Glyph (ft_face, code, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
-      metrics = &ft_face->glyph->metrics;
-      g->lbearing = metrics->horiBearingX >> 6;
-      g->rbearing = (metrics->horiBearingX + metrics->width) >> 6;
-      g->width = metrics->horiAdvance >> 6;
-      g->ascent = metrics->horiBearingY >> 6;
-      g->descent = (metrics->height - metrics->horiBearingY) >> 6;
+	  if (g->otf_encoded)
+	    code = g->code;
+	  else
+	    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+
+	  FT_Load_Glyph (ft_face, code, FT_LOAD_RENDER);
+	  metrics = &ft_face->glyph->metrics;
+	  g->lbearing = (metrics->horiBearingX >> 6);
+	  g->rbearing = (metrics->horiBearingX + metrics->width) >> 6;
+	  g->width = metrics->horiAdvance >> 6;
+	  g->ascent = metrics->horiBearingY >> 6;
+	  g->descent = (metrics->height - metrics->horiBearingY) >> 6;
+	}
     }
 }
 
@@ -464,56 +479,127 @@ ft_encode_char (MRealizedFont *rfont, int c, unsigned ignored)
 
 /* The FreeType font driver function RENDER.  */
 
+#define NUM_POINTS 0x1000
+
+typedef struct {
+  MDrawPoint points[NUM_POINTS];
+  MDrawPoint *p;
+} MPointTable;
+
 static void
 ft_render (MDrawWindow win, int x, int y,
 	   MGlyphString *gstring, MGlyph *from, MGlyph *to,
 	   int reverse, MDrawRegion region)
 {
-  MRealizedFace *rface;
-  MFrame *frame;
+  MRealizedFace *rface = from->rface;
+  MFrame *frame = rface->frame;
   MFTInfo *ft_info;
   FT_Face ft_face = NULL;
+  FT_Int32 load_flags = FT_LOAD_RENDER;
   MGlyph *g;
+  int i, j;
+  MPointTable point_table[8];
 
   if (from == to)
     return;
 
+  if (! gstring->anti_alias)
+    {
+#ifdef FT_LOAD_TARGET_MONO
+      load_flags |= FT_LOAD_TARGET_MONO;
+#else
+      load_flags |= FT_LOAD_MONOCHROME;
+#endif
+    }
+
   /* It is assured that the all glyphs in the current range use the
      same realized face.  */
-  rface = from->rface;
-  frame = rface->frame;
   ft_info = (MFTInfo *) rface->rfont->info;
   ft_face = ft_info->ft_face;
 
-  g = from;
-  while (g < to)
-    {
-      if (g->type == GLYPH_CHAR)
-	{
-	  FT_UInt code;
+  for (i = 0; i < 8; i++)
+    point_table[i].p = point_table[i].points;
 
-	  if (g->otf_encoded)
-	    code = g->code;
-	  else
-	    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
-#ifdef FT_LOAD_TARGET_MONO
-	  FT_Load_Glyph (ft_face, code, FT_LOAD_RENDER | FT_LOAD_TARGET_MONO);
-#else
-	  FT_Render_Glyph (ft_face->glyph, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
-#endif
-	  mwin__draw_bitmap (frame, win, rface, reverse,
-			     x + ft_face->glyph->bitmap_left + g->xoff,
-			     y - ft_face->glyph->bitmap_top + g->yoff,
-			     ft_face->glyph->bitmap.width,
-			     ft_face->glyph->bitmap.rows,
-			     ft_face->glyph->bitmap.pitch,
-			     ft_face->glyph->bitmap.buffer,
-			     region);
+  for (g = from; g < to; x += g++->width)
+    {
+      FT_UInt code;
+      unsigned char *bmp;
+      int intensity;
+      MPointTable *ptable;
+      int xoff, yoff;
+
+      if (g->otf_encoded)
+	code = g->code;
+      else
+	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+      FT_Load_Glyph (ft_face, code, load_flags);
+      yoff = y - ft_face->glyph->bitmap_top + g->yoff;
+      bmp = ft_face->glyph->bitmap.buffer;
+      if (gstring->anti_alias)
+	for (i = 0; i < ft_face->glyph->bitmap.rows;
+	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
+	  {
+	    xoff = x + ft_face->glyph->bitmap_left + g->xoff;
+	    for (j = 0; j < ft_face->glyph->bitmap.width; j++, xoff++)
+	      {
+		intensity = bmp[j] >> 5;
+		if (intensity)
+		  {
+		    ptable = point_table + intensity;
+		    ptable->p->x = xoff;
+		    ptable->p->y = yoff;
+		    ptable->p++;
+		    if (ptable->p - ptable->points == NUM_POINTS)
+		      {
+			mwin__draw_points (frame, win, rface,
+					   reverse ? 7 - intensity : intensity,
+					   ptable->points, NUM_POINTS, region);
+			ptable->p = ptable->points;
+		      }
+		  }
+	      }
+	  }
+      else
+	for (i = 0; i < ft_face->glyph->bitmap.rows;
+	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
+	  {
+	    xoff = x + ft_face->glyph->bitmap_left + g->xoff;
+	    for (j = 0; j < ft_face->glyph->bitmap.width; j++, xoff++)
+	      {
+		intensity = bmp[j / 8] & (1 << (7 - (j % 8)));
+		if (intensity)
+		  {
+		    ptable = point_table;
+		    ptable->p->x = xoff;
+		    ptable->p->y = yoff;
+		    ptable->p++;
+		    if (ptable->p - ptable->points == NUM_POINTS)
+		      {
+			mwin__draw_points (frame, win, rface,
+					   reverse ? 0 : 7,
+					   ptable->points, NUM_POINTS, region);
+			ptable->p = ptable->points;
+		      }		    
+		  }
+	      }
 	}
-      x += g++->width;
     }
 
-  return;
+  if (gstring->anti_alias)
+    {
+      for (i = 1; i < 8; i++)
+	if (point_table[i].p != point_table[i].points)
+	  mwin__draw_points (frame, win, rface, reverse ? 7 - i : i,
+			     point_table[i].points,
+			     point_table[i].p - point_table[i].points, region);
+    }
+  else
+    {
+      if (point_table[0].p != point_table[0].points)
+	mwin__draw_points (frame, win, rface, reverse ? 0 : 7,
+			   point_table[0].points,
+			   point_table[0].p - point_table[0].points, region);
+    }
 }
 
 
@@ -579,6 +665,7 @@ mfont__ft_fini ()
 
 int
 mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
+		     MRealizedFont *rfont,
 		     MSymbol script, MSymbol langsys, 
 		     MSymbol gsub_features, MSymbol gpos_features)
 {
@@ -598,7 +685,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
   if (len == 0)
     return from;
 
-  ft_info = (MFTInfo *) gstring->glyphs[from].rface->rfont->info;
+  ft_info = (MFTInfo *) rfont->info;
   if (ft_info->otf_flag < 0)
     goto simple_copy;
   otf = ft_info->otf;

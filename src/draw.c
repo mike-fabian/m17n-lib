@@ -79,6 +79,8 @@ static MSymbol Mlatin, Minherited;
 /* Special categories */
 static MSymbol McatCc, McatCf;
 
+static MSymbol Mdepth;
+
 
 /* Glyph-string composer.  */
 
@@ -169,7 +171,6 @@ visual_order (MGlyphString *gstring)
     {
       int j = indices[i];
       int k = idx[j];
-      int pos = glyphs[k].pos;
 
       glyphs[k].bidi_level = levels[j];
 #ifdef HAVE_FRIBIDI
@@ -236,6 +237,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   int non_ascii_found;
   int size = gstring->control.fixed_width;
   int i, limit;
+  int last;
 
   MLIST_RESET (gstring);
   gstring->from = from;
@@ -251,7 +253,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   APPEND_GLYPH (gstring, g_tmp);
 
   stop = face_change = charset_change = language_change = pos = from;
-  g = gstring->glyphs + gstring->used;
+  last = 0;
   non_ascii_found = 0;
   while (1)
     {
@@ -279,13 +281,15 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    this_script = script;
 	}
 
-      if (pos == stop || script != this_script || g->type != g_tmp.type)
+      if (pos == stop || script != this_script
+	  || MGLYPH (last)->type != g_tmp.type)
 	{
+	  g = MGLYPH (last);
 	  if (non_ascii_found && g->type == GLYPH_CHAR)
 	    while (g < gstring->glyphs + gstring->used)
 	      g = mface__for_chars (script, language, charset,
 				    g, gstring->glyphs + gstring->used, size);
-	  g = gstring->glyphs + gstring->used;
+	  last = gstring->used;
 	  non_ascii_found = 0;
 	  script = this_script;
 	  if (pos == to)
@@ -312,7 +316,9 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 					 language, charset, size)
 		       : default_rface);
 	    }
-	  stop = language_change;
+	  stop = to;
+	  if (stop > language_change)
+	    stop = language_change;
 	  if (stop > charset_change)
 	    stop = charset_change;
 	  if (face_change < stop)
@@ -328,12 +334,12 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	non_ascii_found = 1;
       else if (g_tmp.type == GLYPH_CHAR && (c <= 32 || c == 127))
 	{
-	  g_tmp.c = '^';
+	  g_tmp.code = '^';
 	  APPEND_GLYPH (gstring, g_tmp);
 	  if (c < ' ')
-	    g_tmp.c += 0x40;
+	    g_tmp.code = g_tmp.c + 0x40;
 	  else
-	    g_tmp.c = '?';
+	    g_tmp.code = '?';
 	}
       APPEND_GLYPH (gstring, g_tmp);
       if (c == '\n'
@@ -385,9 +391,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		   i++, g++)
 		if (g->rface->rfont != this->rface->rfont)
 		  g->code = code;
-	      i = mfont__flt_run (gstring, start, i,
-				  this->rface->rfont->layouter,
-				  this->rface->ascii_rface);
+	      i = mfont__flt_run (gstring, start, i, this->rface);
 	    }
 	  else
 	    {
@@ -482,6 +486,8 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
   g_physical_descent = gstring->physical_descent;
   g_width = g_lbearing = g_rbearing = 0;
 
+  mfont__get_metric (gstring, from, to);
+
   while (g < last_g)
     {
       MGlyph *base = g++;
@@ -489,7 +495,6 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
       int size = rfont->font.property[MFONT_SIZE];
       int width, lbearing, rbearing;
 
-      mfont__get_metric (rfont, base);
       if (g == last_g || ! g->combining_code)
 	{
 	  /* No combining.  */
@@ -549,7 +554,6 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 	      else if (end < g->to)
 		end = g->to;
 		
-	      mfont__get_metric (rfont, g);
 	      g->xoff = left + (width * base_x - g->width * add_x) / 2 + off_x;
 	      if (g->xoff < left)
 		left = g->xoff;
@@ -580,6 +584,8 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 
 	  base->ascent = - top;
 	  base->descent = bottom;
+	  base->lbearing = lbearing;
+	  base->rbearing = rbearing;
 	  if (left < - base->width)
 	    {
 	      base->xoff = - base->width - left;
@@ -1138,7 +1144,8 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
       rect.x += rect.width;
       if (rect.x < x + width)
 	{
-	  while (g != gend && x + width - gend[-1].width >= rect.x)
+	  while (g != gend
+		 && (x + width - gend[-1].width + gend[-1].lbearing >= rect.x))
 	    {
 	      width -= (--gend)->width;
 	      while (! gend->enabled && g != gend)
@@ -1354,7 +1361,8 @@ free_gstring (void *object)
 static MGlyphString scratch_gstring;
 
 static MGlyphString *
-alloc_gstring (MText *mt, int pos, MDrawControl *control, int line, int y)
+alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
+	       int line, int y)
 {
   MGlyphString *gstring;
 
@@ -1377,6 +1385,10 @@ alloc_gstring (MText *mt, int pos, MDrawControl *control, int line, int y)
     (*control->format) (line, y, &(gstring->indent), &(gstring->width_limit));
   else
     gstring->width_limit = control->max_line_width;
+  gstring->anti_alias = control->anti_alias;
+  if (gstring->anti_alias
+      && (unsigned) mwin__device_get_prop (frame->device, Mdepth) < 8)
+    gstring->anti_alias = 0;
   return gstring;
 }
 
@@ -1502,7 +1514,7 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
 	  beg = pos;
 	  end = to;
 	}
-      gstring = alloc_gstring (mt, beg, control, line, y);
+      gstring = alloc_gstring (frame, mt, beg, control, line, y);
       compose_glyph_string (frame, mt, beg, end, gstring);
       layout_glyph_string (frame, gstring);
       end = gstring->to;
@@ -1516,7 +1528,8 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
 	  while (gst->to < end)
 	    {
 	      line++, y += gst->height;
-	      gst->next = alloc_gstring (mt, gst->from, control, line, y);
+	      gst->next = alloc_gstring (frame, mt, gst->from, control,
+					 line, y);
 	      gst->next->top = gstring;
 	      compose_glyph_string (frame, mt, gst->to, end, gst->next);
 	      gst = gst->next;
@@ -1638,7 +1651,7 @@ dump_combining_code (int code)
   else if (off_y < 0)
     sprintf (work + 2, "%d", off_y);
   else if (off_x == 0)
-    sprintf (work + 2, "-");
+    sprintf (work + 2, ".");
   p = work + strlen (work);
   if (off_x > 0)
     sprintf (p, ">%d", off_x);
@@ -1692,6 +1705,7 @@ mdraw__init ()
 
   McatCc = msymbol ("Cc");
   McatCf = msymbol ("Cf");
+  Mdepth = msymbol ("depth");
 
   MbidiR = msymbol ("R");
   MbidiAL = msymbol ("AL");

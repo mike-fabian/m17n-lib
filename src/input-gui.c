@@ -221,16 +221,24 @@ adjust_window_and_draw (MFrame *frame, MInputContext *ic, MText *mt, int type)
     physical.x = win_ic_info->client.geometry.width - physical.width;
   if (type == 0)
     {
-      if (y0 > - ic->spot.ascent)
+      if (len <= 1)
 	{
-	  physical.height += y0 + ic->spot.ascent;
-	  y0 = - ic->spot.ascent;
+	  physical.height = physical.width = 1;
+	  physical.x = physical.y = -1;
 	}
-      if (y1 < ic->spot.descent)
+      else
 	{
-	  physical.height += ic->spot.descent - y1;
+	  if (y0 > - ic->spot.ascent)
+	    {
+	      physical.height += y0 + ic->spot.ascent;
+	      y0 = - ic->spot.ascent;
+	    }
+	  if (y1 < ic->spot.descent)
+	    {
+	      physical.height += ic->spot.descent - y1;
+	    }
+	  physical.y = yoff + ic->spot.y + y0;
 	}
-      physical.y = yoff + ic->spot.y + y0;
     }
   else if (type == 1)
     {

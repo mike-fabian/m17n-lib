@@ -912,6 +912,7 @@ typedef struct
   int cluster_end_pos;
   int combining_code;
   int left_padding;
+  MRealizedFont *rfont;
 } FontLayoutContext;
 
 static int run_command (int depth,
@@ -1069,7 +1070,7 @@ run_otf (int depth,
 #ifdef HAVE_OTF
   int gidx = gstring->used;
 
-  to = mfont__ft_drive_otf (gstring, from, to,
+  to = mfont__ft_drive_otf (gstring, from, to, ctx->rfont,
 			    otf_cmd->script, otf_cmd->langsys,
 			    otf_cmd->gsub_features, otf_cmd->gpos_features);
   if (gidx < gstring->used)
@@ -1256,8 +1257,7 @@ mfont__flt_encode_char (MSymbol layouter_name, int c)
 }
 
 int
-mfont__flt_run (MGlyphString *gstring, int from, int to,
-		MSymbol layouter_name, MRealizedFace *ascii_rface)
+mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 {
   int stage_idx = 0;
   int gidx;
@@ -1266,7 +1266,9 @@ mfont__flt_run (MGlyphString *gstring, int from, int to,
   MCharTable *table;
   int encoded_len;
   int match_indices[NMATCH];
+  MSymbol layouter_name = rface->rfont->layouter;
   MFontLayoutTable *layouter = get_font_layout_table (layouter_name);
+  MRealizedFace *ascii_rface = rface->ascii_rface;
   FontLayoutStage *stage;
   int from_pos, to_pos;
   MGlyph dummy;
@@ -1284,6 +1286,7 @@ mfont__flt_run (MGlyphString *gstring, int from, int to,
 
   /* Setup CTX.  */
   memset (&ctx, 0, sizeof ctx);
+  ctx.rfont = rface->rfont;
   table = MPLIST_VAL (layouter);
   layouter = MPLIST_NEXT (layouter);
   stage = (FontLayoutStage *) MPLIST_VAL (layouter);

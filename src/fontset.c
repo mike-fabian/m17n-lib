@@ -307,42 +307,19 @@ realize_font_group (MFrame *frame, MFont *request, MPlist *font_group,
   mplist_set (font_group, Mnil, NULL);
   MPLIST_DO (pl, plist)
     {
+      MSymbol layouter = MPLIST_KEY (pl);
       MRealizedFont *rfont = mfont__select (frame, MPLIST_VAL (pl), request,
-					    size);
+					    size,
+					    layouter == Mt ? Mnil : layouter);
 
       if (rfont)
 	{
-	  rfont->layouter = MPLIST_KEY (pl);
-	  if (rfont->layouter == Mt)
-	    rfont->layouter = Mnil;
 	  MPLIST_DO (p, font_group)
 	    if (((MRealizedFont *) (MPLIST_VAL (p)))->score > rfont->score)
 	      break;
 	  mplist_push (p, Mt, rfont);
 	}
     }
-}
-
-int
-check_fontset_element (MFrame *frame, MPlist *element, MGlyph *g, int size)
-{
-  MRealizedFont *rfont = (MRealizedFont *) MPLIST_VAL (element);
-
-  if (! rfont)
-    /* We have already failed to select this font.  */
-    return 0;
-  if (! rfont->frame)
-    {
-      rfont = mfont__select (frame, &rfont->spec, &rfont->request, size);
-      free (MPLIST_VAL (element));
-      MPLIST_VAL (element) = rfont;
-      if (! rfont)
-	/* No font matches this spec.  */
-	return 0;
-    }
-
-  g->code = mfont__encode_char (rfont, g->c);
-  return (g->code != MCHAR_INVALID_CODE);
 }
 
 
