@@ -1,3 +1,15 @@
+2004-07-14  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Be sure to set codes for glyphs
+	of type GLYPH_SPACE.
+
+	* fontset.c (mfont__lookup_fontset): If glyph type is
+	GLYPH_SPACE, get codes for SPACE.
+
+	* internal-gui.h (Mfont): Delete extern.
+
+	* m17n-gui.h (Mfont): Delete duplicated extern.
+
 2004-07-13  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (DEVICE_DELTA): New macro.
