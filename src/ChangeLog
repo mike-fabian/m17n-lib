@@ -1,5 +1,8 @@
 2004-05-10  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (OPTIONAL_LD_FLAGS): Change the order of elements
+	to work around the problem of libtool.
+
 	* font-ft.c: Include <freetype/ftbdf.h>.
 	(Municode_bmp, Municode_full, Miso10646_1, Miso8859_1): New
 	variables.
