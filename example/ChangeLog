@@ -1,3 +1,7 @@
+2004-09-23  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8, HELLO.xml: Add Sinhala.
+
 2004-09-14  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (update_selection): Fix for the case that the selection
