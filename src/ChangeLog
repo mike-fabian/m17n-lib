@@ -1,5 +1,9 @@
 2004-03-29  Kenichi Handa  <handa@m17n.org>
 
+	* Version 1.0 Patch Level 2 released.
+
+2004-03-29  Kenichi Handa  <handa@m17n.org>
+
 	* charset.c (make_charset): Set charset->fully_loaded and
 	charset->simple correctly.  Don't try to get charset->min_char and
 	charset->max_char for a charset of method subset and superset.
@@ -18,8 +22,10 @@
 	* locale.c (mlocale_set): Fix the order of M17N_OBJECT_REF and
 	M17N_OBJECT_UNREF.
 
-	* m17n-X.c (mwin__create_window): Fix bug of setting a background
-	pixel of a new window.
+	* m17n-X.c (xfont_render): If rface->rfont is null, draw a
+	rectangle.
+	(mwin__create_window): Fix bug of setting a background pixel of a
+	new window.
 	(mwin__adjust_window): Clear the window before drawing.
 
 	* m17n-core.c (mdebug__report_object): Free array->objectes if
