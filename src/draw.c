@@ -1512,7 +1512,9 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
 	      || gstring->tick != frame->tick
 	      || memcmp (control, &gstring->control,
 			 (char *) (&control->with_cursor)
-			 - (char *) (control)))
+			 - (char *) (control))
+	      || control->cursor_width != gstring->control.cursor_width
+	      || control->cursor_bidi != gstring->control.cursor_bidi)
 	    {
 	      mtext_detach_property (prop);
 	      gstring = NULL;
