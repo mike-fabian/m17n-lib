@@ -1,4 +1,4 @@
-2004-10-10  Kenichi Handa  <handa@m17n.org>
+2004-10-11  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.pc.in, m17n-shell.pc.in, m17n-gui.pc.in: New files.
 

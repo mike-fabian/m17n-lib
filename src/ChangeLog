@@ -1,3 +1,48 @@
+2004-10-11  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (mfont_list): Adjust prototype.
+
+	* m17n-X.c (xfont_list): New arg maxnum.
+
+	* font.h (struct MFontDriver): Change prototype of <list>.
+
+	* font-ft.c (fc_generic_family_list): Delete it.
+	(Mserif, Msans_serif, Mmonospace): Delete them.
+	(M_generic_family_info): New variable.
+	(enum GenericFamilyType): New enum.
+	(struct GenericFamilyInfo): New struct.
+	(generic_family_table): New variable.
+	(set_font_info): New arg style. Don't check 0xA0..0xBF to decide
+	iso8859-1.
+	(add_font_info): Get style here.
+	(ft_list_family): Don't initialize fc_config here.  Don't list
+	generic families.
+	(ft_list_generic): New function.
+	(ft_select): Pay attention to generic familes here.
+	(ft_open): Fix calculation of ascent and descent.
+	(ft_list): Pay attention to generic families.
+	(mfont__ft_init): Initialize M_generic_family_info,
+	generic_family_table, and fc_config..
+	(mfont__ft_fini): Finalize generic_family_table.
+
+	* draw.c (compose_glyph_string): Use more constant font for
+	glyphs.  Adjust for the member change in MGlyph.
+	(layout_glyph_string): Adjust for the member change in MGlyph.
+	(alloc_gstring): Intilize scracth_glyph to avoid
+	compose_glyph_string on it.
+	(get_gstring): Don't call compose_glyph_string on scracth_glyph.
+	(mdraw_coordinates_position): Fix previous change.
+
+	* internal-gui.h (glyph_category): New enum.
+	(MGlyph): Change type of <category> to enum glyph_category.
+
+	* face.c (mface__realize): Delete args langauge and charset.
+	(mface__for_chars): Fix for the case that glyphs have different
+	rfaces.
+	(mface__update_frame_face): Adjust for mface__realize change.
+
+	* face.h (mface__realize): Adjust prototype.
+
 2004-10-05  Kenichi Handa  <handa@m17n.org>
 
 	* language.c (mlang__init): Add Akan.
