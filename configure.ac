@@ -65,34 +65,53 @@ AC_CHECK_FUNCS(memmove memset nl_langinfo putenv regcomp setlocale)
 AC_CHECK_FUNCS(strchr strdup gettimeofday)
 
 # Check several libraries without adding -lxxx to LIBS, without
-# defining HAVE_LIBXXX nor HAVE_XXX_H.  Instead, define XXX_LD_FLAGS
-# and HAVE_XXX if library XXX is available.
+# defining HAVE_LIBXXX nor HAVE_XXX_H because they are used only for
+# libm17-X.so.  Instead, define XXX_LD_FLAGS and HAVE_XXX if library
+# XXX is available.  CPPFLAGS will be augmented.
 
 # Check for fribidi library.
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+AC_CHECK_PROG(HAVE_FRIBIDI_CONFIG, fribidi-config, yes)
+if test "$HAVE_FRIBIDI_CONFIG" = "xyes"; then
+  CPPFLAGS="$CPPFLAGS `fribidi-config --cflags`"
+  FRIBIDI_LD_FLAGS="`fribidi-config --libs`"
+  LIBS="$LIBS $FRIBIDI_LD_FLAGS"
+else
+  FRIBIDI_LD_FLAGS=-lfribidi
+fi
 AC_CHECK_LIB(fribidi, fribidi_set_mirroring, HAVE_FRIBIDI=yes, HAVE_FRIBIDI=no)
 AC_CHECK_HEADER(fribidi/fribidi.h,, HAVE_FRIBIDI=no)
 if test "x$HAVE_FRIBIDI" = "xyes"; then
   AC_DEFINE(HAVE_FRIBIDI, 1, 
 	    [Define to 1 if you have Fribidi library and header file.])
-  FRIBIDI_LD_FLAGS="-lfribidi";
+else
+  CPPFLAGS="$save_CPPFLAGS"
 fi
+LIBS="$save_LIBS"
 AC_SUBST(FRIBIDI_LD_FLAGS)
 
 # Check for otflib usability.
-AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
-save_CPPFLAGS=$CPPFLAGS
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
 if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
-  OTFLIB_INC=`libotf-config --cflags`
-  CPPFLAGS="$CPPFLAGS $OTFLIB_INC"
+  CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
+  OTF_LD_FLAGS="`libotf-config --libs`  "
+  LIBS="$LIBS $OTF_LD_FLAGS"
+else
+  OTF_LD_FLAGS=-lotf
 fi
+AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
 AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
 CPPFLAGS=$save_CPPFLAGS
 if test "x$HAVE_OTF" = "xyes"; then
   AC_DEFINE(HAVE_OTF, 1, 
 	    [Define to 1 if you have OTF library and header file.])
-  OTF_LD_FLAGS=`libotf-config --libs`
+else
+  CPPFLAGS="$save_CPPFLAGS"
 fi
+LIBS="$save_LIBS"
 AC_SUBST(OTF_LD_FLAGS)
 
 # Check for Freetype2 usability.
@@ -119,36 +138,51 @@ fi
 AC_SUBST(FREETYPE_LD_FLAGS)
 
 # Check for Xft2 usability.
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+AC_CHECK_PROG(HAVE_XFT_CONFIG, xft-config, yes)
+if test "x$HAVE_XFT_CONFIG" = "xyes"; then
+  CPPFLAGS="$CPPFLAGS `xft-config --cflags`"
+  XFT2_LD_FLAGS="`xft-config --libs`"
+  LIBS="$LIBS $XFT2_LD_FLAGS"
+fi
 AC_CHECK_LIB(Xft, XftDrawCreate, HAVE_XFT2=yes, HAVE_XFT2=no)
-if test "x$HAVE_XFT2" = "xyes"; then
-  AC_CHECK_HEADER(X11/Xft/Xft.h, HAVE_XFT2=yes, HAVE_XFT2=no, 
-		  [#include <X11/Xft/Xft.h>
+AC_CHECK_HEADER(X11/Xft/Xft.h,, HAVE_XFT2=no, 
+		[#include <X11/Xft/Xft.h>
 #if XftVersion >= 20000
 #else
 Version too old.  Compiling this line should fail.
 #endif])
-  if test "x$HAVE_XFT2" = "xyes"; then
-    AC_DEFINE(HAVE_XFT2, 1,
-	     [Define to 1 if you have Xft2 library and header file.])
-    XFT2_LD_FLAGS="-lXft"
-  fi
+if test "x$HAVE_XFT2" = "xyes"; then
+  AC_DEFINE(HAVE_XFT2, 1,
+	    [Define to 1 if you have Xft2 library and header file.])
+else
+  CPPFLAGS="$save_CPPFLAGS"
 fi
+LIBS="$save_LIBS"
 AC_SUBST(XFT2_LD_FLAGS)
 
 # Check for libxml2 usability.
-AC_CHECK_LIB(xml2, xmlParseMemory, HAVE_XML2=yes, HAVE_XML2=no)
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+AC_CHECK_PROG(HAVE_XML2_CONFIG, xml2-config, yes)
 if test "x$HAVE_XML2" = "xyes"; then
-  save_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$CPPFLAGS `xml2-config --cflags`"
+  XML2_LD_FLAGS="`xml2-config --libs`"
+  LIBS="$LIBS $XML2_LD_FLAGS"
+else
   CPPFLAGS="$CPPFLAGS -I/usr/include/libxml2"
-  AC_CHECK_HEADER(libxml/tree.h,, HAVE_XML2=no, /**/)
-  if test "x$HAVE_XML2" = "xyes"; then
-    AC_DEFINE(HAVE_XML2, 1,
-	      [Define to 1 if you have libxml2 library and header file])
-    XML2_LD_FLAGS="-lxml2"
-  else
-    CPPFLAGS=$save_CPPFLAGS
-  fi
+  XML2_LD_FLAGS="-lxml2 -lz -m"
 fi
+AC_CHECK_LIB(xml2, xmlParseMemory, HAVE_XML2=yes, HAVE_XML2=no)
+AC_CHECK_HEADER(libxml/tree.h,, HAVE_XML2=no, /**/)
+if test "x$HAVE_XML2" = "xyes"; then
+  AC_DEFINE(HAVE_XML2, 1,
+	    [Define to 1 if you have libxml2 library and header file])
+else
+  CPPFLAGS="$save_CPPFLAGS"
+fi
+LIBS="$save_LIBS"
 AC_SUBST(XML2_LD_FLAGS)
 
 # Check for Anthy usability.
