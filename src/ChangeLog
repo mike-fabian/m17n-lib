@@ -1,5 +1,7 @@
 2004-06-25  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-gd.c (gd_render): Don't call FT_Get_Char_Index.
+
 	* font-ft.c (fc_list): If FcFontList finds no font, try
 	FcFontMatch.
 
