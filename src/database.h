@@ -27,4 +27,13 @@
 #define M17NDIR "/usr/local/share/m17n"
 #endif
 
+extern MPlist *mdatabase__dir_list;
+
+extern MSymbol M_database_hook;
+
+typedef void (*MDatabaseHookFunc) (MSymbol tag0, MSymbol tag1,
+				   MSymbol tag2, MSymbol tag3);
+
+extern MPlist *mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys);
+
 #endif /* not _M17N_DATABASE_H_ */
