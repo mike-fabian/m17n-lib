@@ -1,3 +1,7 @@
+2004-08-04  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (mfont__ft_drive_otf): Call OTF_drive_gdef.
+
 2004-08-02  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (mfont__score): If prop is MFONT_FOUNDRY or MFONT_FAMILY,
