@@ -18,12 +18,12 @@ if test $# -eq 0; then
   exit 0
 fi
 
-LIBNAME=m17n
+LIBNAME="-lm17n-core -lm17n"
 
 case $1 in
-CORE) LIBNAME=m17n-core; shift;;
-GUI) LIBNAME=m17n-gui; shift;;
-X) LIBNAME=m17n-gui; shift;;
+CORE) LIBNAME="-lm17n-core"; shift;;
+ GUI) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; shift;;
+   X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; shift;;
 esac
 
 case $1 in
@@ -32,9 +32,9 @@ case $1 in
 
 --libs)
   if test "@libdir@" != "/usr/lib"; then
-    echo "-L@libdir@ -l${LIBNAME}"
+    echo "-L@libdir@ ${LIBNAME}"
   else
-    echo "-l${LIBNAME}"
+    echo "${LIBNAME}"
   fi;;
 
 --cflags)

@@ -1,5 +1,11 @@
 2004-06-21  Kenichi Handa  <handa@m17n.org>
 
+	* mtext.c (mtext_dup, mtext_cat, mtext_ncat, mtext_cpy)
+	(mtext_ncpy, mtext_duplicate): Pay attention to the case that the
+	length of source text 0.
+
+2004-06-21  Kenichi Handa  <handa@m17n.org>
+
 	* mtext.c (INC_POSITION): Use CHAR_UNITS_BY_HEAD_UTF16.
 	(compare): Pay attention to format other than utf-8.
 	(copy): Delete this function.
