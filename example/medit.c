@@ -458,12 +458,12 @@ redraw_cursor (int clear)
       MDrawMetric rect;
       int y0 = cur.y0, y1 = cur.y1;
 
-      if (beg != cur.from)
+      if (beg < cur.from)
 	{
 	  TEXT_EXTENTS (beg, cur.from, rect);
 	  y0 -= rect.height;
 	}
-      if (end != cur.to)
+      if (end > cur.to)
 	{
 	  TEXT_EXTENTS (cur.to, end, rect);
 	  y1 += rect.height; 
