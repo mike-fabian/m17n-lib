@@ -239,6 +239,9 @@ extern int mfontset_modify_entry (MFontset *fontset,
 				  MFont *spec, MSymbol layouter_name,
 				  int how);
 
+extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
+				MSymbol language, MSymbol charset);
+
 /* end of fontset module */
 /*=*/
 
