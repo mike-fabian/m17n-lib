@@ -127,8 +127,7 @@ visual_order (MGlyphString *gstring)
 	levels[size] = 0;
       idx[size] = GLYPH_INDEX (g);
       logical[size++] = g++->c;
-      while (g->type != GLYPH_ANCHOR
-	     && g->combining_code)
+      while (g->type != GLYPH_ANCHOR && g->combining_code)
 	g++;
     }
 
@@ -185,8 +184,7 @@ visual_order (MGlyphString *gstring)
 #endif /* not HAVE_FRIBIDI */
       *(MGLYPH (gidx)) = glyphs[k];
       for (gidx++, k++;
-	   (k < gstring->used - 1
-	    && glyphs[k].combining_code);
+	   k < gstring->used - 1 && glyphs[k].combining_code;
 	   gidx++, k++)
 	{
 	  glyphs[k].bidi_level = levels[j];
