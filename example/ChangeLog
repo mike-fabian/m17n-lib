@@ -1,3 +1,12 @@
+2004-07-06  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.xml: Add Punjabi, Kannada, Telugu, and Gujarati.
+
+	* medit.c (covert_selection): If X_HAVE_UTF8_STRING is defined and
+	target is XA_UTF8_STRING, encode by utf-8.
+	(get_selection): If X_HAVE_UTF8_STRING is defined and *type is
+	XA_UTF8_STRING, decode by utf-8.
+
 2004-07-05  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.utf8: Add Kannada.
