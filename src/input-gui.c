@@ -569,9 +569,8 @@ minput__win_fini ()
     displays them at the input spot set by the function
     minput_set_spot ().
 
-    The function m17n_initialize_win () set the variable @c
-    minput_driver to the pointer to this driver so that all internal
-    input methods use it.
+    The macro M17N_INIT () set the variable @c minput_driver to the
+    pointer to this driver so that all internal input methods use it.
 
     Therefore, unless @c minput_driver is changed from the default,
     the driver dependent arguments to the functions whose name begin
@@ -600,7 +599,7 @@ minput__win_fini ()
     トに preedit テキスト用のサブウィンドウと status テキスト用のサブ
     ウィンドウを作り、それぞれを表示する。
 
-    関数 m17n_initialize_win () は変数 @c minput_driver をこのドライバ
+    マクロ M17N_INIT () は変数 @c minput_driver をこのドライバ
     へのポインタに設定し、全ての内部入力メソッドがこのドライバを使うよ
     うにする。
 
