@@ -696,6 +696,7 @@ mfontset (char *name)
 	      fontset->per_script = mplist ();
 	      fontset->per_charset = mplist ();
 	      fontset->fallback = mplist ();
+	      fontset->font_spec_list = mplist ();
 	    }
 	  mplist_put (fontset_list, sym, fontset);
 	}
@@ -748,6 +749,9 @@ mfontset_copy (MFontset *fontset, char *name)
     return NULL;
   M17N_OBJECT (copy, free_fontset, MERROR_FONTSET);
   copy->name = sym;
+
+  if (fontset->mdb)
+    load_fontset_contents (fontset);
 
   if (fontset->per_script)
     {
