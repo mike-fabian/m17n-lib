@@ -58,10 +58,7 @@ extern int mtext__cat_data (MText *mt, unsigned char *p, int nbytes,
 extern MText *mtext__from_data (void *data, int nitems,
 				enum MTextFormat format, int need_copy);
 
-extern int mtext__adjust_format (MText *mt, enum MTextFormat format);
-
-extern int mtext__replace (MText *mt, int from, int to,
-			   char *from_str, char *to_str);
+extern void mtext__adjust_format (MText *mt, enum MTextFormat format);
 
 extern int mtext__bol (MText *mt, int pos);
 
