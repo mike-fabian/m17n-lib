@@ -331,6 +331,11 @@ enum MTextFormat
   };
 /*=*/
 
+extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
+extern const enum MTextFormat MTEXT_FORMAT_UTF_32;
+
+/*=*/
+
 extern MText *mtext_from_data (const void *data, int nitems,
 			       enum MTextFormat format);
 
