@@ -300,7 +300,9 @@ static void
 add_font_info (char *filename, MSymbol family, void *langset, MPlist *plist)
 {
   FT_Face ft_face;
+#ifdef HAVE_FTBDF_H
   BDF_PropertyRec prop;
+#endif
 
   if (FT_New_Face (ft_library, filename, 0, &ft_face) == 0)
     {
@@ -706,7 +708,9 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	    }
 	  else
 	    {
+#ifdef HAVE_FTBDF_H
 	      BDF_PropertyRec prop;
+#endif
 
 	      g->lbearing = 0;
 	      g->rbearing = g->width = ft_face->available_sizes->width;
