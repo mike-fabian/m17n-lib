@@ -2428,11 +2428,11 @@ minput_toggle (MInputContext *ic)
 
     The minput_reset_ic () function resets the input context $IC by
     calling a callback functions corresponding to #Minput_reset.  It
-    actually shift the state to the initial one, and thus the current
+    actually shifts the state to the initial one, and thus the current
     preediting text (if any) is committed.  If necessary, a program
-    can extract the text by calling minput_lookup () just after the
+    can extract that text by calling minput_lookup () just after the
     call of minput_reset_ic ().  In that case, the arguments @c KEY
-    and @c ARG of minput_lookup are ignored.  */
+    and @c ARG of minput_lookup () are ignored.  */
 /***ja
     @brief 入力コンテクストをリセットする.
 
