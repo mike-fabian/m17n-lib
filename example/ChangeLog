@@ -2,6 +2,16 @@
 
 	* Version 1.2.0 released.
 
+2004-12-27  Kenichi Handa  <handa@m17n.org>
+
+	* M17NEdit.ja: Renamed from MEdit.ja.
+
+	* Makefile.am: Put prefix "m17n-" instead of single "m" to
+	executables.
+
+	* mconv.c, mdate.c, mdump.c, medit.c, mview.c: Documentations
+	changed ("mXXXX" -> "m17n-XXXX").
+
 2004-12-21  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (ButtonProc): Reset the current input method (if
