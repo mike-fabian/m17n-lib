@@ -756,7 +756,7 @@ typedef struct
 
   /***en Character ranges corresponding to visually left and right
       glyphs. */
-  /***ja 視覚的な左右のグリフに対応する文字の範囲。  */
+  /***ja 表示上の左右のグリフに対応する文字の範囲。  */
   int left_from, left_to;
   int right_from, right_to;
 
