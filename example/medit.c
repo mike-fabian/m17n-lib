@@ -1592,7 +1592,8 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	    {
 	      MText *temp = mtext ();
 
-	      mtext_cat_char (temp, buf[0] == '\r' ? '\n' : buf[0]);
+	      mtext_cat_char (temp, buf[0] == '\r' ? '\n'
+			      : ((unsigned char *) buf)[0]);
 	      if (current_input_context)
 		mtext_put_prop (temp, 0, 1, Mlanguage,
 				current_input_context->im->language);
