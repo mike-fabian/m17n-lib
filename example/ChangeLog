@@ -1,6 +1,10 @@
-2004-12-10  Kenichi Handa  <handa@m17n.org>
+2004-12-21  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.2.0 released.
+
+2004-12-21  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (KeyProc): Handle C-\ as resetting input context.
 
 2004-12-10  Kenichi Handa  <handa@m17n.org>
 
