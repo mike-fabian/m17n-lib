@@ -142,14 +142,14 @@ visual_order (MGlyphString *gstring)
 
   fribidi_log2vis (logical, len, &base, visual, indices, NULL, levels);
 #else  /* not HAVE_FRIBIDI */
-  indices = alloca (sizeof (int) * size);
-  for (i = 0; i < size; i++)
+  indices = alloca (sizeof (int) * len);
+  for (i = 0; i < len; i++)
     {
       if (levels[i])
 	{
 	  int j, k;
 
-	  for (j = i + 1; j < size && levels[j]; j++);
+	  for (j = i + 1; j < len && levels[j]; j++);
 	  for (k = j--; i < k; i++, j--)
 	    indices[i] = j;
 	  i--;
@@ -1027,7 +1027,8 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
       if (gstring->from <= control->cursor_pos
 	  && gstring->to > control->cursor_pos)
 	cursor_pos = control->cursor_pos;
-      if (cursor_bidi
+      if (cursor_pos >= 0
+	  && cursor_bidi
 	  && gstring->from <= control->cursor_pos - 1
 	  && gstring->to > control->cursor_pos - 1)
 	prev_pos = control->cursor_pos - 1;
@@ -1089,11 +1090,9 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 				? control->cursor_width : cursor_width);
 		}
 	      else
-		{
-		  if (cursor->bidi_level % 2)
-		    rect.x += cursor_width - 1;
-		  rect.width = 1;
-		}
+		rect.width = 1;
+	      if (cursor->bidi_level % 2)
+		rect.x += cursor_width - rect.width;
 	      (*frame->driver->fill_space)
 		(frame, win, rface, 1, rect.x, rect.y, rect.width, rect.height,
 		 control->clip_region);
