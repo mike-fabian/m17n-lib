@@ -357,7 +357,7 @@ redraw (int y0, int y1, int clear, int scroll_bar)
   int sel_y0 = SELECTEDP () ? sel_start.y0 : 0;
   struct LineInfo *line;
   
-  if (clear)
+  if (clear || control.anti_alias)
     CLEAR_AREA (0, y0, win_width, y1 - y0);
 
   /* Find a line closest to y0.  It is a cursor line if the cursor is
@@ -1177,10 +1177,9 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	  /* Starting position changed.  */
 	  if (pos <= from)
 	    {
-	      /* Enlarged.  We can simply overdraw if not using
-		 antialiased text.  */
+	      /* Enlarged.  We can simply overdraw.  */
 	      select_region (pos, to);
-	      redraw (sel_start.y0, start_y1, control.anti_alias, 0);
+	      redraw (sel_start.y0, start_y1, 0, 0);
 	    }
 	  else if (pos < to)
 	    {
@@ -1226,10 +1225,9 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	    }
 	  else
 	    {
-	      /* Enlarged.  We can simply overdraw if not using
-		 antialiased text.  */
+	      /* Enlarged.  We can simply overdraw.  */
 	      select_region (from, pos);
-	      redraw (end_y0, sel_end.y1, control.anti_alias, 0);
+	      redraw (end_y0, sel_end.y1, 0, 0);
 	    }
 	}
     }
@@ -1737,6 +1735,8 @@ InputMethodProc (Widget w, XtPointer client_data, XtPointer call_data)
   XtSetValues (InputMethodMenus[idx + 2], arg, 1);
 }
 
+MPlist *default_face_list;
+
 void
 FaceProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
@@ -1745,7 +1745,35 @@ FaceProc (Widget w, XtPointer client_data, XtPointer call_data)
   int old_y1;
 
   if (! SELECTEDP ())
-    return;
+    {
+      MPlist *plist;
+
+      if (idx >= 0)
+	{
+	  MFace *face = mframe_get_prop (frame, Mface);
+
+	  for (plist = default_face_list; mplist_key (plist) != Mnil;
+	       plist = mplist_next (plist)) 
+	    mface_merge (face, mplist_value (plist));
+	  mplist_add (plist, Mt, *face_table[idx].face);
+	  mface_merge (face, *face_table[idx].face);
+	}
+      else if (mplist_key (mplist_next (default_face_list)) != Mnil)
+	{
+	  MFace *face = mframe_get_prop (frame, Mface);
+
+	  for (plist = default_face_list;
+	       mplist_key (mplist_next (plist)) != Mnil;
+	       plist = mplist_next (plist)) 
+	    mface_merge (face, mplist_value (plist));
+	  mplist_pop (plist);
+	}
+      update_top (0);
+      update_cursor (0, 1);
+      redraw (0, win_height, 1, 1);
+      show_cursor (NULL);
+      return;
+    }
 
   XtAppAddWorkProc (context, show_cursor, NULL);
   from = mtext_property_start (selection);
@@ -2330,7 +2358,9 @@ main (int argc, char **argv)
       }
     frame = mframe (plist);
     m17n_object_unref (plist);
-    face_default = (MFace *) mframe_get_prop (frame, Mface);
+    face_default = mface_copy ((MFace *) mframe_get_prop (frame, Mface));
+    default_face_list = mplist ();
+    mplist_add (default_face_list, Mt, face_default);
     face_default_fontset = mface ();
     mface_put_prop (face_default_fontset, Mfontset,
 		    mface_get_prop (face_default, Mfontset));
@@ -2757,6 +2787,8 @@ main (int argc, char **argv)
   m17n_object_unref (face_default_fontset);
   m17n_object_unref (face_no_ctl_fontset);
   m17n_object_unref (face_input_status);
+  m17n_object_unref (face_default);
+  m17n_object_unref (default_face_list);
   m17n_object_unref (selection);
 
   M17N_FINI ();
