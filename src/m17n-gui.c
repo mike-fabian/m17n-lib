@@ -117,6 +117,7 @@ free_frame (void *object)
   (*frame->driver->close) (frame);
   M17N_OBJECT_UNREF (frame->face);
   free (frame->font);
+  M17N_OBJECT_UNREF (frame->font_driver_list);
   free (object);
 }
 
@@ -319,8 +320,10 @@ m17n_fini_win (void)
 	  free (interface);
 	}
       M17N_OBJECT_UNREF (device_library_list);
+#ifdef HAVE_FREETYPE
       if (null_interface.handle)
 	(*null_interface.fini) ();
+#endif	/* not HAVE_FREETYPE */
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
       minput__win_fini ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
@@ -565,12 +568,16 @@ mframe (MPlist *plist)
 
   if (device == Mnil)
     {
+#ifdef HAVE_FREETYPE
       interface = &null_interface;
       if (! interface->handle)
 	{
 	  (*interface->init) ();
 	  interface->handle = Mt;
 	}
+#else  /* not HAVE_FREETYPE */
+      MERROR (MERROR_WIN, NULL);
+#endif	/* not HAVE_FREETYPE */
     }
   else
     {
