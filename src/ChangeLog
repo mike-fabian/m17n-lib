@@ -1,3 +1,10 @@
+2004-03-16  Kenichi Handa  <handa@etlken2>
+
+	* draw.c (compose_glyph_string): Don't handle
+	ignore_formatting_char here.  Include formatting characters in the
+	range processed by a FTL.
+	(layout_glyph_string): Handle ignore_formatting_char here.
+
 2004-03-12  Kenichi Handa  <handa@etlken2>
 
 	* input-gui.c (win_create_ic): Enable bidi in status control.
