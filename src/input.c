@@ -1507,16 +1507,16 @@ reset_ic (MInputContext *ic)
 
   MLIST_RESET (ic_info);
   ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
-  ic_info->map = ic_info->state->map;
+  ic_info->map = ic_info->state ? ic_info->state->map : NULL;
   ic_info->state_key_head = ic_info->key_head = 0;
   ic->cursor_pos = ic_info->state_pos = 0;
-  ic->status = ic_info->state->title;
+  ic->status = ic_info->state ? ic_info->state->title : NULL;
   if (! ic->status)
     ic->status = im_info->title;
   ic->candidate_list = NULL;
   ic->candidate_show = 0;
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 1;
-  if (ic_info->map->map_actions)
+  if (ic_info->map && ic_info->map->map_actions)
     take_action_list (ic, ic_info->map->map_actions);
 }
 
@@ -1672,6 +1672,11 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int i = 0;
 
+  if (! ic_info->state)
+    {
+      ic_info->key_unhandled = 1;
+      return 0;
+    }
   mtext_reset (ic->produced);
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 0;
   MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
