@@ -387,26 +387,26 @@ mlocale_set (int category, const char *name)
     return NULL;
   if (name && (category == LC_ALL || category == LC_COLLATE))
     {
-      M17N_OBJECT_UNREF (mlocale__collate);
       M17N_OBJECT_REF (locale);
+      M17N_OBJECT_UNREF (mlocale__collate);
       mlocale__collate = locale;
     }
   else if (name && (category == LC_ALL || category == LC_CTYPE))
     {
-      M17N_OBJECT_UNREF (mlocale__ctype);
       M17N_OBJECT_REF (locale);
+      M17N_OBJECT_UNREF (mlocale__ctype);
       mlocale__ctype = locale;
     }
   if (name && (category == LC_ALL || category == LC_MESSAGES))
     {
-      M17N_OBJECT_UNREF (mlocale__messages);
       M17N_OBJECT_REF (locale);
+      M17N_OBJECT_UNREF (mlocale__messages);
       mlocale__messages = locale;
     }
   if (name && (category == LC_ALL || category == LC_TIME))
     {
-      M17N_OBJECT_UNREF (mlocale__time);
       M17N_OBJECT_REF (locale);
+      M17N_OBJECT_UNREF (mlocale__time);
       mlocale__time = locale;
     }
   return locale;
