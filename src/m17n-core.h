@@ -362,8 +362,62 @@ extern MText *mtext ();
 
 /*=*/
 
-extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
-extern const enum MTextFormat MTEXT_FORMAT_UTF_32;
+/*** @ingroup m17nMtext */
+/***en @name Variables: System's UTF-16 and UTF-32 types */
+/***ja @name 変数: システムの UTF-16 と UTF-32 のタイプ */
+/*** @{ */
+/*=*/
+
+/***en
+    @brief Variable of value MTEXT_FORMAT_UTF_16LE or MTEXT_FORMAT_UTF_16BE.
+
+    The global variable #MTEXT_FORMAT_UTF_16 is initialized to
+    #MTEXT_FORMAT_UTF_16LE on a "Little Endian" system (storing words
+    with the least significant byte first), and to
+    #MTEXT_FORMAT_UTF_16BE depneding on a "Big Endian" system (storing
+    words with the most significant byte first).  */
+
+/***ja
+    @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
+
+    大域変数 #MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム（ワー
+    ドを LSB (Least Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_16LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_16BE に初期化される。  */
+
+/***
+    @seealso
+    mtext_from_data ()  */
+
+extern const int MTEXT_FORMAT_UTF_16;
+/*=*/
+
+/***en
+    @brief Variable of value MTEXT_FORMAT_UTF_32LE or MTEXT_FORMAT_UTF_32BE.
+
+    The global variable #MTEXT_FORMAT_UTF_32 is initialized to
+    #MTEXT_FORMAT_UTF_32LE on a "Little Endian" system (storing words
+    with the least significant byte first), and to
+    #MTEXT_FORMAT_UTF_32BE depneding on a "Big Endian" system (storing
+    words with the most significant byte first).  */
+
+/***ja
+    @brief 値が MTEXT_FORMAT_UTF_32LE か MTEXT_FORMAT_UTF_32BE である変数
+
+    大域変数 #MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム（ワー
+    ドを LSB (Least Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_32LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_32BE に初期化される。  */
+
+/***
+    @seealso
+    mtext_from_data ()  */
+
+extern const int MTEXT_FORMAT_UTF_32;
+
+/*** @} */
 
 /*=*/
 
@@ -519,7 +573,8 @@ extern MSymbol Mtext_prop_deserializer;
     property is #Msymbol_prop_serializer, the value must be of this
     type.
 
-    @seealso Mtext_prop_serialize (), Mtext_prop_serializer
+    @seealso
+    mtext_prop_serialize (), Mtext_prop_serializer
 */
 /***ja
     @brief シリアライザ関数の型宣言.
@@ -527,7 +582,8 @@ extern MSymbol Mtext_prop_deserializer;
     シリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
     #Msymbol_prop_serializer であるとき、 値はこの型でなくてはならない。
 
-    @seealso Mtext_prop_serialize (), Mtext_prop_serializer
+    @seealso
+    Mtext_prop_serialize (), Mtext_prop_serializer
 */
 
 typedef MPlist *(*MTextPropSerializeFunc) (void *val);
@@ -540,7 +596,8 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     symbol property is #Msymbol_prop_deserializer, the value must be
     of this type.
 
-    @seealso Mtext_prop_deserialize (), Mtext_prop_deserializer
+    @seealso
+    Mtext_prop_deserialize (), Mtext_prop_deserializer
 */
 /***ja
     @brief デシリアライザ関数の型宣言.
@@ -548,7 +605,8 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     デシリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
     #Msymbol_prop_deserializer であるとき、 値はこの型でなくてはならない。
 
-    @seealso Mtext_prop_deserialize (), Mtext_prop_deserializer
+    @seealso
+    Mtext_prop_deserialize (), Mtext_prop_deserializer
 */
 typedef void *(*MTextPropDeserializeFunc) (MPlist *plist);
 
