@@ -39,6 +39,8 @@
 	(mframe_get_prop): Call frame->device->get_prop instead of
 	mwin__device_get_prop.
 
+	* m17n-gd.c: New file.
+
 	* m17n-core.h (M17NLIB_MAJOR_VERSION, M17NLIB_MINOR_VERSION)
 	(M17NLIB_PATCH_LEVEL, M17NLIB_VERSION_NAME): Updated to 1.1.0.
 
