@@ -1,3 +1,11 @@
+2004-08-25  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (MDrawGlyphInfo): Change the member name 'this' to
+	'metrics' to for C++.
+
+	* draw.c (mdraw_glyph_info): Adjusted for the member name change
+	(this -> metics).
+
 2004-08-16  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.1.0 released.
