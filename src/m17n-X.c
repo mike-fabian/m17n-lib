@@ -1038,7 +1038,7 @@ xft_open_font (MFrame *frame, MFTInfo *ft_info, int size, int anti_alias)
   pattern = XftPatternCreate ();
   XftPatternAddString (pattern, XFT_FILE, ft_info->filename);
   XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
-  XftPatternAddBool (pattern, XFT_ANTIALIAS, 1);
+  XftPatternAddBool (pattern, XFT_ANTIALIAS, anti_alias);
   xft_font_info = XftFontInfoCreate (FRAME_DISPLAY (frame), pattern);
   if (! xft_font_info)
     return NULL;
