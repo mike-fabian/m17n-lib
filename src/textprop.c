@@ -2480,6 +2480,7 @@ mtext_get_properties (MText *mt, int pos, MSymbol key,
     れば -1 を返して外部変数#merror_code にエラーコードを設定する。      */
 
 
+int
 mtext_attach_property (MText *mt, int from, int to, MTextProperty *prop)
 {     
   MTextPlist *plist;
