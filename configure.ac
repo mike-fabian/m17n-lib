@@ -160,17 +160,23 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
 fi
 AC_SUBST(FREETYPE_LD_FLAGS)
 
+AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+
 dnl Check for Xft2 usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
+XFT2_LD_FLAGS="-lXft -lfreetype -lfontconfig -lXrender -lX11"
 AC_CHECK_PROG(HAVE_XFT_CONFIG, xft-config, yes)
 if test "x$HAVE_XFT_CONFIG" = "xyes"; then
   CPPFLAGS="$CPPFLAGS `xft-config --cflags`"
   XFT2_LD_FLAGS="`xft-config --libs`"
-  LIBS="$LIBS $XFT2_LD_FLAGS"
-else
-  XFT2_LD_FLAGS="-lXft -lfreetype -lfontconfig -lXrender -lX11"
+elif test "x$HAVE_PKG_CONFIG" = "xyes" ; then
+  if pkg-config xft ; then
+    CPPFLAGS="$CPPFLAGS `pkg-config --cflags xft`"
+    XFT2_LD_FLAGS="`pkg-config --libs xft`"
+  fi
 fi
+LIBS="$LIBS $XFT2_LD_FLAGS"
 AC_CHECK_LIB(Xft, XftDrawCreate, HAVE_XFT2=yes, HAVE_XFT2=no)
 AC_CHECK_HEADER(X11/Xft/Xft.h,, HAVE_XFT2=no, 
 		[#include <X11/Xft/Xft.h>
@@ -192,7 +198,6 @@ dnl Check for fontconfig usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 FONTCONFIG_LD_FLAGS=-lfontconfig
-AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
 if test "x$HAVE_PKG_CONFIG" = "xyes"; then
   if pkg-config --exists fontconfig; then
     CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
