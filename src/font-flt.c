@@ -295,6 +295,11 @@ typedef struct
 
 typedef struct
 {
+  /* Beginning and end indices of series of SEQ commands.  */
+  int seq_beg, seq_end;
+  /* Range of the first character appears in the above series.  */
+  int seq_from, seq_to;
+
   int n_cmds;
   int *cmd_ids;
 } FontLayoutCmdCond;
@@ -574,12 +579,17 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 
       if (MPLIST_SYMBOL_P (elt))
 	{
+	  FontLayoutCmdCond *cond;
+
 	  if (MPLIST_SYMBOL (elt) != Mcond)
 	    MERROR (MERROR_DRAW, INVALID_CMD_ID);
 	  elt = MPLIST_NEXT (elt);
 	  cmd->type = FontLayoutCmdTypeCond;
-	  cmd->body.cond.n_cmds = len;
-	  MTABLE_CALLOC (cmd->body.cond.cmd_ids, len, MERROR_DRAW);
+	  cond = &cmd->body.cond;
+	  cond->seq_beg = cond->seq_end = -1;
+	  cond->seq_from = cond->seq_to = 0;
+	  cond->n_cmds = len;
+	  MTABLE_CALLOC (cond->cmd_ids, len, MERROR_DRAW);
 	  for (i = 0; i < len; i++, elt = MPLIST_NEXT (elt))
 	    {
 	      int this_id = load_command (stage, elt, macros, INVALID_CMD_ID);
@@ -588,8 +598,50 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 		MERROR (MERROR_DRAW, INVALID_CMD_ID);
 	      /* The above load_command may relocate stage->cmds.  */
 	      cmd = stage->cmds + CMD_ID_TO_INDEX (id);
-	      cmd->body.cond.cmd_ids[i] = this_id;
+	      cond = &cmd->body.cond;
+	      cond->cmd_ids[i] = this_id;
+	      if (this_id <= CMD_ID_OFFSET_INDEX)
+		{
+		  FontLayoutCmd *this_cmd
+		    = stage->cmds + CMD_ID_TO_INDEX (this_id);
+
+		  if (this_cmd->type == FontLayoutCmdTypeRule
+		      && this_cmd->body.rule.src_type == SRC_SEQ)
+		    {
+		      int first_char = this_cmd->body.rule.src.seq.codes[0];
+
+		      if (cond->seq_beg < 0)
+			{
+			  /* The first SEQ command.  */
+			  cond->seq_beg = i;
+			  cond->seq_from = cond->seq_to = first_char;
+			}
+		      else if (cond->seq_end < 0)
+			{
+			  /* The following SEQ command.  */
+			  if (cond->seq_from > first_char)
+			    cond->seq_from = first_char;
+			  else if (cond->seq_to < first_char)
+			    cond->seq_to = first_char;
+			}
+		    }
+		  else
+		    {
+		      if (cond->seq_beg >= 0 && cond->seq_end < 0)
+			/* The previous one is the last SEQ command.  */
+			cond->seq_end = i;
+		    }
+		}
+	      else
+		{
+		  if (cond->seq_beg >= 0 && cond->seq_end < 0)
+		    /* The previous one is the last SEQ command.  */
+		    cond->seq_end = i;
+		}
 	    }
+	  if (cond->seq_beg >= 0 && cond->seq_end < 0)
+	    /* The previous one is the last SEQ command.  */
+	    cond->seq_end = i;
 	}
       else
 	{
@@ -1053,9 +1105,13 @@ run_cond (int depth,
   MDEBUG_PRINT2 ("\n [FLT] %*s(COND", depth, "");
   depth++;
   for (i = 0; i < cond->n_cmds; i++)
-    if ((pos = run_command (depth, cond->cmd_ids[i], gstring, from, to, ctx))
-	!= 0)
-      break;
+    {
+      /* TODO: Write a code for optimization utilizaing the info
+	 cond->seq_XXX.  */
+      if ((pos = run_command (depth, cond->cmd_ids[i], gstring, from, to, ctx))
+	  != 0)
+	break;
+    }
   if (pos < 0)
     MERROR (MERROR_DRAW, -1);
   MDEBUG_PRINT (")");
