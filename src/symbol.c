@@ -29,8 +29,8 @@
     identifiers.  Symbols are similar to atoms in the X library, but a
     symbol can have zero or more @e symbol @e properties.  A symbol
     property consists of a @e key and a @e value, where key is also a
-    symbol and value is anything that can be cast to <tt>(void
-    *)</tt>.  "The symbol property that belongs to the symbol S and
+    symbol and value is anything that can be cast to <tt>(void *)</tt>.  
+    "The symbol property that belongs to the symbol S and
     whose key is K" may be shortened to "K property of S".
 
     Symbols are used mainly in the following three ways.
