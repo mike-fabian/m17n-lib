@@ -1,3 +1,23 @@
+2004-06-04  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.c (mdebug__register_object): New function.
+	(mdebug__unregister_object): Likewise.
+
+	* internal.h (mdebug__register_object, mdebug__unregister_object):
+	Extern them.
+	(M17N_OBJECT_REGISTER, M17N_OBJECT_UNREGISTER): Call them
+	respectively.
+
+	* charset.c (mcharset__load_from_database): Don't call
+	mconv__register_charset_coding here.
+
+	* coding.c (find_coding): Get a real name from an element of
+	coding_definition_list.
+	(mconv__register_charset_coding): Set the real name at the top of
+	param.
+	(mcoding__load_from_database): Likewise.
+	(mconv_list_codings): Adjusted for the above change.
+
 2004-06-03  Kenichi Handa  <handa@m17n.org>
 
 	* coding.c (find_coding): Find by canonicalized name.  Don't have
