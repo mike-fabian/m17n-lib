@@ -56,6 +56,19 @@
 #include "fontset.h"
 #include "face.h"
 
+typedef struct {
+  MFont core;
+  unsigned int sizes[2];
+} MXFont;
+
+#define SET_SIZE(xfont, s) ((xfont)->sizes[(s) / 32] |= (1 << ((s) & 0x1F)))
+#define HAVE_SIZE(xfont, s) ((xfont)->sizes[(s) / 32] & (1 << ((s) & 0x1F)))
+
+typedef struct {
+  int size, inc, used;
+  MXFont *fonts;
+} MXFontList;
+
 typedef struct
 {
   /* Common header for the m17n object.  */
@@ -67,14 +80,15 @@ typedef struct
      be closed on freeing this structure.  */
   int auto_display;
 
-  /** List of available fonts on the display (except for iso8859-1 and
-      iso10646-1 fonts).  Keys are font registries, values are
-      (MFontList *).  */
-  MPlist *font_registry_list;
+  /** List of available X-core fonts on the display.  Keys are
+      registries and values are plists whose keys are families and
+      values are pointers to MXFontList.  */
+  MPlist *font_list;
 
-  MPlist *iso8859_1_family_list;
-
-  MPlist *iso10646_1_family_list;
+  /** List of available X-core fonts on the display.  Keys are
+      families and values are pointers to MFont.  For each MFont, only
+      these properties are important; FOUNDRY, FAMILY, REGISTRY.  */
+  MPlist *base_font_list;
 
  /** Modifier bit masks of the display.  */
   int meta_mask;
@@ -179,37 +193,18 @@ static void
 free_display_info (void *object)
 {
   MDisplayInfo *disp_info = (MDisplayInfo *) object;
-  MPlist *plist;
+  MPlist *plist, *p;
 
-  MPLIST_DO (plist, disp_info->font_registry_list)
+  MPLIST_DO (plist, disp_info->font_list)
     {
-      MFontList *registry_list = MPLIST_VAL (plist);
-
-      if (registry_list->fonts)
-	free (registry_list->fonts);
-      free (registry_list);
+      MPLIST_DO (p, MPLIST_VAL (plist))
+	free (MPLIST_VAL (p));
+      M17N_OBJECT_UNREF (MPLIST_VAL (plist));
     }
-  M17N_OBJECT_UNREF (disp_info->font_registry_list);
-
-  MPLIST_DO (plist, disp_info->iso8859_1_family_list)
-    {
-      MFontList *family_list = MPLIST_VAL (plist);
-
-      if (family_list->fonts)
-	free (family_list->fonts);
-      free (family_list);
-    }
-  M17N_OBJECT_UNREF (disp_info->iso8859_1_family_list);
-
-  MPLIST_DO (plist, disp_info->iso10646_1_family_list)
-    {
-      MFontList *family_list = MPLIST_VAL (plist);
-
-      if (family_list->fonts)
-	free (family_list->fonts);
-      free (family_list);
-    }
-  M17N_OBJECT_UNREF (disp_info->iso10646_1_family_list);
+  M17N_OBJECT_UNREF (disp_info->font_list);
+  MPLIST_DO (plist, disp_info->base_font_list)
+    free (MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (disp_info->base_font_list);
 
   if (disp_info->auto_display)
     XCloseDisplay (disp_info->display);
@@ -428,10 +423,101 @@ static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned xfont_encode_char (MRealizedFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
+static MPlist *xfont_list (MFrame *frame, MPlist *plist,
+			   MFont *font, MSymbol language);
+
 
 static MFontDriver xfont_driver =
   { xfont_select, xfont_open,
-    xfont_find_metric, xfont_encode_char, xfont_render };
+    xfont_find_metric, xfont_encode_char, xfont_render, xfont_list };
+
+static int
+font_compare (const void *p1, const void *p2)
+{
+  return strcmp (*(char **) p1, *(char **) p2);
+}
+
+static MPlist *
+xfont_registry_list (MDisplayInfo *disp_info, MSymbol registry)
+{
+  MPlist *font_list = disp_info->font_list;
+  MPlist *base_font_list = disp_info->base_font_list;
+  MPlist *plist = mplist (), *p;
+  char pattern[1024];
+  char **font_names, **names;
+  int nfonts;
+  int i, j;
+  MXFont font;
+  MXFontList *xfont_table;
+  MFont *bfont = NULL;
+
+  mplist_add (font_list, registry, plist);
+  sprintf (pattern, "-*-*-*-*-*-*-*-*-*-*-*-*-%s", msymbol_name (registry));
+  font_names = XListFonts (disp_info->display, pattern, 0x8000, &nfonts);
+  if (nfonts == 0)
+    return plist;
+  names = alloca (sizeof (char *) * nfonts);
+  memcpy (names, font_names, sizeof (char *) * nfonts);
+  qsort (names, nfonts, sizeof (char *), font_compare);
+  for (i = 0, p = NULL; i < nfonts; i++)
+    if (mfont__parse_name_into_font (names[i], Mx, (MFont *) &font) == 0
+	&& (font.core.property[MFONT_SIZE] > 0
+	    || font.core.property[MFONT_RESY] == 0))
+      {
+	MSymbol family = FONT_PROPERTY ((MFont *) &font, MFONT_FAMILY);
+	int size = font.core.property[MFONT_SIZE] / 10;
+	char *base_end;
+	int base_len;
+	int fields;
+	
+	font.sizes[0] = font.sizes[1] = 0;
+	SET_SIZE (&font, size);
+	    
+	/* Handle fonts of the same base.  */
+	for (base_end = names[i], fields = 0; *base_end; base_end++)
+	  if (*base_end == '-'
+	      && ++fields == 7	/* PIXEL_SIZE */)
+	    break;
+	base_len = base_end - names[i];
+	for (j = i + 1; j < nfonts && ! strncmp (names[i], names[j], base_len);
+	     i = j++)
+	  if (mfont__parse_name_into_font (names[j], Mx, (MFont *) &font) == 0
+	      && (font.core.property[MFONT_SIZE] > 0
+		  || font.core.property[MFONT_RESY] == 0))
+	    {
+	      size = font.core.property[MFONT_SIZE] / 10;
+	      SET_SIZE (&font, size);
+	    }
+
+	if (p && MPLIST_KEY (p) != family)
+	  p = mplist_find_by_key (plist, family);
+	if (p)
+	  xfont_table = MPLIST_VAL (p);
+	else
+	  {
+	    p = plist;
+	    MSTRUCT_MALLOC (xfont_table, MERROR_WIN);
+	    MLIST_INIT1 (xfont_table, fonts, 4);
+	    mplist_push (p, family, xfont_table);
+	  }
+	MLIST_APPEND1 (xfont_table, fonts, font, MERROR_WIN);
+	if (! bfont
+	    || (font.core.property[MFONT_FOUNDRY]
+		!= bfont->property[MFONT_FOUNDRY])
+	    || (font.core.property[MFONT_FAMILY]
+		!= bfont->property[MFONT_FAMILY]))
+	  {
+	    MSTRUCT_MALLOC (bfont, MERROR_WIN);
+	    *bfont = font.core;
+	    for (j = MFONT_WEIGHT; j <= MFONT_ADSTYLE; j++)
+	      bfont->property[j] = 0;
+	    bfont->property[MFONT_SIZE] = bfont->property[MFONT_RESY] = 0;
+	    mplist_push (base_font_list, family, bfont);
+	  }
+      }
+  XFreeFontNames (font_names);
+  return plist;
+}
 
 typedef struct
 {
@@ -440,57 +526,17 @@ typedef struct
   XFontStruct *xfont;
 } MXFontInfo;
 
-static MFontList *
-build_font_list (MFrame *frame, MSymbol family, MSymbol registry,
-		 MPlist *plist)
-{
-  char pattern[1024];
-  MFontList *font_list;
-  char **fontnames;
-  int nfonts;
-  int i, j;
-
-  MSTRUCT_CALLOC (font_list, MERROR_WIN);
-
-  if (family == Mnil)
-    {
-      sprintf (pattern, "-*-*-*-*-*-*-*-*-*-*-*-*-%s",
-	       msymbol_name (registry));
-      font_list->tag = registry;
-    }
-  else
-    {
-      sprintf (pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-%s",
-	       msymbol_name (family), msymbol_name (registry));
-      font_list->tag = family;
-    }
-
-  fontnames = XListFonts (FRAME_DISPLAY (frame), pattern, 0x8000, &nfonts);
-  if (nfonts > 0)
-    {
-      MTABLE_MALLOC (font_list->fonts, nfonts, MERROR_WIN);
-      for (i = j = 0; i < nfonts; i++)
-	if ((mfont__parse_name_into_font (fontnames[i], Mx,
-					  font_list->fonts + j)
-	     == 0)
-	    && (font_list->fonts[j].property[MFONT_SIZE] != 0
-		|| font_list->fonts[j].property[MFONT_RESY] == 0))
-	  j++;
-      XFreeFontNames (fontnames);
-      font_list->nfonts = j;
-    }
-  mplist_add (plist, font_list->tag, font_list);
-  return (nfonts > 0 ? font_list : NULL);
-}
-
 /* The X font driver function SELECT.  */
 
 static MRealizedFont *
-xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
-{
+xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
+
+  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
+  MSymbol family = FONT_PROPERTY (spec, MFONT_FAMILY);
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
+  int requested_size = request->property[MFONT_SIZE];
   MRealizedFont *rfont;
-  MFontList *font_list = NULL;
+  MPlist *plist;
   int i;
   MFont *best_font;
   int best_score, score;
@@ -499,59 +545,66 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
       || ! strchr (MSYMBOL_NAME (registry), '-'))
     return NULL;
 
-  /* We handles iso8859-1 and iso10646-1 fonts specially because there
-     exists so many such fonts.  */
-  if (registry == M_iso8859_1 || registry == M_iso10646_1)
-    {
-      MPlist *family_list
-	= (registry == M_iso8859_1
-	   ? FRAME_DEVICE (frame)->display_info->iso8859_1_family_list
-	   : FRAME_DEVICE (frame)->display_info->iso10646_1_family_list);
-      MSymbol family = FONT_PROPERTY (spec, MFONT_FAMILY);
-
-      if (family != Mnil)
-	{
-	  font_list = (MFontList *) mplist_get (family_list, family);
-	  if (! font_list)
-	    font_list = build_font_list (frame, family, registry, family_list);
-	}
-      if (! font_list)
-	{
-	  family = FONT_PROPERTY (request, MFONT_FAMILY);
-	  font_list = (MFontList *) mplist_get (family_list, family);
-	  if (! font_list)
-	    font_list = build_font_list (frame, family, registry, family_list);
-	}
-    }
-  if (! font_list)
-    {
-      MPlist *registry_list
-	= FRAME_DEVICE (frame)->display_info->font_registry_list;
-
-      font_list = (MFontList *) mplist_get (registry_list, registry);
-      if (! font_list)
-	font_list = build_font_list (frame, Mnil, registry, registry_list);
-    }
-  if (! font_list)
+  plist = mplist_get (disp_info->font_list, registry);
+  if (! plist
+      && ! (plist = xfont_registry_list (disp_info, registry)))
     return NULL;
-
-  for (i = 0, best_score = -1, best_font = NULL; i < font_list->nfonts; i++)
-    if ((best_score = mfont__score (font_list->fonts + i, spec, request,
-				    limited_size)) >= 0)
-      break;
-  if (best_score < 0)
-    return NULL;
-  best_font = font_list->fonts + i;
-  for (; best_score > 0 && i < font_list->nfonts ; i++)
+  best_score = -1, best_font = NULL;
+  if (family == Mnil)
+    family = FONT_PROPERTY (request, MFONT_FAMILY);
+  MPLIST_DO (plist, plist)
     {
-      score = mfont__score (font_list->fonts + i, spec, request,
-			    limited_size);
-      if (score >= 0 && score < best_score)
+      if (family == Mnil || family == MPLIST_KEY (plist))
 	{
-	  best_font = font_list->fonts + i;
-	  best_score = score;
+	  MXFontList *xfont_table = MPLIST_VAL (plist);
+
+	  for (i = 0; i < xfont_table->used; i++)
+	    {
+	      MXFont *xfont = xfont_table->fonts + i;
+	      MFont *font = (MFont *) xfont;
+	      int size = requested_size / 10, s0, s1;
+	      
+	      for (s0 = size; s0 > 0 && ! HAVE_SIZE (xfont, s0); s0--);
+	      if (s0 * 10 == requested_size)
+		/* Exact size match.  */
+		;
+	      else if (xfont->sizes[0] & 1)
+		/* Scalable font.  */
+		size = 0;
+	      else if (limited_size)
+		/* We can't use a larger font.  */
+		continue;
+	      else if (s0 == 0)
+		{
+		  for (s0 = size + 1; s0 < 64 && ! HAVE_SIZE (xfont, s0); s0++);
+		  if (s0 == 64)
+		    continue;
+		  size = s0;
+		}
+	      else
+		{
+		  for (s1 = size + (size - s0) - 1;
+		       s1 > size && HAVE_SIZE (xfont, s1); s1++);
+		  size = (s1 > size ? s1 : s0);
+		}
+	      font->property[MFONT_SIZE] = size * 10;
+
+	      if ((score = mfont__score (font, spec, request,
+					 limited_size)) >= 0
+		  && (best_score < 0 || score < best_score))
+	      {
+		best_score = score;
+		best_font = (MFont *) (xfont_table->fonts + i);
+		if (best_score == 0)
+		  break;
+	      }
+	    }
+	  if (best_score == 0)
+	    break;
 	}
     }
+  if (! best_font)
+    return NULL;
 
   MSTRUCT_CALLOC (rfont, MERROR_WIN);
   rfont->frame = frame;
@@ -823,6 +876,20 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 			 code + code_idx, i);
 	}
     }
+}
+
+static MPlist *
+xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
+{
+  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
+  MPlist *p;
+
+  /* We have not yet implemented the language check.  */
+  MPLIST_DO (p, disp_info->base_font_list)
+    if (! font
+	|| mfont__match_p ((MFont *) MPLIST_VAL (p), font, MFONT_REGISTRY))
+      mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
+  return plist;
 }
 
 
@@ -1822,9 +1889,8 @@ device_open (MFrame *frame, MPlist *param)
       M17N_OBJECT (disp_info, free_display_info, MERROR_WIN);
       disp_info->display = display;
       disp_info->auto_display = auto_display;
-      disp_info->font_registry_list = mplist ();
-      disp_info->iso8859_1_family_list = mplist ();
-      disp_info->iso10646_1_family_list = mplist ();
+      disp_info->font_list = mplist ();
+      disp_info->base_font_list = mplist ();
       find_modifier_bits (disp_info);
       mplist_add (display_info_list, Mt, disp_info);
     }  
