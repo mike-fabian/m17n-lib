@@ -101,6 +101,10 @@
     Prefer a font specified for the language LANG.  LANG must be a
     2-letter code of ISO 630 (e.g. "en" for English).
 
+    <li> -r
+
+    Specify that the orientation of the text is right-to-left.
+
     <li> -q
 
     Quiet mode.  Don't print any messages.
@@ -294,6 +298,8 @@ help_exit (char *prog, int exit_code)
 	  "Prefer a font whose family is FAMILY.\n");
   printf ("  %-13s %s", "--language LANG", 
 	  "Prefer a font specified for the langauge LANG.\n");
+  printf ("  %-13s %s", "-r", 
+	  "Specify that the orientation of the text is right-to-left.\n");
   printf ("  %-13s %s", "-q", "Quiet mode.  Don't print any messages.\n");
   printf ("  %-13s %s", "--version", "Print the version number.\n");
   printf ("  %-13s %s", "-h, --help", "Print this message.\n");
@@ -365,25 +371,6 @@ find_page_end (MFrame *frame, int height, MText *mt, int pos,
   return to;
 }
 
-
-/* Table to convert a byte of LSBFirst to MSBFirst. */
-char reverse_bit_order[256];
-
-/* Initialize the above table.  */
-
-void
-init_reverse_bit_order ()
-{
-  int i;
-
-  for (i = 0; i < 256; i++)
-    reverse_bit_order[i]
-      = (((i & 1) << 7) | ((i & 2) << 5) | ((i & 4) << 3) | ((i & 8) << 1)
-	 | ((i & 16) >> 1) | ((i & 32) >> 3)
-	 | ((i & 64) >> 5) | ((i & 128) >> 7));
-}
-
-
 /* Dump the image in IMAGE into a file whose name is generated from
    FILENAME and PAGE_INDEX (if it is not zero).  */
 
@@ -450,6 +437,7 @@ main (int argc, char **argv)
   int anti_alias = 0;
   char *family_name = NULL;
   char *lang_name = NULL;
+  int r2l = 0;
   int i;
   int page_index;
   gdImagePtr image;
@@ -563,6 +551,10 @@ main (int argc, char **argv)
 	{
 	  lang_name = argv[++i];
 	}
+      else if (! strcmp (argv[i], "-r"))
+	{
+	  r2l = 1;
+	}
       else if (argv[i][0] != '-')
 	{
 	  fp = fopen (argv[i], "r");
@@ -631,6 +623,7 @@ main (int argc, char **argv)
   control.two_dimensional = 1;
   control.enable_bidi = 1;
   control.anti_alias = anti_alias;
+  control.orientation_reversed = r2l;
   if (cursor_pos >= 0)
     {
       control.with_cursor = 1;
@@ -677,9 +670,14 @@ main (int argc, char **argv)
 
       gdImageFilledRectangle (image, 0, 0, paper_width - 1, paper_height - 1,
 			      white);
-      mdraw_text_with_control (frame, image,
-			       margin, margin - rect.y, mt, from, to,
-			       &control);
+      if (! r2l)
+	mdraw_text_with_control (frame, image,
+				 margin, margin - rect.y,
+				 mt, from, to, &control);
+      else
+	mdraw_text_with_control (frame, image,
+				 paper_width - margin, margin - rect.y,
+				 mt, from, to, &control);
       dump_image (image, filename, filter,
 		  ((from > 0 || to < len) ? page_index : 0),
 		  quiet_mode);
