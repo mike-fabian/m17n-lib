@@ -134,7 +134,7 @@
 #include <m17n.h>
 #include <m17n-misc.h>
 
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 /* Print all coding system names.  */
 
