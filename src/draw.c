@@ -99,11 +99,8 @@ visual_order (MGlyphString *gstring)
 {
   int len = gstring->used - 2;
   MGlyph *glyphs;
-  int *idx = alloca (sizeof (int) * len);
-  int gidx;
   int bidi_sensitive = gstring->control.orientation_reversed;
-  int size = 0;
-  MGlyph *g = MGLYPH (1);
+  MGlyph *g;
   int i;
 #ifdef HAVE_FRIBIDI
   FriBidiCharType base = (gstring->control.orientation_reversed
@@ -111,14 +108,14 @@ visual_order (MGlyphString *gstring)
   FriBidiChar *logical = alloca (sizeof (FriBidiChar) * len);
   FriBidiChar *visual;
   FriBidiStrIndex *indices;
-  FriBidiLevel *levels = alloca (sizeof (FriBidiLevel) * len);
+  FriBidiLevel *levels;
 #else  /* not HAVE_FRIBIDI */
   int *logical = alloca (sizeof (int) * len);
   int *indices;
   char *levels = alloca (len);
 #endif /* not HAVE_FRIBIDI */
 
-  while (g->type != GLYPH_ANCHOR)
+  for (g = MGLYPH (1), i = 0; g->type != GLYPH_ANCHOR; g++, i++)
     {
       MSymbol bidi = (MSymbol) mchar_get_prop (g->c, Mbidi_category);
 
@@ -126,26 +123,24 @@ visual_order (MGlyphString *gstring)
 	  || bidi == MbidiRLE || bidi == MbidiRLO)
 	{
 	  bidi_sensitive = 1;
-	  levels[size] = 1;
+#ifndef HAVE_FRIBIDI
+	  levels[i] = 1;
+#endif	/* not HAVE_FRIBIDI */
 	}
-      else
-	levels[size] = 0;
-      idx[size] = GLYPH_INDEX (g);
-      logical[size++] = g++->c;
-      while (g->type != GLYPH_ANCHOR && g->combining_code)
-	g++;
+      logical[i] = g->c;
     }
 
   if (! bidi_sensitive)
     return;
 
-  glyphs = alloca (sizeof (MGlyph) * gstring->used);
-  memcpy (glyphs, gstring->glyphs, (sizeof (MGlyph) * gstring->used));
+  glyphs = alloca (sizeof (MGlyph) * gstring->used - 2);
+  memcpy (glyphs, gstring->glyphs + 1, (sizeof (MGlyph) * gstring->used - 2));
 #ifdef HAVE_FRIBIDI
-  visual = alloca (sizeof (FriBidiChar) * size);
-  indices = alloca (sizeof (FriBidiStrIndex) * size);
+  visual = alloca (sizeof (FriBidiChar) * len);
+  indices = alloca (sizeof (FriBidiStrIndex) * len);
+  levels = alloca (sizeof (FriBidiLevel) * len);
 
-  fribidi_log2vis (logical, size, &base, visual, NULL, indices, levels);
+  fribidi_log2vis (logical, len, &base, visual, indices, NULL, levels);
 #else  /* not HAVE_FRIBIDI */
   indices = alloca (sizeof (int) * size);
   for (i = 0; i < size; i++)
@@ -164,36 +159,23 @@ visual_order (MGlyphString *gstring)
     }
 #endif /* not HAVE_FRIBIDI */
 
-  /* IDX are indices to gstring->glyphs[].  The glyphs for LOGICAL[N]
-     starts from gstring->glyphs[IDX[N]].
-
-     INDICES are indices to LOGICAL[].  The glyph for VISUAL[N] is
-     originally at LOGICAL[INDICES[N]].  */
-
-  for (i = 0, gidx = 1; i < size; i++)
+  for (i = 0; i < len; i++)
     {
       int j = indices[i];
-      int k = idx[j];
 
-      glyphs[k].bidi_level = levels[j];
+      g = MGLYPH (j + 1);
+      if (i != j)
+	*g = glyphs[i];
+      g->bidi_level = levels[i];
 #ifdef HAVE_FRIBIDI
-      if (visual[i] != logical[j])
+      if (visual[j] != logical[i])
 	{
 	  /* Mirrored.  */
-	  glyphs[k].c = visual[i];
-	  if (glyphs[k].rface->rfont)
-	    glyphs[k].code = mfont__encode_char (glyphs[k].rface->rfont,
-						 glyphs[k].c);
+	  g->c = visual[j];
+	  if (g->rface->rfont)
+	    g->code = mfont__encode_char (g->rface->rfont, g->c);
 	}
-#endif /* not HAVE_FRIBIDI */
-      *(MGLYPH (gidx)) = glyphs[k];
-      for (gidx++, k++;
-	   k < gstring->used - 1 && glyphs[k].combining_code;
-	   gidx++, k++)
-	{
-	  glyphs[k].bidi_level = levels[j];
-	  *(MGLYPH (gidx)) = glyphs[k];
-	}
+#endif /* HAVE_FRIBIDI */
     }
 }
 
@@ -512,28 +494,24 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
   int g_width, g_lbearing, g_rbearing;
   MGlyph *g = MGLYPH (from);
   MGlyph *last_g = MGLYPH (to);
+  int i;
 
   g_physical_ascent = gstring->physical_ascent;
   g_physical_descent = gstring->physical_descent;
   g_width = g_lbearing = g_rbearing = 0;
 
-  mfont__get_metric (gstring, from, to);
-
-#ifdef HAVE_OTF
-  while (g < last_g)
+  for (i = from; i < to;)
     {
-      MGlyph *base = g++;
-
-      if (base->otf_cmd)
+      if ( MGLYPH (i)->otf_encoded)
+	i++;
+      else
 	{
-	  while (g < last_g && base->otf_cmd == g->otf_cmd
-		 && base->bidi_level == g->bidi_level)
-	    g++;
-	  mfont__ft_drive_gpos (gstring, GLYPH_INDEX (base), GLYPH_INDEX (g));
+	  int j = i++;
+
+	  while (i < to && ! MGLYPH (i)->otf_encoded) i++;
+	  mfont__get_metric (gstring, j, i);
 	}
     }
-  g = MGLYPH (from);
-#endif
 
   while (g < last_g)
     {
@@ -542,9 +520,35 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
       int size = rfont->font.property[MFONT_SIZE];
       int width, lbearing, rbearing;
 
+      if (base->bidi_sensitive && (base->bidi_level % 2))
+	{
+	  MGlyph *g1 = base, temp;
+
+	  base->bidi_sensitive = 0;
+	  while (g->bidi_sensitive && (g->bidi_level % 2))
+	    g++->bidi_sensitive = 0;
+	  while (g1 < g)
+	    temp = *g1, *g1++ = *g, *g-- = temp;
+	  g = base + 1;
+	}
+
       if (g == last_g || ! g->combining_code)
 	{
 	  /* No combining.  */
+	  if (base->width == 0 && GLYPH_INDEX (base) > from)
+	    {
+	      MGlyph *prev = base - 1; 
+
+	      if (base->pos < prev->pos)
+		prev->pos = base->pos;
+	      else
+		base->pos = prev->pos;
+	      if (base->to > prev->to)
+		prev->to = base->to;
+	      else
+		base->to = prev->to;
+	    }
+
 	  if (base->left_padding && base->lbearing < 0)
 	    {
 	      base->xoff = - base->lbearing;
@@ -556,8 +560,9 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 	    {
 	      base->width = base->rbearing;
 	    }
-	  lbearing = (base->lbearing < 0 ? base->lbearing : 0);
-	  rbearing = base->rbearing;
+	  lbearing = (base->xoff + base->lbearing < 0
+		      ? base->xoff + base->lbearing : 0);
+	  rbearing = base->xoff + base->rbearing;
 	}
       else
 	{
