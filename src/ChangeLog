@@ -1,3 +1,9 @@
+2004-05-28  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (VINFO): New variable.
+	(libm17n_core_la_LDFLAGS, libm17n_la_LDFLAGS)
+	(libm17n_gd_la_LDFLAGS): Include ${VINFO}.
+
 2004-05-27  Kenichi Handa  <handa@m17n.org>
 
 	The following chanages are to make device dependent functions
