@@ -53,7 +53,7 @@ pkgdatadir=$(datadir)/m17n
 
 EXTRA_DIST = \
 	.gdbinit .gdb.util \
-	HELLO.utf8 HELLO.xml HELLO-ja.utf8 HELLO-ja.xml MEdit.ja
+	HELLO.utf8 HELLO.xml HELLO-ja.utf8 HELLO-ja.xml HELLO.html M17NEdit.ja
 
 # External modules used by the above input methods.
 
