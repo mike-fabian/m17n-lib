@@ -1,3 +1,8 @@
+2004-05-24  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (draw_background): Don't draw background even if
+	rface->face.property[MFACE_BACKGROUND] is not Mnil.
+
 2004-05-22  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xft_open_font): Fix anti_alias setting.
