@@ -373,7 +373,7 @@ MSymbol Mcomplicated_case_folding;
     mchar_get_prop (), mchar_put_prop ()  */
 
 MSymbol
-mchar_define_property (char *name, MSymbol type)
+mchar_define_property (const char *name, MSymbol type)
 {
   MSymbol key = msymbol (name);
   MCharPropRecord *record;
