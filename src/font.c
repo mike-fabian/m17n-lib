@@ -2085,6 +2085,34 @@ mfont_resize_ratio (MFont *font)
   return (font->property[MFONT_SIZE] * 100 / request.property[MFONT_SIZE]);
 }
 
+/*=*/
+
+/***en
+    @brief Get a list fonts.
+
+    The mfont_list () functions returns a list of fonts available on
+    frame $FRAME.  If $FONT is not nil, it limits fonts to ones that
+    matchq with $FONT.  If $LANGUAGE is not @c Mnil, it limits fonts
+    to ones that support $LANGUAGE.
+
+    @return
+    This function returns a plist whose keys are family name and
+    values are pointers to the object MFont.  The plist must be freed
+    by m17n_object_unref ().  */
+
+MPlist *
+mfont_list (MFrame *frame, MFont *font, MSymbol language)
+{
+  MPlist *plist = mplist (), *p;
+  
+  MPLIST_DO (p, frame->font_driver_list)
+    {
+      MFontDriver *driver = MPLIST_VAL (p);
+
+      (driver->list) (frame, plist, font, language);
+    }
+  return plist;
+}
 
 /*** @} */
 
