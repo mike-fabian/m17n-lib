@@ -27,7 +27,7 @@
 /*=*/
 /*** @ingroup m17nMisc  */
 /***en @defgroup m17nError Error Handling */
-/***oldja @defgroup m17nError エラー処理  */
+/***ja @defgroup m17nError エラー処理  */
 /*=*/
 
 /*** @ingroup m17nError */
@@ -44,7 +44,7 @@
     the external variable #m17n_memory_full_handler is called with one
     of these values as an argument.  */
 
-/***oldja 
+/***ja 
     @brief m17n ライブラリエラーコードの列挙
 
     m17n ライブラリエラーコードの列挙
@@ -99,7 +99,7 @@ extern void (*m17n_memory_full_handler) (enum MErrorCode err);
 /*=*/
 /*** @ingroup m17nMisc  */
 /***en @defgroup m17nDebug Debugging */
-/***oldja @defgroup m17nDebug デバッグサポート */
+/***ja @defgroup m17nDebug デバッグサポート */
 /*=*/
 
 extern int mdebug_hook (void);
@@ -112,7 +112,7 @@ extern MCharTable *mdebug_dump_chartab (MCharTable *table, int indent);
 
 #ifdef DOXYGEN_INTERNAL_MODULE
 /***en @defgroup m17nInternal Internal */
-/***oldja @defgroup m17nInternal Internal */
+/***ja @defgroup m17nInternal Internal */
 #endif
 #endif /* _M17N_ERR_H_ */
 
