@@ -10,7 +10,7 @@ exec_prefix=@exec_prefix@
 
 help ()
 {
-  echo "Usage: $0 [CORE | X] [--version | --cflags | --libs | --libtool]"
+  echo "Usage: $0 [CORE | GUI] [--version | --cflags | --libs | --libtool]"
 }
 
 if test $# -eq 0; then
@@ -22,7 +22,8 @@ LIBNAME=m17n
 
 case $1 in
 CORE) LIBNAME=m17n-core; shift;;
-X) LIBNAME=m17n-X; shift;;
+GUI) LIBNAME=m17n-gui; shift;;
+X) LIBNAME=m17n-gui; shift;;
 esac
 
 case $1 in
@@ -33,7 +34,7 @@ case $1 in
   if test "@libdir@" != "/usr/lib"; then
     echo "-L@libdir@ -l${LIBNAME}"
   else
-    echo "-lm17n-X"
+    echo "-l${LIBNAME}"
   fi;;
 
 --cflags)
