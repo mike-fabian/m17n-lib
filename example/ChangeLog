@@ -4,7 +4,7 @@
 	region is expanded to the opposite direction.
 	(ButtonMoveProc): Likewise.
 	(main): Use alloca instead of malloc for allocating menu names.
-	Free several memory areas and GCs.  Set control.anti_alias to 1.
+	Free several memory areas and GCs.
 
 2004-03-12  Kenichi Handa  <handa@m17n.org>
 
