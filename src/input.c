@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nInputMethod
-    @brief API for Input method
+    @brief API for Input method.
 
     An input method is an object to enable inputting various
     characters.  An input method is identified by a pair of symbols,
@@ -80,7 +80,7 @@
 /*=*/
 /***ja
     @addtogroup m17nInputMethod
-    @brief 入力メソッド用API
+    @brief 入力メソッド用API.
 
     入力メソッドは多様な文字を入力するためのオブジェクトである。入力メ
     ソッドはシンボル LANGUAGE と NAME の組によって識別され、この組によっ

@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nIntro
-    @brief Introduction to the m17n library
+    @brief Introduction to the m17n library.
 
     <em>API LEVELS</em>
 
@@ -121,7 +121,7 @@
 
 /***ja
     @addtogroup m17nIntro
-    @brief m17n ライブラリ イントロダクション
+    @brief m17n ライブラリ イントロダクション.
 
     @em APIのレベル
 
@@ -761,7 +761,7 @@ m17n_object_unref (void *object)
 
 /***ja
     @addtogroup m17nError エラー処理
-    @brief m17n ライブラリのエラー処理
+    @brief m17n ライブラリのエラー処理.
 
     m17n ライブラリの関数では、２つの種類のエラーが起こり得る。
 
@@ -780,7 +780,8 @@ m17n_object_unref (void *object)
 
 /*=*/
 
-/***en @brief External variable to hold error code of the m17n library
+/***en 
+    @brief External variable to hold error code of the m17n library.
 
     The external variable #merror_code holds an error code of the
     m17n library.  When a library function is called with an invalid
@@ -788,7 +789,8 @@ m17n_object_unref (void *object)
 
     This variable initially has the value 0.  */
 
-/***ja @brief m17n ライブラリのエラーコードを保持する外部変数
+/***ja 
+    @brief m17n ライブラリのエラーコードを保持する外部変数.
 
     外部変数 #merror_code は、m17n ライブラリのエラーコードを保持する。
     ライブラリ関数が妥当でない引数とともに呼ばれた際には、この変数を 
@@ -800,7 +802,8 @@ enum MErrorCode merror_code;
 
 /*=*/
 
-/***en @brief Memory allocation error handler
+/***en 
+    @brief Memory allocation error handler.
 
     The external variable #m17n_memory_full_handler holds a pointer
     to the function to call when a library function failed to allocate
@@ -813,7 +816,8 @@ enum MErrorCode merror_code;
     An application program that needs a different error handling can
     change this variable to point a proper function.  */
 
-/***ja @brief メモリ割当てエラーハンドラ
+/***ja 
+    @brief メモリ割当てエラーハンドラ.
 
     変数 #m17n_memory_full_handler は、ライブラリ関数がメモリ割当て
     に失敗した際に呼ぶべき関数へのポインタである。$ERR は @c enum
@@ -890,7 +894,7 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
 */
 /***ja
     @addtogroup m17nDebug
-    @brief m17n ライブラリユーザのためのプログラムデバッグサポート
+    @brief m17n ライブラリユーザのためのプログラムデバッグサポート.
 
     m17n ライブラリは、そのユーザが自分のプログラムをデバッグするため
     に、以下の機能をサポートしている。

@@ -107,7 +107,7 @@ extern int m17n_object_unref (void *object);
     structure is concealed from application programs.  */
 
 /***ja
-    @brief シンボルの型宣言
+    @brief シンボルの型宣言.
 
     #MSymbol はシンボルオブジェクトの型である。内部構造はアプリケーショ
     ンプログラムからは見えない。  */
@@ -240,7 +240,7 @@ extern MSymbol Mchar_table;
     internal structure is concealed from application programs.  */
 
 /***ja
-    @brief 文字テーブルの型宣言
+    @brief 文字テーブルの型宣言.
 
     #MCharTable は @e 文字テーブル (chartable) オブジェクトの型である。
     内部構造はアプリケーションプログラムからは見えない。  */
@@ -289,7 +289,7 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
     structure is concealed from application programs.  */
 
 /***ja
-    @brief @e MText の型宣言
+    @brief @e MText の型宣言.
 
     #Mtext は @e M-text オブジェクトの型である。
     内部構造はアプリケーションプログラムからは見えない。 

@@ -28,21 +28,29 @@
     M-text, a fontset provides rules to select a font for each
     character in the M-text according to the following information.
 
-    - The script character property of a character.
-    - The language text property of a character.
-    - The charset text property of a character.
+    @li The script character property of a character.
+    @li The language text property of a character.
+    @li The charset text property of a character.
 
     The documentation of mdraw_text () describes how that information is
     used.  */
 
-/***oldja
-    @addtogroup m17nFontset
-    @brief フォントセットは一定のスタイルを共有するフォントの集合である
+/***ja @addtogroup m17nFontset 
 
-    @e フォントセット は @c MFontset 型のオブジェクトであり、多言語文
-    書の表示の際、見かけの似たフォントを集めて一貫して取り扱うために使
-    われる。フォントセットはまた、言語、文字セット、文字が与えられたと
-    きに適切なフォントを選択するための情報も保持している。  */
+    @brief フォントセットは文字からフォントへの対応付けを行うオブジェクトである.
+
+    @e フォントセット は @c MFontset 型のオブジェクトである。M-text を
+    表示する際、フォントセットは M-text 中の個々の文字に対してどのフォ
+    ントを用いるかの規則を、以下の情報に従って与える。
+
+    @li 文字の文字プロパティ "スクリプト"
+    @li 文字のテキストプロパティ "言語"
+    @li 文字のテキストプロパティ "文字セット"
+
+    これらの情報がどのように用いられるかは mdraw_text () の説明を参照
+    のこと。
+
+    */
 
 /*=*/
 
@@ -605,6 +613,25 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
     @return
     This function returns a pointer to the found or newly created
     fontset.  */
+/***ja 
+    @brief フォントセットを返す.
+
+    関数 mfontset は名前$ NAME を持つフォントセットオブジェクトへのポイ
+    ンタを返す。 $NAME が @c NULL ならば、デフォルトフォントセットへの
+    ポインタを返す。
+
+    $NAME という名前を持つフォントセットがなければ、新しいものが作られ
+    る。その際、m17n データベースに \<@c fontset, $NAME\> というデータ
+    があれば、フォントセットはそのデータに沿って初期化される。なければ、
+    空のままにされる。
+
+    マクロ M17N_INIT () はデフォルトのフォントセットを作る。アプリケー
+    ションプログラムは mframe () を初めて呼ぶまではデフォルトフォント
+    セットを変更することができる。
+
+    @return
+    この関数は見つかった、あるいは作ったフォントセットへのポインタを返す。
+     */
 
 MFontset *
 mfontset (char *name)
@@ -635,9 +662,13 @@ mfontset (char *name)
 /*=*/
 
 /***en
-    @brief Return the name of a fontset
+    @brief Return the name of a fontset.
 
-    The mfontset_name () function returns the name of $FONTSET.  */
+    The mfontset_name () function returns the name of fontset$FONTSET.  */
+/***ja
+    @brief フォントセットの名前を返す.
+
+    関数 mfontset_name () はフォントセット $FONTSET の名前を返す。  */
 MSymbol
 mfontset_name (MFontset *fontset)
 {
@@ -647,12 +678,19 @@ mfontset_name (MFontset *fontset)
 /*=*/
 
 /***en
-    @brief Make a copy a fontset
+    @brief Make a copy a fontset.
 
-    The mfontset_copy () function makes a copy of $FONTSET, gives it a
+    The mfontset_copy () function makes a copy of fontset $FONTSET, gives it a
     name $NAME, and returns a pointer to the created copy.  $NAME must
-    not be a name of existing fontset.  Otherwise, this function
+    not be a name of existing fontset.  In such case, this function
     returns NULL without making a copy.  */
+/***ja
+    @brief フォントセットのコピーを作る.
+
+    関数 mfontset_copy () はフォントセット $FONTSET のコピーを作って、
+    名前 $NAME を与え、そのコピーへのポインタを返す。$NAME は既存の
+    フォントセットの名前であってはならない。その場合にはコピーを作らず
+    NULL を返す。  */
 
 MFontset *
 mfontset_copy (MFontset *fontset, char *name)
@@ -719,12 +757,11 @@ mfontset_copy (MFontset *fontset, char *name)
     charset.
 
     If both $SCRIPT and $CHARSET are not @c Mnil, two copies of $FONT
-    are created.  Then one is associated with the script/language pair
-    and the other with the charset.
+    are created.  Then one is associated with the $SCRIPT / $LANGUAGE
+    pair and the other with that charset.
 
-    If both $SCRIPT and $CHARSET are @c Mnil, $FONT is associated
-    with @c Mnil.  This kind of fonts are called <i>fallback
-    fonts</i>.
+    If both $SCRIPT and $CHARSET are @c Mnil, $FONT is associated with
+    @c Mnil.  This kind of fonts are called @e fallback @e fonts.
 
     The argument $HOW specifies the priority of $FONT.  If $HOW is
     positive, $FONT has the highest priority in the group of fonts
@@ -743,21 +780,44 @@ mfontset_copy (MFontset *fontset, char *name)
     Otherwise it returns -1 and assigns an error code to the external
     variable @c merror_code.  */
 
-/***oldja
-    @brief 言語とスクリプトの組み合わせにフォントを関連付ける
+/***ja
+    @brief フォントセットの内容を変更する.
 
-    関数 mfontset_set_language_script () は、$LANGUAGE と $SCRIPT の組
-    み合わせに対してフォント $FONT を使うよう、フォントセット $FONTSET 
-    を設定する。$LANGUAGE と $SCRIPT は、それぞれ言語とスクリプトを指
-    定するシンボルである。
+    関数 The mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み
+    合わせまたは $CHARSET に対して $FONT のコピーを使うように、フォン
+    トセット $FONTSET を設定する。
 
-    言語とスクリプトの組み合わせ一つに対して複数のフォントを設定するこ
-    ともできる。$PREPEND_P が 0 以外ならば、$FONT はその組み合わせに対
-    して最優先で用いられるものとなる。そうでなければ、優先度最低のフォ
-    ントとして登録される。
+    フォントセットの各フォントは、特定のスクリプトと言語のペア、特定の
+    文字セット、シンボル @c Mnil のいずれかと関連付けられている。同じ
+    ものと関連付けられたフォントはグループを構成する。
 
-    @return
-    処理が成功したとき、mfontset_set_language_script () は 0 を返す。
+    $SCRIPT は @c Mnil であるか、スクリプトを特定するシンボルである。
+    シンボルである場合には、$LANGUAGE は言語を特定するシンボルか@c
+    Mnil であり、$FONT はthe $SCRIPT / $LANGUAGE ペアに関連付けられる。
+
+    $CHARSET は @c Mnil であるか、文字セットオブジェクトを表すシンボル
+    である。シンボルである場合には$FONT はその文字セットと関連付けられ
+    る。
+
+    $SCRIPT と $CHARSET の双方が @c Mnil でない場合には $FONT のコピー
+    が２つ作られ、それぞれ $SCRIPT / $LANGUAGE ペアと文字セットに関連
+    付けられる。
+
+    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は@c Mnil と関
+    連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
+
+    引数 $HOW は $FONT の優先度を指定する。$HOW が正ならば、$FONT は同
+    じものと関連付けられたグループ中で最高の優先度を持つ。$HOW が負な
+    らば、最低の優先度を持つ。$HOW が 0 ならば、$FONT は関連付けられた
+    ものに対する唯一の利用可能なフォントとなり、他のフォントはグループ
+    から取り除かれる。
+
+    $LAYOUTER_NAME は @c Mnil であるか、@ref flt を示すシンボルである。
+    シンボルであれば、$FONT を用いてM-text を表示する際には、その font
+    layout table を使って文字列からグリフコード列を生成する。
+
+    @return 
+    処理が成功したとき、mfontset_modify_entry () は 0 を返す。
     失敗したときは -1 を返し、外部変数 @c merror_code にエラーコードを
     設定する。  */
 
@@ -843,14 +903,23 @@ mfontset_modify_entry (MFontset *fontset,
 /*** @{  */
 
 /***en
-    @brief Dump a fontset
+    @brief Dump a fontset.
 
-    The mdebug_dump_fontset () function prints $FONTSET in a human readable
+    The mdebug_dump_fontset () function prints fontset $FONTSET in a human readable
     way to the stderr.  $INDENT specifies how many columns to indent
     the lines but the first one.
 
     @return
     This function returns $FONTSET.  */
+/***ja
+    @brief フォントセットをダンプする.
+
+    関数 mdebug_dump_face () はフォントセット $FONTSET を stderr に人
+    間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定す
+    る。
+
+    @return
+    この関数は $FONTSET を返す。  */
 
 MFontset *
 mdebug_dump_fontset (MFontset *fontset, int indent)

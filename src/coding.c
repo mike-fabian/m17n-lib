@@ -37,7 +37,7 @@
 
 /***ja
     @addtogroup m17nConv
-    @brief コード系オブジェクトとそれに関する API
+    @brief コード系オブジェクトとそれに関する API.
 
     m17n ライブラリは、符号化文字集合 (coded character set; CCS) の文
     字符合化方式 (character encoding scheme; CES) を @e コード系 と呼
@@ -3088,13 +3088,13 @@ mcoding__load_from_database ()
 /*=*/
 
 /***en
-    @brief Symbol for the coding system US-ASCII
+    @brief Symbol for the coding system US-ASCII.
 
     The symbol #Mcoding_us_ascii has name <tt>"us-ascii"</tt> and
     represents a coding system for the CES US-ASCII.  */
 
 /***ja
-    @brief  US-ASCII コード系のシンボル
+    @brief US-ASCII コード系のシンボル.
 
     シンボル #Mcoding_us_ascii は <tt>"us-ascii"</tt> という名前を持ち、
     CES US-ASCII 用のコード系を示す。
@@ -3103,13 +3103,13 @@ MSymbol Mcoding_us_ascii;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system ISO-8859-1
+    @brief Symbol for the coding system ISO-8859-1.
 
     The symbol #Mcoding_iso_8859_1 has name <tt>"iso-8859-1"</tt> and
     represents a coding system for the CES ISO-8859-1.  */
 
 /***ja
-    @brief ISO-8859-1 コード系のシンボル
+    @brief ISO-8859-1 コード系のシンボル.
 
     シンボル #Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> という名前
     を持ち、CES ISO-8859-1 用のコード系を示す。  */
@@ -3118,13 +3118,13 @@ MSymbol Mcoding_iso_8859_1;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-8
+    @brief Symbol for the coding system UTF-8.
 
     The symbol #Mcoding_utf_8 has name <tt>"utf-8"</tt> and represents
     a coding system for the CES UTF-8.  */
 
 /***ja
-    @brief UTF-8 コード系のシンボル
+    @brief UTF-8 コード系のシンボル.
 
     シンボル #Mcoding_utf_8 は <tt>"utf-8"</tt> という名前を持ち、CES
     UTF-8 用のコード系を示す。
@@ -3134,7 +3134,7 @@ MSymbol Mcoding_utf_8;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-8-FULL
+    @brief Symbol for the coding system UTF-8-FULL.
 
     The symbol #Mcoding_utf_8_full has name <tt>"utf-8-full"</tt> and
     represents a coding system that is a extension of UTF-8.  This
@@ -3143,7 +3143,7 @@ MSymbol Mcoding_utf_8;
     supported by the m17n library.  */
 
 /***ja
-    @brief UTF-8-FULL コード系のシンボル
+    @brief UTF-8-FULL コード系のシンボル.
 
     シンボル #Mcoding_utf_8_full は <tt>"utf-8-full"</tt> という名前を
     持ち、<tt>"UTF-8"</tt> の拡張であるコード系を示す。このコード系は 
@@ -3156,12 +3156,12 @@ MSymbol Mcoding_utf_8_full;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-16
+    @brief Symbol for the coding system UTF-16.
 
     The symbol #Mcoding_utf_16 has name <tt>"utf-16"</tt> and
     represents a coding system for the CES UTF-16 (RFC 2279).  */
 /***ja
-    @brief UTF-16 コード系のシンボル
+    @brief UTF-16 コード系のシンボル.
 
     シンボル #Mcoding_utf_16 は <tt>"utf-16"</tt> という名前を持ち、
     CES UTF-16 (RFC 2279) 用のコード系を示す。
@@ -3171,13 +3171,13 @@ MSymbol Mcoding_utf_16;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-16BE
+    @brief Symbol for the coding system UTF-16BE.
 
     The symbol #Mcoding_utf_16be has name <tt>"utf-16be"</tt> and
     represents a coding system for the CES UTF-16BE (RFC 2279).  */
 
 /***ja
-    @brief UTF-16BE コード系のシンボル
+    @brief UTF-16BE コード系のシンボル.
 
     シンボル #Mcoding_utf_16be は <tt>"utf-16be"</tt> という名前を持ち、
     CES UTF-16BE (RFC 2279) 用のコード系を示す。     */
@@ -3186,13 +3186,13 @@ MSymbol Mcoding_utf_16be;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-16LE
+    @brief Symbol for the coding system UTF-16LE.
 
     The symbol #Mcoding_utf_16le has name <tt>"utf-16le"</tt> and
     represents a coding system for the CES UTF-16LE (RFC 2279).  */
 
 /***ja
-    @brief UTF-16LE コード系のシンボル
+    @brief UTF-16LE コード系のシンボル.
 
     シンボル #Mcoding_utf_16le は <tt>"utf-16le"</tt> という名前を持ち、
     CES UTF-16LE (RFC 2279) 用のコード系を示す。     */
@@ -3201,13 +3201,13 @@ MSymbol Mcoding_utf_16le;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-32
+    @brief Symbol for the coding system UTF-32.
 
     The symbol #Mcoding_utf_32 has name <tt>"utf-32"</tt> and
     represents a coding system for the CES UTF-32 (RFC 2279).  */
 
 /***ja
-    @brief UTF-32 コード系のシンボル
+    @brief UTF-32 コード系のシンボル.
 
     シンボル #Mcoding_utf_32 は <tt>"utf-32"</tt> という名前を持ち、
     CES UTF-32 (RFC 2279) 用のコード系を示す。     */
@@ -3216,12 +3216,12 @@ MSymbol Mcoding_utf_32;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-32be
+    @brief Symbol for the coding system UTF-32be.
 
     The symbol #Mcoding_utf_32be has name <tt>"utf-32be"</tt> and
     represents a coding system for the CES UTF-32BE (RFC 2279).  */
 /***ja
-    @brief UTF-32be コード系のシンボル
+    @brief UTF-32be コード系のシンボル.
 
     シンボル #Mcoding_utf_32be は <tt>"utf-32be"</tt> という名前を持ち、
     CES UTF-32BE (RFC 2279) 用のコード系を示す。     */
@@ -3230,12 +3230,12 @@ MSymbol Mcoding_utf_32be;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-32LE
+    @brief Symbol for the coding system UTF-32LE.
 
     The symbol #Mcoding_utf_32le has name <tt>"utf-32le"</tt> and
     represents a coding system for the CES UTF-32LE (RFC 2279).  */
 /***ja
-    @brief UTF-32LE コード系のシンボル
+    @brief UTF-32LE コード系のシンボル.
 
     シンボル #Mcoding_utf_32le は <tt>"utf-32le"</tt> という名前を持ち、
     CES UTF-32LE (RFC 2279) 用のコード系を示す。     */
@@ -3244,12 +3244,12 @@ MSymbol Mcoding_utf_32le;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system SJIS
+    @brief Symbol for the coding system SJIS.
 
     The symbol #Mcoding_sjis has name <tt>"sjis"</tt> and represents a coding
     system for the CES Shift-JIS.  */ 
 /***ja
-    @brief SJIS コード系のシンボル
+    @brief SJIS コード系のシンボル.
 
     シンボル #Mcoding_sjis has は <tt>"sjis"</tt> という名前を持ち、
     CES Shift-JIS用のコード系を示す。  */ 
@@ -3355,7 +3355,7 @@ MSymbol Mfull_support;
     used a value of #Mbom parameter of the function
     mconv_define_coding () (which see).  */
 /***ja
-    @brief "maybe"という名前を持つシンボル
+    @brief "maybe"という名前を持つシンボル.
 
     変数 #Mmaybe は <tt>"maybe"</tt> という名前を持つ。これは関数 
     mconv_define_coding () パラメータ #Mbom の値として用いられる。(詳
@@ -3365,14 +3365,14 @@ MSymbol Mmaybe;
 /*=*/
 
 /***en
-    @brief The symbol @c Mcoding
+    @brief The symbol @c Mcoding.
 
     Any decoded M-text has a text property whose key is the predefined
     symbol @c Mcoding.  The name of @c Mcoding is
     <tt>"coding"</tt>.  */
 
 /***ja
-    @brief シンボル @c Mcoding
+    @brief シンボル @c Mcoding.
 
     デコードされた M-text はすべて、キーが定義済みシンボル @c Mcoding 
     であるようなテキストプロパティを持つ。シンボル @c Mcoding は 
@@ -3384,7 +3384,7 @@ MSymbol Mcoding;
 /*=*/
 
 /***en
-    @brief Define a coding system
+    @brief Define a coding system.
 
     The mconv_define_coding () function defines a new coding system
     and makes it accessive via a symbol whose name is $NAME.  $PLIST
@@ -4022,7 +4022,7 @@ mconv_resolve_coding (MSymbol symbol)
     representing a coding system, stores the pointer to the array in a
     place pointed to by $SYMBOLS, and returns the length of the array.  */
 /***ja
-    @brief コード系を表わすシンボルを列挙する
+    @brief コード系を表わすシンボルを列挙する.
 
     関数 mchar_list_codings () は、コード系を示すシンボルを並べた配列
     を作り、$SYMBOLS でポイントされた場所にこの配列へのポインタを置き、
@@ -4065,7 +4065,7 @@ mconv_list_codings (MSymbol **symbols)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief バッファに結び付けられたコードコンバータを作る
+    @brief バッファに結び付けられたコードコンバータを作る.
 
     関数 mconv_buffer_converter () は、コード系 $CODING 用のコードコン
     バータを作る。このコードコンバータは、$BUF で示される大きさ $N バ
@@ -4143,7 +4143,7 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
     merror_code.  */
 
 /***ja
-    @brief ストリームに結び付けられたコードコンバータを作る
+    @brief ストリームに結び付けられたコードコンバータを作る.
 
     関数 mconv_stream_converter () は、コード系 $CODING 用のコードコン
     バータを作る。このコードコンバータは、ストリーム $FP に結び付けら
@@ -4226,7 +4226,7 @@ mconv_stream_converter (MSymbol name, FILE *fp)
     applied to $CONVERTER.  Otherwise it returns 0.  */
 
 /***ja
-    @brief コードコンバータをリセットする
+    @brief コードコンバータをリセットする.
 
     関数 mconv_reset_converter () はコードコンバータ $CONVERTER を初期
     状態に戻す。
@@ -4259,7 +4259,7 @@ mconv_reset_converter (MConverter *converter)
     $CONVERTER.  */
 
 /***ja
-    @brief コードコンバータを解放する
+    @brief コードコンバータを解放する.
 
     関数 mconv_free_converter () はコードコンバータ $CONVERTER を解放
     する。  */
@@ -4289,7 +4289,7 @@ mconv_free_converter (MConverter *converter)
     This function always returns $CONVERTER.  */
 
 /***ja
-    @brief コードコンバータにバッファ領域を結び付ける
+    @brief コードコンバータにバッファ領域を結び付ける.
 
     関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N バ
     イトのバッファ領域をコードコンバータ $CONVERTER に結び付ける。これ
@@ -4330,7 +4330,7 @@ mconv_rebind_buffer (MConverter *converter, unsigned char *buf, int n)
     This function always returns $CONVERTER.  */
 
 /***ja
-    @brief コードコンバータにストリームを結び付ける
+    @brief コードコンバータにストリームを結び付ける.
 
     関数 mconv_rebind_stream () は、ストリーム $FP をコードコンバータ 
     $CONVERTER に結び付ける。これ以降のデコードおよびエンコードは、
@@ -4378,7 +4378,7 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     the external variable #merror_code.  */
 
 /***ja
-    @brief バイト列を M-text にデコードする
+    @brief バイト列を M-text にデコードする.
 
     関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
     $MT の末尾に追加する。デコード元のバイト列は、現在結び付けられている
@@ -4517,7 +4517,7 @@ mconv_decode (MConverter *converter, MText *mt)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief コード系に基づいてバッファ領域をデコードする
+    @brief コード系に基づいてバッファ領域をデコードする.
 
     関数 mconv_decode_buffer () は、$BUF によって指された $N バイトの
     バッファ領域を、コード系 $NAME に基づいてデコードする。デコードに
@@ -4568,7 +4568,7 @@ mconv_decode_buffer (MSymbol name, unsigned char *buf, int n)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief コード系に基づいてストリーム入力をデコードする
+    @brief コード系に基づいてストリーム入力をデコードする.
 
     関数 mconv_decode_stream () は、ストリーム $FP から読み込まれるバ
     イト列全体を、コード系 $NAME に基づいてデコードする。デコードに必
@@ -4618,7 +4618,7 @@ mconv_decode_stream (MSymbol name, FILE *fp)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text をバイト列にエンコードする
+    @brief M-text をバイト列にエンコードする.
 
     関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバー
     タ $CONVERTER に現在結び付けられているバッファ領域あるいはストリー
@@ -4646,7 +4646,7 @@ mconv_encode (MConverter *converter, MText *mt)
 /*=*/
 
 /***en
-    @brief Encode a part of an M-text
+    @brief Encode a part of an M-text.
 
     The mconv_encode_range () function encodes the text between $FROM
     (inclusive) and $TO (exclusive) in M-text $MT and writes the
@@ -4659,7 +4659,7 @@ mconv_encode (MConverter *converter, MText *mt)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text の一部ををバイト列にエンコードする
+    @brief M-text の一部ををバイト列にエンコードする.
 
     関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
     $TO （含まない）までの範囲のテキストをエンコードして、コードコンバー
@@ -4759,7 +4759,7 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text をエンコードしてバッファ領域に書き込む
+    @brief M-text をエンコードしてバッファ領域に書き込む.
 
     関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME に基づい
     てエンコードし、得られたバイト列を $BUF の指すバッファ領域に書き込
@@ -4807,7 +4807,7 @@ mconv_encode_buffer (MSymbol name, MText *mt, unsigned char *buf, int n)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text をエンコードしてストリームに書き込む
+    @brief M-text をエンコードしてストリームに書き込む.
 
     関数 mconv_encode_stream () はM-text $MT をコード系 $NAME に基づい
     てエンコードし、得られたバイト列をストリーム $FP に書き出す。エン
@@ -4857,7 +4857,7 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     #merror_code.  */
 
 /***ja
-    @brief コードコンバータ経由で1文字読む
+    @brief コードコンバータ経由で1文字読む.
 
     関数 mconv_getc () は、コードコンバータ $CONVERTER に現在結び付け
     られているバッファ領域あるいはストリームから1文字を読み込む。バイ
@@ -4911,7 +4911,7 @@ mconv_getc (MConverter *converter)
     external variable #merror_code.  */
 
 /***ja
-    @brief コードコンバータに1文字戻す
+    @brief コードコンバータに1文字戻す.
 
     関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C を
     押し戻す。戻す文字数に制限はない。この後に mconv_getc () を呼び出
@@ -4960,7 +4960,7 @@ mconv_ungetc (MConverter *converter, int c)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief コードコンバータを経由で1文字書く
+    @brief コードコンバータを経由で1文字書く.
 
     関数 mconv_putc () は、コードコンバータ $CONVERTER に現在結び付け
     られているバッファ領域あるいはストリームに文字 $C を書き出す。文字
@@ -5013,7 +5013,7 @@ mconv_putc (MConverter *converter, int c)
     merror_code.  */
 
 /***ja
-    @brief コードコンバータを使って1行読む
+    @brief コードコンバータを使って1行読む.
 
     関数 mconv_gets () は、コードコンバータ $CONVERTER に現在結び付け
     られているバッファ領域あるいはストリームから1行を読み込む。バイト

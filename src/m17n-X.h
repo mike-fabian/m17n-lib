@@ -48,7 +48,7 @@ extern MSymbol Mxim;
 
 /*** @ingroup m17nInputMethodWin */
 /***en
-    @brief Structure pointed to by the argument $ARG of the function
+    @brief Structure pointed to by the argument $ARG of the function.
     input_open_im ().
 
     The type #MInputXIMArgIM is the structure pointed to by the
@@ -56,7 +56,7 @@ extern MSymbol Mxim;
     input method of name #Mxim.  */
 
 /***ja
-    @brief 関数 minput_open_im () の引数 $ARG によって指される構造体
+    @brief 関数 minput_open_im () の引数 $ARG によって指される構造体.
 
     #MInputXIMArgIM 型は、関数 minput_open_im () が名前 #Mxim を持
     つ外部入力メソッドを生成する際に引数 $ARG によって指される構造体で
@@ -97,7 +97,7 @@ typedef struct
 
 /*** @ingroup m17nInputMethodWin */
 /***en
-    @brief Structure pointed to by the argument $ARG of the function
+    @brief Structure pointed to by the argument $ARG of the function.
     minput_create_ic.
 
     The type #MInputXIMArgIC is the structure pointed to by the
@@ -105,7 +105,7 @@ typedef struct
     input method of name #Mxim.  */
 
 /***ja
-    @brief 関数 minput_create_ic () の引数 $ARG によって指される構造体
+    @brief 関数 minput_create_ic () の引数 $ARG によって指される構造体.
 
     #MInputXIMArgIC 型は、関数 minput_create_ic () が名前 #Mxim を
     持つ外部入力メソッド用に呼ばれる際に、引数 $ARG によって指される構
