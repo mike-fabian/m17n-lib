@@ -892,6 +892,9 @@ typedef struct
   MDrawWindow focus;
 } MInputGUIArgIC;
 
+/*=*/
+
+extern MSymbol minput_event_to_key (MFrame *frame, void *event);
 
 /* end of input module */
 /*=*/
