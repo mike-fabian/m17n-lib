@@ -2052,7 +2052,7 @@ setup_input_methods (int with_xim, char *initial_input_method)
 	method_name = initial_input_method;
     }
 
-  num_input_methods = mplist_length (plist);
+  num_input_methods = plist ? mplist_length (plist) : 0;
 
   if (with_xim)
     {
@@ -2077,20 +2077,23 @@ setup_input_methods (int with_xim, char *initial_input_method)
       i++;
     }
 
-  for (pl = plist; mplist_key (pl) != Mnil; pl = mplist_next (pl))
+  if (plist)
     {
-      MDatabase *mdb = mplist_value (pl);
-      MSymbol *tag = mdatabase_tag (mdb);
-
-      if (tag[1] != Mnil)
+      for (pl = plist; mplist_key (pl) != Mnil; pl = mplist_next (pl))
 	{
-	  input_method_table[i].language = tag[1];
-	  input_method_table[i].name = tag[2];
-	  i++;
-	}
-    }
+	  MDatabase *mdb = mplist_value (pl);
+	  MSymbol *tag = mdatabase_tag (mdb);
 
-  m17n_object_unref (plist);
+	  if (tag[1] != Mnil)
+	    {
+	      input_method_table[i].language = tag[1];
+	      input_method_table[i].name = tag[2];
+	      i++;
+	    }
+	}
+
+      m17n_object_unref (plist);
+    }
   num_input_methods = i;
   qsort (input_method_table, num_input_methods, sizeof input_method_table[0],
 	 compare_input_method);
