@@ -1087,8 +1087,7 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
   u = otf->head->unitsPerEm;
   size10 = g->rface->rfont->font.property[MFONT_SIZE];
   size = size10 / 10;
-  prev = NULL;
-  for (i = from_idx; i != to_idx; prev = g++, i += inc)
+  for (i = from_idx; i != to_idx; i += inc)
     {
       OTF_Glyph *otfg = otf_gstring.glyphs + i;
 
