@@ -106,8 +106,8 @@
     variable @c M17NDIR.  See the documentation of the variable for
     details.
 
-    If the m17n library is configured to use the Xft librray, in
-    addition to #mfont_freetype_path, all fonts available via
+    If the m17n library is configured to use the fontconfig librray,
+    in addition to #mfont_freetype_path, all fonts available via
     fontconfig are supported.
 
     The family name of a FreeType font corresponds to the family
@@ -204,7 +204,7 @@
     adstyle プロパティの値は、serif, sans-serif 等の抽象的なフォントファ
     ミリーに関する情報を示すシンボルである。
 
-    registry プロパティの値は、iso10646, iso8895-1 のレジストリ情報を
+    registry プロパティの値は、iso10646, iso8895-1 等のレジストリ情報を
     示すシンボルである。
 
     size プロパティの値は、フォントのデザインサイズを表わす整数値であ
@@ -251,9 +251,9 @@
     #mfont_freetype_path は m17n ライブラリの設定と環境変数 @c M17NDIR 
     に応じて初期化される。詳細は変数の説明を参照のこと。
 
-    もし m17n ライブラリが Xft ライブラリを使うように設定された場合には、
-    #mfont_freetype_path に加えて、 fontconfig で使用可能なフォントもす
-    べてサポートされる。
+    もし m17n ライブラリが fontconfig ライブラリを使うように設定された
+    場合には、#mfont_freetype_path に加えて、 fontconfig で使用可能なフォ
+    ントもすべてサポートされる。
 
     FreeType フォントのファミリ名は family プロパティに対応する。
     FreeType フォントのスタイル名は、下の表のように weight, style,
@@ -293,20 +293,20 @@
     3                   1               unicode-full
 @endverbatim
 
-    したがって、二つの組合せ (1 0) 、(3 1) を持つフォントは、それぞれ 
-    registry プロパティが1-0, apple-roman, 3-1, unicode-bmp である４つ
+    したがって、二つの組合せ (1 0) 、(3 1) を持つフォントは、それぞれ
+    registry プロパティが 1-0, apple-roman, 3-1, unicode-bmp である４つ
     のフォントオブジェクトに対応する。
 
     <li> OpenType フォント
 
-    m17n ライブラリは、FreeType ライブラリと OTF ライブラリを使用する
-    ように設定すれば、すべての OpenType フォントをサポートする。実際に
-    利用できるフォントのリストはFreeType フォントの場合と同様に作られ
-    る。OpenType フォントを FLT (Font Layout Table) 経由で使用するよう
-    フォントセットに指定されており、FLT に OTF 関連のコマンド (たとえ
-    ば otf:deva) があれば、OTF ライブラリがフォントの OpenType レイア
-    ウトテーブルに従って文字列をグリフコード列に変換し、FreeType ライ
-    ブラリが各グリフのビットマップイメージを提供する。
+    m17n ライブラリは、FreeType ライブラリと OTF ライブラリを使用するよ
+    うに設定すれば、すべての OpenType フォントをサポートする。実際に利
+    用できるフォントのリストは FreeType フォントの場合と同様に作られる。
+    OpenType フォントを FLT (Font Layout Table) 経由で使用するようフォ
+    ントセットに指定されており、FLT に OTF 関連のコマンド (たとえば
+    otf:deva) があれば、OTF ライブラリがフォントの OpenType レイアウト
+    テーブルに従って文字列をグリフコード列に変換し、FreeType ライブラリ
+    が各グリフのビットマップイメージを提供する。
 
     </ul>
 
@@ -335,7 +335,7 @@
 #include "font.h"
 #include "face.h"
 
-MFontDriver *mfont__driver_list[MFONT_TYPE_MAX];
+MPlist *mfont__driver_list;
 
 /** Indices to font properties sorted by their priority.  */
 static int font_score_priority[] =
@@ -702,7 +702,7 @@ mfont__init ()
 	}
     }
 
-  memset (mfont__driver_list, 0, sizeof mfont__driver_list);
+  mfont__driver_list = mplist ();
 
   /* Here, SHIFT starts from 1, not 0.  This is because the lowest bit
      of a score is a flag for a scalable font (see the documentation
@@ -766,6 +766,8 @@ mfont__fini ()
   MPLIST_DO (plist, mfont_freetype_path)
     free (MPLIST_VAL (plist));
   M17N_OBJECT_UNREF (mfont_freetype_path);
+
+  M17N_OBJECT_UNREF (mfont__driver_list);
 
   if (font_resize_list)
     {
@@ -858,7 +860,6 @@ mfont__set_spec_from_face (MFont *spec, MFace *face)
   spec->property[MFONT_REGISTRY] = 1;
   spec->property[MFONT_SIZE] = (int) (face->property[MFACE_SIZE]);
   spec->property[MFONT_RESY] = 0;
-  spec->property[MFONT_TYPE] = 0;
 }
 
 
@@ -889,19 +890,18 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 	       MSymbol layouter)
 {
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
-  MPlist *realized_font_list;
-  MRealizedFont *best_font[MFONT_TYPE_MAX], *best;
-  int best_index;
+  MPlist *plist;
+  MRealizedFont *best;
   int i;
   int mdebug_mask = MDEBUG_FONT;
 
   if (registry == Mnil)
     registry = Mt;
 
-  MPLIST_DO (realized_font_list, frame->realized_font_list)
+  MPLIST_DO (plist, frame->realized_font_list)
     {
-      best = MPLIST_VAL (realized_font_list);
-      if (MPLIST_KEY (realized_font_list) == registry
+      best = MPLIST_VAL (plist);
+      if (MPLIST_KEY (plist) == registry
 	  && ! memcmp (&best->spec, spec, sizeof (MFont))
 	  && ! memcmp (&best->request, request, sizeof (MFont)))
 	{
@@ -923,25 +923,21 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 
   MDEBUG_PUSH_TIME ();
   best = NULL;
-  best_index = -1;
-  for (i = 0; i < MFONT_TYPE_MAX; i++)
+  MPLIST_DO (plist, mfont__driver_list)
     {
-      MFontDriver *driver = mfont__driver_list[i];
+      MFontDriver *driver = MPLIST_VAL (plist);
+      MRealizedFont *this
+	= (driver->select) (frame, spec, request, limited_size);
 
-      best_font[i] = (driver
-		      ? (driver->select) (frame, spec, request, limited_size)
-		      : NULL);
-      if (best_font[i]
-	  && (best_index < 0
-	      || best_font[best_index]->score < best_font[i]->score))
-	best_index = i;
-    }
-  for (i = 0; i < MFONT_TYPE_MAX; i++)
-    {
-      if (i == best_index)
-	best = best_font[i];
-      else if (best_font[i])
-	free (best_font[i]);
+      if (this
+	  && (! best
+	      || best->score < this->score))
+	{
+	  free (best);
+	  best = this;
+	  if (this->score == 0)
+	    break;
+	}
     }
 
   if (mdebug__flag & mdebug_mask)
