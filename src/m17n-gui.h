@@ -737,7 +737,7 @@ typedef struct
 
   /***en Metric of the glyph.  */
   /***ja グリフの寸法.  */
-  MDrawMetric this;
+  MDrawMetric metrics;
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
