@@ -2818,14 +2818,18 @@ find_coding (MSymbol name)
 
   if (! coding)
     {
-      MPlist *param = mplist_get (coding_definition_list, name);
+      MPlist *plist;
+      MSymbol sym = msymbol__canonicalize (name);
 
-      if (! param)
+      plist = mplist_find_by_key (coding_definition_list, sym);
+
+      if (! plist)
 	return NULL;
-      param = mplist__from_plist (param);
-      mconv_define_coding (MSYMBOL_NAME (name), param, NULL, NULL, NULL, NULL);
+      mconv_define_coding (MSYMBOL_NAME (name), MPLIST_VAL (plist),
+			   NULL, NULL, NULL, NULL);
       coding = (MCodingSystem *) msymbol_get (name, Mcoding);
-      M17N_OBJECT_UNREF (param);
+      plist = mplist_pop (plist);
+      M17N_OBJECT_UNREF (plist);
     }
   return coding;
 }
@@ -3003,19 +3007,6 @@ mcoding__fini (void)
 }
 
 void
-mconv__define_coding_from_charset (MSymbol sym)
-{
-  MPlist *param = mplist (), *charsets = mplist ();
-
-  mplist_set (charsets, Msymbol, sym);
-  mplist_add (param, Mtype, Mcharset);
-  mplist_add (param, Mcharsets, charsets);
-  mconv_define_coding (msymbol_name (sym), param, NULL, NULL, NULL, NULL);
-  M17N_OBJECT_UNREF (charsets);
-  M17N_OBJECT_UNREF (param);
-}
-
-void
 mconv__register_charset_coding (MSymbol sym)
 {
   if (! mplist_find_by_key (coding_definition_list, sym))
@@ -3027,6 +3018,7 @@ mconv__register_charset_coding (MSymbol sym)
       mplist_add (param, Msymbol, Mcharset);
       mplist_add (param, Msymbol, Mcharsets);
       mplist_add (param, Mplist, charsets);
+      sym = msymbol__canonicalize (sym);
       mplist_put (coding_definition_list, sym, param);
       M17N_OBJECT_UNREF (charsets);
     }
@@ -3061,10 +3053,9 @@ mcoding__load_from_database ()
       pl = MPLIST_PLIST (plist);
       if (! MPLIST_SYMBOL_P (pl))
 	MERROR (MERROR_CHARSET, -1);
-      name = MPLIST_SYMBOL (pl);
-      pl = MPLIST_NEXT (pl);
+      name = msymbol__canonicalize (MPLIST_SYMBOL (pl));
+      pl = mplist__from_plist (MPLIST_NEXT (pl));
       definitions = mplist_add (definitions, name, pl);
-      M17N_OBJECT_REF (pl);
     }
 
   M17N_OBJECT_UNREF (def_list);
