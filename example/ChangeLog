@@ -1,3 +1,8 @@
+2004-07-18  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (common_ldflags): Don't include
+	${top_srcdir}/src/libm17n-core.la.
+
 2004-07-07  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (Mcoding_compound_text): New variable.
