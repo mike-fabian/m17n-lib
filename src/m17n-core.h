@@ -287,7 +287,7 @@ extern int mchartable_set (MCharTable *table, int c, void *val);
 extern int mchartable_set_range (MCharTable *table, int from, int to,
 				 void *val);
 
-extern int mchartable_map (MCharTable *table, void *ignore,
+extern int mchartest (MCharTable *table, void *ignore,
 			   void (*func) (int from, int to,
 					 void *val, void *arg), 
 			   void *func_arg);
@@ -362,10 +362,12 @@ extern MText *mtext ();
 
 /*=*/
 
-/*** @ingroup m17nMtext */
+/*** @addtogroup m17nMtext 
+     @{ */
+
 /***en @name Variables: System's UTF-16 and UTF-32 types */
 /***ja @name 変数: システムの UTF-16 と UTF-32 のタイプ */
-/*** @{ */
+
 /*=*/
 
 /***en
@@ -417,8 +419,6 @@ extern const int MTEXT_FORMAT_UTF_16;
 
 extern const int MTEXT_FORMAT_UTF_32;
 
-/*** @} */
-
 /*=*/
 
 extern MText *mtext_from_data (const void *data, int nitems,
@@ -426,6 +426,7 @@ extern MText *mtext_from_data (const void *data, int nitems,
 
 
 /*=*/
+/***     @} */
 
 /*
  *  (5-2) Functions to manipulate M-texts.  They correspond to string
