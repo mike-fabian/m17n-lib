@@ -1213,7 +1213,8 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
 	  while (g != gend
 		 && g->type == from_g->type
 		 && g->rface == rface
-		 && (g->code < 0) == (from_g->code < 0)
+		 && ((g->code == MCHAR_INVALID_CODE)
+		     == (from_g->code == MCHAR_INVALID_CODE))
 		 && g->enabled)
 	    width += g++->width;
 
