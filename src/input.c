@@ -1514,6 +1514,7 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   MLIST_RESET (ic_info);
   ic_info->map = ic_info->state ? ic_info->state->map : NULL;
   ic_info->state_key_head = ic_info->key_head = 0;
+  ic_info->key_unhandled = 0;
   ic->cursor_pos = ic_info->state_pos = 0;
   ic->status = ic_info->state ? ic_info->state->title : NULL;
   if (! ic->status)
