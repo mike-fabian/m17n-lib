@@ -444,7 +444,7 @@ main (int argc, char **argv)
   int paper_width, paper_height;
   int anti_alias = 0;
   char *family_name = NULL;
-  char *langu_name = NULL;
+  char *lang_name = NULL;
   int i;
   int page_index;
   gdImagePtr image;
