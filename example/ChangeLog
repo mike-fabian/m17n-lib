@@ -1,3 +1,19 @@
+2004-04-27  Kenichi Handa  <handa@m17n.org>
+
+	* mimx-ispell.c: Add coding tag euc-jp.
+
+	* mimx-anthy.c: Add coding tag euc-jp.
+
+	* medit.c: Add coding tag euc-jp.
+	(ButtonMoveProc): Full redraw if we are using anti-aliased text.
+	(main): Set control.anti_alias to 1. 
+
+	* mdump.c: Add coding tag euc-jp.
+
+	* mdate.c: Add coding tag euc-jp.
+
+	* mconv.c: Add coding tag euc-jp.
+
 2004-04-20  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (medit_LDFLAGS): Include X_PRE_LIBS, XLIBS,
