@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#if defined (HAVE_FREETYPE) && defined (HAVE_GD)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -40,8 +42,6 @@
 #include "font.h"
 #include "fontset.h"
 #include "face.h"
-
-#if defined (HAVE_FREETYPE) && defined (HAVE_GD)
 
 static MPlist *realized_fontset_list;
 static MPlist *realized_font_list;
