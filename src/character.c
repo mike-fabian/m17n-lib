@@ -40,7 +40,7 @@
     to character C and whose key is K" may be shortened to "the K
     property of C".  */
 
-/***oldja
+/***ja
     @addtogroup m17nCharacter
     @brief 文字オブジェクトとそれに関する API
 
@@ -150,7 +150,7 @@ mchar__fini (void)
 
     The macro #MCHAR_MAX gives the maximum character code.  */
 
-/***oldja
+/***ja
     @brief 文字コードの最大値
 
     マクロ #MCHAR_MAX は文字コードの最大値を与える。  */
@@ -165,7 +165,7 @@ mchar__fini (void)
 
     These symbols are used as keys of character properties.  */
 
-/***oldja
+/***ja
      @name 変数: 文字プロパティのキー
 
      これらのシンボルは文字プロパティのキーとして使われる。*/
@@ -182,8 +182,8 @@ mchar__fini (void)
     Each symbol that represents a script has one of the names listed in
     the <em>Unicode Technical Report #24</em>.  */
 
-/***oldja
-    @brief スクリプトを表わすキー
+/***ja
+    @brief スクリプトを表わすキー.
 
     シンボル #Mscript は <tt>"script"</tt> という名前を持ち、文字プ
     ロパティのキーとして使われる。このプロパティの値は、この文字の属す
@@ -203,8 +203,8 @@ MSymbol Mscript;
     the key of a character property.  The value of such a property is a
     C-string representing the name of the character.  */
 
-/***oldja
-    @brief 名前を表わすキー
+/***ja
+    @brief 名前を表わすキー.
 
     シンボル #Mname は <tt>"name"</tt> という名前を持ち、文字プロパ
     ティのキーとして使われる。このプロパティの値は C-string であり、そ
@@ -227,7 +227,7 @@ MSymbol Mname;
     Unicode.  */
 
 /***oldja
-    @brief 一般カテゴリを表わすキー
+    @brief 一般カテゴリを表わすキー.
 
     シンボル #Mcategory は <tt>"category"</tt> という名前を持ち、文
     字プロパティのキーとして使われる。このプロパティの値は、対応する
@@ -251,7 +251,7 @@ MSymbol Mcategory;
     The meaning of each integer that represents a canonical combining
     class is identical to the one defined in Unicode.  */
 
-/***oldja
+/***ja
     @brief 標準結合クラスを表わすキー
 
     シンボル #Mcombining_class は <tt>"combining-class"</tt> という
@@ -276,8 +276,8 @@ MSymbol Mcombining_class;
     the names listed as types of <em>Bidirectional Category</em> in
     Unicode.  */
 
-/***oldja
-    @brief 双方向カテゴリを表わすキー
+/***ja
+    @brief 双方向カテゴリを表わすキー.
 
     シンボル #Mbidi_category は <tt>"bidi-category"</tt> という名前
     を持ち、文字プロパティのキーとして使われる。このプロパティの値は、
@@ -303,8 +303,8 @@ MSymbol Mbidi_category;
     of such a property is @c 0xFFFF.  In this case, the character has
     another property whose key is #Mcomplicated_case_folding.  */
 
-/***oldja
-    @brief 対応する小文字一文字を表わすキー
+/***ja
+    @brief 対応する小文字一文字を表わすキー.
 
     シンボル #Msimple_case_folding は <tt>"simple-case-folding"</tt> 
     という名前を持ち、文字プロパティのキーとして使われる。このプロパティ
@@ -317,7 +317,7 @@ MSymbol Mbidi_category;
 
 MSymbol Msimple_case_folding;
 /***en
-    @brief Key for corresponding multiple lowercase characters
+    @brief Key for corresponding multiple lowercase characters.
 
     The symbol #Mcomplicated_case_folding has the name
     <tt>"complicated-case-folding"</tt> and is used as the key of a
@@ -325,8 +325,8 @@ MSymbol Msimple_case_folding;
     corresponding M-text that contains a sequence of lowercase
     characters to be used for comparing M-texts ignoring case.  */
 
-/***oldja
-    @brief 対応する小文字の列を表わすキー
+/***ja
+    @brief 対応する小文字の列を表わすキー.
 
     シンボル #Mcomplicated_case_folding は 
     <tt>"complicated-case-folding"</tt> という名前を持ち、文字プロパティ
@@ -352,8 +352,8 @@ MSymbol Mcomplicated_case_folding;
     If the operation was successful, mchar_define_property () returns
     $SYM.  Otherwise it returns #Mnil.  */
 
-/***oldja
-    @brief 文字プロパティを定義する
+/***ja
+    @brief 文字プロパティを定義する.
 
     関数 mchar_define_property () は、 \<#Mchar_table, $TYPE, $SYM \>
     というタグを持ったデータベースを m17n 言語情報ベースから探す。  こ
@@ -361,7 +361,7 @@ MSymbol Mcomplicated_case_folding;
     #Mtext, #Msymbol, #Minteger, #Mplist のいずれかでなければならない。
 
     @return
-    処理に成功すれば $SYM を返す。
+    処理に成功すれば mchar_define_property () は$SYM を返す。
     失敗した場合は #Mnil を返す。  */
 
 /***
@@ -421,11 +421,11 @@ mchar_define_property (char *name, MSymbol type)
     value of the character property.  Otherwise it returns @c
     NULL.  */
 
-/***oldja
-    @brief 文字プロパティの値を得る
+/**ja
+    @brief 文字プロパティの値を得る.
 
-    関数 mchar_get_prop () は、文字 $C の文字プロパティ中、キーが $KEY 
-    であるものを探す。
+    関数 mchar_get_prop () は、文字 $C の文字プロパティのうちキーが 
+    $KEY であるものを探す。
 
     @return
     処理が成功すれば mchar_get_prop () は見つかったプロパティの値を返
@@ -472,10 +472,10 @@ mchar_get_prop (int c, MSymbol key)
     If the operation was successful, mchar_put_prop () returns 0.
     Otherwise, it returns -1.  */
 
-/***oldja
-    @brief 文字プロパティの値を設定する
+/***ja
+    @brief 文字プロパティの値を設定する.
 
-    関数 mchar_put_prop () は文字 $C の文字プロパティ中、キーが $KEY で
+    関数 mchar_put_prop () は、文字 $C の文字プロパティのうちキーが $KEY で
     あるものを探し、その値として $VAL を設定する。
 
     @return
