@@ -583,10 +583,7 @@ build_font_list (MFrame *frame, MSymbol family, MSymbol registry,
 	if (mwin__parse_font_name (fontnames[i], font_list->fonts + j) >= 0
 	    && (font_list->fonts[j].property[MFONT_SIZE] != 0
 		|| font_list->fonts[j].property[MFONT_RESY] == 0))
-	  {
-	    font_list->fonts[j].property[MFONT_TYPE] = MFONT_TYPE_WIN + 1;
-	    j++;
-	  }
+	  j++;
       XFreeFontNames (fontnames);
       font_list->nfonts = j;
     }
@@ -982,6 +979,212 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 }
 
 
+/* Xft Handler */
+
+#ifdef HAVE_XFT2
+
+typedef struct {
+  M17NObject control;
+  MFrame *frame;
+  XftFont *font_aa;
+  XftFont *font_no_aa;
+} MXftFontInfo;
+
+static MRealizedFont *xft_select (MFrame *, MFont *, MFont *, int);
+static int xft_open (MRealizedFont *);
+static void xft_close (MRealizedFont *);
+static void xft_find_metric (MRealizedFont *, MGlyphString *, int, int);
+static void xft_render (MDrawWindow, int, int, MGlyphString *,
+			MGlyph *, MGlyph *, int, MDrawRegion);
+
+MFontDriver xft_driver =
+  { xft_select, xft_open, xft_close,
+    xft_find_metric,
+    NULL,			/* Set to ft_encode_char in mwin__init (). */
+    xft_render };
+
+static MRealizedFont *
+xft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
+{
+  MRealizedFont *rfont;
+
+  rfont = (mfont__ft_driver.select) (frame, spec, request, limited_size);
+  if (rfont)
+    rfont->driver = &xft_driver;
+  return rfont;
+}
+
+
+static void
+close_xft (void *object)
+{
+  MXftFontInfo *font_info = object;
+
+  if (font_info->font_aa)
+    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_aa);
+  if (font_info->font_no_aa)
+    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_no_aa);
+  free (object);
+}
+
+
+static XftFont *
+xft_open_font (MFrame *frame, MFTInfo *ft_info, int size, int anti_alias)
+{
+  XftPattern *pattern;
+  XftFontInfo *xft_font_info;
+  XftFont *font;
+
+  pattern = XftPatternCreate ();
+  XftPatternAddString (pattern, XFT_FILE, ft_info->filename);
+  XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
+  XftPatternAddBool (pattern, XFT_ANTIALIAS, 1);
+  xft_font_info = XftFontInfoCreate (FRAME_DISPLAY (frame), pattern);
+  if (! xft_font_info)
+    return NULL;
+  font = XftFontOpenInfo (FRAME_DISPLAY (frame), pattern, xft_font_info);
+  XftFontInfoDestroy (FRAME_DISPLAY (frame), xft_font_info);
+  return font;
+}
+
+
+static int
+xft_open (MRealizedFont *rfont)
+{
+  MFrame *frame;
+  MFTInfo *ft_info;
+  MXftFontInfo *font_info;
+  int size;
+
+  if ((mfont__ft_driver.open) (rfont) < 0)
+    return -1;
+
+  size = rfont->font.property[MFONT_SIZE] / 10;
+  frame = rfont->frame;
+
+  ft_info = rfont->info;
+  M17N_OBJECT (font_info, close_xft, MERROR_WIN);
+  ft_info->extra_info = font_info;
+  font_info->frame = frame;
+  font_info->font_aa = xft_open_font (frame, ft_info, size, 1);
+  if (font_info->font_aa)
+    {
+      font_info->font_no_aa = xft_open_font (frame, ft_info, size, 0);
+      if (font_info->font_no_aa)
+	return 0;
+    }
+  M17N_OBJECT_UNREF (font_info);  
+  ft_info->extra_info = NULL;
+  rfont->status = -1;
+  return -1;
+}
+
+
+static void
+xft_close (MRealizedFont *rfont)
+{
+  M17N_OBJECT_UNREF (rfont->info);
+}
+
+
+static void
+xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
+		int from, int to)
+{
+  MFTInfo *ft_info = rfont->info;
+  MXftFontInfo *font_info = ft_info->extra_info;
+  FT_Face ft_face = ft_info->ft_face;
+  MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
+
+  for (; g != gend; g++)
+    {
+      if (g->code == MCHAR_INVALID_CODE)
+	{
+	  MGlyph *start = g++;
+
+	  while (g != gend && g->code == MCHAR_INVALID_CODE) g++;
+	  (mfont__ft_driver.find_metric) (rfont, gstring, GLYPH_INDEX (start),
+					  GLYPH_INDEX (g));
+	  g--;
+	}
+      else
+	{
+	  XGlyphInfo extents;
+	  unsigned code;
+
+	  if (g->otf_encoded)
+	    code = g->code;
+	  else
+	    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+
+	  XftGlyphExtents (FRAME_DISPLAY (font_info->frame),
+			   font_info->font_aa, &code, 1, &extents);
+	  g->lbearing = extents.x;
+	  g->rbearing = extents.width - extents.x;
+	  g->width = extents.xOff;
+	  g->ascent = extents.y;
+	  g->descent = extents.height - extents.y;
+	}
+    }
+}
+
+
+void 
+xft_render (MDrawWindow win, int x, int y,
+	    MGlyphString *gstring, MGlyph *from, MGlyph *to,
+	    int reverse, MDrawRegion region)
+{
+  MRealizedFace *rface = from->rface;
+  MFrame *frame = rface->frame;
+  MFTInfo *ft_info = rface->rfont->info;
+  MXftFontInfo *font_info = ft_info->extra_info;
+  FT_Face ft_face = ft_info->ft_face;
+  XftDraw *xft_draw = frame->device->xft_draw;
+  XftColor *xft_color = (! reverse
+			 ? &((GCInfo *) rface->info)->xft_color_fore
+			 : &((GCInfo *) rface->info)->xft_color_back);
+  XftFont *xft_font = (gstring->control.anti_alias && frame->device->depth > 1
+		       ? font_info->font_aa : font_info->font_no_aa);
+  MGlyph *g;
+  FT_UInt *glyphs;
+  int last_x;
+  int nglyphs;
+
+  if (from == to)
+    return;
+
+  XftDrawChange (xft_draw, (Drawable) win);
+  XftDrawSetClip (xft_draw, (Region) region);
+      
+  glyphs = alloca (sizeof (FT_UInt) * (to - from));
+  for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
+    {
+      unsigned code;
+
+      if (g->otf_encoded)
+	code = g->code;
+      else
+	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+      if (g->xoff == 0 && g->yoff == 0)
+	glyphs[nglyphs++] = code;
+      else
+	{
+	  if (nglyphs > 0)
+	    XftDrawGlyphs (xft_draw, xft_color, xft_font,
+			   last_x, y, glyphs, nglyphs);
+	  nglyphs = 0;
+	  XftDrawGlyphs (xft_draw, xft_color, xft_font,
+			 x + g->xoff, y + g->yoff, (FT_UInt *) &code, 1);
+	  last_x = x + g->width;
+	}
+    }
+  if (nglyphs > 0)
+    XftDrawGlyphs (xft_draw, xft_color, xft_font, last_x, y, glyphs, nglyphs);
+}
+
+#endif
+
+
 
 /* XIM (X Input Method) handler */
 
@@ -1205,7 +1408,11 @@ mwin__init ()
   display_info_list = mplist ();
   device_list = mplist ();
 
-  mfont__driver_list[MFONT_TYPE_WIN] = &xfont_driver;
+  mplist_add (mfont__driver_list, msymbol ("x"), &xfont_driver);
+#ifdef HAVE_XFT2
+  xft_driver.encode_char = mfont__ft_driver.encode_char;
+  mplist_put (mfont__driver_list, msymbol ("freetype"), &xft_driver);
+#endif
 
   Mxim = msymbol ("xim");
   msymbol_put (Mxim, Minput_driver, &minput_xim_driver);
@@ -1303,24 +1510,24 @@ mwin__open_device (MFrame *frame, MPlist *param)
   unsigned depth = 0;
   MPlist *plist;
   AppData app_data;
+  MFace *face;
 
-  if (param)
-    for (plist = param; (key = mplist_key (plist)) != Mnil;
-	 plist = mplist_next (plist))
-      {
-	if (key == Mdisplay)
-	  display = (Display *) mplist_value (plist);
-	else if (key == Mscreen)
-	  screen = mplist_value (plist);
-	else if (key == Mdrawable)
-	  drawable = (Drawable) mplist_value (plist);
-	else if (key == Mdepth)
-	  depth = (unsigned) mplist_value (plist);
-	else if (key == Mwidget)
-	  widget = (Widget) mplist_value (plist);
-	else if (key == Mcolormap)
-	  cmap = (Colormap) mplist_value (plist);
-      }
+  for (plist = param; (key = mplist_key (plist)) != Mnil;
+       plist = mplist_next (plist))
+    {
+      if (key == Mdisplay)
+	display = (Display *) mplist_value (plist);
+      else if (key == Mscreen)
+	screen = mplist_value (plist);
+      else if (key == Mdrawable)
+	drawable = (Drawable) mplist_value (plist);
+      else if (key == Mdepth)
+	depth = (unsigned) mplist_value (plist);
+      else if (key == Mwidget)
+	widget = (Widget) mplist_value (plist);
+      else if (key == Mcolormap)
+	cmap = (Colormap) mplist_value (plist);
+    }
 
   if (widget)
     {
@@ -1492,6 +1699,19 @@ mwin__open_device (MFrame *frame, MPlist *param)
       mwin__parse_font_name (FALLBACK_FONT, frame->font);
   }
 
+  face = mface_from_font (frame->font);
+  face->property[MFACE_FONTSET] = mfontset (NULL);
+  face->property[MFACE_FOREGROUND] = frame->foreground;
+  face->property[MFACE_BACKGROUND] = frame->background;
+  mface_put_prop (face, Mhline, mface_get_prop (mface__default, Mhline));
+  mface_put_prop (face, Mbox, mface_get_prop (mface__default, Mbox));
+  face->property[MFACE_VIDEOMODE] = frame->videomode;
+  mface_put_prop (face, Mhook_func, 
+		  mface_get_prop (mface__default, Mhook_func));
+  face->property[MFACE_RATIO] = (void *) 100;
+  mplist_push (param, Mface, face);
+  M17N_OBJECT_UNREF (face);
+
 #ifdef X_SET_ERROR_HANDLER
   XSetErrorHandler (x_error_handler);
   XSetIOErrorHandler (x_io_error_handler);
@@ -1528,7 +1748,6 @@ mwin__realize_face (MRealizedFace *rface)
   MSymbol foreground, background, videomode;
   MFaceHLineProp *hline;
   MFaceBoxProp *box;
-  MFaceHookFunc func;
   GCInfo *info;
 
   if (rface != rface->ascii_rface)
@@ -1600,24 +1819,20 @@ mwin__realize_face (MRealizedFace *rface)
       if (box->color_left && box->color_left != box->color_top)
 	info->gc[GC_BOX_LEFT] = get_gc (frame, box->color_left, 1, NULL);
       else
-	info->gc[GC_BOX_LEFT] = info->gc[GC_NORMAL];
+	info->gc[GC_BOX_LEFT] = info->gc[GC_BOX_TOP];
 
       if (box->color_bottom && box->color_bottom != box->color_top)
 	info->gc[GC_BOX_BOTTOM] = get_gc (frame, box->color_bottom, 1, NULL);
       else
-	info->gc[GC_BOX_BOTTOM] = info->gc[GC_NORMAL];
+	info->gc[GC_BOX_BOTTOM] = info->gc[GC_BOX_TOP];
 
-      if (box->color_right && box->color_right != box->color_top)
+      if (box->color_right && box->color_right != box->color_bottom)
 	info->gc[GC_BOX_RIGHT] = get_gc (frame, box->color_right, 1, NULL);
       else
-	info->gc[GC_BOX_RIGHT] = info->gc[GC_NORMAL];
+	info->gc[GC_BOX_RIGHT] = info->gc[GC_BOX_BOTTOM];
     }
 
   rface->info = info;
-
-  func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
-  if (func)
-    (func) (&(rface->face), rface->info, rface->face.property[MFACE_HOOK_ARG]);
 }
 
 
@@ -1641,6 +1856,29 @@ mwin__fill_space (MFrame *frame, MDrawWindow win, MRealizedFace *rface,
 
   XFillRectangle (FRAME_DISPLAY (frame), (Window) win, gc,
 		  x, y, width, height);
+}
+
+
+void mwin__draw_empty_boxes (MDrawWindow win, int x, int y,
+			     MGlyphString *gstring, MGlyph *from, MGlyph *to,
+			     int reverse, MDrawRegion region)
+{
+  MRealizedFace *rface = from->rface;
+  Display *display = FRAME_DISPLAY (rface->frame);
+  GC gc = ((GCInfo *) rface->info)->gc[reverse ? GC_INVERSE : GC_NORMAL];
+
+  if (from == to)
+    return;
+
+  if (region)
+    gc = set_region (rface->frame, gc, region);
+  for (; from < to; from++)
+    {
+      XDrawRectangle (display, (Window) win, gc,
+		      x, y - gstring->ascent + 1, from->width - 1,
+		      gstring->ascent + gstring->descent - 2);
+      x += from->width;
+    }
 }
 
 
@@ -2151,142 +2389,6 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
     }
 }
 
-#ifdef HAVE_XFT2
-typedef struct {
-  MFrame *frame;
-  XftFont *font_aa;
-  XftFont *font_no_aa;
-} MXftFontInfo;
-
-/* Xft Handler */
-
-void
-mwin__xft_close (void *object)
-{
-  MXftFontInfo *font_info = object;
-
-  if (font_info->font_aa)
-    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_aa);
-  if (font_info->font_no_aa)
-    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_no_aa);
-  free (object);
-}
-
-
-void *
-mwin__xft_open (MFrame *frame, char *fontname, int size)
-{
-  MXftFontInfo *font_info;
-  XftPattern *pattern, *match;
-  XftResult result;
-
-  MSTRUCT_CALLOC (font_info, MERROR_WIN);
-
-  font_info->frame = frame;
-  pattern = XftNameParse (fontname);
-  XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
-  XftPatternAddBool (pattern, XFT_ANTIALIAS, 1);
-  match = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
-			pattern, &result);
-  font_info->font_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), match);
-  if (! font_info->font_aa)
-    goto err;
-  XftPatternDel (pattern, XFT_ANTIALIAS);
-  XftPatternAddBool (pattern, XFT_ANTIALIAS, 0);
-  match = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
-			  pattern, &result);
-  font_info->font_no_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), match);
-  if (! font_info->font_no_aa)
-    goto err;
-  XftPatternDestroy (pattern);
-  return font_info;
-
- err:
-  if (font_info->font_aa)
-    XftFontClose (FRAME_DISPLAY (frame), font_info->font_aa);
-  XftPatternDestroy (pattern);
-  free (font_info);
-  return NULL;
-}
-
-
-void
-mwin__xft_get_metric (void *object, FT_Face ft_face, MGlyph *g)
-{
-  MXftFontInfo *font_info = object;
-  XGlyphInfo extents;
-  unsigned code;
-
-  if (g->otf_encoded)
-    code = g->code;
-  else
-    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
-
-  XftGlyphExtents (FRAME_DISPLAY (font_info->frame),
-		   font_info->font_aa, &code, 1, &extents);
-  g->lbearing = extents.x;
-  g->rbearing = extents.width - extents.x;
-  g->width = extents.xOff;
-  g->ascent = extents.y;
-  g->descent = extents.height - extents.y;
-}
-
-
-void 
-mwin__xft_render (MDrawWindow win, int x, int y,
-		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
-		  int reverse, MDrawRegion region,
-		  void *object, FT_Face ft_face)
-{
-  MXftFontInfo *font_info = object;  
-  MRealizedFace *rface = from->rface;
-  MFrame *frame = rface->frame;
-  XftDraw *xft_draw = frame->device->xft_draw;
-  XftColor *xft_color = (! reverse
-			 ? &((GCInfo *) rface->info)->xft_color_fore
-			 : &((GCInfo *) rface->info)->xft_color_back);
-  XftFont *xft_font = (gstring->control.anti_alias && frame->device->depth > 1
-		       ? font_info->font_aa : font_info->font_no_aa);
-  MGlyph *g;
-  FT_UInt *glyphs;
-  int last_x;
-  int nglyphs;
-
-  if (from == to)
-    return;
-
-  XftDrawChange (xft_draw, (Drawable) win);
-  XftDrawSetClip (xft_draw, (Region) region);
-      
-  glyphs = alloca (sizeof (FT_UInt) * (to - from));
-  for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
-    {
-      unsigned code;
-
-      if (g->otf_encoded)
-	code = g->code;
-      else
-	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
-      if (g->xoff == 0 && g->yoff == 0)
-	glyphs[nglyphs++] = code;
-      else
-	{
-	  if (nglyphs > 0)
-	    XftDrawGlyphs (xft_draw, xft_color, xft_font,
-			   last_x, y, glyphs, nglyphs);
-	  nglyphs = 0;
-	  XftDrawGlyphs (xft_draw, xft_color, xft_font,
-			 x + g->xoff, y + g->yoff, (FT_UInt *) &code, 1);
-	  last_x = x + g->width;
-	}
-    }
-  if (nglyphs > 0)
-    XftDrawGlyphs (xft_draw, xft_color, xft_font, last_x, y, glyphs, nglyphs);
-}
-
-#endif
-
-
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
