@@ -137,23 +137,17 @@ struct MGlyphString
 
   int size, inc, used;
   MGlyph *glyphs;
-  MText *mt;
   int from, to;
   short width, height, ascent, descent;
   short physical_ascent, physical_descent, lbearing, rbearing;
   short text_ascent, text_descent, line_ascent, line_descent;
   int indent, width_limit;
 
-  /* Members to keep temporary data while layouting.  */
-  short sub_width, sub_lbearing, sub_rbearing;
-
   /* Copied for <control>.anti_alias but never set if the frame's
      depth is less than 8.  */
   unsigned anti_alias : 1;
 
   MDrawControl control;
-
-  MDrawRegion region;
 
   struct MGlyphString *next, *top;
 };
