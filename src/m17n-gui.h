@@ -78,11 +78,22 @@ typedef struct MFrame MFrame;
 
 /*=*/
 
+extern MSymbol Mdevice;
+
 extern MSymbol Mfont;
 extern MSymbol Mfont_width;
 extern MSymbol Mfont_ascent;
 extern MSymbol Mfont_descent;
 extern MFrame *mframe_default;
+
+extern MSymbol Mdisplay;
+extern MSymbol Mscreen;
+extern MSymbol Mdrawable;
+extern MSymbol Mwidget;
+extern MSymbol Mdepth;
+extern MSymbol Mcolormap;
+
+extern MSymbol Mx;
 
 extern MFrame *mframe (MPlist *plist);
 
