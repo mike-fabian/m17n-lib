@@ -63,6 +63,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "config.h"
 #include "m17n-gui.h"
 #include "m17n-misc.h"
 #include "internal.h"
