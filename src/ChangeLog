@@ -1,3 +1,31 @@
+2004-08-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c (Mx, Mfreetype): Delete it.
+	(m17n_init_win): Don't initialize Mx and Mfreetype here.
+
+	* m17n-gui.h (Mfreetype, Mxft): Extern them.
+	(mfont_resize_ratio): Extern it.
+	(MDrawGlyphInfo): New member logical_width;
+	(MDrawGlyph): New type.
+	(mdraw_glyph_list): Prototype adjusted.
+
+	* m17n-X.c (xfont_open): Set type and fontp members.
+	(xft_open): Likewise.
+
+	* internal-gui.h (Mx, Mfreetype): Delete extern.
+
+	* font.h (struct MRealizedFont): New member type and fontp.
+
+	* font.c (mfont__init): Initialize Mx, Mfreetype, and Mxft.
+	(Mx, Mfreetype): Declare here.
+	(Mxft): New variable.
+	(mfont_resize_ratio): New function.
+
+	* font-ft.c (ft_open): Set type and fontp members.
+
+	* draw.c (mdraw_glyph_list): Argument type changed.  Don't set
+	glyph_code member.
+
 2004-08-11  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_find_metric): Call FT_Load_Glyph with
