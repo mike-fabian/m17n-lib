@@ -1,6 +1,7 @@
 2004-08-05  Kenichi Handa  <handa@m17n.org>
 
-	* font-ft.c (mfont__ft_drive_otf): Fix sign of g->yoff.
+	* font-ft.c (mfont__ft_drive_otf): Fix sign of g->yoff.  Support
+	positioning_type 5.
 
 2004-08-04  Kenichi Handa  <handa@m17n.org>
 
