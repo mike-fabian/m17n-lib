@@ -1,5 +1,8 @@
 2004-05-10  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-X.c (mwin__xft_render): Don't use anti-alias if the
+	device's depth is 1 (i.e. monochrome).
+
 	* Makefile.am (OPTIONAL_LD_FLAGS): Change the order of elements
 	to work around the problem of libtool.
 
