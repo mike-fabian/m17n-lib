@@ -82,6 +82,7 @@ typedef struct
 #endif /* HAVE_OTF */
 #ifdef HAVE_XFT2
   void *xft_info;
+  char *fontname;
 #endif	/* not HAVE_XFT2 */
 } MFTInfo;
 
@@ -89,6 +90,8 @@ typedef struct
     contains fonts of the corresponding family.  In the deeper plist,
     keys are Mt, values are (MFTInfo *).  */
 static MPlist *ft_font_list;
+
+static int all_fonts_scaned;
 
 static MPlist *ft_iso8859_1_font_list;
 
@@ -125,7 +128,7 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
 
   MFONT_INIT (font);
 
-  if (family == Mt)
+  if (family == Mnil)
     {
       len = strlen (ft_face->family_name) + 1;
       buf = (char *) alloca (len);
@@ -247,63 +250,53 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
 }
 
 
-static void
-add_font_list (MPlist *font_list)
+static MFTInfo *
+add_font_info (char *filename, MSymbol family)
 {
-  MPlist *plist;
+  FT_Face ft_face;
+  BDF_PropertyRec prop;
+  MFTInfo *ft_info = NULL;
 
-  MPLIST_DO (plist, font_list)
+  if (FT_New_Face (ft_library, filename, 0, &ft_face) == 0)
     {
-      char *filename = MPLIST_VAL (plist);
-      FT_Face ft_face;
-
-      if (FT_New_Face (ft_library, filename, 0, &ft_face) == 0)
+      if (FT_IS_SCALABLE (ft_face)
+	  || FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0)
 	{
-	  BDF_PropertyRec prop;
+	  MSymbol fam;
+	  MPlist *plist;
 
-	  if (ft_face->family_name && ((char *) ft_face->family_name)[0]
-	      && (FT_IS_SCALABLE (ft_face)
-		  || FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0))
+	  MSTRUCT_CALLOC (ft_info, MERROR_FONT_FT);
+	  ft_info->filename = strdup (filename);
+	  ft_info->otf_flag = check_otf_filename (filename);
+	  fam = set_font_info (ft_face, ft_info, family);
+	  plist = mplist_get (ft_font_list, fam);
+	  if (! plist)
 	    {
-	      MSymbol family = MPLIST_KEY (plist);
-	      MFTInfo *ft_info;
-	      MPlist *p;
-
-	      MSTRUCT_CALLOC (ft_info, MERROR_FONT_FT);
-	      ft_info->filename = filename;
-	      ft_info->otf_flag = check_otf_filename (filename);
-	      family = set_font_info (ft_face, ft_info, family);
-	      p = mplist_get (ft_font_list, family);
-	      if (! p)
-		{
-		  p = mplist ();
-		  mplist_add (ft_font_list, family, p);
-		}
-	      mplist_add (p, family, ft_info);
+	      plist = mplist ();
+	      mplist_add (ft_font_list, fam, plist);
 	    }
-	  FT_Done_Face (ft_face);
+	  mplist_add (plist, fam, ft_info);
 	}
-      else
-	free (filename);
+      FT_Done_Face (ft_face);
     }
-  M17N_OBJECT_UNREF (font_list);
+  return ft_info;
 }
 
 #ifdef HAVE_XFT2
 
-static MPlist *
+static void
 xft_list (MSymbol family)
 {
   FcPattern *pattern;
   FcObjectSet *os;
   FcFontSet *fs;
-  MPlist *plist;
   int i;
 
   if (! fc_config)
     {
       char *pathname;
       struct stat buf;
+      MPlist *plist;
 
       FcInit ();
       fc_config = FcConfigGetCurrent ();
@@ -318,34 +311,32 @@ xft_list (MSymbol family)
   if (family)
     FcPatternAddString (pattern, FC_FAMILY,
 			(FcChar8 *) (msymbol_name (family)));
-  else
-    family = Mt;
-
-  os = FcObjectSetBuild (FC_FILE, NULL);
+  os = FcObjectSetBuild (FC_FILE, FC_FAMILY, FC_STYLE, NULL);
   fs = FcFontList (fc_config, pattern, os);
-  plist = mplist ();
   if (fs)
     {
       for (i = 0; i < fs->nfont; i++)
 	{
-	  FcChar8 *filename;
+	  char *filename;
+	  MFTInfo *ft_info;
 
-	  FcPatternGetString (fs->fonts[i], FC_FILE, 0, &filename);
-	  mplist_add (plist, family, strdup ((char *) filename));
+	  FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
+	  ft_info = add_font_info (filename, family);
+	  if (ft_info)
+	    ft_info->fontname = (char *) FcNameUnparse (fs->fonts[i]);
 	}
       FcFontSetDestroy (fs);
     }
   FcObjectSetDestroy (os);
   FcPatternDestroy (pattern);
-  return plist;
 }
 
 #else  /* not HAVE_XFT2 */
 
-static MPlist *
+static void
 ft_list ()
 {
-  MPlist *font_list = mplist (), *plist;
+  MPlist *plist;
   struct stat buf;
   char *pathname;
 
@@ -355,7 +346,7 @@ ft_list ()
 	&& stat (pathname, &buf) == 0)
       {
 	if (S_ISREG (buf.st_mode))
-	  mplist_add (font_list, Mt, strdup (pathname));
+	  add_font_info (pathname, Mnil);
 	else if (S_ISDIR (buf.st_mode))
 	  {
 	    int len = strlen (pathname);
@@ -371,13 +362,12 @@ ft_list ()
 		while ((dp = readdir (dir)) != NULL)
 		  {
 		    strcpy (path + len, dp->d_name);
-		    mplist_add (font_list, Mt, strdup (path));
+		    add_font_info (path, Mnil);
 		  }
 		closedir (dir);
 	      }
 	  }
       }
-  return font_list;
 }
 
 #endif
@@ -399,7 +389,7 @@ MFontDriver ft_driver =
 static MRealizedFont *
 ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 {
-  MPlist *plist;
+  MPlist *plist, *pl;
   MFTInfo *best_font;
   int best_score;
   MRealizedFont *rfont;
@@ -413,44 +403,56 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
   registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
   if (registry == Mnil)
     registry = Mt;
-  if (family == Mnil)
-    {
-      if (registry != Miso8859_1)
-	return NULL;
-    }
 
-#ifdef HAVE_XFT2
   if (! ft_font_list)
     ft_font_list = mplist ();
-  plist = mplist_get (ft_font_list, family);
-  if (! plist)
+#ifdef HAVE_XFT2
+  if (family != Mnil)
     {
-      add_font_list (xft_list (family));
       plist = mplist_get (ft_font_list, family);
       if (! plist)
-	mplist_add (ft_font_list, family, plist = mplist ());
+	{
+	  xft_list (family);
+	  plist = mplist_get (ft_font_list, family);
+	  if (! plist)
+	    {
+	      mplist_add (ft_font_list, family, plist = mplist ());
+	      return NULL;
+	    }
+	}
+    }
+  else
+    {
+      if (! all_fonts_scaned)
+	{
+	  xft_list (Mnil);
+	  all_fonts_scaned = 1;
+	}
     }
 #else  /* not HAVE_XFT2 */
-  if (! ft_font_list)
+  if (! all_fonts_scaned)
     {
-      ft_font_list = mplist ();
-      add_font_list (ft_list ());
+      ft_list ();
+      all_fonts_scaned = 1;
     }
   if (family != Mnil)
-    plist = mplist_get (ft_font_list, family);
-  else
-    plist = ft_iso8859_1_font_list;
-  if (! plist)
-    return NULL;
+    {
+      plist = mplist_get (ft_font_list, family);
+      if (! plist)
+	return NULL;
+    }
 #endif	/* not HAVE_XFT2 */
 
-  MPLIST_DO (plist, plist)
+  if (family == Mnil)
+    plist = MPLIST_VAL (ft_font_list);
+
+ retry:
+  MPLIST_DO (pl, plist)
     {
-      MFTInfo *ft_info = MPLIST_VAL (plist);
-      MPlist *p = mplist_find_by_key (ft_info->charmap_list, registry);
+      MFTInfo *ft_info = MPLIST_VAL (pl);
       int score;
 
-      if (! p)
+      if (! mplist_find_by_key (ft_info->charmap_list, registry))
 	continue;
       /* We always ignore FOUNDRY.  */
       ft_info->font.property[MFONT_FOUNDRY] = spec->property[MFONT_FOUNDRY];
@@ -464,6 +466,12 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 	  if (score == 0)
 	    break;
 	}
+    }
+  if (family == Mnil)
+    {
+      plist = MPLIST_NEXT (plist);
+      if (! MPLIST_TAIL_P (plist))
+	goto retry;
     }
   if (! best_font)
     return NULL;
@@ -514,6 +522,9 @@ ft_open (MRealizedFont *rfont)
   ft_info->otf_flag = ((MFTInfo *) rfont->info)->otf_flag;
   ft_info->filename = ((MFTInfo *) rfont->info)->filename;
   ft_info->charmap_list = ((MFTInfo *) rfont->info)->charmap_list;
+#ifdef HAVE_XFT2
+  ft_info->fontname = ((MFTInfo *) rfont->info)->fontname;
+#endif
   rfont->info = ft_info;
 
   rfont->status = -1;
@@ -530,7 +541,7 @@ ft_open (MRealizedFont *rfont)
     goto err;
   size = rfont->font.property[MFONT_SIZE] / 10;
 #ifdef HAVE_XFT2
-  ft_info->xft_info = mwin__xft_open (rfont->frame, ft_info->filename, size);
+  ft_info->xft_info = mwin__xft_open (rfont->frame, ft_info->fontname, size);
   if (! ft_info->xft_info)
     goto err;
 #else  /* not HAVE_XFT2 */
@@ -868,6 +879,7 @@ mfont__ft_fini ()
     }
   free (ft_to_prop);
   FT_Done_FreeType (ft_library);
+  all_fonts_scaned = 0;
 }
 
 
