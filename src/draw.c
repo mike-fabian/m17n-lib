@@ -302,10 +302,9 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  || MGLYPH (last)->type != g_tmp.type)
 	{
 	  g = MGLYPH (last);
-	  if (g->type == GLYPH_CHAR)
-	    while (g < gstring->glyphs + gstring->used)
-	      g = mface__for_chars (script, language, charset,
-				    g, gstring->glyphs + gstring->used, size);
+	  while (g < gstring->glyphs + gstring->used)
+	    g = mface__for_chars (script, language, charset,
+				  g, gstring->glyphs + gstring->used, size);
 	  if (pos == to)
 	    break;
 	  last = gstring->used;
@@ -353,14 +352,17 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       
       if ((c <= 32 || c == 127) && g_tmp.type == GLYPH_CHAR)
 	{
-	  g_tmp.c = '^';
-	  APPEND_GLYPH (gstring, g_tmp);
-	  if (c < ' ')
-	    g_tmp.c = c + 0x40;
-	  else
-	    g_tmp.c = '?';
+	  MGlyph ctrl[2];
+
+	  ctrl[0] = ctrl[1] = g_tmp;
+	  ctrl[0].c = '^';
+	  ctrl[1].c = c < ' ' ? c + 0x40 : '?';
+	  mface__for_chars (Mlatin, language, charset, ctrl, ctrl + 2, size);
+	  APPEND_GLYPH (gstring, ctrl[0]);
+	  APPEND_GLYPH (gstring, ctrl[1]);
 	}
-      APPEND_GLYPH (gstring, g_tmp);
+      else
+	APPEND_GLYPH (gstring, g_tmp);
       if (c == '\n'
 	  && gstring->control.two_dimensional)
 	break;
@@ -2662,7 +2664,10 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	{
 	  info->from = g->pos;
 	  info->to = g->to;
-	  info->glyph_code = (g->type == GLYPH_CHAR ? g->code : 0);
+	  if (g->type == GLYPH_CHAR)
+	    info->glyph_code = g->code;
+	  else
+	    info->glyph_code = mfont__encode_char (g->rface->rfont, ' ');
 	  info->x = g->xoff;
 	  info->y = g->yoff;
 	  info->this.x = g->lbearing;
