@@ -120,7 +120,7 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
   int len;
   char *buf, *p;
   MPlist *charmap_list;
-  int unicode_bmp = -1, unicode_full = -1, unicode;
+  int unicode_bmp = -1, unicode_full = -1, unicode = -1;
   int i;
 
   MFONT_INIT (font);
