@@ -2660,6 +2660,40 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
 /*=*/
 
+/***en
+    @brief Compute information about glyph sequence.
+
+    The mdraw_glyph_list () function computes information about glyphs
+    corresponding to the text between $FROM and $TO of M-text $MT when
+    it is drawn on a window of frame $FRAME using the
+    mdraw_text_with_control () function with the drawing control
+    object $CONTROL.  $GLYPHS is an array of objects to store the
+    information, and $ARRAY_SIZE is the array size.
+
+    If $ARRAY_SIZE is large enough to cover all glyphs, it stores the
+    number of actually filled elements in the place pointed by
+    $NUM_GLYPHS_RETURN, and returns 0.
+
+    Otherwise, it stores the required array size in the place pointed
+    by $NUM_GLYPHS_RETURN, and returns -1.  */
+
+/***ja
+    @brief グリフ列に関する情報を計算する.
+
+    関数 mdraw_glyph_list () は、関数 mdraw_text_with_control () が描画
+    制御オブジェクト $CONTROL を用いてM-text $MT の $FROM から $TO まで
+    をフレーム $FRAME に描画した場合の、各グリフの情報を $GLYPHS が指す
+    配列に格納する。 $ARRAY_SIZE はその配列のサイズである。
+
+    もし $ARRAY_SIZE がすべてのグリフについての情報を格納するのに十分で
+    あれば、 $NUM_GLYPHS_RETURN が指す場所に実際に埋めた要素の数を設定
+    し 0 を返す。  */
+
+/***
+    @seealso
+    MDrawGlyph
+*/
+
 int
 mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 		  MDrawControl *control, MDrawGlyph *glyphs,
