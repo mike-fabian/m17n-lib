@@ -1,3 +1,8 @@
+2004-11-19  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (reset_ic): Check if ic_info->state is NULL.
+	(filter): If ic_info->state is NULL, return 0.
+
 2004-11-15  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (find_candidates_group): If INDEX is -1, find the last
