@@ -1,3 +1,62 @@
+2004-09-13  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (Mlatin): Don't declare it here.
+	(visual_order): Fix reordering of combining characters.
+	(compose_glyph_string): Fix detection of script.
+	(layout_glyphs): Don't fix reordering of combining characters
+	here.
+	(layout_glyph_string): Pay attention to
+	control->disable_overlapping_adjustment.
+	(truncate_gstring): Include at least on character in a line.
+	(get_gstring): Always scan one full line.
+	(mdraw__init): Don't initialize Mlatin here.
+	(mdraw_text_per_char_extents): Fix iteration.  If a glyph doesn't
+	have a font, use ascent/descent of an ASCII font.  Allow
+	ink_array_return and logical_array_return to be NULL.
+	(mdraw_coordinates_position): Fix iteration.
+
+	* font-ft.c (MFTtoProp): Member completely changed.
+	(ft_to_prop): Adjusted for the above change.
+	(ft_to_prop_size): Likewise.
+	(set_font_info): Adjusted for the change of MFTtoProp.
+	(fc_generic_family_list): New variable.
+	(fc_list): Add special handling of generic font names.
+	(mfont__ft_init): Adjusted for the change of MFTtoProp.
+	Initialize fc_generic_family_list.
+	(mfont__ft_fini): Don't free ft_to_prop.  Free
+	fc_generic_family_list.
+	(FC_vs_M17N_font_prop): New type.
+	(fc_weight_table, fc_slant_table, fc_width_table): New variables.
+	(fc_decode_prop, fc_encode_prop): New functions.
+	(mfont__ft_parse_name): Use fc_decode_prop.
+	(mfont__ft_unparse_name): Use fc_encode_prop.
+
+	* m17n-X.c (MDisplayInfo): Delete member realized_font_list.
+	(MWDevice): Add member realized_font_list.
+	(free_display_info): Don't free disp_info->realized_font_list.
+	(free_device): Free device->realized_fontset_list.
+	(xft_find_metric): Use gstring->frame instead of rfont->frame.
+	(device_open): Don't initialize disp_info->realized_font_list.
+	(device_open): Initialize device->realized_font_list and set it to
+	frame->realized_font_list.
+
+	* fontset.c (try_font_group): New function.
+	(mfont__lookup_fontset): Use try_font_group.
+
+	* font.c (common_weight): Change the order of "regular".
+
+	* face.c (Mlatin): Don't make it static.
+	(mface__realize): Be sure to set work_gstring.frame.
+	(mface__for_chars): Likewise.
+
+	* mtext.c (mdebug_dump_mtext): Fix for the case of mt->format >
+	MTEXT_FORMAT_UTF_8.
+
+	* internal-gui.h (Mlatin): Extern it.
+
+	* m17n-gui.h (MDrawControl): New member
+	disable_overlapping_adjustment.
+
 2004-09-06  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (run_otf): Fix typo ('}'->']').
