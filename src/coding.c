@@ -2990,7 +2990,11 @@ mcoding__fini (void)
       if (coding->extra_info)
 	free (coding->extra_info);
       if (coding->extra_spec)
-	free (coding->extra_spec);
+	{
+	  if (coding->type == Miso_2022)
+	    free (((struct iso_2022_spec *) coding->extra_spec)->designations);
+	  free (coding->extra_spec);
+	}
       free (coding);
     }
   MLIST_FREE1 (&coding_list, codings);
