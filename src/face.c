@@ -102,7 +102,7 @@
 
 static M17NObjectArray face_table;
 
-static MSymbol Mlatin;
+MSymbol Mlatin;
 
 static MSymbol M_face_prop_index;
 
@@ -659,6 +659,7 @@ mface__realize (MFrame *frame, MFace **faces, int num,
     {
       rface->rfont = rfont;
       g.otf_encoded = 0;
+      work_gstring.frame = frame;
       work_gstring.glyphs[0] = g;
       work_gstring.glyphs[0].rface = rface;
       work_gstring.glyphs[1].code = MCHAR_INVALID_CODE;
@@ -744,6 +745,7 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
   rface = new;
   rface->rfont = rfont;
   rface->non_ascii_list = NULL;
+  work_gstring.frame = rface->frame;
   work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
   work_gstring.glyphs[0].rface = rface;
   mfont__get_metric (&work_gstring, 0, 1);
