@@ -116,7 +116,7 @@
 #include <m17n-misc.h>
 #include <m17n-X.h>
 
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 /* Global variables.  */
 
@@ -2462,7 +2462,7 @@ main (int argc, char **argv)
 	}
     }
   if (! filename)
-    help_exit (argv[0], 1);
+    filename = "/dev/null";
 
   mdatabase_dir = ".";
   /* Initialize the m17n library.  */
