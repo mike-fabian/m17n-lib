@@ -1,3 +1,33 @@
+2004-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Always get glyph codes by
+	mface__for_char.
+	(mdraw_glyph_info): Set info->glyph_code and info->logical_width.
+	(mdraw_glyph_list): New function.
+
+	* font-flt.c (mfont__flt_run): Be sure to call
+	rfont->driver->encode_char.
+
+	* font-ft.c (ft_find_metric): Don't call FT_Get_Char_Index.
+	(ft_encode_char): Delete arg C.
+	(ft_render): Don't call FT_Get_Char_Index.
+
+	* font.c (mfont__encodable_p): Delete it.
+	(mfont__encode_char): Be sure to call rfont->driver->encode_char.
+
+	* font.h (struct MFontDriver): Delete arg C of encode_char.
+	(mfont__encodable_p): Delete extern.
+
+	* m17n-X.c (xfont_encode_char): Delete arg C.
+	(xft_find_metric): Don't cal FT_Get_Char_Index.
+	(xft_render): Likewise.
+
+	* m17n-gui.h (MDrawGlyphInfo): New members glyph_code and
+	logical_width.
+	(mdraw_glyph_list): Extern it.
+
+	* Makefile.am (libm17n_X_la_LDFLAGS): Don't include ${X_LD_FLAGS}.
+
 2004-06-22  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (mfontset_lookup): Extern it.
