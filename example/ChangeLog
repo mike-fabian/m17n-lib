@@ -1,6 +1,7 @@
 2004-10-12  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (KeyProc): Cast buf to `unsigned char *'.
+	(FaceProc): Call hide_cursor () at first.
 
 2004-09-27  Kenichi Handa  <handa@m17n.org>
 
