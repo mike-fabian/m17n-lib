@@ -39,17 +39,16 @@
     @addtogroup m17nInputMethodWin
     @brief ウィンドウシステム上の入力メソッドのサポート.
 
-    入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
-    れる内部入力メソッド用である。このドライバは入力スポットに preedit 
-    テキストと status テキストを表示する。詳細については @c
-    minput_gui_driver の説明を参照のこと。
+    入力ドライバ @c minput_gui_driver は、
+    ウィンドウシステム上で用いられる内部入力メソッド用のドライバである。
+    このドライバは入力スポットに preedit テキストと status 
+    テキストを表示する。詳細については @c minput_gui_driver の説明を参照のこと。
 
-    m17n-X ライブラリは、@c Mxim と言う名前を持つ外部入力メソッドを提
-    供している。これは XIM (X Input Method) をバックグラウンドの入力エ
-    ンジンとして利用する。シンボル @c Mxim は @c Minput_driver という
-    プロパティを持っており、その値は入力ドライバ @c minput_xim_driver 
-    へのポインタである。 詳細については @c minput_xim_driver の説明を
-    参照のこと。  */
+    m17n-X ライブラリは、@c Mxim と言う名前を持つ外部入力メソッドを提供している。これは 
+    XIM (X Input Method) をバックグラウンドの入力エンジンとして利用する。シンボル
+    @c Mxim は @c Minput_driver というプロパティを持っており、その値は入力ドライバ 
+    @c minput_xim_driver へのポインタである。 詳細については 
+    @c minput_xim_driver の説明を参照のこと。  */
 
 /*=*/
 
@@ -607,9 +606,9 @@ minput__win_fini ()
     pointer to the structure @c MInputGUIArgIC.  See the documentation
     of @c MInputGUIArgIC for more details.
 
-    If the argument $KEY is @c Mnil, the argument $ARG of the
-    function minput_filter () must be a pointer to the object of type
-    @c XEvent.  In that case, $KEY is generated from $ARG.
+    If the argument $KEY of function minput_filter () is @c Mnil, the
+    argument $ARG must be a pointer to the object of type @c XEvent.
+    In that case, $KEY is generated from $ARG.
 
     The argument $ARG of the function minput_lookup () must be the
     same one as that of the function minput_filter (). */
@@ -617,26 +616,24 @@ minput__win_fini ()
 /***ja
     @brief ウィンドウシステムの内部入力メソッド用入力ドライバ.
 
-    入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
-    れる入力メソッド用である。
+    入力ドライバ @c minput_gui_driver
+    は、ウィンドウシステム上で用いられる入力メソッド用ドライバである。
 
-    このドライバは、関数 minput_set_spot () によって設定された入力スポッ
-    トに preedit テキスト用のサブウィンドウと status テキスト用のサブ
-    ウィンドウを作り、それぞれを表示する。
+    このドライバは、関数 minput_set_spot () によって設定された入力スポットに
+    preedit テキスト用のサブウィンドウと status 
+    テキスト用のサブウィンドウを作り、それぞれを表示する。
 
-    マクロ M17N_INIT () は変数 @c minput_driver をこのドライバ
-    へのポインタに設定し、全ての内部入力メソッドがこのドライバを使うよ
-    うにする。
+    マクロ M17N_INIT () は変数 @c minput_driver 
+    をこのドライバへのポインタに設定し、全ての内部入力メソッドがこのドライバを使うようにする。
 
     したがって、@c minput_driver がデフォルト値のままであれば、minput_ 
-    で始まる名前を持つ関数の引数のうちドライバ依存のものは以下のように
-    なる。
+    で始まる名前を持つ関数の引数のうちドライバ依存のものは以下のようになる。
 
     関数 minput_open_im () の引数 $ARG は無視される。
 
-    関数 minput_create_ic () の引数 $ARG は構造体 @c MInputGUIArgIC へ
-    のポインタでなくてはならない。詳細については @c MInputGUIArgIC の
-    説明を参照のこと。
+    関数 minput_create_ic () の引数 $ARG は構造体 @c MInputGUIArgIC 
+    へのポインタでなくてはならない。詳細については @c MInputGUIArgIC 
+    の説明を参照のこと。
 
     関数 minput_filter () の引数 $ARG が @c Mnil の場合、 $ARG は @c
     XEvent 型のオブジェクトへのポインタでなくてはならない。この場合 
@@ -657,8 +654,8 @@ MInputDriver minput_gui_driver;
 /***ja
     @brief "xim"を名前として持つシンボル .
 
-    変数 Mxim は"xim"を名前として持つシンボルである。"xim" は入力メソッ
-    ドドライバ #minput_xim_driver の名前である。  */ 
+    変数 Mxim は"xim"を名前として持つシンボルである。"xim" 
+    は入力メソッドドライバ #minput_xim_driver の名前である。  */ 
 
 MSymbol Mxim;
 
@@ -697,29 +694,28 @@ MSymbol Mxim;
 /***ja
     @brief イベントを入力キーに変換する.
 
-    関数 minput_name_to_key () は、$FRAME のイベント $EVENT に対応する
-    入力キーを返す。ここでの「対応」はウィンドウシステム依存である。
+    関数 minput_name_to_key () は、$FRAME のイベント $EVENT 
+    に対応する入力キーを返す。ここでの「対応」はウィンドウシステムに依存する。
 
-    m17n-X ライブラリの場合には、$EVENT は 構造体 @c XKeyEvent へのポ
-    インタであり、次のように処理される。
+    m17n-X ライブラリの場合には、$EVENT は 構造体 @c XKeyEvent 
+    へのポインタであり、次のように処理される。
 
-    まず、関数 @c XKeysymToString によって、$EVENT の keysym 名を取得
-    し、次いで以下の変更を加える。
+    まず、関数 @c XKeysymToString によって、$EVENT の keysym 
+    名を取得し、次いで以下の変更を加える。
 
-    名前が "a" .. "z" のいずれかであって $EVENT に Shift モディファイ
-    アがあれば、名前はそれぞれ "A" .. "Z" に変換され、Shift モディファ
-    イアは取り除かれる。
+    名前が "a" .. "z" のいずれかであって $EVENT に Shift 
+    モディファイアがあれば、名前はそれぞれ "A" .. "Z" に変換され、Shift 
+    モディファイアは取り除かれる。
 
-    名前が１バイト長で $EVENT に Control モディファイアがあれば、名前
-    と 0x1F をビット単位 and 演算する。Control モディファイアは取り除
-    かれる。
+    名前が１バイト長で $EVENT に Control モディファイアがあれば、名前と
+    0x1F とをビット単位 and 演算する。Control モディファイアは取り除かれる。
 
-    $EVENT にまだ Shift, Control, Meta, Alt, Super, Hyper などのモディ
-    ファイアがあれば、名前の前にそれぞれ"S-", "C-", "M-", "A-", "s-",
+    $EVENT にまだ Shift, Control, Meta, Alt, Super, Hyper 
+    などのモディファイアがあれば、名前の前にそれぞれ"S-", "C-", "M-", "A-", "s-",
     "H-" が付く。
     
-    たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper モディ
-    ファイアを持てば、得られる名前は "H-M-A" である。
+    たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper 
+    モディファイアを持てば、得られる名前は "H-M-A" である。
 
     最後にその名前を持つシンボルを返す。*/
 
