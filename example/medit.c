@@ -21,13 +21,13 @@
    02111-1307, USA.  */
 
 /***en
-    @enpage medit edit multilingual text
+    @enpage m17n-edit edit multilingual text
 
-    @section medit-synopsis SYNOPSIS
+    @section m17n-edit-synopsis SYNOPSIS
 
-    medit [ XT-OPTION ...] [ OPTION ... ] FILE
+    m17n-edit [ XT-OPTION ...] [ OPTION ... ] FILE
 
-    @section medit-description DESCRIPTION
+    @section m17n-edit-description DESCRIPTION
 
     Display FILE on a window and allow users to edit it.
 
@@ -48,18 +48,18 @@
     </ul>
 
     This program is to demonstrate how to use the m17n GUI API.
-    Although medit directly uses the GUI API, the API is mainly for
-    toolkit libraries or to implement XOM (X Outout Method), not for
-    direct use from application programs.
+    Although m17n-edit directly uses the GUI API, the API is mainly
+    for toolkit libraries or to implement XOM (X Outout Method), not
+    for direct use from application programs.
 */
 /***ja
-    @japage medit 多言語テキストの編集
+    @japage m17n-edit 多言語テキストの編集
 
-    @section medit-synopsis SYNOPSIS
+    @section m17n-edit-synopsis SYNOPSIS
 
-    medit [ XT-OPTION ...] [ OPTION ... ] FILE
+    m17n-edit [ XT-OPTION ...] [ OPTION ... ] FILE
 
-    @section medit-description DESCRIPTION
+    @section m17n-edit-description DESCRIPTION
 
     FILE をウィンドウに表示し、ユーザが編集できるようにする。
 
@@ -79,10 +79,10 @@
 
     </ul>
 
-    このプログラムは m17n GUI API の使い方を示すものである。medit は直 
-    接 GUI API を使っているが、この API は主にツールキットライブラリや
-    XOM (X Outout Method) の実装用であり、アプリケーションプログラ ム
-    からの直接の利用を意図していない。
+    このプログラムは m17n GUI API の使い方を示すものである。m17n-edit
+    は直接 GUI API を使っているが、この API は主にツールキットライブラ
+    リやXOM (X Outout Method) の実装用であり、アプリケーションプログラ
+    ムからの直接の利用を意図していない。
 */
 
 #ifndef FOR_DOXYGEN
@@ -2421,7 +2421,7 @@ main (int argc, char **argv)
   setlocale (LC_ALL, "");
   /* Create the top shell.  */
   XtSetLanguageProc (NULL, NULL, NULL);
-  ShellWidget = XtOpenApplication (&context, "MEdit", NULL, 0, &argc, argv,
+  ShellWidget = XtOpenApplication (&context, "M17NEdit", NULL, 0, &argc, argv,
 				   NULL, sessionShellWidgetClass, NULL, 0);
   display = XtDisplay (ShellWidget);
   screen = XScreenNumberOfScreen (XtScreen (ShellWidget));
@@ -2434,7 +2434,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("medit (m17n library) %s\n", VERSION);
+	  printf ("m17n-edit (m17n library) %s\n", VERSION);
 	  printf ("Copyright (C) 2003 AIST, JAPAN\n");
 	  exit (0);
 	}

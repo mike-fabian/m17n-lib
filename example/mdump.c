@@ -21,13 +21,13 @@
    02111-1307, USA.  */
 
 /***en
-    @enpage mdump dump text image
+    @enpage m17n-dump dump text image
 
-    @section mdump-synopsis SYNOPSIS
+    @section m17n-dump-synopsis SYNOPSIS
 
-    mdump [ OPTION ... ] [ FILE ]
+    m17n-dump [ OPTION ... ] [ FILE ]
 
-    @section mdump-description DESCRIPTION
+    @section m17n-dump-description DESCRIPTION
 
     Dump a text as PNG image file.
 
@@ -120,13 +120,13 @@
     </ul>
 */
 /***ja
-    @japage mdump テキスト画像のダンプ
+    @japage m17n-dump テキスト画像のダンプ
 
-    @section mdump-synopsis SYNOPSIS
+    @section m17n-dump-synopsis SYNOPSIS
 
-    mdump [ OPTION ... ] [ FILE ]
+    m17n-dump [ OPTION ... ] [ FILE ]
 
-    @section mdump-description DESCRIPTION
+    @section m17n-dump-description DESCRIPTION
 
     テキストを PNG 画像としてダンプする。 
 
@@ -459,7 +459,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("mdump (m17n library) %s\n", PROGRAM_VERSION);
+	  printf ("m17n-dump (m17n library) %s\n", PROGRAM_VERSION);
 	  printf ("Copyright (C) 2003, 2004 AIST, JAPAN\n");
 	  exit (0);
 	}
