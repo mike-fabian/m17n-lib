@@ -579,7 +579,9 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  /* Check if this font can display all glyphs.  */
 	  for (j = 0; j < *num; j++)
 	    {
-	      g[j].code = mfont__encode_char (rfont, g[j].c);
+	      g[j].code = mfont__encode_char (rfont,
+					      g[j].type = GLYPH_CHAR ? g[j].c
+					      : ' ');
 	      if (g[j].code == MCHAR_INVALID_CODE)
 		break;
 	    }
@@ -607,7 +609,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
 	  if (rfont->status < 0)
 	    continue;
-	  g->code = mfont__encode_char (rfont, g->c);
+	  g->code = mfont__encode_char (rfont,
+					g->type == GLYPH_CHAR ? g->c : ' ');
 	  if (g->code != MCHAR_INVALID_CODE)
 	    {
 	      if (rfont->status > 0
