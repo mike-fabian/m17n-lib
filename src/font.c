@@ -525,8 +525,9 @@ load_font_encoding_table ()
 	encoding->repertory_name = MPLIST_SYMBOL (elt);
 
       if (registry == Mnil)
-	registry = Mt;
-      pl = mplist_add (pl, registry, encoding);
+	mplist_push (font_encoding_list, Mt, encoding);
+      else
+	pl = mplist_add (pl, registry, encoding);
       continue;
 
     warning:
@@ -607,45 +608,46 @@ find_encoding (MFont *font)
 
   if (! font_encoding_list)
     load_font_encoding_table ();
-  if (! MPLIST_TAIL_P (font_encoding_list))
-    while (1)
-      {
-	plist = font_encoding_list;
-	while (registry ? (plist = mplist_find_by_key (plist, registry))
-	       : plist)
-	  {
-	    encoding = (MFontEncoding *) MPLIST_VAL (plist);
-	    if (mfont__match_p (font, &encoding->spec, MFONT_ADSTYLE))
-	      {
-		if (! encoding->encoding_charset)
-		  encoding->encoding_charset
-		    = MCHARSET (encoding->encoding_name);
-		if (! encoding->encoding_charset)
-		  {
-		    mplist_pop (plist);
-		    continue;
-		  }
-		if (encoding->repertory_name == encoding->encoding_name)
-		  encoding->repertory_charset = encoding->encoding_charset;
-		else if (encoding->repertory_name != Mnil)
-		  {
-		    encoding->repertory_charset
-		      = MCHARSET (encoding->repertory_name);
-		    if (! encoding->repertory_charset)
-		      {
-			mplist_pop (plist);
-			continue;
-		      }
-		  }
-		return encoding;
-	      }
-	    else
-	      plist = MPLIST_NEXT (plist);
-	  }
-	if (registry == Mnil || registry == Mt)
-	  break;
-	registry = Mt;
-      }
+  plist = font_encoding_list;
+  while (! MPLIST_TAIL_P (plist))
+    {
+      encoding = (MFontEncoding *) MPLIST_VAL (plist);
+      if (mfont__match_p (font, &encoding->spec, MFONT_REGISTRY))
+	{
+	  if (encoding->encoding_name != Mnil
+	      && ! encoding->encoding_charset)
+	    {
+	      encoding->encoding_charset = MCHARSET (encoding->encoding_name);
+	      if (! encoding->encoding_charset)
+		{
+		  mplist_pop (plist);
+		  continue;
+		}
+	    }
+	  if (encoding->repertory_name == encoding->encoding_name)
+	    encoding->repertory_charset = encoding->encoding_charset;
+	  else if (encoding->repertory_name != Mnil)
+	    {
+	      encoding->repertory_charset
+		= MCHARSET (encoding->repertory_name);
+	      if (! encoding->repertory_charset)
+		{
+		  mplist_pop (plist);
+		  continue;
+		}
+	    }
+	  return encoding;
+	}
+
+      if (registry && MPLIST_KEY (plist) != Mt)
+	{
+	  plist = mplist_find_by_key (plist, registry);
+	  if (! plist)
+	    break;
+	}
+      else
+	plist = MPLIST_NEXT (plist);
+    }
   return &default_encoding;
 }
 
