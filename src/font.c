@@ -712,7 +712,8 @@ xlfd_parse_name (char *name, MFont *font)
     field[i++] = NULL;
 
   resy = field[XLFD_RESY] ? atoi (field[XLFD_RESY]) : 0;
-  avgwidth = field[XLFD_AVGWIDTH] ? atoi (field[XLFD_AVGWIDTH]) : 0;
+  avgwidth = ((field[XLFD_AVGWIDTH] && isdigit (field[XLFD_AVGWIDTH][0]))
+	      ? atoi (field[XLFD_AVGWIDTH]) : 1);
   if (! avgwidth)
     size = 0;
   else if (! field[XLFD_PIXEL])
