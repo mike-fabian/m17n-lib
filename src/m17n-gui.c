@@ -144,21 +144,21 @@ m17n_fini_win (void)
     {
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize input-gui module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
       minput__win_fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize draw module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
       mdraw__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize face module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
       mface__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize fontset module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
       mfont__fontset_fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize window module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize window module."));
       mwin__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize font module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
       mfont__fini ();
       mframe_default = NULL;
       MDEBUG_POP_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize the gui modules."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
       MDEBUG_POP_TIME ();
       win_initialized = 0;
     }
