@@ -1,3 +1,15 @@
+2004-09-27  Kenichi Handa  <handa@m17n.org>
+
+	* internal-gui.h (struct MGlyphString): Delete members mt,
+	sub_width, sub_lbrearing, sub_rbearing, and region.
+
+	* draw.c (MSubTextExtents): New type.
+	(layout_glyphs): New arg extents.  Set its members.
+	(layout_glyph_string): Adjusted for the above change.
+	(alloc_gstring): Don't set gstring->mt.
+	(truncate_gstring): Call line_break function with mt instead of
+	gstring->mt.
+
 2004-09-22  Kenichi Handa  <handa@m17n.org>
 
 	* mtext.c (count_utf_16_chars): Count each code of invalid
