@@ -90,6 +90,10 @@ typedef struct
       these properties are important; FOUNDRY, FAMILY, REGISTRY.  */
   MPlist *base_font_list;
 
+  /** Nonzero means that <font_list> already contains all available
+      fonts on the display.  */
+  int all_fonts_scaned;
+
  /** Modifier bit masks of the display.  */
   int meta_mask;
   int alt_mask;
@@ -438,11 +442,12 @@ font_compare (const void *p1, const void *p2)
 }
 
 static MPlist *
-xfont_registry_list (MDisplayInfo *disp_info, MSymbol registry)
+xfont_registry_list (MFrame *frame, MSymbol registry)
 {
+  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
   MPlist *font_list = disp_info->font_list;
   MPlist *base_font_list = disp_info->base_font_list;
-  MPlist *plist = mplist (), *p;
+  MPlist *plist, *p;
   char pattern[1024];
   char **font_names, **names;
   int nfonts;
@@ -451,6 +456,10 @@ xfont_registry_list (MDisplayInfo *disp_info, MSymbol registry)
   MXFontList *xfont_table;
   MFont *bfont = NULL;
 
+  plist = mplist_get (font_list, registry);
+  if (plist)
+    return plist;
+  plist = mplist ();
   mplist_add (font_list, registry, plist);
   sprintf (pattern, "-*-*-*-*-*-*-*-*-*-*-*-*-%s", msymbol_name (registry));
   font_names = XListFonts (disp_info->display, pattern, 0x8000, &nfonts);
@@ -519,6 +528,23 @@ xfont_registry_list (MDisplayInfo *disp_info, MSymbol registry)
   return plist;
 }
 
+static void
+xfont_list_all (MFrame *frame)
+{
+  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
+  MPlist *font_encoding_list, *p;
+
+  if (disp_info->all_fonts_scaned)
+    return;
+  disp_info->all_fonts_scaned = 1;
+  font_encoding_list = mfont__encoding_list ();
+  if (! font_encoding_list)
+    return;
+  MPLIST_DO (p, font_encoding_list)
+    xfont_registry_list (frame, MPLIST_KEY (p));
+}
+
+
 typedef struct
 {
   M17NObject control;
@@ -531,7 +557,6 @@ typedef struct
 static MRealizedFont *
 xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
 
-  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
   MSymbol family = FONT_PROPERTY (spec, MFONT_FAMILY);
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
   int requested_size = request->property[MFONT_SIZE];
@@ -545,9 +570,8 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
       || ! strchr (MSYMBOL_NAME (registry), '-'))
     return NULL;
 
-  plist = mplist_get (disp_info->font_list, registry);
-  if (! plist
-      && ! (plist = xfont_registry_list (disp_info, registry)))
+  plist = xfont_registry_list (frame, registry);
+  if (MPLIST_TAIL_P (plist))
     return NULL;
   best_score = -1, best_font = NULL;
   if (family == Mnil)
@@ -882,13 +906,59 @@ static void
 xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 {
   MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
-  MPlist *p;
+  MSymbol registry = font ? FONT_PROPERTY (font, MFONT_REGISTRY) : Mnil;
+  MSymbol family = font ? FONT_PROPERTY (font, MFONT_FAMILY) : Mnil;
+  MPlist *p, *pl;
 
-  /* We have not yet implemented the language check.  */
-  MPLIST_DO (p, disp_info->base_font_list)
-    if (! font
-	|| mfont__match_p ((MFont *) MPLIST_VAL (p), font, MFONT_REGISTRY))
+  if (registry != Mnil)
+    xfont_registry_list (frame, registry);
+  else
+    xfont_list_all (frame);
+
+  /* As we have not yet implemented the language check, return all
+     base fonts.  */
+  if (! font)
+    MPLIST_DO (p, disp_info->base_font_list)
       mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
+  else
+    {
+      MXFontList *xfontlist;
+      MXFont *xfont;
+      int i;
+
+      pl = disp_info->font_list;
+      if (registry != Mnil)
+	{
+	  pl = mplist_find_by_key (pl, registry);
+	  if (! pl)
+	    return;
+	}
+
+      MPLIST_DO (pl, pl)
+	{
+	  p = MPLIST_VAL (pl);
+	  if (family != Mnil)
+	    {
+	      p = mplist_find_by_key (p, family);
+	      if (! p)
+		return;
+	    }
+	  MPLIST_DO (p, p)
+	    {
+	      xfontlist = MPLIST_VAL (p);
+	      for (i = 0; i < xfontlist->used; i++)
+		{
+		  xfont = xfontlist->fonts + i;
+		  if (mfont__match_p (&xfont->core, font, MFONT_REGISTRY))
+		    mplist_push (plist, MPLIST_KEY (p), &xfont->core);
+		}
+	      if (family != Mnil)
+		break;
+	    }
+	  if (registry != Mnil)
+	    break;
+	}
+    }
 }
 
 
