@@ -1,3 +1,7 @@
+2005-03-09  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8, HELLO.xml, HELLO.html: Fix Telugu line.
+
 2005-02-17  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (setup_input_methods): Fix for the case that no input
