@@ -27,6 +27,9 @@ AC_INIT(m17n-lib, 1.1.0, m17n-lib-bug@m17n.org)
 AM_INIT_AUTOMAKE(m17n-lib, 1.1.0)
 AM_CONFIG_HEADER(src/config.h)
 
+API_VERSION=1:0:1
+AC_SUBST(API_VERSION)
+
 # Checks for programs for compiling.
 AC_PROG_CC
 AC_LIBTOOL_DLOPEN
