@@ -1417,7 +1417,7 @@ mfont_from_name (char *name)
     @brief Make a copy of a font.
 
     The mfont_copy () function returns a new copy of font $FONT.  */
-/***en
+/***ja
     @brief フォントのコピーを作る.
 
     関数 Mfont_copy () はフォント $FONT のコピーを作り、それを返す。 */
