@@ -423,8 +423,8 @@ static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned xfont_encode_char (MRealizedFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
-static MPlist *xfont_list (MFrame *frame, MPlist *plist,
-			   MFont *font, MSymbol language);
+static void xfont_list (MFrame *frame, MPlist *plist,
+			MFont *font, MSymbol language);
 
 
 static MFontDriver xfont_driver =
@@ -878,7 +878,7 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
     }
 }
 
-static MPlist *
+static void
 xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 {
   MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
@@ -889,7 +889,6 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
     if (! font
 	|| mfont__match_p ((MFont *) MPLIST_VAL (p), font, MFONT_REGISTRY))
       mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
-  return plist;
 }
 
 
