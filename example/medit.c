@@ -182,7 +182,14 @@ MFace *face_input_status;
 
 int logical_move = 1;		/* If 0, move cursor visually.  */
 
-MInputMethod **input_method_table;
+typedef struct {
+  int available;
+  MSymbol language, name;
+  MInputMethod *im;
+} InputMethodInfo;
+
+InputMethodInfo *input_method_table;
+
 int num_input_methods;
 int current_input_method = -1;	/* i.e. none */
 int auto_input_method = 0;
@@ -658,7 +665,7 @@ select_input_method (idx)
     }
   if (idx >= 0)
     {
-      MInputMethod *im = input_method_table[idx];
+      InputMethodInfo *im = input_method_table + idx;
 
       if (im->language == Mnil)
 	{
@@ -668,7 +675,7 @@ select_input_method (idx)
 	  arg_xic.input_style = 0;
 	  arg_xic.client_win = arg_xic.focus_win = win;
 	  arg_xic.preedit_attrs =  arg_xic.status_attrs = NULL;
-	  current_input_context = minput_create_ic (im, &arg_xic);
+	  current_input_context = minput_create_ic (im->im, &arg_xic);
 	}
       else
 	{
@@ -677,7 +684,7 @@ select_input_method (idx)
 	  arg_ic.frame = frame;
 	  arg_ic.client = (MDrawWindow) XtWindow (ShellWidget);
 	  arg_ic.focus = (MDrawWindow) XtWindow (TextWidget);
-	  current_input_context = minput_create_ic (im, &arg_ic);
+	  current_input_context = minput_create_ic (im->im, &arg_ic);
 	}
 
       if (current_input_context)
@@ -818,10 +825,24 @@ show_cursor (XtPointer client_data)
 	      int i;
 
 	      for (i = 0; i < num_input_methods; i++)
-		if (input_method_table[i]->language == sym)
+		if (input_method_table[i].language == sym)
 		  break;
-	      if (i < num_input_methods)
-		select_input_method (i);
+	      if (i < num_input_methods
+		  && input_method_table[i].available >= 0)
+		{
+		  if (! input_method_table[i].im)
+		    {
+		      input_method_table[i].im = 
+			minput_open_im (input_method_table[i].language,
+					input_method_table[i].name, NULL);
+		      if (! input_method_table[i].im)
+			input_method_table[i].available = -1;
+		    }
+		  if (input_method_table[i].im)
+		    select_input_method (i);
+		  else
+		    select_input_method (-1);
+		}
 	      else
 		select_input_method (-1);
 	    }
@@ -1734,8 +1755,19 @@ InputMethodProc (Widget w, XtPointer client_data, XtPointer call_data)
       auto_input_method = 1;
       hide_cursor ();
     }
-  else
-    select_input_method (idx);
+  else if (input_method_table[idx].available >= 0)
+    {
+      if (! input_method_table[idx].im)
+	{
+	  input_method_table[idx].im = 
+	    minput_open_im (input_method_table[idx].language,
+			    input_method_table[idx].name, NULL);
+	  if (! input_method_table[idx].im)
+	    input_method_table[idx].available = -1;
+	}
+      if (input_method_table[idx].im)
+	select_input_method (idx);
+    }
   XtSetArg (arg[0], XtNleftBitmap, CheckPixmap);
   XtSetValues (InputMethodMenus[idx + 2], arg, 1);
 }
@@ -1907,8 +1939,8 @@ input_status (MInputContext *ic, MSymbol command)
 int
 compare_input_method (const void *elt1, const void *elt2)
 {
-  const MInputMethod *im1 = *(MInputMethod **) elt1;
-  const MInputMethod *im2 = *(MInputMethod **) elt2;
+  const InputMethodInfo *im1 = elt1;
+  const InputMethodInfo *im2 = elt2;
   MSymbol lang1, lang2;
 
   if (im1->language == Mnil)
@@ -1928,7 +1960,6 @@ void
 setup_input_methods (int with_xim)
 {
   MInputMethod *im = NULL;
-  MInputXIMArgIM arg_xim;
   MPlist *plist = mdatabase_list (msymbol ("input-method"), Mnil, Mnil, Mnil);
   MPlist *pl;
   int i = 0;
@@ -1937,6 +1968,8 @@ setup_input_methods (int with_xim)
 
   if (with_xim)
     {
+      MInputXIMArgIM arg_xim;
+
       arg_xim.display = display;
       arg_xim.db = NULL;  
       arg_xim.res_name = arg_xim.res_class = NULL;
@@ -1946,9 +1979,16 @@ setup_input_methods (int with_xim)
       if (im)
 	num_input_methods++;
     }
-  input_method_table = calloc (num_input_methods, sizeof (MInputMethod *));
+  input_method_table = calloc (num_input_methods, sizeof (InputMethodInfo));
   if (im)
-    input_method_table[i++] = im;
+    {
+      input_method_table[i].available = 1;
+      input_method_table[i].language = Mnil;
+      input_method_table[i].name = im->name;
+      input_method_table[i].im = im;
+      i++;
+    }
+
   for (pl = plist; mplist_key (pl) != Mnil; pl = mplist_next (pl))
     {
       MDatabase *mdb = mplist_value (pl);
@@ -1956,9 +1996,9 @@ setup_input_methods (int with_xim)
 
       if (tag[1] != Mnil)
 	{
-	  im = minput_open_im (tag[1], tag[2], NULL);
-	  if (im)
-	    input_method_table[i++] = im;
+	  input_method_table[i].language = tag[1];
+	  input_method_table[i].name = tag[2];
+	  i++;
 	}
     }
 
@@ -2543,7 +2583,7 @@ main (int argc, char **argv)
     SetMenu (menus[1], 0, "auto", NULL, InputMethodProc, -1, 0);
     for (i = 0; i < num_input_methods; i++)
       {
-	MInputMethod *im = input_method_table[i];
+	InputMethodInfo *im = input_method_table + i;
 	char *name1, *name2;
 
 	if (im->language != Mnil && im->language != Mt)
@@ -2779,7 +2819,8 @@ main (int argc, char **argv)
   if (current_input_context)
     minput_destroy_ic (current_input_context);
   for (i = 0; i < num_input_methods; i++)
-    minput_close_im (input_method_table[i]);
+    if (input_method_table[i].im)
+      minput_close_im (input_method_table[i].im);
   m17n_object_unref (frame);
   m17n_object_unref (mt);
   m17n_object_unref (face_xxx_large);
