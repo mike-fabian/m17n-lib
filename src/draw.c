@@ -779,6 +779,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		  pad.xoff = 0;
 		  pad.lbearing = 0;
 		  pad.width = pad.rbearing = extra_width;
+		  pad.left_padding = 1;
 		  INSERT_GLYPH (gstring, from, pad);
 		  to++;
 		  gstring->sub_lbearing = 0;
@@ -822,6 +823,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		      pad.xoff = 0;
 		      pad.lbearing = 0;
 		      pad.width = pad.rbearing = extra_width;
+		      pad.rbearing = 1;
 		      INSERT_GLYPH (gstring, to, pad);
 		      to++;
 		    }
@@ -2649,6 +2651,7 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
   MGlyphString *gstring;
   MGlyph *g;
   int n;
+  int pad_width;
 
   ASSURE_CONTROL (control);
   *num_glyphs_return = 0;
@@ -2661,25 +2664,37 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
       if (g->type == GLYPH_BOX
 	  || g->pos < from || g->pos >= to)
 	continue;
+      if (g->type == GLYPH_PAD)
+	{
+	  if (g->left_padding)
+	    pad_width = g->width;
+	  else if (n > 0)
+	    {
+	      pad_width = 0;
+	      info[-1]->x += g->width;
+	      info[-1]->this.x += g->width;
+	      info[-1]->this.width += g->width;
+	      info[-1]->logical_width += g->width;
+	    }
+	  continue;
+	}
       if (n < array_size)
 	{
 	  info->from = g->pos;
 	  info->to = g->to;
-	  if (g->type == GLYPH_CHAR)
-	    info->glyph_code = g->code;
-	  else
-	    info->glyph_code = mfont__encode_char (g->rface->rfont, ' ');
-	  info->x = g->xoff;
+	  info->glyph_code = g->code;
+	  info->x = g->xoff + pad_width;
 	  info->y = g->yoff;
-	  info->this.x = g->lbearing;
+	  info->this.x = g->lbearing + pad_width;
 	  info->this.y = - g->ascent;
 	  info->this.height = g->ascent + g->descent;
-	  info->this.width = g->rbearing - g->lbearing;
+	  info->this.width = g->rbearing - g->lbearing + pad_width;
 	  info->logical_width = g->width;
 	  if (g->rface->rfont)
 	    info->font = &g->rface->rfont->font;
 	  else
 	    info->font = NULL;
+	  pad_width = 0;
 	  info++;
 	}
       n++;
