@@ -4404,6 +4404,9 @@ mconv_decode (MConverter *converter, MText *mt)
 
   M_CHECK_READONLY (mt, NULL);
 
+  if (mt->format != MTEXT_FORMAT_UTF_8)
+    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+
   if (! mt->data)
     mtext__enlarge (mt, MAX_UTF8_CHAR_BYTES);
 
@@ -5037,6 +5040,9 @@ mconv_gets (MConverter *converter, MText *mt)
   int c;
 
   M_CHECK_READONLY (mt, NULL);
+  if (mt->format != MTEXT_FORMAT_UTF_8)
+    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+
   while (1)
     {
       c = mconv_getc (converter);
