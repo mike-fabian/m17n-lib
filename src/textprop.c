@@ -37,7 +37,7 @@
     have multiple values.  "The text property whose key is K" may be
     shortened to "K property".  */
 
-/***ja
+/***oldja
     @addtogroup m17nTextProperty
     @brief テキストプロパティを操作するための関数
 
@@ -1465,7 +1465,7 @@ mtext__adjust_plist_for_insert (MText *mt, int pos, int nchars,
     If you need to distinguish these two cases, use the
     mtext_get_prop_values () function instead.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティの一番上の値を得る
 
     関数 mtext_get_prop () は、M-text $MT 内で $POS という位置にある文
@@ -1536,7 +1536,7 @@ mtext_get_prop (MText *mt, int pos, MSymbol key)
     0. If an error is detected, mtext_get_prop_values () returns -1 and
     assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティの値を複数得る
 
     関数 mtext_get_prop_values () は、M-text $MT 内で $POS という位置
@@ -1615,7 +1615,7 @@ mtext_get_prop_values (MText *mt, int pos, MSymbol key,
 
 */
 
-/***ja
+/***oldja
     @brief テキストプロパティのキーのリストを得る
 
     関数 mtext_get_prop_keys () は、M-text $MT 内で $POS の位置にある
@@ -1690,7 +1690,7 @@ PROP  :  <-- OLD_VAL-><-------- VAL -------><-- OLD_VAL-->
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティを設定する
 
     関数 mtext_put_prop () は、M-text $MT の $FROM （含まれる）から 
@@ -1765,7 +1765,7 @@ mtext_put_prop (MText *mt, int from, int to, MSymbol key, void *val)
     0.  Otherwise it returns -1 and assigns an error code to the
     external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief 同じキーのテキストプロパティを複数設定する
 
     関数 mtext_put_prop_values () は、M-Text $MT の$FROM （含まれる）
@@ -1848,7 +1848,7 @@ PROP  :               <-------- VAL ------->
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティをプッシュする
 
     関数 mtext_push_prop () は、キーが $KEY で値が $VAL であるテキスト
@@ -2001,7 +2001,7 @@ PROP  :  <--OLD_VAL-->|                     |<--OLD_VAL-->|
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティをポップする
 
     関数 mtext_pop_prop () は、キーが $KEY であるテキストプロパティの
@@ -2138,7 +2138,7 @@ mtext_pop_prop (MText *mt, int from, int to, MSymbol key)
     returns -1 and assigns an error code to the external variable @c
     merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティが同じ値をとる範囲を調べる.
 
     関数 mtext_prop_range () は、連続した文字が同じプロパティの値を持っ

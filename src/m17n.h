@@ -45,7 +45,7 @@ extern void m17n_fini (void);
 #define M17N_FINI() m17n_fini ()
 
 /***en @defgroup m17nShell SHELL API */
-/***ja @defgroup m17nShell SHELL API */
+/***oldja @defgroup m17nShell SHELL API */
 /*=*/
 
 /*
@@ -54,7 +54,7 @@ extern void m17n_fini (void);
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nDatabase Database */
-/***ja @defgroup m17nDatabase 言語情報データベース */
+/***oldja @defgroup m17nDatabase 言語情報データベース */
 /*=*/
 /* Directory of an application specific databases.  */
 extern char *mdatabase_dir;
@@ -66,7 +66,7 @@ extern char *mdatabase_dir;
 
     The type #MDatabase is for a database object.  Its internal
     structure is concealed from application programs.  */
-/***ja データベースの型宣言 */
+/***oldja データベースの型宣言 */
 typedef struct MDatabase MDatabase;
 
 /*=*/
@@ -95,7 +95,7 @@ extern MDatabase *mdatabase_define (MSymbol tag1, MSymbol tag2,
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nCharset Charset */
-/***ja @defgroup m17nCharset 文字セット */
+/***oldja @defgroup m17nCharset 文字セット */
 /*=*/
 #define MCHAR_INVALID_CODE 0xFFFFFFFF
 
@@ -153,7 +153,7 @@ extern int mchar_map_charset (MSymbol charset_name,
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nConv Code Conversion */
-/***ja @defgroup m17nConv コード変換 */
+/***oldja @defgroup m17nConv コード変換 */
 /*=*/
 
 /* Predefined coding systems */
@@ -210,7 +210,7 @@ extern MSymbol Mmaybe;
 
     One of these values is set in @c MConverter-\>result.   */
 
-/***ja
+/***oldja
     @brief コード変換の結果を示すコード
 
     これらの値のうち一つが @c MConverter-\>result に設定される。  */
@@ -218,30 +218,30 @@ extern MSymbol Mmaybe;
 enum MConversionResult
   {
     /***en Code conversion is successful. */
-    /***ja コード変換は成功。 */
+    /***oldja コード変換は成功。 */
     MCONVERSION_RESULT_SUCCESS,
 
     /***en On decoding, the source contains an invalid byte. */
-    /***ja デコードの際、ソースに不正なバイトが含まれる。 */
+    /***oldja デコードの際、ソースに不正なバイトが含まれる。 */
     MCONVERSION_RESULT_INVALID_BYTE,
 
     /***en On encoding, the source contains a character that cannot be
 	encoded by the specified coding system. */
 
-    /***ja エンコードの際、ソースに指定のコード系で
+    /***oldja エンコードの際、ソースに指定のコード系で
 	エンコードできない文字が含まれる。 */
     MCONVERSION_RESULT_INVALID_CHAR,
 
     /***en On decoding, the source ends with an incomplete byte sequence. */
-    /***ja デコードの際、ソースが不完全なバイト列で終わる。*/
+    /***oldja デコードの際、ソースが不完全なバイト列で終わる。*/
     MCONVERSION_RESULT_INSUFFICIENT_SRC,
 
     /***en On encoding, the destination is too short to store the result. */
-    /***ja エンコードの際、結果を格納する領域が短かすぎる。 */
+    /***oldja エンコードの際、結果を格納する領域が短かすぎる。 */
     MCONVERSION_RESULT_INSUFFICIENT_DST,
 
     /***en An I/O error occurred in the conversion.  */
-    /***ja コード変換中に I/O エラーが起こった。  */
+    /***oldja コード変換中に I/O エラーが起こった。  */
     MCONVERSION_RESULT_IO_ERROR
   };
 /*=*/
@@ -252,7 +252,7 @@ enum MConversionResult
 
     The first three members are to control the conversion.  */
 
-/***ja
+/***oldja
     @brief コード変換に用いられる構造体 
 
     @latexonly \IPAlabel{MConverter} @endlatexonly  
@@ -276,7 +276,7 @@ typedef struct
       with "<U+XXXX>" (if the character is a Unicode character) or
       with "<M+XXXXXX>" (otherwise).  */
 
-  /***ja
+  /***oldja
       厳密な変換が必要でない場合にこのフラグビットをたてる。デフォ
       ルトでは、変換は厳密である。
 
@@ -319,7 +319,7 @@ typedef struct
 	If the value is zero, the conversion never produce such a byte
 	sequence at the end.  */
 
-    /***ja
+    /***oldja
 	文字コード列の終端部分をエンコードする際には、このフラグを立て
 	る。この場合出力コードポイント列のコンテクストを元に戻すための
 	数バイトが付加的に生成されることがある。
@@ -344,7 +344,7 @@ typedef struct
   /***en
       Number of characters most recently decoded or encoded. */
 
-  /***ja
+  /***oldja
       最後にデコード/エンコードされた文字数 */
 
   int nchars;
@@ -352,7 +352,7 @@ typedef struct
   /***en
       Number of bytes recently decoded or encoded. */
 
-  /***ja
+  /***oldja
       最後にデコード/エンコードされたバイト数 */
 
   int nbytes;
@@ -360,7 +360,7 @@ typedef struct
   /***en
       Result code of the conversion. */
 
-  /***ja
+  /***oldja
       コード変換の結果を示すコード */
 
   enum MConversionResult result;
@@ -371,7 +371,7 @@ typedef struct
       that @c status is aligned so that any type of casting is safe
       and at least 256 bytes of memory space can be used.  */
 
-  /***ja
+  /***oldja
       コード変換の状況に関する情報。内容はコード系のタイプによって異な
       る。@c status はどのような型へのキャストに対しても安全なようにメ
       モリアラインされており、また最低256バイトのメモリ領域が使えるよ
@@ -392,7 +392,7 @@ typedef struct
 
 /*** @ingroup m17nConv */
 /***en @brief Types of coding system  */
-/***ja @brief コード系のタイプ  */
+/***oldja @brief コード系のタイプ  */
 
 enum MCodingType
   {
@@ -405,7 +405,7 @@ enum MCodingType
 	The m17n library provides the default decoding and encoding
 	routines of this type.  */
 
-    /***ja
+    /***oldja
 	このタイプのコード系は文字セットを直接サポートする。各文字セッ
 	トの次元とは、その文字セットで一文字を表現するために必要なバイ
 	ト数であり、バイト列は文字のコードポイントを直接表わす。
@@ -422,7 +422,7 @@ enum MCodingType
 	The m17n library provides the default decoding and encoding
 	routines of this type.  */
 
-    /***ja
+    /***oldja
 	このタイプのコード系は、UTF 系 (UTF-8, UTF-16, UTF-32) のバイ
 	ト列をサポートする。
 
@@ -439,7 +439,7 @@ enum MCodingType
 	The m17n library provides decoding and encoding routines of
 	this type.  */
 
-    /***ja
+    /***oldja
 	このタイプのコード系は、ISO-2022 系のバイト列をサポートする。
 	これらのコード系の構造の詳細は @c MCodingInfoISO2022 で指定さ
 	れる。
@@ -457,7 +457,7 @@ enum MCodingType
 	routines of this type.  They must be provided by the
 	application program.  */
 
-    /***ja
+    /***oldja
 	このタイプのコード系は、その他の構造のバイト列のためのものであ
 	る。
 
@@ -473,7 +473,7 @@ enum MCodingType
 /***en @brief Bit-masks to specify the detail of coding system whose type is
     MCODING_TYPE_ISO_2022.  */
 
-/***ja @brief MCODING_TYPE_ISO_2022 タイプのコード系の詳細を表わすビットマス
+/***oldja @brief MCODING_TYPE_ISO_2022 タイプのコード系の詳細を表わすビットマス
     ク  */
 
 enum MCodingFlagISO2022
@@ -481,28 +481,28 @@ enum MCodingFlagISO2022
     /***en
 	On encoding, reset the invocation and designation status to
 	initial at end of line.  */
-    /***ja エンコードの際、行末で呼び出し (invocation) と指示
+    /***oldja エンコードの際、行末で呼び出し (invocation) と指示
 	(designation) の状態を初期値に戻す。   */
     MCODING_ISO_RESET_AT_EOL =		0x1,
 
     /***en
 	On encoding, reset the invocation and designation status to
 	initial before any control codes.  */
-    /***ja
+    /***oldja
 	エンコードの際、すべての制御文字の前で、呼び出し
 	(invocation) と指示 (designation) の状態を初期値に戻す。        */
     MCODING_ISO_RESET_AT_CNTL =		0x2,
 
     /***en
 	Use the right graphic plane.  */
-    /***ja
+    /***oldja
 	図形文字集合の右側を使う。  */
     MCODING_ISO_EIGHT_BIT =		0x4,
 
     /***en
 	Use the non-standard 4 bytes format for designation sequence
 	for charsets JISX0208.1978, GB2312, and JISX0208.1983.  */
-    /***ja
+    /***oldja
 	JISX0208.1978, GB2312, JISX0208.1983 の文字集合に対する指示シー
 	クエンスとして、非標準の4バイト形式を用いる。 */
 
@@ -511,7 +511,7 @@ enum MCodingFlagISO2022
     /***en
 	On encoding, unless explicitly specified, designate charsets
 	to G0.  */
-    /***ja
+    /***oldja
 	エンコードの際、特に指定されない限り、文字集合を G0 に
 	指示する。*/
     MCODING_ISO_DESIGNATION_G0 =		0x10,
@@ -519,7 +519,7 @@ enum MCodingFlagISO2022
     /***en
 	On encoding, unless explicitly specified, designate charsets
 	except for ASCII to G1.  */
-    /***ja
+    /***oldja
 	エンコードの際、特に指定されない限り、ASCII 以外の文字集合を G1 
 	に指示する。*/
     MCODING_ISO_DESIGNATION_G1 =		0x20,
@@ -527,7 +527,7 @@ enum MCodingFlagISO2022
     /***en
 	On encoding, unless explicitly specified, designate 94-chars
 	charsets to G0, 96-chars charsets to G1.  */
-    /***ja
+    /***oldja
 	エンコードの際、特に指定されない限り、94文字集合を G0 
 	に、96文字集合を G1 に指示する。*/
     MCODING_ISO_DESIGNATION_CTEXT =	0x40,
@@ -537,7 +537,7 @@ enum MCodingFlagISO2022
 	by ESC % / ..., and encode non-supported Unicode characters by
 	ESC % G ... ESC % @@ .  On decoding, handle those escape
 	sequences.  */
-    /***ja
+    /***oldja
 	エンコードの際、ISO-2022 に合致しない文字集合を ESC % / ... でエ
 	ンコードする。サポートされていない Unicode 文字は ESC % G ...
 	ESC % @@ でエンコードする。
@@ -546,46 +546,46 @@ enum MCodingFlagISO2022
 
     /***en
 	Use locking shift.  */
-    /***ja
+    /***oldja
 	ロッキングシフトを使う。  */
     MCODING_ISO_LOCKING_SHIFT =	0x100,
 
     /***en
 	Use single shift (SS2 (0x8E or ESC N), SS3 (0x8F or ESC O)).  */
-    /***ja
+    /***oldja
 	シングルシフト (SS2 or ESC N) を使う。  */
     MCODING_ISO_SINGLE_SHIFT =	0x200,
 
     /***en
 	Use 7-bit single shift 2 (SS2 (0x19)).  */
-    /***ja
+    /***oldja
 	シングルシフト (0x19) を使う。  */
     MCODING_ISO_SINGLE_SHIFT_7 =	0x400,
 
     /***en
 	Use EUC-TW like special shifting.  */
-    /***ja
+    /***oldja
 	EUC-TW 風の特別なシフトを使う。  */
     MCODING_ISO_EUC_TW_SHIFT =	0x800,
 
     /***en
 	Use ISO-6429 escape sequences to indicate direction.
 	Not yet implemented.  */
-    /***ja
+    /***oldja
 	ISO-6429 のエスケープシークエンスで方向を指示する。  */
     MCODING_ISO_ISO6429 =		0x1000,
 
     /***en
 	On encoding, if a charset has revision number, produce escape
 	sequences to specify the number.  */
-    /***ja
+    /***oldja
 	エンコードの際、文字セットに revision number があればそ
 	れを表わすエスケープシークエンスを生成する。        */
     MCODING_ISO_REVISION_NUMBER =	0x2000,
 
     /***en
 	Support all ISO-2022 charsets.  */
-    /***ja
+    /***oldja
 	ISO-2022 の全文字集合をサポートする  */
     MCODING_ISO_FULL_SUPPORT =		0x3000,
 
@@ -600,7 +600,7 @@ enum MCodingFlagISO2022
     Structure for extra information about a coding system of type
     MCODING_TYPE_ISO_2022.  */
 
-/***ja
+/***oldja
     @brief MCODING_TYPE_ISO_2022 タイプのコード系で必要
     な付加情報用構造体
 
@@ -613,7 +613,7 @@ typedef struct
       to each graphic plane (Graphic Left and Graphic Right).  -1
       means no code extension element is invoked to that plane.  */
 
-  /***ja
+  /***oldja
       各図形文字領域 (Graphic Left と Graphic Right) に呼び出されてい
       る、ISO2022 符合拡張要素の番号のテーブル。-1 はその領域にどの符
       合拡張要素も呼び出されていないことを示す。   */
@@ -634,7 +634,7 @@ typedef struct
       Initially, the charset is not designated to any graphic
       register.  */
 
-  /***ja
+  /***oldja
 
   符合拡張要素のテーブル。N番目の要素は、$CHARSET_NAMES の N 番目
   の文字セットに対応する。$CHARSET_NAMES は関数 
@@ -652,7 +652,7 @@ typedef struct
   /***en
       Bitwise OR of @c enum @c MCodingFlagISO2022 .  */
 
-  /***ja
+  /***oldja
       @c enum @c MCodingFlagISO2022 のビット単位での論理 OR  */
 
   unsigned flags;
@@ -665,7 +665,7 @@ typedef struct
     @brief Structure for extra information about a coding system of
     type #MCODING_TYPE_UTF.  */
 
-/***ja
+/***oldja
     @brief MCODING_TYPE_UTF タイプのコード系で必要な付加情報用の構造体
 
     @latexonly \IPApage{MCodingInfoUTF} @endlatexonly
@@ -697,7 +697,7 @@ typedef struct
 
       If <code_unit_bits> is 8, the value has no meaning.  */
 
-  /***ja
+  /***oldja
       先頭の BOM (バイトオーダーマーク) の取り扱いを指定する。値は 0,
       1, 2 のいずれかであり、それぞれの意味は以下のようになる。
 
@@ -720,7 +720,7 @@ typedef struct
       little endian, and 1 means big endian.
 
       If <code_unit_bits> is 8, the value has no meaning.  */
-  /***ja
+  /***oldja
       エンディアンのタイプを指定する。値は 0 か 1 であり、0 ならばリト
       ルエンディアン、1 ならばビッグエンディアンである。*/
   int endian;
@@ -782,7 +782,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nLocale Locale */
-/***ja @defgroup m17nLocale ロケール */
+/***oldja @defgroup m17nLocale ロケール */
 /*=*/
 
 /***en
@@ -795,7 +795,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
     The contents of this structure are implementation dependent.  Its
     internal structure is concealed from application programs.  */
 
-/***ja
+/***oldja
     @brief @c MLocale 構造体
 
     @c MLocale 構造体は、ロケールの名前、言語、地域、モディファイア、
@@ -847,7 +847,7 @@ extern MText *mtext_toupper (MText *mt);
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nInputMethod Input Method (basic) */
-/***ja @defgroup m17nInputMethod 入力メソッド (基本) */
+/***oldja @defgroup m17nInputMethod 入力メソッド (基本) */
 /*=*/
 
 /* Struct forward declaration.  */
@@ -872,7 +872,7 @@ typedef void (*MInputCallbackFunc) (MInputContext *ic, MSymbol command);
     The type @c MInputDriver is the structure of an input driver that
     contains several functions to handle an input method.  */
 
-/***ja
+/***oldja
     @brief 入力ドライバ
 
     @c MInputDriver 型は、入力メソッドを取り扱う関数を含む入力ドライバ
@@ -889,7 +889,7 @@ typedef struct MInputDriver
       returns -1.  The function can setup $IM->info to keep various
       information that is referred by the other driver functions.  */
 
-  /***ja
+  /***oldja
       @brief 入力メソッドをオープンする
 
       この関数は、入力メソッド$IMをオープンする。$IM の<info>以外の全
@@ -910,7 +910,7 @@ typedef struct MInputDriver
       the input method.  But, the other members of $IM should not be
       touched.  */
 
-  /***ja
+  /***oldja
       @brief 入力メソッドをクローズする
 
       この関数は関数 minput_close_im () から呼ばれ、入力メソッドをクロー
@@ -930,7 +930,7 @@ typedef struct MInputDriver
       keep various information that is referred by the other driver
       functions.  */
 
-  /***ja
+  /***oldja
       @brief 入力コンテクストを生成する
 
       入力コンテクスト $IC を生成する関数。この関数は、$IC の <info> 
@@ -951,7 +951,7 @@ typedef struct MInputDriver
       of destroying the input method.  But, the other members of $IC
       should not be touched.  */
 
-  /***ja
+  /***oldja
       @brief 入力コンテクストを破壊する
 
       関数 minput_destroy_ic () から呼ばれ、入力コンテクスト $IC を破
@@ -980,7 +980,7 @@ typedef struct MInputDriver
       documentation of @c minput_default_driver and @c
       minput_gui_driver for instance.  */
 
-  /***ja
+  /***oldja
       @brief 入力イベントあるいは入力キーをフィルタする
 
       関数 minput_filter () から呼ばれ、入力キーをフィルタする。引数 
@@ -1013,7 +1013,7 @@ typedef struct MInputDriver
       documentation of @c minput_default_driver and @c
       minput_gui_driver for instance.  */
 
-  /***ja
+  /***oldja
       @brief 入力コンテクストで生成されるテキストの獲得
 
       関数 minput_lookup () から呼ばれ、入力コンテクスト $IC で生成さ
@@ -1066,7 +1066,7 @@ extern MSymbol Minput_toggle;
 
     The type @c MInputMethod is the structure of input method
     objects.  */
-/***ja
+/***oldja
     @brief 入力メソッド用構造体
 
     @c MInputMethod 型は、入力メソッドオブジェクト用の構造体である。  */
@@ -1075,29 +1075,29 @@ struct MInputMethod
 {
   /***en Which language this input method is for.  The value is @c
       Mnil if the input method is foreign.  */
-  /***ja どの言語用の入力メソッドか。入力メソッドが外部のものである場
+  /***oldja どの言語用の入力メソッドか。入力メソッドが外部のものである場
       合には値として @c を持つ。  */
   MSymbol language;
 
   /***en Name of the input method.  If the input method is foreign, it
       must has a property of key @c Minput_driver and the value must be a
       pointer to a proper input driver.  */
-  /***ja 入力メソッドの名前。外部メソッドである場合には、@c
+  /***oldja 入力メソッドの名前。外部メソッドである場合には、@c
       Minput_driver をキーとするプロパティを持ち、その値は適切な入力ド
       ライバへのポインタでなくてはならない。*/
   MSymbol name;
 
   /***en Input driver of the input method.  */
-  /***ja その入力メソッド用の入力ドライバ  */
+  /***oldja その入力メソッド用の入力ドライバ  */
   MInputDriver driver;
 
   /***en The argument given to minput_open_im (). */
-  /***ja minput_open_im () に与えられる引数  */
+  /***oldja minput_open_im () に与えられる引数  */
   void *arg;
 
   /***en Pointer to extra information that <driver>.open_im ()
       setups. */
-  /***ja <driver>.open_im () が設定する追加情報へのポインタ */
+  /***oldja <driver>.open_im () が設定する追加情報へのポインタ */
   void *info;
 };
 
@@ -1109,7 +1109,7 @@ struct MInputMethod
     The type @c MInputContext is the structure of input context
     objects.  */
 
-/***ja
+/***oldja
     @brief 入力コンテクスト用構造体
 
     @c MInputContext 型は、入力コンテクストオブジェクト用の構造体であ
@@ -1119,38 +1119,38 @@ struct MInputContext
 {
   /***en Backward pointer to the input method.  It is set up be the
       function minput_create_ic ().  */
-  /***ja 入力メソッドへの逆ポインタ。関数 minput_create_ic () によって
+  /***oldja 入力メソッドへの逆ポインタ。関数 minput_create_ic () によって
       設定される。  */ 
   MInputMethod *im;
 
   /***en M-text produced by the input method.  It is set up by the
       function minput_lookup () .  */
-  /***ja 入力メソッドによって生成される M-text。関数 minput_lookup () 
+  /***oldja 入力メソッドによって生成される M-text。関数 minput_lookup () 
       によって設定される。  */
   MText *produced;
 
   /***en Argument given to the function minput_create_im (). */
-  /***ja 関数 minput_create_ic () に渡される引数 */
+  /***oldja 関数 minput_create_ic () に渡される引数 */
   void *arg;
 
   /***en Flag telling whether the input context is currently active or
       inactive.  The value is set to 1 (active) when the input context
       is created.  It can be toggled by the function minput_toggle
       ().  */
-  /***ja 入力コンテクストがアクティブかどうかを示すフラグ。入力コンテ
+  /***oldja 入力コンテクストがアクティブかどうかを示すフラグ。入力コンテ
       クストが生成された時点では値は 1 （アクティブ）であり、関数 
       minput_toggle () によってトグルできる。  */
   int active;
 
 
   /***en Spot location and size of the input context.  */
-  /***ja 入力コンテクストのスポットの位置と大きさ  */
+  /***oldja 入力コンテクストのスポットの位置と大きさ  */
   struct {
     /***en X and Y coordinate of the spot.  */
-    /***ja スポットの X, Y 座標  */
+    /***oldja スポットの X, Y 座標  */
     int x, y;
     /***en Ascent and descent pixels of the line of the spot.  */
-    /***ja スポットのアセントとディセントのピクセル数  */
+    /***oldja スポットのアセントとディセントのピクセル数  */
     int ascent, descent;
 
     /***en Font size for preedit text in 1/10 point.  */
@@ -1166,19 +1166,19 @@ struct MInputContext
       driver.  The descriptions below are for the input driver of an
       internal input method.  They are set by the function
       <im>->driver.filter ().  */
-  /***ja 以下のメンバの使用法は入力ドライバによって異なる。以下の説明
+  /***oldja 以下のメンバの使用法は入力ドライバによって異なる。以下の説明
       は、内部入力メソッド用の入力ドライバに対するものである。 */
 
   /***en Pointer to extra information that <im>->driver.create_ic ()
       setups.  It is used to record the internal state of the input
       context.  */
-  /***ja <im>->driver.create_ic () が設定する追加情報へのポインタ。入
+  /***oldja <im>->driver.create_ic () が設定する追加情報へのポインタ。入
       力コンテクストの内部状態を記録するために用いられる。 */
   void *info;
 
   /***en M-text describing the current status of the input
       context.  */
-  /***ja 入力コンテクストの現在の状況を表す M-text  */
+  /***oldja 入力コンテクストの現在の状況を表す M-text  */
   MText *status;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
@@ -1187,7 +1187,7 @@ struct MInputContext
 
   /***en M-text containing the current preedit text.  The function
       <im>->driver.filter () sets the value.  */
-  /***ja 現在の preedit テキストを含む M-text */
+  /***oldja 現在の preedit テキストを含む M-text */
   MText *preedit;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
@@ -1195,13 +1195,13 @@ struct MInputContext
   int preedit_changed;
 
   /***en Cursor position of <preedit>.  */
-  /***ja <preedit>のカーソル位置  */
+  /***oldja <preedit>のカーソル位置  */
   int cursor_pos;
 
   int cursor_pos_changed;
 
   /***en Array of the current candidate texts.  */
-  /***ja 現在のテキスト候補のグループのリスト  */
+  /***oldja 現在のテキスト候補のグループのリスト  */
   MPlist *candidate_list;
   int candidate_index;
   int candidate_from, candidate_to;

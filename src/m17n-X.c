@@ -2160,7 +2160,7 @@ MSymbol Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap;
     same one as that of the function minput_filter ().  The argument
     $KEY is ignored.  */
 
-/***ja
+/***oldja
     @brief XIM用入力ドライバ
 
     入力ドライバ #minput_xim_driver は #Mxim を名前として持つ外部

@@ -48,7 +48,7 @@
     If no faces specify a certain property, the value of the default
     face is used.  */
 
-/***ja
+/***oldja
     @addtogroup m17nFace
     @brief フェースとは、M-text の表示を制御するオブジェクトである
 
@@ -716,7 +716,7 @@ mface__free_realized (MRealizedFace *rface)
 /*=*/
 
 /***en @name Variables: Keys of face property */
-/***ja @name 変数: フェースプロパティを指定する定義済みシンボル  */
+/***oldja @name 変数: フェースプロパティを指定する定義済みシンボル  */
 /*** @{ */
 /*=*/
 
@@ -732,7 +732,7 @@ mface__free_realized (MRealizedFace *rface)
     Otherwise, the foreground of an M-text is drawn by the specified
     color.  */
 
-/***ja
+/***oldja
     @brief 前景色を指定するためのシンボル
 
     キーが #Mforeground であるフェースプロパティの値は、シンボル @c
@@ -754,7 +754,7 @@ MSymbol Mforeground;
     Otherwise, the background of an M-text is drawn by the specified
     color.  */
 
-/***ja
+/***oldja
     @brief 背景色を指定するためのシンボル
 
     キーが #Mbackground であるフェースプロパティの値は、シンボル @c
@@ -780,7 +780,7 @@ MSymbol Mbackground;
 
     #Mnil means that the face does not specify a video mode.  */
 
-/***ja
+/***oldja
     @brief ビデオモードを指定するためのシンボル
 
     キーが #Mvideomode であるフェースプロパティの値はシンボルでなけ
@@ -814,7 +814,7 @@ MSymbol Mratio;
     property.  Otherwise, an M-text is drawn with a horizontal line by
     a way specified by the object that the value points to.  */
 
-/***ja
+/***oldja
     @brief 下線を指定するためのシンボル
 
     キーが #Munderline であるフェースプロパティの値は、シンボル
@@ -834,7 +834,7 @@ MSymbol Mhline;
     Otherwise, an M-text is drawn with a surrounding box by a way
     specified by the object that the value points to.  */
 
-/***ja
+/***oldja
     @brief 囲み枠を指定するためのシンボル
 
     キーが #Mbox であるフェースプロパティの値は、シンボル #Mt, @c
@@ -855,7 +855,7 @@ MSymbol Mbox;
     Otherwise, an M-text is drawn with a font selected from what
     specified in the fontset.  */
 
-/***ja
+/***oldja
     @brief フォントセットを指定するためのシンボル 
 
     キーが #Mfontset であるフェースプロパティの値は、シンボル @c
@@ -904,7 +904,7 @@ MSymbol Mreverse;
 
 /*** @ingroup m17nFace */
 /***en @name Variables: Predefined faces  */
-/***ja @name 変数: 定義済みフェース  */
+/***oldja @name 変数: 定義済みフェース  */
 /*** @{ */
 /*=*/
 
@@ -928,7 +928,7 @@ MFace *mface_normal_video;
     reversed colors (i.e. the foreground is drawn by background
     color, and background is drawn by foreground color).  */
 
-/***ja
+/***oldja
     @brief リバースフェース
 
     ポインタ #maface_reverse によって指される定義済みフェースは、下
@@ -974,7 +974,7 @@ MFace *mface_medium;
     are not specified.  An M-text that has this face is drawn with a
     font of bold weight.  */
 
-/***ja
+/***oldja
     @brief ボールドフェース
 
     ポインタ #mface_bold によって指される定義済みフェースは、weight 
@@ -992,7 +992,7 @@ MFace *mface_bold;
     properties are not specified.  An M-text that has this face is
     drawn with a font of italic style.  */
 
-/***ja
+/***oldja
     @brief イタリックフェース
 
     ポインタ #mface_italic によって指される定義済みフェースは、style 
@@ -1011,7 +1011,7 @@ MFace *mface_italic;
     properties are not specified.  An M-text that has this face is
     drawn with a font of bold weight and italic style.  */
 
-/***ja
+/***oldja
     @brief ボールドイタリックフェース
 
     ポインタ #mface_bold_italic によって指される定義済みフェースの
@@ -1031,7 +1031,7 @@ MFace *mface_bold_italic;
     An M-text that has this face is drawn with a font whose size is
     50% of a normal font.  */
 
-/***ja
+/***oldja
     @brief 最小のフェース
 
     ポインタ #mface_xx_small によって指される定義済みフェースは、下
@@ -1051,7 +1051,7 @@ MFace *mface_xx_small;
     An M-text that has this face is drawn with a font whose size is
     66% of a normal font.  */
 
-/***ja
+/***oldja
     @brief より小さいフェース
 
     ポインタ #mface_x_small によって指される定義済みフェースは、下
@@ -1071,7 +1071,7 @@ MFace *mface_x_small;
     An M-text that has this face is drawn with a font whose size is
     75% of a normal font.  */
 
-/***ja
+/***oldja
     @brief 小さいフェース
 
     ポインタ #mface_small によって指される定義済みフェースは、下
@@ -1091,7 +1091,7 @@ MFace *mface_small;
     specified.  An M-text that has this face is drawn with a font
     whose size is the same as a normal font.  */
 
-/***ja
+/***oldja
     @brief 標準の大きさのフェース
 
     ポインタ #mface_normalsize によって指される定義済みフェースは、下に
@@ -1110,7 +1110,7 @@ MFace *mface_normalsize;
     An M-text that has this face is drawn with a font whose size is
     120% of a normal font.  */
 
-/***ja
+/***oldja
     @brief 大きいフェース
 
     ポインタ #mface_large によって指される定義済みフェースは、下
@@ -1130,7 +1130,7 @@ MFace *mface_large;
     An M-text that has this face is drawn with a font whose size is
     150% of a normal font.  */
 
-/***ja
+/***oldja
     @brief より大きいフェース
 
     ポインタ #mface_x_large によって指される定義済みフェースは、下
@@ -1150,7 +1150,7 @@ MFace *mface_x_large;
     An M-text that has this face is drawn with a font whose size is
     200% of a normal font.  */
 
-/***ja
+/***oldja
     @brief 最大のフェース
 
     ポインタ #mface_xx_large によって指される定義済みフェースは、下
@@ -1170,7 +1170,7 @@ MFace *mface_xx_large;
     other properties are not specified.  An M-text that has this face
     is drawn with black foreground.  */
 
-/***ja
+/***oldja
     @brief 黒フェース
 
     ポインタ #mface_black によって指される定義済みフェースは、
@@ -1188,7 +1188,7 @@ MFace *mface_black;
     other properties are not specified.  An M-text that has this face
     is drawn with white foreground.  */
 
-/***ja
+/***oldja
     @brief 白フェース
 
     ポインタ #mface_white によって指される定義済みフェースは、
@@ -1206,7 +1206,7 @@ MFace *mface_white;
     other properties are not specified.  An M-text that has this face
     is drawn with red foreground.  */
 
-/***ja
+/***oldja
     @brief 赤フェース
 
     ポインタ #mface_red によって指される定義済みフェースは、
@@ -1224,7 +1224,7 @@ MFace *mface_red;
     other properties are not specified.  An M-text that has this face
     is drawn with green foreground.  */
 
-/***ja
+/***oldja
     @brief 緑フェース
 
     ポインタ #mface_green によって指される定義済みフェースは、
@@ -1242,7 +1242,7 @@ MFace *mface_green;
     other properties are not specified.  An M-text that has this face
     is drawn with blue foreground.  */
 
-/***ja
+/***oldja
     @brief 青フェース
 
     ポインタ #mface_blue によって指される定義済みフェースは、
@@ -1260,7 +1260,7 @@ MFace *mface_blue;
     other properties are not specified.  An M-text that has this face
     is drawn with cyan foreground.  */
 
-/***ja
+/***oldja
     @brief シアンフェース
 
     ポインタ #mface_cyan によって指される定義済みフェースは、
@@ -1278,7 +1278,7 @@ MFace *mface_cyan;
     other properties are not specified.  An M-text that has this face
     is drawn with yellow foreground.  */
 
-/***ja
+/***oldja
     @brief 黄フェース
 
     ポインタ #mface_yellow によって指される定義済みフェースは、
@@ -1297,7 +1297,7 @@ MFace *mface_yellow;
     other properties are not specified.  An M-text that has this face
     is drawn with magenta foreground.  */
 
-/***ja
+/***oldja
     @brief マゼンタフェース
 
     ポインタ #mface_magenta によって指される定義済みフェースは、
@@ -1311,7 +1311,7 @@ MFace *mface_magenta;
 /*=*/
 
 /***en @name Variables: The other symbols for face handling.  */
-/***ja @name 変数: フェースを取り扱うためのその他の定義済みシンボル  */
+/***oldja @name 変数: フェースを取り扱うためのその他の定義済みシンボル  */
 /*** @{ */
 /*=*/
 
@@ -1322,7 +1322,7 @@ MFace *mface_magenta;
     property whose key is this symbol must have a pointer to an object
     of type #MFace.  This is a managing key.  */
 
-/***ja
+/***oldja
     @brief テキストプロパティのキーとなるシンボル
 
     シンボル #Mface は <tt>"face"</tt> という名前を持つ。キーが @c
@@ -1343,7 +1343,7 @@ MSymbol Mface;
     @return
     This function returns a pointer to the created face.  */
 
-/***ja
+/***oldja
     @brief 新しいフェースをつくる 
 
     関数 mface () は新しいフェースオブジェクトを作る。
@@ -1371,7 +1371,7 @@ mface ()
     The mface_copy () function makes a copy of $FACE and returns a
     pointer to the created copy.  */
 
-/***ja
+/***oldja
     @brief フェースのコピーを作る
 
     関数 mface_copy () はフェース $FACE のコピーを作り、それへのポイン
@@ -1491,7 +1491,7 @@ mface_from_font (MFont *font)
     returns @c NULL and assigns an error code to the external variable
     #merror_code.  */
 
-/***ja
+/***oldja
     @brief フェースのプロパティ値を得る
 
     関数 mface_get_prop () は、フェース $FACE が持つフェースプロパティ
@@ -1549,7 +1549,7 @@ mface_get_prop (MFace *face, MSymbol key)
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief フェースプロパティの値を設定する
 
     関数 mface_put_prop () は、フェース $FACE 内でキーが$KEY であるプ

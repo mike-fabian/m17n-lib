@@ -743,7 +743,7 @@ MSymbol Mplist;
     managing key.  A value of a plist whose key is @c Mtext must be an
     M-text.  */
 
-/***ja
+/***oldja
     @brief "text" を名前として持つシンボル
 
     定義済みシンボル @c Mtext は <tt>"text"</tt> という名前を持つ管理

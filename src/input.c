@@ -78,7 +78,7 @@
 
 /*=*/
 
-/***ja
+/***oldja
     @addtogroup m17nInputMethod
     @brief 入力メソッド用API
 
@@ -1918,7 +1918,7 @@ MSymbol Minput_toggle;
     dependent arguments $ARG of the functions whose name begin with
     "minput_" are all ignored.  */
 
-/***ja
+/***oldja
     @brief 内部入力メソッド用デフォルト入力ドライバ
 
     入力ドライバ minput_default_driver は内部入力メソッド用のデフォル
@@ -1976,7 +1976,7 @@ MSymbol Minput_driver;
     $ARG is set in the member @c arg of the structure MInputMethod so
     that the input driver can refer to it.  */
 
-/***ja
+/***oldja
     @brief 入力メソッドをオープンする     
 
     関数 mim_open () は言語 $LANGUAGE と名前 $NAME に適合する入力メソッ
@@ -2044,7 +2044,7 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
     The minput_close_im () function closes the input method $IM, which
     must have been created by minput_open_im ().  */
 
-/***ja
+/***oldja
     @brief 入力メソッドをクローズする
 
     関数 minput_close_im () は、入力メソッド $IM をクローズする。この
@@ -2073,7 +2073,7 @@ minput_close_im (MInputMethod *im)
     If an input context is successfully created, minput_create_ic ()
     returns a pointer to it.  Otherwise it returns @c NULL.  */
 
-/***ja
+/***oldja
     @brief 入力コンテクストを生成する
 
     関数 minput_create_ic () は入力メソッド $IM に対応する入力コンテク
@@ -2126,7 +2126,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     callback functions corresponding to #Minput_preedit_done,
     #Minput_status_done, and #Mcandidate_done in this order.  */
 
-/***ja
+/***oldja
     @brief 入力コンテクストを破壊する
 
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
@@ -2166,7 +2166,7 @@ minput_destroy_ic (MInputContext *ic)
     the caller should handle the key, for instance, by calling the
     function minput_lookup () with the same $KEY.  */
 
-/***ja
+/***oldja
     @brief 入力キーのフィルタリングをする
 
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
@@ -2223,7 +2223,7 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     returns 0.  Otherwise, returns -1, even in that case, some text
     may be produced in $MT.  */
 
-/***ja
+/***oldja
     @brief 入力メソッドが作ったテキストの獲得
 
     関数 minput_lookup () は入力コンテクスト $IC 中のテキストを獲得す
@@ -2270,7 +2270,7 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     $MT may be NULL, in which case, the input method can't get
     information about the text around the spot.  */
 
-/***ja
+/***oldja
     @brief 入力コンテクストのスポットを設定する
 
     関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座

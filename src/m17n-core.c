@@ -119,7 +119,7 @@
 
   */
 
-/***ja
+/***oldja
     @addtogroup m17nIntro
 
     @e m17nライブラリ は C 言語用多言語情報処理ライブラリである。
@@ -147,7 +147,7 @@
     The #M17NLIB_MAJOR_VERSION macro gives the major version number
     of the m17n library.  */
 
-/***ja
+/***oldja
     マクロ #M17NLIB_MAJOR_VERSION は m17n ライブラリのメジャーバージョ
     ン番号を与える。  */
 
@@ -159,7 +159,7 @@
     The #M17NLIB_MINOR_VERSION macro gives the minor version number
     of the m17n library.  */
 
-/***ja
+/***oldja
     マクロ #M17NLIB_MINOR_VERSION は m17n ライブラリのマイナーバージョ
     ン番号を与える。  */
 
@@ -171,7 +171,7 @@
     The #M17NLIB_PATCH_LEVEL macro gives the patch level number
     of the m17n library.  */
 
-/***ja
+/***oldja
     マクロ #M17NLIB_PATCH_LEVEL は m17n ライブラリのパッチレベル番号を
     与える。  */
 
@@ -183,7 +183,7 @@
     The #M17NLIB_VERSION_NAME macro gives the version name of the
     m17n library as a string.  */
 
-/***ja
+/***oldja
     マクロ #M17NLIB_VERSION_NAME は m17n ライブラリのバージョン名を
     C-string の形で与える。  */
 
@@ -200,7 +200,7 @@
     If the initialization was successful, the external variable @c
     merror_code is set to 0.  Otherwise it is set to -1.  */
 
-/***ja
+/***oldja
     @brief m17n ライブラリの初期化
 
     マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n ライブラ
@@ -221,7 +221,7 @@
     called, no m17n functions should be used until the
     macro M17N_INIT () is called again.  */
 
-/***ja
+/***oldja
     @brief m17n ライブラリの終了  */
 
 #define M17N_FINI()
@@ -617,7 +617,7 @@ m17n_object_unref (void *object)
     pointer to the default_error_handle () function, which just calls
     exit ().  */
 
-/***ja
+/***oldja
     @addtogroup m17nError エラー処理
     @brief m17n ライブラリのエラー処理
 
@@ -645,7 +645,7 @@ m17n_object_unref (void *object)
 
     This variable initially has the value 0.  */
 
-/***ja @brief m17n ライブラリのエラーコードを保持する外部変数
+/***oldja @brief m17n ライブラリのエラーコードを保持する外部変数
 
     外部変数 #merror_code は、m17n ライブラリのエラーコードを保持する。
     ライブラリ関数が妥当でない引数とともに呼ばれた際には、
@@ -670,7 +670,7 @@ enum MErrorCode merror_code;
     An application program that needs a different error handling can
     change this variable to point a proper function.  */
 
-/***ja @brief メモリ割当てエラーハンドラ
+/***oldja @brief メモリ割当てエラーハンドラ
 
     変数 #m17n_memory_full_handler は、ライブラリ関数がメモリ割当て
     に失敗した際に呼ぶべき関数へのポインタである。$ERR は @c enum

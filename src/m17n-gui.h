@@ -41,12 +41,12 @@ extern void m17n_fini_win (void);
 #define M17N_FINI() m17n_fini_win ()
 
 /***en @defgroup m17nGUI GUI API */
-/***ja @defgroup m17nGUI GUI API */
+/***oldja @defgroup m17nGUI GUI API */
 /*=*/
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nFrame Frame */
-/***ja @defgroup m17nFrame フレーム */
+/***oldja @defgroup m17nFrame フレーム */
 /*=*/
 
 /*** @ingroup m17nFrame */
@@ -62,7 +62,7 @@ extern void m17n_fini_win (void);
     use.  In the m17n-X library, it contains the information about @e
     display and @e screen in the X Window System.  */
 
-/***ja
+/***oldja
     @brief フレーム用構造体
 
     #MFrame 型は、フレームオブジェクト用の構造体である。個々のフレー
@@ -92,7 +92,7 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
 
 /*** @ingroup m17nGUI  */
 /***en @defgroup m17nFont Font */
-/***ja @defgroup m17nFont フォント */
+/***oldja @defgroup m17nFont フォント */
 /*=*/
 
 /*** @ingroup m17nFont */
@@ -109,7 +109,7 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
 
     The internal structure is concealed from application code.  */
 
-/***ja
+/***oldja
     @brief フォントの構造
 
     #MFont 型はフォント指定用の構造体であり、フォントのプロ
@@ -178,7 +178,7 @@ extern int mfont_set_encoding (MFont *font,
     $LIMITED_SIZE, if nonzero, forces the font selector to find a
     font not greater than the #Msize property of $SPEC.  */
 
-/***ja
+/***oldja
     @brief フォントを探す
 
     関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC にもっ
@@ -196,7 +196,7 @@ extern int mfont_set_selection_priority (MSymbol *keys);
 
 /*** @ingroup m17nGUI  */
 /***en @defgroup m17nFontset Fontset */
-/***ja @defgroup m17nFontset フォントセット */
+/***oldja @defgroup m17nFontset フォントセット */
 /*=*/
 
 typedef struct MFontset MFontset;
@@ -218,7 +218,7 @@ extern int mfontset_modify_entry (MFontset *fontset,
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nFace Face */
-/***ja @defgroup m17nFace フェース */
+/***oldja @defgroup m17nFace フェース */
 /*=*/
 
 /*** @ingroup m17nFace */
@@ -228,7 +228,7 @@ extern int mfontset_modify_entry (MFontset *fontset,
     The type #MFace is the structure of face objects.  The internal
     structure is concealed from application code.  */
 
-/***ja
+/***oldja
     @brief フェース用構造体
 
     #MFace 型はフェースオブジェクトのための構造体である。内部構造は
@@ -362,7 +362,7 @@ extern void mface_update (MFrame *frame, MFace *face);
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nDraw Drawing */
-/***ja @defgroup m17nDraw 表示 */
+/***oldja @defgroup m17nDraw 表示 */
 /*=*/
 
 /*** @ingroup m17nDraw */
@@ -376,7 +376,7 @@ extern void mface_update (MFrame *frame, MFace *face);
     that uses the m17n-X library must coerce the type @c Drawable to
     this type.  */
 
-/***ja ウィンドウシステムに依存する、ウィンドウを表すオブジェクト用の型。
+/***oldja ウィンドウシステムに依存する、ウィンドウを表すオブジェクト用の型。
 
        m17n X ライブラリでは、@c Window 型と同じ.  */
 
@@ -608,7 +608,7 @@ typedef struct
     Each textitem contains an M-text and some other information to
     control the drawing of the M-text.  */
 
-/***ja
+/***oldja
     @brief textitem 用構造体
 
     型 #MDrawTextItem は @e テキストアイテム オブジェクト用の構造体であ
@@ -620,18 +620,18 @@ typedef struct
 typedef struct
 {
   /***en M-text. */
-  /***ja M-text */
+  /***oldja M-text */
   MText *mt;                      
 
   /***en Optional change in the position (in the unit of pixel) along
       the X-axis before the M-text is drawn.  */
-  /***ja 描画前に行なうX軸方向の位置調整 (ピクセル単位) */
+  /***oldja 描画前に行なうX軸方向の位置調整 (ピクセル単位) */
   int delta;                     
 
   /***en Pointer to a face object.  Each property of the face, if not
       Mnil, overrides the same property of face(s) specified as a text
       property in <mt>.  */
-  /***ja フォントセットオブジェクトへのポインタ。これは M-text 内で指
+  /***oldja フォントセットオブジェクトへのポインタ。これは M-text 内で指
       定されたフェースのフォントセットに優先する*/
   MFace *face;
 
@@ -694,7 +694,7 @@ extern void mdraw_clear_cache (MText *mt);
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nInputMethodWin Input Method (GUI) */
-/***ja @defgroup m17nInputMethodWin 入力メソッド (GUI) */
+/***oldja @defgroup m17nInputMethodWin 入力メソッド (GUI) */
 /*=*/
 
 extern MInputDriver minput_gui_driver;
@@ -708,7 +708,7 @@ extern MInputDriver minput_gui_driver;
     minput_create_ic () to create an input context of an internal
     input method.  */
 
-/***ja
+/***oldja
     @brief 関数 minput_create_ic () の引数 $ARG で指される構造体
 
     #MInputGUIArgIC 型は、関数 minput_create_ic () が内部入力メソッ
@@ -717,15 +717,15 @@ extern MInputDriver minput_gui_driver;
 typedef struct
 {
   /***en Frame of the client.  */
-  /***ja クライアントのフレーム  */
+  /***oldja クライアントのフレーム  */
   MFrame *frame;
 
   /***en Window on which to display the preedit and status text.  */
-  /***ja preedit テキストと status テキストを表示するウィンドウ  */
+  /***oldja preedit テキストと status テキストを表示するウィンドウ  */
   MDrawWindow client;
 
   /***en Window that the input context has a focus on.  */
-  /***ja 入力コンテクストがフォーカスをおいているウィンドウ  */
+  /***oldja 入力コンテクストがフォーカスをおいているウィンドウ  */
   MDrawWindow focus;
 } MInputGUIArgIC;
 

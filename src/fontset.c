@@ -35,7 +35,7 @@
     The documentation of mdraw_text () describes how that information is
     used.  */
 
-/***ja
+/***oldja
     @addtogroup m17nFontset
     @brief フォントセットは一定のスタイルを共有するフォントの集合である
 
@@ -743,7 +743,7 @@ mfontset_copy (MFontset *fontset, char *name)
     Otherwise it returns -1 and assigns an error code to the external
     variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief 言語とスクリプトの組み合わせにフォントを関連付ける
 
     関数 mfontset_set_language_script () は、$LANGUAGE と $SCRIPT の組

@@ -40,7 +40,7 @@
     to character C and whose key is K" may be shortened to "the K
     property of C".  */
 
-/***ja
+/***oldja
     @addtogroup m17nCharacter
     @brief 文字オブジェクトとそれに関する API
 
@@ -150,7 +150,7 @@ mchar__fini (void)
 
     The macro #MCHAR_MAX gives the maximum character code.  */
 
-/***ja
+/***oldja
     @brief 文字コードの最大値
 
     マクロ #MCHAR_MAX は文字コードの最大値を与える。  */
@@ -165,7 +165,7 @@ mchar__fini (void)
 
     These symbols are used as keys of character properties.  */
 
-/***ja
+/***oldja
      @name 変数: 文字プロパティのキー
 
      これらのシンボルは文字プロパティのキーとして使われる。*/
@@ -182,7 +182,7 @@ mchar__fini (void)
     Each symbol that represents a script has one of the names listed in
     the <em>Unicode Technical Report #24</em>.  */
 
-/***ja
+/***oldja
     @brief スクリプトを表わすキー
 
     シンボル #Mscript は <tt>"script"</tt> という名前を持ち、文字プ
@@ -203,7 +203,7 @@ MSymbol Mscript;
     the key of a character property.  The value of such a property is a
     C-string representing the name of the character.  */
 
-/***ja
+/***oldja
     @brief 名前を表わすキー
 
     シンボル #Mname は <tt>"name"</tt> という名前を持ち、文字プロパ
@@ -226,7 +226,7 @@ MSymbol Mname;
     names listed as abbreviations for <em>General Category</em> in
     Unicode.  */
 
-/***ja
+/***oldja
     @brief 一般カテゴリを表わすキー
 
     シンボル #Mcategory は <tt>"category"</tt> という名前を持ち、文
@@ -251,7 +251,7 @@ MSymbol Mcategory;
     The meaning of each integer that represents a canonical combining
     class is identical to the one defined in Unicode.  */
 
-/***ja
+/***oldja
     @brief 標準結合クラスを表わすキー
 
     シンボル #Mcombining_class は <tt>"combining-class"</tt> という
@@ -276,7 +276,7 @@ MSymbol Mcombining_class;
     the names listed as types of <em>Bidirectional Category</em> in
     Unicode.  */
 
-/***ja
+/***oldja
     @brief 双方向カテゴリを表わすキー
 
     シンボル #Mbidi_category は <tt>"bidi-category"</tt> という名前
@@ -303,7 +303,7 @@ MSymbol Mbidi_category;
     of such a property is @c 0xFFFF.  In this case, the character has
     another property whose key is #Mcomplicated_case_folding.  */
 
-/***ja
+/***oldja
     @brief 対応する小文字一文字を表わすキー
 
     シンボル #Msimple_case_folding は <tt>"simple-case-folding"</tt> 
@@ -325,7 +325,7 @@ MSymbol Msimple_case_folding;
     corresponding M-text that contains a sequence of lowercase
     characters to be used for comparing M-texts ignoring case.  */
 
-/***ja
+/***oldja
     @brief 対応する小文字の列を表わすキー
 
     シンボル #Mcomplicated_case_folding は 
@@ -352,7 +352,7 @@ MSymbol Mcomplicated_case_folding;
     If the operation was successful, mchar_define_property () returns
     $SYM.  Otherwise it returns #Mnil.  */
 
-/***ja
+/***oldja
     @brief 文字プロパティを定義する
 
     関数 mchar_define_property () は、 \<#Mchar_table, $TYPE, $SYM \>
@@ -421,7 +421,7 @@ mchar_define_property (char *name, MSymbol type)
     value of the character property.  Otherwise it returns @c
     NULL.  */
 
-/***ja
+/***oldja
     @brief 文字プロパティの値を得る
 
     関数 mchar_get_prop () は、文字 $C の文字プロパティ中、キーが $KEY 
@@ -472,7 +472,7 @@ mchar_get_prop (int c, MSymbol key)
     If the operation was successful, mchar_put_prop () returns 0.
     Otherwise, it returns -1.  */
 
-/***ja
+/***oldja
     @brief 文字プロパティの値を設定する
 
     関数 mchar_put_prop () は文字 $C の文字プロパティ中、キーが $KEY で

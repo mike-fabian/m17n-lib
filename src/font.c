@@ -165,7 +165,7 @@
 
   */
 
-/***ja
+/***oldja
     @addtogroup m17nFont
     @brief フォントとは、個々のシステムフォントに対応するオブジェクトである
 
@@ -1040,7 +1040,7 @@ mfont__set_spec (MFont *font, MSymbol *attrs,
 /*=*/
 
 /***en @name Variables: Keys of font property.  */
-/***ja @name 変数: フォントプロパティを指定する定義済みシンボル */
+/***oldja @name 変数: フォントプロパティを指定する定義済みシンボル */
 /*** @{ */
 /*=*/
 
@@ -1060,7 +1060,7 @@ MSymbol Mfoundry;
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a family name of a font.  */ 
 
-/***ja
+/***oldja
     @brief フォントの family プロパティを指定するためのシンボル
 
     シンボル @c Mfamily は <tt>"family"</tt> という名前を持ち、フォン
@@ -1080,7 +1080,7 @@ MSymbol Mfamily;
     value must be a symbol whose name is a weight name of a font (e.g
     "medium", "bold").  */ 
 
-/***ja
+/***oldja
     @brief フォントの weight プロパティを指定するためのシンボル
 
     シンボル @c Mweight は <tt>"weight"</tt> という名前を持ち、フォン
@@ -1100,7 +1100,7 @@ MSymbol Mweight;
     value must be a symbol whose name is a style name of a font (e.g
     "r", "i", "o").  */ 
 
-/***ja
+/***oldja
     @brief フォントの style プロパティを指定するためのシンボル
 
     シンボル @c Mstyle は <tt>"style"</tt> という名前を持ち、フォント
@@ -1120,7 +1120,7 @@ MSymbol Mstyle;
     value must be a symbol whose name is a stretch name of a font (e.g
     "normal", "condensed").  */ 
 
-/***ja
+/***oldja
     @brief フォントの stretch プロパティを指定するためのシンボル
 
     シンボル @c Mstretch は <tt>"stretch"</tt> という名前を持ち、フォ
@@ -1140,7 +1140,7 @@ MSymbol Mstretch;
     value must be a symbol whose name is an additional style name of a
     font (e.g "serif", "", "sans").  */ 
 
-/***ja
+/***oldja
     @brief フォントの adstyle プロパティを指定するためのシンボル
 
     シンボル @c Madstyle は <tt>"adstyle"</tt> という名前を持ち、フォ
@@ -1160,7 +1160,7 @@ MSymbol Madstyle;
     a symbol whose name is a registry name a font registry
     (e.g. "iso8859-1", "jisx0208.1983-0").  */ 
 
-/***ja
+/***oldja
     @brief フォントプロパティ registry を表わすシンボル
 
     シンボル @c Mregistry は <tt>"registry"</tt> という名前を持ち、フォ
@@ -1177,7 +1177,7 @@ MSymbol Mregistry;
     value must be an integer specifying a font design size in the unit
     of 1/10 point (on 100 dpi display).  */ 
 
-/***ja
+/***oldja
     @brief フォントプロパティ size を表わすシンボル
 
     シンボル @c Msize は <tt>"size"</tt> という名前を持ち、フォントの size プロ
@@ -1196,7 +1196,7 @@ MSymbol Msize;
     value must be an integer to specifying a font resolution in the
     unit of dots per inch (dpi).  */ 
 
-/***ja
+/***oldja
     @brief フォントプロパティ resolution を表わすシンボル
 
     シンボル @c Mresolution は <tt>"resolution"</tt> という名前を持ち、
@@ -1266,7 +1266,7 @@ mfont ()
     If the operation was successful, this function returns a pointer
     to the created font.  Otherwise it returns @c NULL.  */
 
-/***ja
+/***oldja
     @brief フォント名からフォントを作る
 
     関数 mfont_from_name () はフォント名 $NAME を解析し、新しいフォン
@@ -1354,7 +1354,7 @@ mfont_name (MFont *font)
     If $KEY is something else, it returns @c NULL and assigns an error
     code to the external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief フォントのプロパティ値を得る
 
     関数 mfont_get_prop () はフォント $FONT のプロパティのうち、キーが 
@@ -1560,7 +1560,7 @@ mfont_set_selection_priority (MSymbol *keys)
     value that indicates how well the found font matches to $SPEC.  A
     smaller score means a better match.  */
 
-/***ja
+/***oldja
     @brief フォントを探す
 
     関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC にもっ
