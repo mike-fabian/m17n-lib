@@ -104,12 +104,13 @@ else
 fi
 AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
 AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
-CPPFLAGS=$save_CPPFLAGS
+CPPFLAGS="$save_CPPFLAGS"
 if test "x$HAVE_OTF" = "xyes"; then
   AC_DEFINE(HAVE_OTF, 1, 
 	    [Define to 1 if you have OTF library and header file.])
 else
   CPPFLAGS="$save_CPPFLAGS"
+  OTF_LD_FLAGS=
 fi
 LIBS="$save_LIBS"
 AC_SUBST(OTF_LD_FLAGS)
@@ -118,16 +119,16 @@ AC_SUBST(OTF_LD_FLAGS)
 AC_CHECK_PROG(HAVE_FREETYPE_CONFIG, freetype-config, yes)
 if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
   FREETYPE_INC=`freetype-config --cflags`
-  save_CPPFLAGS=$CPPFLAGS
+  save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $FREETYPE_INC"
   AC_CHECK_HEADER(ft2build.h, HAVE_FREETYPE=yes,
-  			      HAVE_FREETYPE=no CPPFLAGS=$save_CPPFLAGS)
+  			      HAVE_FREETYPE=no CPPFLAGS="$save_CPPFLAGS")
   if test "x$HAVE_FREETYPE" = "xyes" ; then
-    save_LIBS=$LIBS
+    save_LIBS="$LIBS"
     LIBS="$LIBS `freetype-config --libs`"
     AC_CHECK_LIB(freetype, FT_Init_FreeType, HAVE_FREETYPE=yes,
     			   		     HAVE_FREETYPE=no)
-    LIBS=$save_LIBS
+    LIBS="$save_LIBS"
     if test "x$HAVE_FREETYPE" = "xyes"; then
       FREETYPE_LD_FLAGS=`freetype-config --libtool`
       AC_DEFINE(HAVE_FREETYPE, 1, 
@@ -145,6 +146,8 @@ if test "x$HAVE_XFT_CONFIG" = "xyes"; then
   CPPFLAGS="$CPPFLAGS `xft-config --cflags`"
   XFT2_LD_FLAGS="`xft-config --libs`"
   LIBS="$LIBS $XFT2_LD_FLAGS"
+else
+  XFT2_LD_FLAGS="-lXft -lfreetype -lfontconfig -lXrender -lX11"
 fi
 AC_CHECK_LIB(Xft, XftDrawCreate, HAVE_XFT2=yes, HAVE_XFT2=no)
 AC_CHECK_HEADER(X11/Xft/Xft.h,, HAVE_XFT2=no, 
@@ -161,6 +164,34 @@ else
 fi
 LIBS="$save_LIBS"
 AC_SUBST(XFT2_LD_FLAGS)
+
+# Check for fontconfig usability.
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+if test "x$HAVE_XFT2" = "xyes"; then
+  HAVE_FONTCONFIG=yes
+else
+  AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+  FONTCONFIG_LD_FLAGS=-lfontconfig
+  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
+    if pkg-config --exists fontconfig; then
+      CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
+      FONTCONFIG_LD_FLAGS="`pkg-conifg --libs fontconfig`"
+      LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
+    fi
+  fi
+  AC_CHECK_LIB(fontconfig, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
+  AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
+fi
+if test "x$HAVE_FONTCONFIG" = "xyes"; then
+  AC_DEFINE(HAVE_FONTCONFIG, 1,
+	      [Define to 1 if you have fontconfig library and header file.])
+else
+  FONTCONFIG_LD_FLAGS=
+  CPPFLAGS="$save_CPPFLAGS"
+fi
+LIBS="$save_LIBS"
+AC_SUBST(FONTCONFIG_LD_FLAGS)
 
 # Check for libxml2 usability.
 save_CPPFLAGS="$CPPFLAGS"
