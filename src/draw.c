@@ -2671,10 +2671,10 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  else if (n > 0)
 	    {
 	      pad_width = 0;
-	      info[-1]->x += g->width;
-	      info[-1]->this.x += g->width;
-	      info[-1]->this.width += g->width;
-	      info[-1]->logical_width += g->width;
+	      info[-1].x += g->width;
+	      info[-1].this.x += g->width;
+	      info[-1].this.width += g->width;
+	      info[-1].logical_width += g->width;
 	    }
 	  continue;
 	}
