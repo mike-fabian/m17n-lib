@@ -1,3 +1,8 @@
+2004-04-30  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_list): Delete unused variable `result'.
+	(ft_render): Fix for the case that bitmap.pitch < bitmap.width.
+
 2004-04-27  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c: Include config.h
