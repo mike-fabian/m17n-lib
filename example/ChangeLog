@@ -1,3 +1,7 @@
+2004-07-05  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8: Add Kannada.
+
 2004-06-30  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c: Include <m17n-gd.h> instead of <m17n-gui.h>.
