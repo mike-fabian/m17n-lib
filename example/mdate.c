@@ -47,11 +47,11 @@
 /***ja
     @japage mdate 日時を表示する
 
-    @section mdate-synopsis SYNOPSIS
+    @section mdate-synopsis シノプシス
 
     mdate [ OPTION ... ]
 
-    @section mdate-description DESCRIPTION
+    @section mdate-description 説明
 
     システムの日時をさまざまなロケールでウィンドウに表示する。 
 
