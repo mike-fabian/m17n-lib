@@ -1034,11 +1034,11 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
   MFTInfo *ft_info;
   OTF *otf;
   OTF_GlyphString otf_gstring;
-  OTF_Glyph *otfg;
   char *script_name, *language_name;
   char *gpos_feature_names;
   int u;
   int size10, size;
+  int inc, from_idx, to_idx;
 
   if (len == 0)
     return from;
@@ -1070,7 +1070,12 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
   otf_gstring.size = otf_gstring.used = len;
   otf_gstring.glyphs = (OTF_Glyph *) alloca (sizeof (OTF_Glyph) * len);
   memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
-  for (i = 0; i < len; i++)
+  if (g->bidi_level & 1)
+    from_idx = len - 1, to_idx = -1, inc = -1;
+  else
+    from_idx = 0, to_idx = len, inc = 1;
+
+  for (i = from_idx; i != to_idx; i += inc)
     {
       otf_gstring.glyphs[i].c = gstring->glyphs[from + i].c;
       otf_gstring.glyphs[i].glyph_id = gstring->glyphs[from + i].code;
@@ -1083,55 +1088,58 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
   size10 = g->rface->rfont->font.property[MFONT_SIZE];
   size = size10 / 10;
   prev = NULL;
-  for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used;
-       prev = g++, i++, otfg++)
-    switch (otfg->positioning_type)
-      {
-      case 0:
-	break;
-      case 1: case 2:
+  for (i = from_idx; i != to_idx; prev = g++, i += inc)
+    {
+      OTF_Glyph *otfg = otf_gstring.glyphs + i;
+
+      switch (otfg->positioning_type)
 	{
-	  int format = otfg->f.f1.format;
+	case 0:
+	  break;
+	case 1: case 2:
+	  {
+	    int format = otfg->f.f1.format;
 
-	  if (format & OTF_XPlacement)
-	    g->xoff = otfg->f.f1.value->XPlacement * size10 / u / 10;
-	  if (format & OTF_XPlaDevice)
-	    g->xoff += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, size);
-	  if (format & OTF_YPlacement)
-	    g->yoff = otfg->f.f1.value->YPlacement * size10 / u / 10;
-	  if (format & OTF_YPlaDevice)
-	    g->yoff += DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, size);
+	    if (format & OTF_XPlacement)
+	      g->xoff = otfg->f.f1.value->XPlacement * size10 / u / 10;
+	    if (format & OTF_XPlaDevice)
+	      g->xoff += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, size);
+	    if (format & OTF_YPlacement)
+	      g->yoff = otfg->f.f1.value->YPlacement * size10 / u / 10;
+	    if (format & OTF_YPlaDevice)
+	      g->yoff += DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, size);
+	  }
+	  break;
+	case 3:
+	  /* Not yet supported.  */
+	  break;
+	case 4:
+	  {
+	    int base_x, base_y, mark_x, mark_y;
+
+	    base_x = otfg->f.f4.base_anchor->XCoordinate * size10 / u / 10;
+	    base_y = otfg->f.f4.base_anchor->YCoordinate * size10 / u / 10;
+	    mark_x = otfg->f.f4.mark_anchor->XCoordinate * size10 / u / 10;
+	    mark_y = otfg->f.f4.mark_anchor->YCoordinate * size10 / u / 10;
+
+	    if (otfg->f.f4.base_anchor->AnchorFormat != 1)
+	      adjust_anchor (otfg->f.f4.base_anchor, ft_info->ft_face,
+			     prev, size, &base_x, &base_y);
+	    if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
+	      adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
+			     prev, size, &mark_x, &mark_y);
+	    g->xoff = (base_x - prev->width) - mark_x;
+	    g->yoff = base_y - mark_y;
+	  }
+	  break;
+	case 5:
+	  /* Not yet supported.  */
+	  break;
+	default:		/* i.e case 6 */
+	  /* Not yet supported.  */
+	  break;
 	}
-	break;
-      case 3:
-	/* Not yet supported.  */
-	break;
-      case 4:
-	{
-	  int base_x, base_y, mark_x, mark_y;
-
-	  base_x = otfg->f.f4.base_anchor->XCoordinate * size10 / u / 10;
-	  base_y = otfg->f.f4.base_anchor->YCoordinate * size10 / u / 10;
-	  mark_x = otfg->f.f4.mark_anchor->XCoordinate * size10 / u / 10;
-	  mark_y = otfg->f.f4.mark_anchor->YCoordinate * size10 / u / 10;
-
-	  if (otfg->f.f4.base_anchor->AnchorFormat != 1)
-	    adjust_anchor (otfg->f.f4.base_anchor, ft_info->ft_face,
-			   prev, size, &base_x, &base_y);
-	  if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
-	    adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
-			   prev, size, &mark_x, &mark_y);
-	  g->xoff = (base_x - prev->width) - mark_x;
-	  g->yoff = base_y - mark_y;
-	}
-	break;
-      case 5:
-	/* Not yet supported.  */
-	break;
-      default:		/* i.e case 6 */
-	/* Not yet supported.  */
-	break;
-      }
+    }
   return to;
 }
 
