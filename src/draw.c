@@ -2663,7 +2663,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
 int
 mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
-		  MDrawControl *control, MDrawGlyphInfo *info,
+		  MDrawControl *control, MDrawGlyph *glyphs,
 		  int array_size, int *num_glyphs_return)
 {
   MGlyphString *gstring;
@@ -2689,29 +2689,36 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  else if (n > 0)
 	    {
 	      pad_width = 0;
-	      info[-1].x += g->width;
-	      info[-1].logical_width += g->width;
+	      glyphs[-1].x_advance += g->width;
 	    }
 	  continue;
 	}
       if (n < array_size)
 	{
-	  info->from = g->pos;
-	  info->to = g->to;
-	  info->glyph_code = g->code;
-	  info->x = g->xoff + pad_width;
-	  info->y = g->yoff;
-	  info->this.x = g->lbearing;
-	  info->this.y = - g->ascent;
-	  info->this.height = g->ascent + g->descent;
-	  info->this.width = g->rbearing - g->lbearing;
-	  info->logical_width = g->width + pad_width;
+	  glyphs->from = g->pos;
+	  glyphs->to = g->to;
+	  glyphs->glyph_code = g->code;
+	  glyphs->x_off = g->xoff + pad_width;
+	  glyphs->y_off = g->yoff;
+	  glyphs->lbearing = g->lbearing;
+	  glyphs->rbearing = g->rbearing;
+	  glyphs->ascent = g->ascent;
+	  glyphs->descent = g->descent;
+	  glyphs->x_advance = g->width + pad_width;
 	  if (g->rface->rfont)
-	    info->font = &g->rface->rfont->font;
+	    {
+	      glyphs->font = &g->rface->rfont->font;
+	      glyphs->font_type = g->rface->rfont->type;
+	      glyphs->fontp = g->rface->rfont->fontp;
+	    }
 	  else
-	    info->font = NULL;
+	    {
+	      glyphs->font = NULL;
+	      glyphs->font_type = Mnil;
+	      glyphs->fontp = NULL;
+	    }
 	  pad_width = 0;
-	  info++;
+	  glyphs++;
 	}
       n++;
     }
