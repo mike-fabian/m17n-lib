@@ -1,3 +1,9 @@
+2004-08-27  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (help_exit): Describe about the arg "-r".
+	(reverse_bit_order, init_reverse_bit_order): Delete them.
+	(main): Handle the arg "-r".
+
 2004-08-25  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c: Adjusted for the member name change
