@@ -749,8 +749,8 @@ m17n_object_unref (void *object)
 
     The first type is argument errors.  When a library function is
     called with invalid arguments, it returns a value that indicates
-    error and at the same time sets the external variable @e
-    merror_code to a non-zero integer.
+    error and at the same time sets the external variable #merror_code
+    to a non-zero integer.
 
     The second type is memory allocation errors.  When the required
     amount of memory is not available on the system, m17n library

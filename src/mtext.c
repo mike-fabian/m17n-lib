@@ -2541,7 +2541,7 @@ mtext_case_compare (MText *mt1, int from1, int to1,
     @brief M-text をダンプする.
 
     関数 mdebug_dump_mtext () は M-text $MT を stderr に人間に可読な 
-    形で印刷する。 $UNDENT は２行目以降のインデントを指定する。$FULLP 
+    形で印刷する。 $INDENT は２行目以降のインデントを指定する。$FULLP 
     が 0 ならば、文字コード列だけを印刷する。そうでなければ、内部バイ
     ト列とテキストプロパティも印刷する。
 

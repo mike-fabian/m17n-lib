@@ -37,7 +37,7 @@
     Enumeration for error code of the m17n library.
 
     When a library function is called with an invalid argument, it
-    sets the external variable @e merror_code to one of these values.
+    sets the external variable #merror_code to one of these values.
     All the error codes are positive integers.
 
     When a memory allocation error happens, the function pointed to by
