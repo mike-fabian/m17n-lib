@@ -381,6 +381,9 @@ extern int mtext_casecmp (MText *mt1, MText *mt2);
 
 extern int mtext_ncasecmp (MText *mt1, MText *mt2, int n);
 
+/*** @ingroup m17nPlist */
+extern MPlist *mplist_deserialize (MText *mt);
+
 /*
  * (5-3) Text properties
  */
