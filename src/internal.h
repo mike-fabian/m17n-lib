@@ -333,6 +333,7 @@ typedef struct
 	      (((M17NObject *) (object))->u.freer) (object);	\
 	    else						\
 	      free (object);					\
+	    (object) = NULL;					\
 	  }							\
       }								\
   } while (0)
