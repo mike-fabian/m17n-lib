@@ -23,7 +23,7 @@
 #ifndef _M17N_FONT_H_
 #define _M17N_FONT_H_
 
-/** Type of font stored in MFont->property[MFONT_TYPE].  */
+/** Type of font.  Now obsolete.  */
 
 enum MFontType
   {
@@ -52,7 +52,6 @@ enum MFontProperty
     MFONT_REGISTRY,
     MFONT_SIZE,
     MFONT_RESY,
-    MFONT_TYPE,
     /* anchor */
     MFONT_PROPERTY_MAX
   };
@@ -189,8 +188,7 @@ struct MFontDriver
 
 #define MFONT_INIT(font) memset ((font), 0, sizeof (MFont))
 
-
-extern MFontDriver *mfont__driver_list[MFONT_TYPE_MAX];
+extern MPlist *mfont__driver_list;
 
 extern MSymbol Mlayouter;
 
@@ -201,6 +199,27 @@ extern void mfont__flt_fini ();
 #ifdef HAVE_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#ifdef HAVE_OTF
+#include <otf.h>
+#endif /* HAVE_OTF */
+
+typedef struct
+{
+  M17NObject control;
+  MFont font;
+  char *filename;
+  int otf_flag;	/* This font 1: is OTF, 0: may be OTF, -1: is not OTF.  */
+  MPlist *charmap_list;
+  int charmap_index;
+  FT_Face ft_face;
+#ifdef HAVE_OTF
+  OTF *otf;
+#endif /* HAVE_OTF */
+  void *extra_info;		/* Xft uses this member.  */
+} MFTInfo;
+
+extern MFontDriver mfont__ft_driver;
 
 extern int mfont__ft_init ();
 
