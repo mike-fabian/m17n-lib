@@ -33,17 +33,16 @@ mdate_LDADD = ${common_ldflags}
 mconv_SOURCES = mconv.c
 mconv_LDADD = ${common_ldflags}
 
+X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lX11 -lXt -lXaw -lXmu ${X_EXTRA_LIBS}
+
 medit_SOURCES = medit.c linebreak.c
-medit_LDADD = ${common_ldflags_gui}
-medit_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS} @WORDCUT_LD_FLAGS@
+medit_LDADD = ${X_LD_FLAGS} ${top_srcdir}/src/libm17n-X.la @WORDCUT_LD_FLAGS@
 
 mview_SOURCES = mview.c
-mview_LDADD = ${common_ldflags_gui}
-mview_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS}
+mview_LDADD = ${X_LD_FLAGS} ${top_srcdir}/src/libm17n-X.la
 
 mdump_SOURCES = mdump.c linebreak.c
-mdump_LDADD = ${common_ldflags_gui}
-mdump_LDFLAGS = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@
+mdump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${top_srcdir}/src/libm17n-gd.la
 
 # Input method data files.
 
@@ -63,8 +62,8 @@ libmimx_ispell_la_SOURCES = mimx-ispell.c
 libmimx_ispell_la_LIBADD = ${common_ldflags_gui}
 libmimx_ispell_la_LDFLAGS = -module ${VINFO}
 libmimx_anthy_la_SOURCES = mimx-anthy.c
-libmimx_anthy_la_LIBADD = ${common_ldflags}
-libmimx_anthy_la_LDFLAGS = -module @ANTHY_LD_FLAGS@  ${VINFO}
+libmimx_anthy_la_LIBADD = ${common_ldflags} @ANTHY_LD_FLAGS@ 
+libmimx_anthy_la_LDFLAGS = -module ${VINFO}
 
 # Special targets to test the m17n library with Purify.  They are for
 # the maintainers only.
