@@ -1931,6 +1931,10 @@ device_open (MFrame *frame, MPlist *param)
 	}
     }
 
+  /* If none of them is specified, use all of them.  */
+  if (! use_xfont && ! use_freetype && ! use_xft)
+    use_xfont = use_freetype = use_xft = 1;
+
   if (widget)
     {
       display = XtDisplay (widget);
