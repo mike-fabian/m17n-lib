@@ -238,7 +238,7 @@ find_modifier_bits (MDisplayInfo *disp_info)
   XFreeModifiermap (mods);
 }
 
-unsigned long
+static unsigned long
 get_color (Display *display, Colormap cmap,
 	   MSymbol color_name, MSymbol default_name,
 	   unsigned long default_pixel)
