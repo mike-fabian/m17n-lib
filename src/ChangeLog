@@ -1,3 +1,8 @@
+2004-08-11  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_find_metric): Call FT_Load_Glyph with
+	FT_LOAD_DEFAULT.
+
 2004-08-06  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (mfont__ft_drive_otf): Fix for the case that no GSUB
