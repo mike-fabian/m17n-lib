@@ -84,8 +84,6 @@ static MSymbol Mlatin, Minherited;
 /* Special categories */
 static MSymbol McatCc, McatCf;
 
-static MSymbol Mdepth;
-
 
 /* Glyph-string composer.  */
 
@@ -1023,10 +1021,11 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 		this_x += fromg->width, this_width -= fromg->width;
 	      if (g[-1].type == GLYPH_BOX)
 		this_width -= g[-1].width;
-	      mwin__fill_space (frame, win, rface, 0,
-				this_x, y - gstring->text_ascent, this_width,
-				gstring->text_ascent + gstring->text_descent,
-				control->clip_region);
+	      (frame->driver->fill_space)
+		(frame, win, rface, 0,
+		 this_x, y - gstring->text_ascent, this_width,
+		 gstring->text_ascent + gstring->text_descent,
+		 control->clip_region);
 	    }
 	  if (cursor)
 	    {
@@ -1047,25 +1046,24 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 		    rect.x += cursor_width - 1;
 		  rect.width = 1;
 		}
-	      mwin__fill_space (frame, win, rface, 1,
-				rect.x, rect.y, rect.width, rect.height,
-				control->clip_region);
+	      (*frame->driver->fill_space)
+		(frame, win, rface, 1, rect.x, rect.y, rect.width, rect.height,
+		 control->clip_region);
 	      if (! region)
-		region = mwin__region_from_rect (&rect);
+		region = (*frame->driver->region_from_rect) (&rect);
 	      else
-		mwin__region_add_rect (region, &rect);
-	      mwin__verify_region (frame, region);
+		(*frame->driver->region_add_rect) (region, &rect);
 	      if (cursor_bidi)
 		{
 		  if (cursor->bidi_level % 2)
 		    rect.x -= 3;
 		  rect.height = 2;
 		  rect.width = cursor_width < 4 ? cursor_width : 4;
-		  mwin__fill_space (frame, win, rface, 1,
-				    rect.x, rect.y, rect.width, rect.height,
-				    control->clip_region);
-		  mwin__region_add_rect (region, &rect);
-		  mwin__verify_region (frame, region);
+		  (*frame->driver->fill_space)
+		    (frame, win, rface, 1,
+		     rect.x, rect.y, rect.width, rect.height,
+		     control->clip_region);
+		  (*frame->driver->region_add_rect) (region, &rect);
 		}
 	    }
 
@@ -1096,24 +1094,23 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 		  rect.y = y - gstring->text_ascent;
 		  rect.height = gstring->text_ascent + gstring->text_descent;
 		  rect.width = 1;
-		  mwin__fill_space (frame, win, rface, 1,
-				    rect.x, rect.y, rect.width, rect.height,
-				    control->clip_region);
+		  (*frame->driver->fill_space)
+		    (frame, win, rface, 1,
+		     rect.x, rect.y, rect.width, rect.height,
+		     control->clip_region);
 		  if (! region)
-		    region = mwin__region_from_rect (&rect);
+		    region = (*frame->driver->region_from_rect) (&rect);
 		  else
-		    mwin__region_add_rect (region, &rect);
-		  mwin__verify_region (frame, region);
+		    (*frame->driver->region_add_rect) (region, &rect);
 		  rect.y += rect.height - 2;
 		  rect.height = 2;
 		  rect.width = cursor_width < 4 ? cursor_width : 4;
 		  if (! (cursor->bidi_level % 2))
 		    rect.x -= rect.width - 1;
-		  mwin__fill_space (frame, win, rface, 1,
+		  (*frame->driver->fill_space) (frame, win, rface, 1,
 				    rect.x, rect.y, rect.width, rect.height,
 				    control->clip_region);
-		  mwin__region_add_rect (region, &rect);
-		  mwin__verify_region (frame, region);
+		  (*frame->driver->region_add_rect) (region, &rect);
 		}
 	    }
 	  x += width;
@@ -1137,7 +1134,7 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
     {
       MDrawMetric rect;
 
-      mwin__region_to_rect (region, &rect);
+      (*frame->driver->region_to_rect) (region, &rect);
       if (rect.x > x)
 	{
 	  while (g != gend && x + g->rbearing <= rect.x)
@@ -1181,11 +1178,11 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
 
 	  if (from_g->type == GLYPH_CHAR)
 	    {
-	      if (rface->rfont && from_g->code >= 0)
+	      if (rface->rfont && from_g->code != MCHAR_INVALID_CODE)
 		(rface->rfont->driver->render) (win, x, y, gstring, from_g, g,
 						reverse, region);
 	      else
-		mwin__draw_empty_boxes (win, x, y, gstring, from_g, g,
+		(*frame->driver->draw_empty_boxes) (win, x, y, gstring, from_g, g,
 					reverse, region);
 	    }
 	  else if (from_g->type == GLYPH_BOX)
@@ -1193,18 +1190,18 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
 	      /* Draw the left or right side of a box.  If
 		 from_g->lbearing is nonzero, this is the left side,
 		 else this is the right side.  */
-	      mwin__draw_box (frame, win, gstring, from_g, x, y, 0, region);
+	      (*frame->driver->draw_box) (frame, win, gstring, from_g, x, y, 0, region);
 	    }
 
 	  if (from_g->type != GLYPH_BOX)
 	    {
 	      if (rface->hline)
-		mwin__draw_hline (frame, win, gstring, rface, reverse,
+		(*frame->driver->draw_hline) (frame, win, gstring, rface, reverse,
 				  x, y, width, region);
 	      if (rface->box
 		  && ! reverse)
 		/* Draw the top and bottom side of a box.  */
-		   mwin__draw_box (frame, win, gstring, from_g,
+		(*frame->driver->draw_box) (frame, win, gstring, from_g,
 				   x, y, width, region);
 	    }
 	  x += width;
@@ -1321,9 +1318,9 @@ render_glyph_string (MFrame *frame, MDrawWindow win, int x, int y,
 	{
 	  rect.y = y - gstring->line_ascent;
 	  rect.height = gstring->height;
-	  clip_region = mwin__region_from_rect (&rect);
+	  clip_region = (*frame->driver->region_from_rect) (&rect);
 	  if (control->clip_region)
-	    mwin__intersect_region (clip_region, control->clip_region);
+	    (*frame->driver->intersect_region) (clip_region, control->clip_region);
 	}
       else
 	clip_region = control->clip_region;
@@ -1336,14 +1333,14 @@ render_glyph_string (MFrame *frame, MDrawWindow win, int x, int y,
   if (cursor_region)
     {
       if (clip_region)
-	mwin__intersect_region (cursor_region, clip_region);
+	(*frame->driver->intersect_region) (cursor_region, clip_region);
       render_glyphs (frame, win, x, y, to_x - x, gstring, from_idx, to_idx,
 		     1, cursor_region);
     }
   if (clip_region != control->clip_region)
-    mwin__free_region (clip_region);
+    (*frame->driver->free_region) (clip_region);
   if (cursor_region)
-    mwin__free_region (cursor_region);
+    (*frame->driver->free_region) (cursor_region);
   return;
 }
 
@@ -1393,9 +1390,6 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
   else
     gstring->width_limit = control->max_line_width;
   gstring->anti_alias = control->anti_alias;
-  if (gstring->anti_alias
-      && (unsigned) mwin__device_get_prop (frame->device, Mdepth) < 8)
-    gstring->anti_alias = 0;
   return gstring;
 }
 
@@ -1714,7 +1708,6 @@ mdraw__init ()
 
   McatCc = msymbol ("Cc");
   McatCf = msymbol ("Cf");
-  Mdepth = msymbol ("depth");
 
   MbidiR = msymbol ("R");
   MbidiAL = msymbol ("AL");
@@ -1895,6 +1888,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
 {
   MDrawControl control;
 
+  M_CHECK_WRITABLE (frame, MERROR_DRAW, -1);
   memset (&control, 0, sizeof control);
   control.as_image = 0;
   return draw_text (frame, win, x, y, mt, from, to, &control);
@@ -1957,6 +1951,7 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
 {
   MDrawControl control;
 
+  M_CHECK_WRITABLE (frame, MERROR_DRAW, -1);
   memset (&control, 0, sizeof control);
   control.as_image = 1;
   return draw_text (frame, win, x, y, mt, from, to, &control);
@@ -2000,6 +1995,7 @@ int
 mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
 			 MText *mt, int from, int to, MDrawControl *control)
 {
+  M_CHECK_WRITABLE (frame, MERROR_DRAW, -1);
   return draw_text (frame, win, x, y, mt, from, to, control);
 }
 
@@ -2225,7 +2221,7 @@ mdraw_text_per_char_extents (MFrame *frame,
   ASSURE_CONTROL (control);
   *num_chars_return = to - from;
   if (array_size < *num_chars_return)
-    return 0;
+    MERROR (MERROR_DRAW, -1);
   if (overall_logical_return)
     memset (overall_logical_return, 0, sizeof (MDrawMetric));
   if (overall_ink_return)
@@ -2299,7 +2295,7 @@ mdraw_text_per_char_extents (MFrame *frame,
     }
 
   M17N_OBJECT_UNREF (gstring->top);
-  return 1;
+  return 0;
 }
 
 /*=*/
@@ -2635,6 +2631,8 @@ void
 mdraw_text_items (MFrame *frame, MDrawWindow win, int x, int y,
 		  MDrawTextItem *items, int nitems)
 {
+  if (! (frame->device_type & MDEVICE_SUPPORT_OUTPUT))
+    return;
   while (nitems-- > 0)
     {
       if (items->face)
@@ -2734,18 +2732,18 @@ mdraw_default_line_break (MText *mt, int pos,
 
     If pointer $OVERALL_RETURN is not @c NULL, this function also
     computes the extents of the overall text and stores the results in
-    the members of the structure pointed to by $OVERALL_RETURN  */
+    the members of the structure pointed to by $OVERALL_RETURN.  */
 
 /***ja
     @brief M-text の文字毎の表示範囲情報を得る.
 
     関数 mdraw_per_char_extents () は、M-text $MT 中の各文字の表示範囲
     を計算する。この計算に用いるフォントは、$MT のテキストプロパティで
-    指定されたフェースと、フレーム $FRAME のデフォルトフェースによって決
-    まる。$ARRAY_RETURN の各要素は、当該 M-text 中の各文字の表示範囲
-    情報によって順に埋められる。この表示範囲情報は、M-text の表示原点
-    からの相対位置である。$ARRAY_RETURN の要素数は、M-text の文字数以
-    上でなければならない。
+    指定されたフェースとa、フレーム $FRAME のデフォルトフェースによって
+    決まる。$ARRAY_RETURN の各要素は、当該 M-text 中の各文字の表示範囲
+    情報によって順に埋められる。この表示範囲情報は、M-text の表示原点か
+    らの相対位置である。$ARRAY_RETURN の要素数は、M-text の以上でなけれ
+    ばならない。
 
     ポインタ $OVERALL_RETURN が @c NULL でない場合は、テキスト全体の表
     示範囲情報も計算し、その結果を $OVERALL_RETURN の指す構造体に格納
@@ -2755,9 +2753,13 @@ mdraw_default_line_break (MText *mt, int pos,
 
 void
 mdraw_per_char_extents (MFrame *frame, MText *mt,
-  MDrawMetric *array_return,
-  MDrawMetric *overall_return)
+			MDrawMetric *array_return,
+			MDrawMetric *overall_return)
 {
+  int n = mtext_nchars (mt);
+
+  mdraw_text_per_char_extents (frame, mt, 0, n, NULL, array_return, NULL,
+			       n, &n, overall_return, NULL);
 }
 
 /***en 
