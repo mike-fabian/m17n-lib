@@ -475,8 +475,8 @@ redraw_cursor (int clear)
 	  int x = cursor.x;
 
 	  if (control.orientation_reversed)
-	    x += win_width - cursor.this.width;
-	  CLEAR_AREA (x, cur.y0, cursor.this.width, cursor.this.height);
+	    x += win_width - cursor.logical_width;
+	  CLEAR_AREA (x, cur.y0, cursor.logical_width, cursor.this.height);
 	}
       DRAW_TEXT (cursor.x, cur.y0 + cur.ascent, cursor.from, cursor.to);
     }
