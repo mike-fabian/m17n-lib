@@ -1,3 +1,7 @@
+2004-04-20  Kenichi Handa  <handa@m17n.org>
+
+	* linebreak.c: Don't include wordcut/xmalloc.h, wordcut/path.h.
+
 2004-03-29  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.0 Patch Level 2 released.
