@@ -2099,25 +2099,30 @@ mfont_resize_ratio (MFont *font)
     @brief Get a list fonts.
 
     The mfont_list () functions returns a list of fonts available on
-    frame $FRAME.  If $FONT is not nil, it limits fonts to ones that
-    matchq with $FONT.  If $LANGUAGE is not @c Mnil, it limits fonts
-    to ones that support $LANGUAGE.
+    frame $FRAME.  $FONT, if not @c Mnil, limits fonts to ones
+    matching with $FONT.  $LANGUAGE, if not @c Mnil, limits fonts to
+    ones that support $LANGUAGE.  $MAXNUM, if greater than 0, limits
+    the number of fonts.
 
     @return
-    This function returns a plist whose keys are family name and
+    This function returns a plist whose keys are family names and
     values are pointers to the object MFont.  The plist must be freed
     by m17n_object_unref ().  */
 
 MPlist *
-mfont_list (MFrame *frame, MFont *font, MSymbol language)
+mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
 {
   MPlist *plist = mplist (), *p;
+  int num = 0;
   
   MPLIST_DO (p, frame->font_driver_list)
     {
       MFontDriver *driver = MPLIST_VAL (p);
 
-      (driver->list) (frame, plist, font, language);
+      num += (driver->list) (frame, plist, font, language,
+			     maxnum > 0 ? maxnum - num : 0);
+      if (maxnum > 0 && num >= maxnum)
+	break;
     }
   return plist;
 }
@@ -2165,14 +2170,14 @@ mdebug_dump_font_list (MFrame *frame, MSymbol family, MSymbol lang)
   MPlist *plist, *p;
 
   if (family == Mnil)
-    plist = mfont_list (frame, NULL, lang);
+    plist = mfont_list (frame, NULL, lang, 0);
   else
     {
       MFont font;
 
       MFONT_INIT (&font);
       mfont__set_property (&font, MFONT_FAMILY, family);
-      plist = mfont_list (frame, &font, lang);
+      plist = mfont_list (frame, &font, lang, 0);
     }
   MPLIST_DO (p, plist)
     {

@@ -1,3 +1,13 @@
+2004-10-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.pc.in, m17n-shell.pc.in, m17n-gui.pc.in: New files.
+
+	* configure.ac: Include m17n-core.pc, m17n-shell.pc, and
+	m17n-gui.pc in AC_CONFIG_FILES.
+
+	* Makefile.am (EXTRA_DIST, pkgconfigdir, pkgconfig_DATA): New
+	variables.
+
 2004-08-16  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.1.0 released.
