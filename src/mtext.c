@@ -104,53 +104,57 @@ static enum MTextFormat default_utf_16 = MTEXT_FORMAT_UTF_16LE;
 static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
 #endif
 
-/** Increment character position CHAR_POS and byte position BYTE_POS
+/** Increment character position CHAR_POS and byte position UNIT_POS
     so that they point to the next character in M-text MT.  No range
-    check for CHAR_POS and BYTE_POS.  */
+    check for CHAR_POS and UNIT_POS.  */
 
-#define INC_POSITION(mt, char_pos, byte_pos)			\
+#define INC_POSITION(mt, char_pos, unit_pos)			\
   do {								\
     int c;							\
 								\
-    if ((mt)->format == MTEXT_FORMAT_UTF_8)			\
+    if ((mt)->format <= MTEXT_FORMAT_UTF_8)			\
       {								\
-	c = (mt)->data[(byte_pos)];				\
-	(byte_pos) += CHAR_UNITS_BY_HEAD_UTF8 (c);		\
+	c = (mt)->data[(unit_pos)];				\
+	(unit_pos) += CHAR_UNITS_BY_HEAD_UTF8 (c);		\
       }								\
-    else							\
+    else if ((mt)->format <= MTEXT_FORMAT_UTF_16BE)		\
       {								\
-	c = ((unsigned short *) ((mt)->data))[(byte_pos)];	\
+	c = ((unsigned short *) ((mt)->data))[(unit_pos)];	\
 								\
 	if ((mt)->format != default_utf_16)			\
 	  c = SWAP_16 (c);					\
-	(byte_pos) += (c < 0xD800 || c >= 0xE000) ? 1 : 2;	\
+	(unit_pos) += (c < 0xD800 || c >= 0xE000) ? 1 : 2;	\
       }								\
+    else							\
+      (unit_pos)++;						\
     (char_pos)++;						\
   } while (0)
 
 
-/** Decrement character position CHAR_POS and byte position BYTE_POS
+/** Decrement character position CHAR_POS and byte position UNIT_POS
     so that they point to the previous character in M-text MT.  No
-    range check for CHAR_POS and BYTE_POS.  */
+    range check for CHAR_POS and UNIT_POS.  */
 
-#define DEC_POSITION(mt, char_pos, byte_pos)				\
+#define DEC_POSITION(mt, char_pos, unit_pos)				\
   do {									\
-    if ((mt)->format == MTEXT_FORMAT_UTF_8)				\
+    if ((mt)->format <= MTEXT_FORMAT_UTF_8)				\
       {									\
-	unsigned char *p1 = (mt)->data + (byte_pos);			\
+	unsigned char *p1 = (mt)->data + (unit_pos);			\
 	unsigned char *p0 = p1 - 1;					\
 									\
 	while (! CHAR_HEAD_P (p0)) p0--;				\
-	(byte_pos) -= (p1 - p0);					\
+	(unit_pos) -= (p1 - p0);					\
       }									\
-    else								\
+    else if ((mt)->format <= MTEXT_FORMAT_UTF_16BE)			\
       {									\
-	int c = ((unsigned short *) ((mt)->data))[(byte_pos) - 1];	\
+	int c = ((unsigned short *) ((mt)->data))[(unit_pos) - 1];	\
 									\
 	if ((mt)->format != default_utf_16)				\
 	  c = SWAP_16 (c);						\
-	(byte_pos) -= (c < 0xD800 || c >= 0xE000) ? 1 : 2;		\
+	(unit_pos) -= (c < 0xD800 || c >= 0xE000) ? 1 : 2;		\
       }									\
+    else								\
+      (unit_pos)--;							\
     (char_pos)--;							\
   } while (0)
 
