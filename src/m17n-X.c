@@ -1121,7 +1121,7 @@ static MDeviceDriver x_driver =
 static MRealizedFont *xfont_select (MFrame *, MFont *, MFont *, int);
 static int xfont_open (MRealizedFont *);
 static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
-static unsigned xfont_encode_char (MRealizedFont *, int, unsigned);
+static unsigned xfont_encode_char (MRealizedFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
 
@@ -1382,10 +1382,10 @@ xfont_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 }
 
 
-/* The X font driver function ENCODE_CHAR.  */
+/* The X font driver function GET_GLYPH_ID.  */
 
 static unsigned
-xfont_encode_char (MRealizedFont *rfont, int c, unsigned code)
+xfont_encode_char (MRealizedFont *rfont, unsigned code)
 {
   MXFontInfo *xfont_info;
   XFontStruct *xfont;
@@ -1631,15 +1631,9 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
       else
 	{
 	  XGlyphInfo extents;
-	  unsigned code;
-
-	  if (g->otf_encoded)
-	    code = g->code;
-	  else
-	    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
 
 	  XftGlyphExtents (FRAME_DISPLAY (rfont->frame),
-			   font_info->font_aa, &code, 1, &extents);
+			   font_info->font_aa, &g->code, 1, &extents);
 	  g->lbearing = - extents.x;
 	  g->rbearing = extents.width - extents.x;
 	  g->width = extents.xOff;
@@ -1659,7 +1653,6 @@ xft_render (MDrawWindow win, int x, int y,
   MFrame *frame = rface->frame;
   MFTInfo *ft_info = rface->rfont->info;
   MXftFontInfo *font_info = ft_info->extra_info;
-  FT_Face ft_face = ft_info->ft_face;
   XftDraw *xft_draw = FRAME_DEVICE (frame)->xft_draw;
   XftColor *xft_color = (! reverse
 			 ? &((GCInfo *) rface->info)->xft_color_fore
@@ -1681,14 +1674,8 @@ xft_render (MDrawWindow win, int x, int y,
   glyphs = alloca (sizeof (FT_UInt) * (to - from));
   for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
     {
-      unsigned code;
-
-      if (g->otf_encoded)
-	code = g->code;
-      else
-	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
       if (g->xoff == 0 && g->yoff == 0)
-	glyphs[nglyphs++] = code;
+	glyphs[nglyphs++] = g->code;
       else
 	{
 	  if (nglyphs > 0)
@@ -1696,7 +1683,7 @@ xft_render (MDrawWindow win, int x, int y,
 			   last_x, y, glyphs, nglyphs);
 	  nglyphs = 0;
 	  XftDrawGlyphs (xft_draw, xft_color, xft_font,
-			 x + g->xoff, y + g->yoff, (FT_UInt *) &code, 1);
+			 x + g->xoff, y + g->yoff, (FT_UInt *) &g->code, 1);
 	  last_x = x + g->width;
 	}
     }
