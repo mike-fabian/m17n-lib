@@ -128,7 +128,7 @@ visual_order (MGlyphString *gstring)
       idx[size] = GLYPH_INDEX (g);
       logical[size++] = g++->c;
       while (g->type != GLYPH_ANCHOR
-	     && (g[-1].pos == g->pos || g->combining_code))
+	     && g->combining_code)
 	g++;
     }
 
