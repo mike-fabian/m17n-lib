@@ -1,3 +1,22 @@
+2004-06-03  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (InputMethodInfo): New type.
+	(input_method_table): Type changed to `InputMethodInfo *'.
+	(select_input_method): Adjusted for the change of
+	input_method_table.
+	(show_cursor): Open an input method here if necessary.
+	(compare_input_method): Adjusted for the change of
+	input_method_table.
+	(setup_input_methods): Likewise.  Don't open input methods here
+	except for XIM.
+	(main): Adjusted for the change of input_method_table.
+
+	* mconv.c (main): Close `in' and `out'.
+
+	* HELLO.utf8: Fix Greek line.
+
+	* HELLO.xml: Fix Greek line.
+
 2004-05-28  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (VINFO): New variable.
