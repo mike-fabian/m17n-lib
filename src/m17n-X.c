@@ -2143,18 +2143,20 @@ device_open (MFrame *frame, MPlist *param)
     }
 
   {
-    int nfonts;
-    char **names = XListFonts (display, app_data.font, 1, &nfonts);
+    int nfonts, i;
+    /* Try at least 32 fonts to obtain a non-autoscaled font.  */
+    char **names = XListFonts (display, app_data.font, 32, &nfonts);
+    MFont *font = NULL;
 
-    if (nfonts > 0)
+    for (i = 0; ! font && i < nfonts; i++)
       {
-	if (! (frame->font = mfont_parse_name (names[0], Mx)))
+	font = mfont_parse_name (names[i], Mx);
+	if (!font)
 	  {
 	    /* The font name does not conform to XLFD.  Try to open the
 	       font and get XA_FONT property.  */
-	    XFontStruct *xfont = XLoadQueryFont (display, names[0]);
+	    XFontStruct *xfont = XLoadQueryFont (display, names[i]);
 
-	    nfonts = 0;
 	    if (xfont)
 	      {
 		unsigned long value;
@@ -2163,17 +2165,20 @@ device_open (MFrame *frame, MPlist *param)
 		if (XGetFontProperty (xfont, XA_FONT, &value)
 		    && (name = ((char *)
 				XGetAtomName (display, (Atom) value))))
-		  {
-		    if ((frame->font = mfont_parse_name (name, Mx)))
-		      nfonts = 1;
-		  }
+		  font = mfont_parse_name (name, Mx);
 		XFreeFont (display, xfont);
 	      }
 	  }
-	XFreeFontNames (names);
+	if (font &&
+	    font->property[MFONT_SIZE] == 0 && font->property[MFONT_RESY] > 0)
+	  {
+	    free (font);
+	    font = NULL;
+	  }
       }
-    if (! nfonts)
-      frame->font = mfont_parse_name (FALLBACK_FONT, Mx);
+    if (nfonts)
+      XFreeFontNames (names);
+    frame->font = font ? font : mfont_parse_name (FALLBACK_FONT, Mx);
   }
 
   face = mface_from_font (frame->font);
