@@ -1030,7 +1030,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
     {
       int u;
       int size10, size;
-      MGlyph *prev = NULL;
+      MGlyph *base = NULL, *mark = NULL;
 
       if (OTF_drive_gpos (otf, &otf_gstring, script_name, language_name,
 			  gpos_feature_names) < 0)
@@ -1043,6 +1043,8 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       for (i = 0, otfg = otf_gstring.glyphs, g = MGLYPH (gidx);
 	   i < otf_gstring.used; i++, otfg++, g++)
 	{
+	  MGlyph *prev;
+
 	  if (! otfg->glyph_id)
 	    continue;
 	  switch (otfg->positioning_type)
@@ -1071,8 +1073,16 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	      /* Not yet supported.  */
 	      break;
 	    case 4: case 5:
-	      if (! prev)
+	      if (! base)
 		break;
+	      prev = base;
+	      goto label_adjust_anchor;
+	    case 6:
+	      if (! mark)
+		break;
+	      prev = mark;
+
+	    label_adjust_anchor:
 	      {
 		int base_x, base_y, mark_x, mark_y;
 
