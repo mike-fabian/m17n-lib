@@ -23,8 +23,8 @@ dnl 02111-1307, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(m17n-lib, 1.0.2, m17n-lib-bug@m17n.org)
-AM_INIT_AUTOMAKE(m17n-lib, 1.0.2)
+AC_INIT(m17n-lib, 1.1.0, m17n-lib-bug@m17n.org)
+AM_INIT_AUTOMAKE(m17n-lib, 1.1.0)
 AM_CONFIG_HEADER(src/config.h)
 
 # Checks for programs for compiling.
@@ -87,6 +87,7 @@ if test "x$HAVE_FRIBIDI" = "xyes"; then
 	    [Define to 1 if you have Fribidi library and header file.])
 else
   CPPFLAGS="$save_CPPFLAGS"
+  FRIBIDI_LD_FLAGS=
 fi
 LIBS="$save_LIBS"
 AC_SUBST(FRIBIDI_LD_FLAGS)
