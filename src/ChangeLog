@@ -1,3 +1,10 @@
+2004-11-15  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (find_candidates_group): If INDEX is -1, find the last
+	candidate group.
+	(take_action_list): If the previous of the first candidate is
+	requested, select the last candidate.
+
 2004-11-08  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (device_open): Try at most 32 fonts to find a
