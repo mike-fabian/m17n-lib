@@ -829,9 +829,10 @@ xfont_encode_char (MRealizedFont *rfont, int c, unsigned code)
     {
       XCharStruct *pcm;
 
+      if (code < min_byte2 || code > max_byte2)
+	return MCHAR_INVALID_CODE;
       if (all_chars_exist)
-	return ((code >= min_byte2 && code <= max_byte2)
-		? code : MCHAR_INVALID_CODE);
+	return code;
       pcm = f->per_char + (code - min_byte2);
       return ((pcm->width > 0 || pcm->rbearing != pcm->lbearing)
 	      ? code : MCHAR_INVALID_CODE);
@@ -841,10 +842,12 @@ xfont_encode_char (MRealizedFont *rfont, int c, unsigned code)
       unsigned byte1 = code >> 8, byte2 = code & 0xFF;
       XCharStruct *pcm;
 
+      if (byte1 < min_byte1 || byte1 > max_byte1
+	  || byte2 < min_byte2 || byte2 > max_byte2)
+	return MCHAR_INVALID_CODE;
+
       if (all_chars_exist)
-	return ((byte1 >= min_byte1 && byte1 <= max_byte1
-		 && byte2 >= min_byte2 && byte2 <= max_byte2)
-		? code : MCHAR_INVALID_CODE);
+	return code;
       pcm = f->per_char + ((byte1 - min_byte1) * (max_byte2 - min_byte2 + 1)
 			   + (byte2 - min_byte2));
       return ((pcm->width > 0 || pcm->rbearing != pcm->lbearing)
