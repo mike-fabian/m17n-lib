@@ -1,3 +1,8 @@
+2004-05-28  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-config.in: Accept "GUI" flag and adjusted for the new
+	configuration.
+
 2004-05-27  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Check fontconfig even if Xft is available.  Check
