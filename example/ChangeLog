@@ -1,6 +1,9 @@
 2004-07-26  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (redraw_cursor): Fix checking of redrawing area.
+	(set_input_method_spot): Don't check face if the buffer is empty.
+	(show_cursor): Likewise.
+	(delete_char): Fix adjustment of nchars.
 
 2004-07-23  Kenichi Handa  <handa@m17n.org>
 

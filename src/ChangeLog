@@ -1,9 +1,15 @@
 2004-07-26  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-X.c (xft_render): Pay attention to members left_padding and
+	right_padding of MGlyph.
+
 	* draw.c (visual_order): Allocate one more elements for arrays as
 	a workaround of fribidi bug.
 	(layout_glyphs): Fix previous change. Check MGlyph->combining_code
 	instead of MGlyph->bidi_sensitive.
+	(layout_glyph_string): Pay attentinon to
+	control->orientation_reversed when padding at the head or tail.
+	Fix adjustment of space glyph width.
 
 	* font-ft.c (mfont__ft_drive_otf): Set MGlyph->combining_code
 	instead of MGlyph->bidi_sensitive.
