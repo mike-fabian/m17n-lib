@@ -2535,10 +2535,10 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     }
   info->from = g->pos;
   info->to = g->to;
-  info->this.x = g->lbearing;
-  info->this.y = - gstring->line_ascent;
-  info->this.height = gstring->height;
-  info->this.width = - g->lbearing + g->width;
+  info->metrics.x = g->lbearing;
+  info->metrics.y = - gstring->line_ascent;
+  info->metrics.height = gstring->height;
+  info->metrics.width = - g->lbearing + g->width;
   if (g->rface->rfont)
     info->font = &g->rface->rfont->font;
   else
@@ -2622,8 +2622,8 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
   for (info->logical_width = (g++)->width;
        g->pos == pos && g->type != GLYPH_ANCHOR;
-       info->this.width += g->width, info->logical_width += (g++)->width);
-  info->this.width += g[-1].rbearing - g[-1].width;
+       info->metrics.width += g->width, info->logical_width += (g++)->width);
+  info->metrics.width += g[-1].rbearing - g[-1].width;
 
   if (g->type != GLYPH_ANCHOR)
     info->right_from = g->pos, info->right_to = g->to;
