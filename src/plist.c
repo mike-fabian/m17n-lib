@@ -151,12 +151,9 @@ get_byte (MStream *st)
   return st->buffer[0];
 }
 
-#define GETC(st)	\
-  ((st)->p < (st)->pend ? *(st)->p++ : get_byte (st))
+#define GETC(st) ((st)->p < (st)->pend ? *(st)->p++ : get_byte (st))
 
-
-#define UNGETC(c, st)	\
-  (*--(st)->p = (c))
+#define UNGETC(c, st) (--((st)->p))
 
 /** Mapping table for reading a number.  Hexadecimal chars
     (0..9,A..F,a..F) are mapped to the corresponding numbers.
@@ -210,7 +207,7 @@ read_hexadesimal (MStream *st)
     for the next element.  */
 
 static MPlist *
-read_mtext_element (MPlist *plist, MStream *st)
+read_mtext_element (MPlist *plist, MStream *st, int skip)
 {
   unsigned char buffer[1024];
   int bufsize = 1024;
@@ -250,13 +247,17 @@ read_mtext_element (MPlist *plist, MStream *st)
 	    c = escape_mnemonic[c];
 	}
 
-      buf[i++] = c;
+      if (! skip)
+	buf[i++] = c;
     }
 
-  MPLIST_SET_ADVANCE (plist, Mtext,
-		      mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 1));
-  if (buf != buffer)
-    free (buf);
+  if (! skip)
+    {
+      MPLIST_SET_ADVANCE (plist, Mtext,
+			  mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 1));
+      if (buf != buffer)
+	free (buf);
+    }
   return plist;
 }
 
@@ -289,7 +290,7 @@ read_character (MStream *st, int c)
     read the character C. */
 
 static MPlist *
-read_integer_element (MPlist *plist, MStream *st, int c)
+read_integer_element (MPlist *plist, MStream *st, int c, int skip)
 {
   int num;
 
@@ -329,7 +330,8 @@ read_integer_element (MPlist *plist, MStream *st, int c)
   else
     num = read_decimal (st, c);
 
-  MPLIST_SET_ADVANCE (plist, Minteger, (void *) num);
+  if (! skip)
+    MPLIST_SET_ADVANCE (plist, Minteger, (void *) num);
   return plist;
 }
 
@@ -337,7 +339,7 @@ read_integer_element (MPlist *plist, MStream *st, int c)
     for the next element.  */
 
 static MPlist *
-read_symbol_element (MPlist *plist, MStream *st)
+read_symbol_element (MPlist *plist, MStream *st, int skip)
 {
   unsigned char buffer[1024];
   int bufsize = 1024;
@@ -367,15 +369,19 @@ read_symbol_element (MPlist *plist, MStream *st)
 	    break;
 	  c = escape_mnemonic[c];
 	}
-      buf[i++] = c;
+      if (! skip)
+	buf[i++] = c;
     }
 
-  buf[i] = 0;
-  MPLIST_SET_ADVANCE (plist, Msymbol, msymbol ((char *) buf));
-  if (buf != buffer)
-    free (buf);
   if (c > ' ')
     UNGETC (c, st);
+  if (! skip)
+    {
+      buf[i] = 0;
+      MPLIST_SET_ADVANCE (plist, Msymbol, msymbol ((char *) buf));
+      if (buf != buffer)
+	free (buf);
+    }
   return plist;
 }
 
@@ -387,10 +393,14 @@ read_symbol_element (MPlist *plist, MStream *st)
 	'0'..'9', '-': integer
 	'?': integer representing character code
 	the other ASCII letters: symbol
-*/
+
+   If KEYS is not NULL, it is a plist contains target keys and stop
+   keys.  In this caes, read only a plist whose key has value 1 in
+   KEYS, and return NULL when we encounter a plist whose key has value
+   0 in KEYS while skipping any other elements.  */
 
 static MPlist *
-read_element (MPlist *plist, MStream *st)
+read_element (MPlist *plist, MStream *st, MPlist *keys)
 {
   int c;
 
@@ -411,18 +421,38 @@ read_element (MPlist *plist, MStream *st)
 
       MPLIST_NEW (pl);
       p = pl;
-      while ((p = read_element (p, st)));
-      MPLIST_SET_ADVANCE (plist, Mplist, pl);
+      p = read_element (p, st, NULL);
+      if (keys && p && MPLIST_SYMBOL_P (pl))
+	{
+	  MPlist *p0 = keys;
+	  MPLIST_FIND (p0, MPLIST_SYMBOL (pl));
+	  if (! MPLIST_TAIL_P (p0) && ! MPLIST_VAL (p0))
+	    {
+	      M17N_OBJECT_UNREF (pl);
+	      return NULL;
+	    }
+	  while ((p = read_element (p, st, NULL)));
+	  if (! MPLIST_TAIL_P (p0))
+	    MPLIST_SET_ADVANCE (plist, Mplist, pl);
+	  else
+	    M17N_OBJECT_UNREF (pl);
+	}
+      else
+	{
+	  if (p)
+	    while ((p = read_element (p, st, NULL)));
+	  MPLIST_SET_ADVANCE (plist, Mplist, pl);
+	}
       return plist;
     }
   if (c == '"')
-    return read_mtext_element (plist, st);
+    return (read_mtext_element (plist, st, keys ? 1 : 0));
   if ((c >= '0' && c <= '9') || c == '-' || c == '?' || c == '#')
-    return read_integer_element (plist, st, c);
+    return (read_integer_element (plist, st, c, keys ? 1 : 0));
   if (c == EOF || c == ')')
     return NULL;
   UNGETC (c, st);
-  return read_symbol_element (plist, st);
+  return (read_symbol_element (plist, st, keys ? 1 : 0));
 }
 
 void
@@ -606,7 +636,7 @@ mplist__from_plist (MPlist *plist)
       key = MPLIST_SYMBOL (plist);
       plist = MPLIST_NEXT (plist);
       type = MPLIST_KEY (plist);
-      if (type->managing_key)
+      if (type->managing_key && MPLIST_VAL (plist))
 	M17N_OBJECT_REF (MPLIST_VAL (plist));
       MPLIST_SET_ADVANCE (p, key, MPLIST_VAL (plist));
       plist = MPLIST_NEXT (plist);
@@ -644,7 +674,7 @@ mplist__from_alist (MPlist *plist)
 
 
 MPlist *
-mplist__from_file (FILE *fp)
+mplist__from_file (FILE *fp, MPlist *keys)
 {
   MPlist *plist, *pl;
   MStream st;
@@ -654,7 +684,7 @@ mplist__from_file (FILE *fp)
   st.p = st.pend = st.buffer;
   MPLIST_NEW (plist);
   pl = plist;
-  while ((pl = read_element (pl, &st)));
+  while ((pl = read_element (pl, &st, keys)));
   return plist;
 }
 
@@ -703,7 +733,7 @@ mplist__from_string (unsigned char *str, int n)
   st.pend = str + n;
   MPLIST_NEW (plist);
   pl = plist;
-  while ((pl = read_element (pl, &st)));
+  while ((pl = read_element (pl, &st, NULL)));
   return plist;
 }
 
@@ -892,7 +922,8 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
     {
       if (! MPLIST_TAIL_P (plist))
 	M17N_OBJECT_UNREF (MPLIST_VAL (plist));
-      M17N_OBJECT_REF (val);
+      if (val)
+	M17N_OBJECT_REF (val);
     }
   MPLIST_SET (plist, key, val);
   return plist;
@@ -972,7 +1003,7 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
   if (key == Mnil)
     MERROR (MERROR_PLIST, NULL);
   MPLIST_FIND (plist, Mnil);
-  if (key->managing_key)
+  if (val && key->managing_key)
     M17N_OBJECT_REF (val);
   MPLIST_KEY (plist) = key;
   MPLIST_VAL (plist) = val;
@@ -1019,7 +1050,7 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
   MPLIST_VAL (pl) = MPLIST_VAL (plist);
   MPLIST_NEXT (pl) = MPLIST_NEXT (plist);
   plist->next = pl;
-  if (key->managing_key)
+  if (val && key->managing_key)
     M17N_OBJECT_REF (val);
   MPLIST_KEY (plist) = key;
   MPLIST_VAL (plist) = val;
@@ -1185,7 +1216,7 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
 	  key = MPLIST_KEY (plist);
 	  M17N_OBJECT_UNREF (MPLIST_NEXT (plist));
 	  MPLIST_KEY (plist) = Mnil;
-	  if (key->managing_key && MPLIST_VAL (plist))
+	  if (key->managing_key)
 	    M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	  plist->next = NULL;
 	}
@@ -1193,10 +1224,9 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
   else
     {
       if (! MPLIST_TAIL_P (plist)
-	  && MPLIST_KEY (plist)->managing_key
-	  && MPLIST_VAL (plist))
+	  && MPLIST_KEY (plist)->managing_key)
 	M17N_OBJECT_UNREF (MPLIST_VAL (plist));
-      if (key->managing_key)
+      if (val && key->managing_key)
 	M17N_OBJECT_REF (val);
       MPLIST_SET (plist, key, val);
     }
