@@ -50,11 +50,11 @@
 
 /***ja
     @addtogroup m17nFace
-    @brief フェースとは、M-text の表示を制御するオブジェクトである.
+    @brief フェースとは、M-text の見栄えを制御するオブジェクトである.
 
     @e フェース は #MFace 型のオブジェクトであり、M-text の表示方法
     を制御する。フェースは固定個数の @e フェースプロパティ を持つ。
-    フェースプロパティはキーと値からなる。キーはシンボルであり、
+    フェースプロパティはキーと値からなる。キーは以下のシンボルのいずれかである。
 
     #Mforeground, #Mbackground, #Mvideomode, #Mhline, #Mbox, 
     #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle, 
@@ -700,7 +700,7 @@ mface__free_realized (MRealizedFace *rface)
     変数 #Mforeground はフェースプロパティのキーとして用いられる。
     プロパティの値は、色名を名前として持つシンボルか #Mnil である。
 
-    #Mnil の場合、前景色は指定されない。そうれなければ M-text の前景は
+    #Mnil の場合、前景色は指定されない。そうでなければ M-text の前景は
     指定された色で表示される。  */
 
 MSymbol Mforeground;
@@ -722,7 +722,7 @@ MSymbol Mforeground;
     変数 #Mbackground はフェースプロパティのキーとして用いられる。
     プロパティの値は、色名を名前として持つシンボルか #Mnil である。
 
-    #Mnil の場合、背景色は指定されない。そうれなければ M-text の背景は
+    #Mnil の場合、背景色は指定されない。そうでなければ M-text の背景は
     指定された色で表示される。  */
 
 MSymbol Mbackground;
@@ -771,7 +771,7 @@ MSymbol Mvideomode;
     * RATIO / 100) where FONTSIZE is a font size specified by the face
     property #Msize.  */
 /***ja
-    @brief サイズの比率を指定するためのフェースプロパティーのキー.
+    @brief フォントのサイズの比率を指定するためのフェースプロパティーのキー.
 
     変数 #Mratio はフェースプロパティのキーとして用いられる。値 RATIO 
     は整数値でなくてはならない。
@@ -801,7 +801,7 @@ MSymbol Mratio;
     #MFaceHLineProp 型オブジェクトへのポインタか @c NULL でなくてはな
     らない。
 
-    値が @c NULL ならば、このプロパティは指定されない。そうでければ値
+    値が @c NULL ならば、このプロパティは指定されない。そうでなければ値
    が指すオブジェクトに指定されたように水平線を付加して M-text を表示
    する。*/
 
@@ -824,7 +824,7 @@ MSymbol Mhline;
     #MFaceBoxProp 型オブジェクトへのポインタか @c NULL でなくてはなら
     ない。
 
-    値が @c NULL ならば、このプロパティは指定されない。そうでければ値
+    値が @c NULL ならば、このプロパティは指定されない。そうでなければ値
     が指すオブジェクトに指定されたように囲み枠を付加して M-text を表示
     する。*/
 
@@ -847,7 +847,7 @@ MSymbol Mbox;
     変数 #Mfontset はフェースプロパティのキーとして用いられる。値は 
     #Mfontset 型オブジェクトへのポインタか @c NULL でなくてはならない。
 
-    値が @c NULL ならば、フォントセットは指定されない。そうでければ値
+    値が @c NULL ならば、フォントセットは指定されない。そうでなければ値
     が指すオブジェクトに指定されたフォントセットから選んだフォントで 
     M-text を表示する。*/
     
@@ -868,7 +868,7 @@ MSymbol Mfontset;
     変数 #Mhook_func はフェースプロパティのキーとして用いられる。値は 
     #MFaceHookFunc 型の関数か @c NULL でなくてはならない。
 
-    値が @c NULL ならば、フックは指定されない。そうでければフェースを
+    値が @c NULL ならば、フックは指定されない。そうでなければフェースを
     実現する前に指定した関数が呼ばれる。      */
 MSymbol Mhook_func;
 
@@ -918,7 +918,7 @@ MSymbol Mreverse;
     are not specified.  An M-text drawn with this face appear normal
     colors (i.e. the foreground is drawn by foreground color, and
     background is drawn by background color).  */
-/***en
+/***ja
     @brief 標準ビデオフェース.
 
     変数 #mface_normal_video は #Mvideomode プロパティの値が #Mnormal 
@@ -1340,8 +1340,10 @@ MFace *mface_magenta;
     @brief Key of a text property specifying a face.
 
     The variable #Mface is a symbol of name <tt>"face"</tt>.  A text
-    property whose key is this symbol must have a pointer to an object
-    of type #MFace.  This is a managing key.  */
+    property whose key is
+    this symbol must have a pointer to an object
+    of type #MFace
+.  This is a managing key.  */
 
 /***ja
     @brief フェースを指定するテキストプロパティのキー.
@@ -1579,7 +1581,7 @@ mface_get_prop (MFace *face, MSymbol key)
     documentation of the above keys.
 
     @return
-    If the operation was successful, mface_put_prop returns () 0.
+    If the operation was successful, mface_put_prop () returns 0.
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
