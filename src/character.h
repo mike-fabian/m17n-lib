@@ -40,8 +40,19 @@
 #define MAX_UTF8_CHAR_BYTES 6
 #define MAX_UNICODE_CHAR_BYTES 4
 
+#define USHORT_SIZE (sizeof (unsigned short))
+#define UINT_SIZE (sizeof (unsigned int))
+
+/* Return how many bytes one unit (char, short, or int) in FORMAT
+   occupies.  */
+
+#define UNIT_BYTES(format)				\
+  ((format) <= MTEXT_FORMAT_UTF_8 ? 1			\
+   : (format) <= MTEXT_FORMAT_UTF_16BE ? USHORT_SIZE	\
+   : UINT_SIZE)
+
 /* Return how many units (char, short, or int) C will occupy in
-   MText->data.  */
+   MText->data.  If C is not in the supported range, return 0.  */
 
 #define CHAR_UNITS_ASCII(c) ((c) < 0x80)
 
@@ -53,19 +64,13 @@
    : (c) < 0x4000000 ? 5	\
    : 6)
 
-#define CHAR_UNITS_UTF16(c)	\
-  ((c) < 0x10000 ? 1		\
-   : (c) < 0x110000 ? 2		\
-   : 0)
-
+#define CHAR_UNITS_UTF16(c) ((c) < 0x110000 ? (2 - ((c) < 0x10000)) : 0)
 
 #define CHAR_UNITS_UTF32(c) 1
 
 #define CHAR_UNITS(c, format)					\
-  ((c) < 0x80 ? 1						\
-   : (format) == MTEXT_FORMAT_UTF8 ? CHAR_UNITS_UTF8 (c)	\
-   : (format) == MTEXT_FORMAT_UTF16 ? CHAR_UNITS_UTF16 (c)	\
-   : (format) == MTEXT_FORMAT_ASCII ? 0				\
+  ((format) <= MTEXT_FORMAT_UTF_8 ? CHAR_UNITS_UTF8 (c)		\
+   : (format) <= MTEXT_FORMAT_UTF_16BE ? CHAR_UNITS_UTF16 (c)	\
    : CHAR_UNITS_UTF32 (c))
 
 #define CHAR_BYTES CHAR_UNITS_UTF8
@@ -83,9 +88,9 @@
   (2 - (*(unsigned short *) (p) < 0xD800	\
 	|| *(unsigned short *) (p) >= 0xDC00))
 
-#define CHAR_UNITS_AT(c, format)				\
-  ((format) == MTEXT_FORMAT_UTF16 ? CHAR_UNITS_AT_UTF16 (c)	\
-   : (format) == MTEXT_FORMAT_UTF8 ? CHAR_UNITS_AT_UTF8 (c)	\
+#define CHAR_UNITS_AT(mt, p)						\
+  ((mt)->format <= MTEXT_FORMAT_UTF_8 ? CHAR_UNITS_AT_UTF8 (p)		\
+   : (mt)->format <= MTEXT_FORMAT_UTF_16BE ? CHAR_UNITS_AT_UTF16 (p)	\
    : 1)
 
 #define CHAR_BYTES_AT CHAR_UNITS_AT_UTF8
@@ -103,8 +108,8 @@
   (2 - ((unsigned short) (c) < 0xD800 || (unsigned short) (c) >= 0xDC00))
 
 #define CHAR_UNITS_BY_HEAD(c, format)					\
-  ((format) == MTEXT_FORMAT_UTF16 ? CHAR_UNITS_BY_HEAD_UTF16 (c)	\
-   : (format) == MTEXT_FORMAT_UTF8 ? CHAR_UNITS_BY_HEAD_UTF8 (c)	\
+  ((format) <= MTEXT_FORMAT_UTF_8 ? CHAR_UNITS_BY_HEAD_UTF8 (c)	\
+   : (format) <= MTEXT_FORMAT_UTF_16BE ? CHAR_UNITS_BY_HEAD_UTF16 (c)	\
    : 1)
 
 #define CHAR_BYTES_BY_HEAD CHAR_UNITS_BY_HEAD_UTF8
@@ -206,11 +211,11 @@
       (((p)[0] - 0xD800) << 10) + ((p)[1] - 0xDC00) + 0x10000))
 
 #define STRING_CHAR_AND_UNITS(p, units, format)	\
-  ((format) == MTEXT_FORMAT_UTF16		\
-   ? STRING_CHAR_AND_UNITS_UTF16 (p, units)	\
-   : (format) == MTEXT_FORMAT_UTF8		\
+  ((format) <= MTEXT_FORMAT_UTF_8		\
    ? STRING_CHAR_AND_UNITS_UTF8 (p, units)	\
-   : ((units) = 1, (p)[0]))
+   : (format) <= MTEXT_FORMAT_UTF_16BE		\
+   ? STRING_CHAR_AND_UNITS_UTF16 (p, units)	\
+   : ((units) = 1, ((unsigned) (p))[0]))
 
 
 #define STRING_CHAR_AND_BYTES STRING_CHAR_AND_UNITS_UTF8
