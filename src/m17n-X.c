@@ -810,12 +810,12 @@ xfont_encode_char (MRealizedFont *rfont, int c, unsigned code)
   unsigned min_byte1, max_byte1, min_byte2, max_byte2;
   int all_chars_exist;
 
-  if (rfont->status < 0)
-    return -1;
+  if (rfont->status < 0 || code >= 0x10000)
+    return MCHAR_INVALID_CODE;
   if (rfont->status == 0)
     {
       if (xfont_open (rfont) < 0)
-	return -1;
+	return MCHAR_INVALID_CODE;
     }
   xfont = (MXFontInfo *) rfont->info;
   f = xfont->f;
