@@ -1178,7 +1178,7 @@ mtext ()
     The contents of $DATA must not be modified while the M-text is alive.
 
     The allocated M-text will not be freed unless the user explicitly
-    does so with the m17n_object_free () function.  Even in that case,
+    does so with the m17n_object_unref () function.  Even in that case,
     $DATA is not freed.
 
     @return
@@ -1206,7 +1206,7 @@ mtext ()
     割り当てられた M-text の文字列は変更できない。$DATA の内容は 
     M-text が有効な間は変更してはならない。
 
-    割り当てられた M-text は、関数 m17n_object_free () によってユーザ
+    割り当てられた M-text は、関数 m17n_object_unref () によってユーザ
     が明示的に行なわない限り、解放されない。その場合でも $DATA は解放
     されない。
 
