@@ -1,3 +1,10 @@
+2004-05-07  Kenichi Handa  <handa@redhat.m17n.org>
+
+	* Makefile.am (libm17n_la_LIBADD): Include -ldl.
+	(libm17n_la_LDFLAGS): Delete it.
+	(noinst_PROGRAMS): Renamed from bin_PROGRAMS.
+	(install-binPROGRAMS, uninstall-binPROGRAMS): Delete them.
+
 2004-05-06  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Fix previous change.
