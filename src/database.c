@@ -134,9 +134,6 @@
 #define MDB_DIR "mdb.dir"
 #define MDB_DIR_LEN 8
 
-/** List of database directories.  */ 
-static MPlist *mdb_dir_list;
-
 /** Structure for a data in the m17n database.  */
 
 struct MDatabase
@@ -412,12 +409,10 @@ gen_database_name (char *buf, MSymbol *tags)
   return buf;
 }
 
-static void *
-load_database (MSymbol *tags, void *extra_info)
+static FILE *
+get_database_stream (char *filename)
 {
-  FILE *fp;
-  char *filename = (char *) extra_info;
-  void *value;
+  FILE *fp = NULL;
 
   if (filename[0] == '/')
     fp = fopen (filename, "r");
@@ -426,7 +421,7 @@ load_database (MSymbol *tags, void *extra_info)
       MPlist *plist;
       char path[PATH_MAX];
 
-      MPLIST_DO (plist, mdb_dir_list)
+      MPLIST_DO (plist, mdatabase__dir_list)
 	{
 	  strcpy (path, (char *) MPLIST_VAL (plist));
 	  strcat (path, filename);
@@ -435,6 +430,15 @@ load_database (MSymbol *tags, void *extra_info)
 	    break;
 	}
     }
+  return fp;
+}
+
+static void *
+load_database (MSymbol *tags, void *extra_info)
+{
+  FILE *fp = get_database_stream ((char *) extra_info);
+  void *value;
+
   if (! fp)
     MERROR (MERROR_DB, NULL);
 
@@ -443,7 +447,7 @@ load_database (MSymbol *tags, void *extra_info)
   else if (tags[0] == Mcharset)
     value = load_charset (fp, tags[1]);
   else
-    value = mplist__from_file (fp);
+    value = mplist__from_file (fp, NULL);
   fclose (fp);
 
   if (! value)
@@ -480,6 +484,11 @@ duplicate_dirname (char *dirname)
 
 /* Internal API */
 
+/** List of database directories.  */ 
+MPlist *mdatabase__dir_list;
+
+MSymbol M_database_hook;
+
 int
 mdatabase__init ()
 {
@@ -489,25 +498,26 @@ mdatabase__init ()
   FILE *fp;
 
   Mchar_table = msymbol ("char-table");
+  M_database_hook = msymbol ("  database-hook");
 
-  mdb_dir_list = mplist ();
+  mdatabase__dir_list = mplist ();
   /** The macro M17NDIR specifies a directory where the system-wide
     MDB_DIR file exists.  */
   if ((dir = duplicate_dirname (M17NDIR)))
-    mplist_set (mdb_dir_list, Mt, dir);
+    mplist_set (mdatabase__dir_list, Mt, dir);
 
   /* The variable mdatabase_dir specifies a directory where an
      application program specific MDB_DIR file exists.  */
   if ((dir = duplicate_dirname (mdatabase_dir)))
-    mplist_push (mdb_dir_list, Mt, dir);
+    mplist_push (mdatabase__dir_list, Mt, dir);
 
   /* The environment variable M17NDIR (if non-NULL) specifies a
      directory where a user specific MDB_DIR file exists.  */
   if ((dir = duplicate_dirname (getenv ("M17NDIR"))))
-    mplist_push (mdb_dir_list, Mt, dir);
+    mplist_push (mdatabase__dir_list, Mt, dir);
 
   MLIST_INIT1 (&mdb_list, mdbs, 256);
-  MPLIST_DO (plist, mdb_dir_list)
+  MPLIST_DO (plist, mdatabase__dir_list)
     {
       MPlist *pl, *p;
       int len;
@@ -521,7 +531,7 @@ mdatabase__init ()
       memcpy (path + len, MDB_DIR, MDB_DIR_LEN);
       if (! (fp = fopen (path, "r")))
 	continue;
-      pl = mplist__from_file (fp);
+      pl = mplist__from_file (fp, NULL);
       fclose (fp);
       if (! pl)
 	continue;
@@ -571,9 +581,9 @@ mdatabase__fini (void)
   int i;
   MPlist *plist; 
 
-  MPLIST_DO (plist, mdb_dir_list)
+  MPLIST_DO (plist, mdatabase__dir_list)
     free (MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (mdb_dir_list);
+  M17N_OBJECT_UNREF (mdatabase__dir_list);
 
   for (i = 0; i < mdb_list.used; i++)
     {
@@ -584,6 +594,29 @@ mdatabase__fini (void)
     }
   MLIST_FREE1 (&mdb_list, mdbs);
 }
+
+MPlist *
+mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
+{
+  int mdebug_mask = MDEBUG_DATABASE;
+  FILE *fp;
+  MPlist *plist;
+  char buf[256];
+
+  if (mdb->loader != load_database
+      || mdb->tag[0] == Mchar_table
+      || mdb->tag[0] == Mcharset)
+    MERROR (MERROR_DB, NULL);
+  MDEBUG_PRINT1 (" [DATABASE] loading <%s>.\n",
+		 gen_database_name (buf, mdb->tag));
+  fp = get_database_stream ((char *) mdb->extra_info);
+  if (! fp)
+    MERROR (MERROR_DB, NULL);
+  plist = mplist__from_file (fp, keys);
+  fclose (fp);
+  return plist;
+}
+
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
@@ -641,6 +674,11 @@ MDatabase *
 mdatabase_find (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 {
   int i;
+  MDatabaseHookFunc func
+    = (MDatabaseHookFunc) msymbol_get (tag0, M_database_hook);
+
+  if (func)
+    func (tag0, tag1, tag2, tag3);
 
   for (i = 0; i < mdb_list.used; i++)
     {
@@ -679,6 +717,11 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 {
   int i;
   MPlist *plist = NULL, *pl;
+  MDatabaseHookFunc func
+    = (MDatabaseHookFunc) msymbol_get (tag0, M_database_hook);
+
+  if (func)
+    func (tag0, tag1, tag2, tag3);
 
   for (i = 0; i < mdb_list.used; i++)
     {
@@ -752,6 +795,11 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 		  void *extra_info)
 {
   MDatabase *mdb;
+  MDatabaseHookFunc func
+    = (MDatabaseHookFunc) msymbol_get (tag0, M_database_hook);
+
+  if (func)
+    func (tag0, tag1, tag2, tag3);
 
   mdb = mdatabase_find (tag0, tag1, tag2, tag3);
   if (! mdb)
@@ -760,13 +808,19 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 
       template.tag[0] = tag0, template.tag[1] = tag1;
       template.tag[2] = tag2, template.tag[3] = tag3;
+      template.extra_info = NULL;
       MLIST_APPEND1 (&mdb_list, mdbs, template, MERROR_DB);
       mdb = mdb_list.mdbs + (mdb_list.used - 1);
     }
   mdb->loader = loader ? loader : load_database;
-  mdb->extra_info = extra_info;
   if (mdb->loader == load_database)
-    mdb->extra_info = strdup ((char *) extra_info);
+    {
+      if (mdb->extra_info)
+	free (mdb->extra_info);
+      mdb->extra_info = strdup ((char *) extra_info);
+    }
+  else
+    mdb->extra_info = extra_info;
   return (&(mdb_list.mdbs[mdb_list.used - 1]));
 }
 
