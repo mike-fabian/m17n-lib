@@ -91,7 +91,4 @@ extern MPlist *mplist__from_string (unsigned char *str, int n);
 
 extern int mplist__serialize (MText *mt, MPlist *plist);
 
-extern MPlist *mplist__deserialize (MText *mt);
-
-
 #endif  /* _M17N_PLIST_H_ */
