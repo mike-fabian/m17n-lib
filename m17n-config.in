@@ -18,12 +18,14 @@ if test $# -eq 0; then
   exit 0
 fi
 
-LIBNAME=-lm17n
+LIBNAME="-lm17n-core -lm17n"
 
 case $1 in
 CORE) LIBNAME="-lm17n-core"; shift;;
  GUI) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; shift;;
-   X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; shift;;
+   X) LIBNAME="-lm17n-core -lm17n -lm17n-gui -lm17n-X"; shift;;
+  GD) LIBNAME="-lm17n-core -lm17n -lm17n-gui -lm17n-gd"; shift;;
+X-GD) LIBNAME="-lm17n-core -lm17n -lm17n-gui -lm17n-X -lm17n-gd"; shift;;
 esac
 
 case $1 in
