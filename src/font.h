@@ -199,6 +199,9 @@ extern int mfont__flt_init ();
 extern void mfont__flt_fini ();
 
 #ifdef HAVE_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 extern int mfont__ft_init ();
 
 extern void mfont__ft_fini ();
