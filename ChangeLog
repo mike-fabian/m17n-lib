@@ -1,3 +1,7 @@
+2004-10-13  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Check if <freetype/ftbdf.h> is available or not.
+
 2004-10-12  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Use pkg-config (if available) for Xft.

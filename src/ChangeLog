@@ -1,3 +1,8 @@
+2004-10-13  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c: Include <freetype/ftbdf.h> conditionally.  Check
+	HAVE_FTBDF_H before calling FT_Get_BDF_Property.
+
 2004-10-12  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (alloc_gstring): Fix previous change.
