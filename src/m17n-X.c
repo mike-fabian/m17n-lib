@@ -24,6 +24,8 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -38,6 +40,10 @@
 #include <X11/Xatom.h>
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
+
+#ifdef HAVE_XFT2
+#include <X11/Xft/Xft.h>
+#endif	/* HAVE_XFT2 */
 
 #include "m17n-gui.h"
 #include "m17n-X.h"
@@ -111,6 +117,9 @@ typedef struct
   /* The first 8 elements are indexed by an intensity for
      anti-aliasing.  The 2nd to 7th are created on demand.  */
   GC gc[GC_MAX];
+#ifdef HAVE_XFT2
+  XftColor xft_color_fore, xft_color_back;
+#endif
 } GCInfo;
 
 struct MWDevice
@@ -130,6 +139,10 @@ struct MWDevice
 
   GC scratch_gc;
 
+#ifdef HAVE_XFT2
+  XftDraw *xft_draw;
+#endif
+
   /** List of pointers to realized faces on the frame.  */
   MPlist *realized_face_list;
 
@@ -144,8 +157,11 @@ static MPlist *device_list;
 
 static MSymbol M_iso8859_1, M_iso10646_1;
 
-#define FRAME_DISPLAY(frame) (frame->device->display_info->display)
-#define FRAME_SCREEN(frame) (frame->device->screen_num)
+#define FRAME_DISPLAY(frame) ((frame)->device->display_info->display)
+#define FRAME_SCREEN(frame) ((frame)->device->screen_num)
+#define FRAME_CMAP(frame) ((frame)->device->cmap)
+#define FRAME_VISUAL(frame) DefaultVisual (FRAME_DISPLAY (frame), \
+					   FRAME_SCREEN (frame))
 
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--*-120-*-*-*-*-iso8859-1"
 #define FALLBACK_FONT "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1"
@@ -232,6 +248,10 @@ free_device (void *object)
     }
   M17N_OBJECT_UNREF (device->gc_list);
   XFreeGC (device->display_info->display, device->scratch_gc);
+
+#ifdef HAVE_XFT2
+  XftDrawDestroy (device->xft_draw);
+#endif
 
   XFreePixmap (device->display_info->display, device->drawable);
   M17N_OBJECT_UNREF (device->display_info);
@@ -583,7 +603,7 @@ static unsigned xfont_encode_char (MRealizedFont *, int, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
 
-MFontDriver xfont_driver =
+static MFontDriver xfont_driver =
   { xfont_select, xfont_open, xfont_close,
     xfont_find_metric, xfont_encode_char, xfont_render };
 
@@ -1399,6 +1419,11 @@ mwin__open_device (MFrame *frame, MPlist *param)
       values.foreground = BlackPixel (display, screen_num);
       device->scratch_gc = XCreateGC (display, device->drawable,
 				      valuemask, &values);
+#ifdef HAVE_XFT2
+      device->xft_draw = XftDrawCreate (display, device->drawable,
+					DefaultVisual (display, screen_num),
+					cmap);
+#endif
     }
 
   frame->realized_font_list = disp_info->realized_font_list;
@@ -1530,6 +1555,30 @@ mwin__realize_face (MRealizedFace *rface)
       info->gc[GC_NORMAL] = get_gc (frame, background, 0, &info->rgb_fore);
       info->gc[GC_INVERSE] = get_gc (frame, foreground, 1, &info->rgb_back);
     }
+#ifdef HAVE_XFT2
+  if (foreground == Mnil)
+    foreground = frame->foreground;
+  if (background == Mnil)
+    background = frame->background;
+  if (videomode == Mreverse)
+    {
+      MSymbol temp = foreground;
+      foreground = background;
+      background = temp;
+    }
+  if (! XftColorAllocName (FRAME_DISPLAY (frame),
+			   FRAME_VISUAL (frame),
+			   FRAME_CMAP (frame),
+			   MSYMBOL_NAME (foreground),
+			   &info->xft_color_fore))
+    mdebug_hook ();
+  if (! XftColorAllocName (FRAME_DISPLAY (frame),
+			   FRAME_VISUAL (frame),
+			   FRAME_CMAP (frame),
+			   MSYMBOL_NAME (background),
+			   &info->xft_color_back))
+    mdebug_hook ();
+#endif
 
   hline = rface->hline;
   if (hline)
@@ -2102,6 +2151,139 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
     }
 }
 
+#ifdef HAVE_XFT2
+typedef struct {
+  MFrame *frame;
+  XftFont *font_aa;
+  XftFont *font_no_aa;
+} MXftFontInfo;
+
+/* Xft Handler */
+
+void
+mwin__xft_close (void *object)
+{
+  MXftFontInfo *font_info = object;
+
+  if (font_info->font_aa)
+    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_aa);
+  if (font_info->font_no_aa)
+    XftFontClose (FRAME_DISPLAY (font_info->frame), font_info->font_no_aa);
+  free (object);
+}
+
+
+void *
+mwin__xft_open (MFrame *frame, char *filename, int size)
+{
+  MXftFontInfo *font_info;
+  FcPattern *pattern;
+
+  MSTRUCT_CALLOC (font_info, MERROR_WIN);
+
+  font_info->frame = frame;
+  pattern = FcPatternCreate ();
+  FcPatternAddString (pattern, FC_FILE, (FcChar8 *) filename);
+  FcPatternAddInteger (pattern, FC_PIXEL_SIZE, size);
+  FcPatternAddBool (pattern, FC_ANTIALIAS, FcTrue);
+  font_info->font_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), pattern);
+  if (! font_info->font_aa)
+    goto err;
+  pattern = FcPatternCreate ();
+  FcPatternAddString (pattern, FC_FILE, (FcChar8 *) filename);
+  FcPatternAddInteger (pattern, FC_PIXEL_SIZE, size);
+  FcPatternAddBool (pattern, FC_ANTIALIAS, FcFalse);
+  font_info->font_no_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), pattern);
+  if (! font_info->font_aa)
+    goto err;
+  return font_info;
+
+ err:
+  if (font_info->font_aa)
+    XftFontClose (FRAME_DISPLAY (frame), font_info->font_aa);
+  FcPatternDestroy (pattern);
+  free (font_info);
+  return NULL;
+}
+
+
+void
+mwin__xft_get_metric (void *object, FT_Face ft_face, MGlyph *g)
+{
+  MXftFontInfo *font_info = object;
+  XGlyphInfo extents;
+  unsigned code;
+
+  if (g->otf_encoded)
+    code = g->code;
+  else
+    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+
+  XftGlyphExtents (FRAME_DISPLAY (font_info->frame),
+		   font_info->font_aa, &code, 1, &extents);
+  g->lbearing = extents.x;
+  g->rbearing = extents.width - extents.x;
+  g->width = extents.xOff;
+  g->ascent = extents.y;
+  g->descent = extents.height - extents.y;
+}
+
+
+void 
+mwin__xft_render (MDrawWindow win, int x, int y,
+		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
+		  int reverse, MDrawRegion region,
+		  void *object, FT_Face ft_face)
+{
+  MXftFontInfo *font_info = object;  
+  MRealizedFace *rface = from->rface;
+  MFrame *frame = rface->frame;
+  XftDraw *xft_draw = frame->device->xft_draw;
+  XftColor *xft_color = (! reverse
+			 ? &((GCInfo *) rface->info)->xft_color_fore
+			 : &((GCInfo *) rface->info)->xft_color_back);
+  XftFont *xft_font = (gstring->control.anti_alias
+		       ? font_info->font_aa : font_info->font_no_aa);
+  MGlyph *g;
+  FT_UInt *glyphs;
+  int last_x;
+  int nglyphs;
+
+  if (from == to)
+    return;
+
+  XftDrawChange (xft_draw, (Drawable) win);
+  XftDrawSetClip (xft_draw, (Region) region);
+      
+  glyphs = alloca (sizeof (FT_UInt) * (to - from));
+  for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
+    {
+      unsigned code;
+
+      if (g->otf_encoded)
+	code = g->code;
+      else
+	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
+      if (g->xoff == 0 && g->yoff == 0)
+	glyphs[nglyphs++] = code;
+      else
+	{
+	  if (nglyphs > 0)
+	    XftDrawGlyphs (xft_draw, xft_color, xft_font,
+			   last_x, y, glyphs, nglyphs);
+	  nglyphs = 0;
+	  XftDrawGlyphs (xft_draw, xft_color, xft_font,
+			 x + g->xoff, y + g->yoff, (FT_UInt *) &code, 1);
+	  last_x = x + g->width;
+	}
+    }
+  if (nglyphs > 0)
+    XftDrawGlyphs (xft_draw, xft_color, xft_font, last_x, y, glyphs, nglyphs);
+}
+
+#endif
+
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
