@@ -1777,6 +1777,37 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
 }
 
 
+/*=*/
+
+/***en
+    @brief Insert a character into an M-text.
+
+    The mtext_ins_char () function inserts $N copy of character $C
+    into M-text $MT at position $POS.  As a result, $MT is lengthen by
+    $N.
+
+    @return
+    If the operation was successful, mtext_ins () returns 0.
+    Otherwise, it returns -1 and assigns an error code to the external
+    variable #merror_code.  */
+
+/***ja
+    @brief M-text に文字を挿入する.
+
+    関数 mtext_ins_char () は M-text $MT の $POS の位置に文字 $C を $N
+    個挿入する。この結果 $MT1 の長さは $N だけ増える。
+
+    @return
+    処理が成功すれば mtext_ins_char () は 0 を返す。そうでなければ -1
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
+
+/***
+    @errors
+    @c MERROR_RANGE
+
+    @seealso
+    mtext_ins, mtext_del ()  */
+
 int
 mtext_ins_char (MText *mt, int pos, int c, int n)
 {
@@ -2285,6 +2316,33 @@ mtext_text (MText *mt1, int pos, MText *mt2)
     }
   return pos;
 }
+
+/***en
+    @brief Locate an M-text in a specific range of another.
+
+    The mtext_search () function searches for the first occurrence of
+    M-text $MT2 in M-text $MT1 in the region $FROM and $TO while
+    ignoring difference of the text properties.  If $FROM is less than
+    $TO, the forward search starts from $FROM, otherwise the backward
+    search starts from $TO.
+
+    @return
+    If $MT2 is found in $MT1, mtext_search () returns the position of the
+    first occurrence.  Otherwise it returns -1.  If $MT2 is empty, it
+    returns 0.  */
+
+/***ja
+    @brief M-text 中の特定の領域で別の M-text を探す.
+
+    関数 mtext_text () は、M-text $MT1 中で位置 $POS 以降に現われる 
+    M-text $MT2 の最初の位置を調べる。テキストプロパティの違いは無視さ
+    れる。
+
+    @return
+    $MT1 中に $MT2 が見つかれば、mtext_text() はその最初の出現位置を返
+    す。見つからない場合は -1 を返す。もし $MT2 が空ならば 0 を返す。
+
+    @latexonly \IPAlabel{mtext_text} @endlatexonly  */
 
 int
 mtext_search (MText *mt1, int from, int to, MText *mt2)
