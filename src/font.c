@@ -952,8 +952,9 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 
       if (best)
 	MDEBUG_PRINT_TIME ("FONT", 
-			   (stderr, " to select <%s> from <%s>.",
+			   (stderr, " to select <%s> (%x)from <%s>.",
 			    gen_font_name (buf1, &best->font),
+			    best->score,
 			    buf2));
       else
 	MDEBUG_PRINT_TIME ("FONT", (stderr, " to fail to find <%s>.", buf2));
