@@ -496,10 +496,10 @@ m17n_init_core (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
+  merror_code = MERROR_NONE;
   if (m17n__core_initialized++)
     return;
 
-  merror_code = MERROR_NONE;
   m17n_memory_full_handler = default_error_handler;
 
   mdebug__flag = 0;
