@@ -210,10 +210,18 @@ null_device_fini ()
 static void *
 null_device_open (MFrame *frame, MPlist *param)
 {
+  MFace *face;
+
   frame->device_type = 0;
   frame->driver = &null_driver;
   frame->font_driver_list = mplist ();
   mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
+  frame->realized_font_list = null_device.realized_font_list;
+  frame->realized_face_list = null_device.realized_face_list;
+  frame->realized_fontset_list = null_device.realized_fontset_list;
+  face = mface_copy (mface__default);
+  mplist_push (param, Mface, face);
+  M17N_OBJECT_UNREF (face);
   return &null_device;
 }
 
