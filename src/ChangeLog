@@ -1,3 +1,7 @@
+2004-10-05  Kenichi Handa  <handa@m17n.org>
+
+	* language.c (mlang__init): Add Akan.
+
 2004-10-04  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (add_font_info): Add instead of push the element.
