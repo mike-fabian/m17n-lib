@@ -419,7 +419,7 @@ m17n_init_core (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
-  if (core_initialized)
+  if (core_initialized++)
     return;
 
   merror_code = MERROR_NONE;
@@ -455,7 +455,6 @@ m17n_init_core (void)
 
   mdatabase__finder = NULL;
   mdatabase__loader = NULL;
-  core_initialized = 1;
 
  err:
   MDEBUG_POP_TIME ();
@@ -468,8 +467,11 @@ m17n_fini_core (void)
 {
   int mdebug_mask = MDEBUG_FINI;
 
-  if (core_initialized)
+  if (core_initialized > 1)
+    core_initialized--;
+  else
     {
+      core_initialized = 0;
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
@@ -482,7 +484,6 @@ m17n_fini_core (void)
       msymbol__fini ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
       mplist__fini ();
-      core_initialized = 0;
       MDEBUG_POP_TIME ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
       MDEBUG_POP_TIME ();
