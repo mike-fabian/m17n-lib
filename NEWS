@@ -12,8 +12,13 @@ They are initialized to one of MTEXT_FORMAT_UTF_16LE,
 MTEXT_FORMAT_UTF_16BE,  MTEXT_FORMAT_UTF_LE,  MTEXT_FORMAT_UTF_32BE
 dependending on the systems's endianess.
 
+** In the argument PLIST of mframe (), the key Mfont can be used to
+specify which font-backend to use.  The value must be Mx or Mfreetype.
+
+** New function mfont_list () returns a list of matching fonts.
+
 
-* Changes in the m17n library 1.1
+* Changes in the m17n library 1.1.0
 
 ** The "configure" script now detects Fontconfig, Xft2, and GD
 libraries.
