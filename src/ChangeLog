@@ -1,3 +1,24 @@
+2004-05-10  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c: Include <freetype/ftbdf.h>.
+	(Municode_bmp, Municode_full, Miso10646_1, Miso8859_1): New
+	variables.
+	(mfont__ft_init): Initialize them.
+	(ft_iso8859_1_font_list): New variable.
+	(set_font_info): Detect a font containing iso8859-1 glyphs and
+	register it in ft_iso8859_1_font_list.  If the font is not
+	scalable, assume it as BDF or PCF font and setup SIZE and RESY
+	properties of the font from its properties.
+	(add_font_list): If the font is not scalable, check if it is BDF
+	or PCF font.  If not, ignore it.
+	(ft_select): If FAMILY is Mnil, return NULL only if the requested
+	registry is not iso8859-1.
+	(ft_select) [not HAVE_XFT2]: If FAMILY is Mnil, select one from
+	ft_iso8859_1_font_list.
+	(ft_find_metric): If the font is not scalable, assume it as BDF
+	or PCF, and get a metric from its properties.
+	(mfont__ft_fini): Free ft_iso8859_1_font_list.
+
 2004-05-07  Kenichi Handa  <handa@redhat.m17n.org>
 
 	* Makefile.am (libm17n_la_LIBADD): Include -ldl.
