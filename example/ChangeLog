@@ -1,6 +1,10 @@
+2004-06-25  TAKAHASHI Naoto  <ntakahas@m17n.org>
+
+	* HELLO.utf8: Add Punjabi.
+
 2004-06-24  Kenichi Handa  <handa@m17n.org>
 
-	* Makefile.am (libmimx_ispell_la_LDFLAGS)
+	* Makefile.am: (libmimx_ispell_la_LDFLAGS)
 	(libmimx_anthy_la_LDFLAGS): Add -module.
 
 2004-06-23  Kenichi Handa  <handa@m17n.org>
