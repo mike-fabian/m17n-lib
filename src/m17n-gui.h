@@ -69,14 +69,13 @@ extern void m17n_fini_win (void);
 /***ja
     @brief フレームの型宣言.
 
-    #MFrame は、@e フレーム オブジェクト用の型である。個々のフレームは、
-    それが対応する物理的な表示／入力デバイスの各種情報を保持する。
+    #MFrame は、@e フレーム オブジェクト用の型である。
+    個々のフレームは、それが対応する物理的な表示／入力デバイスの各種情報を保持する。
 
     #MFrame 型の内部構造は、アプリケーションプログラムからは見えない。
-    またその内容は使用するウィンドウシステムに依存する。またm17n-X ラ
-    イブラリにおけるフレームは、X ウィンドウの @e display と @e screen 
-    に関する情報を持つ。
-      */
+    またその内容は使用するウィンドウシステムに依存する。また m17n-X 
+    ライブラリにおけるフレームは、X ウィンドウの @e display と @e screen 
+    に関する情報を持つ。      */
 
 typedef struct MFrame MFrame;
 
@@ -126,12 +125,11 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
 /***ja
     @brief フォントの型宣言.
 
-    #MFont 型はフォント指定用の構造体であり、フォントのプロパティであ
-    る foundry, family, weight, style, stretch, adstyle, registry,
+    #MFont 型はフォント指定用の構造体であり、フォントのプロパティである
+    foundry, family, weight, style, stretch, adstyle, registry,
     size, resolution に関する情報を含む。
 
-    この構造体はフォントセット内のフォントを指定する際と、使用可能なシ
-    ステムフォントの情報を格納する際の両方に用いられる。
+    この構造体はフォントセット内のフォントを指定する際と、使用可能なシステムフォントの情報を格納する際の両方に用いられる。
 
     内部構造はアプリケーションプログラムからは見えない。  */
 
@@ -197,15 +195,15 @@ extern int mfont_set_encoding (MFont *font,
 /***ja
     @brief フォントを探す.
 
-    関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC にもっ
-    とも合致する使用可能なフォントへのポインタを返す。  
+    関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC 
+    にもっとも合致する使用可能なフォントへのポインタを返す。  
 
-    $SCORE は NULL であるか、見つかったフォントが $SPEC にどれほど合っ
-    ているかを示すスコアを保存する場所へのポインタである。スコアが小さ
-    いほど良く合っていることを意味する。
+    $SCORE は NULL であるか、見つかったフォントが $SPEC 
+    にどれほど合っているかを示すスコアを保存する場所へのポインタである。
+    スコアが小さいほど良く合っていることを意味する。
 
-    $LIMITED_SIZE が 0 でなければ、$SPEC のプロパティ #Msize より大き
-    くないフォントだけが探される。
+    $LIMITED_SIZE が 0 でなければ、$SPEC のプロパティ #Msize 
+    より大きくないフォントだけが探される。
 */
 
 extern MFont *mfont_find (MFrame *frame, MFont *spec,
@@ -265,8 +263,8 @@ extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
 /***ja
     @brief フェースの型宣言.
 
-    #MFace 型はフェースオブジェクトのための構造体である。内部構造は
-    アプリケーションプログラムからは見えない。  */
+    #MFace 型はフェースオブジェクトのための構造体である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MFace MFace;
 /*=*/
@@ -330,8 +328,8 @@ extern MFace *mface_from_font (MFont *font);
 /***ja
     @brief フェースの水平線指定用型宣言.
 
-    #MFaceHLineProp はフェースの #Mhline プロパティの詳細を指定する型
-    である。このプロパティの値はこの型のオブジェクトでなくてはならない。
+    #MFaceHLineProp はフェースの #Mhline 
+    プロパティの詳細を指定する型である。このプロパティの値はこの型のオブジェクトでなくてはならない。
       */
 
 typedef struct
@@ -369,8 +367,8 @@ typedef struct
 /***ja
     @brief フェースの囲み枠指定用型宣言.
 
-    #MFaceBoxProp はフェースの #Mbox プロパティの詳細を指定する型であ
-    る。このプロパティの値はこの型のオブジェクトでなくてはならない。
+    #MFaceBoxProp はフェースの #Mbox プロパティの詳細を指定する型である。
+    このプロパティの値はこの型のオブジェクトへのポインタでなくてはならない。
       */
 
 typedef struct
@@ -435,12 +433,10 @@ extern void mface_update (MFrame *frame, MFace *face);
 /***ja 
     @brief ウィンドウシステムに依存する、ウィンドウの型宣言.
 
-    #MDrawWindow はウィンドウ、すなわち幾つかの点でスクリーンのミニチュ
-    アとして働く矩形領域用の型である。
+    #MDrawWindow はウィンドウ、すなわち幾つかの点でスクリーンのミニチュアとして働く矩形領域用の型である。
 
-    実際に何を指すかはウィンドウシステムに依存する。 m17n X ライブラリ
-    を利用するプログラムは @c Drawable 型をこの型に変換しなくてはなら
-    ない。 */
+    実際に何を指すかはウィンドウシステムに依存する。 m17n X 
+    ライブラリを利用するプログラムは @c Drawable 型をこの型に変換しなくてはならない。 */
 
 typedef void *MDrawWindow;
 /*=*/
@@ -458,12 +454,10 @@ typedef void *MDrawWindow;
 /***ja
     @brief ウィンドウシステムに依存する、領域の型宣言.
 
-    #MDrawRegion は領域、すなわちスクリーン上の任意のピクセルの集合
-   （典型的には矩形領域）用の型である。
+    #MDrawRegion は領域、すなわちスクリーン上の任意のピクセルの集合（典型的には矩形領域）用の型である。
 
-    実際に何を指すかはウィンドウシステムに依存する。 m17n X ライブラリ
-    を利用するプログラムは @c Region 型をこの型に変換しなくてはなら
-    ない。  */
+    実際に何を指すかはウィンドウシステムに依存する。 m17n X 
+    ライブラリを利用するプログラムは @c Region 型をこの型に変換しなくてはならない。  */
 
 typedef void *MDrawRegion;
 /*=*/
@@ -486,17 +480,15 @@ typedef struct
   /***en If nonzero, draw an M-text as image, i.e. with background
       filled with background colors of faces put on the M-text.
       Otherwise, the background is not changed.  */
-  /***ja 0 でなければ、 M-text を画像として、すなわち背景を M-text の
-      フェースで指定されている背景色で埋めて表示する。そうでなければ背
-      景は変わらない。  */
+  /***ja 0 でなければ、 M-text を画像として、すなわち背景を M-text 
+      のフェースで指定されている背景色で埋めて表示する。そうでなければ背景は変わらない。  */
   unsigned as_image : 1;
 
   /***en If nonzero and the first glyph of each line has negative
       lbearing, shift glyphs horizontally to right so that no pixel is
       drawn to the left of the specified position.  */
-  /***ja 0 でなく、各行の最初のグリフのlbearing が負ならば、グリフを水
-      平に右にずらして、指定した位置より左にピクセルが描かれないように
-      する。  */
+  /***ja 0 でなく、各行の最初のグリフの lbearing 
+      が負ならば、グリフを水平に右にずらして、指定した位置より左にピクセルが描かれないようにする。  */
   unsigned align_head : 1;
 
   /***en If nonzero, draw an M-text two-dimensionally, i.e., newlines
@@ -504,10 +496,9 @@ typedef struct
       the next line.  If <format> is non-NULL, and the function
       returns nonzero line width, a line longer than that width is
       also broken.  */
-  /***ja 0 でなければ、M-text を２次元的に、すなわちM-text 中の 
-      newline で改行し、続く文字は次ぎの行に表示する。もし <format> が 
-      NULL でなく、その関数が 0 でない行幅を返せば、その幅より長い行も
-      改行される。  */
+  /***ja 0 でなければ、M-text を２次元的に、すなわち M-text 中の 
+      newline で改行し、続く文字は次の行に表示する。もし <format> が 
+      NULL でなく、その関数が 0 でない行幅を返せば、その幅より長い行も改行される。  */
   unsigned two_dimensional : 1;
 
   /***en If nonzero, draw an M-text to the right of a specified
@@ -527,20 +518,18 @@ typedef struct
 
   /***en If nonzero, draw glyphs suitable for a terminal.  Not yet
       implemented.  */
-  /***ja 0 でなければ、端末用のグリフを表示する。（未実装。）  */
+  /***ja 0 でなければ、端末用のグリフを表示する。未実装。  */
   unsigned fixed_width : 1;
 
   /***en If nonzero, draw glyphs with anti-aliasing if a backend font
       driver supports it.  */
-  /***ja 0 でなければ、アンチエーリアスでグリフを表示する。（バックエ
-      ンドのフォントドライバがアンチエーリアス機能をサポートしている場
-      合のみ。） */
+  /***ja 0 でなければ、アンチエーリアスでグリフを表示する。
+      （バックエンドのフォントドライバがアンチエーリアス機能を持つ場合のみ。） */
   unsigned anti_alias : 1;
 
   /***en If nonzero, disable the adjustment of glyph positions to
       avoid horizontal overlapping at font boundary.  */
-  /***ja 0 でなければ、フォント境界での水平方向のグリフの重なりを避け
-      るためのグリフ位置の調整を無効にする。  */
+  /***ja 0 でなければ、フォント境界での水平方向のグリフの重なりを避けるためのグリフ位置の調整を無効にする。  */
   unsigned disable_overlapping_adjustment : 1;
 
   /***en If nonzero, the values are minimum line ascent and descent
@@ -558,17 +547,16 @@ typedef struct
   /***en If nonzero, the value specifies how many pixels each line can
       occupy on the display.  The value zero means that there is no
       limit.  It is ignored if <format> is non-NULL.  */
-  /***ja 0 でなければ、値はこのディスプレイ上で各行が占めることのでき
-      るピクセル数を示す。 0 は限定されないことを意味する。<format> が
-      NULL でなければ無視される。   */
+  /***ja 0 でなければ、値はこのディスプレイ上で各行が占めることのできるピクセル数を示す。
+      0 は限定されないことを意味する。<format> が NULL でなければ無視される。   */
   unsigned int max_line_width;
 
   /***en If nonzero, the value specifies the distance between tab
       stops in columns (the width of one column is the width of a
       space in the default font of the frame).  The value zero means
       8.  */
-  /***ja 0 でなければ、値はタブストップ間の距離をコラム単位（コラムは
-      フレームのデフォルトフォントにおける空白文字の幅である）で示す。 
+  /***ja 0 でなければ、値はタブストップ間の距離をコラム単位
+      （コラムはフレームのデフォルトフォントにおける空白文字の幅である）で示す。 
       0 は 8 を意味する。 */
   unsigned int tab_width;
 
@@ -596,15 +584,15 @@ typedef struct
       に基づいて各行のインデントと最大幅を計算し、それぞれをINDENT と
       WIDTH で指される場所に保存する。
 
-      インデントは、各行の最初のグリフが右（メンバ 
-      <orientation_reversed> が 0 の時）あるいは左（それ以外の時）に何
-      ピクセルずらすを指定する。値が負ならば逆方向にずらす。
+      インデントは、各行の最初のグリフを右（メンバ 
+      <orientation_reversed> が 0 
+      の時）あるいは左（それ以外の時）に何ピクセルずらすかを指定する。値が負ならば逆方向にずらす。
 
-      最大幅は、各行がディスプレイ上で占めることのできるピクセル数の最
-      大値である。値が 0 の場合は制限を受けないことを意味する。
+      最大幅は、各行がディスプレイ上で占めることのできるピクセル数の最大値である。値が
+      0 の場合は制限を受けないことを意味する。
 
-      LINE と Y は改行文字によって行が改まった際には 0 にリセットされ、
-      最大幅によって行が改まった場合には 1 づつ増やされる。
+      LINE と Y は改行文字によって行が改まった際には 0 
+      にリセットされ、長い行が最大幅の制限によって改行されるたびに 1 増やされる。
 
       これは <two_dimensional> が 0 でない場合にのみ有効である。  */
   void (*format) (int line, int y, int *indent, int *width);
@@ -624,17 +612,16 @@ typedef struct
 
       The mdraw_default_line_break () function is useful for such a
       script that uses SPACE as a word separator.  */
-  /***ja NULL でなければ、値は行が最大幅中に収まらない場合に行を改める
-      位置を計算する関数である。POS は最大幅に収まる最後の文字の次の文
-      字の位置である。FROM は行の最初の文字の位置、TO は最大幅が指定さ
-      れていなければその行に表示される最後の文字の位置である。LINE と 
-      Y は <format> の引数と同じである。
+  /***ja NULL でなければ、値は行が最大幅中に収まらない場合に行を改める位置を計算する関数である。
+      POS は最大幅に収まる最後の文字の次の文字の位置である。FROM
+      は行の最初の文字の位置、TO 
+      は最大幅が指定されていなければその行に表示される最後の文字の位置である。LINE 
+      と Y は <format> の引数と同様である。
 
-      この関数は行を改める文字位置を返さなくてはならない。またMT を
-      変更してはならない。
+      この関数は行を改める文字位置を返さなくてはならない。また MT を変更してはならない。
 
-      関数 mdraw_default_line_break () は、空白を語の区切りとして用い
-      るスクリプト用として用いることができる。  */
+      関数 mdraw_default_line_break ()
+      は、空白を語の区切りとして用いるスクリプト用として有用である。  */
   int (*line_break) (MText *mt, int pos, int from, int to, int line, int y);
 
   int with_cursor;
@@ -644,8 +631,8 @@ typedef struct
       displayed next to the last character of an M-text.  If the value
       is negative, even if <cursor_width> is nonzero, cursor is not
       displayed.  */
-  /***ja カーソルを表示する文字位置を示す。最大の文字位置より大きけれ
-      ば、カーソルはM-text の最後の文字の隣に表示される。負ならば、
+  /***ja カーソルを表示する文字位置を示す。最大の文字位置より大きければ、カーソルは 
+      M-text の最後の文字の隣に表示される。負ならば、
       <cursor_width> が 0 でなくてもカーソルは表示されない。
         */
   int cursor_pos;
@@ -654,18 +641,18 @@ typedef struct
       <cursor_pos>.  If the value is positive, it is the pixel width
       of the cursor.  If the value is negative, the cursor width is
       the same as the underlining glyph(s).  */
-  /***ja 0 でなければ、<cursor_pos> にカーソルを表示する。値が正ならば、
-      カーソルの幅はその値（ピクセル単位）である。負ならば、カーソルの
-      あるグリフと同じ幅である。  */
+  /***ja 0 でなければ、<cursor_pos> にカーソルを表示する。
+      値が正ならば、カーソルの幅はその値（ピクセル単位）である。
+      負ならば、カーソルのあるグリフと同じ幅である。  */
   int cursor_width;
 
   /***en If nonzero and <cursor_width> is also nonzero, display double
       bar cursors; at the character position <cursor_pos> and at the
       logically previous character.  Both cursors have one pixel width
       with horizontal fringes at upper or lower positions.  */
-  /***ja If 0 でなく、かつ <cursor_width> も 0 でなければ、バーカーソ
-      ルを文字位置<cursor_pos> と論理的にそれの前にある文字の２ヶ所表
-      示する。双方とも１ピクセル幅で、上下に水平の飾りがつく。*/
+  /***ja If 0 でなく、かつ <cursor_width> も 0 でなければ、バーカーソルを文字位置
+      <cursor_pos> と論理的にそれの前にある文字の２ヶ所に表示する。
+      双方とも１ピクセル幅で、上か下に水平の飾りがつく。*/
   int cursor_bidi;
 
   /***en If nonzero, on drawing partial text, pixels of surrounding
@@ -677,14 +664,13 @@ typedef struct
       right half of V is erased if this member is zero.  By setting
       this member to nonzero, even with such a drawing, we can keep
       this CVC sequence correctly displayed.  */
-  /***ja 0 でなければ、テキストの一部分を表示する際に、前後のテキスト
-      のうちその表示領域に侵入する部分も表示する。たとえば、タイ語文書
-      の子音-母音-子音というシークエンスのいくつかは、母音が二つの子音
-      の間に上にのるように描かれる。このようなシークエンスがすでに描か
-      れており、最後の子音だけを描き直す場合（たとえば、カーソル位置を
-      更新する際など）このメンバが 0 であれば、母音の右半分が消されて
-      しまう。これを 0 以外にすることによって、そのような際にも子音-母
-      音-子音シークエンスを正しく表示し続けることができる。  */
+  /***ja 0 でなければ、テキストの一部分を表示する際に、前後のテキストのうちその表示領域に侵入する部分も表示する。
+      たとえば、タイ語テキスト 子音-母音-子音 
+      というシークエンスのいくつかは、母音が二つの子音の間に上にのるように描かれる。
+      このようなシークエンスがすでに描かれており、最後の子音だけを描き直す場合
+      （たとえば、カーソル位置を更新する際など）このメンバが 0 
+      であれば、母音の右半分が消されてしまう。これを 0 以外にすることによって、そのような際にも
+      子音-母音-子音 のシークエンスを正しく表示し続けることができる。  */
   int partial_update;
 
   /***en If nonzero, don't cache the result of any drawing information
@@ -702,7 +688,7 @@ typedef struct
 
 /*** @ingroup m17nDraw */
 /***en
-    @brief Type of metric for gylphs and texts.
+    @brief Type of metric for glyphs and texts.
 
     The type #MDrawMetric is for a metric of a glyph and a drawn text.
     It is also used to represent a rectangle area of a graphic
@@ -710,8 +696,8 @@ typedef struct
 /***ja
     @brief グリフとテキストの寸法の型宣言.
 
-    #MDrawMetric はグリフと表示されたテキストの寸法用の型である。また、
-    表示デバイスの矩形領域を表すのにも用いられる。 */
+    #MDrawMetric はグリフと表示されたテキストの寸法用の型である。
+    また、表示デバイスの矩形領域を表すのにも用いられる。 */
 
 typedef struct {
   int x, y;
@@ -752,8 +738,8 @@ typedef struct
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
-  /***ja グリフに使われるフォント。見つからなければ NULL。
-      the glyph.  */
+  /***ja グリフに使われるフォント。見つからなければ NULL。 */
+      
   MFont *font;
 
   /***en Character ranges corresponding to logically previous and next
@@ -761,8 +747,8 @@ typedef struct
       next_from because they must be the same as the members from and
       to respectively.  */
   /***ja 論理的な前後のグリフに対応する文字の範囲。メンバ prev_to と
-      next_from は、それぞれメンバ from とto と同じでなくてはならない
-      ため不要であることに注意。  */
+      next_from は、それぞれメンバ from とto 
+      と同じでなくてはならないため不要である。  */
   int prev_from, next_to;
 
   /***en Character ranges corresponding to visually left and right
@@ -789,8 +775,8 @@ typedef struct
 /***ja
     @brief グリフの寸法とフォントに関する情報の型宣言.
 
-    #MDrawGlyph 型はグリフの寸法とフォントに関する情報を含む構造体であ
-    る。mdraw_glyph_list () はこれを用いる。  */
+    #MDrawGlyph 型はグリフの寸法とフォントに関する情報を含む構造体である。
+    mdraw_glyph_list () はこれを用いる。  */
 
 typedef struct
 {
@@ -817,8 +803,7 @@ typedef struct
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
-  /***ja グリフに使われるフォント。見つからなければ NULL。
-      the glyph.  */
+  /***ja グリフに使われるフォント。見つからなければ NULL。  */
   MFont *font;
 
   /***en Type of the font.  One of Mx, Mfreetype, Mxft.  */
@@ -830,8 +815,8 @@ typedef struct
       <font_type> member is Mfreetype, and (XftFont *) if <font_type>
       member is Mxft.  */
   /***ja フォントの構造体へのポインタ。実際の型は <font_type> メンバが
-      Mx なら (XFontStruct *)、 Mfreetype なら FT_Face、Mxft なら
-      (XftFont *)。 */
+      Mx なら (XFontStruct *)、 Mfreetype なら FT_Face、Mxft 
+      なら (XftFont *)。 */
   void *fontp;
 
 } MDrawGlyph;
@@ -839,7 +824,7 @@ typedef struct
 /*=*/
 
 /***en
-    @brief Type of text items.
+    @brief Type of textitems.
 
     The type #MDrawTextItem is for @e textitem objects.
     Each textitem contains an M-text and some other information to
@@ -848,9 +833,8 @@ typedef struct
 /***ja
     @brief textitem の型宣言.
 
-    #MDrawTextItem は @e テキストアイテム オブジェクト用の型である。各
-    テキストアイテムは、1個の M-text と、その表示を制御するための各種
-    情報を含んでいる。
+    #MDrawTextItem は @e テキストアイテム オブジェクト用の型である。
+    各テキストアイテムは、 1 個の M-text と、その表示を制御するための情報を含んでいる。
 
     @latexonly \IPAlabel{MTextItem} @endlatexonly  */
 
@@ -869,8 +853,7 @@ typedef struct
       Mnil, overrides the same property of face(s) specified as a text
       property in <mt>.  */
   /***ja フェースオブジェクトへのポインタ。フェースの各プロパティは 
-      Mnil でなければ <mt> で指定されたフェースの同じプロパティに優先
-      する*/
+      Mnil でなければ <mt> で指定されたフェースの同じプロパティに優先する*/
   MFace *face;
 
   /***en Pointer to a draw control object.  The M-text <mt> is drawn
@@ -955,8 +938,8 @@ extern MInputDriver minput_gui_driver;
 /***ja
     @brief 関数 minput_create_ic () の引数の型宣言.
 
-    #MInputGUIArgIC は、関数 minput_create_ic () が内部入力メソッドの
-    入力コンテクストを生成する際の、引数 $ARG 用の型である。  */
+    #MInputGUIArgIC は、関数 minput_create_ic () 
+    が内部入力メソッドの入力コンテクストを生成する際の、引数 $ARG 用の型である。  */
 
 typedef struct
 {
