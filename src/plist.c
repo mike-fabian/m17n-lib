@@ -33,6 +33,18 @@
     If the key of a property is a @e managing @e key, its @e value is
     a @e managed @e object.  A property list itself is a managed
     objects.  */
+/***ja
+    @addtogroup m17nPlist
+
+    @brief プロパティリストオブジェクトとそれに関する API .
+
+    @e プロパティリスト (または @e plist) は 0 以上のプロパティのリス
+    トである。プロパティは @e キー と @e 値からなる。キーはシンボルで
+    あり、値は <tt>(void *)</tt> にキャストできるものならば何でも良い。
+
+    あるプロパティのキーが @e 管理キー ならば、その @e 値 は@e 管理下
+    オブジェクト である。プロパティリスト自体も管理下オブジェクトであ
+    る。  */
 
 /*=*/
 
@@ -721,7 +733,12 @@ mplist__serialize (MText *mt, MPlist *plist)
     @brief Symbol whose name is "integer".
 
     The symbol @c Minteger has the name <tt>"integer"</tt>.  A value
-    of a plist whose key is @c Minteger must be an integer.  */
+    of a property whose key is @c Minteger must be an integer.  */
+/***ja
+    @brief "integer" を名前として持つシンボル.
+
+    シンボル @c Minteger は <tt>"integer"</tt> という名前を持つ。キーが
+    @c Minteger であるプロパティの値は整数値でなくてはならない。  */
 
 MSymbol Minteger;
 /*=*/
@@ -730,8 +747,14 @@ MSymbol Minteger;
     @brief Symbol whose name is "plist".
 
     The symbol @c Mplist has the name <tt>"plist"</tt>.  It is a
-    managing key.  A value of a plist whose key is @c Mplist must be a
-    plist.  */
+    managing key.  A value of a property whose key is @c Mplist must
+    be a plist.  */
+/***ja
+    @brief "plist" を名前として持つシンボル.
+
+    シンボル @c Mplist は <tt>"plist"</tt> という名前を持つ。これは管
+    理キーである。キーが @c Mplist であるプロパティの値は plist でなく
+    てはならない。  */
 
 MSymbol Mplist;
 /*=*/
@@ -740,17 +763,17 @@ MSymbol Mplist;
     @brief Symbol whose name is "mtext".
 
     The symbol @c Mtext has the name <tt>"mtext"</tt>.  It is a
-    managing key.  A value of a plist whose key is @c Mtext must be an
+    managing key.  A value of a property whose key is @c Mtext must be an
     M-text.  */
 
-/***oldja
+/***ja
     @brief "text" を名前として持つシンボル
 
-    定義済みシンボル @c Mtext は <tt>"text"</tt> という名前を持つ管理
-    キーである。 */
+    シンボル @c Mtext は <tt>"text"</tt> という名前を持つ管理キーであ
+    る。キーが @c Mtext であるプロパティの値は M-text でなくてはならな
+    い。      */
 
 MSymbol Mtext;
-
 
 /*=*/
 /***en
@@ -764,6 +787,17 @@ MSymbol Mtext;
 
     @errors
     This function never fails.  */
+/***ja
+    @brief プロパティリストオブジェクトを作る.
+
+    関数 mplist () は長さ 0 の新しく作られたプロパティリストオブジェク
+    トを返す。
+
+    @returns
+    この関数は新しく作られたプロパティリストオブジェクトを返す。
+
+    @errors
+    この関数は決して失敗しない。     */
 
 MPlist *
 mplist ()
@@ -776,17 +810,28 @@ mplist ()
 
 /*=*/
 /***en
-    @brief Copy a plist.
+    @brief Copy a property list.
 
-    The mplist_copy () function copies $PLIST.  In the copy, the
-    values are the same as those of $PLIST.
+    The mplist_copy () function copies property list $PLIST.  In the
+    copy, the values are the same as those of $PLIST.
 
     @return
     This function returns a newly created plist which is a copy of
-    $PLIST.  */
-/***
+    $PLIST.  
+
     @errors
     This function never fails.  */ 
+/***ja
+    @brief  プロパティリストをコピーする.
+
+    関数 mplist_copy () はプロパティリスト $PLIST をコピーする。コピーのすべての
+    値はコピー元 $PLIST の値と同じである。
+
+    @return
+    この関数は新しく作られた、$PLIST のコピーであるプロパティリストを返す。    
+
+    @errors
+    この関数は決して失敗しない。     */
 
 MPlist *
 mplist_copy (MPlist *plist)
@@ -801,9 +846,9 @@ mplist_copy (MPlist *plist)
 /*=*/
 
 /***en
-    @brief Set the value of a property in a property list object.
+    @brief Set the value of a property in a property list.
 
-    The mplist_put () function searches property list object $PLIST
+    The mplist_put () function searches property list $PLIST
     from the beginning for a property whose key is $KEY.  If such a
     property is found, its value is changed to $VALUE.  Otherwise, a
     new property whose key is $KEY and value is $VALUE is appended at
@@ -818,6 +863,22 @@ mplist_copy (MPlist *plist)
     If the operation was successful, mplist_put () returns a sublist of
     $PLIST whose first element is the just modified or added one.
     Otherwise, it returns @c NULL.  */
+/***ja
+    @brief プロパティリスト中のプロパティの値を設定する.
+
+    関数 mplist_put () はプロパティリスト $PLIST を始めから探して、キー
+    が $KEY であるプロパティを見つける。見つかれば、その値を $VALUE に
+    変更する。見つからなければ、キーが $KEY で値が $VALUE である新しい
+    プロパティが$PLIST の末尾に追加される。$KEY と $VAL に対する制限に
+    ついては、mplist_add () の説明を参照。
+
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
+    この場合、古い値の参照数は @c NULL でなければ 1 減らされ、$VAL の
+    参照数は 1 増やされる。
+
+    @return 
+     処理が成功すれば mplist_put () は変更されたか追加された要素から始
+    まる $PLIST の部分リストを返す。そうでなければ @c NULL を返す。   */
 
 MPlist *
 mplist_put (MPlist *plist, MSymbol key, void *val)
@@ -838,9 +899,9 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
 /*=*/
 
 /***en
-    @brief Get the value of a property in a property list object.
+    @brief Get the value of a property in a property list.
 
-    The mplist_get () function searches property list object $PLIST
+    The mplist_get () function searches property list $PLIST
     from the beginning for a property whose key is $KEY.  If such a
     property is found, a pointer to its value is returned as the type
     of <tt>(void *)</tt>.  If not found, @c NULL is returned.
@@ -850,6 +911,17 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
     where a property is found and its value is @c NULL.  In case that
     these two cases must be distinguished, use the mplist_find_by_key ()
     function.  */
+/***ja
+    @brief プロパティリスト中のプロパティの値を得る.
+
+    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、
+    キーが $KEY であるプロパティを見つける。見つかれば、その値へのポイ
+    ンタを <tt>(void *)</tt> 型で返す。見つからなければ @c NULL を返す。
+
+    @c NULL が返った際には二つの可能性がある:上記のようにプロパティが
+    見つからなかった場合と、プロパティが見つかり、その値が @c NULL で
+    ある場合である。これらを区別する必要がある場合には関数 
+    mplist_find_by_key () を使うこと。  */
 
 /***
     @seealso
@@ -865,11 +937,11 @@ mplist_get (MPlist *plist, MSymbol key)
 /*=*/
 
 /***en
-    @brief Add a property at the end of a property list object.
+    @brief Add a property at the end of a property list.
 
-    The mplist_add () function appends at the end of $PLIST a property
-    whose key is $KEY and value is $VAL.  $KEY can be any symbol
-    other than @c Mnil.
+    The mplist_add () function appends at the end of property list
+     $PLIST a property whose key is $KEY and value is $VAL.  $KEY can
+     be any symbol other than @c Mnil.
 
     If $KEY is a managing key, $VAL must be a managed object.  In this
     case, the reference count of $VAL is incremented by one.
@@ -878,6 +950,19 @@ mplist_get (MPlist *plist, MSymbol key)
     If the operation was successful, mplist_add () returns a sublist of
     $PLIST whose first element is the just added one.  Otherwise, it
     returns @c NULL.  */
+/***ja
+    @brief プロパティリスト末尾にプロパティを追加する.
+
+    関数 mplist_add () は、プロパティリスト $PLIST の末尾にキーが $KEY 
+    で値が $VAL であるプロパティを追加する。$KEY は、@c Mnil 以外の任
+    意のシンボルでよい。
+
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
+    この場合、$VAL の参照数は 1 増やされる。
+
+    @return
+     処理が成功すれば mplist_add () は追加された要素から始まる $PLIST 
+    の部分リストを返す。そうでなければ @c NULL を返す。  */
 
 MPlist *
 mplist_add (MPlist *plist, MSymbol key, void *val)
@@ -896,10 +981,10 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
 /*=*/
 
 /***en
-    @brief Push a property to a property list object.
+    @brief Push a property to a property list.
 
-    The mplist_push () function pushes at the top of $PLIST a
-    property whose key is $KEY and value si $VAL.
+    The mplist_push () function pushes at the top of property list
+     $PLIST a property whose key is $KEY and value is $VAL.
 
     If $KEY is a managing key, $VAL must be a managed object.  In this
     case, the reference count of $VAL is incremented by one.
@@ -907,6 +992,18 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
     @return
     If the operation was successful, this function returns $PLIST.
     Otherwise, it returns @c NULL.  */
+/***ja
+    @brief プロパティリストプロパティをプッシュする.
+
+    関数 mplist_push () はプロパティリスト $PLIST の上ににキーが $KEY 
+    で値が $VAL であるオブジェクトをプッシュする。
+
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
+    この場合、$VAL の参照数は 1 増やされる。
+
+    @return
+    処理が成功すればこの関数は $PLIST を返し、そうでなければ@c NULL を
+    返す。  */
 
 MPlist *
 mplist_push (MPlist *plist, MSymbol key, void *val)
@@ -930,15 +1027,25 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
 /*=*/
 
 /***en
-    @brief Pop a property from a property list object.
+    @brief Pop a property from a property list.
 
-    The mplist_pop () function pops the topmost property from $PLIST.
-    As a result, the key and value of $PLIST becomes those of the next
-    of $PLIST.
+    The mplist_pop () function pops the topmost property from property
+    list $PLIST.  As a result, the key and value of $PLIST becomes
+    those of the next of $PLIST.
 
     @return
     If the operation was successful, this function return the value of
     the just popped property.  Otherwise, it returns @c NULL.  */
+/***ja
+    @brief プロパティリストプロパティをポップする.
+
+    The mplist_pop () はプロパティリスト $PLIST から最上位のプロパティ
+    をポップする。結果として $PLIST のキーと値は $PLIST の次のもののキー
+    と値になる。
+
+    @return 
+    処理に成功すれば、この関数はポップされたプロパティの値を返す。そう
+    でなければ @c NULL を返す。  */
 
 void *
 mplist_pop (MPlist *plist)
@@ -965,15 +1072,25 @@ mplist_pop (MPlist *plist)
 
 /*=*/
 /***en
-    @brief Find a property of a specific key in a property list object.
+    @brief Find a property of a specific key in a property list.
 
-    The mplist_find_by_key () function searches property list object
+    The mplist_find_by_key () function searches property list
     $PLIST from the beginning for a property whose key is $KEY.  If
     such a property is found, a sublist of $PLIST whose first element
     is the found one is returned.  Otherwise, @c NULL is returned.
 
-    If $KEY is Mnil, it returns the last a sublist of $PLIST whose
+    If $KEY is @c Mnil, it returns a sublist of $PLIST whose
     first element is the last one of $PLIST.  */
+/***ja
+    @brief プロパティリスト中から指定のキーを持つオブジェクトを探す.
+
+    関数 mplist_find_by_key () はプロパティリスト $PLIST を始めから探
+    して、キーが $KEY であるプロパティを見つける。見つかれば、そのプロ
+    パティから始まる $PLIST の部分リストを返す。そうでなければ@c NULL 
+    を返す。
+
+    $KEY が @c Mnil ならば、$PLIST の最後の要素から始まる部分リストを
+    返す。  */
 
 MPlist *
 mplist_find_by_key (MPlist *plist, MSymbol key)
@@ -986,12 +1103,19 @@ mplist_find_by_key (MPlist *plist, MSymbol key)
 
 /*=*/
 /***en
-    @brief Find a property of a specific value in a property list object.
+    @brief Find a property of a specific value in a property list.
 
-    The mplist_find_by_value () function searches property list object
-    $PLIST from the beginning for a property whose value is $VAL.  If
-    such a property is found, a sublist of $PLIST whose first element
-    is the found one is returned.  Otherwise, @c NULL is returned.  */
+    The mplist_find_by_value () function searches property list $PLIST
+    from the beginning for a property whose value is $VAL.  If such a
+    property is found, a sublist of $PLIST whose first element is the
+    found one is returned.  Otherwise, @c NULL is returned.  */
+/***ja
+    @brief プロパティリスト中から指定の値を持つオブジェクトを探す.
+
+    関数 mplist_find_by_value () はプロパティリスト $PLIST を始めから
+    探して、値が $VAL であるプロパティを見つける。見つかれば、そのプロ
+    パティから始まる $PLIST の部分リストを返す。そうでなければ@c NULL 
+    を返す。 */
 
 MPlist *
 mplist_find_by_value (MPlist *plist, void *val)
@@ -1007,11 +1131,17 @@ mplist_find_by_value (MPlist *plist, void *val)
 /*=*/
 
 /***en
-    @brief Return the next sublist of a plist.
+    @brief Return the next sublist of a property list.
 
     The mplist_next () function returns a pointer to the sublist of
-    $PLIST, which begins at the second element in $PLIST.  If the
+    property list $PLIST, which begins at the second element in $PLIST.  If the
     length of $PLIST is zero, it returns @c NULL.  */
+/***ja
+    @brief プロパティリストの次の部分リストを返す.
+
+    関数 mplist_next () はプロパティリスト $PLIST の２番目
+    の要素から始まる部分リストへのポインタを返す。$PLIST の長さが 0 な
+    らば @c NULL を返す。  */
 
 MPlist *
 mplist_next (MPlist *plist)
@@ -1022,16 +1152,26 @@ mplist_next (MPlist *plist)
 /*=*/
 
 /***en
-    @brief Set the first property in a property list object.
+    @brief Set the first property in a property list.
 
     The mplist_set () function sets the key and value of the first
-    property in property list object $PLIST to $KEY and $VALUE,
-    respectively.  See the documentation of mplist_add () for the
-    restriction on $KEY and $VAL.
+    property in property list $PLIST to $KEY and $VALUE, respectively.
+    See the documentation of mplist_add () for the restriction on $KEY
+    and $VAL.
 
     @return
     If the operation was successful, mplist_set () returns $PLIST.
     Otherwise, it returns @c NULL.  */
+/***ja
+    @brief プロパティリスト最初のプロパティを設定する。
+
+    関数 mplist_set () はプロパティリスト $PLIST の最初のプロパティの
+    キーと値をそれぞれ $KEY と $VALUE に設定する。$KEY と $VAL に対す
+    る制限については、mplist_add () の説明を参照。
+
+    @return
+    処理に成功すれば mplist_set () は $PLIST を返す。そうでなければ
+    @c NULL を返す。  */
 
 MPlist *
 mplist_set (MPlist *plist, MSymbol key, void * val)
@@ -1064,10 +1204,15 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
 /*=*/
 
 /***en
-    @brief Return the length of a plist.
+    @brief Return the length of a property list.
 
     The mplist_length () function returns the number of properties in
-    property list object $PLIST.  */
+    property list  $PLIST.  */
+/***ja
+    @brief プロパティリストの長さを返す.
+
+    関数 mplist_length () はプロパティリスト $PLIST 中のプロパティの数
+    を返す。  */
 
 int
 mplist_length (MPlist *plist)
@@ -1081,11 +1226,17 @@ mplist_length (MPlist *plist)
 /*=*/
 
 /***en
-    @brief Return the key of the first property in a property list object.
+    @brief Return the key of the first property in a property list.
 
     The mplist_key () function returns the key of the first property
-    in property list object $PLIST.  If the length of $PLIST is zero,
+    in property list $PLIST.  If the length of $PLIST is zero,
     it returns @c Mnil.  */
+/***ja
+    @brief プロパティリスト中の最初のプロパティのキーを返す.
+
+    関数 mplist_key () は、プロパティリスト $PLIST 中の最
+    初のプロパティのキーを返す。$PLIST の長さが 0 ならば、 @c Mnil を
+    返す。  */
 
 MSymbol
 mplist_key (MPlist *plist)
@@ -1096,11 +1247,17 @@ mplist_key (MPlist *plist)
 /*=*/
 
 /***en
-    @brief Return the value of the first property in a property list object.
+    @brief Return the value of the first property in a property list.
 
     The mplist_value () function returns the value of the first
-    property in property list object $PLIST.  If the length of $PLIST
+    property in property list  $PLIST.  If the length of $PLIST
     is zero, it returns @c NULL.  */
+/***ja
+    @brief プロパティリスト中の最初のプロパティのキーを返す.
+
+    関数 mplist_value () は、プロパティリスト $PLIST 中の
+    最初のプロパティの値を返す。$PLIST の長さが 0 ならば、 @c Mnil を
+    返す。  */
 
 void *
 mplist_value (MPlist *plist)
@@ -1109,7 +1266,7 @@ mplist_value (MPlist *plist)
 }
 
 /***en
-    @brief Generate a plist by deserializaing an M-text.
+    @brief Generate a property list by deserializaing an M-text.
 
     The mplist_deserialize () function parses M-text $MT and returns a
     property list.
@@ -1127,13 +1284,38 @@ mplist_value (MPlist *plist)
 
     M-TEXT ::= '"' character-sequence '"'
 
-    Each kind of @c ELEMENT is assigned one of these keys:
-	@c Msymbol, @c Minteger, @c Mtext, @c Mplist
+    Each alternatives of @c ELEMENT is assigned one of these keys: @c
+    Msymbol, @c Minteger, @c Mtext, @c Mplist
 
     In an ascii-character-sequence, a backslush (\) is used as the escape
     character, which means that, for instance, <tt>"abc\ def"</tt>
     produces a symbol whose name is of length seven with the fourth
     character being a space.  */
+/***ja
+    @brief M-text をデシリアライズしてプロパティリストを作る.
+
+    関数 mplist_deserialize () は M-text $MT を解析してプロパティリス
+    トを返す。
+
+    $MT のシンタックスは以下の通り。
+
+    MT ::= '(' ELEMENT * ')'
+
+    ELEMENT ::= SYMBOL | INTEGER | M-TEXT | PLIST
+
+    SYMBOL ::= アスキー文字列
+
+    INTEGER ::= '-' ? [ '0' | .. | '9' ]+
+		| '0x' [ '0' | .. | '9' | 'A' | .. | 'F' | 'a' | .. | 'f' ]+
+
+    M-TEXT ::= '"' character-sequence '"'
+
+    @c ELEMENT の各選択肢はキー：@c Msymbol, @c Minteger, @ c Mtext,
+    @c Mplist のいずれかを割り当てられている。
+
+    アスキー文字列内では、バックスラッシュ (\) がエスケープ文字として
+    用いられる。たとえば <tt>"abc\ def"</tt> は４文字目が空白文字であ
+    り長さが７である持つ名前を持つシンボルを生成する。   */
 
 MPlist *
 mplist_deserialize (MText *mt)
@@ -1153,15 +1335,23 @@ mplist_deserialize (MText *mt)
 /*** @{  */
 
 /***en
-    @brief Dump a plist.
+    @brief Dump a property list.
 
-    The mdebug_dump_plist () function prints $PLIST in a human
-    readable way to the stderr.  $INDENT specifies how many columns to
-    indent the lines but the first one.
+    The mdebug_dump_plist () function prints a property list $PLIST in
+    a human readable way to the stderr.  $INDENT specifies how many
+    columns to indent the lines but the first one.
 
     @return
     This function returns $PLIST.  */
+/***ja
+    @brief プロパティリストをダンプする.
 
+    関数 mdebug_dump_plist () はプロパティリスト @PLIST を stderr に人
+    間に可読な 形で印刷する。 $UNDENT は２行目以降のインデントを指定す
+    る。
+
+    @return
+    この関数は $PLIST を返す。  */
 MPlist *
 mdebug_dump_plist (MPlist *plist, int indent)
 {
