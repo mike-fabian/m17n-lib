@@ -25,7 +25,7 @@
 bin_PROGRAMS = mconv mview mdate mdump medit
 
 common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
-common_ldflags_X = ${top_srcdir}/src/libm17n-X.la
+common_ldflags_gui = ${top_srcdir}/src/libm17n-gui.la
 
 mdate_SOURCES = mdate.c
 mdate_LDADD = ${common_ldflags}
@@ -34,15 +34,16 @@ mconv_SOURCES = mconv.c
 mconv_LDADD = ${common_ldflags}
 
 medit_SOURCES = medit.c linebreak.c
-medit_LDADD = ${common_ldflags_X}
+medit_LDADD = ${common_ldflags_gui}
 medit_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS} @WORDCUT_LD_FLAGS@
 
 mview_SOURCES = mview.c
-mview_LDADD = ${common_ldflags_X}
+mview_LDADD = ${common_ldflags_gui}
 mview_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS}
 
 mdump_SOURCES = mdump.c linebreak.c
-mdump_LDADD = ${common_ldflags_X} @WORDCUT_LD_FLAGS@
+mdump_LDADD = ${common_ldflags_gui}
+mdump_LDFLAGS = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@
 
 # Input method data files.
 
@@ -57,7 +58,7 @@ EXTRA_DIST = \
 lib_LTLIBRARIES = libmimx-ispell.la libmimx-anthy.la
 
 libmimx_ispell_la_SOURCES = mimx-ispell.c
-libmimx_ispell_la_LIBADD = ${common_ldflags_X}
+libmimx_ispell_la_LIBADD = ${common_ldflags_gui}
 
 libmimx_anthy_la_SOURCES = mimx-anthy.c
 libmimx_anthy_la_LIBADD = ${common_ldflags}
