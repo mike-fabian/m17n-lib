@@ -421,7 +421,7 @@ mchar_define_property (char *name, MSymbol type)
     value of the character property.  Otherwise it returns @c
     NULL.  */
 
-/**ja
+/***ja
     @brief 文字プロパティの値を得る.
 
     関数 mchar_get_prop () は、文字 $C の文字プロパティのうちキーが 
@@ -433,7 +433,6 @@ mchar_define_property (char *name, MSymbol type)
 
     @latexonly \IPAlabel{mchar_get_prop} @endlatexonly
 */
-
 /***
     @errors
     @c MERROR_SYMBOL, @c MERROR_DB
@@ -471,7 +470,6 @@ mchar_get_prop (int c, MSymbol key)
     @return
     If the operation was successful, mchar_put_prop () returns 0.
     Otherwise, it returns -1.  */
-
 /***ja
     @brief 文字プロパティの値を設定する.
 
@@ -481,7 +479,6 @@ mchar_get_prop (int c, MSymbol key)
     @return
     処理が成功すれば mchar_put_prop () は0を返す。失敗した場合は-1を返
     す。  */
-
 /***
     @errors
     @c MERROR_SYMBOL, @c MERROR_DB
