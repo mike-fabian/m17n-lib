@@ -93,22 +93,22 @@ m17n_fini (void)
     {
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize input module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input module."));
       minput__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize locale module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize locale module."));
       mlocale__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize language module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize language module."));
       mlang__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize character module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize character module."));
       mchar__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize database module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize database module."));
       mdatabase__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize coding module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize coding module."));
       mcoding__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize charset module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize charset module."));
       mcharset__fini ();
       MDEBUG_POP_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize the shell modules."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the shell modules."));
       MDEBUG_POP_TIME ();
       shell_initialized = 0;
     }
