@@ -391,6 +391,8 @@ main (int argc, char **argv)
 
   /* Clear away.  */
   mconv_free_converter (converter);
+  fclose (in);
+  fclose (out);
   m17n_object_unref (mt);
   M17N_FINI ();
   exit (0);
