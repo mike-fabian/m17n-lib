@@ -1,3 +1,28 @@
+2004-12-03  Kenichi Handa  <handa@m17n.org>
+
+	* internal.h (m17n__core_initialized, m17n__shell_initialized,
+	m17n__gui_initialized): New externs.
+
+	* m17n-core.h (enum M17NStatus): New enum.
+	(m17n_status): Extern it.
+
+	* m17n-core.c (core_initialized): Delete this variable.
+	(m17n__core_initialized, m17n__shell_initialized,
+	m17n__gui_initialized): New variables.
+	(m17n_init_core, m17n_fini_core): Check m17n__core_initialized
+	instead of core_initialized.
+	(m17n_status): New function.
+
+	* m17n.c (shell_initialized): Delete this variable.
+	(m17n_init, m17n_fini): Check m17n__shell_initialized instead of
+	shell_initialized.
+
+	* m17n-gui.h (m17n_init_win): Adjust the prototype.
+
+	* m17n-gui.c (win_initialized): Delete this variable.
+	(m17n_init_win, m17n_fini_win): Check m17n__gui_initialized
+	instead of gui_initialized.
+
 2004-11-19  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (reset_ic): Check if ic_info->state is NULL.

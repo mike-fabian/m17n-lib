@@ -1,3 +1,11 @@
+2004-12-03  Kenichi Handa  <handa@m17n.org>
+
+	* mimx-ispell.c (face_available): New variable.
+	(init): Check if GUI APIs are available or not.  If not, set
+	face_available to 0.
+	(fini): Free a face only if face_available is not zero.
+	(ispell_word): Put face property only if available.
+
 2004-10-29  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): Fix handling of "-s" arg.
