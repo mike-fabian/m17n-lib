@@ -44,19 +44,19 @@
     @addtogroup m17nCharacter
     @brief 文字オブジェクトとそれに関する API.
 
-    m17n ライブラリは @e 文字 を文字コード（整数）で表現する。最小の文
-    字コードは @c 0 で、最大の文字コードはマクロ #MCHAR_MAX によって
-    定義されている。#MCHAR_MAX は @c 0x3FFFFF（22ビット） 以上である
-    ことが保証されている。
+    m17n ライブラリは @e 文字 を文字コード（整数）で表現する。
+    最小の文字コードは @c 0 であり、最大の文字コードはマクロ #MCHAR_MAX 
+    によって定義されている。#MCHAR_MAX は @c 0x3FFFFF（22ビット）
+    以上であることが保証されている。
 
-    @c 0 から @c 0x10FFFF までの文字は、それと同じ値を持つ Unicode の
-    文字に割り当てられている。
+    @c 0 から @c 0x10FFFF までの文字は、それと同じ値を持つ Unicode 
+    の文字に割り当てられている。
 
-    各文字は @e 文字プロパティ と呼ぶプロパティを 0 個以上持つことがで
-    きる。文字プロパティは @e キー と @e 値 からなる。キーはシンボルで
-    あり、値は <tt>(void *)</tt> 型にキャストできるものなら何でもよい。 
-    「文字 C の文字プロパティのうちキーが K であるもの」を簡単に
-    「文字 C の K プロパティ」と呼ぶことがある。  */
+    各文字は @e 文字プロパティ と呼ぶプロパティを 0 個以上持つことができる。
+    文字プロパティは @e キー と @e 値 からなる。
+    キーはシンボルであり、値は <tt>(void *)</tt> 型にキャストできるものなら何でもよい。 
+    「文字 C の文字プロパティのうちキーが K であるもの」を簡単に「文字 C 
+    の K プロパティ」と呼ぶことがある。  */
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -153,7 +153,7 @@ mchar__fini (void)
 /***ja
     @brief 文字コードの最大値.
 
-    マクロ #MCHAR_MAX は文字コードの最大値を与える。  */
+    マクロ #MCHAR_MAX は文字コードの最大値を表す。  */
 
 #define MCHAR_MAX
 /*=*/
@@ -185,9 +185,9 @@ mchar__fini (void)
 /***ja
     @brief スクリプトを表わすキー.
 
-    シンボル #Mscript は <tt>"script"</tt> という名前を持ち、文字プ
-    ロパティのキーとして使われる。このプロパティの値は、この文字の属す
-    るスクリプトを表わすシンボルである。
+    シンボル #Mscript は <tt>"script"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、この文字の属するスクリプトを表わすシンボルである。
 
     スクリプトを表わすシンボルの名前は、<em>Unicode Technical Report
     #24</em> にリストされているもののいずれかである。  */
@@ -206,9 +206,9 @@ MSymbol Mscript;
 /***ja
     @brief 名前を表わすキー.
 
-    シンボル #Mname は <tt>"name"</tt> という名前を持ち、文字プロパ
-    ティのキーとして使われる。このプロパティの値は C-string であり、そ
-    の文字の名前を表わす。  */
+    シンボル #Mname は <tt>"name"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値はその文字の名前を表わす C の文字列である。  */
 
 MSymbol Mname;
 
@@ -229,12 +229,12 @@ MSymbol Mname;
 /***ja
     @brief 一般カテゴリを表わすキー.
 
-    シンボル #Mcategory は <tt>"category"</tt> という名前を持ち、文
-    字プロパティのキーとして使われる。このプロパティの値は、対応する
-    <em>一般カテゴリ</em> を表わすシンボルである。
+    シンボル #Mcategory は <tt>"category"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する <em>一般カテゴリ</em> を表わすシンボルである。
 
-    一般カテゴリを表わすシンボルの名前は、<em>General Category</em>の
-    省略形として Unicode に定義されているものである。  */
+    一般カテゴリを表わすシンボルの名前は、<em>General Category</em> 
+    の省略形として Unicode に定義されているものである。  */
 
 MSymbol Mcategory;
 
@@ -254,12 +254,12 @@ MSymbol Mcategory;
 /***ja
     @brief 標準結合クラスを表わすキー.
 
-    シンボル #Mcombining_class は <tt>"combining-class"</tt> という
-    名前を持ち、文字プロパティのキーとして使われる。このプロパティの値
-    は、対応する @e 標準結合クラス を表わす整数である。
+    シンボル #Mcombining_class は <tt>"combining-class"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する @e 標準結合クラス を表わす整数である。
 
-    標準結合クラスを表わす整数の意味は、Unicode に定義されているもの
-    と同じである。  */
+    標準結合クラスを表わす整数の意味は、Unicode 
+    に定義されているものと同じである。  */
 
 MSymbol Mcombining_class;
 /*=*/
@@ -279,9 +279,9 @@ MSymbol Mcombining_class;
 /***ja
     @brief 双方向カテゴリを表わすキー.
 
-    シンボル #Mbidi_category は <tt>"bidi-category"</tt> という名前
-    を持ち、文字プロパティのキーとして使われる。このプロパティの値は、
-    対応する @e 双方向カテゴリ を表わすシンボルである。
+    シンボル #Mbidi_category は <tt>"bidi-category"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する @e 双方向カテゴリ を表わすシンボルである。
 
     双方向カテゴリを表わすシンボルの名前は、<em>Bidirectional
     Category</em> の型として Unicode に定義されているものである。  */
@@ -307,14 +307,13 @@ MSymbol Mbidi_category;
     @brief 対応する小文字一文字を表わすキー.
 
     シンボル #Msimple_case_folding は <tt>"simple-case-folding"</tt> 
-    という名前を持ち、文字プロパティのキーとして使われる。このプロパティ
-    の値は、対応する小文字一文字であり、大文字／小文字の区別を無視した
-    文字列比較の際に使われる。
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する小文字一文字であり、大文字／小文字の区別を無視した文字列比較の際に使われる。
 
-    複雑な比較方法を必要とする文字であった場合（別の一文字と対応付ける
-    ことによって比較できない場合）、このプロパティの値は @c 0xFFFF に
-    なる。この場合その文字は、#Mcomplicated_case_folding というキーの
-    文字プロパティを持つ。  */
+    複雑な比較方法を必要とする文字であった場合
+    （別の一文字と対応付けることによって比較できない場合）、このプロパティの値は 
+    @c 0xFFFF になる。この場合その文字は、#Mcomplicated_case_folding
+    というキーの文字プロパティを持つ。  */
 
 MSymbol Msimple_case_folding;
 /***en
@@ -330,9 +329,9 @@ MSymbol Msimple_case_folding;
     @brief 対応する小文字の列を表わすキー.
 
     シンボル #Mcomplicated_case_folding は 
-    <tt>"complicated-case-folding"</tt> という名前を持ち、文字プロパティ
-    のキーとして使われる。このプロパティの値は、対応する小文字列からな
-    る M-text であり、大文字／小文字の区別を無視した文字列比較の際に使
+    <tt>"complicated-case-folding"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する小文字列からなる M-text であり、大文字／小文字の区別を無視した文字列比較の際に使
     われる。
       */
 
@@ -357,8 +356,8 @@ MSymbol Mcomplicated_case_folding;
     @brief 文字プロパティを定義する.
 
     関数 mchar_define_property () は、 \<#Mchar_table, $TYPE, $SYM \>
-    というタグを持ったデータベースを m17n 言語情報ベースから探す。  こ
-    こで $SYM は $NAME という名前のシンボルである。$TYPE は#Mstring,
+    というタグを持ったデータベースを m17n 言語情報ベースから探す。  
+    ここで $SYM は $NAME という名前のシンボルである。$TYPE は#Mstring,
     #Mtext, #Msymbol, #Minteger, #Mplist のいずれかでなければならない。
 
     @return
@@ -429,8 +428,8 @@ mchar_define_property (const char *name, MSymbol type)
     $KEY であるものを探す。
 
     @return
-    処理が成功すれば mchar_get_prop () は見つかったプロパティの値を返
-    す。失敗した場合は @c NULL を返す。
+    処理が成功すれば mchar_get_prop () は見つかったプロパティの値を返す。
+    失敗した場合は @c NULL を返す。
 
     @latexonly \IPAlabel{mchar_get_prop} @endlatexonly
 */
@@ -474,12 +473,11 @@ mchar_get_prop (int c, MSymbol key)
 /***ja
     @brief 文字プロパティの値を設定する.
 
-    関数 mchar_put_prop () は、文字 $C の文字プロパティのうちキーが $KEY で
-    あるものを探し、その値として $VAL を設定する。
+    関数 mchar_put_prop () は、文字 $C の文字プロパティのうちキーが $KEY 
+    であるものを探し、その値として $VAL を設定する。
 
     @return
-    処理が成功すれば mchar_put_prop () は0を返す。失敗した場合は-1を返
-    す。  */
+    処理が成功すれば mchar_put_prop () は0を返す。失敗した場合は-1を返す。  */
 /***
     @errors
     @c MERROR_SYMBOL, @c MERROR_DB
