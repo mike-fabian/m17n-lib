@@ -158,15 +158,13 @@ typedef struct
 
 struct MFontDriver
 {
-  /** Return a font best matching with SPEC.  */
+  /** Return a font satisfying REQUEST and best matching with SPEC.
+      For the moment, LIMITTED_SIZE is ignored.  */
   MRealizedFont *(*select) (MFrame *frame, MFont *spec, MFont *request,
 			    int limitted_size);
 
   /** Open a font specified by RFONT.  */
   int (*open) (MRealizedFont *rfont);
-
-  /** Close a font specified by RFONT.   */
-  void (*close) (MRealizedFont *rfont);
 
   /** Set metrics of glyphs in GSTRING from FROM to TO.  */
   void (*find_metric) (MRealizedFont *rfont, MGlyphString *gstring,
@@ -182,13 +180,14 @@ struct MFontDriver
   void (*render) (MDrawWindow win, int x, int y,
 		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
 		  int reverse, MDrawRegion region);
+
+  MFont *(*parse_name) (char *name, MFont *font);
+  char *(*build_name) (MFont *font);
 };
 
 /** Initialize the members of FONT.  */
 
 #define MFONT_INIT(font) memset ((font), 0, sizeof (MFont))
-
-extern MPlist *mfont__driver_list;
 
 extern MSymbol Mlayouter;
 
@@ -209,7 +208,7 @@ typedef struct
   M17NObject control;
   MFont font;
   char *filename;
-  int otf_flag;	/* This font 1: is OTF, 0: may be OTF, -1: is not OTF.  */
+  int otf_flag;	/* This font is OTF (1), may be OTF (0), is not OTF (-1).  */
   MPlist *charmap_list;
   int charmap_index;
   FT_Face ft_face;
@@ -256,8 +255,6 @@ extern MRealizedFont *mfont__select (MFrame *frame, MFont *spec,
 				     MSymbol layouter);
 
 extern int mfont__open (MRealizedFont *rfont);
-
-extern void mfont__close (MRealizedFont *rfont);
 
 extern void mfont__get_metric (MGlyphString *gstring, int from, int to);
 
