@@ -166,13 +166,13 @@ AC_SUBST(XFT2_LD_FLAGS)
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_XML2_CONFIG, xml2-config, yes)
-if test "x$HAVE_XML2" = "xyes"; then
+if test "x$HAVE_XML2_CONFIG" = "xyes"; then
   CPPFLAGS="$CPPFLAGS `xml2-config --cflags`"
   XML2_LD_FLAGS="`xml2-config --libs`"
   LIBS="$LIBS $XML2_LD_FLAGS"
 else
   CPPFLAGS="$CPPFLAGS -I/usr/include/libxml2"
-  XML2_LD_FLAGS="-lxml2 -lz -m"
+  XML2_LD_FLAGS="-lxml2 -lz -lpthread -lm"
 fi
 AC_CHECK_LIB(xml2, xmlParseMemory, HAVE_XML2=yes, HAVE_XML2=no)
 AC_CHECK_HEADER(libxml/tree.h,, HAVE_XML2=no, /**/)
@@ -224,19 +224,9 @@ if test "x$HAVE_WORDCUT" = "xyes"; then
 fi
 AC_SUBST(WORDCUT_LD_FLAGS)
 
-AC_ARG_ENABLE(xom, 
-	      [  --enable-xom            build and install XOM library.],
-	      XOM="$enableval")
-
-AC_ARG_WITH(efence,
-	    [  --with-efence           build example programs with efence.],
-	    EFENCE="$withval")
-AC_CHECK_LIB(efence, malloc, HAVE_EFENCE=yes)
-
-if test "x$EFENCE" = "xyes" && test "x$HAVE_EFENCE" = "xyes"; then
-  EFENCE_LIB=-lefence
-fi
-AC_SUBST(EFENCE_LIB)
+dnl AC_ARG_ENABLE(xom, 
+dnl	      [  --enable-xom            build and install XOM library.],
+dnl	      XOM="$enableval")
 
 case $host_os in
 darwin* | rhapsody*)
@@ -250,9 +240,9 @@ AC_CONFIG_FILES([Makefile
 		 m17n-config
 		 ])
 
-if test "x$XOM" = "xyes"; then
-  AC_CONFIG_FILES(omM17N/Makefile)
-fi
+dnl if test "x$XOM" = "xyes"; then
+dnl  AC_CONFIG_FILES(omM17N/Makefile)
+dnl fi
 
 AC_OUTPUT
 
