@@ -187,6 +187,9 @@
 #include <string.h>
 #include <libgen.h>
 
+#include "config.h"
+
+#if defined (HAVE_FREETYPE) && defined (HAVE_GD)
 #include <gd.h>
 
 #include <m17n-gui.h>
@@ -618,4 +621,15 @@ main (int argc, char **argv)
   gdImageDestroy (image);
   exit (0);
 }
+
+#else  /* not HAVE_FREETYPE nor HAVE_GD */
+
+int
+main (int argc, char **argv)
+{
+  fprintf (stderr, "Can't run without Freetype and GD library!\n");
+  exit (1);
+}
+
+#endif  /* not HAVE_FREETYPE nor HAVE_GD */
 #endif /* not FOR_DOXYGEN */
