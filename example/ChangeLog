@@ -1,3 +1,7 @@
+2004-07-26  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (redraw_cursor): Fix checking of redrawing area.
+
 2004-07-23  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.xml: Add Myanmar.
