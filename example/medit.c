@@ -708,6 +708,9 @@ static void MenuHelpProc (Widget w, XEvent *event, String *str, Cardinal *num);
 Boolean
 show_cursor (XtPointer client_data)
 {
+  MFaceHLineProp *hline;
+  MFaceBoxProp *box;
+
   if (cur.y0 < 0)
     {
       reseat (cur.from);
@@ -769,9 +772,11 @@ show_cursor (XtPointer client_data)
       strcat (p, ","), strcat (p, msymbol_name (sym)), p += strlen (p);
     if ((MSymbol) mface_get_prop (face, Mvideomode) == Mreverse)
       strcat (p, ",rev"), p += strlen (p);
-    if (mface_get_prop (face, Mhline))
+    hline = mface_get_prop (face, Mhline);
+    if (hline && hline->width > 0)
       strcat (p, ",ul"), p += strlen (p);
-    if (mface_get_prop (face, Mbox))
+    box = mface_get_prop (face, Mbox);
+    if (box && box->width > 0)
       strcat (p, ",box"), p += strlen (p);
     m17n_object_unref (face);
 
@@ -2328,8 +2333,9 @@ main (int argc, char **argv)
   {
     MFace *face = mface ();
 
-    mface_put_prop (face, Mbackground, msymbol ("blue"));
-    mface_put_prop (face, Mforeground, msymbol ("yellow"));
+    mface_put_prop (face, Mforeground, msymbol ("blue"));
+    mface_put_prop (face, Mbackground, msymbol ("yellow"));
+    mface_put_prop (face, Mvideomode, Mreverse);
     selection = mtext_property (Mface, face, MTEXTPROP_NO_MERGE);
     m17n_object_unref (face);
   }
