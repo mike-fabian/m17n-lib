@@ -64,7 +64,7 @@
 	* internal-gui.h (MAKE_PRECOMPUTED_COMBINDING_CODE)
 	(COMBINING_PRECOMPUTED_P): New macros.
 
-	* draw.c (layout_glyphs): Hanlde precomputed combining code.
+	* draw.c (layout_glyphs): Handle precomputed combining code.
 
 	* font-ft.c (mfont__ft_drive_otf): Set g->combining_code to a
 	precomupted combining code.
