@@ -93,7 +93,7 @@ enum MErrorCode
 
 /*=*/
 
-extern enum MErrorCode merror_code;
+extern int merror_code;
 
 extern void (*m17n_memory_full_handler) (enum MErrorCode err);
 
