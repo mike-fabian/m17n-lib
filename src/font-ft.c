@@ -69,7 +69,7 @@ typedef struct
 static MFTtoProp ft_to_prop[] =
   { { "italic", 0, MFONT_STYLE, "i" },
     { "roman", 0, MFONT_STYLE, "r" },
-    { "oblique", 0, MFONT_STYLE, "p" },
+    { "oblique", 0, MFONT_STYLE, "o" },
     { "regular", 0, MFONT_WEIGHT, "medium" },
     { "normal", 0, MFONT_WEIGHT, "medium" },
     /* We need this entry even if "bold" is in commone_weight[] to
