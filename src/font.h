@@ -227,9 +227,9 @@ extern char *mfont__ft_unparse_name (MFont *font);
 
 #ifdef HAVE_OTF
 
-extern int mfont__ft_drive_gsub (MGlyphString *gstring, int from, int to);
-
-extern int mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to);
+extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
+				MSymbol script, MSymbol langsys,
+				MSymbol gsub_features, MSymbol gpos_features);
 
 extern int mfont__ft_decode_otf (MGlyph *g);
 
