@@ -23,8 +23,8 @@ dnl 02111-1307, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(m17n-lib, 1.2, m17n-lib-bug@m17n.org)
-AM_INIT_AUTOMAKE(m17n-lib, 1.2)
+AC_INIT(m17n-lib, 1.2.0, m17n-lib-bug@m17n.org)
+AM_INIT_AUTOMAKE(m17n-lib, 1.2.0)
 AM_CONFIG_HEADER(src/config.h)
 
 API_VERSION=1:0:1
