@@ -1,3 +1,9 @@
+2004-10-28  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xfont_registry_list): Include '-' before PIXEL_SIZE in
+	font name comparison.
+	(xfont_select): Fix logic for selecting a larger size font.
+
 2004-10-25  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (take_action_list): Initialize `ret' to 0 for "=", "<",
