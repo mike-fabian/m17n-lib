@@ -1,5 +1,7 @@
 2004-03-12  Kenichi Handa  <handa@etlken2>
 
+	* input-gui.c (win_create_ic): Enable bidi in status control.
+
 	* draw.c (visual_order): Avoid re-ordering only combining glyphs.
 
 2004-03-09  Kenichi Handa  <handa@m17n.org>
