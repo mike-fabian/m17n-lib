@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mimx-ispell external module for the input method <en, ispell>
+    @enpage mimx-ispell external module for the input method <en, ispell>
 
     @section mimx-ispell-description DESCRIPTION
 
@@ -51,7 +51,7 @@
     @ref mdbIM
 */
 /***ja
-    @page mimx-ispell 入力メソッド <en, ispell> 用外部モジュール
+    @japage mimx-ispell 入力メソッド <en, ispell> 用外部モジュール
 
     @section mimx-ispell-description DESCRIPTION
 

@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mdump dump text image
+    @enpage mdump dump text image
 
     @section mdump-synopsis SYNOPSIS
 
@@ -102,7 +102,7 @@
     </ul>
 */
 /***ja
-    @page mdump テキスト画像のダンプ
+    @japage mdump テキスト画像のダンプ
 
     @section mdump-synopsis SYNOPSIS
 

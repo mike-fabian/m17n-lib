@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mimx-anthy external module for the input method <ja, anthy>
+    @enpage mimx-anthy external module for the input method <ja, anthy>
 
     @section mimx-anthy-description DESCRIPTION
 
@@ -60,7 +60,7 @@
     @ref mdbIM
 */
 /***ja
-    @page mimx-anthy 入力メソッド <ja, anthy> 用外部モジュール.
+    @japage mimx-anthy 入力メソッド <ja, anthy> 用外部モジュール.
 
     @section mimx-anthy-description DESCRIPTION
 

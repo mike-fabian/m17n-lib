@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mdate display date and time
+    @enpage mdate display date and time
 
     @section mdate-synopsis SYNOPSIS
 
@@ -45,7 +45,7 @@
     </ul>
 */
 /***ja
-    @page mdate 日時を表示する
+    @japage mdate 日時を表示する
 
     @section mdate-synopsis SYNOPSIS
 

@@ -21,7 +21,7 @@
    02111-1307, USA.  */
 
 /***en
-    @page mconv convert file code
+    @enpage mconv convert file code
 
     @section mconv-synopsis SYNOPSIS
 
@@ -73,7 +73,7 @@
     </ul>
 */
 /***ja
-    @page mconv ファイルのコードを変換する
+    @japage mconv ファイルのコードを変換する
 
     @section mconv-synopsis SYNOPSIS
 
