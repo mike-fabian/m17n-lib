@@ -1,4 +1,4 @@
-/* mdate.c -- Show the sysmet date and time in all locales.
+/* mdate.c -- Show system date/time in all locales.	-*- coding: euc-jp; -*-
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112

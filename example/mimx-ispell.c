@@ -1,4 +1,4 @@
-/* imx-ispell.c -- Input method external module for Ispell.
+/* imx-ispell.c -- Ispell input method external module.	-*- coding: euc-jp; -*-
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
