@@ -1429,6 +1429,20 @@ mtext__adjust_plist_for_insert (MText *mt, int pos, int nchars,
     }
 }
 
+void
+mtext__adjust_plist_for_change (MText *mt, int from, int to)
+{
+  MTextPlist *plist;
+
+  prepare_to_modify (mt, from, to, Mnil);
+  for (plist = mt->plist; plist; plist = plist->next)
+    {
+      pop_all_properties (plist, from, to);
+      xassert (check_plist (plist, 0) == 0);
+    }
+}
+
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
