@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mtext [
+<!ELEMENT mtext (property* , body+)>
+<!ELEMENT property EMPTY>
+<!ELEMENT body (#PCDATA)>
+<!ATTLIST property key CDATA #REQUIRED>
+<!ATTLIST property value CDATA #REQUIRED>
+<!ATTLIST property from CDATA #REQUIRED>
+<!ATTLIST property to CDATA #REQUIRED>
+<!ATTLIST property control CDATA #REQUIRED>
+]>
+<mtext>
+<property key="language" value="en" from="11" to="29" control="0"/>
+<property key="language" value="fr" from="37" to="64" control="0"/>
+<property key="language" value="de" from="72" to="104" control="0"/>
+<property key="language" value="sk" from="114" to="135" control="0"/>
+<property key="language" value="ru" from="143" to="168" control="0"/>
+<property key="language" value="el" from="177" to="196" control="0"/>
+<property key="language" value="tr" from="214" to="232" control="0"/>
+<property key="language" value="ka" from="241" to="263" control="0"/>
+<property key="language" value="ar" from="272" to="314" control="0"/>
+<property key="language" value="fa" from="323" to="344" control="0"/>
+<property key="language" value="he" from="353" to="374" control="0"/>
+<property key="language" value="am" from="383" to="394" control="0"/>
+<property key="language" value="hi" from="413" to="439" control="0"/>
+<property key="language" value="ml" from="448" to="466" control="0"/>
+<property key="language" value="ta" from="475" to="491" control="0"/>
+<property key="language" value="bo" from="501" to="550" control="0"/>
+<property key="language" value="km" from="559" to="591" control="0"/>
+<property key="language" value="vi" from="601" to="623" control="0"/>
+<property key="language" value="th" from="630" to="663" control="0"/>
+<property key="language" value="lo" from="670" to="701" control="0"/>
+<property key="language" value="ja" from="708" to="724" control="0"/>
+<property key="language" value="zh" from="730" to="742" control="0"/>
+<property key="language" value="ko" from="749" to="762" control="0"/>
+<body>ヨーロッパ
+  英語 (English)				Hello
+  フランス語 (français)		Bonjour, Salut
+  ドイツ語 (Deutsch)			Guten Tag, Grüß Gott
+  スロバキア語 (slovensky)	Dobrý deň
+  ロシア語 (русский)			Здравствуйте!
+  ギリシャ語 (ελληνικά)		Γειάσας
+
+中近東・アフリカ
+  トルコ語 (Türkçe)			Merhaba
+  グルジア語 (ქართული)		გამარჯობათ!
+  アラビア語 (اَلْعَرَبِيَّةُ)‎			اَلسَّلَامُ عَلَيْكُم
+  ペルシャ語 (فارسی)‎			سلام عليکم
+  ヘブライ語 (עִבְרִית)‎			שָׁלוֹם
+  アムハラ語 (አማርኛ)		ሠላም
+
+南・東南アジア
+  ヒンディー語 (हिंदी)		नमस्ते, नमस्कार ।
+  マラヤラム語(മലയാളം)		നമസ്കാരം
+  タミール語 (தமிழ்)		வணக்கம்
+  チベット語  (བོད་སྐད་)		བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
+  クメール語 (ខ្មៃរ)			ជំរាបសួរ (ex: ក្ក្រឿ៌)
+  ベトナム語  (Tiếng Việt)		Chào bạn
+  タイ語 (ภาษาไทย)			สวัสดีครับ, สวัสดีค่ะ
+  ラオ語 (ພາສາລາວ)			ສະບາຍດີ, ຂໍໃຫ້ໂຊກດີ
+
+東アジア
+  日本語					こんにちは
+  中国語 (汉语,普通话)		你好
+  韓国語 (한글)				안녕하세요
+</body></mtext>

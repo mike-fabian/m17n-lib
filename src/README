@@ -1,0 +1,23 @@
+Naming convention.
+
+name-space		internal	external
+==========		========	========
+function		mobject__xxx	mobject_xxx
+symbol variable		Mobject__xxx	Mobject_xxx
+other variable		mobject__xxx	mobject_xxx
+constant macro			MOBJECT_XXX
+other macro			MOBJECT_XXX
+type				MObject[Xxx]
+
+A structure is named as MXxxxx and is `typedef'ed with the same name.
+Ex: typedef struct MFace MFace
+
+In comments, a structure member is denoted simply as `<member_name>',
+but a member of a specific structure is denoted as
+`MStruct->member_name'.  If the member itself is a structure (or a
+pointer to a structure) and has a sub-member, the sub-member is
+denoted as:
+	`<member_name.sub_name>'
+	or `<member_name->sub_name>'
+	or `MStruct->member_name.subname'
+	or `MStruct->member_name->subname'

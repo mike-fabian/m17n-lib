@@ -1,0 +1,60 @@
+TODO -- todo list for the m17n library.			-*- outline -*-
+Copyright (C) 2003, 2004
+  National Institute of Advanced Industrial Science and Technology (AIST)
+  Registration Number H15PRO112
+See the end for copying conditions.
+
+
+* soon
+
+** Explicitely list up managed objects and describe them.
+
+** Allow properties to M-text itself, not to a specific region.
+
+
+* later
+
+** Add <plist> in MFont to allow any property.
+
+** Make such an M-text modifiable that has a format other than
+MTEXT_FORMAT_UTF_8.
+
+** Allow regex for font properties.
+
+** Should we change the type of property value from (void *) to
+MPropValue?
+
+** Vietnames FLT needs compositions.
+
+** Lock and unlock M-text.
+
+** Improve the handling of scratch gstring.
+
+** Imporve the font selection for characters of the same script.
+
+
+* done
+
+
+* Copyright information
+
+Copyright (C) 2003, 2004
+  National Institute of Advanced Industrial Science and Technology (AIST)
+  Registration Number H15PRO112
+
+This file is part of the m17n library.
+
+The m17n library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1 of
+the License, or (at your option) any later version.
+
+The m17n library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with the m17n library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307, USA.

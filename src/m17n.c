@@ -1,0 +1,122 @@
+/* m17n.c -- body of the SHELL API.
+   Copyright (C) 2003, 2004
+     National Institute of Advanced Industrial Science and Technology (AIST)
+     Registration Number H15PRO112
+
+   This file is part of the m17n library.
+
+   The m17n library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation; either version 2.1 of
+   the License, or (at your option) any later version.
+
+   The m17n library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the m17n library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307, USA.  */
+
+#include <config.h>
+#include <stdio.h>
+
+#include "m17n.h"
+#include "m17n-misc.h"
+#include "internal.h"
+#include "charset.h"
+#include "coding.h"
+
+static int shell_initialized;
+
+
+/* Internal API */
+
+
+/* External API */
+
+void
+m17n_init (void)
+{
+  int mdebug_mask = MDEBUG_INIT;
+
+  if (shell_initialized)
+    return;
+  m17n_init_core ();
+  if (merror_code < 0)
+    return;
+  MDEBUG_PUSH_TIME ();
+  MDEBUG_PUSH_TIME ();
+  if (mcharset__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize charset module."));
+  if (mcoding__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize conv module."));
+  if (mdatabase__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize database module."));
+  if (mcharset__load_from_database () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to load charset definitions."));
+  if (mcoding__load_from_database () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to load coding definitions."));
+  if (mchar__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize character module."));
+  if (mlang__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize language module"));
+  if (mlocale__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize locale module."));
+  if (minput__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input module."));
+  shell_initialized = 1;
+
+ err:
+  MDEBUG_POP_TIME ();
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the shell modules."));
+  MDEBUG_POP_TIME ();
+}
+
+void
+m17n_fini (void)
+{
+  int mdebug_mask = MDEBUG_FINI;
+
+  if (shell_initialized)
+    {
+      MDEBUG_PUSH_TIME ();
+      MDEBUG_PUSH_TIME ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize input module."));
+      minput__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize locale module."));
+      mlocale__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize language module."));
+      mlang__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize character module."));
+      mchar__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize database module."));
+      mdatabase__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize coding module."));
+      mcoding__fini ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize charset module."));
+      mcharset__fini ();
+      MDEBUG_POP_TIME ();
+      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize the shell modules."));
+      MDEBUG_POP_TIME ();
+      shell_initialized = 0;
+    }
+  m17n_fini_core ();
+}
+
+/*
+  Local Variables:
+  coding: euc-japan
+  End:
+*/
