@@ -658,17 +658,14 @@ mplist__from_file (FILE *fp)
 
     SYMBOL ::= ascii-character-sequence
 
-    INTEGER ::= '-' ? [ '0' | .. | '9' ] +
+    INTEGER ::= '-' ? [ '0' | .. | '9' ]+
 
-    UNSIGNED ::= '0x' [ '0' | .. | '9' | 'A' | .. | 'F' | 'a' | .. | 'f' ] +
-
-    STRING ::= '"' byte-sequence '"'
+    UNSIGNED ::= '0x' [ '0' | .. | '9' | 'A' | .. | 'F' | 'a' | .. | 'f' ]+
 
     M-TEXT ::= '"' byte-sequence '"'
 
     Each kind of @c ELEMENT is assigned one of these keys:
-	@c Msymbol, @c Mint, @c Munsigned,
-	@c Mstring, @c Mtext, @c Mplist
+	@c Msymbol, @c Mint, @c Munsigned, @c Mtext, @c Mplist
 
     In an ascii-character-sequence, a backslush (\) is used as the escape
     character, which means that, for instance, <tt>"abc\ def"</tt>
@@ -678,12 +675,7 @@ mplist__from_file (FILE *fp)
     In a byte-sequence, "\r", "\n", "\e", and "\t" are replaced by CR,
     NL, ESC, and TAB character respectively, "\xXX" are replaced by
     byte 0xXX.  After this replacement, the byte-sequence is decoded
-    into STRING or M-TEXT as below:
-
-    If $FORMAT is MTEXT_FORMAT_US_ASCII and the byte-sequence
-    contains only ASCII characters, it is decoded into STRING.
-    Otherwise, it is regarded as an UTF-8 sequence, and decoded into
-    M-TEXT.  */
+    into M-TEXT by $CODING.  */
 
 MPlist *
 mplist__from_string (unsigned char *str, int n)
@@ -714,15 +706,6 @@ mplist__serialize (MText *mt, MPlist *plist)
     }
   return 0;
 }
-
-MPlist *
-mplist__deserialize (MText *mt)
-{
-  if (mt->format > MTEXT_FORMAT_UTF_8)
-    MERROR (MERROR_PLIST, NULL);
-  return mplist__from_string (MTEXT_DATA (mt), mtext_nbytes (mt));
-}
-
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
@@ -1123,6 +1106,44 @@ void *
 mplist_value (MPlist *plist)
 {
   return MPLIST_VAL (plist);
+}
+
+/***en
+    @brief Generate a plist by deserializaing an M-text.
+
+    The mplist_deserialize () function parses M-text $MT and returns a
+    property list.
+
+    The syntax of $MT is as follows.
+
+    MT ::= '(' ELEMENT * ')'
+
+    ELEMENT ::= SYMBOL | INTEGER | M-TEXT | PLIST
+
+    SYMBOL ::= ascii-character-sequence
+
+    INTEGER ::= '-' ? [ '0' | .. | '9' ]+
+		| '0x' [ '0' | .. | '9' | 'A' | .. | 'F' | 'a' | .. | 'f' ]+
+
+    M-TEXT ::= '"' character-sequence '"'
+
+    Each kind of @c ELEMENT is assigned one of these keys:
+	@c Msymbol, @c Minteger, @c Mtext, @c Mplist
+
+    In an ascii-character-sequence, a backslush (\) is used as the escape
+    character, which means that, for instance, <tt>"abc\ def"</tt>
+    produces a symbol whose name is of length seven with the fourth
+    character being a space.  */
+
+MPlist *
+mplist_deserialize (MText *mt)
+{
+  if (mt->format > MTEXT_FORMAT_UTF_8)
+    {
+      if (mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8) < 0)
+	MERROR (MERROR_PLIST, NULL);
+    }
+  return mplist__from_string (MTEXT_DATA (mt), mtext_nbytes (mt));
 }
 
 /*** @}  */
