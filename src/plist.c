@@ -1321,12 +1321,20 @@ mplist_value (MPlist *plist)
 MPlist *
 mplist_deserialize (MText *mt)
 {
+  MPlist *plist;
+  MText *tmp = NULL;
+
   if (mt->format > MTEXT_FORMAT_UTF_8)
     {
-      if (mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8) < 0)
-	MERROR (MERROR_PLIST, NULL);
+      if (MTEXT_READ_ONLY_P (mt))
+	mt = tmp = mtext_cpy (mtext (), mt);
+      else
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
     }
-  return mplist__from_string (MTEXT_DATA (mt), mtext_nbytes (mt));
+  plist = mplist__from_string (MTEXT_DATA (mt), mtext_nbytes (mt));
+  if (tmp)
+    M17N_OBJECT_UNREF (tmp);
+  return plist;
 }
 
 /*** @}  */
