@@ -50,6 +50,36 @@
     @section mimx-ispell-seealso See also
     @ref mdbIM
 */
+/***ja
+    @page mimx-ispell 入力メソッド <en, ispell> 用外部モジュール
+
+    @section mimx-ispell-description DESCRIPTION
+
+    共有ライブラリ mimx-ispell.so は入力メソッド <en, ispell> に用いら 
+    れる外部モジュールであり、以下の関数を export している。
+
+    <ul>
+    <li> init
+
+    ライブラリの初期化。
+
+    <li> fini
+
+    ライブラリの終了。 
+
+    <li> ispell_word
+
+    現在の preedit テキスト (英文) の綴を調べ、間違っていれば候補のリ 
+    ストを返す。
+
+    </ul>
+
+    このプログラムはm17n 入力メソッド用外部モジュールの書き方を示すた 
+    めのものであり、実際の利用を意図したものではない。
+
+    @section mimx-ispell-seealso 参照
+    @ref mdbIM
+*/
 
 #ifndef FOR_DOXYGEN
 

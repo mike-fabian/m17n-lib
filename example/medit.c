@@ -52,6 +52,38 @@
     toolkit libraries or to implement XOM (X Outout Method), not for
     direct use from application programs.
 */
+/***ja
+    @page medit 多言語テキストの編集
+
+    @section medit-synopsis SYNOPSIS
+
+    medit [ XT-OPTION ...] [ OPTION ... ] FILE
+
+    @section medit-description DESCRIPTION
+
+    FILE をウィンドウに表示し、ユーザが編集できるようにする。
+
+    XT-OPTIONs は Xt の標準の引数である。 (e.g. -fn, -fg). 
+
+    以下のオプションが利用できる。 
+
+    <ul>
+
+    <li> --version
+
+    バージョン番号を表示する。 
+
+    <li> -h, --help
+
+    このメッセージを表示する。 
+
+    </ul>
+
+    このプログラムは m17n GUI API の使い方を示すものである。medit は直 
+    接 GUI API を使っているが、この API は主にツールキットライブラリや
+    XOM (X Outout Method) の実装用であり、アプリケーションプログラ ム
+    からの直接の利用を意図していない。
+*/
 
 #ifndef FOR_DOXYGEN
 

@@ -58,6 +58,45 @@
 
     </ul>
 */
+/***ja
+    @page mview ファイルを見る
+
+    @section mview-synopsis SYNOPSIS
+
+    mview [ XT-OPTION ...] [ OPTION ... ] [ FILE ]
+
+    @section mview-description DESCRIPTION
+
+    FILE をウィンドウに表示する。 
+
+    FILE が省略された場合は、標準入力からとる。 
+
+    XT-OPTIONs は Xt の標準の引数である。 (e.g. -fn, -fg). 
+
+    以下のオプションが利用できる。 
+
+    <ul>
+
+    <li> -e ENCODING
+
+    ENCODING は FILE のコード系である。(デフォルトは UTF-8) 
+
+    <li> -s FONTSIZE
+
+    FONTSIZE はフォントの大きさをポイント単位で示したものである。省略 
+    された場合は、X のリソースで定義されたデフォルトフォントの大きさと 
+    なる。
+
+    <li> --version
+
+    バージョン番号を表示する。
+
+    <li> -h, --help
+
+   このメッセージを表示する。 
+
+    </ul>
+*/
 #ifndef FOR_DOXYGEN
 
 #include <stdio.h>
