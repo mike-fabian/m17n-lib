@@ -380,7 +380,7 @@ typedef struct
     #MFaceHookFunc はフェースの #Mhook プロパティを指定する型である。
     このプロパティの値は、この型の関数でなくてはならない。
       */
-typedef void *(*MFaceHookFunc) (MFace *face, void *arg, void *info);
+typedef void (*MFaceHookFunc) (MFace *face, void *arg, void *info);
 /*=*/
 
 extern void *mface_get_prop (MFace *face, MSymbol key);
