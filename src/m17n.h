@@ -1247,24 +1247,24 @@ struct MInputContext
 
   /***en M-text describing the current status of the input
       context.  */
-  /***ja 入力コンテクストの現在の状況を表す M-text  */
+  /***ja 入力コンテクストの現在の状態を表す M-text  */
   MText *status;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
       it changes <status>.  */
-  /***ja 関数 <im>->driver.filter () は、<status> を変えた時この値を 1 
+  /***ja 関数 <im>->driver.filter () は、<status> を変えた際にこの値を 1 
       に設定する。  */
   int status_changed;
 
   /***en M-text containing the current preedit text.  The function
       <im>->driver.filter () sets the value.  */
   /***ja 現在の preedit テキストを含む M-text。関数 
-      <im>->driver.filter () がこの値を設定する。  */ 
+      <im>->driver.filter () によって設定される。  */ 
   MText *preedit;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
       it changes <preedit>.  */
-  /***ja 関数 <im>->driver.filter () は、<preedit> を変えた時この値を 
+  /***ja 関数 <im>->driver.filter () は、<preedit> を変えた際にこの値を 
       1 に設定する。  */
   int preedit_changed;
 
@@ -1274,44 +1274,66 @@ struct MInputContext
 
   /***en The function <im>->driver.filter () sets the value to 1 when
       it changes <cursor_pos>.  */
+  /***ja 関数 <im>->driver.filter () は、<cursor_pos> を変えた際にこの値を 
+      1 に設定する。  */
   int cursor_pos_changed;
 
   /***en Plist of the current candidate groups.  Each element is an
-      M-text or a plist.  If it is an M-text (i.e. the key is Mtext),
+      M-text or a plist.  If an element is an M-text (i.e. the key is Mtext),
       candidates in that group are characters in the M-text.  If it is
       a plist (i.e. the key is Mplist), each element is an M-text, and
       candidates in that group are those M-texts.  */
-  /***ja 現在のテキスト候補の配列.  */
+  /***ja 現在の候補グループの Plist 。各要素は M-text か plist である。
+      要素が M-text の場合（キーが Mtext である場合）には、そのグルー
+      プの候補はそのM-text 中の各文字である。 要素が plist の場合（キー
+      が Mplist である場合）には、そのリストの各要素は M-text であり、
+      それらがそのグループの候補となる。  */
   MPlist *candidate_list;
 
-  /***en Index number of the currently selected candidate.  If the
-      number is 10, and the first candidate group contains 10
-      candidates, the currently selected candidate is the first of the
+  /***en Index number of the currently selected candidate in all the
+      candidates. The index of the first candidate is 0.  If the
+      number is 8, and the first candidate group contains 7
+      candidates, the currently selected candidate is the second element of the
       second candidate group.  */
+  /***ja 現在選択されている候補が全候補中で何番目かをを示すインデック
+      ス。最初の候補のインデックスは 0。最初の候補グループに七つの候補
+      が含まれており、この値が9 ならば、現在の候補は二番目の候補グルー
+      プの二番目の要素ということになる。
+      */
   int candidate_index;
 
   /***en Start and the end positions of the preedit text where
        <candidate_list> corresponds to.  */
+  /***ja preedit テキスト中で、<candidate_list>に対応する最初と最後の位置。
+       */
   int candidate_from, candidate_to;
 
   /***en Flag telling whether the current candidate group must be
       shown or not.  The function <im>->driver.filter () sets the
       value to 1 when an input method required to show candidates, and
       sets the value to 0 otherwise.  */
+  /***ja 現在の候補グループを表示するかどうかを示すフラグ。関数 
+      <im>->driver.filter () は、入力メソッドが候補の表示を要求した時
+      この値を 1 に、それ以外の時 0 に設定する。  */
   int candidate_show;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
       it changed any of the above members (<candidate_XXX>), and sets
       the value to 0 otherwise.  */
-  /***ja 関数 <im>->driver.filter () は、上記のメンバの１つを変えた時
-      この値を 1 に設定する。  */
+  /***ja 関数 <im>->driver.filter () は、上記のメンバ <candidate_XXX> 
+      の１つでも変更した際には、この値を 1 に設定する。そうでなければ 0 に設定する。 */
   int candidates_changed;
 
-  /***en An plist that can be freely used by <im>->driver functions.
+  /***en Plist that can be freely used by <im>->driver functions.
       The driver of internal input method never use it.  The function
       <im>->driver.create_ic () sets this to an empty plist, and the
-      function <im->driver.destroy_ic () frees it by using
+      function <im>->driver.destroy_ic () frees it by using
       m17n_object_unref ().  */
+  /***ja <im>->driver の関数群によって自由に使用できる plist. 内部入力
+      メソッド用ドライバはこれを使用しない。関数 
+      <im>->driver.create_ic () はこの plist を空に設定する。関数
+      <im>->driver.destroy_ic () は m17n_object_unref () を用いてこの 
+      plist を解放する。  */
   MPlist *plist;
 };
 
