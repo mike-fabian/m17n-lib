@@ -84,7 +84,7 @@
 #include <m17n-misc.h>
 #include <m17n-X.h>
 
-#define VERSION "1.0"
+#define VERSION "1.0.1"
 
 /* Global variables.  */
 
