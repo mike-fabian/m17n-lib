@@ -649,6 +649,149 @@ find_encoding (MFont *font)
   return &default_encoding;
 }
 
+/* XLFD parser/generator */
+
+/** Indices to each field of split font name.  */
+
+enum xlfd_field_idx
+  {
+    XLFD_FOUNDRY,
+    XLFD_FAMILY,
+    XLFD_WEIGHT,
+    XLFD_SLANT,
+    XLFD_SWIDTH,
+    XLFD_ADSTYLE,
+    XLFD_PIXEL,
+    XLFD_POINT,
+    XLFD_RESX,
+    XLFD_RESY,
+    XLFD_SPACING,
+    XLFD_AVGWIDTH,
+    XLFD_REGISTRY,		/* This contains ENCODING.  */
+    /* anchor */
+    XLFD_FIELD_MAX
+  };
+
+static int
+xlfd_parse_name (char *name, MFont *font)
+{
+  char *field[XLFD_FIELD_MAX];
+  unsigned short size, resy;
+  MSymbol attrs[MFONT_PROPERTY_MAX];
+  char copy[513];
+  int i;
+  char *p;
+
+  if (name[0] != '-')
+    return -1;
+
+  field[0] = copy;
+  for (i = 1, p = copy, name++; *name; p++, name++)
+    {
+      if (p - copy > 512)
+	return -1;
+      if (*name == '-'
+	  && i < XLFD_FIELD_MAX)
+	{
+	  *p = '\0';
+	  if (field[i - 1][0] == '*')
+	    field[i - 1] = NULL;
+	  field[i++] = p + 1;
+	}
+      else
+	*p = tolower (*name);
+    }
+  *p = '\0';
+  if (field[i - 1][0] == '*')
+    field[i - 1] = NULL;
+  while (i < XLFD_FIELD_MAX)
+    field[i++] = NULL;
+
+  resy = field[XLFD_RESY] ? atoi (field[XLFD_RESY]) : 0;
+  if (! field[XLFD_PIXEL])
+    size = field[XLFD_POINT] ? atoi (field[XLFD_POINT]) * resy / 72 : 0;
+  else if (field[XLFD_PIXEL][0] == '[')
+    {
+      /* The pixel size field specifies a transformation matrix of the
+	 form "[A B C D]".  The XLFD spec says that the scalar value N
+	 for the pixel size is equivalent to D.  */
+      char *p0 = field[XLFD_PIXEL] + 1, *p1;
+      double d;
+
+      for (i = 0; i < 4; i++, p0 = p1)
+	d = strtod (p0, &p1);
+      size = d * 10;
+    }
+  else
+    size = atoi (field[XLFD_PIXEL]) * 10;
+
+  attrs[MFONT_FOUNDRY]
+    = field[XLFD_FOUNDRY] ? msymbol (field[XLFD_FOUNDRY]) : Mnil;
+  attrs[MFONT_FAMILY]
+    = field[XLFD_FAMILY] ? msymbol (field[XLFD_FAMILY]) : Mnil;
+  attrs[MFONT_WEIGHT]
+    = field[XLFD_WEIGHT] ? msymbol (field[XLFD_WEIGHT]) : Mnil;
+  attrs[MFONT_STYLE]
+    = field[XLFD_SLANT] ? msymbol (field[XLFD_SLANT]) : Mnil;
+  attrs[MFONT_STRETCH]
+    = field[XLFD_SWIDTH] ? msymbol (field[XLFD_SWIDTH]) : Mnil;
+  attrs[MFONT_ADSTYLE]
+    = field[XLFD_ADSTYLE] ? msymbol (field[XLFD_ADSTYLE]) : Mnil;
+  attrs[MFONT_REGISTRY]
+    = field[XLFD_REGISTRY] ? msymbol (field[XLFD_REGISTRY]) : Mnil;
+  mfont__set_spec (font, attrs, size, resy);
+  return 0;
+}
+
+static char *
+xlfd_unparse_name (MFont *font)
+{
+  MSymbol prop[7];
+  char name[513];
+  char *str[7];
+  int len, i;
+  unsigned short size, resy;
+
+  prop[0] = (MSymbol) mfont_get_prop (font, Mfoundry);
+  prop[1] = (MSymbol) mfont_get_prop (font, Mfamily);
+  prop[2] = (MSymbol) mfont_get_prop (font, Mweight);
+  prop[3] = (MSymbol) mfont_get_prop (font, Mstyle);
+  prop[4] = (MSymbol) mfont_get_prop (font, Mstretch);
+  prop[5] = (MSymbol) mfont_get_prop (font, Madstyle);
+  prop[6] = (MSymbol) mfont_get_prop (font, Mregistry);
+  for (len = 0, i = 0; i < 7; i++)
+    {
+      if (prop[i] != Mnil)
+	{
+	  str[i] = msymbol_name (prop[i]);
+	  len += strlen (str[i]);
+	}
+      else
+	{
+	  str[i] = "*";
+	  len++;
+	}
+    }
+  if ((len
+       + 12			/* 12 dashes */
+       + 3			/* 3 asterisks */
+       + 30			/* 3 integers (each 10 digits) */
+       + 1)			/* '\0' terminal */
+      > 513)
+    return NULL;
+
+  size = (int) mfont_get_prop (font, Msize);
+  if ((size % 10) < 5)
+    size /= 10;
+  else
+    size = size / 10 + 1;
+  resy = (int) mfont_get_prop (font, Mresolution);
+
+  sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-*-*-%s",
+	   str[0], str[1], str[2], str[3], str[4], str[5],
+	   size, resy, resy,  str[6]);
+  return strdup (name);
+}
 
 
 /* Internal API */
@@ -675,6 +818,8 @@ mfont__init ()
 
   Msize = msymbol ("size");
   Mresolution = msymbol ("resolution");
+
+  Mfontconfig = msymbol ("fontconfig");
 
   /* The first entry of each mfont__property_table must be Mnil so
      that actual properties get positive numeric numbers.  */
@@ -786,8 +931,7 @@ mfont__fini ()
 void
 mfont__free_realized (MRealizedFont *rfont)
 {
-  if (rfont->info)
-    M17N_OBJECT_UNREF (rfont->info);
+  M17N_OBJECT_UNREF (rfont->info);
   free (rfont);
 }
 
@@ -908,9 +1052,9 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 	      MSTRUCT_MALLOC (copy, MERROR_FONT);
 	      *copy = *best;
 	      copy->layouter = layouter;
+	      mplist_add (frame->realized_font_list, registry, copy);
 	      if (copy->info)
 		M17N_OBJECT_REF (copy->info);
-	      mplist_add (frame->realized_font_list, registry, copy);
 	      best = copy;
 	    }
 	  return best;
@@ -929,7 +1073,7 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 	{
 	  this->driver = driver;
 	  if (! best
-	      || best->score < this->score)
+	      || this->score < best->score)
 	    {
 	      if (best)
 		mfont__free_realized (best);
@@ -937,6 +1081,8 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 	      if (this->score == 0)
 		break;
 	    }
+	  else
+	    mfont__free_realized (this);
 	}
     }
 
@@ -975,29 +1121,6 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 int
 mfont__open (MRealizedFont *rfont)
 {
-  MPlist *realized_font_list;
-  MSymbol registry = FONT_PROPERTY (&rfont->font, MFONT_REGISTRY);
-
-  if (rfont->status)
-    mdebug_hook ();
-
-  MPLIST_DO (realized_font_list, rfont->frame->realized_font_list)
-    {
-      MRealizedFont *this_rfont = MPLIST_VAL (realized_font_list);
-
-      if (this_rfont->status != 0
-	  && MPLIST_KEY (realized_font_list) == registry
-	  && ! memcmp (&this_rfont->font, &rfont->font, sizeof (MFont)))
-	{
-	  if (rfont->info)
-	    M17N_OBJECT_UNREF (rfont->info);
-	  rfont->info = this_rfont->info;
-	  M17N_OBJECT_REF (this_rfont->info);
-	  rfont->status = this_rfont->status;
-	  return (this_rfont->status > 0 ? 0 : -1);
-	}
-    }
-
   return (rfont->driver->open) (rfont);
 }
 
@@ -1124,6 +1247,20 @@ mfont__set_spec (MFont *font, MSymbol *attrs,
     mfont__set_property (font, i, attrs[i]);
   font->property[MFONT_SIZE] = size;
   font->property[MFONT_RESY] = resy;
+}
+
+int
+mfont__parse_name_into_font (char *name, MSymbol format, MFont *font)
+{
+  int result = -1;
+
+  if (format == Mx || format == Mnil)
+    result = xlfd_parse_name (name, font);
+#ifdef HAVE_FONTCONFIG
+  if (format == Mfontconfig || (! result && format == Mnil))
+    result = mfont__ft_parse_name (name, font);
+#endif
+  return result;
 }
 
 /*** @} */
@@ -1300,6 +1437,14 @@ MSymbol Msize;
 
 MSymbol Mresolution;
 
+/***en
+    @brief Symobl of name "fontconfig".
+
+    The variable #Mfontconfig is to be used as an argument of the
+    functions mfont_parse_name () and mfont_unparse_name ().  */
+
+MSymbol Mfontconfig;
+
 /*=*/
 /*** @} */
 /*=*/
@@ -1373,13 +1518,17 @@ mfont ()
 /*=*/
 
 /***en
-    @brief Create a new font from fontname.
+    @brief Create a font by parsing a fontname.
 
-    The mfont_from_name () function creates a new font object.  The
+    The mfont_parse_name () function creates a new font object.  The
     properties are extracted fontname $NAME.
 
-    How to extract properties is window system dependent.  The m17n-X
-    library parses $NAME as XLFD (X Logical Font Description).
+    $FORMAT specifies the format of $NAME.  If $FORMAT is #Mx, $NAME
+    is parsed as XLFD (X Logical Font Description).  If $FORMAT is
+    #Mfontconfig, $NAME is parsed as Fontconfig's textual
+    representation of font.  If $FORMAT is #Mnil, $NAME is at first
+    parsed as XLFD, and it it fails, parsed as Fontconfig's
+    representation.
 
     @return
     If the operation was successful, this function returns a pointer
@@ -1388,40 +1537,77 @@ mfont ()
 /***ja
     @brief フォント名からフォントを作る.
 
-    関数 mfont_from_name () は、フォント名 $NAME から取り出されたプロパ
+    関数 mfont_parse_name () は、フォント名 $NAME から取り出されたプロパ
     ティを持つ、新しいフォントオブジェクトを作る。
 
-    どのようにプロパティを取り出すかはウィンドウシステムに依存する。
-    m17n-X ライブラリの場合は XLFD (X Logical Font Description) に従って
-    $NAME を解析する。
+    $FORMAT は $NAME のフォーマットを指定する。$FORMAT が #Mx であれば、
+    $NAME は XLFD (X Logical Font Description) に従って解析される。
+    $FORMAT が #Mfontconfig であれば $NAME は Fontfonfig のフォントテキ
+    スト表現に従って解析される。$FORMAT が #Mnil であれば、まず XLFD に
+    従って解析され、それに失敗したら Fontconfig に従って解析される。
 
     @return
-    処理が成功すれば mfont_from_name () は新しく作られたフォントへの
+    処理が成功すれば mfont_parse_name () は新しく作られたフォントへの
     ポインタを返す。そうでなければ @c NULL を返す。  */
 
 MFont *
-mfont_from_name (char *name)
+mfont_parse_name (char *name, MSymbol format)
 {
-  MFontDriver *driver;
   MFont template, *font;
-  MPlist *plist;
   
-  if (! mframe_default)
-    return NULL;
-  MPLIST_DO (plist, mframe_default->font_driver_list)
-    {
-      driver = MPLIST_VAL (plist);
-      if (driver->parse_name)
-	break;
-    }
-  if (MPLIST_TAIL_P (plist))
-    return NULL;
-
-  if ((*driver->parse_name) (name, &template))
-    return NULL;
+  MFONT_INIT (&template);
+  if (mfont__parse_name_into_font (name, format, &template) < 0)
+    MERROR (MERROR_FONT, NULL);
   MSTRUCT_CALLOC (font, MERROR_FONT);
   *font = template;
   return font;
+}
+
+/*=*/
+
+/***en
+    @brief Create a fontname from a font.
+
+    The mfont_unparse_name () function creates a fontname string
+    from font $FONT according to $FORMAT.
+
+    $FORMAT must be #Mx or #Mfontconfig.  If it is #Mx, the fontname
+    is in XLFD (X Logical Font Description) format.  If it is
+    #Mfontconfig, the fontname is in the style of Fontconfig's text
+    representation.
+
+    @return
+    This function returns a newly allocated fontname string, which is
+    not freed unless the user explicitly does so by free ().  */
+
+/***ja
+    @brief フォント名からフォントを作る.
+
+    関数 mfont_unparse_name () は $FORMAT にしたがったフォント名の文字
+    列をフォント$FONT を元に作る。
+
+    $FORMAT は #Mx または #Mfontconfig でなければならない。#Mx ならばフォ
+    ント名は XLFD (X Logical Font Description) に従う。#Mfontconfig な
+    らばフォント名は Fontconfig のフォントテキスト表現に従う。
+
+    @return 
+    この関数は新たにアロケートしたフォント名の文字列を返す。文字列は、
+    ユーザが free () によって明示的に解放しない限り解放されない。  */
+
+char *
+mfont_unparse_name (MFont *font, MSymbol format)
+{
+  char *name;
+
+  if (format == Mx)
+    name = xlfd_unparse_name (font);
+#ifdef HAVE_FONTCONFIG
+  else if (format == Mfontconfig)
+    name = mfont__ft_unparse_name (font);
+#endif
+  else
+    MERROR (MERROR_FONT, NULL);
+  return name;
 }
 
 /*=*/
@@ -1443,54 +1629,6 @@ mfont_copy (MFont *font)
   MSTRUCT_MALLOC (copy, MERROR_FONT);
   *copy = *font;
   return copy;
-}
-
-/*=*/
-
-/***en
-    @brief Create a fontname from a font.
-
-    The mfont_name () function creates a fontname string created from
-    font $FONT.
-
-    The syntax of fontname is window system dependent.  The m17n-X
-    library returns a fontname conforming to XLFD (X Logical Font
-    Description).
-
-    @return
-    This function returns the created fontname string, which is not freed
-    unless the user explicitly does so by free ().  */
-/***ja
-    @brief フォント名からフォントを作る.
-
-    関数 mfont_name () はフォント名の文字列をフォント
-    $FONT を元に作る。
-
-    フォント名の文法はウィンドウシステムに依存する。m17n-X ライブラリ
-    は XLFD (X Logical Font Description) に従うフォント名を返す。
-
-    @return 
-    この関数は作ったフォント名の文字列を返す。文字列は、ユーザ
-    が free () によって明示的に解放しない限り解放されない。  */
-
-char *
-mfont_name (MFont *font)
-{
-  MFontDriver *driver;
-  MPlist *plist;
-  
-  if (! mframe_default)
-    return NULL;
-  MPLIST_DO (plist, mframe_default->font_driver_list)
-    {
-      driver = MPLIST_VAL (plist);
-      if (driver->build_name)
-	break;
-    }
-  if (MPLIST_TAIL_P (plist))
-    return NULL;
-
-  return (*driver->build_name) (font);
 }
 
 /*=*/
@@ -1870,6 +2008,41 @@ mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
   return 0;
 }
 
+/*=*/
+
+/***en
+    @brief Create a fontname from a font.
+
+    This function is obsolete.   Use mfont_unparse_name instead. */
+/***ja
+    @brief フォント名からフォントを作る.
+
+    この関数は廃止予定である。 mfont_unparse_name () を使用のこと。 */
+
+char *
+mfont_name (MFont *font)
+{
+  return mfont_unparse_name (font, Mx);
+}
+
+/*=*/
+
+/***en
+    @brief Create a new font from fontname.
+
+    This function is obsolete.  Use mfont_parse_name () instead.  */
+
+/***ja
+    @brief フォント名からフォントを作る.
+
+    これは関数は廃止予定である。 mfont_parse_name () を使用のこと。  */
+
+MFont *
+mfont_from_name (char *name)
+{
+  return mfont_parse_name (name, Mx);
+}
+
 /*** @} */
 
 /*** @addtogroup m17nDebug */
@@ -1896,24 +2069,14 @@ mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
 MFont *
 mdebug_dump_font (MFont *font)
 {
-  MFontDriver *driver;
-  MPlist *plist;
   char *name;
   
-  if (! mframe_default)
-    return NULL;
-  MPLIST_DO (plist, mframe_default->font_driver_list)
+  name = mfont_unparse_name (font, Mx);
+  if (name)
     {
-      driver = MPLIST_VAL (plist);
-      if (driver->build_name)
-	break;
+      fprintf (stderr, "%s", name);
+      free (name);
     }
-  if (MPLIST_TAIL_P (plist))
-    return NULL;
-
-  name = (*driver->build_name) (font);
-  fprintf (stderr, "%s", name);
-  free (name);
   return font;
 }
 
