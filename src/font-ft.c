@@ -320,6 +320,8 @@ fc_list (MSymbol family)
 	    && (pathname = MPLIST_STRING (plist))
 	    && stat (pathname, &buf) == 0)
 	  FcConfigAppFontAddDir (fc_config, (FcChar8 *) pathname);
+      /* TODO: avoid duplicate addition by checking the current font
+	 directory list given by FcConfigGetFontDirs (). */
     }
 
   pattern = FcPatternCreate ();
