@@ -2634,7 +2634,7 @@ reset_coding_sjis (MConverter *converter)
       MSymbol kana_sym = msymbol ("jisx0201-kana");
       MCharset *kana = MCHARSET (kana_sym);
 
-      if (! kanji_sym || ! kana_sym)
+      if (! kanji || ! kana)
 	return -1;
       coding->ncharsets = 3;
       coding->charsets[1] = kanji;
