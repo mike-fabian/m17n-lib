@@ -1,3 +1,45 @@
+2004-03-29  Kenichi Handa  <handa@m17n.org>
+
+	* charset.c (make_charset): Set charset->fully_loaded and
+	charset->simple correctly.  Don't try to get charset->min_char and
+	charset->max_char for a charset of method subset and superset.
+	Don't load a mapping file here.
+	(mcharset__init): Set unified_max.
+	(mcharset__load_from_database): Free a working plist.
+
+	* coding.c (mcoding__fini): Free all malloced data.
+
+	* input-gui.c (win_create_ic): Set control.as_image for preediting
+	to 0.
+
+	* internal.h (M17N_OBJECT_REGISTER): Check the member `used' (not
+	`count') to initialize the array.
+
+	* locale.c (mlocale_set): Fix the order of M17N_OBJECT_REF and
+	M17N_OBJECT_UNREF.
+
+	* m17n-X.c (mwin__create_window): Fix bug of setting a background
+	pixel of a new window.
+	(mwin__adjust_window): Clear the window before drawing.
+
+	* m17n-core.c (mdebug__report_object): Free array->objectes if
+	necessary.
+	(m17n_init_core): Don't set report_header_printed to 0 here.
+	Fix debugging information.
+	(m17n_fini_core): Set report_header_printed to 0 here.
+
+	* m17n-core.h (mplist_deserialize): Extern it.
+
+	* m17n-gui.c (m17n_fini_win): Fix debugging information.
+
+	* m17n.c (m17n_fini): Fix debugging information.
+
+	* plist.c (mplist_deserialize): Renamed from mplist__deserialize.
+
+	* symbol.c (msymbol__fini): Set freed_symbols to 0.  Set all
+	elements of symbol_table to NULL.  Report about created and freed
+	symbols if MDEBUG_FINI is set.
+
 2004-03-22  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.c (m17n_init_core): Set merror_code to MERROR_NONE.
