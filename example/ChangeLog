@@ -4,6 +4,10 @@
 
 2004-08-15  Kenichi Handa  <handa@m17n.org>
 
+	* MEdit.ja: Add Dhivehi.
+
+	* HELLO.utf8, HELLO.xml: Add Oriya and Dhivehi.
+
 	* medit.c (covert_selection): Handle explicit request of
 	UTF8_STRING.
 	(ExposeProc): If an initial input method is specifed, activate it.
