@@ -35,21 +35,21 @@
     value is a pointer to the input driver @c minput_xim_driver.  See
     the documentation of @c minput_xim_driver for more detail.  */
 
-/***oldja
+/***ja
     @addtogroup m17nInputMethodWin
     @brief ウィンドウシステム上の入力メソッドのサポート
 
-    入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で便利に
-    用いられる内部入力メソッドのためのものである。このドライバは入力ス
-    ポットに preedit テキストと status テキストを表示する。詳細につい
-    ては @c minput_gui_driver のドキュメントを参照のこと。
+    入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
+    れる内部入力メソッド用である。このドライバは入力スポットに preedit 
+    テキストと status テキストを表示する。詳細については @c
+    minput_gui_driver の説明を参照のこと。
 
     m17n-X ライブラリは、@c Mxim と言う名前を持つ外部入力メソッドを提
     供している。これは XIM (X Input Method) をバックグラウンドの入力エ
     ンジンとして利用する。シンボル @c Mxim は @c Minput_driver という
     プロパティを持っており、その値は入力ドライバ @c minput_xim_driver 
-    へのポインタである。 詳細については @c minput_xim_driver のドキュ
-    メントを参照のこと。  */
+    へのポインタである。 詳細については @c minput_xim_driver の説明を
+    参照のこと。  */
 
 /*=*/
 
@@ -590,11 +590,11 @@ minput__win_fini ()
     The argument $ARG of the function minput_lookup () must be the
     same one as that of the function minput_filter (). */
 
-/***oldja
-    @brief ウィンドウシステムの内部入力メソッド用入力ドライバ
+/***ja
+    @brief ウィンドウシステムの内部入力メソッド用入力ドライバ.
 
     入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
-    れる入力メソッド用のものである。
+    れる入力メソッド用である。
 
     このドライバは、関数 minput_set_spot () によって設定された入力スポッ
     トに preedit テキスト用のサブウィンドウと status テキスト用のサブ
@@ -605,20 +605,20 @@ minput__win_fini ()
     うにする。
 
     したがって、@c minput_driver がデフォルト値のままであれば、minput_ 
-    で始まる名前を持つ以下の関数群のドライバに依存する引数は次のように
+    で始まる名前を持つ関数の引数のうちドライバ依存のものは以下のように
     なる。
 
     関数 minput_open_im () の引数 $ARG は無視される。
 
     関数 minput_create_ic () の引数 $ARG は構造体 @c MInputGUIArgIC へ
     のポインタでなくてはならない。詳細については @c MInputGUIArgIC の
-    ドキュメントを参照のこと。
+    説明を参照のこと。
 
-    関数 minput_filter () の引数 $ARG が @c Mnil の場合、 $ARG は 
-    XEvent 型のオブジェクトへのポインタでなくてはならない。この場合 $KEY 
-    は $ARG から生成される。
+    関数 minput_filter () の引数 $ARG が @c Mnil の場合、 $ARG は @c
+    XEvent 型のオブジェクトへのポインタでなくてはならない。この場合 
+    $KEY は $ARG から生成される。
 
-    関数 minput_lookup () の引数 $ARG は関数 minput_filter () 引数 
+    関数 minput_lookup () の引数 $ARG は関数 minput_filter () の引数 
     $ARG と同じでなくてはならない。 */
 
 MInputDriver minput_gui_driver;
@@ -632,13 +632,11 @@ MInputDriver minput_gui_driver;
     corresponding to event $EVENT on $FRAME by a window system
     dependent manner.
 
-    In the m17n-X library, $EVENT must be a pointer to the struct @c
-    XKeyEvent, and it is handled as below.
+    In the m17n-X library, $EVENT must be a pointer to the structure
+    @c XKeyEvent, and it is handled as below.
 
     At first, the keysym name of $EVENT is acquired by the function @c
-    XKeysymToString.
-
-    Then, the name is modified as below.
+    XKeysymToString.  Then, the name is modified as below.
 
     If the name is one of "a" .. "z" and $EVENT has a Shift modifier,
     the name is converted to "A" .. "Z" respectively, and the Shift
@@ -649,7 +647,7 @@ MInputDriver minput_gui_driver;
     cleared.
 
     If $EVENT still has Shift, Control, Meta, Alt, Super, and/or Hyper
-    modifiers, the name is prepended by "S-", "C-", "M-", "A-", "s-",
+    modifiers, the name is preceded by "S-", "C-", "M-", "A-", "s-",
     and/or "H-" respectively in this order.
 
     For instance, if the keysym name is "a" and the event has Shift,
@@ -657,48 +655,35 @@ MInputDriver minput_gui_driver;
 
     At last, a symbol who has the name is returned.  */
 
-/***oldja
-    @brief キー名称を入力キーに変換する
+/***ja
+    @brief イベントを入力キーに変換する
 
-    関数 minput_name_to_key () は、名前 $NAME に対応する入力キーを返す。
+    関数 minput_name_to_key () は、$FRAME のイベント $EVENT に対応する
+    入力キーを返す。ここでの「対応」はウィンドウシステム依存である。
 
-    $NAME は次の形をとる。
+    m17n-X ライブラリの場合には、$EVENT は 構造体 @c XKeyEvent へのポ
+    インタであり、次のように処理される。
 
-	[ MODIFIER-MNEMONIC '-' ] * KEY-NAME
+    まず、関数 @c XKeysymToString によって、$EVENT の keysym 名を取得
+    し、次いで以下の変更を加える。
 
-    ここで MODIFIER-MNEMONIC は 'S', 'C', 'M', 'A', 's', 'H' のいずれ
-    かであり、それぞれ Shift, Control, Meta, Alt, Super, Hyper の各モ
-    ディファイアを示す。KEY-NAME は入力キーのシンボリックな名前を表す文字列。
+    名前が "a" .. "z" のいずれかであって $EVENT に Shift モディファイ
+    アがあれば、名前はそれぞれ "A" .. "Z" に変換され、Shift モディファ
+    イアは取り除かれる。
 
-    入力キーの下 16 ビットは "keysym bits" とよばれ、KEY-NAME に対応す
-    るコードを表す。上7 bits (つまり 17 ビット目から 23 ビット目まで) 
-    は"modifier bits" と呼ばれ、MODIFIER-MNEMONIC を表現している。
-
-    KEY-NAME が 1 バイト長である場合、入力キーは次のように構成される。
-
-    まず、keysym bits にはそのバイトコードそのものが設定される。
-
-    次いで、Shift, Control, Meta の各モディファイアは以下の手続きで
-    keysym bits に反映される。
-
-    (1) Shift モディファイアがあり、keysym bits が小文字であれば(つま
-    り 'a' から 'z' であれば), 大文字 (つまり 'A' through 'Z') に変換
-    される。Shift モディファイアは modifier bits から取り除かれる。
-
-    (2) Control モディファイアがあれば, keysym bits はビット単位で 
-    0x1F と and 演算を行う。Control モディファイアは modifier bits 
-    から取り除かれる。
-
-    (3) Meta モディファイアがあれば, keysym bits はビット単位で 0x80 
-    と or 演算を行う。 Meta モディファイアは modifier bits から取り除
+    名前が１バイト長で $EVENT に Control モディファイアがあれば、名前
+    と 0x1F をビット単位 and 演算する。Control モディファイアは取り除
     かれる。
 
-    たとえば、"S-a" と "A" はどちらも 65 を、"C-a" と "C-A" はどちらも
-    1 を返し、"M-a" は 225 を, "C-M-a" は 129 を返す。
+    $EVENT にまだ Shift, Control, Meta, Alt, Super, Hyper などのモディ
+    ファイアがあれば、名前の前にそれぞれ"S-", "C-", "M-", "A-", "s-",
+    "H-" が付く。
+    
+    たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper モディ
+    ファイアを持てば、得られる名前は "H-M-A" である。
 
-    KEY-NAME が 2 バイト以上である時には、対応するkeysym bits は@c
-    m17n @c ライブラリ 内部のテーブルによって得る事ができる。このとき
-    テーブルに KEY-NAME がなければ、この関数は -1 を返す。  */
+    最後にその名前を持つシンボルを返す。*/
+
 
 MSymbol
 minput_event_to_key (MFrame *frame, void *event)
