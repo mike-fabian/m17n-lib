@@ -68,10 +68,10 @@ extern void m17n_fini_win (void);
     #MFrame は、@e フレーム オブジェクト用の型である。個々のフレームは、
     それが対応する物理的な表示／入力デバイスの各種情報を保持する。
 
-    #MFrame 型の内部構造は、使用するウィンドウシステムに依存し、またア
-    プリケーションプログラムからは見えない。m17n-X ライブラリにおける
-    フレームは、X ウィンドウの @e display と @e screen に関する情報を
-    持つ。
+    #MFrame 型の内部構造は、アプリケーションプログラムからは見えない。
+    またその内容は使用するウィンドウシステムに依存する。またm17n-X ラ
+    イブラリにおけるフレームは、X ウィンドウの @e display と @e screen 
+    に関する情報を持つ。
       */
 
 typedef struct MFrame MFrame;
@@ -114,7 +114,7 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
     @brief フォントの型宣言.
 
     #MFont 型はフォント指定用の構造体であり、フォントのプロパティであ
-    る fondry, family, weight, style, stretch, adstyle, registry,
+    る foundry, family, weight, style, stretch, adstyle, registry,
     size, resolution に関する情報を含む。
 
     この構造体はフォントセット内のフォントを指定する際と、使用可能なシ
@@ -450,7 +450,7 @@ typedef void *MDrawRegion;
     The type #MDrawControl is the structure that controls how to draw
     an M-text.  */
 /***ja
-    @brief テキスト表示のコントロールの型宣言.
+    @brief テキスト表示制御の型宣言.
 
     #MDrawControl 型は、M-text をどう表示するかを制御する構造体である。
       */
@@ -580,9 +580,9 @@ typedef struct
 
   /***en If non-NULL, the value is a function that calculates a line
       breaking position when a line is too long to fit within the
-      width limit.  POS is a position of the character next to the
-      last one that fits within the limit.  FROM is a position of the
-      first character of the line, and TO is a position of the last
+      width limit.  POS is the position of the character next to the
+      last one that fits within the limit.  FROM is the position of the
+      first character of the line, and TO is the position of the last
       character displayed on the line if there were not width limit.
       LINE and Y are the same as the arguments to <format>.
 

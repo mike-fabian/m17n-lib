@@ -2648,6 +2648,39 @@ mdraw_text_items (MFrame *frame, MDrawWindow win, int x, int y,
 }
 
 /*=*/
+/***en 
+      @brief   calculate a line breaking position.
+
+      The function mdraw_default_line_break () calculates a line
+      breaking position based on the line number $LINE and the
+      coordinate $Y, when a line is too long to fit within the width
+      limit.  $POS is the position of the character next to the last
+      one that fits within the limit.  $FROM is the position of the
+      first character of the line, and TO is the position of the last
+      character displayed on the line if there were not width limit.
+      LINE and Y are reset to 0 when a line is broken by a newline
+      character, and incremented each time when a long line is broken
+      because of the width limit.  
+
+      @return 
+      This function returns a character position to break the
+      line.
+
+*/
+/***ja 
+      @brief 改行位置を計算する.
+
+      関数 mdraw_default_line_break () は、行が最大幅中に収まらない場
+      合に行を改める位置を、行番号 LINE と座標 Y に基づいて計算する。
+      $POS は最大幅に収まる最後の文字の次の文字の位置である。$FROM は
+      行の最初の文字の位置、$TO は最大幅が指定されていなければその行に
+      表示される最後の文字の位置である。 LINE と Y は改行文字によって
+      行が改まった際には 0 にリセットされ、最大幅によって行が改まった
+      場合には 1 づつ増やされる。
+
+      @return 
+      この関数は行を改める文字位置を返す。
+*/
 
 int
 mdraw_default_line_break (MText *mt, int pos,
@@ -2722,6 +2755,26 @@ mdraw_per_char_extents (MFrame *frame, MText *mt,
   MDrawMetric *overall_return)
 {
 }
+
+/***en 
+    @brief clear cached information.    
+
+    The mdraw_clear_cache () function clear cached information
+    on M-text $MT that was attached by any of the drawing functions.
+    When the behaviour of `format' or `line_break'
+    member functions of MDrawControl is changed, the cache must be cleared.
+
+    @seealso
+    MDrawControl */
+/***ja 
+    @brief キャッシュ情報を消す.
+
+    関数 mdraw_clear_cache () は描画関数によって M-text $MT に付加
+    されたキャッシュ情報をすべて消去する。MDrawControl の `format' あ
+    るいは `line_break' メンバ関数の振舞いが変わった場合にはキャッシュ
+    を消去しなくてはならない。
+    @seealso
+    MDrawControl */
 
 void
 mdraw_clear_cache (MText *mt)
