@@ -81,7 +81,7 @@ struct MPlist
 extern unsigned char hex_mnemonic[256];
 extern unsigned char escape_mnemonic[256];
 
-extern MPlist *mplist__from_file (FILE *fp);
+extern MPlist *mplist__from_file (FILE *fp, MPlist *keys);
 
 extern MPlist *mplist__from_plist (MPlist *plist);
 
