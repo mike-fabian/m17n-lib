@@ -42,7 +42,7 @@ m17n_init (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
-  if (shell_initialized)
+  if (shell_initialized++)
     return;
   m17n_init_core ();
   if (merror_code != MERROR_NONE)
@@ -76,7 +76,6 @@ m17n_init (void)
   if (minput__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input module."));
-  shell_initialized = 1;
 
  err:
   MDEBUG_POP_TIME ();
@@ -89,8 +88,11 @@ m17n_fini (void)
 {
   int mdebug_mask = MDEBUG_FINI;
 
-  if (shell_initialized)
+  if (shell_initialized > 1)
+    shell_initialized--;
+  else
     {
+      shell_initialized = 0;
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input module."));
@@ -110,7 +112,6 @@ m17n_fini (void)
       MDEBUG_POP_TIME ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the shell modules."));
       MDEBUG_POP_TIME ();
-      shell_initialized = 0;
     }
   m17n_fini_core ();
 }
