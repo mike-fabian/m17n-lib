@@ -284,4 +284,18 @@ extern void mwin__adjust_window (MFrame *frame, MDrawWindow win,
 
 extern MSymbol mwin__parse_event (MFrame *frame, void *arg, int *modifiers);
 
+#ifdef HAVE_XFT2
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+extern void *mwin__xft_open (MFrame *frame, char *filename, int size);
+extern void mwin__xft_close (void *xft_info);
+extern void mwin__xft_get_metric (void *xft_info, FT_Face ft_face, MGlyph *g);
+extern void mwin__xft_render (MDrawWindow win, int x, int y,
+			      MGlyphString *gstring, MGlyph *from, MGlyph *to,
+			      int reverse, MDrawRegion region,
+			      void *xft_info, FT_Face ft_face);
+#endif	/* HAVE_XFT2 */
+
 #endif /* _M_INTERNAL_GUI_H */
