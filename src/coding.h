@@ -23,7 +23,6 @@
 #ifndef _M17N_CODING_H_
 #define _M17N_CODING_H_
 
-extern void mconv__define_coding_from_charset (MSymbol sym);
 extern void mconv__register_charset_coding (MSymbol name);
 
 extern int mcoding__load_from_database ();
