@@ -395,7 +395,10 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 				!= MCHAR_INVALID_CODE))));
 		   i++, g++)
 		if (g->rface->rfont != this->rface->rfont)
-		  g->code = code;
+		  {
+		    g->rface->rfont = this->rface->rfont;
+		    g->code = code;
+		  }
 	      i = mfont__flt_run (gstring, start, i, this->rface);
 	    }
 	  else
