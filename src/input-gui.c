@@ -122,6 +122,7 @@ win_create_ic (MInputContext *ic)
 
   win_ic_info->status.win = mwin__create_window (frame, win_info->client);
   win_ic_info->status.control.as_image = 1;
+  win_ic_info->status.control.enable_bidi = 1;
 
   win_ic_info->candidates.win = mwin__create_window (frame, win_info->client);
   win_ic_info->candidates.control.as_image = 1;
