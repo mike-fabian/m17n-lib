@@ -217,7 +217,7 @@ extern MSymbol Mbidi_category;
 extern MSymbol Msimple_case_folding;
 extern MSymbol Mcomplicated_case_folding;
 
-extern MSymbol mchar_define_property (char *name, MSymbol type);
+extern MSymbol mchar_define_property (const char *name, MSymbol type);
 
 extern void *mchar_get_prop (int c, MSymbol key);
 
@@ -331,7 +331,7 @@ enum MTextFormat
   };
 /*=*/
 
-extern MText *mtext_from_data (void *data, int nitems,
+extern MText *mtext_from_data (const void *data, int nitems,
 			       enum MTextFormat format);
 
 
