@@ -220,6 +220,29 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
 
 
 static void
+close_ft (void *object)
+{
+  MFTInfo *ft_info = object;
+
+  if (ft_info->ft_face)
+    {
+      if (ft_info->extra_info)
+	M17N_OBJECT_UNREF (ft_info->extra_info);
+      FT_Done_Face (ft_info->ft_face);
+#ifdef HAVE_OTF
+      if (ft_info->otf)
+	OTF_close (ft_info->otf);
+#endif /* HAVE_OTF */
+    }
+  else
+    {
+      free (ft_info->filename);
+      M17N_OBJECT_UNREF (ft_info->charmap_list);
+    }
+  free (ft_info);
+}
+
+static void
 add_font_info (char *filename, MSymbol family)
 {
   FT_Face ft_face;
@@ -234,7 +257,7 @@ add_font_info (char *filename, MSymbol family)
 	  MSymbol fam;
 	  MPlist *plist;
 
-	  MSTRUCT_CALLOC (ft_info, MERROR_FONT_FT);
+	  M17N_OBJECT (ft_info, close_ft, MERROR_FONT_FT);
 	  ft_info->filename = strdup (filename);
 	  ft_info->otf_flag = check_otf_filename (filename);
 	  fam = set_font_info (ft_face, ft_info, family);
@@ -339,15 +362,13 @@ ft_list ()
 
 static MRealizedFont *ft_select (MFrame *, MFont *, MFont *, int);
 static int ft_open (MRealizedFont *);
-static void ft_close (MRealizedFont *);
 static void ft_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned ft_encode_char (MRealizedFont *, int, unsigned);
 static void ft_render (MDrawWindow, int, int, MGlyphString *,
 		       MGlyph *, MGlyph *, int, MDrawRegion);
 
 MFontDriver mfont__ft_driver =
-  { ft_select, ft_open, ft_close,
-    ft_find_metric, ft_encode_char, ft_render };
+  { ft_select, ft_open, ft_find_metric, ft_encode_char, ft_render };
 
 /* The FreeType font driver function LIST.  */
 
@@ -450,41 +471,27 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
   rfont->font.property[MFONT_REGISTRY] = spec->property[MFONT_REGISTRY];
   rfont->score = best_score;
   rfont->info = best_font;
-  rfont->driver = &mfont__ft_driver;
+  M17N_OBJECT_REF (best_font);
   return rfont;
 }
 
-static void
-close_ft (void *object)
-{
-  MFTInfo *ft_info = (MFTInfo *) object;
-
-  if (ft_info->extra_info)
-    M17N_OBJECT_UNREF (ft_info->extra_info);
-  if (ft_info->ft_face)
-    FT_Done_Face (ft_info->ft_face);
-#ifdef HAVE_OTF
-  if (ft_info->otf)
-    OTF_close (ft_info->otf);
-#endif /* HAVE_OTF */
-  free (object);
-}
 
 /* The FreeType font driver function OPEN.  */
 
 static int
 ft_open (MRealizedFont *rfont)
 {
-  MFTInfo *ft_info;
+  MFTInfo *base = rfont->info, *ft_info;
   MSymbol registry = FONT_PROPERTY (&rfont->font, MFONT_REGISTRY);
   int mdebug_mask = MDEBUG_FONT;
   int size;
 
   M17N_OBJECT (ft_info, close_ft, MERROR_FONT_FT);
-  ft_info->font = ((MFTInfo *) rfont->info)->font;
-  ft_info->otf_flag = ((MFTInfo *) rfont->info)->otf_flag;
-  ft_info->filename = ((MFTInfo *) rfont->info)->filename;
-  ft_info->charmap_list = ((MFTInfo *) rfont->info)->charmap_list;
+  ft_info->font = base->font;
+  ft_info->filename = base->filename;
+  ft_info->otf_flag = base->otf_flag;
+  ft_info->charmap_list = base->charmap_list;
+  M17N_OBJECT_UNREF (base);
   rfont->info = ft_info;
 
   rfont->status = -1;
@@ -510,16 +517,11 @@ ft_open (MRealizedFont *rfont)
   return 0;
 
  err:
+  if (ft_info->ft_face)
+    FT_Done_Face (ft_info->ft_face);
+  free (ft_info);
   MDEBUG_PRINT1 (" [FT-FONT] x %s\n", ft_info->filename);
   return -1;
-}
-
-/* The FreeType font driver function CLOSE.  */
-
-static void
-ft_close (MRealizedFont *rfont)
-{
-  M17N_OBJECT_UNREF (rfont->info);
 }
 
 /* The FreeType font driver function FIND_METRIC.  */
@@ -533,14 +535,11 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
   MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
   FT_Int32 load_flags = FT_LOAD_RENDER;
 
-  if (! gstring->anti_alias)
-    {
 #ifdef FT_LOAD_TARGET_MONO
-      load_flags |= FT_LOAD_TARGET_MONO;
+  load_flags |= FT_LOAD_TARGET_MONO;
 #else
-      load_flags |= FT_LOAD_MONOCHROME;
+  load_flags |= FT_LOAD_MONOCHROME;
 #endif
-    }
 
   for (; g != gend; g++)
     {
@@ -668,7 +667,7 @@ ft_render (MDrawWindow win, int x, int y,
       int intensity;
       MPointTable *ptable;
       int xoff, yoff;
-      int width;
+      int width, pitch;
 
       if (g->otf_encoded)
 	code = g->code;
@@ -678,8 +677,11 @@ ft_render (MDrawWindow win, int x, int y,
       yoff = y - ft_face->glyph->bitmap_top + g->yoff;
       bmp = ft_face->glyph->bitmap.buffer;
       width = ft_face->glyph->bitmap.width;
-      if (ft_face->glyph->bitmap.pitch < ft_face->glyph->bitmap.width)
-	width = ft_face->glyph->bitmap.pitch;
+      pitch = ft_face->glyph->bitmap.pitch;
+      if (! gstring->anti_alias)
+	pitch *= 8;
+      if (width > pitch)
+	width = pitch;
 
       if (gstring->anti_alias)
 	for (i = 0; i < ft_face->glyph->bitmap.rows;
@@ -697,9 +699,10 @@ ft_render (MDrawWindow win, int x, int y,
 		    ptable->p++;
 		    if (ptable->p - ptable->points == NUM_POINTS)
 		      {
-			mwin__draw_points (frame, win, rface,
-					   reverse ? 7 - intensity : intensity,
-					   ptable->points, NUM_POINTS, region);
+			(*frame->driver->draw_points)
+			  (frame, win, rface,
+			   reverse ? 7 - intensity : intensity,
+			   ptable->points, NUM_POINTS, region);
 			ptable->p = ptable->points;
 		      }
 		  }
@@ -721,7 +724,7 @@ ft_render (MDrawWindow win, int x, int y,
 		    ptable->p++;
 		    if (ptable->p - ptable->points == NUM_POINTS)
 		      {
-			mwin__draw_points (frame, win, rface,
+			(*frame->driver->draw_points) (frame, win, rface,
 					   reverse ? 0 : 7,
 					   ptable->points, NUM_POINTS, region);
 			ptable->p = ptable->points;
@@ -735,14 +738,14 @@ ft_render (MDrawWindow win, int x, int y,
     {
       for (i = 1; i < 8; i++)
 	if (point_table[i].p != point_table[i].points)
-	  mwin__draw_points (frame, win, rface, reverse ? 7 - i : i,
+	  (*frame->driver->draw_points) (frame, win, rface, reverse ? 7 - i : i,
 			     point_table[i].points,
 			     point_table[i].p - point_table[i].points, region);
     }
   else
     {
       if (point_table[0].p != point_table[0].points)
-	mwin__draw_points (frame, win, rface, reverse ? 0 : 7,
+	(*frame->driver->draw_points) (frame, win, rface, reverse ? 0 : 7,
 			   point_table[0].points,
 			   point_table[0].p - point_table[0].points, region);
     }
@@ -784,8 +787,6 @@ mfont__ft_init ()
       ft_to_prop[i].stretch = msymbol (ft_to_prop_name[i].stretch);
     }
 
-  mplist_put (mfont__driver_list, msymbol ("freetype"), &mfont__ft_driver);
-
   Municode_bmp = msymbol ("unicode-bmp");
   Municode_full = msymbol ("unicode-full");
   Miso10646_1 = msymbol ("iso10646-1");
@@ -805,10 +806,9 @@ mfont__ft_fini ()
 	{
 	  MPLIST_DO (p, MPLIST_VAL (plist))
 	    {
-	      MFTInfo *ft_info = (MFTInfo *) MPLIST_VAL (p);
-	      free (ft_info->filename);
-	      M17N_OBJECT_UNREF (ft_info->charmap_list);
-	      free (ft_info);
+	      MFTInfo *ft_info = MPLIST_VAL (p);
+
+	      M17N_OBJECT_UNREF (ft_info);
 	    }
 	  M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	}
