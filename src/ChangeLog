@@ -1,6 +1,13 @@
 2004-10-12  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (ft_list_generic): Fix for the case of not
+	HAVE_FONTCONFIG.
+
+	* m17n-X.c (mwin__parse_event): Fix for non-ASCII keys.
+
 	* font.c (mfont_list): If no font is found, return NULL.
+	(load_font_encoding_table): Put entries of nil registry first.
+	(find_encoding): Adjust for the above change.
 
 2004-10-11  Kenichi Handa  <handa@m17n.org>
 
