@@ -25,3 +25,9 @@
 SUBDIRS = src example
 
 bin_SCRIPTS = m17n-config
+
+EXTRA_DIST = \
+	m17n-core.pc.in m17n-shell.pc.in m17n-gui.pc.in
+
+pkgconfigdir = ${libdir}/pkgconfig
+pkgconfig_DATA = m17n-core.pc m17n-shell.pc m17n-gui.pc
