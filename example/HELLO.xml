@@ -10,37 +10,37 @@
 <!ATTLIST property control CDATA #REQUIRED>
 ]>
 <mtext>
-<property key="language" value="el" from="175" to="204" control="0"/>
+<property key="language" value="el" from="175" to="205" control="0"/>
 <property key="language" value="ru" from="139" to="175" control="0"/>
 <property key="language" value="sk" from="106" to="139" control="0"/>
 <property key="language" value="de" from="64" to="106" control="0"/>
 <property key="language" value="fr" from="27" to="64" control="0"/>
 <property key="language" value="en" from="7" to="27" control="0"/>
-<property key="language" value="am" from="408" to="431" control="0"/>
-<property key="language" value="he" from="377" to="408" control="0"/>
-<property key="language" value="fa" from="345" to="377" control="0"/>
-<property key="language" value="ar" from="292" to="345" control="0"/>
-<property key="language" value="ka" from="258" to="292" control="0"/>
-<property key="language" value="tr" from="229" to="258" control="0"/>
-<property key="language" value="lo" from="774" to="813" control="0"/>
-<property key="language" value="th" from="732" to="774" control="0"/>
-<property key="language" value="vi" from="696" to="732" control="0"/>
-<property key="language" value="km" from="654" to="696" control="0"/>
-<property key="language" value="bo" from="593" to="654" control="0"/>
-<property key="language" value="ta" from="566" to="593" control="0"/>
-<property key="language" value="ml" from="519" to="566" control="0"/>
-<property key="language" value="bn" from="491" to="519" control="0"/>
-<property key="language" value="hi" from="454" to="491" control="0"/>
-<property key="language" value="ko" from="872" to="895" control="0"/>
-<property key="language" value="zh" from="849" to="872" control="0"/>
-<property key="language" value="ja" from="824" to="849" control="0"/>
+<property key="language" value="am" from="409" to="432" control="0"/>
+<property key="language" value="he" from="378" to="409" control="0"/>
+<property key="language" value="fa" from="346" to="378" control="0"/>
+<property key="language" value="ar" from="293" to="346" control="0"/>
+<property key="language" value="ka" from="259" to="293" control="0"/>
+<property key="language" value="tr" from="230" to="259" control="0"/>
+<property key="language" value="lo" from="775" to="814" control="0"/>
+<property key="language" value="th" from="733" to="775" control="0"/>
+<property key="language" value="vi" from="697" to="733" control="0"/>
+<property key="language" value="km" from="655" to="697" control="0"/>
+<property key="language" value="bo" from="594" to="655" control="0"/>
+<property key="language" value="ta" from="567" to="594" control="0"/>
+<property key="language" value="ml" from="520" to="567" control="0"/>
+<property key="language" value="bn" from="492" to="520" control="0"/>
+<property key="language" value="hi" from="455" to="492" control="0"/>
+<property key="language" value="ko" from="873" to="896" control="0"/>
+<property key="language" value="zh" from="850" to="873" control="0"/>
+<property key="language" value="ja" from="825" to="850" control="0"/>
 <body>Europe
   English					Hello
   French (français)			Bonjour, Salut
   German (Deutsch)			Guten Tag, Grüß Gott
   Slovak (slovensky)			Dobrý deň
   Russian (русский)			Здравствуйте!
-  Greek (ελληνικά)			Γειάσας
+  Greek (ελληνικά)			Γειά σας
 
 Middle Near East/Africa
   Turkish (Türkçe)			Merhaba
