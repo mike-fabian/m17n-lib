@@ -308,9 +308,12 @@ realize_font_group (MFrame *frame, MFont *request, MPlist *font_group,
   MPLIST_DO (pl, plist)
     {
       MSymbol layouter = MPLIST_KEY (pl);
-      MRealizedFont *rfont = mfont__select (frame, MPLIST_VAL (pl), request,
-					    size,
-					    layouter == Mt ? Mnil : layouter);
+      MFont this_request = *request;
+      MRealizedFont *rfont;
+
+      mfont__resize (MPLIST_VAL (pl), &this_request);
+      rfont = mfont__select (frame, MPLIST_VAL (pl), &this_request,
+			     size, layouter == Mt ? Mnil : layouter);
 
       if (rfont)
 	{
