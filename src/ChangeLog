@@ -1,3 +1,12 @@
+2004-09-19  Kenichi Handa  <handa@m17n.org>
+
+	* mtext.c (default_utf_16, default_utf_32): Rename them to
+	MTEXT_FORMAT_UTF_16 and MTEXT_FORMAT_UTF_32 respectively.  Caller
+	changed.
+
+	* m17n-core.h (MTEXT_FORMAT_UTF_16, MTEXT_FORMAT_UTF_32): Extern
+	them.
+
 2004-09-13  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (Mlatin): Don't declare it here.
