@@ -216,6 +216,10 @@ struct MGlyphString
 
 #define COMBINING_CODE_CLASS(code) ((code) & 0xFFFFFF)
 
+#define MAKE_PRECOMPUTED_COMBINDING_CODE() (0x2000000)
+
+#define COMBINING_PRECOMPUTED_P(code) ((code) & 0x2000000)
+
 typedef struct MGlyphString MGlyphString;
 
 typedef struct MFontDriver MFontDriver;
