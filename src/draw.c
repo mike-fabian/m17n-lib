@@ -133,12 +133,12 @@ visual_order (MGlyphString *gstring)
   if (! bidi_sensitive)
     return;
 
-  glyphs = alloca (sizeof (MGlyph) * gstring->used - 2);
-  memcpy (glyphs, gstring->glyphs + 1, (sizeof (MGlyph) * gstring->used - 2));
+  glyphs = alloca (sizeof (MGlyph) * len);
+  memcpy (glyphs, gstring->glyphs + 1, sizeof (MGlyph) * len);
 #ifdef HAVE_FRIBIDI
-  visual = alloca (sizeof (FriBidiChar) * len);
-  indices = alloca (sizeof (FriBidiStrIndex) * len);
-  levels = alloca (sizeof (FriBidiLevel) * len);
+  visual = alloca (sizeof (FriBidiChar) * (len + 1));
+  indices = alloca (sizeof (FriBidiStrIndex) * (len + 1));
+  levels = alloca (sizeof (FriBidiLevel) * (len + 1));
 
   fribidi_log2vis (logical, len, &base, visual, indices, NULL, levels);
 #else  /* not HAVE_FRIBIDI */
@@ -516,23 +516,27 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
   while (g < last_g)
     {
       MGlyph *base = g++;
+
+      if (base->combining_code && (base->bidi_level % 2))
+	{
+	  MGlyph *g1 = base, *g2, temp;
+
+	  while (g->combining_code)
+	    g++;
+	  for (g2 = g; g1 < g2; g1++, g2--)
+	    temp = *g1, *g1 = *g2, *g2 = temp;
+	  g++;
+	}
+    }
+  g = MGLYPH (from);
+  while (g < last_g)
+    {
+      MGlyph *base = g++;
       MRealizedFont *rfont = base->rface->rfont;
       int size = rfont->font.property[MFONT_SIZE];
       int width, lbearing, rbearing;
 
-      if (base->bidi_sensitive && (base->bidi_level % 2))
-	{
-	  MGlyph *g1 = base, temp;
-
-	  base->bidi_sensitive = 0;
-	  while (g->bidi_sensitive && (g->bidi_level % 2))
-	    g++->bidi_sensitive = 0;
-	  while (g1 < g)
-	    temp = *g1, *g1++ = *g, *g-- = temp;
-	  g = base + 1;
-	}
-
-      if (g == last_g || ! g->combining_code)
+      if (g == last_g || ! g->combining_code || g->otf_encoded)
 	{
 	  /* No combining.  */
 	  if (base->width == 0 && GLYPH_INDEX (base) > from)
