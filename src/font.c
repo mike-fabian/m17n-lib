@@ -2107,7 +2107,8 @@ mfont_resize_ratio (MFont *font)
     @return
     This function returns a plist whose keys are family names and
     values are pointers to the object MFont.  The plist must be freed
-    by m17n_object_unref ().  */
+    by m17n_object_unref ().  If no font is found, it returns
+    NULL.  */
 
 MPlist *
 mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
@@ -2123,6 +2124,11 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
 			     maxnum > 0 ? maxnum - num : 0);
       if (maxnum > 0 && num >= maxnum)
 	break;
+    }
+  if (MPLIST_TAIL_P (plist))
+    {
+      M17N_OBJECT_UNREF (plist);
+      plist = NULL;
     }
   return plist;
 }
