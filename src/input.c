@@ -692,8 +692,6 @@ load_input_method (MSymbol language, MSymbol name, MPlist *plist,
   MPlist *macros = NULL;
   MPlist *elt;
 
-  if (! MPLIST_PLIST_P (plist))
-    MERROR (MERROR_IM, -1);
   for (; MPLIST_PLIST_P (plist); plist = MPLIST_NEXT (plist))
     {
       elt = MPLIST_PLIST (plist);
@@ -753,9 +751,12 @@ load_input_method (MSymbol language, MSymbol name, MPlist *plist,
 	}
     }
 
-  MPLIST_DO (elt, maps)
-    M17N_OBJECT_UNREF (MPLIST_VAL (elt));
-  M17N_OBJECT_UNREF (maps);
+  if (maps)
+    {
+      MPLIST_DO (elt, maps)
+	M17N_OBJECT_UNREF (MPLIST_VAL (elt));
+      M17N_OBJECT_UNREF (maps);
+    }
   if (! title)
     title = mtext_from_data (MSYMBOL_NAME (name), MSYMBOL_NAMELEN (name),
 			     MTEXT_FORMAT_US_ASCII);
@@ -1506,7 +1507,10 @@ reset_ic (MInputContext *ic)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
   MLIST_RESET (ic_info);
-  ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
+  if (im_info->states)
+    ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
+  else
+    ic_info->state = NULL;
   ic_info->map = ic_info->state ? ic_info->state->map : NULL;
   ic_info->state_key_head = ic_info->key_head = 0;
   ic->cursor_pos = ic_info->state_pos = 0;
