@@ -23,13 +23,13 @@
 <property key="language" value="ka" from="259" to="293" control="0"/>
 <property key="language" value="tr" from="230" to="259" control="0"/>
 <property key="language" value="lo" from="775" to="814" control="0"/>
-<property key="language" value="th" from="733" to="775" control="0"/>
-<property key="language" value="vi" from="697" to="733" control="0"/>
-<property key="language" value="km" from="655" to="697" control="0"/>
-<property key="language" value="bo" from="594" to="655" control="0"/>
-<property key="language" value="ta" from="567" to="594" control="0"/>
-<property key="language" value="ml" from="520" to="567" control="0"/>
-<property key="language" value="bn" from="492" to="520" control="0"/>
+<property key="language" value="th" from="734" to="775" control="0"/>
+<property key="language" value="vi" from="698" to="734" control="0"/>
+<property key="language" value="km" from="656" to="698" control="0"/>
+<property key="language" value="bo" from="595" to="656" control="0"/>
+<property key="language" value="ta" from="568" to="595" control="0"/>
+<property key="language" value="ml" from="521" to="568" control="0"/>
+<property key="language" value="bn" from="492" to="521" control="0"/>
 <property key="language" value="hi" from="455" to="492" control="0"/>
 <property key="language" value="ko" from="873" to="896" control="0"/>
 <property key="language" value="zh" from="850" to="873" control="0"/>
@@ -52,13 +52,13 @@ Middle Near East/Africa
 
 South/South-East Asia
   Hindi (हिंदी)				नमस्ते, नमस्कार ।
-  Bengali (বাংলা)			নমস্কার
+  Bengali (বাংলা)				নমস্কার
   Malayalam (മലയാളം)		നമസ്കാരം (ex: ന+്+ര=ന്ര)
   Tamil (தமிழ்)				வணக்கம்
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
   Khmer (ខ្មៃរ)				ជំរាបសួរ (ex: ក្ក្រឿ៌)
   Vietnamese (Tiếng Việt)		Chào bạn
-  Thai (ภาษาไทย)				สวัสดีครับ, สวัสดีค่ะ
+  Thai (ภาษาไทย)			สวัสดีครับ, สวัสดีค่ะ
   Lao (ພາສາລາວ)				ສະບາຍດີ, ຂໍໃຫ້ໂຊກດີ
 
 East Asia
