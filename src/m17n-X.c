@@ -427,8 +427,8 @@ static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned xfont_encode_char (MRealizedFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
-static void xfont_list (MFrame *frame, MPlist *plist,
-			MFont *font, MSymbol language);
+static int xfont_list (MFrame *frame, MPlist *plist,
+			MFont *font, MSymbol language, int maxnum);
 
 
 static MFontDriver xfont_driver =
@@ -902,13 +902,15 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
     }
 }
 
-static void
-xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
+static int
+xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
+	    int maxnum)
 {
   MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
   MSymbol registry = font ? FONT_PROPERTY (font, MFONT_REGISTRY) : Mnil;
   MSymbol family = font ? FONT_PROPERTY (font, MFONT_FAMILY) : Mnil;
   MPlist *p, *pl;
+  int num = 0;
 
   if (registry != Mnil)
     xfont_registry_list (frame, registry);
@@ -919,7 +921,12 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
      base fonts.  */
   if (! font)
     MPLIST_DO (p, disp_info->base_font_list)
-      mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
+      {
+	mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
+	num++;
+	if (num == maxnum)
+	  break;
+      }
   else
     {
       MXFontList *xfontlist;
@@ -931,7 +938,7 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 	{
 	  pl = mplist_find_by_key (pl, registry);
 	  if (! pl)
-	    return;
+	    return 0;
 	}
 
       MPLIST_DO (pl, pl)
@@ -941,7 +948,7 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 	    {
 	      p = mplist_find_by_key (p, family);
 	      if (! p)
-		return;
+		return 0;
 	    }
 	  MPLIST_DO (p, p)
 	    {
@@ -950,7 +957,12 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 		{
 		  xfont = xfontlist->fonts + i;
 		  if (mfont__match_p (&xfont->core, font, MFONT_REGISTRY))
-		    mplist_push (plist, MPLIST_KEY (p), &xfont->core);
+		    {
+		      mplist_push (plist, MPLIST_KEY (p), &xfont->core);
+		      num++;
+		      if (num == maxnum)
+			break;
+		    }
 		}
 	      if (family != Mnil)
 		break;
@@ -959,6 +971,7 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 	    break;
 	}
     }
+  return num;
 }
 
 
