@@ -1,3 +1,10 @@
+2004-10-19  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (mdebug_mask): New variable.
+	(shift_state): Print debug information.
+	(take_action_list): Likewise.
+	(handle_key): Likewise.
+
 2004-10-14  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (device_open): Accept Mxft as the value of key Mfont.
