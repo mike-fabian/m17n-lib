@@ -237,9 +237,9 @@ m17n_init_win (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
+  merror_code = MERROR_NONE;
   if (m17n__gui_initialized++)
     return;
-  merror_code = MERROR_NONE;
   m17n_init ();
   if (merror_code != MERROR_NONE)
     {
