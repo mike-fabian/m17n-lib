@@ -68,9 +68,9 @@
     @c MCHAR_INVALID_CODE で表される。
 
     @li @e 文字インデックス とは、CCS 内で各文字に割り当てられる正規化
-    されたインデックスである。文字インデックスがNの文字は、CCS 中の全
-    文字をコードポイント順に並べたときにN番目に来る。CCS中の文字イン
-    デックスは連続しており、0から始まる。
+    されたインデックスである。文字インデックスが N の文字は、CCS 中の
+    全文字をコードポイント順に並べたときに N 番目に現われる。CCS 中の
+    文字インデックスは連続しており、0 から始まる。
 
     @li @e 文字コード とは、m17n ライブラリ内における文字の内部表現であ
     り、21 ビット以上の長さを持つ符合付き整数である。
@@ -752,7 +752,7 @@ MSymbol Mcharset_m17n;
     (P.\pageref{group__m17nConv}) @endlatexonly for more detail.  */
 
 /***ja
-    @brief デコードできない文字の文字セットを表現するシンボル.
+    @brief 正しくデコードできない文字の文字セットを表現するシンボル.
 
     シンボル #Mcharset_binary は <tt>"binary"</tt> という名前を持ち、
     偽の (fake) 文字セットを表現する。デコード関数は、M-text のテキス
@@ -822,7 +822,7 @@ MSymbol Maliases;
 
     これらは、文字セットの @e メソッド を指定するための定義済みシンボ
     ルであり、文字セットの #Mmethod パラメータの値となることができる。
-    この値は関数 mchar_define_charset () の引数として使われる
+    この値は関数 mchar_define_charset () の引数として使われる。
 
     メソッドとは、コードポイントと文字コードを相互変換する際の方式のこ
     とである。詳しくは関数 mchar_define_charset () の解説を参照のこと。  */
@@ -873,9 +873,9 @@ MSymbol Moffset;
 
     シンボル #Mmap は <tt>"map"</tt> という名前を持ち、文字セットの 
     #Mmethod パラメータの値として用いられた場合には、コードポイントと
-    文字セットの文字コードの間の変換が
-    マップを参照することによって行われることを意味する。マップは
-    #Mmapfile パラメータとして与えなければならない。 */
+    文字セットの文字コードの間の変換がマップを参照することによって行わ
+    れることを意味する。マップは #Mmapfile パラメータとして与えなけれ
+    ばならない。 */
 
 MSymbol Mmap;
 /*=*/
@@ -888,6 +888,7 @@ MSymbol Mmap;
     done by map looking up and offsetting.  The map must be given by
     #Mmapfile parameter.  For this kind of charset, a unique
     continuous character code space for all characters is assigned.
+
     If the map has an entry for a code-point, the conversion is done
     by looking up the map.  Otherwise, the conversion is done by this
     calculation:
@@ -905,9 +906,9 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
     シンボル #Minherit は <tt>"unify"</tt> という名前を持ち、文字セッ
     トの #Mmethod パラメータの値として用いられた場合には、コードポイン
     トと文字セットの文字コードの間の変換が、マップの参照とオフセットの
-    組み合わせによって行われることを意味する。マップは#Mmapfile パラメー
-    タとして与えなければならない。この種の各文字セットには、全文字に対し
-    て連続するコードスペースがそれぞれ割り当てられる。
+    組み合わせによって行われることを意味する。マップは #Mmapfile パラ
+    メータとして与えなければならない。この種の各文字セットには、全文字
+    に対して連続するコードスペースがそれぞれ割り当てられる。
 
     コードポイントがマップに含まれていれば、変換はマップ参照によって行
     われる。そうでなければ、以下の式に従う。
@@ -956,7 +957,7 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 @endverbatim
 
     ここで PARENT-CODE は CODE-POINT の親文字セット中での文字コードを
-    返す擬関数であり、SUBSET-OFFSET は #Msubset_offset parameter で与
+    返す擬関数であり、SUBSET-OFFSET は #Msubset_offset パラメータで与
     えられる値である。
     */
 
@@ -1044,7 +1045,7 @@ MSymbol Msuperset;
     <li> Key is #Mrevision, value is an integer
 
     The value specifies the @e revision @e number of the charset
-    registered in The International Registry.  it must be 0..127.  If
+    registered in The International Registry.  It must be 0..127.  If
     the charset is not in The International Registry, the value is
     ignored.  The value 0 means that the charset has no revision
     number.
@@ -1135,14 +1136,14 @@ MSymbol Msuperset;
 
     <li> キーが  #Mascii_compatible で値がシンボルの時
 
-    値はこの文字セットが ASCII 互換であるか々かを示す。デフォルト値の
+    値はこの文字セットが ASCII 互換であるかどうかを示す。デフォルト値の
     #Mnil であれば互換ではなく、それ以外の場合は互換である。
 
     <li> キーが  #Mfinal_byte で値が整数値の時
 
-    値はこの文字セットの The International Registry に登録されている @e 
-    終端バイトであり、0 (デフォルト値) であるか 32..127 である。0 は登
-    録されていないことを意味する。
+    値はこの文字セットの The International Registry に登録されている 
+    @e 終端バイト であり、0 (デフォルト値) であるか 32..127 である。0 
+    は登録されていないことを意味する。
 
     <li> キーが  #Mrevision で値が整数値の時
 
@@ -1184,7 +1185,8 @@ MSymbol Msuperset;
 
     </ul>
 
-    @return 処理が成功すれば、mchar_define_charset() は $NAME という名
+    @return 
+    処理が成功すれば、mchar_define_charset() は $NAME という名
     前のシ ンボルを返す。そうでなければ #Mnil を返し、外部変数 
     #merror_code にエラーコードを設定する。*/
 
@@ -1333,7 +1335,7 @@ mchar_resolve_charset (MSymbol symbol)
 /*=*/
 
 /***en
-    @brief List symbols representing a charset.
+    @brief List symbols representing charsets.
 
     The mchar_list_charsets () function makes an array of symbols
     representing a charset, stores the pointer to the array in a place
