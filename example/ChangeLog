@@ -1,8 +1,5 @@
 2004-06-23  Kenichi Handa  <handa@m17n.org>
 
-	* Makefile.am (medit_LDFLAGS, mview_LDFLAGS): Cancel the previous
-	change.
-
 	* medit.c (redraw_cursor): Refer to cursor.logical_width instead
 	of cursor.this.width.
 
