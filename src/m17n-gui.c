@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nGUI
-    @brief GUI support for a window system
+    @brief GUI support for a window system.
 
     This section defines the m17n GUI API concerning M-text drawing
     and inputting under a window system.
@@ -36,16 +36,22 @@
     implement XOM, not for direct use from application programs.
 */
 
-/***oldja
+/***ja
     @addtogroup m17nGUI
-    @brief ウィンドウシステム関連の多言語対応 
+    @brief ウィンドウシステム上の GUI サポート.
 
-    このセクションはウィンドウシステム上での M-text の表示と入力を扱う 
-    m17n-win API を定義する。
+    このセクションはウィンドウシステムのもとでの M-text の表示と入力に
+    かかわる m17n GUI API を定義する。
 
-    ここでのすべての定義はウィンドウシステムとは独立である。しかし実装
-    は個別のウィンドウシステムに依存する場合がある。m17n-X ライブラリ
-    は X ウィンドウ用の実装例である。  */
+    ここでのすべての定義はウィンドウシステムとは独立である。しかし、実
+    際のライブラリファイルは個別のウィンドウシステムに依存する場合があ
+    る。たとえばライブラリファイル m17n-X.so は、m17n GUI API の X ウィ
+    ンドウ用の実装例である。
+
+    現実には、GUI API は主にツールキットライブラリ向けであるか、または 
+    XOM を実装するために用いられており、アプリケーションプログラムから
+    の直接の利用を念頭においたものではない。
+*/
 
 /*=*/
 
@@ -174,18 +180,20 @@ m17n_fini_win (void)
     m17n GUI functions require a pointer to a frame as an
     argument.  */
 
-/***oldja
-    @brief フレームとは物理的デバイスに対応するオブジェクトである
+/***ja
+    @brief @e フレームとは物理的デバイスに対応するオブジェクトである.
 
-    フレームとは #MFrame 型のオブジェクトであり、個々の物理的な表示／
+    @e フレームとは #MFrame 型のオブジェクトであり、個々の物理的な表示／
     入力デバイスの情報を格納するために用いられる。ほとんどすべての 
-    m17n-win API は、引数としてフレームへのポインタを要求する。  */
+    m17n GUI API は、引数としてフレームへのポインタを要求する。  */
 
 /*** @{ */
 /*=*/
 
 /***en
     @name Variables: Keys of frame property (common).
+/***ja
+    @name 変数： フレームプロパティのキー (共通).
  */ 
 /*** @{ */ 
 /*=*/
@@ -273,28 +281,69 @@ MSymbol Mfont_descent;
     If the operation was successful, mframe () returns a pointer to a
     newly created frame.  Otherwise, it returns @c NULL.  */
 
-/***oldja
+/***ja
     @brief  新しいフレームを作る
 
-    関数 mframe () は新しいフレームを作る。一般に、引数 $ARGC と $ARGV 
-    は各アプリケーションの <tt>main ()</tt> 関数に与えられるものと同じ
-    ものである。つまりコマンドライン引数を含んでいる必要がある。使用で
-    きる引数はウィンドウシステムに依存する。
+    関数 mframe () は $PLIST 中のパラメータを持つ新しいフレームを作る。
 
-    m17n-X ライブラリにおけるこの関数は、<tt>XOpenDisplay (NULL)</tt> 
-    を使ってデフォルトのディスプレイを開き、次いで <tt>DefaultScreen
-    (DISPLAY)</tt> を使ってデフォルトのスクリーンを得た後、作られたフレーム
-    にこの両者を関連付ける。
+    $PLIST に現われるキーのうちどれが認識されるかはウィンドウシステム
+    に依存する。しかし以下のキーは常に認識される。
 
-    m17n-X ライブラリは以下の引数を受け付ける。
+    <ul>
 
-       @li @c -fn @e font : フレームのデフォルトのフォントを @e font 
-                            にセットする
-       @li @c -fg @e color : フレームのデフォルトの前景色を @e color 
-                             にセットする
-       @li @c -bg @e color : フレームのデフォルトの背景色を @e color 
-                             にセットする
-       @li @c -rv : 前景色と背景色を交換する
+    <li> #Mface. 値は <tt>(MFace *)</tt> 型でなくてはならない。
+
+    この値はフレームのデフォルトのフェースとして用いられる。
+
+    </ul>
+
+    これに加えて、m17n-X ライブラリでは以下のキーも認識する。これらは
+    ルートウィンドウと、フレームで利用できる drawable の深さを指定する。
+
+    <ul>
+
+    <li> #Mdrawable. 値は <tt>Drawable</tt> 型でなくてはならない。
+
+    キー #Mdisplay を持つパラメータも指定されている必要がある。生成さ
+    れたフレームは、指定されたディスプレイ上の指定された drawable と同
+    じルートウィンドウと深さを持つ drawable に用いられる。
+
+    このパラメータがある場合には、#Mscreen をキーとするパラメータは無
+    視される。
+
+    <li> #Mwidget. 値は <tt>Widget</tt> 型でなくてはならない。
+
+    生成されたフレームは、指定したウィジェットと同じルートウィンドウと
+    深さを持つ drawable に用いられる。
+
+    キー #Mface を持つパラメータがなければ、デフォルトのフェースはこの
+    ウィジェットのリソースから作られる。
+
+    このパラメータがある場合には、#Mdisplay, #Mscreen, #Mdrawable,
+    #Mdepth をキーとするパラメータは無視される。
+
+    <li> #Mdepth. 値は <tt>unsigned</tt>  型でなくてはならない。
+
+    生成されたフレームは、指定した深さの drawable に用いられる。
+
+    <li> #Mscreen. 値は <tt>(Screen *)</tt> 型でなくてはならない。
+
+    生成したフレームは、指定したスクリーンと同じルートウィンドウを持ち、
+    スクリーンのデフォルトの深さと同じ深さを持つ drawable に用いられる。
+
+    このパラメータがある場合には、#Mdisplay をキーとするパラメータは無
+    視される。
+
+    <li> #Mdisplay. 値は <tt>(Display *)</tt> 型でなくてはならない。
+
+    生成されたフレームは、指定したディスプレイのデフォルトスクリーンと
+    同じルートウィンドウと同じ深さを持つdrawables に用いられる。
+
+    <li> #Mcolormap. 値は <tt>(Colormap)</tt> 型でなくてはならない。
+
+    生成されたフレームは、指定したカラーマップを使用する。
+
+    </ul>
 
     @return
     成功すれば mframe() は新しいフレームへのポインタを返す。そうでなけ
@@ -373,16 +422,49 @@ mframe (MPlist *plist)
 
 	Mcolormap	Colormap	Colormap of the frame.
 
-	Mdepth		unsigned		Depth of the frame.
+	Mdepth		unsigned	Depth of the frame.
 @endverbatim
 */
 
-/***oldja
-    @brief フレームのMWDeviceを返す
+/***ja
+    @brief フレームのプロパティの値を返す.
 
-    関数 mframe_device () はフレーム $FRAME に格納されている @c
-    MWDevice 構造体へのポイタを返す。#MWDevice の形式はウィンドウシ
-    ステムに依存する。  */
+    関数 mframe_get_prop () はフレーム $FRAME のキー $KEY を持つプロパ
+    ティの値を返す。有効なキーとその値は以下の通り。
+
+@verbatim
+
+        キー		値の型          値の意味
+	---             -------------   ----------------
+	Mface		MFace *		デフォルトのフェース
+
+	Mfont		MFont *		デフォルトのフォント
+
+	Mfont_width	int		デフォルトのフォントの幅
+
+	Mfont_ascent	int		デフォルトのフォントの ascent
+
+	Mfont_descent	int		デフォルトのフォントの descent
+
+@endverbatim
+
+     m17n-X ライブラリでは、以下のキーも使用できる。
+
+@verbatim
+
+        キー		値の型          値の意味
+	---             -------------   ----------------
+	Mdisplay	Display *	フレームと関連付けられたディスプレイ
+
+	Mscreen		int		フレームと関連付けられたスクリーン
+                                        のスクリーンナンバ
+
+	Mcolormap	Colormap	フレームのカラーマップ
+
+	Mdepth		unsigned	フレームの深さ
+@endverbatim
+
+*/
 
 void *
 mframe_get_prop (MFrame *frame, MSymbol key)
@@ -408,11 +490,11 @@ mframe_get_prop (MFrame *frame, MSymbol key)
     The external variable #mframe_default contains a pointer to the
     default frame that is created by the first call of mframe ().  */
 
-/***oldja
+/***ja
     デフォルトのフレーム 
 
-    外部変数 #mframe_default は、デフォルトのフレームへのポインタを
-    持つ。デフォルトのフレームは、最初に mframe () が呼び出されたときに
+    外部変数 #mframe_default は、デフォルトのフレームへのポインタを持
+    つ。デフォルトのフレームは、最初に mframe () が呼び出されたときに
     作られる。  */
 
 MFrame *mframe_default;
