@@ -61,10 +61,10 @@ lib_LTLIBRARIES = libmimx-ispell.la libmimx-anthy.la
 
 libmimx_ispell_la_SOURCES = mimx-ispell.c
 libmimx_ispell_la_LIBADD = ${common_ldflags_gui}
-libmimx_ispell_la_LDFLAGS = ${VINFO}
+libmimx_ispell_la_LDFLAGS = -module ${VINFO}
 libmimx_anthy_la_SOURCES = mimx-anthy.c
 libmimx_anthy_la_LIBADD = ${common_ldflags}
-libmimx_anthy_la_LDFLAGS = @ANTHY_LD_FLAGS@  ${VINFO}
+libmimx_anthy_la_LDFLAGS = -module @ANTHY_LD_FLAGS@  ${VINFO}
 
 # Special targets to test the m17n library with Purify.  They are for
 # the maintainers only.
