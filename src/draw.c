@@ -2651,7 +2651,7 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
   MGlyphString *gstring;
   MGlyph *g;
   int n;
-  int pad_width;
+  int pad_width = 0;
 
   ASSURE_CONTROL (control);
   *num_glyphs_return = 0;
