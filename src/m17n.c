@@ -29,6 +29,8 @@
 #include "charset.h"
 #include "coding.h"
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+
 
 /* Internal API */
 
@@ -114,6 +116,8 @@ m17n_fini (void)
   MDEBUG_POP_TIME ();
   m17n_fini_core ();
 }
+
+#endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
 /*
   Local Variables:

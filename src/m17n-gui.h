@@ -32,6 +32,8 @@ extern "C"
 {
 #endif
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+
 extern void m17n_init_win (void);
 #undef M17N_INIT
 #define M17N_INIT() m17n_init_win ()
@@ -39,6 +41,8 @@ extern void m17n_init_win (void);
 extern void m17n_fini_win (void);
 #undef M17N_FINI
 #define M17N_FINI() m17n_fini_win ()
+
+#endif
 
 /***en @defgroup m17nGUI GUI API */
 /***ja @defgroup m17nGUI GUI API */

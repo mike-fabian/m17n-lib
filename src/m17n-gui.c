@@ -230,9 +230,6 @@ static MDeviceLibraryInterface null_interface =
 
 /* Internal API */
 
-/*** @} */ 
-#endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
-
 
 /* External API */
 
@@ -339,6 +336,9 @@ m17n_fini_win (void)
   MDEBUG_POP_TIME ();
   m17n_fini ();
 }
+
+/*** @} */ 
+#endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
 /*** @addtogroup m17nFrame */
 /***en
