@@ -38,14 +38,14 @@
 
     @brief プロパティリストオブジェクトとそれに関する API.
 
-    @e プロパティリスト (または @e plist) は 0 個以上のプロパティのリ
-    ストである。プロパティは @e キー と @e 値 からなる。キーはシンボル
-    であり、値は <tt>(void *)</tt> にキャストできるものならば何でも良
-    い。
+    @e プロパティリスト (または @e plist) は 0 
+    個以上のプロパティのリストである。プロパティは @e キー と @e 値 
+    からなる。キーはシンボルであり、値は <tt>(void *)</tt> 
+    にキャストできるものならば何でも良い。
 
-    あるプロパティのキーが @e 管理キー ならば、その @e 値 は@e 管理下
-    オブジェクト である。プロパティリスト自体も管理下オブジェクトであ
-    る。  */
+    あるプロパティのキーが @e 管理キー ならば、その @e 値 は @e 管理下
+    @e オブジェクト 
+    である。プロパティリスト自体も管理下オブジェクトである。  */
 
 /*=*/
 
@@ -784,9 +784,9 @@ MSymbol Minteger;
 /***ja
     @brief "plist" を名前として持つシンボル.
 
-    シンボル @c Mplist は <tt>"plist"</tt> という名前を持つ。これは管
-    理キーである。キーが @c Mplist であるプロパティの値は plist でなく
-    てはならない。  */
+    シンボル @c Mplist は <tt>"plist"</tt> 
+    という名前を持つ。これは管理キーである。キーが @c Mplist 
+    であるプロパティの値は plist でなくてはならない。  */
 
 MSymbol Mplist;
 /*=*/
@@ -801,9 +801,9 @@ MSymbol Mplist;
 /***ja
     @brief "mtext" を名前として持つシンボル.
 
-    シンボル @c Mtext は <tt>"mtext"</tt> という名前を持つ管理キーであ
-    る。キーが @c Mtext であるプロパティの値は M-text でなくてはならな
-    い。      */
+    シンボル @c Mtext は <tt>"mtext"</tt>
+    という名前を持つ管理キーである。キーが @c Mtext 
+    であるプロパティの値は M-text でなくてはならない。      */
 
 MSymbol Mtext;
 
@@ -822,8 +822,7 @@ MSymbol Mtext;
 /***ja
     @brief プロパティリストオブジェクトを作る.
 
-    関数 mplist () は長さ 0 の新しく作られたプロパティリストオブジェク
-    トを返す。
+    関数 mplist () は長さ 0 のプロパティリストオブジェクトを新しく作って返す。
 
     @returns
     この関数は新しく作られたプロパティリストオブジェクトを返す。
@@ -856,8 +855,8 @@ mplist ()
 /***ja
     @brief プロパティリストをコピーする.
 
-    関数 mplist_copy () はプロパティリスト $PLIST をコピーする。コピーのすべての
-    値はコピー元 $PLIST の値と同じである。
+    関数 mplist_copy () はプロパティリスト $PLIST 
+    をコピーする。コピーのすべての値はコピー元 $PLIST の値と同じである。
 
     @return
     この関数は新しく作られた、$PLIST のコピーであるプロパティリストを返す。    
@@ -898,19 +897,19 @@ mplist_copy (MPlist *plist)
 /***ja
     @brief プロパティリスト中のプロパティの値を設定する.
 
-    関数 mplist_put () はプロパティリスト $PLIST を始めから探して、キー
-    が $KEY であるプロパティを見つける。見つかれば、その値を $VALUE に
-    変更する。見つからなければ、キーが $KEY で値が $VALUE である新しい
-    プロパティが$PLIST の末尾に追加される。$KEY と $VAL に対する制限に
-    ついては、mplist_add () の説明を参照。
+    関数 mplist_put () はプロパティリスト $PLIST を始めから探して、キーが
+    $KEY であるプロパティを見つける。見つかれば、その値を $VALUE 
+    に変更する。見つからなければ、キーが $KEY で値が $VALUE 
+    である新しいプロパティが $PLIST の末尾に追加される。$KEY と $VAL
+    に対する制限については、mplist_add () の説明を参照。
 
-    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
-    この場合、古い値の参照数は @c NULL でなければ 1 減らされ、$VAL の
-    参照数は 1 増やされる。
+    $KEY が管理キーならば、
+    $VAL は管理下オブジェクトでなくてはならない。この場合、古い値の参照数は 
+    @c NULL でなければ 1 減らされ、$VAL の参照数は 1 増やされる。
 
     @return 
-     処理が成功すれば mplist_put () は変更されたか追加された要素から始
-    まる $PLIST の部分リストを返す。そうでなければ @c NULL を返す。   */
+    処理が成功すれば mplist_put () は変更されたか追加された要素から始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。   */
 
 MPlist *
 mplist_put (MPlist *plist, MSymbol key, void *val)
@@ -947,13 +946,13 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
 /***ja
     @brief プロパティリスト中のプロパティの値を得る.
 
-    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、
-    キーが $KEY であるプロパティを見つける。見つかれば、その値へのポイ
-    ンタを <tt>(void *)</tt> 型で返す。見つからなければ @c NULL を返す。
+    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、キーが
+    $KEY であるプロパティを見つける。見つかれば、その値へのポインタを
+    <tt>(void *)</tt> 型で返す。見つからなければ @c NULL を返す。
 
-    @c NULL が返った際には二つの可能性がある:上記のようにプロパティが
-    見つからなかった場合と、プロパティが見つかり、その値が @c NULL で
-    ある場合である。これらを区別する必要がある場合には関数 
+    @c NULL が返った際には二つの可能性がある: 
+    上記のようにプロパティが見つからなかった場合と、プロパティが見つかり、その値が
+    @c NULL である場合である。これらを区別する必要がある場合には関数 
     mplist_find_by_key () を使うこと。  */
 
 /***
@@ -973,8 +972,8 @@ mplist_get (MPlist *plist, MSymbol key)
     @brief Add a property at the end of a property list.
 
     The mplist_add () function appends at the end of property list
-     $PLIST a property whose key is $KEY and value is $VAL.  $KEY can
-     be any symbol other than @c Mnil.
+    $PLIST a property whose key is $KEY and value is $VAL.  $KEY can
+    be any symbol other than @c Mnil.
 
     If $KEY is a managing key, $VAL must be a managed object.  In this
     case, the reference count of $VAL is incremented by one.
@@ -987,14 +986,13 @@ mplist_get (MPlist *plist, MSymbol key)
     @brief プロパティリスト末尾にプロパティを追加する.
 
     関数 mplist_add () は、プロパティリスト $PLIST の末尾にキーが $KEY 
-    で値が $VAL であるプロパティを追加する。$KEY は、@c Mnil 以外の任
-    意のシンボルでよい。
+    で値が $VAL であるプロパティを追加する。$KEY は、@c Mnil 以外の任意のシンボルでよい。
 
-    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
-    この場合、$VAL の参照数は 1 増やされる。
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。この場合、
+    $VAL の参照数は 1 増やされる。
 
     @return
-     処理が成功すれば mplist_add () は追加された要素から始まる $PLIST 
+    処理が成功すれば mplist_add () は追加された要素から始まる $PLIST 
     の部分リストを返す。そうでなければ @c NULL を返す。  */
 
 MPlist *
@@ -1031,12 +1029,12 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
     関数 mplist_push () はプロパティリスト $PLIST の先頭にキーが $KEY 
     で値が $VAL であるオブジェクトを挿入する。
 
-    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
-    この場合、$VAL の参照数は 1 増やされる。
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。この場合、
+    $VAL の参照数は 1 増やされる。
 
     @return
-    処理が成功すればこの関数は $PLIST を返し、そうでなければ@c NULL を
-    返す。  */
+    処理が成功すればこの関数は $PLIST を返し、そうでなければ@c NULL 
+    を返す。  */
 
 MPlist *
 mplist_push (MPlist *plist, MSymbol key, void *val)
@@ -1072,13 +1070,13 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
 /***ja
     @brief プロパティリストの先頭からプロパティを削除する.
 
-    関数 mplist_pop () はプロパティリスト $PLIST の先頭のプロパティを
-    削除する。結果として、元の $PLIST の2番目のキーと値が、新しい 
+    関数 mplist_pop () はプロパティリスト $PLIST 
+    の先頭のプロパティを削除する。結果として、元の $PLIST の2番目のキーと値が、新しい 
     $PLIST の先頭のキーと値になる。
 
     @return 
-    処理に成功すれば、この関数は削除されたプロパティの値を返す。そう
-    でなければ @c NULL を返す。  */
+    処理に成功すれば、この関数は削除されたプロパティの値を返す。そうでなければ
+    @c NULL を返す。  */
 
 void *
 mplist_pop (MPlist *plist)
@@ -1117,13 +1115,12 @@ mplist_pop (MPlist *plist)
 /***ja
     @brief プロパティリスト中から指定のキーを持つプロパティを探す.
 
-    関数 mplist_find_by_key () はプロパティリスト $PLIST を始めから探
-    して、キーが $KEY であるプロパティを見つける。見つかれば、そのプロ
-    パティから始まる $PLIST の部分リストを返す。そうでなければ@c NULL 
-    を返す。
+    関数 mplist_find_by_key () はプロパティリスト $PLIST 
+    を始めから探 して、キーが $KEY 
+    であるプロパティを見つける。見つかれば、そのプロパティから始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。
 
-    $KEY が @c Mnil ならば、$PLIST の最後の要素から始まる部分リストを
-    返す。  */
+    $KEY が @c Mnil ならば、$PLIST の最後の要素から始まる部分リストを返す。  */
 
 MPlist *
 mplist_find_by_key (MPlist *plist, MSymbol key)
@@ -1145,10 +1142,10 @@ mplist_find_by_key (MPlist *plist, MSymbol key)
 /***ja
     @brief プロパティリスト中から指定の値を持つプロパティを探す.
 
-    関数 mplist_find_by_value () はプロパティリスト $PLIST を始めから
-    探して、値が $VAL であるプロパティを見つける。見つかれば、そのプロ
-    パティから始まる $PLIST の部分リストを返す。そうでなければ@c NULL 
-    を返す。 */
+    関数 mplist_find_by_value () はプロパティリスト $PLIST 
+    を始めから探して、値が $VAL 
+    であるプロパティを見つける。見つかれば、そのプロパティから始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。 */
 
 MPlist *
 mplist_find_by_value (MPlist *plist, void *val)
@@ -1172,9 +1169,9 @@ mplist_find_by_value (MPlist *plist, void *val)
 /***ja
     @brief プロパティリストの次の部分リストを返す.
 
-    関数 mplist_next () はプロパティリスト $PLIST の２番目
-    の要素から始まる部分リストへのポインタを返す。$PLIST の長さが 0 な
-    らば @c NULL を返す。  */
+    関数 mplist_next () はプロパティリスト $PLIST の 2 
+    番目の要素から始まる部分リストへのポインタを返す。$PLIST の長さが 0 
+    ならば @c NULL を返す。  */
 
 MPlist *
 mplist_next (MPlist *plist)
@@ -1198,13 +1195,12 @@ mplist_next (MPlist *plist)
 /***ja
     @brief プロパティリストの最初のプロパティを設定する.
 
-    関数 mplist_set () はプロパティリスト $PLIST の最初のプロパティの
-    キーと値をそれぞれ $KEY と $VALUE に設定する。$KEY と $VAL に対す
-    る制限については、mplist_add () の説明を参照。
+    関数 mplist_set () はプロパティリスト $PLIST 
+    の最初のプロパティのキーと値をそれぞれ $KEY と $VALUE に設定する。
+    $KEY と $VAL に対する制限については、mplist_add () の説明を参照。
 
     @return
-    処理に成功すれば mplist_set () は $PLIST を返す。そうでなければ
-    @c NULL を返す。  */
+    処理に成功すれば mplist_set () は $PLIST を返す。そうでなければ @c NULL を返す。  */
 
 MPlist *
 mplist_set (MPlist *plist, MSymbol key, void * val)
@@ -1243,8 +1239,7 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
 /***ja
     @brief プロパティリストの長さを返す.
 
-    関数 mplist_length () はプロパティリスト $PLIST 中のプロパティの数
-    を返す。  */
+    関数 mplist_length () はプロパティリスト $PLIST 中のプロパティの数を返す。  */
 
 int
 mplist_length (MPlist *plist)
@@ -1266,9 +1261,9 @@ mplist_length (MPlist *plist)
 /***ja
     @brief プロパティリスト中の最初のプロパティのキーを返す.
 
-    関数 mplist_key () は、プロパティリスト $PLIST 中の最
-    初のプロパティのキーを返す。$PLIST の長さが 0 ならば、 @c Mnil を
-    返す。  */
+    関数 mplist_key () は、プロパティリスト $PLIST 
+    中の最初のプロパティのキーを返す。$PLIST の長さが 0 ならば、 @c Mnil 
+    を返す。  */
 
 MSymbol
 mplist_key (MPlist *plist)
@@ -1287,9 +1282,8 @@ mplist_key (MPlist *plist)
 /***ja
     @brief プロパティリスト中の最初のプロパティの値を返す.
 
-    関数 mplist_value () は、プロパティリスト $PLIST 中の
-    最初のプロパティの値を返す。$PLIST の長さが 0 ならば、 @c Mnil を
-    返す。  */
+    関数 mplist_value () は、プロパティリスト $PLIST 中の最初のプロパティの値を返す。
+    $PLIST の長さが 0 ならば、 @c Mnil を返す。  */
 
 void *
 mplist_value (MPlist *plist)
@@ -1319,15 +1313,14 @@ mplist_value (MPlist *plist)
     Each alternatives of @c ELEMENT is assigned one of these keys: @c
     Msymbol, @c Minteger, @c Mtext, @c Mplist
 
-    In an ascii-character-sequence, a backslush (\) is used as the escape
+    In an ascii-character-sequence, a backslash (\) is used as the escape
     character, which means that, for instance, <tt>"abc\ def"</tt>
     produces a symbol whose name is of length seven with the fourth
     character being a space.  */
 /***ja
     @brief M-text をデシリアライズしてプロパティリストを作る.
 
-    関数 mplist_deserialize () は M-text $MT を解析してプロパティリス
-    トを返す。
+    関数 mplist_deserialize () は M-text $MT を解析してプロパティリストを返す。
 
     $MT のシンタックスは以下の通り。
 
@@ -1345,9 +1338,9 @@ mplist_value (MPlist *plist)
     @c ELEMENT の各選択肢はキー：@c Msymbol, @c Minteger, @c Mtext,
     @c Mplist のいずれかを割り当てられている。
 
-    アスキー文字列内では、バックスラッシュ (\) がエスケープ文字として
-    用いられる。たとえば <tt>"abc\ def"</tt> は４文字目が空白文字であ
-    り長さが７である持つ名前を持つシンボルを生成する。   */
+    アスキー文字列内では、バックスラッシュ (\) がエスケープ文字として用いられる。たとえば
+    <tt>"abc\ def"</tt> は 4 文字目が空白文字であり長さが 7 
+    である持つ名前を持つシンボルを生成する。   */
 
 MPlist *
 mplist_deserialize (MText *mt)
@@ -1386,9 +1379,8 @@ mplist_deserialize (MText *mt)
 /***ja
     @brief プロパティリストをダンプする.
 
-    関数 mdebug_dump_plist () はプロパティリスト $PLIST を stderr に人
-    間に可読な 形で印刷する。 $UNDENT は２行目以降のインデントを指定す
-    る。
+    関数 mdebug_dump_plist () はプロパティリスト $PLIST を stderr 
+    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $PLIST を返す。  */
