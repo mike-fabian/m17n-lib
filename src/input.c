@@ -156,6 +156,8 @@
 #include "symbol.h"
 #include "plist.h"
 
+static int mdebug_mask = MDEBUG_INPUT;
+
 static MSymbol Minput_method;
 
 /** Symbols to load an input method data.  */
@@ -819,6 +821,8 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (! state)
     state = (MIMState *) MPLIST_VAL (im_info->states);
 
+  MDEBUG_PRINT1 ("\n[IM] state-shift (%s)", MSYMBOL_NAME (state->name));
+
   /* Enter the new state.  */
   ic_info->state = state;
   ic_info->map = state->map;
@@ -833,6 +837,16 @@ shift_state (MInputContext *ic, MSymbol state_name)
       mtext_put_prop_values (ic->preedit, 0, mtext_nchars (ic->preedit),
 			     Mcandidate_index, NULL, 0);
       mtext_cat (ic->produced, ic->preedit);
+      if ((mdebug__flag & mdebug_mask)
+	  && mtext_nchars (ic->produced) > 0)
+	{
+	  int i;
+
+	  MDEBUG_PRINT (" (produced");
+	    for (i = 0; i < mtext_nchars (ic->produced); i++)
+	      MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->produced, i));
+	  MDEBUG_PRINT (")");
+	}
       mtext_reset (ic->preedit);
       ic->candidate_list = NULL;
       ic->candidate_show = 0;
@@ -856,7 +870,10 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (ic_info->key_head == ic_info->used
       && ic_info->map == ic_info->state->map
       && ic_info->map->map_actions)
-    take_action_list (ic, ic_info->map->map_actions);
+    {
+      MDEBUG_PRINT (" init-actions:");
+      take_action_list (ic, ic_info->map->map_actions);
+    }
 }
 
 
@@ -1031,6 +1048,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  args = MPLIST_NEXT (action);
 	}
 
+      MDEBUG_PRINT1 (" %s", MSYMBOL_NAME (name));
       if (name == Minsert)
 	{
 	  if (MPLIST_MTEXT_P (args))
@@ -1364,6 +1382,9 @@ handle_key (MInputContext *ic)
   MSymbol key = ic_info->keys[ic_info->key_head];
   int i;
 
+  MDEBUG_PRINT2 ("[IM] handle `%s' in state %s", 
+		 MSYMBOL_NAME (key), MSYMBOL_NAME (ic_info->state->name));
+
   if (map->submaps)
     {
       submap = mplist_get (map->submaps, key);
@@ -1373,12 +1394,14 @@ handle_key (MInputContext *ic)
 
   if (submap)
     {
+      MDEBUG_PRINT (" submap-found");
       mtext_cpy (ic->preedit, ic_info->preedit_saved);
       ic->cursor_pos = ic_info->state_pos;
       ic_info->key_head++;
       ic_info->map = map = submap;
       if (map->map_actions)
 	{
+	  MDEBUG_PRINT (" map-actions:");
 	  if (take_action_list (ic, map->map_actions) < 0)
 	    return -1;
 	}
@@ -1401,6 +1424,7 @@ handle_key (MInputContext *ic)
 	{
 	  if (map->branch_actions)
 	    {
+	      MDEBUG_PRINT (" branch-actions:");
 	      if (take_action_list (ic, map->branch_actions) < 0)
 		return -1;
 	    }
@@ -1409,6 +1433,7 @@ handle_key (MInputContext *ic)
 	  if (ic_info->map != ic_info->state->map)
 	    shift_state (ic, ic_info->state->name);
 	}
+      MDEBUG_PRINT ("\n");
     }
   else
     {
@@ -1417,14 +1442,20 @@ handle_key (MInputContext *ic)
       /* If MAP is the root map of the initial state, it means that
 	 the current input method can not handle KEY.  */
       if (map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
-	return -1;
+	{
+	  MDEBUG_PRINT (" unhandled\n");
+	  return -1;
+	}
 
       if (map != ic_info->state->map)
 	{
 	  /* If MAP is not the root map... */
 	  /* If MAP has branch actions, perform them.  */
 	  if (map->branch_actions)
-	    take_action_list (ic, map->branch_actions);
+	    {
+	      MDEBUG_PRINT (" branch-actions:");
+	      take_action_list (ic, map->branch_actions);
+	    }
 	  /* If MAP is still not the root map, shift to the current
 	     state. */
 	  if (ic_info->map != ic_info->state->map)
@@ -1432,7 +1463,10 @@ handle_key (MInputContext *ic)
 	      shift_state (ic, ic_info->state->name);
 	      /* If MAP has branch_actions, perform them.  */
 	      if (ic_info->map->branch_actions)
-		take_action_list (ic, ic_info->map->branch_actions);
+		{
+		  MDEBUG_PRINT (" init-actions:");
+		  take_action_list (ic, ic_info->map->branch_actions);
+		}
 	    }
 	}
       else
@@ -1440,11 +1474,15 @@ handle_key (MInputContext *ic)
 	  /* MAP is the root map, perform branch actions (if any) or
 	     shift to the initial state.  */
 	  if (map->branch_actions)
-	    take_action_list (ic, map->branch_actions);
+	    {
+	      MDEBUG_PRINT (" branch-actions:");
+	      take_action_list (ic, map->branch_actions);
+	    }
 	  else
 	    shift_state (ic,
 			 ((MIMState *) MPLIST_VAL (im_info->states))->name);
 	}
+      MDEBUG_PRINT ("\n");
     }
   return 0;
 }
