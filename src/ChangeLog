@@ -1,3 +1,8 @@
+2004-08-27  Kenichi Handa  <handa@m17n.org>
+
+	* face.c (mface_put_prop): If the new value is the same as the
+	current one, don't increment frame->tick.
+
 2004-08-25  Kenichi Handa  <handa@m17n.org>
 
 	* fontset.c (mfontset): Initialize font_spec_list member.
