@@ -500,7 +500,6 @@ mchar_put_prop (int c, MSymbol key, void *val)
       record->table = (*mdatabase__loader) (record->mdb);
       if (! record->table)
 	MERROR (MERROR_DB, -1);
-      M17N_OBJECT_REF (record->table);
       record->mdb = NULL;
     }
   return mchartable_set (record->table, c, val);
