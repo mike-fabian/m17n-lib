@@ -8,6 +8,10 @@
 
 	* medit.c (KeyProc): Handle C-\ as resetting input context.
 
+2004-12-17  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): Allocagte filename by strdup if not specified.
+
 2004-12-10  Kenichi Handa  <handa@m17n.org>
 
 	* mview.c (VERSION): Update to 1.2.0.
