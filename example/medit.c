@@ -1770,6 +1770,7 @@ CursorProc (Widget w, XtPointer client_data, XtPointer call_data)
       XtSetValues (CursorMenus[i], arg, 1);
     }
 
+  update_cursor (cursor.from, 0);
   redraw (0, win_height, 1, 0);
 }
 
