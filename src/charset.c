@@ -1307,7 +1307,7 @@ mchar_define_charset (char *name, MPlist *plist)
     return it.  Otherwise, return #Mnil.  */
 
 /***ja
-    @brief 文字セット名の解決
+    @brief 文字セット名を解決する
 
     関数 mchar_resolve_charset () は $SYMBOL が文字セットを示していれ
     ばそれを返す。
