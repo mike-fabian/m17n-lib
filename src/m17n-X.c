@@ -842,9 +842,9 @@ static void xft_render (MDrawWindow, int, int, MGlyphString *,
 			MGlyph *, MGlyph *, int, MDrawRegion);
 
 MFontDriver xft_driver =
-  { NULL,			/* Set to ft_select in mwin__init (). */
+  { NULL,			/* Set to ft_select in device_init (). */
     xft_open, xft_find_metric,
-    NULL,			/* Set to ft_encode_char in mwin__init (). */
+    NULL,			/* Set to ft_encode_char in device_init (). */
     xft_render };
 
 
@@ -998,272 +998,6 @@ xft_render (MDrawWindow win, int x, int y,
 
 
 /* Functions for the device driver.  */
-
-static int
-mwin__device_init ()
-{
-  M_iso8859_1 = msymbol ("iso8859-1");
-  M_iso10646_1 = msymbol ("iso10646-1");
-
-  display_info_list = mplist ();
-  device_list = mplist ();
-
-  Mxim = msymbol ("xim");
-  msymbol_put (Mxim, Minput_driver, &minput_xim_driver);
-
-  return 0;
-}
-
-static int
-mwin__device_fini ()
-{
-  M17N_OBJECT_UNREF (display_info_list);
-  M17N_OBJECT_UNREF (device_list);
-  return 0;
-}
-
-/** Return an MWDevice object corresponding to a display specified in
-    PLIST.
-
-    It searches device_list for a device matching the display.  If
-    found, return the found object.  Otherwise, return a newly created
-    object.  */
-
-static int
-mwin__open_device (MFrame *frame, MPlist *param)
-{
-  Display *display = NULL;
-  Screen *screen = NULL;
-  int screen_num;
-  Drawable drawable = 0;
-  Widget widget = NULL;
-  Colormap cmap = 0;
-  int auto_display = 0;
-  MDisplayInfo *disp_info = NULL;
-  MWDevice *device = NULL;
-  MSymbol key;
-  XWindowAttributes attr;
-  unsigned depth = 0;
-  MPlist *plist;
-  AppData app_data;
-  MFace *face;
-
-  for (plist = param; (key = mplist_key (plist)) != Mnil;
-       plist = mplist_next (plist))
-    {
-      if (key == Mdisplay)
-	display = (Display *) mplist_value (plist);
-      else if (key == Mscreen)
-	screen = mplist_value (plist);
-      else if (key == Mdrawable)
-	drawable = (Drawable) mplist_value (plist);
-      else if (key == Mdepth)
-	depth = (unsigned) mplist_value (plist);
-      else if (key == Mwidget)
-	widget = (Widget) mplist_value (plist);
-      else if (key == Mcolormap)
-	cmap = (Colormap) mplist_value (plist);
-    }
-
-  if (widget)
-    {
-      display = XtDisplay (widget);
-      screen_num = XScreenNumberOfScreen (XtScreen (widget));
-      depth = DefaultDepth (display, screen_num);
-    }
-  else if (drawable)
-    {
-      Window root_window;
-      int x, y;
-      unsigned width, height, border_width;
-
-      if (! display)
-	MERROR (MERROR_WIN, -1);
-      XGetGeometry (display, drawable, &root_window,
-		    &x, &y, &width, &height, &border_width, &depth);
-      XGetWindowAttributes (display, root_window, &attr);
-      screen_num = XScreenNumberOfScreen (attr.screen);
-    }
-  else
-    {
-      if (screen)
-	display = DisplayOfScreen (screen);
-      else
-	{
-	  if (! display)
-	    {
-	      display = XOpenDisplay (NULL);
-	      if (! display)
-		MERROR (MERROR_WIN, -1);
-	      auto_display = 1;
-	    }
-	  screen = DefaultScreenOfDisplay (display);
-	}
-      screen_num = XScreenNumberOfScreen (screen);
-      if (! depth)
-	depth = DefaultDepth (display, screen_num);
-    }
-
-  if (! cmap)
-    cmap = DefaultColormap (display, screen_num);
-
-  for (plist = display_info_list; mplist_key (plist) != Mnil;
-       plist = mplist_next (plist))
-    {
-      disp_info = (MDisplayInfo *) mplist_value (plist);
-      if (disp_info->display == display)
-	break;
-    }
-
-  if (mplist_key (plist) != Mnil)
-    M17N_OBJECT_REF (disp_info);
-  else
-    {
-      M17N_OBJECT (disp_info, free_display_info, MERROR_WIN);
-      disp_info->display = display;
-      disp_info->auto_display = auto_display;
-      disp_info->font_registry_list = mplist ();
-      disp_info->iso8859_1_family_list = mplist ();
-      disp_info->iso10646_1_family_list = mplist ();
-      disp_info->realized_font_list = mplist ();
-      find_modifier_bits (disp_info);
-      mplist_add (display_info_list, Mt, disp_info);
-    }  
-
-  for (plist = device_list; mplist_key (plist) != Mnil;
-       plist = mplist_next (plist))
-    {
-      device = (MWDevice *) mplist_value (plist);
-      if (device->display_info == disp_info
-	  && device->depth == depth
-	  && device->cmap == cmap)
-	break;
-    }
-
-  if (mplist_key (plist) != Mnil)
-    M17N_OBJECT_REF (device);
-  else
-    {
-      unsigned long valuemask = GCForeground;
-      XGCValues values;
-
-      M17N_OBJECT (device, free_device, MERROR_WIN);
-      device->display_info = disp_info;
-      device->screen_num = screen_num;
-      /* A drawable on which to create GCs.  */
-      device->drawable = XCreatePixmap (display,
-					RootWindow (display, screen_num),
-					1, 1, depth);
-      device->depth = depth;
-      device->cmap = cmap;
-      device->realized_face_list = mplist ();
-      device->realized_fontset_list = mplist ();
-      device->gc_list = mplist ();
-      values.foreground = BlackPixel (display, screen_num);
-      device->scratch_gc = XCreateGC (display, device->drawable,
-				      valuemask, &values);
-#ifdef HAVE_XFT2
-      device->xft_draw = XftDrawCreate (display, device->drawable,
-					DefaultVisual (display, screen_num),
-					cmap);
-#endif
-    }
-
-  frame->device = device;
-  frame->device_type = MDEVICE_SUPPORT_OUTPUT | MDEVICE_SUPPORT_INPUT;
-  frame->font_driver_list = mplist ();
-  mplist_add (frame->font_driver_list, Mx, &xfont_driver);
-#ifdef HAVE_XFT2
-  mplist_add (frame->font_driver_list, Mfreetype, &xft_driver);
-#elif HAVE_FREETYPE
-  mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
-#endif
-  frame->realized_font_list = disp_info->realized_font_list;
-  frame->realized_face_list = device->realized_face_list;
-  frame->realized_fontset_list = device->realized_fontset_list;
-
-  if (widget)
-    {
-      XtResource resources[] = {
-	{ XtNfont, XtCFont, XtRString, sizeof (String),
-	  XtOffset (AppDataPtr, font), XtRString, DEFAULT_FONT },
-	{ XtNforeground, XtCForeground, XtRString, sizeof (String),
-	  XtOffset (AppDataPtr, foreground), XtRString, "black" },
-	{ XtNbackground, XtCBackground, XtRString, sizeof (String),
-	  XtOffset (AppDataPtr, background), XtRString, "white" },
-	{ XtNreverseVideo, XtCReverseVideo, XtRBoolean, sizeof (Boolean),
-	  XtOffset (AppDataPtr, reverse_video), XtRImmediate, (caddr_t) FALSE }
-      };
-
-      XtGetApplicationResources (widget, &app_data,
-				 resources, XtNumber (resources), NULL, 0);
-      frame->foreground = msymbol (app_data.foreground);
-      frame->background = msymbol (app_data.background);
-      frame->videomode = app_data.reverse_video == True ? Mreverse : Mnormal;
-    }
-  else
-    {
-      app_data.font = DEFAULT_FONT;
-      frame->foreground = msymbol ("black");
-      frame->background = msymbol ("white");
-      frame->videomode = Mnormal;
-    }
-
-  {
-    int nfonts;
-    char **names = XListFonts (display, app_data.font, 1, &nfonts);
-
-    if (nfonts > 0)
-      {
-	if (! (frame->font = mfont_parse_name (names[0], Mx)))
-	  {
-	    /* The font name does not conform to XLFD.  Try to open the
-	       font and get XA_FONT property.  */
-	    XFontStruct *xfont = XLoadQueryFont (display, names[0]);
-
-	    nfonts = 0;
-	    if (xfont)
-	      {
-		unsigned long value;
-		char *name;
-
-		if (XGetFontProperty (xfont, XA_FONT, &value)
-		    && (name = ((char *)
-				XGetAtomName (display, (Atom) value))))
-		  {
-		    if ((frame->font = mfont_parse_name (name, Mx)))
-		      nfonts = 1;
-		  }
-		XFreeFont (display, xfont);
-	      }
-	  }
-	XFreeFontNames (names);
-      }
-    if (! nfonts)
-      frame->font = mfont_parse_name (FALLBACK_FONT, Mx);
-  }
-
-  face = mface_from_font (frame->font);
-  face->property[MFACE_FONTSET] = mfontset (NULL);
-  face->property[MFACE_FOREGROUND] = frame->foreground;
-  face->property[MFACE_BACKGROUND] = frame->background;
-  mface_put_prop (face, Mhline, mface_get_prop (mface__default, Mhline));
-  mface_put_prop (face, Mbox, mface_get_prop (mface__default, Mbox));
-  face->property[MFACE_VIDEOMODE] = frame->videomode;
-  mface_put_prop (face, Mhook_func, 
-		  mface_get_prop (mface__default, Mhook_func));
-  face->property[MFACE_RATIO] = (void *) 100;
-  mplist_push (param, Mface, face);
-  M17N_OBJECT_UNREF (face);
-
-#ifdef X_SET_ERROR_HANDLER
-  XSetErrorHandler (x_error_handler);
-  XSetIOErrorHandler (x_io_error_handler);
-#endif
-
-  return 0;
-}
-
 
 static void
 mwin__close_device (MFrame *frame)
@@ -1927,10 +1661,6 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
 
 static MDeviceDriver x_driver =
   {
-    0,
-    mwin__device_init,
-    mwin__device_fini,
-    mwin__open_device,
     mwin__close_device,
     mwin__device_get_prop,
     mwin__realize_face,
@@ -1955,6 +1685,279 @@ static MDeviceDriver x_driver =
     mwin__adjust_window,
     mwin__parse_event
   };
+
+/* Functions to be stored in MDeviceLibraryInterface by dlsym ().  */
+
+int
+device_init ()
+{
+  M_iso8859_1 = msymbol ("iso8859-1");
+  M_iso10646_1 = msymbol ("iso10646-1");
+
+  display_info_list = mplist ();
+  device_list = mplist ();
+
+#ifdef HAVE_XFT2
+  xft_driver.select = mfont__ft_driver.select;
+  xft_driver.encode_char = mfont__ft_driver.encode_char;
+#endif
+
+  Mxim = msymbol ("xim");
+  msymbol_put (Mxim, Minput_driver, &minput_xim_driver);
+
+  return 0;
+}
+
+int
+device_fini ()
+{
+  M17N_OBJECT_UNREF (display_info_list);
+  M17N_OBJECT_UNREF (device_list);
+  return 0;
+}
+
+/** Return an MWDevice object corresponding to a display specified in
+    PLIST.
+
+    It searches device_list for a device matching the display.  If
+    found, return the found object.  Otherwise, return a newly created
+    object.  */
+
+int
+device_open (MFrame *frame, MPlist *param)
+{
+  Display *display = NULL;
+  Screen *screen = NULL;
+  int screen_num;
+  Drawable drawable = 0;
+  Widget widget = NULL;
+  Colormap cmap = 0;
+  int auto_display = 0;
+  MDisplayInfo *disp_info = NULL;
+  MWDevice *device = NULL;
+  MSymbol key;
+  XWindowAttributes attr;
+  unsigned depth = 0;
+  MPlist *plist;
+  AppData app_data;
+  MFace *face;
+
+  for (plist = param; (key = mplist_key (plist)) != Mnil;
+       plist = mplist_next (plist))
+    {
+      if (key == Mdisplay)
+	display = (Display *) mplist_value (plist);
+      else if (key == Mscreen)
+	screen = mplist_value (plist);
+      else if (key == Mdrawable)
+	drawable = (Drawable) mplist_value (plist);
+      else if (key == Mdepth)
+	depth = (unsigned) mplist_value (plist);
+      else if (key == Mwidget)
+	widget = (Widget) mplist_value (plist);
+      else if (key == Mcolormap)
+	cmap = (Colormap) mplist_value (plist);
+    }
+
+  if (widget)
+    {
+      display = XtDisplay (widget);
+      screen_num = XScreenNumberOfScreen (XtScreen (widget));
+      depth = DefaultDepth (display, screen_num);
+    }
+  else if (drawable)
+    {
+      Window root_window;
+      int x, y;
+      unsigned width, height, border_width;
+
+      if (! display)
+	MERROR (MERROR_WIN, -1);
+      XGetGeometry (display, drawable, &root_window,
+		    &x, &y, &width, &height, &border_width, &depth);
+      XGetWindowAttributes (display, root_window, &attr);
+      screen_num = XScreenNumberOfScreen (attr.screen);
+    }
+  else
+    {
+      if (screen)
+	display = DisplayOfScreen (screen);
+      else
+	{
+	  if (! display)
+	    {
+	      display = XOpenDisplay (NULL);
+	      if (! display)
+		MERROR (MERROR_WIN, -1);
+	      auto_display = 1;
+	    }
+	  screen = DefaultScreenOfDisplay (display);
+	}
+      screen_num = XScreenNumberOfScreen (screen);
+      if (! depth)
+	depth = DefaultDepth (display, screen_num);
+    }
+
+  if (! cmap)
+    cmap = DefaultColormap (display, screen_num);
+
+  for (plist = display_info_list; mplist_key (plist) != Mnil;
+       plist = mplist_next (plist))
+    {
+      disp_info = (MDisplayInfo *) mplist_value (plist);
+      if (disp_info->display == display)
+	break;
+    }
+
+  if (mplist_key (plist) != Mnil)
+    M17N_OBJECT_REF (disp_info);
+  else
+    {
+      M17N_OBJECT (disp_info, free_display_info, MERROR_WIN);
+      disp_info->display = display;
+      disp_info->auto_display = auto_display;
+      disp_info->font_registry_list = mplist ();
+      disp_info->iso8859_1_family_list = mplist ();
+      disp_info->iso10646_1_family_list = mplist ();
+      disp_info->realized_font_list = mplist ();
+      find_modifier_bits (disp_info);
+      mplist_add (display_info_list, Mt, disp_info);
+    }  
+
+  for (plist = device_list; mplist_key (plist) != Mnil;
+       plist = mplist_next (plist))
+    {
+      device = (MWDevice *) mplist_value (plist);
+      if (device->display_info == disp_info
+	  && device->depth == depth
+	  && device->cmap == cmap)
+	break;
+    }
+
+  if (mplist_key (plist) != Mnil)
+    M17N_OBJECT_REF (device);
+  else
+    {
+      unsigned long valuemask = GCForeground;
+      XGCValues values;
+
+      M17N_OBJECT (device, free_device, MERROR_WIN);
+      device->display_info = disp_info;
+      device->screen_num = screen_num;
+      /* A drawable on which to create GCs.  */
+      device->drawable = XCreatePixmap (display,
+					RootWindow (display, screen_num),
+					1, 1, depth);
+      device->depth = depth;
+      device->cmap = cmap;
+      device->realized_face_list = mplist ();
+      device->realized_fontset_list = mplist ();
+      device->gc_list = mplist ();
+      values.foreground = BlackPixel (display, screen_num);
+      device->scratch_gc = XCreateGC (display, device->drawable,
+				      valuemask, &values);
+#ifdef HAVE_XFT2
+      device->xft_draw = XftDrawCreate (display, device->drawable,
+					DefaultVisual (display, screen_num),
+					cmap);
+#endif
+    }
+
+  frame->device = device;
+  frame->device_type = MDEVICE_SUPPORT_OUTPUT | MDEVICE_SUPPORT_INPUT;
+  frame->driver = &x_driver;
+  frame->font_driver_list = mplist ();
+  mplist_add (frame->font_driver_list, Mx, &xfont_driver);
+#ifdef HAVE_XFT2
+  mplist_add (frame->font_driver_list, Mfreetype, &xft_driver);
+#elif HAVE_FREETYPE
+  mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
+#endif
+  frame->realized_font_list = disp_info->realized_font_list;
+  frame->realized_face_list = device->realized_face_list;
+  frame->realized_fontset_list = device->realized_fontset_list;
+
+  if (widget)
+    {
+      XtResource resources[] = {
+	{ XtNfont, XtCFont, XtRString, sizeof (String),
+	  XtOffset (AppDataPtr, font), XtRString, DEFAULT_FONT },
+	{ XtNforeground, XtCForeground, XtRString, sizeof (String),
+	  XtOffset (AppDataPtr, foreground), XtRString, "black" },
+	{ XtNbackground, XtCBackground, XtRString, sizeof (String),
+	  XtOffset (AppDataPtr, background), XtRString, "white" },
+	{ XtNreverseVideo, XtCReverseVideo, XtRBoolean, sizeof (Boolean),
+	  XtOffset (AppDataPtr, reverse_video), XtRImmediate, (caddr_t) FALSE }
+      };
+
+      XtGetApplicationResources (widget, &app_data,
+				 resources, XtNumber (resources), NULL, 0);
+      frame->foreground = msymbol (app_data.foreground);
+      frame->background = msymbol (app_data.background);
+      frame->videomode = app_data.reverse_video == True ? Mreverse : Mnormal;
+    }
+  else
+    {
+      app_data.font = DEFAULT_FONT;
+      frame->foreground = msymbol ("black");
+      frame->background = msymbol ("white");
+      frame->videomode = Mnormal;
+    }
+
+  {
+    int nfonts;
+    char **names = XListFonts (display, app_data.font, 1, &nfonts);
+
+    if (nfonts > 0)
+      {
+	if (! (frame->font = mfont_parse_name (names[0], Mx)))
+	  {
+	    /* The font name does not conform to XLFD.  Try to open the
+	       font and get XA_FONT property.  */
+	    XFontStruct *xfont = XLoadQueryFont (display, names[0]);
+
+	    nfonts = 0;
+	    if (xfont)
+	      {
+		unsigned long value;
+		char *name;
+
+		if (XGetFontProperty (xfont, XA_FONT, &value)
+		    && (name = ((char *)
+				XGetAtomName (display, (Atom) value))))
+		  {
+		    if ((frame->font = mfont_parse_name (name, Mx)))
+		      nfonts = 1;
+		  }
+		XFreeFont (display, xfont);
+	      }
+	  }
+	XFreeFontNames (names);
+      }
+    if (! nfonts)
+      frame->font = mfont_parse_name (FALLBACK_FONT, Mx);
+  }
+
+  face = mface_from_font (frame->font);
+  face->property[MFACE_FONTSET] = mfontset (NULL);
+  face->property[MFACE_FOREGROUND] = frame->foreground;
+  face->property[MFACE_BACKGROUND] = frame->background;
+  mface_put_prop (face, Mhline, mface_get_prop (mface__default, Mhline));
+  mface_put_prop (face, Mbox, mface_get_prop (mface__default, Mbox));
+  face->property[MFACE_VIDEOMODE] = frame->videomode;
+  mface_put_prop (face, Mhook_func, 
+		  mface_get_prop (mface__default, Mhook_func));
+  face->property[MFACE_RATIO] = (void *) 100;
+  mplist_push (param, Mface, face);
+  M17N_OBJECT_UNREF (face);
+
+#ifdef X_SET_ERROR_HANDLER
+  XSetErrorHandler (x_error_handler);
+  XSetIOErrorHandler (x_io_error_handler);
+#endif
+
+  return 0;
+}
 
 
 
@@ -2164,26 +2167,13 @@ x_io_error_handler (Display *display)
 }
 #endif
 
+/*=*/
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
 /* External API */
 
-int
-m17n_init_X ()
-{
-  x_driver.initialized = 0;
-  mplist_put (m17n__device_library_list, Mx, &x_driver);
-
-#ifdef HAVE_XFT2
-  xft_driver.select = mfont__ft_driver.select;
-  xft_driver.encode_char = mfont__ft_driver.encode_char;
-#endif
-
-  return 0;
-}
-
-/*=*/
 /*** @addtogroup m17nInputMethodWin */
 /*=*/
 /*** @{ */

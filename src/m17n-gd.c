@@ -319,71 +319,6 @@ gd_render (MDrawWindow win, int x, int y,
 static MFontDriver gd_font_driver =
   { NULL, NULL, NULL, NULL, gd_render };
 
-static int
-gd_init ()
-{
-  M_rgb = msymbol ("  rgb");
-  read_rgb_txt ();
-  realized_fontset_list = mplist ();
-  realized_font_list = mplist ();
-  realized_face_list = mplist ();  
-  scratch_images[0] = scratch_images[1] = NULL;
-
-  gd_font_driver.select = mfont__ft_driver.select;
-  gd_font_driver.open = mfont__ft_driver.open;
-  gd_font_driver.find_metric = mfont__ft_driver.find_metric;
-  gd_font_driver.encode_char = mfont__ft_driver.encode_char;
-
-  return 0;
-}
-
-static int
-gd_fini ()
-{
-  MPlist *plist;
-  int i;
-
-  MPLIST_DO (plist, realized_fontset_list)
-    mfont__free_realized_fontset ((MRealizedFontset *) MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (realized_fontset_list);
-
-  MPLIST_DO (plist, realized_face_list)
-    {
-      MRealizedFace *rface = MPLIST_VAL (plist);
-
-      free (rface->info);
-      mface__free_realized (rface);
-    }
-  M17N_OBJECT_UNREF (realized_face_list);
-
-  MPLIST_DO (plist, realized_font_list)
-    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (realized_font_list);
-
-  for (i = 0; i < 2; i++)
-    if (scratch_images[i])
-      gdImageDestroy (scratch_images[i]);
-  return 0;
-}
-
-static int
-gd_open (MFrame *frame, MPlist *param)
-{
-  MFace *face;
-
-  frame->device = NULL;
-  frame->device_type = MDEVICE_SUPPORT_OUTPUT;
-  frame->font_driver_list = mplist ();
-  mplist_add (frame->font_driver_list, Mfreetype, &gd_font_driver);
-  frame->realized_font_list = realized_font_list;
-  frame->realized_face_list = realized_face_list;
-  frame->realized_fontset_list = realized_fontset_list;
-  face = mface_copy (mface__default);
-  mplist_push (param, Mface, face);
-  M17N_OBJECT_UNREF (face);
-  return 0;
-}
-
 static void
 gd_close (MFrame *frame)
 {
@@ -774,10 +709,6 @@ gd_dump_region (MDrawRegion region)
 
 static MDeviceDriver gd_driver =
   {
-    0,
-    gd_init,
-    gd_fini,
-    gd_open,
     gd_close,
     gd_get_prop,
     gd_realize_face,
@@ -796,22 +727,72 @@ static MDeviceDriver gd_driver =
     gd_dump_region,
   };
 
-
-/* External API */
+/* Functions to be stored in MDeviceLibraryInterface by dlsym ().  */
+
 int
-m17n_init_gd ()
+device_init ()
 {
-  gd_driver.initialized = 0;
-  mplist_put (m17n__device_library_list, Mgd, &gd_driver);
+  M_rgb = msymbol ("  rgb");
+  read_rgb_txt ();
+  realized_fontset_list = mplist ();
+  realized_font_list = mplist ();
+  realized_face_list = mplist ();  
+  scratch_images[0] = scratch_images[1] = NULL;
+
+  gd_font_driver.select = mfont__ft_driver.select;
+  gd_font_driver.open = mfont__ft_driver.open;
+  gd_font_driver.find_metric = mfont__ft_driver.find_metric;
+  gd_font_driver.encode_char = mfont__ft_driver.encode_char;
+
   return 0;
 }
 
-#else	/* not HAVE_GD nor HAVE_FREETYPE */
+int
+device_fini ()
+{
+  MPlist *plist;
+  int i;
+
+  MPLIST_DO (plist, realized_fontset_list)
+    mfont__free_realized_fontset ((MRealizedFontset *) MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (realized_fontset_list);
+
+  MPLIST_DO (plist, realized_face_list)
+    {
+      MRealizedFace *rface = MPLIST_VAL (plist);
+
+      free (rface->info);
+      mface__free_realized (rface);
+    }
+  M17N_OBJECT_UNREF (realized_face_list);
+
+  MPLIST_DO (plist, realized_font_list)
+    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (realized_font_list);
+
+  for (i = 0; i < 2; i++)
+    if (scratch_images[i])
+      gdImageDestroy (scratch_images[i]);
+  return 0;
+}
 
 int
-m17n_init_gd ()
+device_open (MFrame *frame, MPlist *param)
 {
-  return -1;
+  MFace *face;
+
+  frame->device = NULL;
+  frame->device_type = MDEVICE_SUPPORT_OUTPUT;
+  frame->driver = &gd_driver;
+  frame->font_driver_list = mplist ();
+  mplist_add (frame->font_driver_list, Mfreetype, &gd_font_driver);
+  frame->realized_font_list = realized_font_list;
+  frame->realized_face_list = realized_face_list;
+  frame->realized_fontset_list = realized_fontset_list;
+  face = mface_copy (mface__default);
+  mplist_push (param, Mface, face);
+  M17N_OBJECT_UNREF (face);
+  return 0;
 }
 
 #endif	/* not HAVE_GD nor HAVE_FREETYPE */
