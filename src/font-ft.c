@@ -1097,8 +1097,8 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
 		  adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
 				 g->code, size, &mark_x, &mark_y);
-		g->xoff = (base_x - prev->width) - mark_x;
-		g->yoff = mark_y - base_y;
+		g->xoff = prev->xoff + (base_x - prev->width) - mark_x;
+		g->yoff = prev->yoff + mark_y - base_y;
 		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
 	      }
 	      break;
