@@ -163,7 +163,7 @@ main (int argc, char **argv)
   if (merror_code != MERROR_NONE)
     FATAL_ERROR ("%s\n", "Fail to initialize the m17n library.");
 
-  /* Get a local list in LOCALE_LIST, and generate an M-text that
+  /* Get a locale list in LOCALE_LIST, and generate an M-text that
      contains date string in each locale.  */
   locale_list = list_system_locales ();
   mt = mtext ();
