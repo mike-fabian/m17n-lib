@@ -1,3 +1,23 @@
+2004-05-12  Kenichi Handa  <handa@m17n.org>
+
+	* internal-gui.h (mwin__xft_open): Arguemnt name changed.
+
+	* m17n-X.c (mwin__xft_open): Argument changed to fontname and
+	parse it XftNameParse.
+
+	* font-ft.c (MFTInfo) [HAVE_XFT2]: New member fontname.
+	(all_fonts_scaned): New variable.
+	(set_font_info): FAMILY may be Mnil.
+	(add_font_info): Argument changed.
+	(xft_list): Call add_font_info in it.
+	(ft_list): Likewise.
+	(ft_select): Make it work in the case family is Mnil.
+	(ft_open) [HAVE_XFT2]: Setup ft_info->fontname.
+	(mfont__ft_fini): Set all_fonts_scaned to 0.
+
+	* fontset.c (mfont__lookup_fontset): Don't repeatedly try a font
+	that is failed to open.
+
 2004-05-10  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (mwin__xft_render): Don't use anti-alias if the
