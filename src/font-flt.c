@@ -999,7 +999,8 @@ run_rule (int depth,
       if (i < len)
 	return 0;
       to = from + len;
-      MDEBUG_PRINT1 (" (SEQ 0x%X", rule->src.seq.codes[0]);
+      MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
+		     rule->src.seq.codes[0]);
     }
   else if (rule->src_type == SRC_RANGE)
     {
@@ -1012,7 +1013,7 @@ run_rule (int depth,
 	return 0;
       ctx->code_offset = head - rule->src.range.from;
       to = from + 1;
-      MDEBUG_PRINT2 (" (RANGE 0x%X-0x%X",
+      MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
 		     rule->src.range.from, rule->src.range.to);
     }
   else if (rule->src_type == SRC_REGEX)
@@ -1030,7 +1031,7 @@ run_rule (int depth,
 			NMATCH, pmatch, 0);
       if (result == 0 && pmatch[0].rm_so == 0)
 	{
-	  MDEBUG_PRINT3 (" (REGEX \"%s\" \"%s\" %d",
+	  MDEBUG_PRINT5 ("\n [FLT] %*s(REGEX \"%s\" \"%s\" %d", depth, "",
 			 rule->src.re.pattern,
 			 ctx->encoded + from - ctx->encoded_offset,
 			 pmatch[0].rm_eo);
@@ -1062,7 +1063,7 @@ run_rule (int depth,
       if (from < 0)
 	return 0;
       to = ctx->match_indices[rule->src.match_idx * 2 + 1];
-      MDEBUG_PRINT1 (" (INDEX %d", rule->src.match_idx);
+      MDEBUG_PRINT3 ("\n [FLT] %*s(INDEX %d", depth, "", rule->src.match_idx);
     }
 
   consumed = 0;
@@ -1151,7 +1152,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	g = *(MGLYPH (from - 1));
       g.type = GLYPH_CHAR;
       g.code = ctx->code_offset + id;
-      MDEBUG_PRINT1 (" (DIRECT 0x%X", g.code);
+      MDEBUG_PRINT3 ("\n [FLT] %*s(DIRECT 0x%X", depth, "", g.code);
       if (ctx->combining_code)
 	g.combining_code = ctx->combining_code;
       if (ctx->left_padding)
@@ -1209,6 +1210,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	if (ctx->left_padding)
 	  g.left_padding = ctx->left_padding;
 	APPEND_GLYPH (gstring, g);
+	MDEBUG_PRINT3 ("\n [FLT] %*s(COPY 0x%X)", depth, "", g.code);
 	ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
 	return (from + 1);
       }
@@ -1216,7 +1218,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
     case CMD_ID_CLUSTER_BEGIN:
       if (! ctx->cluster_begin_idx)
 	{
-	  MDEBUG_PRINT1 (" <%d", MGLYPH (from)->pos);
+	  MDEBUG_PRINT3 ("\n [FLT] %*s<%d", depth, "", MGLYPH (from)->pos);
 	  ctx->cluster_begin_idx = gstring->used;
 	  ctx->cluster_begin_pos = MGLYPH (from)->pos;
 	  ctx->cluster_end_pos = MGLYPH (from)->to;
@@ -1381,11 +1383,28 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
       int len = to - from;
       int result;
 
-      MDEBUG_PRINT1 ("\n [FLT]   (STAGE %d", stage_idx);
+      MDEBUG_PRINT2 ("\n [FLT]   (STAGE %d \"%s\"", stage_idx, ctx.encoded);
+      if (mdebug__flag & mdebug_mask
+	  && ctx.encoded_offset < to)
+	{
+	  if (gstring->glyphs[ctx.encoded_offset].type == GLYPH_PAD)
+	    fprintf (stderr, " (|");
+	  else
+	    fprintf (stderr, " (%X", gstring->glyphs[ctx.encoded_offset].code);
+	  for (i = ctx.encoded_offset + 1; i < to; i++)
+	    {
+	      if (gstring->glyphs[i].type == GLYPH_PAD)
+		fprintf (stderr, " |");
+	      else
+		fprintf (stderr, " %X", gstring->glyphs[i].code);
+	    }
+	  fprintf (stderr, ")");
+	}
+
       gidx = gstring->used;
       ctx.stage = stage;
 
-      result = run_command (2, INDEX_TO_CMD_ID (0), gstring,
+      result = run_command (4, INDEX_TO_CMD_ID (0), gstring,
 			    ctx.encoded_offset, to, &ctx);
       MDEBUG_PRINT (")");
       if (result < 0)
