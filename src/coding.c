@@ -35,15 +35,14 @@
     coding system into an M-text, and inversely, can encode an M-text
     into a byte sequence.  */
 
-/***oldja
+/***ja
     @addtogroup m17nConv
     @brief コード系オブジェクトとそれに関する API
 
-    m17n ライブラリは、符号化文字集合 (coded character sets; CCS) の文
+    m17n ライブラリは、符号化文字集合 (coded character set; CCS) の文
     字符合化方式 (character encoding scheme; CES) を @e コード系 と呼
-    ぶオブジェクトで表現する。m17n ライブラリがサポートするCES は、
-    UTF-8, UTF-16, ISO-2022, DIRECT-CHARSET, その他、に大別される。ア
-    プリケーションプログラムが独自にコード系を追加することも可能である。
+    ぶオブジェクトで表現する。アプリケーションプログラムは独自にコード
+    系を追加することもできる。
 
     コードポイントから文字コードへの変換を @e エンコード と呼び、文字
     コードからコードポイントへの変換を @e デコード と呼ぶ。
@@ -3084,7 +3083,7 @@ mcoding__load_from_database ()
 /*=*/
 
 /***en @name Variables: Symbols representing a coding system */
-/***oldja @name 変数: 定義済みコード系を指定するためのシンボル */
+/***ja @name 変数: 定義済みコード系を指定するためのシンボル */
 /*** @{ */
 /*=*/
 
@@ -3094,13 +3093,12 @@ mcoding__load_from_database ()
     The symbol #Mcoding_us_ascii has name <tt>"us-ascii"</tt> and
     represents a coding system for the CES US-ASCII.  */
 
-/***oldja
-    @brief MIME charset "US-ASCII" に対応するコード系のシンボル
+/***ja
+    @brief  US-ASCII コード系のシンボル
 
-    シンボル @c Mcoding_us_ascii は <tt>"us-ascii"</tt> という名前を持ち、
-    MIME charset <tt>"US-ASCII"</tt> に対応するコード系を指定するため
-    に使われる。
-     */
+    シンボル #Mcoding_us_ascii は <tt>"us-ascii"</tt> という名前を持ち、
+    CES US-ASCII 用のコード系を示す。
+    */
 MSymbol Mcoding_us_ascii;
 /*=*/
 
@@ -3110,12 +3108,11 @@ MSymbol Mcoding_us_ascii;
     The symbol #Mcoding_iso_8859_1 has name <tt>"iso-8859-1"</tt> and
     represents a coding system for the CES ISO-8859-1.  */
 
-/***oldja
-    @brief MIME charset "ISO-8859-1" に対応するコード系のシンボル
+/***ja
+    @brief ISO-8859-1 コード系のシンボル
 
-    シンボル @c Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> という名前
-    を持ち、MIME charset <tt>"ISO-8859-1"</tt> に対応するコード系を指
-    定するために使われる。 */
+    シンボル #Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> という名前
+    を持ち、CES ISO-8859-1 用のコード系を示す。  */
 
 MSymbol Mcoding_iso_8859_1;
 /*=*/
@@ -3126,20 +3123,18 @@ MSymbol Mcoding_iso_8859_1;
     The symbol #Mcoding_utf_8 has name <tt>"utf-8"</tt> and represents
     a coding system for the CES UTF-8.  */
 
-/***oldja
-    @brief RFC 2279 の "UTF-8" に対応するコード系のシンボル（Unicode 用）
+/***ja
+    @brief UTF-8 コード系のシンボル
 
-    シンボル @c Mcoding_utf_8 は <tt>"utf-8"</tt> という名前を持ち、
-    RFC 2279 で定義される<tt>"UTF-8"</tt> に対応するコード系を指定する
-    ために使われる。このコード系は Unicode の全ての文字をサポートする。
+    シンボル #Mcoding_utf_8 は <tt>"utf-8"</tt> という名前を持ち、CES
+    UTF-8 用のコード系を示す。
      */
 
 MSymbol Mcoding_utf_8;
 /*=*/
 
 /***en
-    @brief UTF-8-FULL
-
+    @brief Symbol for the coding system UTF-8-FULL
 
     The symbol #Mcoding_utf_8_full has name <tt>"utf-8-full"</tt> and
     represents a coding system that is a extension of UTF-8.  This
@@ -3147,82 +3142,117 @@ MSymbol Mcoding_utf_8;
     limited to the Unicode characters.  It can encode all characters
     supported by the m17n library.  */
 
-/***oldja
-    @brief RFC 2279 の "UTF-8" に対応するコード系のシンボル（全文字用）
+/***ja
+    @brief UTF-8-FULL コード系のシンボル
 
-    シンボル @c Mcoding_utf_8_full は <tt>"utf-8-full"</tt> という名前
-    を持ち、RFC 2279 で定義される<tt>"UTF-8"</tt> に対応するコード系を
-    指定するために使われる。このコード系は m17n ライブラリが扱う全ての
-    文字をサポートする。  */
+    シンボル #Mcoding_utf_8_full は <tt>"utf-8-full"</tt> という名前を
+    持ち、<tt>"UTF-8"</tt> の拡張であるコード系を示す。このコード系は 
+    UTF-8 と同じエンコーディングアルゴリズムを用いるが、対象は Unicode 
+    の文字に限らない。またm17n ライブラリが扱う全ての文字をエンコード
+    することができる。
+    */
 
 MSymbol Mcoding_utf_8_full;
 /*=*/
 
 /***en
-    @brief UTF-16
+    @brief Symbol for the coding system UTF-16
 
     The symbol #Mcoding_utf_16 has name <tt>"utf-16"</tt> and
     represents a coding system for the CES UTF-16 (RFC 2279).  */
-/***oldja
-    @brief RFC 2781 の "UTF-16" に対応するコード系のシンボル
+/***ja
+    @brief UTF-16 コード系のシンボル
 
-    シンボル @c Mcoding_utf_16 は <tt>"utf-16"</tt> という名前を持ち、
-    RFC 2279 で定義される<tt>"UTF-16"</tt> に対応するコード系を指定す
-    るために使われる。このコード系は Unicode の全ての文字をサポートす
-    る。 */
+    シンボル #Mcoding_utf_16 は <tt>"utf-16"</tt> という名前を持ち、
+    CES UTF-16 (RFC 2279) 用のコード系を示す。
+     */
 
 MSymbol Mcoding_utf_16;
 /*=*/
 
 /***en
-    @brief UTF-16BE
+    @brief Symbol for the coding system UTF-16BE
 
     The symbol #Mcoding_utf_16be has name <tt>"utf-16be"</tt> and
     represents a coding system for the CES UTF-16BE (RFC 2279).  */
+
+/***ja
+    @brief UTF-16BE コード系のシンボル
+
+    シンボル #Mcoding_utf_16be は <tt>"utf-16be"</tt> という名前を持ち、
+    CES UTF-16BE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_16be;
 /*=*/
 
 /***en
-    @brief UTF-16LE
+    @brief Symbol for the coding system UTF-16LE
 
     The symbol #Mcoding_utf_16le has name <tt>"utf-16le"</tt> and
     represents a coding system for the CES UTF-16LE (RFC 2279).  */
+
+/***ja
+    @brief UTF-16LE コード系のシンボル
+
+    シンボル #Mcoding_utf_16le は <tt>"utf-16le"</tt> という名前を持ち、
+    CES UTF-16LE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_16le;
 /*=*/
 
 /***en
-    @brief UTF-32
+    @brief Symbol for the coding system UTF-32
 
     The symbol #Mcoding_utf_32 has name <tt>"utf-32"</tt> and
     represents a coding system for the CES UTF-32 (RFC 2279).  */
+
+/***ja
+    @brief UTF-32 コード系のシンボル
+
+    シンボル #Mcoding_utf_32 は <tt>"utf-32"</tt> という名前を持ち、
+    CES UTF-32 (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_32;
 /*=*/
 
 /***en
-    @brief UTF-32be
+    @brief Symbol for the coding system UTF-32be
 
     The symbol #Mcoding_utf_32be has name <tt>"utf-32be"</tt> and
     represents a coding system for the CES UTF-32BE (RFC 2279).  */
+/***ja
+    @brief UTF-32be コード系のシンボル
+
+    シンボル #Mcoding_utf_32be は <tt>"utf-32be"</tt> という名前を持ち、
+    CES UTF-32BE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_32be;
 /*=*/
 
 /***en
-    @brief UTF-32LE
+    @brief Symbol for the coding system UTF-32LE
 
     The symbol #Mcoding_utf_32le has name <tt>"utf-32le"</tt> and
     represents a coding system for the CES UTF-32LE (RFC 2279).  */
+/***ja
+    @brief UTF-32LE コード系のシンボル
+
+    シンボル #Mcoding_utf_32le は <tt>"utf-32le"</tt> という名前を持ち、
+    CES UTF-32LE (RFC 2279) 用のコード系を示す。     */
+
 MSymbol Mcoding_utf_32le;
 /*=*/
 
 /***en
-    @brief SJIS
+    @brief Symbol for the coding system SJIS
 
     The symbol #Mcoding_sjis has name <tt>"sjis"</tt> and represents a coding
     system for the CES Shift-JIS.  */ 
+/***ja
+    @brief SJIS コード系のシンボル
+
+    シンボル #Mcoding_sjis has は <tt>"sjis"</tt> という名前を持ち、
+    CES Shift-JIS用のコード系を示す。  */ 
 
 MSymbol Mcoding_sjis;
 /*** @} */ 
@@ -3230,11 +3260,15 @@ MSymbol Mcoding_sjis;
 
 /***en
     @name Variables: Parameter keys for mconv_define_coding ().  */
+/***ja
+    @name 変数:  mconv_define_coding () 用パラメータキー  */
 /*** @{ */
 /*=*/
 
 /***en
     Parameter key for mconv_define_coding () (which see). */ 
+/***ja
+    mconv_define_coding () 用パラメータキー (詳細は mconv_define_coding ()参照). */ 
 MSymbol Mtype;
 /*=*/
 
@@ -3250,6 +3284,8 @@ MSymbol Mlittle_endian;
 
 /***en
     @name Variables: Symbols representing coding system type.  */
+/***ja
+    @name 変数： コード系のタイプを示すシンボル.  */
 /*** @{ */
 /*=*/
 
@@ -3257,6 +3293,10 @@ MSymbol Mlittle_endian;
     Symbol that can be a value of the #Mtype parameter of a coding
     system used in an argument to the mconv_define_coding () function
     (which see).  */
+/***ja 
+    関数 mconv_define_coding () の引数として用いられる、コード系の
+    パラメータ #Mtype の値となり得るシンボル。(詳細は 
+    mconv_define_coding ()参照)。  */
  
 MSymbol Mutf;
 /*=*/
@@ -3266,7 +3306,9 @@ MSymbol Miso_2022;
 /*=*/
 
 /***en
-    @name Variables: Symbols appearing in the value of #Mfrag parameter.  */
+    @name Variables: Symbols appearing in the value of #Mflags parameter.  */
+/***ja
+    @name 変数： パラメータ #Mflags の値となり得るシンボル.  */
 /*** @{ */
 /*=*/
 
@@ -3274,6 +3316,10 @@ MSymbol Miso_2022;
     Symbol that can be a value of the #Mflags parameter of a coding
     system used in an argument to the mconv_define_coding () function
     (which see).  */
+/***ja 
+    関数 mconv_define_coding () の引数として用いられる、コード系の
+    パラメータ #Mflags の値となり得るシンボル。(詳細は 
+    mconv_define_coding ()参照)。  */
 MSymbol Mreset_at_eol;
 /*=*/
 MSymbol Mreset_at_cntl;
@@ -3297,7 +3343,9 @@ MSymbol Mfull_support;
     @name Variables: etc
 
     Remaining variables.  */
-/***oldja @name 変数: その他 */
+/***ja @name 変数: その他 
+
+    ほかの変数。 */
 /*** @{ */
 /*=*/
 /***en
@@ -3306,6 +3354,12 @@ MSymbol Mfull_support;
     The variable #Mmaybe is a symbol of name <tt>"maybe"</tt>.  It is
     used a value of #Mbom parameter of the function
     mconv_define_coding () (which see).  */
+/***ja
+    @brief "maybe"という名前を持つシンボル
+
+    変数 #Mmaybe は <tt>"maybe"</tt> という名前を持つ。これは関数 
+    mconv_define_coding () パラメータ #Mbom の値として用いられる。(詳
+    細は mconv_define_coding () 参照)。 */
 
 MSymbol Mmaybe;
 /*=*/
@@ -3317,12 +3371,12 @@ MSymbol Mmaybe;
     symbol @c Mcoding.  The name of @c Mcoding is
     <tt>"coding"</tt>.  */
 
-/***oldja
+/***ja
     @brief シンボル @c Mcoding
 
-    デコードされた M-text は、キーが @c Mcoding であるようなテキストプ
-    ロパティを持つ。シンボル @c Mcoding は <tt>"coding"</tt> という名
-    前であらかじめ定義されている。  */
+    デコードされた M-text はすべて、キーが定義済みシンボル @c Mcoding 
+    であるようなテキストプロパティを持つ。シンボル @c Mcoding は 
+    <tt>"coding"</tt> という名前を持つ。  */
 
 MSymbol Mcoding;
 /*=*/
@@ -3334,7 +3388,7 @@ MSymbol Mcoding;
 
     The mconv_define_coding () function defines a new coding system
     and makes it accessive via a symbol whose name is $NAME.  $PLIST
-    specifies parameters of the charset as below:
+    specifies parameters of the coding system as below:
 
     <ul>
 
@@ -3345,11 +3399,11 @@ MSymbol Mcoding;
 
     If the type is #Mcharset, $EXTRA_INFO is ignored.
 
-    If the type is #Miso_2022, $EXTRA_INFO must be a pointer to
-    #MCodingInfoISO2022.
-
     If the type is #Mutf, $EXTRA_INFO must be a pointer to
     #MCodingInfoUTF.
+
+    If the type is #Miso_2022, $EXTRA_INFO must be a pointer to
+    #MCodingInfoISO2022.
 
     If the type is #Mnil, the argument $RESETTER, $DECODER, and
     $ENCODER must be supplied.  $EXTRA_INFO is ignored.  Otherwise,
@@ -3364,14 +3418,14 @@ MSymbol Mcoding;
     <li> Key is #Mflags, value is a plist
 
     If the type is #Miso_2022, the values specifies flags to control
-    the ISO 2022 interpreter.  The keys of the plist must e @c
-    Msymbol, and values must be one of the following.
+    the ISO 2022 interpreter.  The keys of the plist must e #Msymbol,
+    and values must be one of the following.
 
     <ul>
 
     <li> #Mreset_at_eol
 
-    If this flag exits, designation and invocation status is reset to
+    If this flag exists, designation and invocation status is reset to
     the initial state at the end of line.
 
     <li> #Mreset_at_cntl
@@ -3386,7 +3440,7 @@ MSymbol Mcoding;
     <li> #Mlong_form
 
     If this flag exists, the over-long escape sequences (ESC '$' '('
-    <final_byte>) are used for designating the charsets JISX0208.1978,
+    <final_byte>) are used for designating the CCS JISX0208.1978,
     GB2312, and JISX0208.
 
     <li> #Mdesignation_g0
@@ -3447,8 +3501,8 @@ MSymbol Mcoding;
     <li> Key is #Mdesignation, value is a plist
 
     If the type is #Miso_2022, the value specifies how to designate
-    each supported characters.  The keys of the plist must be @c
-    Minteger, and the values must be numbers indicating a graphic
+    each supported characters.  The keys of the plist must be 
+    #Minteger, and the values must be numbers indicating a graphic
     registers.  The Nth element value is for the Nth charset of the
     charset list.  The value 0..3 means that it is assumed that a
     charset is already designated to the graphic register 0..3.  The
@@ -3526,25 +3580,162 @@ MSymbol Mcoding;
 
     If the operation was successful, mconv_define_coding () returns a
     symbol whose name is $NAME.  If an error is detected, it returns
-    #Mnil and assigns an error code to the external variable @c
-    merror_code.  */
+    #Mnil and assigns an error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief コード系の定義
+/***ja
+    @brief コード系を定義する.
 
     関数 mconv_define_coding () は、新しいコード系を定義し、それを 
-    $NAME という名前のシンボル経由でアクセスできるようにする。
+    $NAME という名前のシンボル経由でアクセスできるようにする。 $PLIST 
+    では定義するコード系のパラメータを以下のように指定する。
 
-    $TYPE は 列挙型 #MCodingType のいずれかであり、コード系の構造を
-    指定する。
+    <ul>
 
-    $CHARSET_NAMES はサポートする文字セットを表わすシンボルの配列であり、
-    $NCHARSETS はその要素数である。
+    <li> キーが @c Mtype で値がシンボルの時
 
-    $TYPE が #MCODING_TYPE_MISC である場合には、$RESETTER, $DECODER,
-    $ENCODER を与えなくてはならない。それ以外の場合にはこれらは @c
-    NULL で構わない。その際には m17n ライブラリが適切なデフォルト値を
-    与える。
+    値はコード系のタイプを表し、#Mcharset, #Mutf, #Miso_2022, #Mnil の
+    いずれかでなくてはならない。
+
+    タイプが #Mcharset ならば $EXTRA_INFO は無視される。
+
+    タイプが #Mutf ならば $EXTRA_INFO は#MCodingInfoUTF へのポインタで
+    なくてはならない。
+
+    タイプが #Miso_2022ならば $EXTRA_INFO は#MCodingInfoISO2022 へのポ
+    インタでなくてはならない。
+
+    タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER を与えな
+    くてはならない。$EXTRA_INFO は無視される。それ以外の場合にはこれら
+    は @c NULL で構わない。その際には m17n ライブラリが適切なデフォル
+    ト値を与える。
+
+    <li> キーが #Mcharsets で値が plist の時
+
+    値はこのコード系でサポートされる文字セットのリストである。plistのキーは
+    #Msymbol、値は文字セットを示すシンボルでなくてはならない。
+
+    <li> キーが #Mflags 値が plist の時
+
+    タイプが #Miso_2022 ならば、この値は, ISO 2022 インタプリタ用の制
+    御フラッグを示す。plistのキーは#Msymbol、値は以下のいずれかでなく
+    てはならない。
+
+    <ul>
+
+    <li> #Mreset_at_eol
+
+    このフラグがあれば、図形文字集合の指示や呼出は行末でリセットされて
+    当初の状態に戻る。
+
+    <li> #Mreset_at_cntl
+
+    このフラグがあれば、図形文字集合の指示や呼出は制御文字に出会った時
+    点でリセットされて当初の状態に戻る。
+
+    <li> #Meight_bit
+
+    このフラグがあれば、図形文字集合の右半面が用いられる。
+
+    <li> #Mlong_form
+
+    このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 を指
+    示する際に over-long エスケープシーケンス (ESC '$' '('
+    <final_byte>) が用いられる。
+
+    <li> #Mdesignation_g0
+
+    このフラグと #Mfull_support があれば、文字セットリストに現われない
+    文字セットを G0 集合に指示する。
+
+    <li> #Mdesignation_g1
+
+    このフラグと #Mfull_support があれば、文字セットリストに現われない
+    文字セットを G1 集合に指示する。
+
+    <li> #Mdesignation_ctext
+
+    このフラグと #Mfull_support があれば、文字セットリストに現われない
+    文字セットを G0 集合または G1 集合に、コンパウンドテキストの基準に
+    そって指示する。
+
+    <li> #Mdesignation_ctext_ext
+
+    このフラグと #Mfull_support があれば、文字セットリストに現われない
+    文字セットを G0 集合または G1 集合に、あるいは拡張セグメントにコン
+    パウンドテキストの基準にそって指示する。
+
+    <li> #Mlocking_shift
+
+    このフラグがあれば、ロッキングシフトを用いる。
+
+    <li> #Msingle_shift
+
+    このフラグがあれば、シングルシフトを用いる。
+
+    <li> #Msingle_shift_7
+
+    このフラグがあれば、7-bit シングルシフトコード (0x19) を用いる。   
+    
+    <li> #Meuc_tw_shift;
+
+    このフラグがあれば、EUC-TW に沿った特別なシフトを用いる。
+
+    <li> #Miso_6429
+
+    現状では用いられていない。
+
+    <li> #Mrevision_number
+
+    このフラグがあれば、revision number を持つ文字セットを指示する際に 
+    revision number エスケープシークエンスを用いる。
+
+    <li> #Mfull_support
+
+    このフラグがあれば、the International Registry に登録されている全
+    文字セットをサポートする。
+
+    </ul>
+
+    <li> キーが #Mdesignationで値が plist の時
+
+    タイプが #Miso_2022 ならば、値は各文字をどのように指示するかを示す。
+    plist のキーは #Minteger、値は集合（graphic register）を示す数字で
+    なくてはならない。N番目の要素の値は、文字セットリストの N 番目 の
+    文字セットに対応する。値が 0..3 であれば、文字セットがすでに 
+    G0..G3 に指示 されている。
+
+    値が負(-4..-1) であれば、初期状態では文字セットがどこにも指示され
+    ていないこと、必要な際にはG0..G3 のそれぞれに指示することを意味す
+    る。
+
+    <li> キーが #Minvocationで値が plist の時
+
+    タイプが #Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
+    plist の長さは 1 ないし 2 である。plist のキーは#Minteger、値は集
+    合（graphic register)を示す数字でなければならない。最初の要素の値
+    が図形文字集合左半面に呼び出される集合である。 plist の長さが 1 な
+    らば、右半面には何も呼び出されない。そうでければ、２つめの要素の値
+    が図形文字集合右半面に呼び出される集合となる。
+
+   <li> キーが #Mcode_unit で値が整数値の時
+
+   タイプが #Mutf ならば、値はコードユニットのビット長であり、8, 16,
+   32 のいずれかである。
+
+    <li> キーが #Mbom で値がシンボルの時
+
+    タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値は
+    BOM (Byte Order Mark) を使用するかどうかを示す。値がデフォルト値の 
+    #Mnil ならば、使用しない。値が#Mmaybe ならばデコード時に BOM があ
+    るかどうかを調べる。それ以外ならば使用する。
+
+    <li> キーが #Mlittle_endian で値がシンボルの時 
+
+    タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値はエ
+    ンコードが little endian かどうかを示す。値がデフォルト値の#Mnil 
+    ならば big endian であり、そうでなければ little endian である。
+
+    </ul>
 
     $RESETTER はこのコード系用のコンバータを初期状態にリセットする関数
     へのポインタである。この関数はコンバータオブジェクトへのポインタと
@@ -3561,8 +3752,8 @@ MSymbol Mcoding;
     $DECODER は成功したときには0を、失敗したときには-1を返さなくてはな
     らない。
 
-    $ENCODER は M-text をこのコード系に従ってエンコードす
-    る関数へのポインタである。この関数は以下の6引数をとる。
+    $ENCODER は M-text をこのコード系に従ってエンコードする関数へのポ
+    インタである。この関数は以下の6引数をとる。
 
         @li M-text へのポインタ
         @li M-text のエンコード開始位置
@@ -3577,21 +3768,11 @@ MSymbol Mcoding;
     $EXTRA_INFO はコーディグシステムに関する追加情報を含むデータ構造へ
     のポインタである。このデータ構造のタイプは $TYPE に依存する。
 
-    $TYPE が #MCODING_TYPE_ISO_2022 であれば、$EXTRA_INFO は @c
-    MCodingInfoISO2022 へのポインタでなくてはならない。
-
-    $TYPE が #MCODING_TYPE_UTF であれば、$EXTRA_INFO は @c
-    MCodingInfoUTF へのポインタでなくてはならない。
-
-    $TYPE が #MCODING_TYPE_CHARSET, #MCODING_TYPE_MISC のどれかで
-    あれば、$EXTRA_INFO は無視される。
-
     @return  
 
     処理に成功すれば mconv_define_coding () は $NAME という名前のシ
-    ンボルを返す。このシンボルは、キーが $Mcoding で、作られたコード系
-    へのポインタを値とするシンボルプロパティを持つ。 エラーが検出され
-    た場合は Mnil を返し、外部変数 #merror_code にエラーコードを設定する。
+    ンボルを返す。 エラーが検出され
+    た場合は #Mnil を返し、外部変数 #merror_code にエラーコードを設定する。
       */
 
 /***
@@ -3807,7 +3988,15 @@ mconv_define_coding (char *name, MPlist *plist,
     The mconv_resolve_coding () function returns $SYMBOL if it
     represents a coding system.  Otherwise, canonicalize $SYMBOL as to
     a coding system name, and if the canonicalized name represents a
-    coding system, return it.  Otherwise, return Mnil.  */
+    coding system, return it.  Otherwise, return #Mnil.  */
+/***ja
+    @brief コード系の名前を解決する.
+
+    関数 mconv_resolve_coding () は $SYMBOL がコード系を示していればそ
+    れを返す。そうでなければコード系の名前として $SYMBOL を正規化し、
+    それがコード系を示していれば正規化した名前を返す。そうでなければ 
+    #Mnil を返す。  */
+
 
 
 MSymbol
@@ -3832,6 +4021,12 @@ mconv_resolve_coding (MSymbol symbol)
     The mconv_list_codings () function makes an array of symbols
     representing a coding system, stores the pointer to the array in a
     place pointed to by $SYMBOLS, and returns the length of the array.  */
+/***ja
+    @brief コード系を表わすシンボルを列挙する
+
+    関数 mchar_list_codings () は、コード系を示すシンボルを並べた配列
+    を作り、$SYMBOLS でポイントされた場所にこの配列へのポインタを置き、
+    配列の長さを返す。 */
 
 int
 mconv_list_codings (MSymbol **symbols)
@@ -3869,7 +4064,7 @@ mconv_list_codings (MSymbol **symbols)
     the created code converter.  Otherwise it returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief バッファに結び付けられたコードコンバータを作る
 
     関数 mconv_buffer_converter () は、コード系 $CODING 用のコードコン
@@ -3881,7 +4076,7 @@ mconv_list_codings (MSymbol **symbols)
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return
-    もし処理が成功すれば mconv_buffer_converter () は 作られたコードコ
+    もし処理が成功すれば mconv_buffer_converter () は 作成したコードコ
     ンバータを返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
     にエラーコードを設定する。
 
@@ -3947,7 +4142,7 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
     and assigns an error code to the external variable @c
     merror_code.  */
 
-/***oldja
+/***ja
     @brief ストリームに結び付けられたコードコンバータを作る
 
     関数 mconv_stream_converter () は、コード系 $CODING 用のコードコン
@@ -3958,10 +4153,10 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
     $CODING は #Mnil であってもよい。この場合は現在のロケール 
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
-    @return
-    もし処理が成功すれば、mconv_stream_converter () は作られたコードコ
-    ンバータを返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
-    にエラーコードを設定する。
+    @return 
+    もし処理が成功すれば、mconv_stream_converter () は作成した
+    コードコンバータを返す。そうでなければ @c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mconverter} @endlatexonly  */
 
@@ -4030,7 +4225,7 @@ mconv_stream_converter (MSymbol name, FILE *fp)
     mconv_reset_converter () returns the result of that function
     applied to $CONVERTER.  Otherwise it returns 0.  */
 
-/***oldja
+/***ja
     @brief コードコンバータをリセットする
 
     関数 mconv_reset_converter () はコードコンバータ $CONVERTER を初期
@@ -4063,7 +4258,7 @@ mconv_reset_converter (MConverter *converter)
     The mconv_free_converter () function frees the code converter
     $CONVERTER.  */
 
-/***oldja
+/***ja
     @brief コードコンバータを解放する
 
     関数 mconv_free_converter () はコードコンバータ $CONVERTER を解放
@@ -4093,7 +4288,7 @@ mconv_free_converter (MConverter *converter)
     @return
     This function always returns $CONVERTER.  */
 
-/***oldja
+/***ja
     @brief コードコンバータにバッファ領域を結び付ける
 
     関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N バ
@@ -4134,7 +4329,7 @@ mconv_rebind_buffer (MConverter *converter, unsigned char *buf, int n)
     @return
     This function always returns $CONVERTER.  */
 
-/***oldja
+/***ja
     @brief コードコンバータにストリームを結び付ける
 
     関数 mconv_rebind_stream () は、ストリーム $FP をコードコンバータ 
@@ -4182,7 +4377,7 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     $MT.  Otherwise it returns @c NULL and assigns an error code to
     the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief バイト列を M-text にデコードする
 
     関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
@@ -4316,12 +4511,12 @@ mconv_decode (MConverter *converter, MText *mt)
     temporary code converter for decoding is automatically created
     and freed.
 
-    @return
-    If the operation was successful, mconv_decode_buffer () returns
-    the resulting M-text.  Otherwise it returns NULL and assigns an
-    error code to the external variable #merror_code.  */
+    @return 
+    If the operation was successful, mconv_decode_buffer ()
+    returns the resulting M-text.  Otherwise it returns @c NULL and
+    assigns an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief コード系に基づいてバッファ領域をデコードする
 
     関数 mconv_decode_buffer () は、$BUF によって指された $N バイトの
@@ -4369,10 +4564,10 @@ mconv_decode_buffer (MSymbol name, unsigned char *buf, int n)
 
     @return
     If the operation was successful, mconv_decode_stream () returns
-    the resulting M-text.  Otherwise it returns NULL and assigns an
+    the resulting M-text.  Otherwise it returns @c NULL and assigns an
     error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief コード系に基づいてストリーム入力をデコードする
 
     関数 mconv_decode_stream () は、ストリーム $FP から読み込まれるバ
@@ -4422,7 +4617,7 @@ mconv_decode_stream (MSymbol name, FILE *fp)
     number of written bytes.  Otherwise it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief M-text をバイト列にエンコードする
 
     関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバー
@@ -4463,7 +4658,7 @@ mconv_encode (MConverter *converter, MText *mt)
     number of written bytes. Otherwise it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief M-text の一部ををバイト列にエンコードする
 
     関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
@@ -4563,7 +4758,7 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
     the number of written bytes.  Otherwise it returns -1 and assigns
     an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief M-text をエンコードしてバッファ領域に書き込む
 
     関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME に基づい
@@ -4611,7 +4806,7 @@ mconv_encode_buffer (MSymbol name, MText *mt, unsigned char *buf, int n)
     the number of written bytes.  Otherwise it returns -1 and assigns
     an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief M-text をエンコードしてストリームに書き込む
 
     関数 mconv_encode_stream () はM-text $MT をコード系 $NAME に基づい
@@ -4661,7 +4856,7 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     error is detected, it returns @c EOF and assigns an error code to
     #merror_code.  */
 
-/***oldja
+/***ja
     @brief コードコンバータ経由で1文字読む
 
     関数 mconv_getc () は、コードコンバータ $CONVERTER に現在結び付け
@@ -4715,12 +4910,12 @@ mconv_getc (MConverter *converter)
     Otherwise it returns @c EOF and assigns an error code to the
     external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief コードコンバータに1文字戻す
 
     関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C を
-    押し戻す。押し戻せる文字数に制限はない。この後に mconv_getc () を
-    呼び出すと、最後に戻された文字が最初に読まれる。押し戻された文字は 
+    押し戻す。戻す文字数に制限はない。この後に mconv_getc () を呼び出
+    すと、最後に戻された文字が最初に読まれる。戻された文字は 
     $CONVERTER の内部に蓄えられるだけであり、実際に入力源に書き込まれ
     るわけではない。$CONVERTER の内部状態は必要に応じて更新される。
 
@@ -4764,7 +4959,7 @@ mconv_ungetc (MConverter *converter, int c)
     If an error is detected, it returns @c EOF and assigns
     an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief コードコンバータを経由で1文字書く
 
     関数 mconv_putc () は、コードコンバータ $CONVERTER に現在結び付け
@@ -4817,7 +5012,7 @@ mconv_putc (MConverter *converter, int c)
     detected, it returns @c NULL and assigns an error code to @c
     merror_code.  */
 
-/***oldja
+/***ja
     @brief コードコンバータを使って1行読む
 
     関数 mconv_gets () は、コードコンバータ $CONVERTER に現在結び付け
