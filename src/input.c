@@ -160,6 +160,8 @@ static MSymbol Minit, Mfini;
 /** Symbols for key events.  */
 static MSymbol one_char_symbol[256];
 
+static MSymbol M_key_alias;
+
 /** Structure to hold a map.  */
 
 struct MIMMap
@@ -1345,11 +1347,17 @@ handle_key (MInputContext *ic)
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   MIMMap *map = ic_info->map;
-  MIMMap *submap;
+  MIMMap *submap = NULL;
   MSymbol key = ic_info->keys[ic_info->key_head];
   int i;
 
-  submap = (map->submaps ? mplist_get (map->submaps, key) : NULL);
+  if (map->submaps)
+    {
+      submap = mplist_get (map->submaps, key);
+      if (! submap && (key = msymbol_get (key, M_key_alias)) != Mnil)
+	submap = mplist_get (map->submaps, key);
+    }
+
   if (submap)
     {
       mtext_cpy (ic->preedit, ic_info->preedit_saved);
@@ -1774,15 +1782,16 @@ minput__init ()
   Minit = msymbol ("init");
   Mfini = msymbol ("fini");
 
+  M_key_alias = msymbol ("  key-alias");
+
   buf[0] = 'C';
   buf[1] = '-';
   buf[3] = '\0';
   for (i = 0, buf[2] = '@'; i < ' '; i++, buf[2]++)
     {
+      one_char_symbol[i] = msymbol (buf);
       if (key_names[i])
-	one_char_symbol[i] = msymbol (key_names[i]);
-      else
-	one_char_symbol[i] = msymbol (buf);
+	msymbol_put (one_char_symbol[i], M_key_alias,  msymbol (key_names[i]));
     }
   for (buf[2] = i; i < 127; i++, buf[2]++)
     one_char_symbol[i] = msymbol (buf + 2);
@@ -1794,15 +1803,14 @@ minput__init ()
   buf2[1] = '-';
   for (buf[4] = '@'; i < 160; i++, buf[4]++)
     {
+      one_char_symbol[i] = msymbol (buf);
       if (key_names[i - 128])
 	{
 	  strcpy (buf2 + 2, key_names[i - 128]);
-	  one_char_symbol[i] = msymbol (buf2);
+	  msymbol_put (one_char_symbol[i], M_key_alias,  msymbol (buf2));
 	}
-      else
-	one_char_symbol[i] = msymbol (buf);
     }
-  for (buf[4] = i - 128; i < 255; i++, buf[2]++)
+  for (buf[4] = i - 128; i < 255; i++, buf[4]++)
     one_char_symbol[i] = msymbol (buf + 2);
   one_char_symbol[i] = msymbol ("M-Delete");
 
