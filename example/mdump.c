@@ -51,11 +51,12 @@
 
     <li> -p PAPER
 
-    PAPER is the paper size: a4, a4r, a5, a5r, b5, b5r, letter, or
-    WxH.  In the last case, W and H are the width and height in
-    millimeter.  If this option is specified, PAPER limits the image
-    size.  If FILE is too large for a single page, multiple files with
-    the names "BASE.01.png", "BASE.02.png", etc. are created.
+    PAPER is the paper size: a4, a4r, a5, a5r, b5, b5r, letter, WxH,
+    or W.  In the case of WxH, W and H are the width and height in
+    millimeter.  In the case of W, W is the width in millimeter.  If
+    this option is specified, PAPER limits the image size.  If FILE is
+    too large for a single page, multiple files with the names
+    "BASE.01.png", "BASE.02.png", etc. are created.
 
     <li> -m MARGIN
 
@@ -133,11 +134,12 @@
 
     <li> -p PAPER
 
-    PAPER はぺーパサイズ : a4, a4r, a5, a5r, b5, b5r, letter, または 
-    WxH. WxH の場合、 W と H は幅と高さをミリメータ単位で示したもの。 
-    このオプションが指定されている場合は、 PAPER が画像サイズを制限す 
-    る。FILE が 1 ページに納まらないほど大きい場合は、"BASE.01.png",
-    "BASE.02.png" 等の名前のついた複数のファイルが作られる。
+    PAPER はぺーパサイズ : a4, a4r, a5, a5r, b5, b5r, letter, WxH また
+    は W。 WxH の場合、 W と H は幅と高さをミリメータ単位で示したもの。
+    W の場合、 W は幅をミリメータ単位で示したもの。このオプションが指定
+    されている場合は、 PAPER が画像サイズを制限す る。FILE が 1 ページ
+    に納まらないほど大きい場合は、"BASE.01.png", "BASE.02.png" 等の名前
+    のついた複数のファイルが作られる。
 
     <li> -m MARGIN
 
@@ -195,7 +197,7 @@
 #include <m17n-gui.h>
 #include <m17n-misc.h>
 
-#define VERSION "1.0"
+#define PROGRAM_VERSION "1.1"
 
 /* Enumuration of the supported paper types.  */
 enum paper_type
@@ -250,7 +252,7 @@ help_exit (char *prog, int exit_code)
   printf ("  %-13s %s", "-d DPI",
 	  "Resolution in dots per inch (defualt 300).\n");
   printf ("  %-13s %s", "-p PAPER",
-	  "Paper size; a4, a4r, a5, a5r, b5, b5r, letter, or WxH.\n");
+	  "Paper size; a4, a4r, a5, a5r, b5, b5r, letter, W, or WxH.\n");
   printf ("  %-13s %s", "-m MARGIN",
 	  "Marginal space in millimeter (default 20).\n");
   printf ("  %-13s %s", "-c POS",
@@ -260,6 +262,7 @@ help_exit (char *prog, int exit_code)
   printf ("  %-13s %s", "-f FILTER",
 	  "String containing a shell command line to be used as a filter.\n");
   printf ("  %-13s %s", "-w", "Each line is broken at word boundary.\n");
+  printf ("  %-13s %s", "-a", "Enable anti-alias drawing.\n");
   printf ("  %-13s %s", "-q", "Quiet mode.  Don't print any messages.\n");
   printf ("  %-13s %s", "--version", "Print the version number.\n");
   printf ("  %-13s %s", "-h, --help", "Print this message.\n");
@@ -412,8 +415,9 @@ main (int argc, char **argv)
   int quiet_mode = 0;
   int break_by_word = 0;
   char *filter = NULL;
-  int i;
   int paper_width, paper_height;
+  int anti_alias = 0;
+  int i;
   int page_index;
   gdImagePtr image;
   int white;
@@ -434,7 +438,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("mdump (m17n library) %s\n", VERSION);
+	  printf ("mdump (m17n library) %s\n", PROGRAM_VERSION);
 	  printf ("Copyright (C) 2003, 2004 AIST, JAPAN\n");
 	  exit (0);
 	}
@@ -469,6 +473,13 @@ main (int argc, char **argv)
 	      paper = PAPER_USER;
 	      paper_size[paper].width = w;
 	      paper_size[paper].height = h;
+	    }
+	  else if (sscanf (argv[i], "%d", &w) == 1
+		   && w > 0)
+	    {
+	      paper = PAPER_USER;
+	      paper_size[paper].width = w;
+	      paper_size[paper].height = 0;
 	    }
 	  else
 	    FATAL_ERROR ("Invalid paper type: %s\n", argv[i]);
@@ -506,6 +517,10 @@ main (int argc, char **argv)
       else if (! strcmp (argv[i], "-q"))
 	{
 	  quiet_mode = 1;
+	}
+      else if (! strcmp (argv[i], "-a"))
+	{
+	  anti_alias = 1;
 	}
       else if (argv[i][0] != '-')
 	{
@@ -564,7 +579,7 @@ main (int argc, char **argv)
   control.as_image = 1;
   control.two_dimensional = 1;
   control.enable_bidi = 1;
-  control.anti_alias = 1;
+  control.anti_alias = anti_alias;
   if (cursor_pos >= 0)
     {
       control.with_cursor = 1;
@@ -586,7 +601,14 @@ main (int argc, char **argv)
       paper_height = rect.height;
     }
   else
-    control.max_line_width = paper_width - margin * 2;
+    {
+      control.max_line_width = paper_width - margin * 2;
+      if (paper_height == 0)
+	{
+	  mdraw_text_extents (frame, mt, 0, len, &control, NULL, NULL, &rect);
+	  paper_height = rect.height + margin * 2;
+	}
+    }
 
   image = gdImageCreate (paper_width, paper_height);
   from = 0;
@@ -596,7 +618,7 @@ main (int argc, char **argv)
     {
       int to;
 
-      if (paper == PAPER_NOLIMIT)
+      if (paper == PAPER_NOLIMIT || paper_size[paper].height == 0)
 	to = len;
       else
 	to = find_page_end (frame, paper_height - margin * 2, mt, from,
