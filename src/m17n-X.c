@@ -1985,8 +1985,13 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
 	c = buf[0];
       if ((c == ' ' || c == 127) && ((XKeyEvent *) event)->state & ShiftMask)
 	*modifiers |= MINPUT_KEY_SHIFT_MODIFIER;
-      if ((c >= ' ' && c < 127) && ((XKeyEvent *) event)->state & ControlMask)
-	*modifiers |= MINPUT_KEY_CONTROL_MODIFIER;
+      if (((XKeyEvent *) event)->state & ControlMask)
+	{
+	  if (c >= 'a' && c <= 'z')
+	    c += 'A' - 'a';
+	  if (c >= ' ' && c < 127)
+	    *modifiers |= MINPUT_KEY_CONTROL_MODIFIER;
+	}
       key = minput__char_to_key (c);
     }
   else if (keysym >= XK_Shift_L && keysym <= XK_Hyper_R)
