@@ -92,6 +92,15 @@
 
     Enable anti-alias drawing.
 
+    <li> --family FAMILY
+
+    Prefer a font whose family name is FAMILY.
+
+    <li> --language LANG
+
+    Prefer a font specified for the language LANG.  LANG must be a
+    2-letter code of ISO 630 (e.g. "en" for English).
+
     <li> -q
 
     Quiet mode.  Don't print any messages.
@@ -174,6 +183,15 @@
     <li> -a
 
     アンチエイリアス処理を行う。
+
+    <li> --family FAMILY
+
+    ファミリィ名が FAMILY のフォントを優先的に使う。
+
+    <li> --language LANG
+
+    言語 LANG 用に指定されたフォントを優先的に使う。LANG は ISO 630 の
+    ２文字コード（例：英語は "en" ）でなければならない。
 
     <li> -q
 
@@ -425,6 +443,8 @@ main (int argc, char **argv)
   char *filter = NULL;
   int paper_width, paper_height;
   int anti_alias = 0;
+  char *family_name = NULL;
+  char *langu_name = NULL;
   int i;
   int page_index;
   gdImagePtr image;
@@ -530,6 +550,14 @@ main (int argc, char **argv)
 	{
 	  anti_alias = 1;
 	}
+      else if (! strcmp (argv[i], "--family"))
+	{
+	  family_name = argv[++i];
+	}
+      else if (! strcmp (argv[i], "--language"))
+	{
+	  lang_name = argv[++i];
+	}
       else if (argv[i][0] != '-')
 	{
 	  fp = fopen (argv[i], "r");
@@ -557,6 +585,8 @@ main (int argc, char **argv)
     FATAL_ERROR ("%s\n", "Fail to decode the input file or stream!");
 
   len = mtext_len (mt);
+  if (lang_name)
+    mtext_put_prop (mt, 0, len, Mlanguage, msymbol (lang_name));
 
   if (paper == PAPER_NOLIMIT)
     paper_width = paper_height = margin = 0;
@@ -574,6 +604,9 @@ main (int argc, char **argv)
 
     mface_put_prop (face, Mfontset, fontset);
     mface_put_prop (face, Msize, (void *) (fontsize * dpi / 100));
+    if (family_name)
+      mface_put_prop (face, Mfamily, msymbol (family_name));
+
     p = mplist_add (plist, Mdevice, msymbol ("gd"));
     p = mplist_add (p, Mface, face);
     m17n_object_unref (face);
