@@ -1640,7 +1640,7 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 
 	  XftGlyphExtents (FRAME_DISPLAY (rfont->frame),
 			   font_info->font_aa, &code, 1, &extents);
-	  g->lbearing = extents.x;
+	  g->lbearing = - extents.x;
 	  g->rbearing = extents.width - extents.x;
 	  g->width = extents.xOff;
 	  g->ascent = extents.y;
