@@ -155,6 +155,13 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
       FREETYPE_LD_FLAGS=`freetype-config --libs`
       AC_DEFINE(HAVE_FREETYPE, 1, 
 		[Define to 1 if you have FreeType library and header file.])
+      AC_CHECK_HEADER(freetype/ftbdf.h, HAVE_FTBDF_H=yes, HAVE_FTBDF_H=no,
+		      [#include <ft2build.h>
+#include FT_FREETYPE_H])
+      if test "x$HAVE_FTBDF_H" = "xyes"; then
+        AC_DEFINE(HAVE_FTBDF_H, 1,
+		  [Define to 1 if you have freetype/ftbdf.h.])
+      fi
     fi
   fi
 fi
