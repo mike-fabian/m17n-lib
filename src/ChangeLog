@@ -1,3 +1,7 @@
+2004-03-12  Kenichi Handa  <handa@etlken2>
+
+	* draw.c (visual_order): Avoid re-ordering only combining glyphs.
+
 2004-03-09  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (load_input_method): If title is not specified, use the
