@@ -1,3 +1,15 @@
+2004-08-15  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (covert_selection): Handle explicit request of
+	UTF8_STRING.
+	(ExposeProc): If an initial input method is specifed, activate it.
+	(setup_input_methods): New arg initial_input_method.  If it's not
+	NULL, set current_input_method to the corresponding index.
+	(help_exit): Fix help message.
+	(main): Handle --im and -s command args.
+
+	* mdump.c (help_exit): Fix help message.
+
 2004-08-09  Kenichi Handa  <handa@m17n.org>
 
 	* mconv.c (VERSION): Updated to 1.1.
