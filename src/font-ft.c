@@ -545,12 +545,18 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 	{
 	  MFTInfo *ft_info = MPLIST_VAL (p);
 	  int score;
+	  unsigned short family_id;
 
 	  if (! mplist_find_by_key (ft_info->charmap_list, registry))
 	    continue;
-	  /* We always ignore FOUNDRY.  */
+	  /* Always ignore FOUNDRY.  */
 	  ft_info->font.property[MFONT_FOUNDRY] = spec->property[MFONT_FOUNDRY];
+	  /* Ignore FAMILY too.  */
+	  family_id = ft_info->font.property[MFONT_FAMILY];
+	  ft_info->font.property[MFONT_FAMILY] = spec->property[MFONT_FAMILY];
 	  score = mfont__score (&ft_info->font, spec, request, limited_size);
+	  ft_info->font.property[MFONT_FAMILY] = family_id;
+
 	  if (score >= 0
 	      && (! best_font
 		  || best_score > score))
