@@ -1,3 +1,11 @@
+2004-07-18  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am: Prepend ${top_srcdir} to all *.la in
+	*_LIBADD/*_LDADD.
+
+	* m17n-gui.c (mframe): Print error message give by dlopen to
+	stderr.
+
 2004-07-16  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Improve the way of deciding a
