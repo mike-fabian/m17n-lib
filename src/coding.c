@@ -99,7 +99,7 @@ typedef struct
       reseting a converter.  */
   int (*resetter) (MConverter *converter);
 
-  int (*decoder) (unsigned char *str, int str_bytes, MText *mt,
+  int (*decoder) (const unsigned char *str, int str_bytes, MText *mt,
 		  MConverter *converter);
 
   int (*encoder) (MText *mt, int from, int to,
@@ -390,8 +390,8 @@ encode_unsupporeted_char (int c, unsigned char *dst, unsigned char *dst_end,
 
 static int
 finish_decoding (MText *mt, MConverter *converter, int nchars,
-		 unsigned char *source, unsigned char *src_end,
-		 unsigned char *src,
+		 const unsigned char *source, const unsigned char *src_end,
+		 const unsigned char *src,
 		 int error)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
@@ -420,7 +420,7 @@ finish_decoding (MText *mt, MConverter *converter, int nchars,
     {
       unsigned char *dst = mt->data + mt->nbytes;
       unsigned char *dst_end = mt->data + mt->allocated;
-      unsigned char *src_stop = src_end;
+      const unsigned char *src_stop = src_end;
       int c;
       int last_nchars = nchars;
 
@@ -511,15 +511,15 @@ reset_coding_charset (MConverter *converter)
 }
 
 static int
-decode_coding_charset (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_charset (const unsigned char *source, int src_bytes, MText *mt,
 		       MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
   MCodingSystem *coding = internal->coding;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated;
   int nchars = 0;
@@ -712,15 +712,15 @@ encode_coding_charset (MText *mt, int from, int to,
 
 
 static int
-decode_coding_utf_8 (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_utf_8 (const unsigned char *source, int src_bytes, MText *mt,
 		     MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
   MCodingSystem *coding = internal->coding;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated;
   int nchars = 0;
@@ -921,14 +921,14 @@ reset_coding_utf (MConverter *converter)
 }
 
 static int
-decode_coding_utf_16 (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_utf_16 (const unsigned char *source, int src_bytes, MText *mt,
 		      MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated;
   int nchars = 0;
@@ -1025,14 +1025,14 @@ decode_coding_utf_16 (unsigned char *source, int src_bytes, MText *mt,
 
 
 static int
-decode_coding_utf_32 (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_utf_32 (const unsigned char *source, int src_bytes, MText *mt,
 		      MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated;
   int nchars = 0;
@@ -1524,15 +1524,15 @@ find_ctext_non_standard_charset (char *charset_name)
 }
 
 static int
-decode_coding_iso_2022 (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 		       MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
   MCodingSystem *coding = internal->coding;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated;
   int nchars = 0;
@@ -2645,15 +2645,15 @@ reset_coding_sjis (MConverter *converter)
 }
 
 static int
-decode_coding_sjis (unsigned char *source, int src_bytes, MText *mt,
+decode_coding_sjis (const unsigned char *source, int src_bytes, MText *mt,
 		    MConverter *converter)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
   MCodingSystem *coding = internal->coding;
-  unsigned char *src = internal->carryover;
-  unsigned char *src_stop = src + internal->carryover_bytes;
-  unsigned char *src_end = source + src_bytes;
-  unsigned char *src_base;
+  const unsigned char *src = internal->carryover;
+  const unsigned char *src_stop = src + internal->carryover_bytes;
+  const unsigned char *src_end = source + src_bytes;
+  const unsigned char *src_base;
   unsigned char *dst = mt->data + mt->nbytes;
   unsigned char *dst_end = mt->data + mt->allocated - MAX_UTF8_CHAR_BYTES;
   int nchars = 0;
@@ -3774,9 +3774,9 @@ MSymbol Mcoding;
     @c MERROR_CODING  */
 
 MSymbol
-mconv_define_coding (char *name, MPlist *plist,
+mconv_define_coding (const char *name, MPlist *plist,
 		     int (*resetter) (MConverter *),
-		     int (*decoder) (unsigned char *, int, MText *,
+		     int (*decoder) (const unsigned char *, int, MText *,
 				     MConverter *),
 		     int (*encoder) (MText *, int, int,
 				     unsigned char *, int,
