@@ -68,8 +68,8 @@ extern void m17n_fini_core (void);
     @brief 管理下オブジェクトの最初のメンバ.
 
     アプリケーションプログラムが新しい構造体を管理下オブジェクトとして
-     定義する際には、最初のメンバは @c #M17NObjectHead 構造体型でなくて
-     はならない。@c #M17NObjectHead の内容は the m17n library が使用す
+     定義する際には、最初のメンバは @c #M17NObjectHead 構造体型でなく
+     てはならない。@c #M17NObjectHead の内容は m17n ライブラリが使用す
      るので、アプリケーションプログラムは触れてはならない。
      */
 
