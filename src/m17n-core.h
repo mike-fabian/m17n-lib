@@ -101,11 +101,10 @@ extern enum M17NStatus m17n_status (void);
 /***ja
     @brief 管理下オブジェクトの最初のメンバ.
 
-    アプリケーションプログラムが新しい構造体を管理下オブジェクトとして
-     定義する際には、最初のメンバは @c #M17NObjectHead 構造体型でなく
-     てはならない。@c #M17NObjectHead の内容は m17n ライブラリが使用す
-     るので、アプリケーションプログラムは触れてはならない。
-     */
+    アプリケーションプログラムが新しい構造体を管理下オブジェクトとして定義する際には、最初のメンバは 
+    @c #M17NObjectHead 構造体型でなくてはならない。
+    @c #M17NObjectHead の内容は m17n 
+    ライブラリが使用するので、アプリケーションプログラムは触れてはならない。    */
 
 typedef struct
 {
@@ -143,8 +142,8 @@ extern int m17n_object_unref (void *object);
 /***ja
     @brief シンボルの型宣言.
 
-    #MSymbol はシンボルオブジェクトの型である。内部構造はアプリケーショ
-    ンプログラムからは見えない。  */
+    #MSymbol は @e シンボル (symbol) オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MSymbolStruct *MSymbol;
 
@@ -347,8 +346,8 @@ typedef struct MText MText;
 /***ja
     @brief M-text のフォーマットを指定する列挙型.
 
-    列挙型 #MTextFormat は
-    関数 mtext_from_data () の引数として用いられ、
+    列挙型 #MTextFormat は関数
+    mtext_from_data () の引数として用いられ、
     M-text を生成する元となるデータのフォーマットを指定する。  */
 
 enum MTextFormat
@@ -385,8 +384,8 @@ extern MText *mtext ();
 /***ja
     @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
 
-    大域変数 #MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム（ワー
-    ドを LSB (Least Significant Byte) を先にして格納）上では
+    大域変数 #MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム
+    （ワードを LSB (Least Significant Byte) を先にして格納）上では
     #MTEXT_FORMAT_UTF_16LE に初期化され、ビッグ・エンディアン・システム
     （ワードを MSB (Most Significant Byte) を先にして格納）上では
     #MTEXT_FORMAT_UTF_16BE に初期化される。  */
@@ -411,8 +410,8 @@ extern const int MTEXT_FORMAT_UTF_16;
 /***ja
     @brief 値が MTEXT_FORMAT_UTF_32LE か MTEXT_FORMAT_UTF_32BE である変数
 
-    大域変数 #MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム（ワー
-    ドを LSB (Least Significant Byte) を先にして格納）上では
+    大域変数 #MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム
+    （ワードを LSB (Least Significant Byte) を先にして格納）上では
     #MTEXT_FORMAT_UTF_32LE に初期化され、ビッグ・エンディアン・システム
     （ワードを MSB (Most Significant Byte) を先にして格納）上では
     #MTEXT_FORMAT_UTF_32BE に初期化される。  */
@@ -522,45 +521,43 @@ extern MPlist *mplist_deserialize (MText *mt);
 /***ja
     @brief テキストプロパティを制御するフラグビット.
 
-    関数 mtext_property () は以下のフラグビットの論理 OR を引数として
-    とることができる。フラグビットは生成されたテキストプロパティの振舞
-    いを制御する。詳細は各フラグビットの説明を参照。*/
+    関数 mtext_property () は以下のフラグビットの論理
+    OR を引数としてとることができる。
+    フラグビットは生成されたテキストプロパティの振舞いを制御する。
+    詳細は各フラグビットの説明を参照。*/
 
 enum MTextPropertyControl
   {
     /***en If this flag bit is on, an M-text inserted at the start
 	position or at the middle of the text property inherits the
 	text property.  */
-    /***ja このビットが on ならば、このテキストプロパティの始まる点あ
-	るいは中間に挿入された M-text はこのテキストプロパティを継承する。
+    /***ja このビットが on ならば、このテキストプロパティの始まる点あるいは中間に挿入された
+	M-text はこのテキストプロパティを継承する。
 	*/
     MTEXTPROP_FRONT_STICKY = 0x01,
 
     /***en If this flag bit is on, an M-text inserted at the end
 	position or at the middle of the text property inherits the
 	text property.  */
-    /***ja このビットが on ならば、このテキストプロパティの終わる点あ
-	るいは中間に挿入された M-text はこのテキストプロパティを継承する。
+    /***ja このビットが on ならば、このテキストプロパティの終わる点あるいは中間に挿入された
+	M-text はこのテキストプロパティを継承する。
 	*/
     MTEXTPROP_REAR_STICKY = 0x02,
 
     /***en If this flag bit is on, the text property is removed if a
 	text in its region is modified.  */
-    /***ja このビットが on ならば、このテキストプロパティの範囲内の
-	テキストが変更された場合テキストプロパティは取り除かれる。  */
+    /***ja このビットが on ならば、このテキストプロパティの範囲内のテキストが変更された場合テキストプロパティは取り除かれる。  */
     MTEXTPROP_VOLATILE_WEAK = 0x04,
 
     /***en If this flag bit is on, the text property is removed if a
 	text or the other text property in its region is modified.  */
-    /***ja このビットが on ならば、このテキストプロパティの範囲内の
-	テキストあるいは別のテキストプロパティが変更された場合このテキ
+    /***ja このビットが on ならば、このテキストプロパティの範囲内のテキストあるいは別のテキストプロパティが変更された場合このテキ
 	ストプロパティは取り除かれる。*/
     MTEXTPROP_VOLATILE_STRONG = 0x08,
 
     /***en If this flag bit is on, the text property is not
 	automatically merged with the others.  */
-    /***ja このビットが on ならば、このテキストプロパティは他のプロパ
-	ティと自動的にはマージされない。 */
+    /***ja このビットが on ならば、このテキストプロパティは他のプロパティと自動的にはマージされない。 */
     MTEXTPROP_NO_MERGE = 0x10,
 
     MTEXTPROP_CONTROL_MAX = 0x1F
