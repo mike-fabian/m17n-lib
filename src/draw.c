@@ -2662,6 +2662,8 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	}
       n++;
     }
+  M17N_OBJECT_UNREF (gstring->top);
+
   *num_glyphs_return = n;
   return (n <= array_size ? 0 : -1);
 }
