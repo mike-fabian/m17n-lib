@@ -35,11 +35,11 @@ mconv_LDADD = ${common_ldflags}
 
 medit_SOURCES = medit.c linebreak.c
 medit_LDADD = ${common_ldflags_X}
-medit_LDFLAGS = -lXaw -lXmu @WORDCUT_LD_FLAGS@
+medit_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS} @WORDCUT_LD_FLAGS@
 
 mview_SOURCES = mview.c
 mview_LDADD = ${common_ldflags_X}
-mview_LDFLAGS = -lXaw -lXmu
+mview_LDFLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu ${X_EXTRA_LIBS}
 
 mdump_SOURCES = mdump.c linebreak.c
 mdump_LDADD = ${common_ldflags_X} @WORDCUT_LD_FLAGS@
