@@ -1,4 +1,4 @@
-/* medit.c -- simple multilingual editor.
+/* medit.c -- simple multilingual editor.		-*- coding: euc-jp; -*-
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -1177,9 +1177,10 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	  /* Starting position changed.  */
 	  if (pos <= from)
 	    {
-	      /* Enlarged.  We can simply overdraw.  */
+	      /* Enlarged.  We can simply overdraw if not using
+		 antialiased text.  */
 	      select_region (pos, to);
-	      redraw (sel_start.y0, start_y1, 0, 0);
+	      redraw (sel_start.y0, start_y1, control.anti_alias, 0);
 	    }
 	  else if (pos < to)
 	    {
@@ -1225,9 +1226,10 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	    }
 	  else
 	    {
-	      /* Enlarged.  We can simply overdraw.  */
+	      /* Enlarged.  We can simply overdraw if not using
+		 antialiased text.  */
 	      select_region (from, pos);
-	      redraw (end_y0, sel_end.y1, 0, 0);
+	      redraw (end_y0, sel_end.y1, control.anti_alias, 0);
 	    }
 	}
     }
@@ -2719,9 +2721,7 @@ main (int argc, char **argv)
   memset (&control, 0, sizeof control);
   control.two_dimensional = 1;
   control.enable_bidi = 1;
-#if 0
   control.anti_alias = 1;
-#endif
   control.min_line_ascent = font_ascent;
   control.min_line_descent = font_descent;
   control.max_line_width = win_width;
