@@ -806,6 +806,35 @@ mtext__from_data (void *data, int nitems, enum MTextFormat format,
 }
 
 
+/* Not yet implemented.  */
+
+int
+mtext__adjust_format (MText *mt, enum MTextFormat format)
+{
+  if (mt->format == format)
+    return 0;
+  if (mt->format == MTEXT_FORMAT_US_ASCII)
+    {
+      if (format == MTEXT_FORMAT_UTF_8)
+	mt->format = MTEXT_FORMAT_UTF_8;
+      MERROR (MERROR_MTEXT, -1);
+    }
+  else if (mt->format == MTEXT_FORMAT_UTF_8)
+    {
+      MERROR (MERROR_MTEXT, -1);
+    }
+  else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
+    {
+      MERROR (MERROR_MTEXT, -1);
+    }
+  else
+    {
+      MERROR (MERROR_MTEXT, -1);
+    }
+  return 0;
+}
+
+
 int
 mtext__replace (MText *mt, int from, int to, char *from_str, char *to_str)
 {
