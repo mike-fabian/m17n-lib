@@ -1,3 +1,13 @@
+2004-03-19  Kenichi Handa  <handa@m17n.org>
+
+	Re-apply the changes forgotten in the released version.
+
+	* charset.c (mcharset__load_from_database): Call
+	mchar_define_charset.
+
+	* coding.c (encode_unsupporeted_char): Put Mcoding text property.
+	(mconv_encode_range): Put Mcoding text property.
+
 2004-03-18  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (Mdepth): New variable.
