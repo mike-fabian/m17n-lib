@@ -821,7 +821,7 @@ mfont__ft_fini ()
 int
 mfont__ft_parse_name (char *name, MFont *font)
 {
-  FcPattern *pat = FcNameParse (name);
+  FcPattern *pat = FcNameParse ((FcChar8 *) name);
   FcResult result;
   FcChar8 *str;
   double size;
