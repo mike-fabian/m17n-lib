@@ -2299,7 +2299,6 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
       if (ic->candidates_changed)
 	minput__callback (ic, Minput_candidates_draw);
     }
-  ic->preedit_changed = ic->status_changed = ic->candidates_changed = 0;
 
   return ret;
 }
