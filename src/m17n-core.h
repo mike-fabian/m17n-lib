@@ -35,7 +35,7 @@ extern "C"
 /* (C1) Introduction */
 
 /***en @defgroup m17nIntro Introduction  */
-/***oldja @defgroup m17nIntro はじめに  */
+/***ja @defgroup m17nIntro はじめに  */
 /*=*/
 
 #define M17NLIB_MAJOR_VERSION 1
@@ -49,11 +49,11 @@ extern void m17n_fini_core (void);
 #define M17N_FINI() m17n_fini_core ()
 
 /***en @defgroup m17nCore CORE API  */
-/***oldja @defgroup m17nCore CORE API */
+/***ja @defgroup m17nCore コア API */
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nObject Managed Object */
-/***oldja @defgroup m17nObject 管理下オブジェクト */
+/***ja @defgroup m17nObject 管理下オブジェクト */
 /*=*/
 
 /*** @ingroup m17nObject  */
@@ -64,6 +64,14 @@ extern void m17n_fini_core (void);
     objects, its first member must be of the type @c struct
     #M17NObjectHead.  Its contents are used by the m17n library, and
     application programs should never touch them.  */
+/***ja
+    @brief 管理下オブジェクトの最初のメンバ.
+
+    アプリケーションプログラムが新しい構造体を管理下オブジェクトとして
+     定義する際には、最初のメンバは @c #M17NObjectHead 構造体型でなくて
+     はならない。@c #M17NObjectHead の内容は the m17n library が使用す
+     るので、アプリケーションプログラムは触れてはならない。
+     */
 
 typedef struct
 {
@@ -87,7 +95,7 @@ extern int m17n_object_unref (void *object);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nSymbol Symbol  */
-/***oldja @defgroup m17nSymbol シンボル */
+/***ja @defgroup m17nSymbol シンボル */
 /*=*/
 
 /***
@@ -98,10 +106,11 @@ extern int m17n_object_unref (void *object);
     The type #MSymbol is for a @e symbol object.  Its internal
     structure is concealed from application programs.  */
 
-/***oldja
-    @brief シンボルの型
+/***ja
+    @brief シンボルの型宣言
 
-    #MSymbol はシンボルオブジェクトの型へのポインタである。 */
+    #MSymbol はシンボルオブジェクトの型である。内部構造はアプリケーショ
+    ンプログラムからは見えない。  */
 
 typedef struct MSymbol *MSymbol;
 
@@ -138,7 +147,7 @@ extern void *msymbol_get (MSymbol symbol, MSymbol key);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nPlist Property List */
-/***oldja @defgroup m17nPlist プロパティリスト・オブジェクト */
+/***ja @defgroup m17nPlist プロパティリスト・オブジェクト */
 /*=*/
 
 /***
@@ -146,8 +155,14 @@ extern void *msymbol_get (MSymbol symbol, MSymbol key);
 /***en
     @brief Type of property list objects.
 
-    The type #MPlist is for a property list object.  Its internal
+    The type #MPlist is for a @e property @e list object.  Its internal
     structure is concealed from application programs.  */
+
+/***ja
+    @brief プロパティリスト・オブジェクトの型宣言.
+
+    #MPlist は @e プロパティリスト (Property list) オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MPlist MPlist;
 
@@ -188,7 +203,7 @@ extern void *mplist_value (MPlist *plist);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nCharacter Character */
-/***oldja @defgroup m17nCharacter 文字 */
+/***ja @defgroup m17nCharacter 文字 */
 /*=*/
 
 #define MCHAR_MAX 0x3FFFFF
@@ -212,7 +227,7 @@ extern int mchar_put_prop (int c, MSymbol key, void *val);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nChartable Chartable */
-/***oldja @defgroup m17nChartable 文字テーブル */
+/***ja @defgroup m17nChartable 文字テーブル */
 /*=*/
 extern MSymbol Mchar_table;
 
@@ -224,10 +239,10 @@ extern MSymbol Mchar_table;
     The type #MCharTable is for a @e chartable objects.  Its
     internal structure is concealed from application programs.  */
 
-/***oldja
-    @brief 文字テーブルの型
+/***ja
+    @brief 文字テーブルの型宣言
 
-    #MCharTable 型は @e 文字テーブル オブジェクト用の構造体である。
+    #MCharTable は @e 文字テーブル (chartable) オブジェクトの型である。
     内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MCharTable MCharTable;
@@ -259,7 +274,7 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nMtext M-text */
-/***oldja @defgroup m17nMtext M-text */
+/***ja @defgroup m17nMtext M-text */
 /*=*/
 
 /*
@@ -273,11 +288,11 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
     The type #MText is for an @e M-text object.  Its internal
     structure is concealed from application programs.  */
 
-/***oldja
-    @brief @e MText 用構造体 
+/***ja
+    @brief @e MText の型宣言
 
-    #Mtext 構造体は @e M-text オブジェクトに用いられる。内部構造はア
-    プリケーションプログラムからは見えない。
+    #Mtext は @e M-text オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。 
 
     @latexonly \IPAlabel{MText} @endlatexonly
     @latexonly \IPAlabel{MText->MPlist} @endlatexonly  */
@@ -296,6 +311,13 @@ extern MText *mtext ();
     The enum #MTextFormat is used as an argument of the
     mtext_from_data () function to specify the format of data from
     which an M-text is created.  */
+
+/***ja
+    @brief M-text のフォーマットを指定する列挙型.
+
+    列挙型 #MTextFormat は
+    関数 mtext_from_data () の引数として用いられ、
+    M-text を生成する元となるデータのフォーマットを指定する。  */
 
 enum MTextFormat
   {
@@ -390,7 +412,7 @@ extern MPlist *mplist_deserialize (MText *mt);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nTextProperty Text Property */
-/***oldja @defgroup m17nTextProperty テキストプロパティ */
+/***ja @defgroup m17nTextProperty テキストプロパティ */
 /*=*/
 /*** @ingroup m17nTextProperty */
 /***en
@@ -401,28 +423,48 @@ extern MPlist *mplist_deserialize (MText *mt);
     text property as described in the documentation of each flag
     bit.  */
 
+/***ja
+    @brief テキストプロパティを制御するフラグビット.
+
+    関数 mtext_property () は以下のフラグビットの論理 OR を引数として
+    とることができる。フラグビットは生成されたテキストプロパティの振舞
+    いを制御する。詳細は各フラグビットの説明を参照。*/
+
 enum MTextPropertyControl
   {
     /***en If this flag bit is on, an M-text inserted at the start
 	position or at the middle of the text property inherits the
 	text property.  */
+    /***ja このビットが on ならば、このテキストプロパティの始まる点あ
+	るいは中間に挿入された M-text はこのテキストプロパティを継承する。
+	*/
     MTEXTPROP_FRONT_STICKY = 0x01,
 
     /***en If this flag bit is on, an M-text inserted at the end
 	position or at the middle of the text property inherits the
 	text property.  */
+    /***ja このビットが on ならば、このテキストプロパティの終わる点あ
+	るいは中間に挿入された M-text はこのテキストプロパティを継承する。
+	*/
     MTEXTPROP_REAR_STICKY = 0x02,
 
     /***en If this flag bit is on, the text property is removed if a
 	text in its region is modified.  */
+    /***ja このビットが on ならば、このテキストプロパティの範囲内の
+	テキストが変更された場合テキストプロパティは取り除かれる。  */
     MTEXTPROP_VOLATILE_WEAK = 0x04,
 
     /***en If this flag bit is on, the text property is removed if a
 	text or the other text property in its region is modified.  */
+    /***ja このビットが on ならば、このテキストプロパティの範囲内の
+	テキストあるいは別のテキストプロパティが変更された場合このテキ
+	ストプロパティは取り除かれる。*/
     MTEXTPROP_VOLATILE_STRONG = 0x08,
 
     /***en If this flag bit is on, the text property is not
 	automatically merged with the others.  */
+    /***ja このビットが on ならば、このテキストプロパティは他のプロパ
+	ティと自動的にはマージされない。 */
     MTEXTPROP_NO_MERGE = 0x10,
 
     MTEXTPROP_CONTROL_MAX = 0x1F
@@ -443,6 +485,14 @@ extern MSymbol Mtext_prop_deserializer;
 
     @seealso Mtext_prop_serialize (), Mtext_prop_serializer
 */
+/***ja
+    @brief シリアライザ関数の型宣言.
+
+    シリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
+    #Msymbol_prop_serializer であるとき、 値はこの型でなくてはならない。
+
+    @seealso Mtext_prop_serialize (), Mtext_prop_serializer
+*/
 
 typedef MPlist *(*MTextPropSerializeFunc) (void *val);
 
@@ -453,6 +503,14 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     This is the type of deserializer functions.  If the key of a
     symbol property is #Msymbol_prop_deserializer, the value must be
     of this type.
+
+    @seealso Mtext_prop_deserialize (), Mtext_prop_deserializer
+*/
+/***ja
+    @brief デシリアライザ関数の型宣言.
+
+    デシリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
+    #Msymbol_prop_deserializer であるとき、 値はこの型でなくてはならない。
 
     @seealso Mtext_prop_deserialize (), Mtext_prop_deserializer
 */
