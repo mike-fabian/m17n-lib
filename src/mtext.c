@@ -1852,11 +1852,11 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     @brief Search a character in an M-text.
 
     The mtext_character () function searches M-text $MT for character
-    $C.  If $FROM < $TO, search begins at position $FROM and goes
-    forward but does not exceed ($TO - 1).  Otherwise, search begins
-    at position ($FROM - 1) and goes backward but does not exceed $TO.
-    An invalid position specification is regarded as both $FROM and
-    $TO being 0.
+    $C.  If $FROM is less than $TO, search begins at position $FROM
+    and goes forward but does not exceed ($TO - 1).  Otherwise, search
+    begins at position ($FROM - 1) and goes backward but does not
+    exceed $TO.  An invalid position specification is regarded as both
+    $FROM and $TO being 0.
 
     @return
     If $C is found, mtext_character () returns the position of its
@@ -1868,10 +1868,10 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     @brief M-text 中で文字を探す.
 
     関数 mtext_character () は M-text $MT 中で文字 $C を探す。もし 
-    $FROM < $TO ならば、探索は位置 $FROM から末尾方向へ、最大 ($TO -
-    1) まで進む。そうでなければ位置 ($FROM - 1) から先頭方向へ、最大 
-    $TO まで進む。位置の指定に誤りがある場合は、$FROM と $TO の両方に 
-    0 が指定されたものと見なす。
+    $FROM が $TO より小さければ、探索は位置 $FROM から末尾方向へ、最大 
+    ($TO - 1) まで進む。そうでなければ位置 ($FROM - 1) から先頭方向へ、
+    最大 $TO まで進む。位置の指定に誤りがある場合は、$FROM と $TO の両
+    方に 0 が指定されたものと見なす。
 
     @return
     もし $C が見つかれば、mtext_character () はその最初の出現位置を返
@@ -2334,15 +2334,22 @@ mtext_text (MText *mt1, int pos, MText *mt2)
 /***ja
     @brief M-text 中の特定の領域で別の M-text を探す.
 
-    関数 mtext_text () は、M-text $MT1 中で位置 $POS 以降に現われる 
-    M-text $MT2 の最初の位置を調べる。テキストプロパティの違いは無視さ
-    れる。
+    関数 mtext_search () は、 searches for the first occurrence of
+    M-text $MT2 in M-text $MT1 in the region $FROM and $TO while
+    ignoring difference of the text properties.  If $FROM is less than
+    $TO, the forward search starts from $FROM, otherwise the backward
+    search starts from $TO.
+
+    関数 mtext_text () は、M-text $MT1 中の $FROM から $TO までの間の
+    領域でM-text $MT2 が最初に現われる位置を調べる。テキストプロパティ
+    の違いは無視される。もし $FROM が $TO より小さければ探索は位置 
+    $FROM から末尾方向へ、そうでなければ $TO から先頭方向へ最大 $TO ま
+    で進む。
 
     @return
-    $MT1 中に $MT2 が見つかれば、mtext_text() はその最初の出現位置を返
+    $MT1 中に $MT2 が見つかれば、mtext_search() はその最初の出現位置を返
     す。見つからない場合は -1 を返す。もし $MT2 が空ならば 0 を返す。
-
-    @latexonly \IPAlabel{mtext_text} @endlatexonly  */
+    */
 
 int
 mtext_search (MText *mt1, int from, int to, MText *mt2)
