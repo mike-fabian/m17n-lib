@@ -112,7 +112,7 @@
 #include <m17n-misc.h>
 #include <m17n-X.h>
 
-#define VERSION "1.2"
+#define VERSION "1.2.0"
 
 /* Global m17n variables.  */
 MFrame *frame;
