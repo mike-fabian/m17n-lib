@@ -1634,7 +1634,7 @@ SaveProc (Widget w, XtPointer client_data, XtPointer call_data)
       mtext_detach_property (selection);
     }
 
-  mconv_encode_stream (Mcoding_utf_8, mt, fp);
+  mconv_encode_stream (Mcoding_utf_8_full, mt, fp);
   fclose (fp);
   if (from >= 0)
     select_region (from, to);
@@ -1969,7 +1969,7 @@ DumpImageProc (Widget w, XtPointer client_data, XtPointer call_data)
     mdump = popen ("mdump -q", "w");
   if (! mdump)
     return;
-  converter = mconv_stream_converter (Mcoding_utf_8, mdump);
+  converter = mconv_stream_converter (Mcoding_utf_8_full, mdump);
   mconv_encode_range (converter, mt, from, to);
   mconv_free_converter (converter);
   fclose (mdump);
@@ -2200,7 +2200,7 @@ FileDialogProc (Widget w, XtPointer client_data, XtPointer call_data)
       m17n_object_unref (mt);
       if (fp)
 	{
-	  mt = mconv_decode_stream (Mcoding_utf_8, fp);
+	  mt = mconv_decode_stream (Mcoding_utf_8_full, fp);
 	  fclose (fp);
 	  if (! mt)
 	    mt = mtext ();
