@@ -4,6 +4,8 @@
 
 2004-08-13  Kenichi Handa  <handa@m17n.org>
 
+	* language.c (mlang__init): Add Dhivehi.
+
 	* m17n-gui.c (Mx, Mfreetype): Delete it.
 	(m17n_init_win): Don't initialize Mx and Mfreetype here.
 
