@@ -1611,7 +1611,7 @@ mtext_get_prop_values (MText *mt, int pos, MSymbol key,
 /*=*/
 
 /***en
-    @brief Get list of text property keys at a position of an M-text.
+    @brief Get a list of text property keys at a position of an M-text.
 
     The mtext_get_prop_keys () function creates an array whose
     elements are the keys of text properties found at position $POS in
@@ -1837,7 +1837,8 @@ mtext_put_prop_values (MText *mt, int from, int to,
 
     The mtext_push_prop () function pushes a text property whose key
     is $KEY and value is $VAL to the characters between $FROM
-    (inclusive) and $TO (exclusive) in $MT.  With this function,
+    (inclusive) and $TO (exclusive) in M-text $MT.  With this
+    function,
 
 @verbatim
                     FROM                    TO
@@ -2154,7 +2155,7 @@ mtext_pop_prop (MText *mt, int from, int to, MSymbol key)
 
     関数 mtext_prop_range () は、指定したテキストプロパティの値が同じ
     である連続した文字の範囲を調べる。まず M-text $MT の $POS の位置に
-    ある文字のプロパティのうち、キー $KEY で指定されたものの値を見つけ
+    ある文字のプロパティのうち、キー $KEY で指定されたもの値を見つけ
     る。そして前後の文字も $KEY のプロパティの値が同じであるかどうかを
     調べる。見つけた範囲の最初と最後を、それぞれ $FROM と $TO にポイン
     トされる変数に保存する。$FROM に保存される文字の位置は見つけた範囲
@@ -2249,6 +2250,7 @@ mtext_prop_range (MText *mt, MSymbol key, int pos,
 
     $CONTROL_BITS must be 0 or logical OR of @c enum @c
     MTextPropertyControl.  */
+
 /***ja
     @brief テキストプロパティを生成する.
 
@@ -2271,6 +2273,7 @@ mtext_property (MSymbol key, void *val, int control_bits)
     The mtext_property_mtext () function returns the M-text to which
     text property $PROP is attached.  If $PROP is currently detached,
     NULL is returned.  */
+
 /***ja
     @brief あるテキストプロパティを持つ M-text を返す.
 
@@ -2289,6 +2292,7 @@ mtext_property_mtext (MTextProperty *prop)
 
     The mtext_property_key () function returns the key (symbol) of
     text property $PROP.  */
+
 /***ja
     @brief テキストプロパティのキーを返す.
 
@@ -2306,6 +2310,7 @@ mtext_property_key (MTextProperty *prop)
 
     The mtext_property_value () function returns the value of text
     property $PROP.  */
+
 /***ja
     @brief テキストプロパティの値を返す.
 
@@ -2325,6 +2330,7 @@ mtext_property_value (MTextProperty *prop)
     text property $PROP.  The start position is a character position
     of an M-text where $PROP begins.  If $PROP is detached, it returns
     -1.  */
+
 /***ja
     @brief テキストプロパティの開始位置を返す.
 
@@ -2345,6 +2351,7 @@ mtext_property_start (MTextProperty *prop)
     text property $PROP.  The end position is a character position of
     an M-text where $PROP ends.  If $PROP is detached, it returns
     -1.  */
+
 /***ja
     @brief テキストプロパティの終了位置を返す.
 
@@ -2372,6 +2379,7 @@ mtext_property_end (MTextProperty *prop)
 
     If an error is detected, mtext_get_property () returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
+
 /***ja
     @brief 一番上のテキストプロパティを得る.
 
@@ -2419,6 +2427,7 @@ mtext_get_property (MText *mt, int pos, MSymbol key)
     $POS does not have a property whose key is $KEY, the return value
     is 0. If an error is detected, mtext_get_properties () returns -1
     and assigns an error code to the external variable #merror_code.  */
+
 /***ja
     @brief 複数のテキストプロパティを得る.
 
@@ -2482,6 +2491,7 @@ mtext_get_properties (MText *mt, int pos, MSymbol key,
     If the operation was successful, mtext_attach_property () returns
     0.  Otherwise it returns -1 and assigns an error code to the
     external variable #merror_code.  */
+
 /***ja
     @brief  M-textにテキストプロパティを付加する.
 
@@ -2532,6 +2542,7 @@ mtext_attach_property (MText *mt, int from, int to, MTextProperty *prop)
 
     @return
     This function always returns 0.  */
+
 /***ja
     @brief  M-text からテキストプロパティを分離する.
 
@@ -2558,18 +2569,21 @@ mtext_detach_property (MTextProperty *prop)
 /***en
     @brief Push a text property onto an M-text.
 
-    The mtext_push_property () function attaches text property $PROP on
-    M-text $MT by the "push" manner.
+    The mtext_push_property () function pushes text property $PROP to
+    the characters between $FROM (inclusive) and $TO (exclusive) in
+    M-text $MT.
 
     @return
     If the operation was successful, mtext_push_property () returns
     0.  Otherwise it returns -1 and assigns an error code to the
     external variable #merror_code.  */
+
 /***ja
     @brief M-text にテキストプロパティをプッシュする.
 
-    関数 mtext_push_property () はテキストプロパティ $PROP をM-text
-    $MT にプッシュして付加する。
+    関数 mtext_push_property () は、テキストプロパティ $PROP を、
+    M-text $MT 中の $FROM （含まれる）から $TO （含まれない）の範囲の
+    文字にプッシュする。
 
     @return
     処理に成功すれば、mtext_push_property () は 0 を返す。そうでなけ
@@ -2674,13 +2688,14 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
 
     @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
   */
+
 /***ja
     @brief シリアライザ関数を指定するシンボル.
 
-    テキストプロパティをシリアライズするために、ユーザはテキストプロパ
+    テキストプロパティをシリアライズするためには、そのテキストプロパ
     ティ用のシリアライザ関数を与えなくてはならない。具体的には、
     #Mtext_prop_serializer をキーとし、適切なシリアライズ関数へのポイ
-    ンタを値とするシンボルを指定する。
+    ンタを値とするシンボルプロパティを指定する。
 
     @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
   */
@@ -2696,13 +2711,14 @@ MSymbol Mtext_prop_serializer;
 
     @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
   */
+
 /***ja
     @brief デシリアライザ関数を指定するシンボル.
 
-    テキストプロパティをデシリアライズするために、ユーザはテキストプロ
+    テキストプロパティをデシリアライズするためには、そのテキストプロ
     パティ用のデシリアライザ関数を与えなくてはならない。具体的には、
     #Mtext_prop_deserializer をキーとし、適切なデシリアライズ関数への
-    ポインタを値とするシンボルを指定する。
+    ポインタを値とするシンボルプロパティを指定する。
 
     @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
   */
@@ -2712,14 +2728,15 @@ MSymbol Mtext_prop_deserializer;
     @brief Serialize text properties in an M-text.
 
     The mtext_serialize () function serializes the text between $FROM
-    and $TO in M-text $MT.  The serialized result is an M-text in the
+    and $TO in M-text $MT.  The serialized result is an M-text in a
     form of XML.  $PROPERTY_LIST limits the text properties to be
-    serialized.  If a symbol 
-    @li appears as the value of an element in $PROPERTY_LIST (the key must be @c Mt ), and 
-    @li has the symbol    property #Mtext_prop_serializer, 
-    
-    a text property having that symbol as its key is turned into the
-    "property" element in the resulting XML representation.
+    serialized. Only those text properties whose key 
+
+    @li appears as the value of an element in $PROPERTY_LIST, and
+    @li has the symbol property #Mtext_prop_serializer
+
+    are serialized as a "property" element in the resulting XML
+    representation.
 
     The DTD of the generated XML is as follows:
 
@@ -2746,18 +2763,20 @@ MSymbol Mtext_prop_deserializer;
 
     @seealso
     mtext_deserialize (), Mtext_prop_serializer  */
+
 /***ja
     @brief M-text 中のテキストプロパティをシリアライズする.
 
     関数 mtext_serialize () は M-text $MT の $FROM から $TO までのテキ
-    ストをシリアライズする。シリアライズした結果 XML 形式の M-text で
+    ストをシリアライズする。シリアライズした結果は XML 形式の M-text で
     ある。 $PROPERTY_LIST はシリアライズされるテキストプロパティを限定
-    する。シンボルが
-    @li $PROPERTY_LIST (キーは @c Mt) の要素の値として現われ、
-    @li シンボルプロパティ #Mtext_prop_serializer を持つならば、
+    する。対象となるテキストプロパティは、そのキーが
+
+    @li $PROPERTY_LIST の要素の値として現われ、かつ
+    @li シンボルプロパティ #Mtext_prop_serializer を持つ
     
-    このシンボルをキーとするテキストプロパティは、生成される XML 表現
-    中で "property" 要素に変換される。
+    もののみである。この条件を満たすテキストプロパティは、生成される 
+    XML 表現中で "property" 要素にシリアライズされる。
 
     生成される XML の DTD は以下の通り:
 
@@ -2897,6 +2916,7 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
 
     @seealso
     mtext_serialize (), Mtext_prop_deserializer  */
+
 /***ja
     @brief M-text 中のテキストプロパティをデシリアライズする.
 
