@@ -886,58 +886,94 @@ mfont__ft_unparse_name (MFont *font)
 }
 #endif	/* HAVE_FONTCONFIG */
 
+
+#ifdef HAVE_OTF
+
+#define DEVICE_DELTA(table, size)				\
+  (((size) >= (table).StartSize && (size) <= (table).EndSize)	\
+   ? (table).DeltaValue[(size) >= (table).StartSize]		\
+   : 0)
+
+void
+adjust_anchor (OTF_Anchor *anchor, FT_Face ft_face,
+	       MGlyph *prev, int size, int *x, int *y)
+{
+  if (anchor->AnchorFormat == 2 && prev)
+    {
+      FT_Outline *outline;
+      int ap = anchor->f.f1.AnchorPoint;
+
+      FT_Load_Glyph (ft_face, (FT_UInt) prev->code, FT_LOAD_MONOCHROME);
+      outline = &ft_face->glyph->outline;
+      if (ap < outline->n_points)
+	{
+	  *x = outline->points[ap].x;
+	  *y = outline->points[ap].y;
+	}
+    }
+  else if (anchor->AnchorFormat == 3)
+    {
+      *x += DEVICE_DELTA (anchor->f.f2.XDeviceTable, size);
+      *y += DEVICE_DELTA (anchor->f.f2.YDeviceTable, size);
+    }
+}
+
 int
-mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
-		     MRealizedFont *rfont,
-		     MSymbol script, MSymbol langsys, 
-		     MSymbol gsub_features, MSymbol gpos_features)
+mfont__ft_drive_gsub (MGlyphString *gstring, int from, int to)
 {
   int len = to - from;
   MGlyph g;
   int i;
-#ifdef HAVE_OTF
   MFTInfo *ft_info;
   OTF *otf;
   OTF_GlyphString otf_gstring;
   OTF_Glyph *otfg;
   char *script_name, *language_name;
-  char *gsub_feature_names, *gpos_feature_names;
+  char *gsub_feature_names;
   int from_pos, to_pos;
-  int unitsPerEm;
+  int need_cmap;
 
   if (len == 0)
     return from;
 
-  ft_info = (MFTInfo *) rfont->info;
+  g = gstring->glyphs[from];
+  ft_info = g.rface->rfont->info;
   if (ft_info->otf_flag < 0)
     goto simple_copy;
   otf = ft_info->otf;
-  if (! otf && (otf = OTF_open (ft_info->filename)))
+  if (! otf)
     {
-      if (OTF_get_table (otf, "head") < 0
-	  || (OTF_check_table (otf, "GSUB") < 0
-	      && OTF_check_table (otf, "GPOS") < 0))
+      otf = OTF_open (ft_info->filename);
+      if (otf && OTF_get_table (otf, "head") < 0)
 	{
 	  OTF_close (otf);
+	  otf = NULL;
+	}
+      if (! otf)
+	{
 	  ft_info->otf_flag = -1;
-	  ft_info->otf = NULL;
 	  goto simple_copy;
 	}
       ft_info->otf = otf;
     }
 
-  script_name = msymbol_name (script);
-  language_name = langsys != Mnil ? msymbol_name (langsys) : NULL;
+  if (g.otf_cmd->script != Mnil)
+    script_name = msymbol_name (g.otf_cmd->script);
+  else
+    script_name = NULL;
+  if (g.otf_cmd->langsys != Mnil)
+    language_name = msymbol_name (g.otf_cmd->langsys);
+  else
+    language_name = NULL;
   gsub_feature_names
-    = (gsub_features == Mt ? "*"
-       : gsub_features == Mnil ? NULL
-       : msymbol_name (gsub_features));
-  gpos_feature_names
-    = (gpos_features == Mt ? "*"
-       : gpos_features == Mnil ? NULL
-       : msymbol_name (gpos_features));
+    = (g.otf_cmd->gsub_features == Mt ? "*"
+       : g.otf_cmd->gsub_features == Mnil ? NULL
+       : msymbol_name (g.otf_cmd->gsub_features));
+  if (gsub_feature_names && OTF_check_table (otf, "GSUB") < 0)
+    gsub_feature_names = NULL;
+  if (! gsub_feature_names)
+    goto simple_copy;
 
-  g = gstring->glyphs[from];
   from_pos = g.pos;
   to_pos = g.to;
   for (i = from + 1; i < to; i++)
@@ -948,11 +984,10 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	to_pos = gstring->glyphs[i].to;
     }
 
-  unitsPerEm = otf->head->unitsPerEm;
   otf_gstring.size = otf_gstring.used = len;
   otf_gstring.glyphs = (OTF_Glyph *) alloca (sizeof (OTF_Glyph) * len);
   memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
-  for (i = 0; i < len; i++)
+  for (i = 0, need_cmap = 0; i < len; i++)
     {
       if (gstring->glyphs[from + i].otf_encoded)
 	{
@@ -962,12 +997,16 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       else
 	{
 	  otf_gstring.glyphs[i].c = gstring->glyphs[from + i].code;
+	  need_cmap++;
 	}
     }
-      
-  if (OTF_drive_tables (otf, &otf_gstring, script_name, language_name,
-			gsub_feature_names, gpos_feature_names) < 0)
+  if (need_cmap
+      && OTF_drive_cmap (otf, &otf_gstring) < 0)
     goto simple_copy;
+  if (OTF_drive_gsub (otf, &otf_gstring, script_name, language_name,
+		      gsub_feature_names) < 0)
+    goto simple_copy;
+
   g.pos = from_pos;
   g.to = to_pos;
   for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used; i++, otfg++)
@@ -977,49 +1016,6 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       if (otfg->glyph_id)
 	{
 	  g.code = otfg->glyph_id;
-	  switch (otfg->positioning_type)
-	    {
-	    case 1: case 2:
-	      {
-		int off_x = 128, off_y = 128;
-
-		if (otfg->f.f1.format & OTF_XPlacement)
-		  off_x = ((double) (otfg->f.f1.value->XPlacement)
-			   * 100 / unitsPerEm + 128);
-		if (otfg->f.f1.format & OTF_YPlacement)
-		  off_y = ((double) (otfg->f.f1.value->YPlacement)
-			   * 100 / unitsPerEm + 128);
-		g.combining_code
-		  = MAKE_COMBINING_CODE (3, 2, 3, 0, off_y, off_x);
-		if ((otfg->f.f1.format & OTF_XAdvance)
-		    || (otfg->f.f1.format & OTF_YAdvance))
-		  off_y--;
-	      }
-	      break;
-	    case 3:
-	      /* Not yet supported.  */
-	      break;
-	    case 4:
-	      {
-		int off_x, off_y;
-
-		off_x = ((double) (otfg->f.f4.base_anchor->XCoordinate
-				   - otfg->f.f4.mark_anchor->XCoordinate)
-			 * 100 / unitsPerEm + 128);
-		off_y = ((double) (otfg->f.f4.base_anchor->YCoordinate
-				   - otfg->f.f4.mark_anchor->YCoordinate)
-			 * 100 / unitsPerEm + 128);
-		g.combining_code
-		  = MAKE_COMBINING_CODE (3, 0, 3, 0, off_y, off_x);
-	      }
-	      break;
-	    case 5:
-	      /* Not yet supported.  */
-	      break;
-	    default:		/* i.e case 6 */
-	      /* Not yet supported.  */
-	      break;
-	    }
 	  g.otf_encoded = 1;
 	}
       else
@@ -1032,7 +1028,6 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
   return to;
 
  simple_copy:
-#endif	/* HAVE_OTF */
   for (i = 0; i < len; i++)
     {
       g = gstring->glyphs[from + i];
@@ -1042,16 +1037,124 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 }
 
 int
+mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
+{
+  int len = to - from;
+  MGlyph *g, *prev;
+  int i;
+  MFTInfo *ft_info;
+  OTF *otf;
+  OTF_GlyphString otf_gstring;
+  OTF_Glyph *otfg;
+  char *script_name, *language_name;
+  char *gpos_feature_names;
+  int u;
+  int size10, size;
+
+  if (len == 0)
+    return from;
+
+  g = MGLYPH (from);
+  ft_info = g->rface->rfont->info;
+  if (ft_info->otf_flag < 0)
+    return to;
+  otf = ft_info->otf;
+  if (! otf)
+    return to;
+  if (g->otf_cmd->script != Mnil)
+    script_name = msymbol_name (g->otf_cmd->script);
+  else
+    script_name = NULL;
+  if (g->otf_cmd->langsys != Mnil)
+    language_name = msymbol_name (g->otf_cmd->langsys);
+  else
+    language_name = NULL;
+  gpos_feature_names
+    = (g->otf_cmd->gpos_features == Mt ? "*"
+       : g->otf_cmd->gpos_features == Mnil ? NULL
+       : msymbol_name (g->otf_cmd->gpos_features));
+  if (gpos_feature_names && OTF_check_table (otf, "GPOS") < 0)
+    gpos_feature_names = NULL;
+  if (! gpos_feature_names)
+    return to;
+
+  otf_gstring.size = otf_gstring.used = len;
+  otf_gstring.glyphs = (OTF_Glyph *) alloca (sizeof (OTF_Glyph) * len);
+  memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
+  for (i = 0; i < len; i++)
+    {
+      otf_gstring.glyphs[i].c = gstring->glyphs[from + i].c;
+      otf_gstring.glyphs[i].glyph_id = gstring->glyphs[from + i].code;
+    }
+  if (OTF_drive_gpos (otf, &otf_gstring, script_name, language_name,
+		      gpos_feature_names) < 0)
+    return to;
+
+  u = otf->head->unitsPerEm;
+  size10 = g->rface->rfont->font.property[MFONT_SIZE];
+  size = size10 / 10;
+  prev = NULL;
+  for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used;
+       prev = g++, i++, otfg++)
+    switch (otfg->positioning_type)
+      {
+      case 0:
+	break;
+      case 1: case 2:
+	{
+	  int format = otfg->f.f1.format;
+
+	  if (format & OTF_XPlacement)
+	    g->xoff = otfg->f.f1.value->XPlacement * size10 / u / 10;
+	  if (format & OTF_XPlaDevice)
+	    g->xoff += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, size);
+	  if (format & OTF_YPlacement)
+	    g->yoff = otfg->f.f1.value->YPlacement * size10 / u / 10;
+	  if (format & OTF_YPlaDevice)
+	    g->yoff += DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, size);
+	}
+	break;
+      case 3:
+	/* Not yet supported.  */
+	break;
+      case 4:
+	{
+	  int base_x, base_y, mark_x, mark_y;
+
+	  base_x = otfg->f.f4.base_anchor->XCoordinate * size10 / u / 10;
+	  base_y = otfg->f.f4.base_anchor->YCoordinate * size10 / u / 10;
+	  mark_x = otfg->f.f4.mark_anchor->XCoordinate * size10 / u / 10;
+	  mark_y = otfg->f.f4.mark_anchor->YCoordinate * size10 / u / 10;
+
+	  if (otfg->f.f4.base_anchor->AnchorFormat != 1)
+	    adjust_anchor (otfg->f.f4.base_anchor, ft_info->ft_face,
+			   prev, size, &base_x, &base_y);
+	  if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
+	    adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
+			   prev, size, &mark_x, &mark_y);
+	  g->xoff = (base_x - prev->width) - mark_x;
+	  g->yoff = base_y - mark_y;
+	}
+	break;
+      case 5:
+	/* Not yet supported.  */
+	break;
+      default:		/* i.e case 6 */
+	/* Not yet supported.  */
+	break;
+      }
+  return to;
+}
+
+int
 mfont__ft_decode_otf (MGlyph *g)
 {
-#ifdef HAVE_OTF
   MFTInfo *ft_info = (MFTInfo *) g->rface->rfont->info;
   int c = OTF_get_unicode (ft_info->otf, (OTF_GlyphID) g->code);
 
   return (c ? c : -1);
-#else  /* not HAVE_OTF */
-  return -1;
-#endif	/* not HAVE_OTF */
 }
+
+#endif	/* HAVE_OTF */
 
 #endif /* HAVE_FREETYPE */
