@@ -274,6 +274,8 @@ struct MDeviceDriver
   MSymbol (*parse_event) (MFrame *frame, void *arg, int *modifiers);
 };
 
+extern MSymbol Mlatin;
+
 extern MSymbol Mgd;
 
 extern int mfont__init ();
