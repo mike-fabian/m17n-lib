@@ -304,12 +304,27 @@ fc_list (MSymbol family)
   fs = FcFontList (fc_config, pattern, os);
   if (fs)
     {
-      for (i = 0; i < fs->nfont; i++)
-	{
-	  char *filename;
+      char *filename;
 
-	  FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
-	  add_font_info (filename, family);
+      if (fs->nfont > 0)
+	for (i = 0; i < fs->nfont; i++)
+	  {
+	    FcPatternGetString (fs->fonts[i], FC_FILE, 0, 
+				(FcChar8 **) &filename);
+	    add_font_info (filename, family);
+	  }
+      else
+	{
+	  FcPattern *match;
+	  FcResult result;
+
+	  FcConfigSubstitute (fc_config, pattern, FcMatchPattern);
+	  FcDefaultSubstitute (pattern);
+	  match = FcFontMatch (fc_config, pattern, &result);
+	  if (FcPatternGetString (match, FC_FILE, 0, (FcChar8 **) &filename)
+	      == FcResultMatch)
+	    add_font_info (filename, family);
+	  FcPatternDestroy (match);
 	}
       FcFontSetDestroy (fs);
     }
