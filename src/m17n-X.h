@@ -55,9 +55,8 @@ extern MSymbol Mxim;
     argument $ARG of the function minput_open_im () for the foreign
     input method of name #Mxim.  */
 
-/***oldja
+/***ja
     @brief 関数 minput_open_im () の引数 $ARG によって指される構造体
-
 
     #MInputXIMArgIM 型は、関数 minput_open_im () が名前 #Mxim を持
     つ外部入力メソッドを生成する際に引数 $ARG によって指される構造体で
@@ -67,31 +66,31 @@ typedef struct
 {
   /***en The meaning of the following four members are the same as
       arguments to XOpenIM ().  */
-  /***oldja 以下の４つのメンバの意味は、XOpenIM () の引数の意味と同じであ
+  /***ja 以下の４つのメンバの意味は、XOpenIM () の引数の意味と同じであ
       る。  */
 
   /***en Display of the client.  */
-  /***oldja クライアントのディスプレイ  */
+  /***ja クライアントのディスプレイ  */
   Display *display;
 
   /***en Pointer to the X resource database.  */
-  /***oldja X リソース・データベースへのポインタ  */
+  /***ja X リソース・データベースへのポインタ  */
   XrmDatabase db;
 
   /***en Full class name of the application.  */
-  /***oldja アプリケーションの完全なクラス名  */
+  /***ja アプリケーションの完全なクラス名  */
   char *res_class;
 
   /***en Full resource name of the application.  */
-  /***oldja アプリケーションの完全なリソース名  */
+  /***ja アプリケーションの完全なリソース名  */
   char *res_name;
 
   /***en Locale name under which an XIM is opened.  */
-  /***oldja XIMがオープンされたロケール名  */
+  /***ja XIMがオープンされたロケール名  */
   char *locale;
 
   /***en Arguments to XSetLocaleModifiers ().  */
-  /***oldja XSetLocaleModifiers () の引数  */
+  /***ja XSetLocaleModifiers () の引数  */
   char *modifier_list;
 } MInputXIMArgIM;
   /*=*/
@@ -105,7 +104,7 @@ typedef struct
     argument $ARG of the function minput_create_ic () for the foreign
     input method of name #Mxim.  */
 
-/***oldja
+/***ja
     @brief 関数 minput_create_ic () の引数 $ARG によって指される構造体
 
     #MInputXIMArgIC 型は、関数 minput_create_ic () が名前 #Mxim を
@@ -118,30 +117,30 @@ typedef struct
       XNInputStyle.  If this is zero, ( @c XIMPreeditNothing | @c
       XIMStatusNothing) is used, and <preedit_attrs> and
       <status_attrs> are set to @c NULL.  */
-  /***oldja @c XCreateIC の @c XNInputStyle に続く引数として用いられる。
+  /***ja @c XCreateIC の @c XNInputStyle に続く引数として用いられる。
       ゼロならば、 ( @c XIMPreeditNothing | @c XIMStatusNothing) が用
       いられ、 <preedit_attrs> と <status_attrs> は @c NULL に設定され
       る。 */
 
   XIMStyle input_style;
   /***en Used as the argument of @c XCreateIC following @c XNClientWindow.  */
-  /***oldja @c XCreateIC の @c XNClientWindow に続く引数として用いられる。  */
+  /***ja @c XCreateIC の @c XNClientWindow に続く引数として用いられる。  */
 
 
   Window client_win;
   /***en Used as the argument of @c XCreateIC following @c XNFocusWindow.  */
-  /***oldja @c XCreateIC の @c XNFocusWindow に続く引数として用いられる。  */
+  /***ja @c XCreateIC の @c XNFocusWindow に続く引数として用いられる。  */
 
   Window focus_win;
   /***en If non- @c NULL, used as the argument of @c XCreateIC following
       @c XNPreeditAttributes.  */
-  /***oldja @c NULLでなければ、 @c XCreateIC following の@c
+  /***ja @c NULLでなければ、 @c XCreateIC following の@c
       XNPreeditAttributes に続く引数として用いられる。  */
 
   XVaNestedList preedit_attrs;
-  /***en If non-NULL, used as the argument of @c XCreateIC following
+  /***en If non- @c NULL, used as the argument of @c XCreateIC following
       @c XNStatusAttributes.  */ 
-  /***oldja @c NULLでなければ、 @c XCreateIC following の @c
+  /***ja @c NULLでなければ、 @c XCreateIC following の @c
       XNStatusAttributes に続く引数として用いられる。  */
 
   XVaNestedList status_attrs;
