@@ -270,9 +270,7 @@ struct MDeviceDriver
   MSymbol (*parse_event) (MFrame *frame, void *arg, int *modifiers);
 };
 
-extern MSymbol Mx;
 extern MSymbol Mgd;
-extern MSymbol Mfreetype;
 
 extern int mfont__init ();
 extern void mfont__fini ();
