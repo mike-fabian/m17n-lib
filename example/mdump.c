@@ -275,7 +275,7 @@ help_exit (char *prog, int exit_code)
   printf ("    dumped into the file \"output.png\".\n");
   printf ("The following OPTIONs are available.\n");
   printf ("  %-13s %s", "-s SIZE",
-	  "Font size in point (default 12).\n");
+	  "Font size in 1/10 point (default 120).\n");
   printf ("  %-13s %s", "-d DPI",
 	  "Resolution in dots per inch (defualt 300).\n");
   printf ("  %-13s %s", "-p PAPER",
