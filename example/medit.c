@@ -1003,6 +1003,7 @@ covert_selection (Widget w, Atom *selection_atom,
   int from = mtext_property_start (selection);
   int to = mtext_property_end (selection);
   MSymbol coding;
+  int len;
 
   mtext_copy (this_mt, 0, mt, from, to);
   if (*target == XA_TEXT)
@@ -1015,11 +1016,16 @@ covert_selection (Widget w, Atom *selection_atom,
       *return_type = XA_COMPOUND_TEXT;
 #endif
     }
+  else if (*target == XA_UTF8_STRING)
+    {
+      coding = Mcoding_utf_8;
+      *return_type = XA_UTF8_STRING;
+    }
   else if (*target == XA_STRING)
     {
-      int len = to - from;
       int i;
 
+      len = to - from;
       for (i = 0; i < len; i++)
 	if (mtext_ref_char (this_mt, i) >= 0x100)
 	  /* Can't encode in XA_STRING */
@@ -1032,10 +1038,14 @@ covert_selection (Widget w, Atom *selection_atom,
       coding = Mcoding_compound_text;
       *return_type = XA_COMPOUND_TEXT;
     }
-  *length = mconv_encode_buffer (coding, this_mt, buf, 4096);
-  m17n_object_unref (this_mt);
-  if (*length == 0)
+  else
     return False;
+
+  len = mconv_encode_buffer (coding, this_mt, buf, 4096);
+  m17n_object_unref (this_mt);
+  if (len < 0)
+    return False;
+  *length = len;
   *value = (XtPointer) buf;
   *format = 8;
   return True;
@@ -1123,6 +1133,18 @@ ExposeProc (Widget w, XEvent *event, String *str, Cardinal *num)
       update_top (0);
       update_cursor (0, 1);
       redraw (0, win_height, 0, 1);
+      {
+	int idx = current_input_method;
+
+	current_input_method = -1;
+	input_method_table[idx].im = 
+	  minput_open_im (input_method_table[idx].language,
+			    input_method_table[idx].name, NULL);
+	if (input_method_table[idx].im)
+	  select_input_method (idx);
+	else
+	  input_method_table[idx].available = -1;
+      }
       show_cursor (NULL);
     }
   else
@@ -2002,12 +2024,22 @@ compare_input_method (const void *elt1, const void *elt2)
 }
 
 void
-setup_input_methods (int with_xim)
+setup_input_methods (int with_xim, char *initial_input_method)
 {
   MInputMethod *im = NULL;
   MPlist *plist = mdatabase_list (msymbol ("input-method"), Mnil, Mnil, Mnil);
   MPlist *pl;
   int i = 0;
+  char *lang_name = NULL, *method_name = NULL;
+
+  if (initial_input_method)
+    {
+      char *p = strchr (initial_input_method, '-');
+      if (p)
+	lang_name = initial_input_method, method_name = p + 1, *p = '\0';
+      else
+	method_name = initial_input_method;
+    }
 
   num_input_methods = mplist_length (plist);
 
@@ -2059,6 +2091,17 @@ setup_input_methods (int with_xim)
 	      (void *) input_status);
   mplist_put (minput_driver->callback_list, Minput_status_done,
 	      (void *) input_status);
+
+  if (method_name)
+    for (i = 0; i < num_input_methods; i++)
+      if (strcmp (method_name, msymbol_name (input_method_table[i].name)) == 0
+	  && (lang_name
+	      ? strcmp (lang_name, msymbol_name (input_method_table[i].language)) == 0
+	      : input_method_table[i].language == Mt))
+	{
+	  current_input_method = i;
+	  break;
+	}
 }
 
 
@@ -2319,8 +2362,14 @@ help_exit (char *prog, int exit_code)
   printf ("Display FILE on a window and allow users to edit it.\n");
   printf ("XT-OPTIONs are standard Xt arguments (e.g. -fn, -fg).\n");
   printf ("The following OPTIONs are available.\n");
+  printf ("  %-13s\n\t\t%s", "--fontset FONTSET",
+	  "Use the specified fontset\n");
+  printf ("  %-13s %s", "-s SIZE", "Font size in 1/10 point (default 120).\n");
+  printf ("  %-13s\n\t\t%s", "--im INPUT-METHOD",
+	  "Input method activated initially.\n");
   printf ("  %-13s %s", "--version", "print version number\n");
   printf ("  %-13s %s", "-h, --help", "print this message\n");
+	  
   exit (exit_code);
 }
 
@@ -2329,6 +2378,8 @@ main (int argc, char **argv)
 {
   Widget form, BodyWidget, w;
   char *fontset_name = NULL;
+  int fontsize = 120;
+  char *initial_input_method = NULL;
   int col = 80, row = 32;
   /* Translation table for TextWidget.  */
   String trans = "<Expose>: Expose()\n\
@@ -2382,10 +2433,22 @@ main (int argc, char **argv)
 	  if (sscanf (argv[i], "%dx%d", &col, &row) != 2)
 	    help_exit (argv[0], 1);
 	}
+      else if (! strcmp (argv[i], "-s"))
+	{
+	  i++;
+	  fontsize = atoi (argv[i]);
+	  if (fontsize < 0)
+	    fontsize = 120;
+	}
       else if (! strcmp (argv[i], "--fontset"))
 	{
 	  i++;
 	  fontset_name = strdup (argv[i]);
+	}
+      else if (! strcmp (argv[i], "--im"))
+	{
+	  i++;
+	  initial_input_method = strdup (argv[i]);
 	}
       else if (! strcmp (argv[i], "--with-xim"))
 	{
@@ -2397,7 +2460,7 @@ main (int argc, char **argv)
 	}
       else
 	{
-	  fprintf (stderr, "Unknown option: %s", argv[i]);
+	  fprintf (stderr, "Unknown option: %s\n", argv[i]);
 	  help_exit (argv[0], 1);
 	}
     }
@@ -2441,12 +2504,13 @@ main (int argc, char **argv)
     MFont *font;
 
     mplist_put (plist, msymbol ("widget"), ShellWidget);
-    if (fontset_name)
+    if (fontset_name || fontsize != 120)
       {
 	MFontset *fontset = mfontset (fontset_name);
 	
 	face = mface ();
 	mface_put_prop (face, Mfontset, fontset);
+	mface_put_prop (face, Msize, (void *) fontsize);
 	m17n_object_unref (fontset);
 	mplist_add (plist, Mface, face);
 	m17n_object_unref (face);
@@ -2536,7 +2600,7 @@ main (int argc, char **argv)
     free (tib_font);
   }
 
-  setup_input_methods (with_xim);
+  setup_input_methods (with_xim, initial_input_method);
 
   gc = DefaultGC (display, screen);
 
