@@ -51,7 +51,7 @@
     code-points to character codes and to @e decode means converting
     character codes to code-points.  */
 
-/***ja
+/***oldja
     @addtogroup m17nCharset
     @brief 文字セットオブジェクトとそれに関する API
 
@@ -645,7 +645,7 @@ mcharset__load_from_database ()
 
     The macro #MCHAR_INVALID_CODE gives the invalid code-point.  */
 
-/***ja
+/***oldja
     @brief 無効なコードポイント
 
     マクロ #MCHAR_INVALID_CODE は無効なコードポイントを与える。  */
@@ -660,7 +660,7 @@ mcharset__load_from_database ()
     symbol @c Mcharset.  The name of @c Mcharset is
     <tt>"charset"</tt>.  */
 
-/***ja
+/***oldja
     @brief シンボル @c Mcharset
 
     デコードされた M-text は、キーが @c Mcharset であるようなテキスト
@@ -675,7 +675,7 @@ MSymbol Mcharset;
 
     Each of the following symbols represents a predefined charset.  */
 
-/***ja
+/***oldja
     @name 変数: 文字セットを表わす定義済みシンボル
 
     以下の各シンボルは、キーが @c Mcharset であり、値が対応する文字セッ
@@ -689,7 +689,7 @@ MSymbol Mcharset;
 
     The symbol #Mcharset_ascii has name <tt>"ascii"</tt> and represents
     the charset ISO 646, USA Version X3.4-1968 (ISO-IR-6).  */
-/***ja
+/***oldja
     @brief ISO 646, USA Version に対応する文字セットのシンボル
 
     シンボル #Mcharset_ascii は <tt>"ascii"</tt> という名前を持ち、 
@@ -704,7 +704,7 @@ MSymbol Mcharset_ascii;
 
     The symbol #Mcharset_iso_8859_1 has name <tt>"iso-8859-1"</tt>
     and represents the charset ISO/IEC 8859-1:1998.  */
-/***ja
+/***oldja
     @brief ISO/IEC 8859-1:1998 に対応する文字セットのシンボル
 
     シンボル #Mcharset_iso_8859_1 は <tt>"iso-8859-1"</tt> という名
@@ -718,7 +718,7 @@ MSymbol Mcharset_iso_8859_1;
 
     The symbol #Mcharset_unicode has name <tt>"unicode"</tt> and
     represents the charset Unicode.  */
-/***ja
+/***oldja
     @brief Unicode に対応する文字セットのシンボル
 
     シンボル #Mcharset_unicode は <tt>"unicode"</tt> という名前を持
@@ -733,7 +733,7 @@ MSymbol Mcharset_unicode;
     The symbol #Mcharset_m17n has name <tt>"m17n"</tt> and
     represents the charset that contains all characters supported by
     the m17n library.  */ 
-/***ja
+/***oldja
     @brief 全文字を含む文字セットのシンボル
 
     シンボル #Mcharset_m17n は <tt>"m17n"</tt> という名前を持ち、
@@ -764,7 +764,7 @@ MSymbol Mcharset_binary;
     These are the predefined symbols to use as parameter keys for the
     function mchar_define_charset () (which see).  */
 
-/***ja
+/***oldja
     @name 変数: mchar_define_charset 用のパラメータ・キー
 
     これらは、関数 mchar_define_charset () 用のパラメータ・キーとして
@@ -805,7 +805,7 @@ MSymbol Maliases;
     converted.  See the documentation of the mchar_define_charset ()
     function for the details.  */
 
-/***ja
+/***oldja
     @name 変数: 文字セットのメソッド指定に使われるシンボル
 
     これらは、文字セットの @e メソッド を指定するためのシンボルであり、
@@ -830,7 +830,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + MIN-CHAR
     where, MIN-CODE is a value of #Mmin_code parameter of the charset,
     and MIN-CHAR is a value of #Mmin_char parameter.  */
 
-/***ja
+/***oldja
     @brief オフセット型のメソッドを示すシンボル
 
     シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、
@@ -848,7 +848,7 @@ MSymbol Moffset;
     done by map looking up.  The map must be given by #Mmapfile
     parameter.  */
 
-/***ja @brief マップ型のメソッドを示すシンボル
+/***oldja @brief マップ型のメソッドを示すシンボル
 
     シンボル #Mmap は <tt>"map"</tt> という名前を持ち、
     mchar_define_charset () でマップ型のメソッドを指定する場合の引数と
@@ -877,7 +877,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
     and LOWEST-CHAR-CODE is the lowest character code of the assigned
     code space.  */
 
-/***ja @brief 相続型のメソッドを示すシンボル
+/***oldja @brief 相続型のメソッドを示すシンボル
 
     シンボル #Minherit は <tt>"inherit"</tt> という名前を持ち、
     mchar_define_charset () で相続型のメソッドを指定する場合の引数とし
@@ -1024,7 +1024,7 @@ MSymbol Msuperset;
     symbol whose name is $NAME.  Otherwise it returns #Mnil and
     assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief 文字セットを定義する.
 
     関数 mchar_define_charset () は新しい文字セットを定義し、それを 
@@ -1249,7 +1249,7 @@ mchar_list_charset (MSymbol **symbols)
     If decoding was successful, mchar_decode () returns the decoded
     character code.  Otherwise it returns -1.  */
 
-/***ja
+/***oldja
     @brief コードポイントをデコードする
 
     関数 mchar_decode () は、シンボル $CHARSET_NAME で示される文字セッ
@@ -1285,7 +1285,7 @@ mchar_decode (MSymbol charset_name, unsigned code)
     If encoding was successful, mchar_encode () returns the encoded
     code-point.  Otherwise it returns #MCHAR_INVALID_CODE.  */
 
-/***ja
+/***oldja
     @brief 文字コードをエンコードする
 
     関数 mchar_encode () は、文字コード $C をエンコードしてシンボル
@@ -1328,7 +1328,7 @@ mchar_encode (MSymbol charset_name, int c)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief 指定した文字セットのすべての文字に対して関数を呼ぶ
 
     関数 mcharset_map_chars () は $CHARSET_NAME という名前を持つ文字セッ

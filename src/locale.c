@@ -27,7 +27,7 @@
     The m17n library represents locale related information as objects
     of type #MLocale.  */
 
-/***ja
+/***oldja
     @addtogroup m17nLocale
     @brief ロケールオブジェクトとそれに関する API
 
@@ -313,22 +313,22 @@ mlocale__fini ()
 
 /*=*/
 /***en The symbol whose name is "language".  */
-/***ja シンボル "language" */
+/***oldja シンボル "language" */
 MSymbol Mlanguage;
 
 /*=*/
 /***en The symbol whose name is "territory".  */
-/***ja シンボル "territory" */
+/***oldja シンボル "territory" */
 MSymbol Mterritory;
 
 /*=*/
 /***en The symbol whose name is "modifier".  */
-/***ja シンボル "modifier" */
+/***oldja シンボル "modifier" */
 MSymbol Mmodifier;
 
 /*=*/
 /***en The symbol whose name is "codeset".  */
-/***ja シンボル "codeset" */
+/***oldja シンボル "codeset" */
 MSymbol Mcodeset;
 
 /*=*/
@@ -354,7 +354,7 @@ MSymbol Mcodeset;
 
     Otherwise, it returns NULL.  */
 
-/***ja
+/***oldja
     @brief 現在のロケールを設定する.
 
     関数 mlocale_set () は $LOCALE_NAME を現在のロケールとする。この関
@@ -421,7 +421,7 @@ mlocale_set (int category, const char *name)
     $KEY of local $LOCALE.  $KEY must be #Mname, #Mlanguage,
     #Mterritory, #Mcodeset, #Mmodifier, or #Mcoding.  */ 
 
-/***ja
+/***oldja
     @brief ロケールのプロパティ値を得る
 
     関数 mlocale_get_prop () は、ロケール $LOCALE の $KEY プロパティの

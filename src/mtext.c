@@ -46,7 +46,7 @@
     In addition, the library provides many functions to manipulate an
     M-text just the same way as a C-string.  */
 
-/***ja
+/***oldja
     @addtogroup m17nMtext
 
     @brief M-text オブジェクトとそれに関する API
@@ -1015,7 +1015,7 @@ mtext__eol (MText *mt, int pos)
     unless the user explicitly does so with the m17n_object_free ()
     function.  */
 
-/***ja
+/***oldja
     @brief 新しいM-textを割り当てる
 
     関数 mtext () は、長さ 0 の新しい M-text を割り当て、それへのポイ
@@ -1114,7 +1114,7 @@ mtext_from_data (void *data, int nitems, enum MTextFormat format)
     The mtext_len () function returns the number of characters in
     M-text $MT.  */
 
-/***ja
+/***oldja
     @brief M-text 中の文字数
 
     関数 mtext_len () は M-text $MT 中の文字数を返す。
@@ -1136,7 +1136,7 @@ mtext_len (MText *mt)
     M-text $MT.  If an error is detected, it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text 中の指定された位置の文字を返す
 
     関数 mtext_ref_char () は、M-text $MT の位置 $POS の文字を返す。
@@ -1203,7 +1203,7 @@ mtext_ref_char (MText *mt, int pos)
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text に一文字を設定する
 
     関数 mtext_set_char () は、テキストプロパティ無しの文字 $C を 
@@ -1276,7 +1276,7 @@ mtext_set_char (MText *mt, int pos, int c)
     This function returns a pointer to the resulting M-text $MT.  If
     $C is an invalid character, it returns @c NULL.  */
 
-/***ja
+/***oldja
     @brief M-text に一文字追加する
 
     関数 mtext_cat_char () は、テキストプロパティ無しの文字 $C を 
@@ -1329,7 +1329,7 @@ mtext_cat_char (MText *mt, int c)
     @return
     This function returns a pointer to the created copy.  */
 
-/***ja
+/***oldja
     @brief M-text のコピーを作る
 
     関数 mtext_dup () は、M-text $MT のコピーを作る。$MT のテキストプ
@@ -1362,7 +1362,7 @@ mtext_dup (MText *mt)
     @return
     This function returns a pointer to the resulting M-text $MT1.  */
 
-/***ja
+/***oldja
     @brief 2個の M-textを連結する
 
     関数 mtext_cat () は、 M-text $MT2 を M-text $MT1 の末尾に付け加え
@@ -1404,7 +1404,7 @@ mtext_cat (MText *mt1, MText *mt2)
     merror_code.  */
 
 
-/***ja
+/***oldja
     @brief M-text の一部を別の M-text に付加する
 
     関数 mtext_ncat () は、M-text $MT2 のはじめの $N 文字を M-text
@@ -1450,7 +1450,7 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
     @return
     This function returns a pointer to the resulting M-text $MT1.  */
 
-/***ja
+/***oldja
     @brief M-text をコピーする
 
     関数 mtext_cpy () は M-text $MT2 を M-text $MT1 に上書きコピーする。
@@ -1490,7 +1490,7 @@ mtext_cpy (MText *mt1, MText *mt2)
     @c NULL and assigns an error code to the global variable @c
     merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text に含まれる最初の何文字かをコピーする
 
     関数 mtext_ncpy () は、M-text $MT2 の最初の $N 文字を M-text $MT1 
@@ -1536,7 +1536,7 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
     pointer to the created M-text.  If an error is detected, it returns 0
     and assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text の一部から新しい M-text をつくる
 
     関数 mtext_duplicate () は、M-text $MT の $FROM （含む）から $TO 
@@ -1582,7 +1582,7 @@ mtext_duplicate (MText *mt, int from, int to)
     to the modified $MT1.  Otherwise, it returns @c NULL and assigns
     an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text の指定範囲の文字をコピーする
 
     関数 mtext_copy () は、 M-text $MT2 の $FROM （含む）から $TO （含
@@ -1629,7 +1629,7 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief 指定範囲の文字を破壊的に取り除く
 
     関数 mtext_del () は、M-text $MT の $FROM （含む）から $TO （含ま
@@ -1694,7 +1694,7 @@ mtext_del (MText *mt, int from, int to)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text を別の M-text に挿入する
 
     関数 mtext_ins () は M-text $MT1 の $POS の位置に 別の M-text $MT2 
@@ -1805,7 +1805,7 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     external variable #merror_code.  If an error is detected, it returns -1 and
     assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text 中の特定の文字を探す
 
     関数 mtext_character () は M-text $MT 中における文字 $C の出現位置
@@ -1858,7 +1858,7 @@ mtext_character (MText *mt, int from, int to, int c)
     If $C is found, mtext_chr () returns its position; otherwise it
     returns.  */
 
-/***ja
+/***oldja
     @brief M-text 中で指定された文字が最初に現れる位置を返す
 
     関数 mtext_chr () は M-text $MT 中における文字 $C の出現位置を調べ
@@ -1897,7 +1897,7 @@ mtext_chr (MText *mt, int c)
     If $C is found, mtext_chr () returns its position; otherwise it
     returns -1.  */
 
-/***ja
+/***oldja
     @brief M-text 中で指定された文字が最後に現れる位置を返す
 
     関数 mtext_rchr () は M-text $MT 中における文字 $C の出現位置を調
@@ -1936,7 +1936,7 @@ mtext_rchr (MText *mt, int c)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を文字単位で比較する
 
     関数 mtext_cmp () は、 M-text $MT1 と $MT2 を文字単位で比較する。
@@ -1972,7 +1972,7 @@ mtext_cmp (MText *mt1, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を文字単位で比較する
 
     関数 mtext_ncmp () は、関数 mtext_cmp () 同様の M-text 同士の比較
@@ -2016,7 +2016,7 @@ mtext_ncmp (MText *mt1, MText *mt2, int n)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を比較する
 
     関数 mtext_compare () は二つの M-text $MT1 と $MT2 を文字単位で比
@@ -2058,7 +2058,7 @@ mtext_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
     segment of M-text $MT1 that consists entirely of characters in
     M-text $MT2.  */
 
-/***ja
+/***oldja
     @brief ある文字の集合を M-text の中で探す
 
     関数 mtext_spn () は、M-text $MT1 の先頭部分で M-text $MT2 に含ま
@@ -2084,7 +2084,7 @@ mtext_spn (MText *mt, MText *accept)
     The mtext_cspn () returns the length of the initial segment of
     M-text $MT1 that consists entirely of characters not in M-text $MT2.  */
 
-/***ja
+/***oldja
     @brief ある集合に属さない文字を M-text の中で探す
 
     関数 mtext_cspn () は、M-text $MT1 の先頭部分で M-text $MT2 に含ま
@@ -2114,7 +2114,7 @@ mtext_cspn (MText *mt, MText *reject)
     This function returns the position in $MT1 of the found character.
     If no such character is found, it returns -1. */
 
-/***ja
+/***oldja
     @brief 別の M-text に含まれる文字の最初の出現位置を見つける
 
     関数 mtext_pbrk () は、M-text $MT1 中で M-text $MT2 のいずれかの文
@@ -2153,7 +2153,7 @@ mtext_pbrk (MText *mt, MText *accept)
     error is detected, it returns @c NULL and assigns an error code
     to the external variable #merror_code. */
 
-/***ja
+/***oldja
     @brief M-text 中のトークンを探す
 
     関数 mtext_tok () は、M-text $MT の中で $POS 以降最初に現れるトー
@@ -2211,7 +2211,7 @@ mtext_tok (MText *mt, MText *delim, int *pos)
     first occurrence.  Otherwise it returns -1.  If $MT2 is empty, it
     returns 0.  */
 
-/***ja
+/***oldja
     @brief M-text 中の別の M-text を探す
 
     関数 mtext_text () は、M-text $MT1 中における M-text $MT2 の最初の
@@ -2316,7 +2316,7 @@ mtext_search (MText *mt1, int from, int to, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を大文字／小文字の区別を無視して比較する
 
     関数 mtext_casecmp () は、関数 mtext_cmp () 同様の M-text 同士の比
@@ -2351,7 +2351,7 @@ mtext_casecmp (MText *mt1, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を大文字／小文字の区別を無視して比較する
 
     関数 mtext_ncasecmp () は、関数 mtext_casecmp () 同様の M-text 同
@@ -2396,7 +2396,7 @@ mtext_ncasecmp (MText *mt1, MText *mt2, int n)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***ja
+/***oldja
     @brief 二つの M-text を、大文字／小文字の区別を無視した文字単位で比較する
 
     関数 mtext_compare () は二つの M-text $MT1 と $MT2 を、大文字／小

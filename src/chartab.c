@@ -41,7 +41,7 @@
 
     A chartable is a managed object.  */
 
-/***ja
+/***oldja
     @addtogroup m17nChartable 文字テーブル
 
     @brief 文字テーブルとそれに関する API
@@ -630,7 +630,7 @@ mchartable__lookup (MCharTable *table, int c, int *next_c, int default_p)
 
     The symbol @c Mchar_table has the name <tt>"char-table"</tt>.  */
 
-/***ja
+/***oldja
     @brief "char-table" という名前を持つシンボル
 
     変数 @c Mchar_table は名前 <tt>"char-table"</tt> を持つ定義済みシン
@@ -653,7 +653,7 @@ MSymbol Mchar_table;
     to the created chartable.  Otherwise it returns @c NULL and
     assigns an error code to the external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief 新しい文字テーブルを作る
 
     関数 mchartable () はキーが $KEY で要素のデフォルト値が 
@@ -695,7 +695,7 @@ mchartable (MSymbol key, void *default_value)
     a valid character, mchartable_lookup () returns @c NULL and
     assigns an error code to the external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief 文字テーブル中で文字に割り当てられた値を返す
 
     関数 mchartable_lookup () は文字テーブル $TABLE 中で文字 $C に割り
@@ -733,7 +733,7 @@ mchartable_lookup (MCharTable *table, int c)
     Otherwise it returns -1 and assigns an error code to the external
     variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief 文字テーブル中での文字の値を設定する
 
     関数 mchartable_set () は、文字テーブル $TABLE 中の文字 $C に
@@ -806,7 +806,7 @@ mchartable_set (MCharTable *table, int c, void *val)
     external variable @c merror_code.  If $FROM is greater than $TO,
     mchartable_set_range () returns immediately without an error.  */
 
-/***ja
+/***oldja
     @brief 指定範囲の文字の値を設定する
 
     関数 mchartable_set_range () は、文字テーブル $TABLE 中の $FROM か
@@ -859,7 +859,7 @@ mchartable_set_range (MCharTable *table, int from, int to, void *val)
     all characters have the default value, both $FROM and $TO are set
     to -1.  */
 
-/***ja
+/***oldja
     @brief 値がデフォルトと異なる文字を探す
 
     関数 mchartable_range () は文字テーブル $TABLE 中で、$TABLE のデフォ
@@ -903,7 +903,7 @@ mchartable_range (MCharTable *table, int *from, int *to)
     @return
     This function always returns 0.  */
 
-/***ja
+/***oldja
     @brief 文字テーブル中の文字に対して指定の関数を呼ぶ
 
     関数 mchartable_map () は、文字テーブル $TABLE 中の文字に対して関

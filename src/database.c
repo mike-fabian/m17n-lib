@@ -64,7 +64,7 @@
     concealed from application programs.
 */
 
-/***ja
+/***oldja
     @addtogroup m17nDatabase
     @brief 言語情報ベースにとそれに関する API
 
@@ -620,7 +620,7 @@ char *mdatabase_dir;
     the data.  If such a database is not found, it returns @c
     NULL.  */
 
-/***ja
+/***oldja
     @brief データベースを探す
 
     関数 mdatabase_find () は、 m17n 言語情報ベース中で $TAG1 から 
@@ -703,7 +703,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     pointer to the defined data, which can be used as an argument to
     mdatabase_load ().  Otherwise, it returns @c NULL.  */
 
-/***ja
+/***oldja
     @brief データベースを定義する
 
     関数 mdatabase_define () は $TAG1 から $TAG4 までのタグおよび付加
@@ -783,7 +783,7 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
     advance.  */
 
 
-/***ja
+/***oldja
     @brief データベースをロードする
 
     関数 mdatabase_load () は $MDB が指すデータベースをロードし、その
@@ -829,7 +829,7 @@ mdatabase_load (MDatabase *mdb)
     that identify the data in $MDB.  The length of the array is
     four.  */
 
-/***ja
+/***oldja
     @brief データベースのタグを得る
 
     関数 mdatabase_tag () は、データベース $MDB のタグ（シンボル）の配

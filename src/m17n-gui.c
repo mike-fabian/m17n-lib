@@ -36,7 +36,7 @@
     implement XOM, not for direct use from application programs.
 */
 
-/***ja
+/***oldja
     @addtogroup m17nGUI
     @brief ウィンドウシステム関連の多言語対応 
 
@@ -174,7 +174,7 @@ m17n_fini_win (void)
     m17n GUI functions require a pointer to a frame as an
     argument.  */
 
-/***ja
+/***oldja
     @brief フレームとは物理的デバイスに対応するオブジェクトである
 
     フレームとは #MFrame 型のオブジェクトであり、個々の物理的な表示／
@@ -273,7 +273,7 @@ MSymbol Mfont_descent;
     If the operation was successful, mframe () returns a pointer to a
     newly created frame.  Otherwise, it returns @c NULL.  */
 
-/***ja
+/***oldja
     @brief  新しいフレームを作る
 
     関数 mframe () は新しいフレームを作る。一般に、引数 $ARGC と $ARGV 
@@ -377,7 +377,7 @@ mframe (MPlist *plist)
 @endverbatim
 */
 
-/***ja
+/***oldja
     @brief フレームのMWDeviceを返す
 
     関数 mframe_device () はフレーム $FRAME に格納されている @c
@@ -408,7 +408,7 @@ mframe_get_prop (MFrame *frame, MSymbol key)
     The external variable #mframe_default contains a pointer to the
     default frame that is created by the first call of mframe ().  */
 
-/***ja
+/***oldja
     デフォルトのフレーム 
 
     外部変数 #mframe_default は、デフォルトのフレームへのポインタを

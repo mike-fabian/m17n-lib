@@ -34,7 +34,7 @@
     ways, which provides powerful 2-dimensional layouting
     facility.  */
 
-/***ja
+/***oldja
     @addtogroup m17nDraw
     @brief M-text 表示のための m17n-gui API
 
@@ -1803,7 +1803,7 @@ mdraw__fini ()
     error is detected, it returns -1 and assigns an error code to the
     external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief ウィンドウに M-text を表示する
 
     関数 mdraw_text () は、フレーム $FRAME のウィンドウ $WIN の座標 
@@ -1905,7 +1905,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
     If an error is detected, it returns -1 and assigns an error code
     to the external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief ディスプレイにM-text を画像として描く
 
     関数 mdraw_image_text () は、フレーム $FRAME のウィンドウ $WIN の
@@ -2008,7 +2008,7 @@ mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
     the widest line.  If an error occurs, it returns -1 and assigns an
     error code to the external variable @c merror_code.  */
 
-/***ja
+/***oldja
     @brief テキストの幅を計算する
 
     関数 mdraw_text_extents () は、M-text $MT の $FROM から $TO までを
@@ -2259,7 +2259,7 @@ mdraw_text_per_char_extents (MFrame *frame,
     maximum X-coordinate, it returns the character position of the
     last character drawn on the line $Y.  */
 
-/***ja
+/***oldja
     @brief 指定した座標にある文字の位置を得る
 
     関数 mdraw_coordinates_position () は、
@@ -2538,7 +2538,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     of the textitems to be drawn and $NITEMS is the number of
     textimtems in the array.  */
 
-/***ja
+/***oldja
     @brief textitem を表示する
 
     関数 mdraw_text_items () は、一個以上のテキストアイテムを、フレー
@@ -2624,7 +2624,7 @@ mdraw_default_line_break (MText *mt, int pos,
     computes the extents of the overall text and stores the results in
     the members of the structure pointed to by $OVERALL_RETURN  */
 
-/***ja
+/***oldja
     @brief M-text の文字毎の情報を得る
 
     関数 mdraw_per_char_extents () は、M-text $MT 中の各文字の表示範囲

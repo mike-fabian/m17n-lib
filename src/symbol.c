@@ -48,7 +48,7 @@
     managed @e object.  See @ref m17nObject for the detail.
 */
 
-/***ja
+/***oldja
     @addtogroup m17nSymbol シンボル
 
     @brief シンボルオブジェクトとそれに関する API
@@ -277,7 +277,7 @@ MTextPropDeserializeFunc msymbol__deserializer = deserialize_symbol;
     represents @e false or @e no.  When coerced to "int", its value is
     zero.  #Mnil can't have any symbol property.  */
 
-/***ja
+/***oldja
     @brief 定義済シンボル Mnil
 
     シンボル #Mnil は <tt>"nil"</tt> という名前を持ち、一般に「偽」
@@ -293,7 +293,7 @@ MSymbol Mnil;
     The symbol #Mt has the name <tt>"t"</tt> and, in general,
     represents @e true or @e yes.  */
 
-/***ja
+/***oldja
     @brief 定義済シンボル Mt
 
     シンボル #Mt は <tt>"t"</tt> という名前を持ち、一般に「真」を意
@@ -310,7 +310,7 @@ MSymbol Mt;
     as an argument of the functions mchar_define_property (),
     etc.  */
 
-/***ja
+/***oldja
     @brief "string" を名前として持つシンボル
 
     定義済みシンボル #Mstring は <tt>"string"</tt> という名前を持ち、
@@ -327,7 +327,7 @@ MSymbol Mstring;
     as an argument of the functions mchar_define_property (),
     etc.  */
 
-/***ja
+/***oldja
     @brief "symbol" を名前として持つシンボル
 
     定義済みシンボル #Msymbol は <tt>"symbol"</tt> という名前を持ち、
@@ -353,7 +353,7 @@ MSymbol Msymbol;
     @errors
     This function never fails.  */
 
-/***ja
+/***oldja
     @brief 指定された名前を持つシンボルを返す
 
     関数 msymbol () は $NAME という名前のシンボルを返す。そのようなシ
@@ -458,7 +458,7 @@ msymbol_as_managing_key (const char *name)
     @errors
     This function never fails.  */
 
-/***ja
+/***oldja
     @brief 指定された名前を持つシンボルを探す
 
     関数 msymbol_exist () は $NAME という名前のシンボルを探す。
@@ -503,7 +503,7 @@ msymbol_exist (const char *name)
 
     @errors
     This function never fails.  */
-/***ja
+/***oldja
     @brief シンボルの名前を返す
 
     関数 msymbol_name () は指定されたシンボル $SYMBOL の名前を返す。  */
@@ -535,7 +535,7 @@ msymbol_name (MSymbol symbol)
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief シンボルプロパティに値を設定する
 
     関数 msymbol_put () は、シンボル $SYMBOL 中でキーが $KEY であるシ
@@ -578,7 +578,7 @@ msymbol_put (MSymbol symbol, MSymbol key, void *val)
     If an error is detected, msymbol_get () returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief シンボルプロパティの値を探す
 
     関数 msymbol_get () は、シンボル $SYMBOL が持つシンボルプロパティ

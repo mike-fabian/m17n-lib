@@ -35,7 +35,7 @@ extern "C"
 /* (C1) Introduction */
 
 /***en @defgroup m17nIntro Introduction  */
-/***ja @defgroup m17nIntro はじめに  */
+/***oldja @defgroup m17nIntro はじめに  */
 /*=*/
 
 #define M17NLIB_MAJOR_VERSION 1
@@ -49,11 +49,11 @@ extern void m17n_fini_core (void);
 #define M17N_FINI() m17n_fini_core ()
 
 /***en @defgroup m17nCore CORE API  */
-/***ja @defgroup m17nCore CORE API */
+/***oldja @defgroup m17nCore CORE API */
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nObject Managed Object */
-/***ja @defgroup m17nObject 管理下オブジェクト */
+/***oldja @defgroup m17nObject 管理下オブジェクト */
 /*=*/
 
 /*** @ingroup m17nObject  */
@@ -87,7 +87,7 @@ extern int m17n_object_unref (void *object);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nSymbol Symbol  */
-/***ja @defgroup m17nSymbol シンボル */
+/***oldja @defgroup m17nSymbol シンボル */
 /*=*/
 
 /***
@@ -98,7 +98,7 @@ extern int m17n_object_unref (void *object);
     The type #MSymbol is for a @e symbol object.  Its internal
     structure is concealed from application programs.  */
 
-/***ja
+/***oldja
     @brief シンボルの型
 
     #MSymbol はシンボルオブジェクトの型へのポインタである。 */
@@ -138,7 +138,7 @@ extern void *msymbol_get (MSymbol symbol, MSymbol key);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nPlist Property List */
-/***ja @defgroup m17nPlist プロパティリスト・オブジェクト */
+/***oldja @defgroup m17nPlist プロパティリスト・オブジェクト */
 /*=*/
 
 /***
@@ -188,7 +188,7 @@ extern void *mplist_value (MPlist *plist);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nCharacter Character */
-/***ja @defgroup m17nCharacter 文字 */
+/***oldja @defgroup m17nCharacter 文字 */
 /*=*/
 
 #define MCHAR_MAX 0x3FFFFF
@@ -212,7 +212,7 @@ extern int mchar_put_prop (int c, MSymbol key, void *val);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nChartable Chartable */
-/***ja @defgroup m17nChartable 文字テーブル */
+/***oldja @defgroup m17nChartable 文字テーブル */
 /*=*/
 extern MSymbol Mchar_table;
 
@@ -224,7 +224,7 @@ extern MSymbol Mchar_table;
     The type #MCharTable is for a @e chartable objects.  Its
     internal structure is concealed from application programs.  */
 
-/***ja
+/***oldja
     @brief 文字テーブルの型
 
     #MCharTable 型は @e 文字テーブル オブジェクト用の構造体である。
@@ -259,7 +259,7 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nMtext M-text */
-/***ja @defgroup m17nMtext M-text */
+/***oldja @defgroup m17nMtext M-text */
 /*=*/
 
 /*
@@ -273,7 +273,7 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
     The type #MText is for an @e M-text object.  Its internal
     structure is concealed from application programs.  */
 
-/***ja
+/***oldja
     @brief @e MText 用構造体 
 
     #Mtext 構造体は @e M-text オブジェクトに用いられる。内部構造はア
@@ -390,7 +390,7 @@ extern MPlist *mplist_deserialize (MText *mt);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nTextProperty Text Property */
-/***ja @defgroup m17nTextProperty テキストプロパティ */
+/***oldja @defgroup m17nTextProperty テキストプロパティ */
 /*=*/
 /*** @ingroup m17nTextProperty */
 /***en

@@ -35,7 +35,7 @@
     coding system into an M-text, and inversely, can encode an M-text
     into a byte sequence.  */
 
-/***ja
+/***oldja
     @addtogroup m17nConv
     @brief コード系オブジェクトとそれに関する API
 
@@ -3084,7 +3084,7 @@ mcoding__load_from_database ()
 /*=*/
 
 /***en @name Variables: Symbols representing a coding system */
-/***ja @name 変数: 定義済みコード系を指定するためのシンボル */
+/***oldja @name 変数: 定義済みコード系を指定するためのシンボル */
 /*** @{ */
 /*=*/
 
@@ -3094,7 +3094,7 @@ mcoding__load_from_database ()
     The symbol #Mcoding_us_ascii has name <tt>"us-ascii"</tt> and
     represents a coding system for the CES US-ASCII.  */
 
-/***ja
+/***oldja
     @brief MIME charset "US-ASCII" に対応するコード系のシンボル
 
     シンボル @c Mcoding_us_ascii は <tt>"us-ascii"</tt> という名前を持ち、
@@ -3110,7 +3110,7 @@ MSymbol Mcoding_us_ascii;
     The symbol #Mcoding_iso_8859_1 has name <tt>"iso-8859-1"</tt> and
     represents a coding system for the CES ISO-8859-1.  */
 
-/***ja
+/***oldja
     @brief MIME charset "ISO-8859-1" に対応するコード系のシンボル
 
     シンボル @c Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> という名前
@@ -3126,7 +3126,7 @@ MSymbol Mcoding_iso_8859_1;
     The symbol #Mcoding_utf_8 has name <tt>"utf-8"</tt> and represents
     a coding system for the CES UTF-8.  */
 
-/***ja
+/***oldja
     @brief RFC 2279 の "UTF-8" に対応するコード系のシンボル（Unicode 用）
 
     シンボル @c Mcoding_utf_8 は <tt>"utf-8"</tt> という名前を持ち、
@@ -3147,7 +3147,7 @@ MSymbol Mcoding_utf_8;
     limited to the Unicode characters.  It can encode all characters
     supported by the m17n library.  */
 
-/***ja
+/***oldja
     @brief RFC 2279 の "UTF-8" に対応するコード系のシンボル（全文字用）
 
     シンボル @c Mcoding_utf_8_full は <tt>"utf-8-full"</tt> という名前
@@ -3163,7 +3163,7 @@ MSymbol Mcoding_utf_8_full;
 
     The symbol #Mcoding_utf_16 has name <tt>"utf-16"</tt> and
     represents a coding system for the CES UTF-16 (RFC 2279).  */
-/***ja
+/***oldja
     @brief RFC 2781 の "UTF-16" に対応するコード系のシンボル
 
     シンボル @c Mcoding_utf_16 は <tt>"utf-16"</tt> という名前を持ち、
@@ -3297,7 +3297,7 @@ MSymbol Mfull_support;
     @name Variables: etc
 
     Remaining variables.  */
-/***ja @name 変数: その他 */
+/***oldja @name 変数: その他 */
 /*** @{ */
 /*=*/
 /***en
@@ -3317,7 +3317,7 @@ MSymbol Mmaybe;
     symbol @c Mcoding.  The name of @c Mcoding is
     <tt>"coding"</tt>.  */
 
-/***ja
+/***oldja
     @brief シンボル @c Mcoding
 
     デコードされた M-text は、キーが @c Mcoding であるようなテキストプ
@@ -3529,7 +3529,7 @@ MSymbol Mcoding;
     #Mnil and assigns an error code to the external variable @c
     merror_code.  */
 
-/***ja
+/***oldja
     @brief コード系の定義
 
     関数 mconv_define_coding () は、新しいコード系を定義し、それを 
@@ -3869,7 +3869,7 @@ mconv_list_codings (MSymbol **symbols)
     the created code converter.  Otherwise it returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief バッファに結び付けられたコードコンバータを作る
 
     関数 mconv_buffer_converter () は、コード系 $CODING 用のコードコン
@@ -3947,7 +3947,7 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
     and assigns an error code to the external variable @c
     merror_code.  */
 
-/***ja
+/***oldja
     @brief ストリームに結び付けられたコードコンバータを作る
 
     関数 mconv_stream_converter () は、コード系 $CODING 用のコードコン
@@ -4030,7 +4030,7 @@ mconv_stream_converter (MSymbol name, FILE *fp)
     mconv_reset_converter () returns the result of that function
     applied to $CONVERTER.  Otherwise it returns 0.  */
 
-/***ja
+/***oldja
     @brief コードコンバータをリセットする
 
     関数 mconv_reset_converter () はコードコンバータ $CONVERTER を初期
@@ -4063,7 +4063,7 @@ mconv_reset_converter (MConverter *converter)
     The mconv_free_converter () function frees the code converter
     $CONVERTER.  */
 
-/***ja
+/***oldja
     @brief コードコンバータを解放する
 
     関数 mconv_free_converter () はコードコンバータ $CONVERTER を解放
@@ -4093,7 +4093,7 @@ mconv_free_converter (MConverter *converter)
     @return
     This function always returns $CONVERTER.  */
 
-/***ja
+/***oldja
     @brief コードコンバータにバッファ領域を結び付ける
 
     関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N バ
@@ -4134,7 +4134,7 @@ mconv_rebind_buffer (MConverter *converter, unsigned char *buf, int n)
     @return
     This function always returns $CONVERTER.  */
 
-/***ja
+/***oldja
     @brief コードコンバータにストリームを結び付ける
 
     関数 mconv_rebind_stream () は、ストリーム $FP をコードコンバータ 
@@ -4182,7 +4182,7 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     $MT.  Otherwise it returns @c NULL and assigns an error code to
     the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief バイト列を M-text にデコードする
 
     関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
@@ -4321,7 +4321,7 @@ mconv_decode (MConverter *converter, MText *mt)
     the resulting M-text.  Otherwise it returns NULL and assigns an
     error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief コード系に基づいてバッファ領域をデコードする
 
     関数 mconv_decode_buffer () は、$BUF によって指された $N バイトの
@@ -4372,7 +4372,7 @@ mconv_decode_buffer (MSymbol name, unsigned char *buf, int n)
     the resulting M-text.  Otherwise it returns NULL and assigns an
     error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief コード系に基づいてストリーム入力をデコードする
 
     関数 mconv_decode_stream () は、ストリーム $FP から読み込まれるバ
@@ -4422,7 +4422,7 @@ mconv_decode_stream (MSymbol name, FILE *fp)
     number of written bytes.  Otherwise it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text をバイト列にエンコードする
 
     関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバー
@@ -4463,7 +4463,7 @@ mconv_encode (MConverter *converter, MText *mt)
     number of written bytes. Otherwise it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text の一部ををバイト列にエンコードする
 
     関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
@@ -4563,7 +4563,7 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
     the number of written bytes.  Otherwise it returns -1 and assigns
     an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text をエンコードしてバッファ領域に書き込む
 
     関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME に基づい
@@ -4611,7 +4611,7 @@ mconv_encode_buffer (MSymbol name, MText *mt, unsigned char *buf, int n)
     the number of written bytes.  Otherwise it returns -1 and assigns
     an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief M-text をエンコードしてストリームに書き込む
 
     関数 mconv_encode_stream () はM-text $MT をコード系 $NAME に基づい
@@ -4661,7 +4661,7 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     error is detected, it returns @c EOF and assigns an error code to
     #merror_code.  */
 
-/***ja
+/***oldja
     @brief コードコンバータ経由で1文字読む
 
     関数 mconv_getc () は、コードコンバータ $CONVERTER に現在結び付け
@@ -4715,7 +4715,7 @@ mconv_getc (MConverter *converter)
     Otherwise it returns @c EOF and assigns an error code to the
     external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief コードコンバータに1文字戻す
 
     関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C を
@@ -4764,7 +4764,7 @@ mconv_ungetc (MConverter *converter, int c)
     If an error is detected, it returns @c EOF and assigns
     an error code to the external variable #merror_code.  */
 
-/***ja
+/***oldja
     @brief コードコンバータを経由で1文字書く
 
     関数 mconv_putc () は、コードコンバータ $CONVERTER に現在結び付け
@@ -4817,7 +4817,7 @@ mconv_putc (MConverter *converter, int c)
     detected, it returns @c NULL and assigns an error code to @c
     merror_code.  */
 
-/***ja
+/***oldja
     @brief コードコンバータを使って1行読む
 
     関数 mconv_gets () は、コードコンバータ $CONVERTER に現在結び付け

@@ -35,7 +35,7 @@
     value is a pointer to the input driver @c minput_xim_driver.  See
     the documentation of @c minput_xim_driver for more detail.  */
 
-/***ja
+/***oldja
     @addtogroup m17nInputMethodWin
     @brief ウィンドウシステム上の入力メソッドのサポート
 
@@ -590,7 +590,7 @@ minput__win_fini ()
     The argument $ARG of the function minput_lookup () must be the
     same one as that of the function minput_filter (). */
 
-/***ja
+/***oldja
     @brief ウィンドウシステムの内部入力メソッド用入力ドライバ
 
     入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
@@ -657,7 +657,7 @@ MInputDriver minput_gui_driver;
 
     At last, a symbol who has the name is returned.  */
 
-/***ja
+/***oldja
     @brief キー名称を入力キーに変換する
 
     関数 minput_name_to_key () は、名前 $NAME に対応する入力キーを返す。
