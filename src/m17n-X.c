@@ -1124,13 +1124,10 @@ static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned xfont_encode_char (MRealizedFont *, int, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
-static MFont *xfont_parse_name (char *name, MFont *font);
-static char *xfont_build_name (MFont *font);
 
 static MFontDriver xfont_driver =
   { xfont_select, xfont_open,
-    xfont_find_metric, xfont_encode_char, xfont_render,
-    xfont_parse_name, xfont_build_name };
+    xfont_find_metric, xfont_encode_char, xfont_render };
 
 typedef struct
 {
@@ -1138,146 +1135,6 @@ typedef struct
   Display *display;
   XFontStruct *xfont;
 } MXFontInfo;
-
-/** Indices to each field of split font name.  */
-
-enum xlfd_field_idx
-  {
-    XLFD_FOUNDRY,
-    XLFD_FAMILY,
-    XLFD_WEIGHT,
-    XLFD_SLANT,
-    XLFD_SWIDTH,
-    XLFD_ADSTYLE,
-    XLFD_PIXEL,
-    XLFD_POINT,
-    XLFD_RESX,
-    XLFD_RESY,
-    XLFD_SPACING,
-    XLFD_AVGWIDTH,
-    XLFD_REGISTRY,
-    XLFD_ENCODING,
-    /* anchor */
-    XLFD_FIELD_MAX
-  };
-
-/** Split the fontname NAME into each XLFD field destructively.  Set
-    each element of the table pointed by PROPERTY_IDX to a pointer to
-    the corresponding font property name.  Store the point size and
-    the resolution-Y of the font to the place pointed by POINT and
-    RESY respectively.
-
-    If NAME does not contain all XLFD fields, the unspecified fields is
-    treated as wild cards.  */
-
-static int
-split_font_name (char *name, char **field,
-		 unsigned short *size, unsigned short *resy)
-{
-  int i;
-  char *p;
-
-  for (i = 0, p = name; *p; p++)
-    {
-      *p = tolower (*p);
-      if (*p == '-' && i < XLFD_FIELD_MAX)
-	{
-	  field[i] = p + 1;
-	  if (i != XLFD_ENCODING)
-	    *p = '\0';
-	  i++;
-	}
-    }
-  if (i < XLFD_REGISTRY)
-    return -1;
-  for (; i < XLFD_FIELD_MAX; i++)
-    field[i] = "*";
-
-  if (*(field[XLFD_RESY]) == '*')
-    *resy = 0;
-  else
-    *resy = atoi (field[XLFD_RESY]);
-  if (*(field[XLFD_PIXEL]) == '*')
-    {
-      if (*(field[XLFD_POINT]) != '*')
-	*size = atoi (field[XLFD_POINT]) * *resy / 72;
-      else
-	*size = 0;
-    }
-  else if (*(field[XLFD_PIXEL]) == '[')
-    {
-      /* The pixel size field specifies a transformation matrix of the
-	 form "[A B C D]".  The XLFD spec says that the scalar value N
-	 for the pixel size is equivalent to D.  */
-      char *p0 = field[XLFD_PIXEL] + 1, *p1;
-      double d;
-
-      for (i = 0; i < 4; i++, p0 = p1)
-	d = strtod (p0, &p1);
-      *size = d * 10;
-    }
-  else
-    *size = atoi (field[XLFD_PIXEL]) * 10;
-  if (*size == 0 && *(field[XLFD_POINT]) != '*')
-    {
-      *size = atoi (field[XLFD_POINT]);
-      if (*resy)
-	*size = *size * *resy / 72;
-      else
-	*size = *size * 100 / 72;
-    }
-
-  return 0;
-}
-
-char *
-build_font_name (MFont *font, char *name, int limit)
-{
-  MSymbol prop[7];
-  char *str[7];
-  int len, i;
-  unsigned short size, resy;
-
-  prop[0] = (MSymbol) mfont_get_prop (font, Mfoundry);
-  prop[1] = (MSymbol) mfont_get_prop (font, Mfamily);
-  prop[2] = (MSymbol) mfont_get_prop (font, Mweight);
-  prop[3] = (MSymbol) mfont_get_prop (font, Mstyle);
-  prop[4] = (MSymbol) mfont_get_prop (font, Mstretch);
-  prop[5] = (MSymbol) mfont_get_prop (font, Madstyle);
-  prop[6] = (MSymbol) mfont_get_prop (font, Mregistry);
-  for (len = 0, i = 0; i < 7; i++)
-    {
-      if (prop[i] != Mnil)
-	{
-	  str[i] = msymbol_name (prop[i]);
-	  len += strlen (str[i]);
-	}
-      else
-	{
-	  str[i] = "*";
-	  len++;
-	}
-    }
-  if ((len
-       + 12			/* 12 dashes */
-       + 3			/* 3 asterisks */
-       + 30			/* 3 integers (each 10 digits) */
-       + 1)			/* '\0' terminal */
-      > limit)
-    return NULL;
-
-  size = (int) mfont_get_prop (font, Msize);
-  if ((size % 10) < 5)
-    size /= 10;
-  else
-    size = size / 10 + 1;
-  resy = (int) mfont_get_prop (font, Mresolution);
-
-  sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-*-*-%s",
-	   str[0], str[1], str[2], str[3], str[4], str[5],
-	   size, resy, resy,  str[6]);
-  return name;
-}
 
 static MFontList *
 build_font_list (MFrame *frame, MSymbol family, MSymbol registry,
@@ -1309,7 +1166,9 @@ build_font_list (MFrame *frame, MSymbol family, MSymbol registry,
     {
       MTABLE_MALLOC (font_list->fonts, nfonts, MERROR_WIN);
       for (i = j = 0; i < nfonts; i++)
-	if (xfont_parse_name (fontnames[i], font_list->fonts + j)
+	if ((mfont__parse_name_into_font (fontnames[i], Mx,
+					  font_list->fonts + j)
+	     == 0)
 	    && (font_list->fonts[j].property[MFONT_SIZE] != 0
 		|| font_list->fonts[j].property[MFONT_RESY] == 0))
 	  j++;
@@ -1419,14 +1278,14 @@ close_xfont (void *object)
 static int
 xfont_open (MRealizedFont *rfont)
 {
-  char name[1024];
+  char *name;
   MXFontInfo *xfont_info;
   MFrame *frame = rfont->frame;
   int mdebug_mask = MDEBUG_FONT;
 
   /* This never fail to generate a valid fontname because open_spec
      should correspond to a font available on the system.  */
-  build_font_name (&rfont->font, name, 1024);
+  name = mfont_unparse_name (&rfont->font, Mx);
   M17N_OBJECT (xfont_info, close_xfont, MERROR_WIN);
   xfont_info->display = FRAME_DISPLAY (frame);
   xfont_info->xfont = XLoadQueryFont (FRAME_DISPLAY (frame), name);
@@ -1435,10 +1294,12 @@ xfont_open (MRealizedFont *rfont)
       rfont->status = -1;
       free (xfont_info);
       MDEBUG_PRINT1 (" [XFONT] x %s\n", name);
+      free (name);
       return -1;
     }
   rfont->info = xfont_info;
   MDEBUG_PRINT1 (" [XFONT] o %s\n", name);
+  free (name);
   rfont->status = 1;
   rfont->ascent = xfont_info->xfont->ascent;
   rfont->descent = xfont_info->xfont->descent;
@@ -1658,64 +1519,6 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
     }
 }
 
-static MFont *
-xfont_parse_name (char *name, MFont *font)
-{
-  char *field[XLFD_FIELD_MAX];
-  unsigned short size, resy;
-  MSymbol attrs[MFONT_PROPERTY_MAX];
-  char *copy = (char *) alloca (512);
-  int i, len;
-  char *p, *last = NULL;
-
-  len = strlen (name) + 1;
-  for (i = 0, p = name; *p; p++)
-    {
-      if (*p == '-')
-	i++;
-      else if (p > name && *p == '*' && p[-1] == '-')
-	last = p + 1;
-    }
-  if (i == 14)
-    memcpy (copy, name, len);
-  else if (last)
-    {
-      memcpy (copy, name, last - name);
-      for (; i < 14; i++)
-	strcat (copy, "-*");
-      strcat (copy, last);
-    }
-
-  if (split_font_name (copy, field, &size, &resy) < 0)
-    return NULL;
-  attrs[MFONT_FOUNDRY]
-    = *(field[XLFD_FOUNDRY]) != '*' ? msymbol (field[XLFD_FOUNDRY]) : Mnil;
-  attrs[MFONT_FAMILY]
-    = *(field[XLFD_FAMILY]) != '*' ? msymbol (field[XLFD_FAMILY]) : Mnil;
-  attrs[MFONT_WEIGHT]
-    = *(field[XLFD_WEIGHT]) != '*' ? msymbol (field[XLFD_WEIGHT]) : Mnil;
-  attrs[MFONT_STYLE]
-    = *(field[XLFD_SLANT]) != '*' ? msymbol (field[XLFD_SLANT]) : Mnil;
-  attrs[MFONT_STRETCH]
-    = *(field[XLFD_SWIDTH]) != '*' ? msymbol (field[XLFD_SWIDTH]) : Mnil;
-  attrs[MFONT_ADSTYLE]
-    = *(field[XLFD_ADSTYLE]) != '*' ? msymbol (field[XLFD_ADSTYLE]) : Mnil;
-  attrs[MFONT_REGISTRY]
-    = *(field[XLFD_REGISTRY]) != '*' ? msymbol (field[XLFD_REGISTRY]) : Mnil;
-  mfont__set_spec (font, attrs, size, resy);
-  return font;
-}
-
-static char *
-xfont_build_name (MFont *font)
-{
-  char name[1024];
-
-  if (! build_font_name (font, name, 1024))
-    return NULL;
-  return strdup (name);
-}
-
 
 /* Xft Handler */
 
@@ -1729,7 +1532,6 @@ typedef struct
   XftFont *font_no_aa;
 } MXftFontInfo;
 
-static MRealizedFont *xft_select (MFrame *, MFont *, MFont *, int);
 static int xft_open (MRealizedFont *);
 static void xft_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static void xft_render (MDrawWindow, int, int, MGlyphString *,
@@ -2297,7 +2099,7 @@ device_open (MFrame *frame, MPlist *param)
   mplist_add (frame->font_driver_list, Mx, &xfont_driver);
 #ifdef HAVE_XFT2
   mplist_add (frame->font_driver_list, Mfreetype, &xft_driver);
-#else
+#elif HAVE_FREETYPE
   mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
 #endif
   frame->realized_font_list = disp_info->realized_font_list;
@@ -2331,14 +2133,13 @@ device_open (MFrame *frame, MPlist *param)
       frame->videomode = Mnormal;
     }
 
-  frame->font = mfont ();
   {
     int nfonts;
     char **names = XListFonts (display, app_data.font, 1, &nfonts);
 
     if (nfonts > 0)
       {
-	if (! xfont_parse_name (names[0], frame->font))
+	if (! (frame->font = mfont_parse_name (names[0], Mx)))
 	  {
 	    /* The font name does not conform to XLFD.  Try to open the
 	       font and get XA_FONT property.  */
@@ -2354,7 +2155,7 @@ device_open (MFrame *frame, MPlist *param)
 		    && (name = ((char *)
 				XGetAtomName (display, (Atom) value))))
 		  {
-		    if (xfont_parse_name (name, frame->font))
+		    if (frame->font = mfont_parse_name (name, Mx))
 		      nfonts = 1;
 		  }
 		XFreeFont (display, xfont);
@@ -2363,7 +2164,7 @@ device_open (MFrame *frame, MPlist *param)
 	XFreeFontNames (names);
       }
     if (! nfonts)
-      xfont_parse_name (FALLBACK_FONT, frame->font);
+      frame->font = mfont_parse_name (FALLBACK_FONT, Mx);
   }
 
   face = mface_from_font (frame->font);
