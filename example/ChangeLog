@@ -1,5 +1,11 @@
 2004-12-21  Kenichi Handa  <handa@m17n.org>
 
+	* medit.c (ButtonProc): Reset the current input method (if
+	activated) and insert the produced text.
+	(KeyProc): Cancel the previous change.
+
+2004-12-21  Kenichi Handa  <handa@m17n.org>
+
 	* medit.c (KeyProc): Handle C-\ as resetting input context.
 
 2004-12-10  Kenichi Handa  <handa@m17n.org>
