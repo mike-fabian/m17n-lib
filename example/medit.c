@@ -2375,7 +2375,7 @@ main (int argc, char **argv)
 {
   Widget form, BodyWidget, w;
   char *fontset_name = NULL;
-  int fontsize = 120;
+  int fontsize = 0;
   char *initial_input_method = NULL;
   int col = 80, row = 32;
   /* Translation table for TextWidget.  */
@@ -2501,7 +2501,7 @@ main (int argc, char **argv)
     MFont *font;
 
     mplist_put (plist, msymbol ("widget"), ShellWidget);
-    if (fontset_name || fontsize != 120)
+    if (fontset_name || fontsize > 0)
       {
 	MFontset *fontset = mfontset (fontset_name);
 	
