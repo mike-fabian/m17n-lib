@@ -19,7 +19,12 @@
 # Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 # 02111-1307, USA.
 
-lib_LTLIBRARIES = libm17n-core.la libm17n.la libm17n-X.la
+lib_LTLIBRARIES = \
+	libm17n-core.la \
+	libm17n.la \
+	libm17n-gui.la \
+	libm17n-X.la \
+	libm17n-gd.la
 
 libm17n_core_la_SOURCES = \
 	character.h character.c \
@@ -58,15 +63,24 @@ OPTIONAL_LD_FLAGS = \
 	@FREETYPE_LD_FLAGS@ \
 	@FRIBIDI_LD_FLAGS@ \
 	@OTF_LD_FLAGS@ \
-	@XFT2_LD_FLAGS@
+	@FONTCONFIG_LD_FLAGS@
 
-libm17n_X_la_SOURCES = ${GUI_SOURCES} m17n-X.h m17n-X.c
-libm17n_X_la_LIBADD = libm17n.la
-libm17n_X_la_LDFLAGS = ${X_LD_FLAGS} ${OPTIONAL_LD_FLAGS}
+libm17n_gui_la_SOURCES = ${GUI_SOURCES}
+libm17n_gui_la_LIBADD = libm17n.la
+libm17n_gui_la_LDFLAGS = ${X_LD_FLAGS} ${OPTIONAL_LD_FLAGS}
 
-include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
+libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
+libm17n_X_la_LIBADD = libm17n-gui.la
+libm17n_X_la_LDFLAGS = -module ${X_LD_FLAGS} @XFT2_LD_FLAGS@
+
+libm17n_gd_la_SOURCES = m17n-gd.c
+libm17n_gd_la_LIBADD = libm17n-gui.la
+libm17n_gd_la_LDFLAGS = -module @GD_LD_FLAGS@
 
 AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\""
+
+
+include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
 
 noinst_PROGRAMS = linkcore linkshell linkgui
 
@@ -79,10 +93,14 @@ linkshell_LDADD = libm17n.la
 linkshell_LDFLAGS = -static
 
 linkgui_SOURCES = linkgui.c
-linkgui_LDADD = libm17n-X.la
-#linkgui_LDFLAGS = -static
+linkgui_LDADD = libm17n-gui.la
+linkgui_LDFLAGS = -static
 
-SRC = ${libm17n_core_la_SOURCES} ${libm17n_la_SOURCES} ${libm17n_X_la_SOURCES}
+SRC =	${libm17n_core_la_SOURCES} \
+	${libm17n_la_SOURCES} \
+	${libm17n_gui_la_SOURCES} \
+	${libm17n_X_la_SOURCES} \
+	${libm17n_gd_la_SOURCES}
 
 TAGS: ${SRC}
 	etags ${SRC}
