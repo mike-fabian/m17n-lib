@@ -350,9 +350,9 @@ find_page_end (MFrame *frame, int height, MText *mt, int pos,
 	  while (to < next)
 	    {
 	      mdraw_glyph_info (frame, mt, to, to, control, &info);
-	      if (y + info.this.height > height)
+	      if (y + info.metrics.height > height)
 		break;
-	      y += info.this.height;
+	      y += info.metrics.height;
 	      to = info.line_to;
 	    }
 	  break;
