@@ -1,3 +1,8 @@
+2004-06-16  Kenichi Handa  <handa@m17n.org>
+
+	* mtext.c (INC_POSITION): Handle format other than utf8 and utf16.
+	(DEC_POSITION): Likewise.
+
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 
 	* fontset.c (mfont__lookup_fontset): Fix selection of font groups
