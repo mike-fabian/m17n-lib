@@ -2160,19 +2160,19 @@ mdebug_dump_font (MFont *font)
 }
 
 void
-mdebug_dump_font_list (MFrame *frame, MSymbol family)
+mdebug_dump_font_list (MFrame *frame, MSymbol family, MSymbol lang)
 {
   MPlist *plist, *p;
 
   if (family == Mnil)
-    plist = mfont_list (frame, NULL, Mnil);
+    plist = mfont_list (frame, NULL, lang);
   else
     {
       MFont font;
 
       MFONT_INIT (&font);
       mfont__set_property (&font, MFONT_FAMILY, family);
-      plist = mfont_list (frame, &font, Mnil);
+      plist = mfont_list (frame, &font, lang);
     }
   MPLIST_DO (p, plist)
     {
