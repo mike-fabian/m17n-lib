@@ -1,5 +1,13 @@
 2004-12-03  Kenichi Handa  <handa@m17n.org>
 
+	* mimx-anthy.c (AnthyContext): New member ic.
+	(new_context): When something goes wrong, return NULL without
+	creating a context.
+	(get_context): New function.
+	(init): Pay attention to the case of multiple calls.
+	(fini): Likewise.
+	(convert, change, resize, commit): Use get_context.
+
 	* mimx-ispell.c (face_available): New variable.
 	(init): Check if GUI APIs are available or not.  If not, set
 	face_available to 0.
