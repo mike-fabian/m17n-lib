@@ -82,7 +82,7 @@
 #include <m17n.h>
 #include <m17n-misc.h>
 
-#define VERSION "1.2"
+#define VERSION "1.2.0"
 
 /* Return a plist of all locales currently avairable on the system.
    The keys and values of the plist are locale name symbols and
