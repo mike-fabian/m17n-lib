@@ -607,6 +607,8 @@ xfont_open (MRealizedFont *rfont)
   rfont->status = 1;
   rfont->ascent = xfont_info->xfont->ascent;
   rfont->descent = xfont_info->xfont->descent;
+  rfont->type = Mx;
+  rfont->fontp = xfont_info->xfont;
   return 0;
 }
 
@@ -902,7 +904,11 @@ xft_open (MRealizedFont *rfont)
     {
       font_info->font_no_aa = xft_open_font (frame, ft_info, size, 0);
       if (font_info->font_no_aa)
-	return 0;
+	{
+	  rfont->type = Mxft;
+	  rfont->fontp = font_info->font_no_aa;
+	  return 0;
+	}
       XftFontClose (FRAME_DISPLAY (rfont->frame), font_info->font_aa);
     }
   free (font_info);  
