@@ -1,3 +1,99 @@
+2004-05-20  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (MFaceHookFunc): Change this function type to void.
+
+	* m17n-gui.c: Include "plist.h".
+	(mframe): If PLIST is NULL, initialize it to emply plist.
+
+	* m17n-X.c (build_font_list): Don't set property[MFONT_TYPE].
+	(xft_driver): New variable.
+	(xft_select, close_xft, xft_open_font, xft_open, xft_close)
+	(xft_find_metric, xft_render): New function.
+	(mwin__init): Adjusted for the new mfont__driver_list.
+	(mwin__open_device): Assume arg PARAM is not NULL.  Push a newly
+	generated face to PARAM.
+	(mwin__realize_face): Fix setting of box colors.  Don't call hook
+	function here.
+	(mwin__draw_hline): New function.
+	(mwin__xft_close, mwin__xft_open, mwin__xft_get_metric)
+	(mwin__xft_render): Delete these function.
+
+	* internal-gui.h (struct MFrame): New member tick.
+	(struct MGlyphString): New member tick.
+	(mwin__draw_rect, mwin__draw_empty_boxes): Extern them.
+	(mwin__xft_open, mwin__xft_close, mwin__xft_get_metric)
+	(mwin__xft_render): Delete extern.
+
+	* fontset.c (mfont__lookup_fontset): Make the code simpler.
+	(mfontset): Always increment the reference count of returned
+	object.
+
+	* font-ft.c (mfont__ft_fini): Don't include <otf.h> here.
+	(MFTInfo): Moved to font.h.
+	(ft_iso8859_1_font_list): Delete this variable.
+	(set_font_info): Don't set font->property[MFONT_TYPE].
+	(set_font_info): Don't udpate ft_iso8859_1_font_list.
+	(add_font_info): Change type to void.
+	(fc_list): Change anme from xft_list.  Caller changed.  Include
+	FC_FOUNDRY and FC_PIXEL_SIZE in FcObjectSet.
+	(mfont__ft_driver): Change name from ft_driver.  Caller changed.
+	(ft_select): Check HAVE_FONTCONFIG instead of HAVE_XFT2.
+	(close_ft): Don't call mwin__xft_close.  Unref
+	ft_info->extra_info.
+	(ft_open): Don't setup ft_info->fontname.  Don't call
+	mwin__xft_open.
+	(ft_find_metric): Don't call mwin__xft_get_metric.
+	(ft_encode_char): Call rfont->driver->open instead of ft_open.
+	(ft_render): Don't check HAVE_XFT2.  Don't call mwin__xft_render.
+	(mfont__ft_init): Adjusted for new mfont__driver_list.
+	(mfont__ft_fini): Don't unref ft_iso8859_1_font_list.
+
+	* font.c (mfont__driver_list): Make it MPlist.
+	(mfont__init): Adjust initialization of mfont__driver_list.
+	(mfont__fini): Free mfont__driver_list.
+	(mfont__set_spec_from_face): Don't set spec->property[MFONT_TYPE].
+	(mfont__select): Adjusted for the new mfont__driver_list.
+
+	* font.h (enum MFontProperty): Delete MFONT_TYPE.
+	(mfont__drirver_list): Adjust prototype.
+	(MFTInfo): Move to here from fron.c.  Deleve member fontname.
+
+	* face.h (struct MFace): Delete member realized_face_list, add
+	member frame_list.
+	(struct MRealizedFace): Delete member need_update
+	andnofont_rface, add member non_ascii_list.
+	(mface__update_frame_face): Extern it.
+
+	* face.c (hline_prop_list, box_prop_list, noop_hook): New
+	variables.
+	(get_hline_create, get_box_create): New functions.
+	(find_realized_face): Cancel previous change.  Arg RFONT deleted.
+	Use memcmp.
+	(free_face): Cancep previous change.  Free face->frame_list.
+	(serialize_hline): Do nothing if hline->width is zero.
+	(serialize_box): Do nothing if box->width is zero.
+	(mface__init): Setup all properties of mfae__default.
+	(mface__fini): Free hline_prop_list and box_prop_list.
+	(mface__realize): Cancel previous change.  Update
+	face->frame_list.  Setup rface->non_ascii_list.
+	(mface__for_chars): Update rface->non_ascii_list.
+	(mface__free_realized): Free rface->non_ascii_list.
+	(mface__update_frame_face): New function.
+	(mface): Initialize face->frame_list.
+	(mface_copy): Likewise.  Just copy MFACE_HLINE and MFACE_BOX
+	properties.
+	(mface_merge): Likewise.
+	(mface_put_prop): If key is Mhline or Mbox, get value by
+	get_hline_create or get_box_create respectively.
+	(mface_put_prop): Update frame->tick and call
+	mface__update_frame_face if necessary.
+	(mface_update): Do nothing if func is noop_hook.
+
+	* draw.c (render_glyphs): If a font is not found, use
+	mwin__draw_empty_boxes.
+	(alloc_gstring): Initialize gstring->tick.
+	(get_gstring): Check gstring->tick.
+
 2004-05-17  Kenichi Handa  <handa@m17n.org>
 
 	* face.c (find_realized_face): Return value changed.  If RFONT is
