@@ -187,9 +187,12 @@ struct MFontDriver
 		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
 		  int reverse, MDrawRegion region);
 
-  /** Push to PLIST a list of fonts matching with FONT.  LANGUAGE, if
-      not Mnil, limits fonts to ones that support LANGUAGE.  */
-  void (*list) (MFrame *frame, MPlist *plist, MFont *font, MSymbol language);
+  /** Push to PLIST fonts matching with FONT.  LANGUAGE, if not Mnil,
+      limits fonts to ones that support LANGUAGE.  MAXNUM if greater
+      than 0 limits the number of listed fonts.  Return how many fonts
+      a listed.  */
+  int (*list) (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
+	       int maxnum);
 };
 
 /** Initialize the members of FONT.  */
