@@ -425,16 +425,19 @@ set_input_method_spot ()
   int x = cursor.x + (control.orientation_reversed ? win_width : 0);
   int pos = cursor.from > 0 ? cursor.from - 1 : 0;
   MFace *faces[256];
-  int n = mtext_get_prop_values (mt, pos, Mface, (void **) faces, 256);
+  int n = 0;
   int size = 0, ratio = 0, i;
 
-  for (i = n - 1; i >= 0; i--)
-    {
-      if (! size)
-	size = (int) mface_get_prop (faces[i], Msize);
-      if (! ratio)
-	ratio = (int) mface_get_prop (faces[i], Mratio);
-    }
+  if (nchars > 0)
+    n = mtext_get_prop_values (mt, pos, Mface, (void **) faces, 256);
+  if (n > 0)
+    for (i = n - 1; i >= 0; i--)
+      {
+	if (! size)
+	  size = (int) mface_get_prop (faces[i], Msize);
+	if (! ratio)
+	  ratio = (int) mface_get_prop (faces[i], Mratio);
+      }
   if (! size)
     size = default_font_size;
   if (ratio)
@@ -741,59 +744,60 @@ show_cursor (XtPointer client_data)
   if (current_input_context)
     set_input_method_spot ();
 
-  {
-    int pos = (SELECTEDP () ? mtext_property_start (selection)
-	       : cursor.from > 0 ? cursor.from - 1
-	       : cursor.from);
-    MFace *face = mface ();
-    MTextProperty *props[256];
-    int n = mtext_get_properties (mt, pos, Mface, props, 256);
-    int i;
-    char buf[256], *p = buf;
-    MSymbol sym;
+  if (nchars > 0)
+    {
+      int pos = (SELECTEDP () ? mtext_property_start (selection)
+		 : cursor.from > 0 ? cursor.from - 1
+		 : cursor.from);
+      MFace *face = mface ();
+      MTextProperty *props[256];
+      int n = mtext_get_properties (mt, pos, Mface, props, 256);
+      int i;
+      char buf[256], *p = buf;
+      MSymbol sym;
 
-    buf[0] = '\0';
-    if (cursor.font)
-      {
-	int size = (int) mfont_get_prop (cursor.font, Msize);
-	MSymbol family = mfont_get_prop (cursor.font, Mfamily);
-	MSymbol weight = mfont_get_prop (cursor.font, Mweight);
-	MSymbol style = mfont_get_prop (cursor.font, Mstyle);
-	MSymbol registry = mfont_get_prop (cursor.font, Mregistry);
+      buf[0] = '\0';
+      if (cursor.font)
+	{
+	  int size = (int) mfont_get_prop (cursor.font, Msize);
+	  MSymbol family = mfont_get_prop (cursor.font, Mfamily);
+	  MSymbol weight = mfont_get_prop (cursor.font, Mweight);
+	  MSymbol style = mfont_get_prop (cursor.font, Mstyle);
+	  MSymbol registry = mfont_get_prop (cursor.font, Mregistry);
 
-	sprintf (p, "%dpt", size / 10), p += strlen (p);
-	if (family)
-	  strcat (p, ","), strcat (p, msymbol_name (family)), p += strlen (p);
-	if (weight)
-	  strcat (p, ","), strcat (p, msymbol_name (weight)), p += strlen (p);
-	if (style)
-	  strcat (p, ","), strcat (p, msymbol_name (style)), p += strlen (p);
-	if (registry)
-	  strcat (p, ","), strcat (p, msymbol_name (registry)), p += strlen (p);
-	p += strlen (p);
-      }
+	  sprintf (p, "%dpt", size / 10), p += strlen (p);
+	  if (family)
+	    strcat (p, ","), strcat (p, msymbol_name (family)), p += strlen (p);
+	  if (weight)
+	    strcat (p, ","), strcat (p, msymbol_name (weight)), p += strlen (p);
+	  if (style)
+	    strcat (p, ","), strcat (p, msymbol_name (style)), p += strlen (p);
+	  if (registry)
+	    strcat (p, ","), strcat (p, msymbol_name (registry)), p += strlen (p);
+	  p += strlen (p);
+	}
 
-    mface_merge (face, face_default);
-    for (i = 0; i < n; i++)
-      if (props[i] != selection)
-	mface_merge (face, (MFace *) mtext_property_value (props[i]));
-    sym = (MSymbol) mface_get_prop (face, Mforeground);
-    if (sym != Mnil)
-      strcat (p, ","), strcat (p, msymbol_name (sym)), p += strlen (p);
-    if ((MSymbol) mface_get_prop (face, Mvideomode) == Mreverse)
-      strcat (p, ",rev"), p += strlen (p);
-    hline = mface_get_prop (face, Mhline);
-    if (hline && hline->width > 0)
-      strcat (p, ",ul"), p += strlen (p);
-    box = mface_get_prop (face, Mbox);
-    if (box && box->width > 0)
-      strcat (p, ",box"), p += strlen (p);
-    m17n_object_unref (face);
+      mface_merge (face, face_default);
+      for (i = 0; i < n; i++)
+	if (props[i] != selection)
+	  mface_merge (face, (MFace *) mtext_property_value (props[i]));
+      sym = (MSymbol) mface_get_prop (face, Mforeground);
+      if (sym != Mnil)
+	strcat (p, ","), strcat (p, msymbol_name (sym)), p += strlen (p);
+      if ((MSymbol) mface_get_prop (face, Mvideomode) == Mreverse)
+	strcat (p, ",rev"), p += strlen (p);
+      hline = mface_get_prop (face, Mhline);
+      if (hline && hline->width > 0)
+	strcat (p, ",ul"), p += strlen (p);
+      box = mface_get_prop (face, Mbox);
+      if (box && box->width > 0)
+	strcat (p, ",box"), p += strlen (p);
+      m17n_object_unref (face);
 
-    XtSetArg (arg[0], XtNborderWidth, 1);
-    XtSetArg (arg[1], XtNlabel, buf);
-    XtSetValues (CurFaceWidget, arg, 2);
-  }
+      XtSetArg (arg[0], XtNborderWidth, 1);
+      XtSetArg (arg[1], XtNlabel, buf);
+      XtSetValues (CurFaceWidget, arg, 2);
+    }
 
   if (control.cursor_pos < nchars)
     {
@@ -939,7 +943,7 @@ delete_char (int n)
 
   /* Now delete a character.  */
   mtext_del (mt, from, to);
-  nchars--;
+  nchars -= to - from;
   if (from >= top.from && from < top.to)
     update_top (top.from);
   update_cursor (from, 1);
