@@ -91,6 +91,7 @@
 #ifdef HAVE_ISPELL
 
 static int initialized = 0;
+static int face_available;
 static MFace *mface_overstrike = NULL;
 
 static MPlist *
@@ -113,11 +114,16 @@ init (MPlist *args)
     {
       MFaceHLineProp hline;
 
-      hline.type = MFACE_HLINE_STRIKE_THROUGH;
-      hline.width = 1;
-      hline.color = msymbol ("black");
-      mface_overstrike = mface ();
-      mface_put_prop (mface_overstrike, Mhline, &hline);
+      face_available = 0;
+      if (m17n_status () == M17N_GUI_INITIALIZED)
+	{
+	  face_available = 1;
+	  hline.type = MFACE_HLINE_STRIKE_THROUGH;
+	  hline.width = 1;
+	  hline.color = msymbol ("black");
+	  mface_overstrike = mface ();
+	  mface_put_prop (mface_overstrike, Mhline, &hline);
+	}
     }
   return NULL;
 }
@@ -125,7 +131,9 @@ init (MPlist *args)
 MPlist *
 fini (MPlist *args)
 {
-  if (! --initialized)
+  if (initialized != 0
+      && --initialized == 0
+      && face_available)
     m17n_object_unref (mface_overstrike);
   return NULL;
 }
@@ -178,7 +186,8 @@ ispell_word (MPlist *args)
   if (*p == '#')
     {
       mt = mtext_dup (ic->preedit);
-      mtext_push_prop (mt, 0, mtext_len (mt), Mface, mface_overstrike);
+      if (face_available)
+	mtext_push_prop (mt, 0, mtext_len (mt), Mface, mface_overstrike);
       mplist_add (actions, Mtext, mt);
       add_action (actions, msymbol ("shift"), Msymbol, init_state);
       m17n_object_unref (mt);
@@ -212,7 +221,8 @@ ispell_word (MPlist *args)
       m17n_object_unref (mt);
     }
   mt = mtext_dup (ic->preedit);
-  mtext_push_prop (mt, 0, mtext_len (mt), Mface, mface_overstrike);
+  if (face_available)
+    mtext_push_prop (mt, 0, mtext_len (mt), Mface, mface_overstrike);
   mplist_add (candidates, Mtext, mt);
   m17n_object_unref (mt);
   plist = mplist_add (mplist (), Mplist, candidates);
