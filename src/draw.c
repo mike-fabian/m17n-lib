@@ -235,7 +235,6 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   MRealizedFace *rface = default_rface;
   int non_ascii_found;
   int size = gstring->control.fixed_width;
-  int ignore_formatting_char = gstring->control.ignore_formatting_char;
   int i, limit;
 
   MLIST_RESET (gstring);
@@ -274,15 +273,10 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       else
 	{
 	  g_tmp.category = mchar_get_prop (c, Mcategory);
-	  if (ignore_formatting_char && g_tmp.category == McatCf)
-	    g_tmp.type = GLYPH_SPACE, this_script = Mnil;
-	  else
-	    {
-	      g_tmp.type = GLYPH_CHAR;
-	      this_script = (MSymbol) mchar_get_prop (c, Mscript);
-	      if (this_script == Minherited)
-		this_script = script;
-	    }
+	  g_tmp.type = GLYPH_CHAR;
+	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
+	  if (this_script == Minherited)
+	    this_script = script;
 	}
 
       if (pos == stop || script != this_script || g->type != g_tmp.type)
@@ -367,14 +361,30 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       if (this->type == GLYPH_CHAR && this->rface->rfont)
 	{
 	  int start = i++;
-	  MGlyph *tmp = gstring->glyphs + i;
 
 	  if (this->rface->rfont->layouter != Mnil)
 	    {
-	      while ((tmp->type == GLYPH_CHAR || tmp->type == GLYPH_SPACE)
-		     && tmp->rface->rfont == this->rface->rfont
-		     && tmp->code != MCHAR_INVALID_CODE)
-		i++, tmp++;
+	      MGlyph *prev;
+	      unsigned code;
+
+	      for (prev = MGLYPH (start - 1);
+		   (prev->type == GLYPH_CHAR
+		    && prev->category == McatCf
+		    && (code = mfont__encode_char (this->rface->rfont, prev->c)
+			!= MCHAR_INVALID_CODE));
+		   start--, prev--)
+		prev->code = code;
+
+	      for (g++;
+		   (g->type == GLYPH_CHAR
+		    && (g->rface->rfont == this->rface->rfont
+			|| (g->category == McatCf
+			    && ((code = mfont__encode_char (this->rface->rfont,
+							    g->c))
+				!= MCHAR_INVALID_CODE))));
+		   i++, g++)
+		if (g->rface->rfont != this->rface->rfont)
+		  g->code = code;
 	      i = mfont__flt_run (gstring, start, i,
 				  this->rface->rfont->layouter,
 				  this->rface->ascii_rface);
@@ -627,6 +637,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
   int width;
   MFaceBoxProp *box;
   int box_line_height = 0;
+  int ignore_formatting_char = control->ignore_formatting_char;
 
   gstring->ascent = gstring->descent = 0;
   gstring->physical_ascent = gstring->physical_descent = 0;
@@ -689,6 +700,9 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	    }
 	}
 
+      if (g->category == McatCf && ignore_formatting_char)
+	g->type = GLYPH_SPACE;
+
       if (g->type == GLYPH_CHAR)
 	{
 	  MRealizedFace *rface = g->rface;
@@ -700,7 +714,8 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	    if (! rfont != ! g->rface->rfont
 		|| box != g->rface->box
 		|| ((fromg->code == MCHAR_INVALID_CODE)
-		    != (g->code == MCHAR_INVALID_CODE)))
+		    != (g->code == MCHAR_INVALID_CODE))
+		|| (g->category == McatCf && ignore_formatting_char))
 	      break;
 	  if (rfont && fromg->code != MCHAR_INVALID_CODE)
 	    {
