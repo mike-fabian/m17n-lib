@@ -1,3 +1,11 @@
+2005-03-09  handa  <handa@m17n.org>
+
+	* m17n-gui.c (m17n_init_win): Set merror_code to MERROR_NONE before
+	calling m17n_init ().
+
+	* m17n.c (m17n_init): Set merror_code to MERROR_NONE before
+	calling m17n_init_core ().
+
 2005-02-28  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (mfont__flt_run): Add resulting code sequence in
