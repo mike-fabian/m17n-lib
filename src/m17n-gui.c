@@ -636,16 +636,15 @@ mframe (MPlist *plist)
 	MERROR (MERROR_WIN, NULL);
       if (! interface->handle)
 	{
-	  interface->handle = dlopen (interface->library, RTLD_NOW);
-	  if (! interface->handle)
-	    MERROR (MERROR_WIN, NULL);
-	  interface->init = dlsym (interface->handle, "device_init");
-	  interface->open = dlsym (interface->handle, "device_open");
-	  interface->fini = dlsym (interface->handle, "device_fini");
-	  if (! interface->init || ! interface->open || ! interface->fini
+	  if (! (interface->handle = dlopen (interface->library, RTLD_NOW))
+	      || ! (interface->init = dlsym (interface->handle, "device_init"))
+	      || ! (interface->open = dlsym (interface->handle, "device_open"))
+	      || ! (interface->fini = dlsym (interface->handle, "device_fini"))
 	      || (*interface->init) () < 0)
 	    {
-	      dlclose (interface->handle);
+	      fprintf (stderr, "%s\n", (char *) dlerror ());
+	      if (interface->handle)
+		dlclose (interface->handle);
 	      MERROR (MERROR_WIN, NULL);
 	    }
 	}
