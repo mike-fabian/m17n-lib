@@ -67,39 +67,39 @@
     @addtogroup m17nDatabase
     @brief m17n データベースにとそれに関する API.
 
-    m17n ライブラリは必要に応じて動的に @e m17n @e データベース から情
-    報を取得する。また、アプリケーションプログラムも独自のデータを 
+    m17n ライブラリは必要に応じて動的に @e m17n @e データベース 
+    から情報を取得する。また、アプリケーションプログラムも独自のデータを 
     m17n データベースに追加し、それを動的に取得することができる。m17n 
-    データベースには複数の多様なデータが含まれており、各データは４つの
-    タグ TAG0, TAG1, TAG2, TAG3（すべてシンボル）によって識別される。
+    データベースには複数の多様なデータが含まれており、各データは
+    TAG0, TAG1, TAG2, TAG3（すべてシンボル）の４つのタグによって識別される。
 
-    TAG0 はデータベース内のデータのタイプを以下のように指定する。
-
-    @li 
-    TAG0 が #Mchar_table であるデータは @e chartableタイプ と呼ばれ、
-    各文字に関する情報を提供する。この場合 TAG1 は情報の種類を指定する
-    シンボルであり、#Msymbol, #Minteger, #Mstring, #Mtext, #Mplist の
-    いずれかである。TAG2 と TAG3 は任意のシンボルでよい。
+    TAG0 によって、データベース内のデータのタイプは次のように指定される。
 
     @li 
-    TAG0 が #Mcharset であるデータは @e charsetタイプ と呼ばれ、文
-    字セット用のデコード／エンコードマップを提供する。この場合 TAG1 は
-    文字セットのシンボルでなければならない。TAG2 と TAG3 は任意のシン
-    ボルでよい。
+    TAG0 が #Mchar_table であるデータは @e chartableタイプ 
+    と呼ばれ、各文字に関する情報を提供する。この場合
+    TAG1 は情報の種類を指定するシンボルであり、#Msymbol, #Minteger, #Mstring,
+    #Mtext, #Mplist のいずれかである。TAG2 と TAG3 は任意のシンボルでよい。
+
+    @li 
+    TAG0 が #Mcharset であるデータは @e charsetタイプ 
+    と呼ばれ、文字セット用のデコード／エンコードマップを提供する。この場合 TAG1
+    は文字セットのシンボルでなければならない。TAG2 と TAG3
+    は任意のシンボルでよい。
 
     @li
     TAG0 が #Mchar_table でも #Mcharset でもない場合、そのデータは @e
-    plistタイプ である。詳細に関しては関数 mdatabase_load () の説明を
-    参照のこと。この場合 TAG1、TAG2、TAG3 は任意のシンボルでよい。
+    plistタイプ である。詳細に関しては関数 mdatabase_load () 
+    の説明を参照のこと。この場合 TAG1、TAG2、TAG3 は任意のシンボルでよい。
 
-    特定のタグを持つデータベースを \<TAG0, TAG1, TAG2, TAG3\> という形
-    式で表わす。
+    特定のタグを持つデータベースを \<TAG0, TAG1, TAG2, TAG3\> 
+    という形式で表す。
 
-    アプリケーションプログラムは、まず関数 mdatabase_find () を使ってデー
-    タベースに関する情報を保持するオブジェクト（#MDatabase 型）への
-    ポインタを得る。それに成功したら、 mdatabase_load () によって実際
-    にデータベースをロードする。構造体 #MDatabase 自身がどう実装され
-    ているかは、アプリケーションプログラムからは見えない。
+    アプリケーションプログラムは、まず関数 mdatabase_find () 
+    を使ってデータベースに関する情報を保持するオブジェクト（#MDatabase
+    型）へのポインタを得る。それに成功したら、 mdatabase_load () 
+    によって実際にデータベースをロードする。構造体 #MDatabase 
+    自身がどう実装されているかは、アプリケーションプログラムからは見えない。
 
     @latexonly \IPAlabel{database} @endlatexonly
 */
@@ -642,12 +642,11 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
 /***ja
     @brief アプリケーション固有のデータ用ディレクトリ.
 
-    アプリケーションプログラムが、そのプログラム固有のデータや m17n デー
-    タベースを上書きするデータを提供する場合には、マクロ M17N_INIT () 
-    を呼ぶ前にこの変数をデータファイルを含むディレクトリ名にセットしな
-    くてはならない。ディレクトリには "mdb.dir" ファイルをおくことがで
-    きる。その"mdb.dir"ファイルには、 @ref mdbDir "mdbDir(5)" で説明さ
-    れているフォーマットでデータ定義のリストを記述する。
+    アプリケーションプログラムが、そのプログラム固有のデータや m17n 
+    データベースを上書きするデータを提供する場合には、マクロ M17N_INIT () 
+    を呼ぶ前にこの変数をデータファイルを含むディレクトリ名にセットしなくてはならない。ディレクトリには
+    "mdb.dir" ファイルをおくことができる。その"mdb.dir"ファイルには、 
+    @ref mdbDir "mdbDir(5)" で説明されているフォーマットでデータ定義のリストを記述する。
 
     デフォルトの値は NULL である。  */
 
@@ -665,8 +664,8 @@ char *mdatabase_dir;
     @brief データベース中のデータを探す.
 
     関数 mdatabase_find () は、 m17n 言語情報ベース中で $TAG0 から 
-    $TAG3 までのタグを持つデータを探し、それへのポインタを返す。そのよ
-    うなデータがなければ @c NULL を返す。
+    $TAG3 までのタグを持つデータを探し、それへのポインタを返す。そのようなデータがなければ
+    @c NULL を返す。
 
     @latexonly \IPAlabel{mdatabase_find} @endlatexonly  */
 
@@ -706,10 +705,9 @@ mdatabase_find (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     @brief m17n データベースのデータリストを返す.
 
     関数 mdatabase_list () は m17n データベース中から $TAG0 から$TAG3 
-    までのタグを持つデータを探し、そのリストをplist として返す。 $TAGn 
-    が #Mnil であった場合には、任意のタグにマッチするワイルドカードと
-    して取り扱われる。返される plist の各要素はキー として #Mt を、値
-    として #MDatabase 型へのポインタを持つ。  */
+    までのタグを持つデータを探し、そのリストをplist として返す。 $TAGn が #Mnil
+    であった場合には、任意のタグにマッチするワイルドカードとして取り扱われる。返される
+    plist の各要素はキー として #Mt を、値として #MDatabase 型へのポインタを持つ。  */
 
 
 MPlist *
@@ -766,22 +764,20 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 /***ja
     @brief m17n データベースのデータを定義する.
 
-    関数 mdatabase_define () は $TAG0 から $TAG3 までのタグおよび付加
-    情報 $EXTRA_INFO を持つデータを定義する。
+    関数 mdatabase_define () は $TAG0 から $TAG3 までのタグおよび付加情報 
+    $EXTRA_INFO を持つデータを定義する。
 
-    $LOADER はそのデータのロードに用いられる関数へのポインタである。こ
-    の関数は mdatabase_load () から $TAGS と $EXTRA_INFO という2 つの
-    引数付きで呼び出される。ここで $TAGS は $TAG0 から $TAG3 までの配
-    列である。
+    $LOADER はそのデータのロードに用いられる関数へのポインタである。この関数は
+    mdatabase_load () から $TAGS と $EXTRA_INFO という二つの引数付きで呼び出される。ここで 
+    $TAGS は $TAG0 から $TAG3 までの配列である。
 
-    もし $LOADER が @c NULL なら、m17n ライブラリ標準のローダが使われ
-    る。この場合には $EXTRA_INFO はデータを含むファイル名でなくてはな
-    らない。
+    もし $LOADER が @c NULL なら、m17n ライブラリ標準のローダが使われる。この場合には
+    $EXTRA_INFO はデータを含むファイル名でなくてはならない。
 
     @return
-     処理に成功すれば mdatabase_define () は定義されたデータベー
-    スへのポインタを返す。このポインタは関数 mdatabase_load () の引数
-    として用いることができる。そうでなければ @c NULL を返す。
+    処理に成功すれば mdatabase_define () 
+    は定義されたデータベースへのポインタを返す。このポインタは関数 mdatabase_load () 
+    の引数として用いることができる。そうでなければ @c NULL を返す。
 
     @latexonly \IPAlabel{mdatabase_define} @endlatexonly  */
 
@@ -854,22 +850,22 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 /***ja
     @brief データベースからデータをロードする.
 
-    関数 mdatabase_load () は $MDB が指すデータをロードし、その
-    中身を返す。返されるものはデータのタイプによって異なる。
+    関数 mdatabase_load () は $MDB 
+    が指すデータをロードし、その中身を返す。返されるものはデータのタイプによって異なる。
 
     データが @e plistタイプ ならば、 @e plist へのポインタを返す。
 
-    データが @e chartableタイプ ならば文字テーブルを返す。文字テーブル
-    のデフォルト値は、データの第2タグによって以下のように決まる。
+    データが @e chartableタイプ ならば文字テーブルを返す。
+    文字テーブルのデフォルト値は、データの第2タグによって以下のように決まる。
 
     @li タグが #Msymbol なら、デフォルト値は #Mnil
     @li タグが #Minteger なら、デフォルト値は -1
     @li それ以外なら、デフォルト値は @c NULL
 
-    データが @e charsetタイプ ならば長さ 2 の plist を返す（キーは共に 
-    #Mt ）。最初の要素の値はコードポイントを対応する文字コードにマップ
-    する整数の配列である。２番目の要素の値は逆のマップをする文字テーブ
-    ルである。この文字セットは予め定義されていなければならない。
+    データが @e charsetタイプ ならば長さ 2 の plist を返す（キーは共に#Mt ）。
+    最初の要素の値はコードポイントを対応する文字コードにマップする整数の配列である。
+    ２番目の要素の値は逆のマップをする文字テーブルである。
+    この文字セットは予め定義されていなければならない。
 
     @latexonly \IPAlabel{mdatabase_load} @endlatexonly
   */
@@ -900,8 +896,8 @@ mdatabase_load (MDatabase *mdb)
 /***ja
     @brief データのタグを得る.
 
-    関数 mdatabase_tag () は、データ $MDB のタグ（シンボル）の配列を返
-    す。配列の長さは 4 である。
+    関数 mdatabase_tag () は、データ $MDB のタグ（シンボル）の配列を返す。配列の長さは
+    4 である。
 
     @latexonly \IPAlabel{mdatabase_tag} @endlatexonly  */
 
