@@ -2082,7 +2082,7 @@ mfont_from_name (char *name)
     @brief フォントのリサイズ情報を得る
 
     関数 mfont_resize_ratio は m17n データベース \<font, reisize\> を検
-    索し、フォント FONT のリサイズの比率（パーセンテージ）を返す。例え
+    索し、フォント FONT のリサイズの比率（パーセンテージ）を返す。たとえ
     ば返値が 150 であれば、m17n ライブラリは指定されたサイズの 1.5 倍の
     フォントを使用することを意味する。 */
 
@@ -2098,11 +2098,11 @@ mfont_resize_ratio (MFont *font)
 /*=*/
 
 /***en
-    @brief Get a list fonts.
+    @brief Get a list of fonts.
 
     The mfont_list () functions returns a list of fonts available on
     frame $FRAME.  $FONT, if not @c Mnil, limits fonts to ones
-    matching with $FONT.  $LANGUAGE, if not @c Mnil, limits fonts to
+    that match with $FONT.  $LANGUAGE, if not @c Mnil, limits fonts to
     ones that support $LANGUAGE.  $MAXNUM, if greater than 0, limits
     the number of fonts.
 
@@ -2111,6 +2111,21 @@ mfont_resize_ratio (MFont *font)
     values are pointers to the object MFont.  The plist must be freed
     by m17n_object_unref ().  If no font is found, it returns
     NULL.  */
+
+/***ja
+    @brief フォントのリストを得る
+
+    関数 mfont_list () はフレーム $FRAME で利用可能なフォントのリスト
+    を返す。 $FONT が @c Mnil でなければ、$FONT と合致する利用可能なフォ
+    ントのリストを返す。$LANGUAGE が @c Mnil でなければ、$LANGUAGE を
+    サポートする利用可能なフォントのリストを返す。 $MAXNUM は、0 より大
+    い場合には、返すフォントの数の上限である。
+
+    @return 
+    この関数はキーがフォントファミリ名であり値が MFont オブジェ
+    クトへのポインタであるような plist を返す。plist は
+    m17n_object_unref () で解放する必要がある。フォントが見つからなければ
+    NULL を返す。  */
 
 MPlist *
 mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
