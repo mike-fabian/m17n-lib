@@ -1,5 +1,7 @@
 2004-09-29  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-X.c (device_init): Set xft_driver.list.
+
 	* font-ft.c (fc_list): Check the return value of
 	FcPatternGetString.
 
