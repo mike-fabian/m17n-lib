@@ -526,7 +526,9 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 
       if (base->otf_cmd)
 	{
-	  while (g < last_g && base->otf_cmd == g->otf_cmd) g++;
+	  while (g < last_g && base->otf_cmd == g->otf_cmd
+		 && base->bidi_level == g->bidi_level)
+	    g++;
 	  mfont__ft_drive_gpos (gstring, GLYPH_INDEX (base), GLYPH_INDEX (g));
 	}
     }
