@@ -2117,7 +2117,15 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
 
     These are the symbols to use as parameter keys for the function
     mframe () (which see).  They are also keys of a frame property
-    (except for #Mwidget).  */
+    except for #Mwidget.  */
+/***ja
+    @name 変数： フレームパラメータ用キー (X 固有).
+
+    関数 mframe () のパラメータキーとして用いられるシンボル。( mframe
+    () の説明参照。) #Mwidget を除いてはフレームプロパティのキーでもあ
+    る。
+    */
+
 /*=*/
 /*** @{ */ 
 /* Keywords for mwin__open_device ().  */
@@ -2132,11 +2140,11 @@ MSymbol Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap;
 /*** @{ */
 
 /***en
-    @brief Input driver for XIM.
+    @brief Input method driver for XIM.
 
-    The input driver #minput_xim_driver is for the foreign input
-    method of name #Mxim.  It uses XIM (X Input Methods) as a
-    background input engine.
+    The driver #minput_xim_driver is for the foreign input method of
+    name #Mxim.  It uses XIM (X Input Methods) as a background input
+    engine.
 
     As the symbol #Mxim has property #Minput_driver whose value is
     a pointer to this driver, the input method of language #Mnil
@@ -2160,30 +2168,29 @@ MSymbol Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap;
     same one as that of the function minput_filter ().  The argument
     $KEY is ignored.  */
 
-/***oldja
+/***ja
     @brief XIM用入力ドライバ
 
-    入力ドライバ #minput_xim_driver は #Mxim を名前として持つ外部
-    入力メソッド用であり、 XIM (X Input Methods) をバックグラウンドの
-    入力エンジンとして使用する。
+    ドライバ #minput_xim_driver は #Mxim を名前として持つ外部入力メソッ
+    ド用であり、 XIM (X Input Methods) をバックグラウンドの入力エンジ
+    ンとして使用する。
 
     シンボル #Mxim はこのドライバへのポインタを値とするプロパティ
-    #Minput_driver を持つため、LANGUAGE が #Mnil で名前が #Mxim で
-    ある入力メソッドはこのドライバを利用する。
+    #Minput_driver を持ち、LANGUAGE が #Mnil で名前が #Mxim である入力
+    メソッドはこのドライバを利用する。
 
-    したがって、それらの入力メソッド用には、minput_ で始まる名前を持つ
-    以下の関数群のドライバに依存する引数は次のようなものでなくてはなら
-    ない。
+    したがって、それらの入力メソッドでは、minput_ で始まる名前を持つ関
+    数のドライバに依存する引数は次のようなものでなくてはならない。
 
-    関数 minput_open_im () の引数 $ARG は構造体 #MInputXIMArgIM への
-    ポインタでなくてはならない。詳細については #MInputXIMArgIM のド
-    キュメントを参照のこと。
+    関数 minput_open_im () の引数 $ARG は構造体 #MInputXIMArgIM へのポ
+    インタでなくてはならない。詳細については #MInputXIMArgIM の説明を
+    参照。
 
-    関数 minput_create_ic () の引数 $ARG は構造体 #MInputXIMArgIC へ
-    のポインタでなくてはならない。詳細については #MInputXIMArgIC の
-    ドキュメントを参照のこと。
+    関数 minput_create_ic () の引数 $ARG は構造体 #MInputXIMArgIC への
+    ポインタでなくてはならない。詳細については #MInputXIMArgIC の説明
+    を参照。
 
-    関数 minput_filter () の引数 %ARG は構造体 @c XEvent へのポインタ
+    関数 minput_filter () の引数 $ARG は構造体 @c XEvent へのポインタ
     でなくてはならない。引数 $KEY は無視される。
 
     関数 minput_lookup () の引数 $ARG は関数 function minput_filter () 
@@ -2201,6 +2208,11 @@ MInputDriver minput_xim_driver =
 
     The variable Mxim is a symbol of name "xim".  It is a name of the
     input method driver #minput_xim_driver.  */ 
+/***ja
+    @brief "xim"を名前として持つシンボル .
+
+    変数 Mxim は"xim"を名前として持つシンボルである。"xim" は入力メソッ
+    ドドライバ #minput_xim_driver の名前である。  */ 
 
 MSymbol Mxim;
 
