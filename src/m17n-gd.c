@@ -672,16 +672,11 @@ gd_render (MDrawWindow win, int x, int y,
 
   for (; from < to; x += from++->width)
     {
-      FT_UInt code;
       unsigned char *bmp;
       int xoff, yoff;
       int width, pitch;
 
-      if (from->otf_encoded)
-	code = from->code;
-      else
-	code = FT_Get_Char_Index (ft_face, (FT_ULong) from->code);
-      FT_Load_Glyph (ft_face, code, load_flags);
+      FT_Load_Glyph (ft_face, (FT_UInt) from->code, load_flags);
       yoff = y - ft_face->glyph->bitmap_top + from->yoff;
       bmp = ft_face->glyph->bitmap.buffer;
       width = ft_face->glyph->bitmap.width;
