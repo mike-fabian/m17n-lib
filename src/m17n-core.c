@@ -408,6 +408,33 @@ mdebug__print_time ()
   } while (0)
 
 
+void
+mdebug__register_object (M17NObjectArray *array, void *object)
+{
+  if (array->used == 0)
+    MLIST_INIT1 (array, objects, 256);
+  array->count++;
+  MLIST_APPEND1 (array, objects, object, MERROR_OBJECT);
+}
+
+void
+mdebug__unregister_object (M17NObjectArray *array, void *object)
+{
+  array->count--;
+  if (array->count >= 0)
+    {
+      int i = 0;
+
+      while (i < array->used && array->objects[i] != object) i++;
+      if (i < array->used)
+	array->objects[i] = NULL;
+      else
+	mdebug_hook ();
+    }
+  else									\
+    mdebug_hook ();
+}
+
 
 /* External API */
 
