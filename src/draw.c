@@ -539,7 +539,8 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
       if (g == last_g || ! g->combining_code || g->otf_encoded)
 	{
 	  /* No combining.  */
-	  if (base->width == 0 && GLYPH_INDEX (base) > from)
+	  if (base->width == 0 && ! base->left_padding && ! base->right_padding
+	      && GLYPH_INDEX (base) > from)
 	    {
 	      MGlyph *prev = base - 1; 
 
