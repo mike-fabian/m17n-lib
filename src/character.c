@@ -226,7 +226,7 @@ MSymbol Mname;
     names listed as abbreviations for <em>General Category</em> in
     Unicode.  */
 
-/***oldja
+/***ja
     @brief 一般カテゴリを表わすキー.
 
     シンボル #Mcategory は <tt>"category"</tt> という名前を持ち、文
