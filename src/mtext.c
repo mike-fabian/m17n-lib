@@ -449,22 +449,18 @@ count_utf_16_chars (const void *data, int nitems, int swap)
       if (prev_surrogate)
 	{
 	  if (c < 0xDC00 || c >= 0xE000)
-	    return -1;
-	  prev_surrogate = 0;
+	    /* Invalid surrogate */
+	    nchars++;
 	}
       else
 	{
-	  if (c < 0xD800)
-	    ;
-	  else if (c < 0xDC00)
+	  if (c >= 0xD800 && c < 0xDC00)
 	    prev_surrogate = 1;
-	  else if (c < 0xE000)
-	    return -1;
 	  nchars++;
 	}
     }
   if (prev_surrogate)
-    return -1;
+    nchars++;
   return nchars;
 }
 
