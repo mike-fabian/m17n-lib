@@ -169,21 +169,17 @@ AC_SUBST(XFT2_LD_FLAGS)
 # Check for fontconfig usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
-if test "x$HAVE_XFT2" = "xyes"; then
-  HAVE_FONTCONFIG=yes
-else
-  AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
-  FONTCONFIG_LD_FLAGS=-lfontconfig
-  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
-    if pkg-config --exists fontconfig; then
-      CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
-      FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
-      LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
-    fi
+FONTCONFIG_LD_FLAGS=-lfontconfig
+AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+if test "x$HAVE_PKG_CONFIG" = "xyes"; then
+  if pkg-config --exists fontconfig; then
+    CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
+    FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
+    LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
   fi
-  AC_CHECK_LIB(fontconfig, FcInit, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
-  AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
 fi
+AC_CHECK_LIB(fontconfig, FcInit, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
+AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
 if test "x$HAVE_FONTCONFIG" = "xyes"; then
   AC_DEFINE(HAVE_FONTCONFIG, 1,
 	      [Define to 1 if you have fontconfig library and header file.])
@@ -193,6 +189,19 @@ else
 fi
 LIBS="$save_LIBS"
 AC_SUBST(FONTCONFIG_LD_FLAGS)
+
+# Check for gdlib usability.
+save_LIBS="$LIBS"
+AC_CHECK_LIB(gd, gdImageCreate, HAVE_GD=yes, HAVE_GD=no)
+AC_CHECK_HEADER(gd.h, , HAVE_GD=no)
+if test "x$HAVE_GD" = "xyes"; then
+  AC_CHECK_LIB(gd, gdImageCreateTrueColor, HAVE_GD=2, HAVE_GD=1)
+  AC_DEFINE_UNQUOTED(HAVE_GD, $HAVE_GD,
+	    [Define to 1 if you have gd library and header file.])
+  GD_LD_FLAGS=-lgd
+fi
+LIBS="$save_LIBS"
+AC_SUBST(GD_LD_FLAGS)
 
 # Check for libxml2 usability.
 save_CPPFLAGS="$CPPFLAGS"
