@@ -1,3 +1,13 @@
+2004-10-22  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (update_candidate): Renamed from udpate_candidate.
+	(take_action_list): Show more debugging info on arithmetic commands.
+
+	* m17n-X.c (device_open): Fix previous change.
+
+	* draw.c (compose_glyph_string): Don't get face property at the
+	end of M-text.
+
 2004-10-21  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Fix for the case of category
