@@ -580,7 +580,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  for (j = 0; j < *num; j++)
 	    {
 	      g[j].code = mfont__encode_char (rfont,
-					      g[j].type = GLYPH_CHAR ? g[j].c
+					      g[j].type == GLYPH_CHAR ? g[j].c
 					      : ' ');
 	      if (g[j].code == MCHAR_INVALID_CODE)
 		break;
