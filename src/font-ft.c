@@ -502,7 +502,7 @@ ft_open (MRealizedFont *rfont)
   MDEBUG_PRINT1 (" [FT-FONT] o %s\n", ft_info->filename);
   rfont->status = 1;
   rfont->ascent = ft_info->ft_face->ascender >> 6;
-  rfont->descent = ft_info->ft_face->descender >> 6;
+  rfont->descent = - (ft_info->ft_face->descender >> 6);
   return 0;
 
  err:
