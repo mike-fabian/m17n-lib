@@ -319,12 +319,12 @@ add_font_info (char *filename, MSymbol family, void *langset, MPlist *plist)
 	      plist = mplist ();
 	      mplist_push (ft_font_list, fam, plist);
 	    }
-	  mplist_push (plist, fam, ft_info);
+	  mplist_add (plist, fam, ft_info);
 
 	  if (basep)
 	    mplist_put (ft_family_list, fam, ft_info);
 	  else if (! mplist_get (ft_family_list, fam))
-	    mplist_push (ft_family_list, fam, ft_info);
+	    mplist_add (ft_family_list, fam, ft_info);
 	}
       FT_Done_Face (ft_face);
     }
@@ -363,12 +363,13 @@ ft_list_family (MSymbol family)
 
 #ifdef HAVE_FONTCONFIG
   {
-    FcPattern *pattern;
+    FcPattern *pattern, *pat;
     FcObjectSet *os;
     FcFontSet *fs;
     char *buf;
     int bufsize = 0;
-    int i;
+    int i, j;
+    MSymbol generic = Mnil;
 
     if (! fc_config)
       {
@@ -398,13 +399,14 @@ ft_list_family (MSymbol family)
     pattern = FcPatternCreate ();
     if (family)
       {
-	MSymbol generic = mplist_get (fc_generic_family_list, family);
-
+	generic = mplist_get (fc_generic_family_list, family);
 	if (generic != Mnil)
-	  family = generic;
-	plist = mplist_find_by_key (ft_font_list, family);
-	if (plist)
-	  return plist;
+	  {
+	    family = generic;
+	    plist = mplist_find_by_key (ft_font_list, family);
+	    if (plist)
+	      return plist;
+	  }
 	plist = mplist ();
 	mplist_push (ft_font_list, family, plist);
 
@@ -420,42 +422,62 @@ ft_list_family (MSymbol family)
       }
 
     os = FcObjectSetBuild (FC_FILE, FC_FAMILY, FC_LANG, NULL);
-    fs = FcFontList (fc_config, pattern, os);
-
-    for (i = 0; i < fs->nfont; i++)
+    pat = FcPatternCreate ();
+    for (j = 0; 1; j++)
       {
-	FcChar8 *filename;
-	FcLangSet *langset;
+	FcChar8 *fname;
 
-	if (FcPatternGetString (fs->fonts[i], FC_FILE, 0, &filename)
-	    != FcResultMatch)
-	  continue;
-	if (FcPatternGetLangSet (fs->fonts[i], FC_LANG, 0, &langset)
-	    != FcResultMatch)
-	  langset = NULL;
-	if (family == Mnil)
+	if (generic)
 	  {
-	    MSymbol fam;
-	    char *fname;
-
-	    FcPatternGetString (fs->fonts[i], FC_FAMILY, 0,
-				(FcChar8 **) &fname);
-	    STRDUP_LOWER (buf, bufsize, fname);
-	    fam = msymbol ((char *) buf);
-	    plist = mplist_get (ft_font_list, fam);
-	    if (! plist)
-	      {
-		plist = mplist ();
-		mplist_push (ft_font_list, fam, plist);
-		add_font_info ((char *) filename, fam, langset, plist);
-	      }
+	    if (FcPatternGetString (pattern, FC_FAMILY, j, &fname)
+		!= FcResultMatch)
+	      break;
+	    FcPatternAddString (pat, FC_FAMILY, fname);
+	    fs = FcFontList (fc_config, pat, os);
 	  }
 	else
-	  add_font_info ((char *) filename, family, langset, plist);
+	  fs = FcFontList (fc_config, pattern, os);
+
+	for (i = 0; i < fs->nfont; i++)
+	  {
+	    FcChar8 *filename;
+	    FcLangSet *langset;
+
+	    if (FcPatternGetString (fs->fonts[i], FC_FILE, 0, &filename)
+		!= FcResultMatch)
+	      continue;
+	    if (FcPatternGetLangSet (fs->fonts[i], FC_LANG, 0, &langset)
+		!= FcResultMatch)
+	      langset = NULL;
+	    if (family == Mnil)
+	      {
+		MSymbol fam;
+
+		FcPatternGetString (fs->fonts[i], FC_FAMILY, 0, &fname);
+		STRDUP_LOWER (buf, bufsize, fname);
+		fam = msymbol ((char *) buf);
+		plist = mplist_get (ft_font_list, fam);
+		if (! plist)
+		  {
+		    plist = mplist ();
+		    mplist_push (ft_font_list, fam, plist);
+		    add_font_info ((char *) filename, fam, langset, plist);
+		  }
+	      }
+	    else
+	      add_font_info ((char *) filename, family, langset, plist);
+	  }
+
+	if (generic)
+	  FcPatternDel (pat, FC_FAMILY);
+	else
+	  break;
       }
+
     FcFontSetDestroy (fs);
     FcObjectSetDestroy (os);
     FcPatternDestroy (pattern);
+    FcPatternDestroy (pat);
 
     if (family == Mnil)
       {
