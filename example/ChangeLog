@@ -1,3 +1,7 @@
+2004-10-29  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): Fix handling of "-s" arg.
+
 2004-10-12  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (KeyProc): Cast buf to `unsigned char *'.
