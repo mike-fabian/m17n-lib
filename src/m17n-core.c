@@ -336,7 +336,7 @@ m17n_init_core (void)
   if (core_initialized)
     return;
 
-  merror_code = 0;
+  merror_code = MERROR_NONE;
   m17n_memory_full_handler = default_error_handler;
 
   mdebug__flag = 0;
