@@ -2535,7 +2535,6 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     }
   info->from = g->pos;
   info->to = g->to;
-  info->glyph_code = g->code;
   info->this.x = g->lbearing;
   info->this.y = - gstring->line_ascent;
   info->this.height = gstring->height;
