@@ -70,7 +70,7 @@
     ム中の各関数を簡素化することができる。
 
     さらにm17n ライブラリは、 C-string を操作するために提供される種々
-    の関数と同等ものを M-text を操作するためにサポートしている。  */
+    の関数と同等のものを M-text を操作するためにサポートしている。  */
 
 /*=*/
 
@@ -1611,7 +1611,7 @@ mtext_duplicate (MText *mt, int from, int to)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text の指定範囲の文字をコピーする.
+    @brief M-text に指定範囲の文字をコピーする.
 
     関数 mtext_copy () は、 M-text $MT2 の $FROM （含む）から $TO （含
     まない）までの範囲のテキストを M-text $MT1 の位置 $POS から上書き
@@ -1782,7 +1782,7 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
 /***en
     @brief Insert a character into an M-text.
 
-    The mtext_ins_char () function inserts $N copy of character $C
+    The mtext_ins_char () function inserts $N copies of character $C
     into M-text $MT at position $POS.  As a result, $MT is lengthen by
     $N.
 
@@ -1852,8 +1852,8 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     @brief Search a character in an M-text.
 
     The mtext_character () function searches M-text $MT for character
-    $C.  If $FROM is less than $TO, search begins at position $FROM
-    and goes forward but does not exceed ($TO - 1).  Otherwise, search
+    $C.  If $FROM is less than $TO, the search begins at position $FROM
+    and goes forward but does not exceed ($TO - 1).  Otherwise, the search
     begins at position ($FROM - 1) and goes backward but does not
     exceed $TO.  An invalid position specification is regarded as both
     $FROM and $TO being 0.
@@ -1910,11 +1910,11 @@ mtext_character (MText *mt, int from, int to, int c)
     @brief Return the position of the first occurrence of a character in an M-text.
 
     The mtext_chr () function searches M-text $MT for character $C.
-    Search starts from the beginning of $MT and goes toward the end.
+    The search starts from the beginning of $MT and goes toward the end.
 
     @return
     If $C is found, mtext_chr () returns its position; otherwise it
-    returns.  */
+    returns -1.  */
 
 /***ja
     @brief M-text 中で指定された文字が最初に現れる位置を返す.
@@ -1947,7 +1947,7 @@ mtext_chr (MText *mt, int c)
     @brief Return the position of the last occurrence of a character in an M-text.
 
     The mtext_rchr () function searches M-text $MT for character $C.
-    Search starts from the end of $MT and goes backwardly toward the
+    The search starts from the end of $MT and goes backwardly toward the
     beginning.
 
     @return
@@ -2334,12 +2334,6 @@ mtext_text (MText *mt1, int pos, MText *mt2)
 /***ja
     @brief M-text 中の特定の領域で別の M-text を探す.
 
-    関数 mtext_search () は、 searches for the first occurrence of
-    M-text $MT2 in M-text $MT1 in the region $FROM and $TO while
-    ignoring difference of the text properties.  If $FROM is less than
-    $TO, the forward search starts from $FROM, otherwise the backward
-    search starts from $TO.
-
     関数 mtext_text () は、M-text $MT1 中の $FROM から $TO までの間の
     領域でM-text $MT2 が最初に現われる位置を調べる。テキストプロパティ
     の違いは無視される。もし $FROM が $TO より小さければ探索は位置 
@@ -2492,7 +2486,7 @@ mtext_ncasecmp (MText *mt1, MText *mt2, int n)
     @brief 二つの M-text の指定した領域を、大文字／小文字の区別を無視して比較する.
 
     関数 mtext_compare () は二つの M-text $MT1 と $MT2 を、大文字／小
-    文字の区別を無視しつつ文字単位で比較する。比較対象となるのは $MT1 
+    文字の区別を無視して文字単位で比較する。比較対象となるのは $MT1 
     では $FROM1 から $TO1 まで、$MT2 では $FROM2 から $TO2 までである。
     $FROM1 と $FROM2 は含まれ、$TO1 と $TO2 は含まれない。$FROM1 と 
     $TO1 （あるいは $FROM2 と $TO2 ）が等しい場合は長さゼロの M-text 
