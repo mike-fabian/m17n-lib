@@ -624,7 +624,7 @@ main (int argc, char **argv)
     frame = mframe (plist);
     m17n_object_unref (plist);
     if (! frame)
-      FATAL_ERROR ("%s\n", "Can't open a frame (perhaps no font avairable)!");
+      FATAL_ERROR ("%s\n", "Can't open a frame (perhaps no font available)!");
   }
 
   memset (&control, 0, sizeof control);
