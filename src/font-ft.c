@@ -486,8 +486,8 @@ ft_list_family (MSymbol family)
 static MPlist *
 ft_list_generic (MSymbol generic)
 {
-  GenericFamilyInfo *info = msymbol_get (generic, M_generic_family_info);
 #ifdef HAVE_FONTCONFIG
+  GenericFamilyInfo *info = msymbol_get (generic, M_generic_family_info);
   FcPattern *pattern;
 
   if (! info)
@@ -516,8 +516,10 @@ ft_list_generic (MSymbol generic)
 	  i++;
 	}
     }
-#endif	/* HAVE_FONTCONFIG */
   return info->list;
+#else   /* not HAVE_FONTCONFIG */
+  return NULL;
+#endif	/* not HAVE_FONTCONFIG */
 }
 
 
