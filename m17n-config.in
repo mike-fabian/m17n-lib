@@ -55,11 +55,11 @@ cat > /dev/null <<EOF
 /***ja @page m17n-config m17n ライブラリのコンパイル・リンクオプションの表示 */
 
 /***
-@section synopsis SYNOPSIS
+@section m17n-config-synopsis SYNOPSIS
 
 m17n-config [CORE | GUI] [--cflags | --libs | --libtool] [--version]
 
-@section description DESCRIPTION
+@section m17n-config-description DESCRIPTION
 
 The shell script m17n-config prints compile and link options for a
 program that uses the m17n library.
