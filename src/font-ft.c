@@ -115,6 +115,18 @@ check_otf_filename (const char *name)
   return 0;
 }
 
+#define STRDUP_LOWER(s1, size, s2)				\
+  do {								\
+    int len = strlen (s2) + 1;					\
+    char *p1, *p2;						\
+								\
+    if (size < len)						\
+      s1 = alloca (len), size = len;				\
+    for (p1 = s1, p2 = s2; *p2; p1++, p2++)			\
+      *p1 = (*p2 >= 'A' && *p2 <= 'Z' ? *p2 + 'a' - 'A' : *p2);	\
+    *p1 = *p2;							\
+  } while (0)
+
 /** Setup members of FT_INFO from FT_FACE.  If the font is a base one
     (i.e. medium-r-normal), set BASEP to 1.  Otherwise set BASEP to 0.
     Return the family name.  */
@@ -123,22 +135,17 @@ static MSymbol
 set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family, int *basep)
 {
   MFont *font = &ft_info->font;
-  int len;
-  char *buf, *p;
   MPlist *charmap_list;
   int unicode_bmp = -1, unicode_full = -1, unicode = -1;
   int i;
+  char *buf;
+  int bufsize = 0;
 
   MFONT_INIT (font);
 
   if (family == Mnil)
     {
-      len = strlen (ft_face->family_name) + 1;
-      buf = (char *) alloca (len);
-      memcpy (buf, ft_face->family_name, len);
-      for (p = buf; *p; p++)
-	if (*p >= 'A' && *p <= 'Z')
-	  *p += 'a' - 'A';
+      STRDUP_LOWER (buf, bufsize, ft_face->family_name);
       family = msymbol (buf);
     }
   mfont__set_property (font, MFONT_FAMILY, family);
@@ -150,14 +157,10 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family, int *basep)
 
   if (ft_face->style_name)
     {
-      len = strlen (ft_face->style_name) + 1;
-      buf = (char *) alloca (len);
-      memcpy (buf, ft_face->style_name, len);
-      for (p = buf; *p; p++)
-	if (*p >= 'A' && *p <= 'Z')
-	  *p += 'a' - 'A';
+      char *p;
+
+      STRDUP_LOWER (buf, bufsize, ft_face->style_name);
       p = buf;
-      while (*p && (*p < 'a' || *p > 'z')) p++;
       while (*p)
 	{
 	  for (i = 0; i < ft_to_prop_size; i++)
@@ -363,6 +366,8 @@ ft_list_family (MSymbol family)
     FcPattern *pattern;
     FcObjectSet *os;
     FcFontSet *fs;
+    char *buf;
+    int bufsize = 0;
     int i;
 
     if (! fc_config)
@@ -377,9 +382,17 @@ ft_list_family (MSymbol family)
 	  if (MPLIST_STRING_P (plist)
 	      && (pathname = MPLIST_STRING (plist))
 	      && stat (pathname, &buf) == 0)
-	    FcConfigAppFontAddDir (fc_config, (FcChar8 *) pathname);
-	/* TODO: avoid duplicate addition by checking the current font
-	   directory list given by FcConfigGetFontDirs (). */
+	    {
+	      FcStrList *strlist = FcConfigGetFontDirs (fc_config);
+	      FcChar8 *dir;
+
+	      while ((dir = FcStrListNext (strlist)))
+		if (strcmp ((char *) dir, pathname) == 0)
+		  break;
+	      if (! dir)
+		FcConfigAppFontAddDir (fc_config, (FcChar8 *) pathname);
+	      FcStrListDone (strlist);
+	    }
       }
 
     pattern = FcPatternCreate ();
@@ -423,10 +436,12 @@ ft_list_family (MSymbol family)
 	if (family == Mnil)
 	  {
 	    MSymbol fam;
-	    FcChar8 *fname;
+	    char *fname;
 
-	    FcPatternGetString (fs->fonts[i], FC_FAMILY, 0, &fname);
-	    fam = msymbol ((char *) fname);
+	    FcPatternGetString (fs->fonts[i], FC_FAMILY, 0,
+				(FcChar8 **) &fname);
+	    STRDUP_LOWER (buf, bufsize, fname);
+	    fam = msymbol ((char *) buf);
 	    plist = mplist_get (ft_font_list, fam);
 	    if (! plist)
 	      {
@@ -992,7 +1007,7 @@ fc_decode_prop (int val, FC_vs_M17N_font_prop *table)
 
   for (i = 0; table[i].m17n_value; i++)
     if (val <= table[i].fc_value)
-      msymbol ("table[i].m17n_value");
+      return msymbol ("table[i].m17n_value");
   return msymbol ("table[i - 1].m17n_value");
 }
 
