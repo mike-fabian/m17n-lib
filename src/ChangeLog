@@ -1,3 +1,7 @@
+2004-05-22  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xft_open_font): Fix anti_alias setting.
+
 2004-05-20  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (MFaceHookFunc): Change this function type to void.
