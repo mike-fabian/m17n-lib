@@ -27,7 +27,7 @@ enum MFaceProperty
   {
     /** The font related properties.  */
     /* The order of MFACE_FOUNDRY to MFACE_ADSTYLE must be the same as
-       enum MFontProperty.  */
+       MFONT_FOUNDRY to MFONT_ADSTYLE of enum MFontProperty.  */
     MFACE_FOUNDRY,
     MFACE_FAMILY,
     MFACE_WEIGHT,
@@ -60,10 +60,12 @@ enum MFaceProperty
 struct MFace
 {
   M17NObject control;
-  /* Initialized to 0, and incremented by one each the face is
-     modified.  */
-  unsigned tick;
+
+  /** Properties of the face.  */
   void *property[MFACE_PROPERTY_MAX];
+
+  /** List of realized faces based on the face.  */
+  MPlist *realized_face_list;
 };
 
 
@@ -82,8 +84,8 @@ struct MRealizedFace
      (MFace *).  */
   MPlist *base_face_list;
 
-  /* Initialized to the sum of ticks of the above faces.  */
-  unsigned tick;
+  /* Set to 1 if some of above faces is modified.  */
+  unsigned need_update;
 
   /* Realized font, one of <frame>->realized_font_list.  */
   MRealizedFont *rfont;
