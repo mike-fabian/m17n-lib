@@ -885,9 +885,7 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 
   if (region)
     gc = set_region (rface->frame, gc, region);
-  XSetFont (display, gc, ((MXFontInfo *) (rface->rfont->info))->f->fid);
-
-  if (from->code == MCHAR_INVALID_CODE)
+  if (! rface->rfont || from->code == MCHAR_INVALID_CODE)
     {
       int x0 = x;
 
@@ -901,6 +899,7 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
       return;
     }
 
+  XSetFont (display, gc, ((MXFontInfo *) (rface->rfont->info))->f->fid);
   code = (XChar2b *) alloca (sizeof (XChar2b) * (to - from));
   for (i = 0, g = from; g < to; i++, g++)
     {
