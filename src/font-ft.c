@@ -503,6 +503,8 @@ ft_open (MRealizedFont *rfont)
   rfont->status = 1;
   rfont->ascent = ft_info->ft_face->ascender >> 6;
   rfont->descent = - (ft_info->ft_face->descender >> 6);
+  rfont->type = Mfreetype;
+  rfont->fontp = ft_info->ft_face;
   return 0;
 
  err:
