@@ -23,23 +23,24 @@
 #ifndef _M_INTERNAL_GUI_H
 #define _M_INTERNAL_GUI_H
 
-typedef struct MWDevice MWDevice;
+enum MDeviceType
+  {
+    MDEVICE_SUPPORT_OUTPUT = 1,
+    MDEVICE_SUPPORT_INPUT = 2
+  };
 
 extern MSymbol Mfont;
 
 typedef struct MRealizedFont MRealizedFont;
 typedef struct MRealizedFace MRealizedFace;
 typedef struct MRealizedFontset MRealizedFontset;
+typedef struct MDeviceDriver MDeviceDriver;
 
 /** Information about a frame.  */
 
 struct MFrame
 {
   M17NObject control;
-
-  /** Pointer to a window-system dependent device object associated
-      with the frame.  */
-  MWDevice *device;
 
   MSymbol foreground, background, videomode;
 
@@ -59,7 +60,25 @@ struct MFrame
       descent of ASCII font of the default face.  */
   int ascent, descent;
 
-  /** The following three members are set by mwin__open_device ().  */
+  /** Initialized to 0 and incremented on each modification of a face
+      on which one of the realized faces is based.  */
+  unsigned tick;
+
+  /** Pointer to device dependent information associated with the
+      frame.  */
+  void *device;
+
+  /** The following members are set by "device_open" function of a
+      device dependent library.  */
+
+  /** Logical OR of enum MDeviceType.  */
+  int device_type;
+
+  /** Correction of functions to manipulate the device.  */
+  MDeviceDriver *driver;
+
+  /** List of font drivers.  */
+  MPlist *font_driver_list;
 
   /** List of realized fonts.  */
   MPlist *realized_font_list;
@@ -69,11 +88,19 @@ struct MFrame
 
   /** List of realized fontsets.  */
   MPlist *realized_fontset_list;
-
-  /** Initialized to 0 and incremented on each modification of a face
-      on which one of the realized faces is based.  */
-  unsigned tick;
 };
+
+#define M_CHECK_WRITABLE(frame, err, ret)			\
+  do {								\
+    if (! ((frame)->device_type & MDEVICE_SUPPORT_OUTPUT))	\
+      MERROR ((err), (ret));					\
+  } while (0)
+
+#define M_CHECK_READABLE(frame, err, ret)			\
+  do {								\
+    if (! ((frame)->device_type & MDEVICE_SUPPORT_INPUT))	\
+      MERROR ((err), (ret));					\
+  } while (0)
 
 enum glyph_type
   {
@@ -200,6 +227,55 @@ typedef struct
   short x, y;
 } MDrawPoint;
 
+struct MDeviceDriver
+{
+  void (*close) (MFrame *frame);
+  void *(*get_prop) (MFrame *frame, MSymbol key);
+  void (*realize_face) (MRealizedFace *rface);
+  void (*free_realized_face) (MRealizedFace *rface);
+  void (*fill_space) (MFrame *frame, MDrawWindow win,
+		      MRealizedFace *rface, int reverse,
+		      int x, int y, int width, int height,
+		      MDrawRegion region);
+  void (*draw_empty_boxes) (MDrawWindow win, int x, int y,
+			    MGlyphString *gstring,
+			    MGlyph *from, MGlyph *to,
+			    int reverse, MDrawRegion region);
+  void (*draw_hline) (MFrame *frame, MDrawWindow win,
+		      MGlyphString *gstring,
+		      MRealizedFace *rface, int reverse,
+		      int x, int y, int width, MDrawRegion region);
+  void (*draw_box) (MFrame *frame, MDrawWindow win,
+		    MGlyphString *gstring,
+		    MGlyph *g, int x, int y, int width,
+		    MDrawRegion region);
+
+  void (*draw_points) (MFrame *frame, MDrawWindow win,
+		       MRealizedFace *rface,
+		       int intensity, MDrawPoint *points, int num,
+		       MDrawRegion region);
+  MDrawRegion (*region_from_rect) (MDrawMetric *rect);
+  void (*union_rect_with_region) (MDrawRegion region, MDrawMetric *rect);
+  void (*intersect_region) (MDrawRegion region1, MDrawRegion region2);
+  void (*region_add_rect) (MDrawRegion region, MDrawMetric *rect);
+  void (*region_to_rect) (MDrawRegion region, MDrawMetric *rect);
+  void (*free_region) (MDrawRegion region);
+  void (*dump_region) (MDrawRegion region);
+  MDrawWindow (*create_window) (MFrame *frame, MDrawWindow parent);
+  void (*destroy_window) (MFrame *frame, MDrawWindow win);
+  void (*map_window) (MFrame *frame, MDrawWindow win);
+  void (*unmap_window) (MFrame *frame, MDrawWindow win);
+  void (*window_geometry) (MFrame *frame, MDrawWindow win,
+			   MDrawWindow parent, MDrawMetric *geometry);
+  void (*adjust_window) (MFrame *frame, MDrawWindow win,
+			 MDrawMetric *current, MDrawMetric *new);
+  MSymbol (*parse_event) (MFrame *frame, void *arg, int *modifiers);
+};
+
+extern MSymbol Mx;
+extern MSymbol Mgd;
+extern MSymbol Mfreetype;
+
 extern int mfont__init ();
 extern void mfont__fini ();
 
@@ -214,91 +290,5 @@ extern void mfont__fontset_fini ();
 
 extern int minput__win_init ();
 extern void minput__win_fini ();
-
-extern int mwin__init ();
-extern void mwin__fini ();
-
-extern MWDevice *mwin__open_device (MFrame *frame, MPlist *plist);
-
-extern void mwin__close_device (MFrame *frame);
-
-extern void *mwin__device_get_prop (MWDevice *device, MSymbol key);
-
-extern int mwin__parse_font_name (char *name, MFont *font);
-
-extern char *mwin__build_font_name (MFont *font);
-
-extern void mwin__realize_face (MRealizedFace *rface);
-
-extern void mwin__free_realized_face (MRealizedFace *rface);
-
-extern void mwin__fill_space (MFrame *frame, MDrawWindow win,
-			      MRealizedFace *rface, int reverse,
-			      int x, int y, int width, int height,
-			      MDrawRegion region);
-
-extern void mwin__draw_rect (MFrame *frame, MDrawWindow win,
-			     MRealizedFace *face,
-			     int x, int y, int width, int height,
-			     MDrawRegion region);
-
-extern void mwin__draw_empty_boxes (MDrawWindow win, int x, int y,
-				    MGlyphString *gstring,
-				    MGlyph *from, MGlyph *to,
-				    int reverse, MDrawRegion region);
-
-extern void mwin__draw_hline (MFrame *frame, MDrawWindow win,
-			      MGlyphString *gstring,
-			      MRealizedFace *rface, int reverse,
-			      int x, int y, int width, MDrawRegion region);
-
-extern void mwin__draw_box (MFrame *frame, MDrawWindow win,
-			    MGlyphString *gstring,
-			    MGlyph *g, int x, int y, int width,
-			    MDrawRegion region);
-
-extern void mwin__draw_points (MFrame *frame, MDrawWindow win,
-			       MRealizedFace *rface,
-			       int intensity, MDrawPoint *points, int num,
-			       MDrawRegion region);
-
-extern MDrawRegion mwin__region_from_rect (MDrawMetric *rect);
-
-extern void mwin__union_rect_with_region (MDrawRegion region,
-					  MDrawMetric *rect);
-
-extern void mwin__intersect_region (MDrawRegion region1, MDrawRegion region2);
-
-extern void mwin__region_add_rect (MDrawRegion region, MDrawMetric *rect);
-
-extern void mwin__region_to_rect (MDrawRegion region, MDrawMetric *rect);
-
-extern void mwin__free_region (MDrawRegion region);
-
-extern void mwin__verify_region (MFrame *frame, MDrawRegion region);
-
-extern void mwin__dump_region (MDrawRegion region);
-
-extern MDrawWindow mwin__create_window (MFrame *frame, MDrawWindow parent);
-
-extern void mwin__destroy_window (MFrame *frame, MDrawWindow win);
-
-#if 0
-extern MDrawWindow mwin__event_window (void *event);
-
-extern void mwin__print_event (void *event, char *win_name);
-#endif
-
-extern void mwin__map_window (MFrame *frame, MDrawWindow win);
-
-extern void mwin__unmap_window (MFrame *frame, MDrawWindow win);
-
-extern void mwin__window_geometry (MFrame *frame, MDrawWindow win,
-				   MDrawWindow parent, MDrawMetric *geometry);
-
-extern void mwin__adjust_window (MFrame *frame, MDrawWindow win,
-				 MDrawMetric *current, MDrawMetric *new);
-
-extern MSymbol mwin__parse_event (MFrame *frame, void *arg, int *modifiers);
 
 #endif /* _M_INTERNAL_GUI_H */
