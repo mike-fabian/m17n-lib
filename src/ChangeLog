@@ -1,3 +1,58 @@
+2004-04-27  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c: Include config.h
+	[HAVE_XFT2]: Include <X11/Xft/Xft.h>.
+	(GCInfo) [HAVE_XFT2]: New member xft_color_fore, xft_color_back.
+	(MWDevice) [HAVE_XFT2]: New member xft_draw.
+	(FRAME_CMAP, FRAME_VISUAL): New macros.
+	(free_device) [HAVE_XFT2]: Destroy device->xft_draw.
+	(xfont_driver): Make it static.
+	(mwin__open_device) [HAVE_XFT2]: Setup device->xft_draw.
+	(mwin__realize_face) [HAVE_XFT2]: Setup info->xft_color_fore and
+	info->xft_color_back.
+	(MXftFontInfo) [HAVE_XFT2]: New type.
+	(mwin__xft_close) [HAVE_XFT2]: New function.
+	(mwin__xft_open) [HAVE_XFT2]: New function.
+	(mwin__xft_get_metric) [HAVE_XFT2]: New function.
+	(mwin__xft_render) [HAVE_XFT2]: New function.
+
+	* internal-gui.h [HAVE_FREETYPE]: Include FT_FREETYPE_H.
+	(mwin__xft_open, mwin__xft_close) [HAVE_FREETYPE]: New externs.
+	(mwin__xft_get_metric, mwin__xft_render) [HAVE_FREETYPE]: New
+	externs.
+
+	* font.h [HAVE_FREETYPE]: Include FT_FREETYPE_H.
+
+	* font-ft.c: Don't include FT_FREETYPE_H here.
+	[HAVE_XFT2]: Include <fontconfig/fontconfig.h>.
+	(fontconfig_initialized, fc_config) [HAVE_XFT2]: New variables.
+	(MFTInfo): New member charmap_index.
+	(MFTInfo) [HAVE_XFT2]: New member xft_info.
+	(check_otf_filename): Renamed from check_filename.  Return value
+	changed.
+	(ft_set_property): This function deleted.
+	(set_font_info): New function.
+	(add_font_list): Argument changed.  Add multiple fonts.
+	(xft_list) [HAVE_XFT2]: New function.
+	(ft_list) [not HAVE_XFT2]: New function.
+	(ft_select): Add code for Xft.
+	(close_ft): Likewise.
+	(ft_open): Likewise.
+	(ft_find_metric): Likewise.
+	(ft_encode_char): Likewise.
+	(ft_render): Likewise.
+
+	* makefile.am (OPTIONAL_LD_FLAGS): Include @XFT2_LD_FLAGS@.
+
+2004-04-26  Kenichi Handa  <handa@m17n.org>
+
+	* textprop.c (mtext_attach_property): Declare the return type as
+	`int'.
+
+2004-04-21  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (OPTIONAL_LD_FLAGS): Include @XFT2_LD_FLAGS@
+
 2004-04-09  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (struct): New members seq_beg, seq_end, seq_from,
