@@ -1358,7 +1358,7 @@ mtext_cat_char (MText *mt, int c)
     @return
     This function returns a pointer to the created copy.  */
 
-/***oldja
+/***ja
     @brief M-text のコピーを作る.
 
     関数 mtext_dup () は、M-text $MT のコピーを作る。$MT のテキストプ
