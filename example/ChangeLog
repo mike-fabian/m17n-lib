@@ -4,6 +4,7 @@
 	(set_input_method_spot): Don't check face if the buffer is empty.
 	(show_cursor): Likewise.
 	(delete_char): Fix adjustment of nchars.
+	(CursorProc): Call update_cursor.
 
 2004-07-23  Kenichi Handa  <handa@m17n.org>
 
