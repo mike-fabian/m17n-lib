@@ -33,16 +33,16 @@ mdate_LDADD = ${common_ldflags}
 mconv_SOURCES = mconv.c
 mconv_LDADD = ${common_ldflags}
 
-X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lX11 -lXt -lXaw -lXmu ${X_EXTRA_LIBS}
+X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
 
 medit_SOURCES = medit.c linebreak.c
-medit_LDADD = ${X_LD_FLAGS} ${top_srcdir}/src/libm17n-X.la @WORDCUT_LD_FLAGS@
+medit_LDADD = ${X_LD_FLAGS} @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
 
 mview_SOURCES = mview.c
-mview_LDADD = ${X_LD_FLAGS} ${top_srcdir}/src/libm17n-X.la
+mview_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui}
 
 mdump_SOURCES = mdump.c linebreak.c
-mdump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${top_srcdir}/src/libm17n-gd.la
+mdump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
 
 # Input method data files.
 
