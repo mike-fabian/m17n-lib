@@ -775,7 +775,7 @@ ft_render (MDrawWindow win, int x, int y,
     }
 }
 
-static MPlist *
+static void
 ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 {
   MPlist *pl, *p;
@@ -798,7 +798,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
     {
       pl = mplist_find_by_key (ft_font_list, family);
       if (! pl)
-	return NULL;
+	return;
     }
 
   MPLIST_DO (pl, pl)
@@ -817,7 +817,6 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
       if (family != Mnil)
 	break;
     }
-  return plist;
 }
 
 
