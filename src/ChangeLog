@@ -1,5 +1,13 @@
 2004-03-22  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-core.c (m17n_init_core): Set merror_code to MERROR_NONE.
+
+	* m17n.c (m17n_init): Fix the way of checking merror_code.
+
+	* m17n-gui.c (m17n_init_win): Fix the way of checking merror_code.
+
+2004-03-22  Kenichi Handa  <handa@m17n.org>
+
 	* fontset.c (realize_font_group): Adjust the font size by
 	mfont__resize before selecting a font.
 
