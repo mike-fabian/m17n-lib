@@ -1100,7 +1100,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 				 g->code, size, &mark_x, &mark_y);
 		g->xoff = prev->xoff + (base_x - prev->width) - mark_x;
 		g->yoff = prev->yoff + mark_y - base_y;
-		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
+		g->combining_code = MAKE_PRECOMPUTED_COMBINDING_CODE ();
 	      }
 	    }
 	  if (otfg->GlyphClass == OTF_GlyphClass0)
