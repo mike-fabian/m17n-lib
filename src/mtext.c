@@ -1107,74 +1107,20 @@ mtext__eol (MText *mt, int pos)
 
 /* External API */
 
+#ifdef WORDS_BIGENDIAN
+const int MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16BE;
+#else
+const int MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16LE;
+#endif
+
+#ifdef WORDS_BIGENDIAN
+const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32BE;
+#else
+const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
+#endif
+
 /*** @addtogroup m17nMtext */
 /*** @{ */
-/*=*/
-
-/***en @name Variables: System's UTF-16 and UTF-32 types */
-/***ja @name 変数: システムの UTF-16 と UTF-32 のタイプ */
-/*** @{ */
-/*=*/
-
-/***en
-    @brief Variable of value MTEXT_FORMAT_UTF_16LE or MTEXT_FORMAT_UTF_16BE.
-
-    The global variable #MTEXT_FORMAT_UTF_16 is initialized to
-    #MTEXT_FORMAT_UTF_16LE on a "Little Endian" system (storing words
-    with the least significant byte first), and to
-    #MTEXT_FORMAT_UTF_16BE depneding on a "Big Endian" system (storing
-    words with the most significant byte first).  */
-
-/***ja
-    @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
-
-    大域変数 #MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム（ワー
-    ドを LSB (Least Significant Byte) を先にして格納）上では
-    #MTEXT_FORMAT_UTF_16LE に初期化され、ビッグ・エンディアン・システム
-    （ワードを MSB (Most Significant Byte) を先にして格納）上では
-    #MTEXT_FORMAT_UTF_16BE に初期化される。  */
-
-/***
-    @seealso mtext_from_data ()  */
-
-#ifdef WORDS_BIGENDIAN
-const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16BE;
-#else
-const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16LE;
-#endif
-
-/*=*/
-/***en
-    @brief Variable of value MTEXT_FORMAT_UTF_32LE or MTEXT_FORMAT_UTF_32BE.
-
-    The global variable #MTEXT_FORMAT_UTF_32 is initialized to
-    #MTEXT_FORMAT_UTF_32LE on a "Little Endian" system (storing words
-    with the least significant byte first), and to
-    #MTEXT_FORMAT_UTF_32BE depneding on a "Big Endian" system (storing
-    words with the most significant byte first).  */
-
-/***ja
-    @brief 値が MTEXT_FORMAT_UTF_32LE か MTEXT_FORMAT_UTF_32BE である変数
-
-    大域変数 #MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム（ワー
-    ドを LSB (Least Significant Byte) を先にして格納）上では
-    #MTEXT_FORMAT_UTF_32LE に初期化され、ビッグ・エンディアン・システム
-    （ワードを MSB (Most Significant Byte) を先にして格納）上では
-    #MTEXT_FORMAT_UTF_32BE に初期化される。  */
-
-/***
-    @seealso mtext_from_data ()  */
-
-#ifdef WORDS_BIGENDIAN
-const enum MTextFormat MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32BE;
-#else
-const enum MTextFormat MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
-#endif
-
-/*=*/
-
-/*** @} */
-
 /*=*/
 
 /***en
