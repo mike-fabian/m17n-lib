@@ -1,3 +1,10 @@
+2004-07-23  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (layout_glyphs): Call mfont__ft_drive_gpos with glyphs of
+	the same bidi level.
+
+	* font-ft.c (mfont__ft_drive_gpos): Check bidi-level.
+
 2004-07-22  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (load_flt): Treat the symbol Mend as end-of-file.
