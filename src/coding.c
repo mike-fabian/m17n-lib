@@ -39,17 +39,17 @@
     @addtogroup m17nConv
     @brief コード系オブジェクトとそれに関する API.
 
-    m17n ライブラリは、符号化文字集合 (coded character set; CCS) の文
-    字符合化方式 (character encoding scheme; CES) を @e コード系 と呼
-    ぶオブジェクトで表現する。アプリケーションプログラムは独自にコード
-    系を追加することもできる。
+    m17n ライブラリは、符号化文字集合 (coded character set; CCS) 
+    の文字符合化方式 (character encoding scheme; CES) を @e コード系 
+    と呼ぶオブジェクトで表現する。
+    アプリケーションプログラムは独自にコード系を追加することもできる。
 
-    コードポイントから文字コードへの変換を @e エンコード と呼び、文字
-    コードからコードポイントへの変換を @e デコード と呼ぶ。
+    コードポイントから文字コードへの変換を @e エンコード 
+    と呼び、文字コードからコードポイントへの変換を @e デコード と呼ぶ。
 
-    アプリケーションプログラムは、指定されたコード系でバイト列をデコー
-    ドすることで M-text を得ることができる。また逆に、指定されたコード
-    系で M-text をエンコードしすることでバイト列を得ることができる。  */
+    アプリケーションプログラムは、指定されたコード系でバイト列をデコードすることによって
+    M-text を得ることができる。また逆に、指定されたコード系で M-text 
+    をエンコードしすることによってバイト列を得ることができる。  */
 
 /*=*/
 
@@ -3105,8 +3105,8 @@ MSymbol Mcoding_us_ascii;
 /***ja
     @brief ISO-8859-1 コード系のシンボル.
 
-    シンボル #Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> という名前
-    を持ち、CES ISO-8859-1 用のコード系を示す。  */
+    シンボル #Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> 
+    という名前を持ち、CES ISO-8859-1 用のコード系を示す。  */
 
 MSymbol Mcoding_iso_8859_1;
 /*=*/
@@ -3139,11 +3139,11 @@ MSymbol Mcoding_utf_8;
 /***ja
     @brief UTF-8-FULL コード系のシンボル.
 
-    シンボル #Mcoding_utf_8_full は <tt>"utf-8-full"</tt> という名前を
-    持ち、<tt>"UTF-8"</tt> の拡張であるコード系を示す。このコード系は 
-    UTF-8 と同じエンコーディングアルゴリズムを用いるが、対象は Unicode 
-    の文字に限らない。またm17n ライブラリが扱う全ての文字をエンコード
-    することができる。
+    シンボル #Mcoding_utf_8_full は <tt>"utf-8-full"</tt> 
+    という名前を持ち、<tt>"UTF-8"</tt> の拡張であるコード系を示す。
+    このコード系は UTF-8 と同じエンコーディングアルゴリズムを用いるが、対象は
+    Unicode 文字には限定されない。
+    またm17n ライブラリが扱う全ての文字をエンコードすることができる。
     */
 
 MSymbol Mcoding_utf_8_full;
@@ -3288,8 +3288,8 @@ MSymbol Mlittle_endian;
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
-    関数 mconv_define_coding () の引数として用いられる、コード系の
-    パラメータ #Mtype の値となり得るシンボル。(詳細は 
+    関数 mconv_define_coding () の引数として用いられるコード系のパラメータ
+    #Mtype の値となり得るシンボル。(詳細は 
     mconv_define_coding ()参照)。  */
  
 MSymbol Mutf;
@@ -3311,8 +3311,8 @@ MSymbol Miso_2022;
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
-    関数 mconv_define_coding () の引数として用いられる、コード系の
-    パラメータ #Mflags の値となり得るシンボル。(詳細は 
+    関数 mconv_define_coding () の引数として用いられるコード系のパラメータ
+    #Mflags の値となり得るシンボル。(詳細は 
     mconv_define_coding ()参照)。  */
 MSymbol Mreset_at_eol;
 /*=*/
@@ -3352,8 +3352,8 @@ MSymbol Mfull_support;
     @brief "maybe"という名前を持つシンボル.
 
     変数 #Mmaybe は <tt>"maybe"</tt> という名前を持つ。これは関数 
-    mconv_define_coding () パラメータ #Mbom の値として用いられる。(詳
-    細は mconv_define_coding () 参照)。 */
+    mconv_define_coding () パラメータ #Mbom の値として用いられる。
+    (詳細は mconv_define_coding () 参照)。 */
 
 MSymbol Mmaybe;
 /*=*/
@@ -3381,7 +3381,7 @@ MSymbol Mcoding;
     @brief Define a coding system.
 
     The mconv_define_coding () function defines a new coding system
-    and makes it accessive via a symbol whose name is $NAME.  $PLIST
+    and makes it accessible via a symbol whose name is $NAME.  $PLIST
     specifies parameters of the coding system as below:
 
     <ul>
@@ -3472,7 +3472,7 @@ MSymbol Mcoding;
 
     If this flag exists, use 7-bit single shift code (0x19).
 
-    <li> #Meuc_tw_shift;
+    <li> #Meuc_tw_shift
 
     If this flag exists, use a special shifting according to EUC-TW.
 
@@ -3587,21 +3587,21 @@ MSymbol Mcoding;
 
     <li> キーが @c Mtype で値がシンボルの時
 
-    値はコード系のタイプを表し、#Mcharset, #Mutf, #Miso_2022, #Mnil の
-    いずれかでなくてはならない。
+    値はコード系のタイプを表し、#Mcharset, #Mutf, #Miso_2022, #Mnil 
+    のいずれかでなくてはならない。
 
     タイプが #Mcharset ならば $EXTRA_INFO は無視される。
 
-    タイプが #Mutf ならば $EXTRA_INFO は #MCodingInfoUTF へのポインタで
-    なくてはならない。
+    タイプが #Mutf ならば $EXTRA_INFO は #MCodingInfoUTF 
+    へのポインタでなくてはならない。
 
-    タイプが #Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 へのポ
-    インタでなくてはならない。
+    タイプが #Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 
+    へのポインタでなくてはならない。
 
-    タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER を与えな
-    くてはならない。$EXTRA_INFO は無視される。それ以外の場合にはこれら
-    は @c NULL で構わない。その際には m17n ライブラリが適切なデフォル
-    ト値を与える。
+    タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER 
+    を与えなくてはならない。$EXTRA_INFO は無視される。
+    それ以外の場合にはこれらは @c NULL でよく、
+    m17n ライブラリが適切なデフォルト値を与える。
 
     <li> キーが #Mcharsets で値が plist の時
 
@@ -3610,21 +3610,19 @@ MSymbol Mcoding;
 
     <li> キーが #Mflags 値が plist の時
 
-    タイプが #Miso_2022 ならば、この値は, ISO 2022 インタプリタ用の制
-    御フラッグを示す。plistのキーは#Msymbol、値は以下のいずれかでなく
-    てはならない。
+    タイプが #Miso_2022 ならば、この値は, ISO 2022 
+    インタプリタ用の制御フラッグを示す。plist のキーは #Msymbol 
+    であり、値は以下のいずれかである。
 
     <ul>
 
     <li> #Mreset_at_eol
 
-    このフラグがあれば、図形文字集合の指示や呼出は行末でリセットされて
-    当初の状態に戻る。
+    このフラグがあれば、図形文字集合の指示や呼出は行末でリセットされて当初の状態に戻る。
 
     <li> #Mreset_at_cntl
 
-    このフラグがあれば、図形文字集合の指示や呼出は制御文字に出会った時
-    点でリセットされて当初の状態に戻る。
+    このフラグがあれば、図形文字集合の指示や呼出は制御文字に出会った時点でリセットされて当初の状態に戻る。
 
     <li> #Meight_bit
 
@@ -3632,31 +3630,29 @@ MSymbol Mcoding;
 
     <li> #Mlong_form
 
-    このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 を指
-    示する際に over-long エスケープシーケンス (ESC '$' '('
+    このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 
+    を指示する際に over-long エスケープシーケンス (ESC '$' '('
     <final_byte>) が用いられる。
 
     <li> #Mdesignation_g0
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない
-    文字セットを G0 集合に指示する。
+    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合に指示する。
 
     <li> #Mdesignation_g1
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない
-    文字セットを G1 集合に指示する。
+    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    G1 集合に指示する。
 
     <li> #Mdesignation_ctext
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない
-    文字セットを G0 集合または G1 集合に、コンパウンドテキストの基準に
-    そって指示する。
+    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合または G1 集合に、コンパウンドテキストの基準にそって指示する。
 
     <li> #Mdesignation_ctext_ext
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない
-    文字セットを G0 集合または G1 集合に、あるいは拡張セグメントにコン
-    パウンドテキストの基準にそって指示する。
+    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合または G1 集合に、あるいは拡張セグメントにコンパウンドテキストの基準にそって指示する。
 
     <li> #Mlocking_shift
 
@@ -3670,7 +3666,7 @@ MSymbol Mcoding;
 
     このフラグがあれば、7-bit シングルシフトコード (0x19) を用いる。   
     
-    <li> #Meuc_tw_shift;
+    <li> #Meuc_tw_shift
 
     このフラグがあれば、EUC-TW に沿った特別なシフトを用いる。
 
@@ -3685,69 +3681,68 @@ MSymbol Mcoding;
 
     <li> #Mfull_support
 
-    このフラグがあれば、the International Registry に登録されている全
-    文字セットをサポートする。
+    このフラグがあれば、the International Registry 
+    に登録されている全文字セットをサポートする。
 
     </ul>
 
     <li> キーが #Mdesignationで値が plist の時
 
     タイプが #Miso_2022 ならば、値は各文字をどのように指示するかを示す。
-    plist のキーは #Minteger、値は集合（graphic register）を示す数字で
-    なくてはならない。N番目の要素の値は、文字セットリストの N 番目 の
-    文字セットに対応する。値が 0..3 であれば、文字セットがすでに 
+    plist のキーは #Minteger、値は集合（graphic register）
+    を示す数字である。N番目の要素の値は、文字セットリストの N 
+    番目の文字セットに対応する。値が 0..3 であれば、文字セットがすでに 
     G0..G3 に指示 されている。
 
-    値が負(-4..-1) であれば、初期状態では文字セットがどこにも指示され
-    ていないこと、必要な際にはG0..G3 のそれぞれに指示することを意味す
-    る。
+    値が負(-4..-1) であれば、初期状態では文字セットがどこにも指示されていないこと、必要な際には
+    G0..G3 のそれぞれに指示することを意味する。
 
     <li> キーが #Minvocationで値が plist の時
 
     タイプが #Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
-    plist の長さは 1 ないし 2 である。plist のキーは #Minteger、値は集
-    合（graphic register)を示す数字でなければならない。最初の要素の値
-    が図形文字集合左半面に呼び出される集合である。 plist の長さが 1 な
-    らば、右半面には何も呼び出されない。そうでければ、２つめの要素の値
-    が図形文字集合右半面に呼び出される集合となる。
+    plist の長さは 1 ないし 2 である。plist のキーは 
+    #Minteger、値は集合（graphic register)を示す数字である。
+    最初の要素の値が図形文字集合左半面に呼び出される集合を示す。
+    plist の長さが 1 ならば、右半面には何も呼び出されない。
+    そうでければ、２つめの要素の値が図形文字集合右半面に呼び出される集合を示す。
 
-   <li> キーが #Mcode_unit で値が整数値の時
+    <li> キーが #Mcode_unit で値が整数値の時
 
-   タイプが #Mutf ならば、値はコードユニットのビット長であり、8, 16,
-   32 のいずれかである。
+    タイプが #Mutf ならば、値はコードユニットのビット長であり、8, 16,
+    32 のいずれかである。
 
     <li> キーが #Mbom で値がシンボルの時
 
     タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値は
     BOM (Byte Order Mark) を使用するかどうかを示す。値がデフォルト値の 
-    #Mnil ならば、使用しない。値が#Mmaybe ならばデコード時に BOM があ
-    るかどうかを調べる。それ以外ならば使用する。
+    #Mnil ならば、使用しない。値が #Mmaybe ならばデコード時に BOM 
+    があるかどうかを調べる。それ以外ならば使用する。
 
     <li> キーが #Mlittle_endian で値がシンボルの時 
 
-    タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値はエ
-    ンコードが little endian かどうかを示す。値がデフォルト値の #Mnil 
-    ならば big endian であり、そうでなければ little endian である。
+    タイプが #Mutf でコードユニットのビット長が 16 か 32
+    ならば、値はエンコードが little endian かどうかを示す。値がデフォルト値の
+    #Mnil ならば big endian であり、そうでなければ little endian である。
 
     </ul>
 
-    $RESETTER はこのコード系用のコンバータを初期状態にリセットする関数
-    へのポインタである。この関数はコンバータオブジェクトへのポインタと
-    いう１引数をとる。
+    $RESETTER 
+    はこのコード系用のコンバータを初期状態にリセットする関数へのポインタである。
+    この関数はコンバータオブジェクトへのポインタという１引数をとる。
 
-    $DECODER はバイト列をこのコード系に従ってデコードする関数へのポイ
-    ンタである。この関数は以下の4引数をとる。
+    $DECODER はバイト列をこのコード系に従ってデコードする関数へのポインタである。
+    この関数は以下の４引数をとる。
 
 	@li デコードするバイト列へのポインタ
 	@li デコードすべきバイト数
 	@li デコード結果の文字を付加する M-text へのポインタ
 	@li コンバータオブジェクトへのポインタ
 
-    $DECODER は成功したときには0を、失敗したときには-1を返さなくてはな
-    らない。
+    $DECODER は成功したときには 0 を、失敗したときには -1 
+    を返さなくてはならない。
 
-    $ENCODER は M-text をこのコード系に従ってエンコードする関数へのポ
-    インタである。この関数は以下の6引数をとる。
+    $ENCODER は M-text をこのコード系に従ってエンコードする関数へのポインタである。
+    この関数は以下の６引数をとる。
 
         @li エンコードするM-text へのポインタ
         @li M-text のエンコード開始位置
@@ -3756,17 +3751,17 @@ MSymbol Mcoding;
         @li メモリ領域のサイズ
 	@li コンバータオブジェクトへのポインタ
 
-    $ENCODER は成功したときには0を、失敗したときには-1を返さなくてはな
-    らない。
+    $ENCODER は成功したときには 0 を、失敗したときには -1 
+    を返さなくてはならない。
 
-    $EXTRA_INFO はコーディグシステムに関する追加情報を含むデータ構造へ
-    のポインタである。このデータ構造のタイプは $TYPE に依存する。
+    $EXTRA_INFO はコーディグシステムに関する追加情報を含むデータ構造へのポインタである。
+    このデータ構造の型 $TYPE に依存する。
 
     @return  
 
-    処理に成功すれば mconv_define_coding () は $NAME という名前のシ
-    ンボルを返す。 エラーが検出され
-    た場合は #Mnil を返し、外部変数 #merror_code にエラーコードを設定する。
+    処理に成功すれば mconv_define_coding () は $NAME 
+    という名前のシンボルを返す。 エラーが検出された場合は #Mnil
+    を返し、外部変数 #merror_code にエラーコードを設定する。
       */
 
 /***
@@ -3986,10 +3981,10 @@ mconv_define_coding (const char *name, MPlist *plist,
 /***ja
     @brief コード系の名前を解決する.
 
-    関数 mconv_resolve_coding () は $SYMBOL がコード系を示していればそ
-    れを返す。そうでなければコード系の名前として $SYMBOL を正規化し、
-    それがコード系を示していれば正規化した名前を返す。そうでなければ 
-    #Mnil を返す。  */
+    関数 mconv_resolve_coding () は $SYMBOL がコード系を示していればそれを返す。
+    そうでなければコード系の名前として $SYMBOL 
+    を正規化し、それがコード系を表していれば正規化した $SYMBOL を返す。
+    そうでなければ#Mnil を返す。  */
 
 
 
@@ -4018,9 +4013,8 @@ mconv_resolve_coding (MSymbol symbol)
 /***ja
     @brief コード系を表わすシンボルを列挙する.
 
-    関数 mchar_list_codings () は、コード系を示すシンボルを並べた配列
-    を作り、$SYMBOLS でポイントされた場所にこの配列へのポインタを置き、
-    配列の長さを返す。 */
+    関数 mchar_list_codings () は、コード系を示すシンボルを並べた配列を作り、
+    $SYMBOLS でポイントされた場所にこの配列へのポインタを置き、配列の長さを返す。 */
 
 int
 mconv_list_codings (MSymbol **symbols)
@@ -4064,17 +4058,17 @@ mconv_list_codings (MSymbol **symbols)
 /***ja
     @brief バッファに結び付けられたコードコンバータを作る.
 
-    関数 mconv_buffer_converter () は、コード系 $NAME 用のコードコン
-    バータを作る。このコードコンバータは、$BUF で示される大きさ $N バ
-    イトのバッファ領域に結び付けられる。これ以降のデコードおよび
-    エンコードは、このバッファ領域に対して行なわれる。
+    関数 mconv_buffer_converter () は、コード系 $NAME 
+    用のコードコンバータを作る。このコードコンバータは、$BUF で示される大きさ $N 
+    バイトのバッファ領域に結び付けられる。
+    これ以降のデコードおよびエンコードは、このバッファ領域に対して行なわれる。
 
     $NAME は #Mnil であってもよい。この場合は現在のロケール 
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return
-    もし処理が成功すれば mconv_buffer_converter () は 作成したコードコ
-    ンバータを返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
+    もし処理が成功すれば mconv_buffer_converter () は 作成したコードコンバータを返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
     にエラーコードを設定する。
 
     @latexonly \IPAlabel{mconverter} @endlatexonly  */
@@ -4142,18 +4136,18 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
 /***ja
     @brief ストリームに結び付けられたコードコンバータを作る.
 
-    関数 mconv_stream_converter () は、コード系 $NAME 用のコードコン
-    バータを作る。このコードコンバータは、ストリーム $FP に結び付けら
-    れる。これ以降のデコードおよびエンコードは、このストリームに対して
-    行なわれる。
+    関数 mconv_stream_converter () は、コード系 $NAME 
+    用のコードコンバータを作る。このコードコンバータは、ストリーム $FP 
+    に結び付けられる。
+    これ以降のデコードおよびエンコードは、このストリームに対して行なわれる。
 
     $NAME は #Mnil であってもよい。この場合は現在のロケール 
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return 
-    もし処理が成功すれば、mconv_stream_converter () は作成した
-    コードコンバータを返す。そうでなければ @c NULL を返し、外部変数 
-    #merror_code にエラーコードを設定する。
+    もし処理が成功すれば、mconv_stream_converter () 
+    は作成したコードコンバータを返す。そうでなければ @c NULL 
+    を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mconverter} @endlatexonly  */
 
@@ -4225,13 +4219,13 @@ mconv_stream_converter (MSymbol name, FILE *fp)
 /***ja
     @brief コードコンバータをリセットする.
 
-    関数 mconv_reset_converter () はコードコンバータ $CONVERTER を初期
-    状態に戻す。
+    関数 mconv_reset_converter () はコードコンバータ $CONVERTER 
+    を初期状態に戻す。
 
     @return
     もし $CONVERTER->coding にリセット用の関数が定義されているならば、
-    mconv_reset_converter () はその関数に $CONVERTER を適用した結果を
-    返し、そうでなければ0を返す。  */
+    mconv_reset_converter () はその関数に $CONVERTER 
+    を適用した結果を返し、そうでなければ0を返す。  */
 
 int
 mconv_reset_converter (MConverter *converter)
@@ -4258,8 +4252,8 @@ mconv_reset_converter (MConverter *converter)
 /***ja
     @brief コードコンバータを解放する.
 
-    関数 mconv_free_converter () はコードコンバータ $CONVERTER を解放
-    する。  */
+    関数 mconv_free_converter () はコードコンバータ $CONVERTER 
+    を解放する。  */
 
 void
 mconv_free_converter (MConverter *converter)
@@ -4288,10 +4282,9 @@ mconv_free_converter (MConverter *converter)
 /***ja
     @brief コードコンバータにバッファ領域を結び付ける.
 
-    関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N バ
-    イトのバッファ領域をコードコンバータ $CONVERTER に結び付ける。これ
-    以降のデコードおよびエンコードは、この新たに結び付けられたバッファ
-    領域に対して行なわれるようになる。
+    関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N 
+    バイトのバッファ領域をコードコンバータ $CONVERTER に結び付ける。
+    これ以降のデコードおよびエンコードは、この新たに結び付けられたバッファ領域に対して行なわれるようになる。
 
     @return
     この関数は常に $CONVERTER を返す。
@@ -4330,8 +4323,8 @@ mconv_rebind_buffer (MConverter *converter, unsigned char *buf, int n)
     @brief コードコンバータにストリームを結び付ける.
 
     関数 mconv_rebind_stream () は、ストリーム $FP をコードコンバータ 
-    $CONVERTER に結び付ける。これ以降のデコードおよびエンコードは、
-    この新たに結び付けられたストリームに対して行なわれるようになる。
+    $CONVERTER に結び付ける。
+    これ以降のデコードおよびエンコードは、この新たに結び付けられたストリームに対して行なわれるようになる。
 
     @return
     この関数は常に $CONVERTER を返す。
@@ -4379,13 +4372,13 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     @brief バイト列を M-text にデコードする.
 
     関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
-    $MT の末尾に追加する。デコード元のバイト列は、$CONVERTER に現在結
-    び付けられているバッファ領域あるいはストリームから取られる。
+    $MT の末尾に追加する。デコード元のバイト列は、$CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから取られる。
 
     @return
-    もし処理が成功すれば、mconv_decode () は更新された $MT を返す。そ
-    うでなければ @c NULL を返し、外部変数 #merror_code にエラーコードを
-    設定する。  */
+    もし処理が成功すれば、mconv_decode () は更新された $MT を返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4520,14 +4513,14 @@ mconv_decode (MConverter *converter, MText *mt)
 /***ja
     @brief コード系に基づいてバッファ領域をデコードする.
 
-    関数 mconv_decode_buffer () は、$BUF によって指された $N バイトの
-    バッファ領域を、コード系 $NAME に基づいてデコードする。デコードに
-    必要なコードコンバータの作成と解放は自動的に行なわれる。
+    関数 mconv_decode_buffer () は、$BUF によって指された $N 
+    バイトのバッファ領域を、コード系 $NAME に基づいてデコードする。
+    デコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    もし処理が成功すれば、mconv_decode_buffer () は得られた M-text を
-    返す。そうでなければ @c NULL を返し、外部変数 #merror_code にエラー
-    コードを設定する。  */
+    もし処理が成功すれば、mconv_decode_buffer () は得られた M-text を返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4571,14 +4564,14 @@ mconv_decode_buffer (MSymbol name, unsigned char *buf, int n)
 /***ja
     @brief コード系に基づいてストリーム入力をデコードする.
 
-    関数 mconv_decode_stream () は、ストリーム $FP から読み込まれるバ
-    イト列全体を、コード系 $NAME に基づいてデコードする。デコードに必
-    要なコードコンバータの作成と解放は自動的に行なわれる。
+    関数 mconv_decode_stream () は、ストリーム $FP 
+    から読み込まれるバイト列全体を、コード系 $NAME 
+    に基づいてデコードする。デコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    もし処理が成功すれば、mconv_decode_stream () は得られた M-text を返
-    す。そうでなければ @c NULL を返し、外部変数 #merror_code にエラーコー
-    ドを設定する。  */
+    もし処理が成功すれば、mconv_decode_stream () は得られた M-text 
+    を返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4621,14 +4614,13 @@ mconv_decode_stream (MSymbol name, FILE *fp)
 /***ja
     @brief M-text をバイト列にエンコードする.
 
-    関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバー
-    タ $CONVERTER に現在結び付けられているバッファ領域あるいはストリー
-    ムに得られたバイト列を書き込む。
+    関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバータ
+    $CONVERTER に現在結び付けられているバッファ領域あるいはストリームに得られたバイト列を書き込む。
 
     @return
     もし処理が成功すれば、mconv_encode () は書き込まれたバイト数を返す。
-    そうでなければ -1 を返し、外部変数 #merror_code にエラーコードを設定
-    する。  */
+    そうでなければ -1 を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4662,15 +4654,15 @@ mconv_encode (MConverter *converter, MText *mt)
 /***ja
     @brief M-text の一部をバイト列にエンコードする.
 
-    関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
-    $TO （含まない）までの範囲のテキストをエンコードして、コードコンバー
-    タ $CONVERTER に現在結び付けられているバッファ領域あるいはストリー
-    ムに得られたバイト列を書き込む。
+    関数 mconv_encode_range () は、M-text $MT の $FROM 
+    （$FROM 自体も含む）から $TO （$TO自体は含まない）
+    までの範囲のテキストをエンコードして、コードコンバータ
+    $CONVERTER に現在結び付けられているバッファ領域あるいはストリームに得られたバイト列を書き込む。
 
     @return
-    もし処理が成功すれば、mconv_encode_range () は書き込まれたバイト数
-    を返す。そうでなければ -1 を返し、外部変数 #merror_code にエラーコー
-    ドを設定する。  */
+    もし処理が成功すれば、mconv_encode_range () 
+    は書き込まれたバイト数を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4762,15 +4754,14 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
 /***ja
     @brief M-text をエンコードしてバッファ領域に書き込む.
 
-    関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME に基づい
-    てエンコードし、得られたバイト列を $BUF の指すバッファ領域に書き込
-    む。$N は書き込む最大バイト数である。エンコードに必要なコードコン
-    バータの作成と解放は自動的に行なわれる。
+    関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME 
+    に基づいてエンコードし、得られたバイト列を $BUF の指すバッファ領域に書き込む。
+    $N は書き込む最大バイト数である。
+    エンコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    もし処理が成功すれば、mconv_encode_buffer () は書き込まれたバイト
-    数を返す。そうでなければ-1を返し、外部変数 #merror_code にエラーコー
-    ドを設定する。  */
+    もし処理が成功すれば、mconv_encode_buffer () は書き込まれたバイト数を返す。
+    そうでなければ-1を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4810,14 +4801,14 @@ mconv_encode_buffer (MSymbol name, MText *mt, unsigned char *buf, int n)
 /***ja
     @brief M-text をエンコードしてストリームに書き込む.
 
-    関数 mconv_encode_stream () はM-text $MT をコード系 $NAME に基づい
-    てエンコードし、得られたバイト列をストリーム $FP に書き出す。エン
-    コードに必要なコードコンバータの作成と解放は自動的に行なわれる。
+    関数 mconv_encode_stream () はM-text $MT をコード系 $NAME 
+    に基づいてエンコードし、得られたバイト列をストリーム $FP 
+    に書き出す。エンコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    もし処理が成功すれば、mconv_encode_stream () は書き込まれたバイト数
-    を返す。そうでなければ-1を返し、外部変数 #merror_code にエラーコード
-    を設定する。  */
+    もし処理が成功すれば、mconv_encode_stream () 
+    は書き込まれたバイト数を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4858,18 +4849,18 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     #merror_code.  */
 
 /***ja
-    @brief コードコンバータ経由で1文字読む.
+    @brief コードコンバータ経由で一文字を読みこむ.
 
-    関数 mconv_getc () は、コードコンバータ $CONVERTER に現在結び付け
-    られているバッファ領域あるいはストリームから 1 文字を読み込む。バ
-    イト列のデコードには $CONVERTER のデコーダが用いられる。$CONVERTER 
-    の内部状態は必要に応じて更新される。
+    関数 mconv_getc () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから文字を一つ読み込む。
+    バイト列のデコードには $CONVERTER のデコーダが用いられる。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
     処理が成功すれば、mconv_getc () は読み込まれた文字を返す。入力源が 
-    EOF に達した場合は、外部変数 #merror_code を変えずに @c EOF を返す。
-    エラーが検出された場合は @c EOF を返し、#merror_code にエラーコード
-    を設定する。  */
+    EOF に達した場合は、外部変数 #merror_code を変えずに @c EOF 
+    を返す。エラーが検出された場合は @c EOF を返し、#merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4912,13 +4903,13 @@ mconv_getc (MConverter *converter)
     external variable #merror_code.  */
 
 /***ja
-    @brief コードコンバータに1文字戻す.
+    @brief コードコンバータに一文字戻す.
 
-    関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C を
-    押し戻す。戻す文字数に制限はない。この後に mconv_getc () を呼び出
-    すと、最後に戻された文字が最初に読まれる。戻された文字は 
-    $CONVERTER の内部に蓄えられるだけであり、実際に入力源に書き込まれ
-    るわけではない。$CONVERTER の内部状態は必要に応じて更新される。
+    関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C 
+    を押し戻す。戻される文字数に制限はない。この後で mconv_getc () 
+    を呼び出した際には、最後に戻された文字が最初に読まれる。戻された文字は 
+    $CONVERTER の内部に蓄えられるだけであり、実際に入力源に書き込まれるわけではない。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
     処理が成功すれば、mconv_ungetc () は $C を返す。そうでなければ @c
@@ -4961,17 +4952,17 @@ mconv_ungetc (MConverter *converter, int c)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief コードコンバータを経由して1文字書く.
+    @brief コードコンバータを経由して一文字書き出す.
 
-    関数 mconv_putc () は、コードコンバータ $CONVERTER に現在結び付け
-    られているバッファ領域あるいはストリームに文字 $C を書き出す。文字
-    のエンコードには $CONVERTER のエンコーダが用いられる。実際に書き出
-    されたバイト数は、$CONVERTER の メンバー @c nbytes にセットされる。
-    $CONVERTER の内部状態は必要に応じて更新される。
+    関数 mconv_putc () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームに文字 $C 
+    を書き出す。文字のエンコードには $CONVERTER 
+    のエンコーダが用いられる。実際に書き出されたバイト数は、$CONVERTER のメンバー
+    @c nbytes にセットされる。$CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    処理が成功すれば、mconv_putc () は $C を返す。エラーが検出された場合
-    は @c EOF を返し、外部変数 #merror_code にエラーコードを設定する。  */
+    処理が成功すれば、mconv_putc () は $C を返す。エラーが検出された場合は
+    @c EOF を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -5014,19 +5005,20 @@ mconv_putc (MConverter *converter, int c)
     #merror_code.  */
 
 /***ja
-    @brief コードコンバータを使って1行読む.
+    @brief コードコンバータを使って一行読み込む.
 
-    関数 mconv_gets () は、コードコンバータ $CONVERTER に現在結び付け
-    られているバッファ領域あるいはストリームから 1 行を読み込む。バイ
-    ト列のデコードには $CONVERTER のデコーダが用いられる。デコードされ
-    た文字列は M-text $MT の末尾に追加される。元のバイト列の終端改行文
-    字は追加されない。$CONVERTER の内部状態は必要に応じて更新される。
+    関数 mconv_gets () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから 1 行を読み込む。
+    バイト列のデコードには $CONVERTER 
+    のデコーダが用いられる。デコードされた文字列は M-text $MT 
+    の末尾に追加される。元のバイト列の終端改行文字は追加されない。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    処理が成功すれば、mconv_gets () は変更された $MT を返す。もし1文字
-    も読まずに EOF に当たった場合は、$MT を変更せずにそのまま返す。エ
-    ラーが検出された場合は @c NULL を返し、#merror_code にエラーコードを
-    設定する。  */
+    処理が成功すれば、mconv_gets () は変更された $MT
+    を返す。もし1文字も読まずに EOF に遭遇した場合は、$MT 
+    を変更せずにそのまま返す。エラーが検出された場合は @c NULL を返し、
+    #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
