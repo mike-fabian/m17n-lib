@@ -10,6 +10,8 @@
 	(layout_glyph_string): Pay attentinon to
 	control->orientation_reversed when padding at the head or tail.
 	Fix adjustment of space glyph width.
+	(get_gstring): If cursor_width or cursor_bidi is changed, don't
+	use a cache.
 
 	* font-ft.c (mfont__ft_drive_otf): Set MGlyph->combining_code
 	instead of MGlyph->bidi_sensitive.
