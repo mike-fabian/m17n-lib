@@ -1129,7 +1129,7 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
 	    if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
 	      adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
 			     g, size, &mark_x, &mark_y);
-	    g->xoff = (base_x - prev->width) - mark_x;
+	    g->xoff = (base_x - (g - inc)->width) - mark_x;
 	    g->yoff = base_y - mark_y;
 	    if (inc < 0)
 	      {
