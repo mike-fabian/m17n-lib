@@ -1,3 +1,8 @@
+2004-09-29  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (fc_list): Check the return value of
+	FcPatternGetString.
+
 2004-09-28  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (MXFont, MXFontList): New types.

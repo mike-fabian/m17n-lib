@@ -77,8 +77,8 @@ static MFTtoProp ft_to_prop[] =
 static int ft_to_prop_size = sizeof ft_to_prop / sizeof ft_to_prop[0];
 
 /** List of FreeType fonts.  Keys are family names, values are plists
-    contains fonts of the corresponding family.  In the deeper plist,
-    keys are Mt, values are (MFTInfo *).  */
+    containing fonts of the corresponding family.  In the deeper
+    plist, keys are Mt, values are (MFTInfo *).  */
 static MPlist *ft_font_list;
 
 static int all_fonts_scaned;
@@ -346,8 +346,12 @@ fc_list (MSymbol family)
     {
       char *filename, *languages;
 
-      FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
-      FcPatternGetString (fs->fonts[i], FC_LANG, 0, (FcChar8 **) &languages);
+      if (FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename)
+	  != FcResultMatch)
+	continue;
+      if (FcPatternGetString (fs->fonts[i], FC_LANG, 0, (FcChar8 **) &languages)
+	  != FcResultMatch)
+	languages = NULL;
       if (family == Mnil)
 	{
 	  MSymbol fam;
