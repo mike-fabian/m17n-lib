@@ -48,8 +48,7 @@ extern MSymbol Mxim;
 
 /*** @ingroup m17nInputMethodWin */
 /***en
-    @brief Structure pointed to by the argument $ARG of the function.
-    input_open_im ().
+    @brief Structure pointed to by the argument $ARG of the function minput_open_im ().
 
     The type #MInputXIMArgIM is the structure pointed to by the
     argument $ARG of the function minput_open_im () for the foreign
@@ -97,8 +96,7 @@ typedef struct
 
 /*** @ingroup m17nInputMethodWin */
 /***en
-    @brief Structure pointed to by the argument $ARG of the function.
-    minput_create_ic.
+    @brief Structure pointed to by the argument $ARG of the function minput_create_ic ().
 
     The type #MInputXIMArgIC is the structure pointed to by the
     argument $ARG of the function minput_create_ic () for the foreign
