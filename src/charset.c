@@ -620,9 +620,6 @@ mcharset__load_from_database ()
       p = mplist__from_plist (pl);
       mchar_define_charset (MSYMBOL_NAME (name), p);
       M17N_OBJECT_UNREF (p);
-      if ((pl = mplist_find_by_value (pl, Mdefine_coding))
-	  && (MSymbol) MPLIST_VAL (MPLIST_NEXT (pl)) == Mt)
-	mconv__register_charset_coding (name);
     }
 
   M17N_OBJECT_UNREF (def_list);
