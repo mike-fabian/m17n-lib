@@ -35,6 +35,8 @@ So, for instance, an application can change the default face of a
 frame after the frame is created.  The sample program "medit" utilize
 it now.
 
+** New function mfontset_lookup () reports contents of a fontset.
+
 ** New function mplist_deseriaze () parses an M-Text and generates a
 plist.
 
