@@ -137,7 +137,7 @@ Pixmap CheckPixmap;
 MFrame *frame;
 MText *mt;
 int nchars;			/* == mtext_len (mt) */
-MDrawControl control;
+MDrawControl control, input_status_control;
 MTextProperty *selection;
 
 MFace *face_default;
@@ -1792,10 +1792,11 @@ input_status (MInputContext *ic, MSymbol command)
 	mtext_put_prop (ic->status, 0, mtext_len (ic->status),
 			Mlanguage, ic->im->language);
       mdraw_text_extents (frame, ic->status, 0, mtext_len (ic->status),
-			  NULL, NULL, NULL, &rect);
-      mdraw_text (frame, (MDrawWindow) input_status_pixmap,
-		  input_status_width - rect.width - 2, - rect.y,
-		  ic->status, 0, mtext_len (ic->status));
+			  &input_status_control, NULL, NULL, &rect);
+      mdraw_text_with_control (frame, (MDrawWindow) input_status_pixmap,
+			       input_status_width - rect.width - 2, - rect.y,
+			       ic->status, 0, mtext_len (ic->status),
+			       &input_status_control);
     }
   XtSetArg (arg[0], XtNbitmap, input_status_pixmap);
   XtSetValues (CurIMStatus, arg, 1);
@@ -2658,6 +2659,9 @@ main (int argc, char **argv)
   control.cursor_width = 2;
   control.partial_update = 1;
   control.ignore_formatting_char = 1;
+
+  memset (&input_status_control, 0, sizeof input_status_control);
+  input_status_control.enable_bidi = 1;
 
   XtAppAddActions (context, actions, XtNumber (actions));
   XtRealizeWidget (ShellWidget);
