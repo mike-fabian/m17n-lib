@@ -1070,7 +1070,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	    case 3:
 	      /* Not yet supported.  */
 	      break;
-	    case 4:
+	    case 4: case 5:
 	      if (! prev)
 		break;
 	      {
@@ -1091,9 +1091,6 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		g->yoff = mark_y - base_y;
 		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
 	      }
-	      break;
-	    case 5:
-	      /* Not yet supported.  */
 	      break;
 	    default:		/* i.e case 6 */
 	      /* Not yet supported.  */
