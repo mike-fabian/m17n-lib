@@ -2592,7 +2592,7 @@ main (int argc, char **argv)
 	= prop.color_left = prop.color_right = Mnil;
       prop.inner_hmargin = prop.inner_vmargin = 1;
       prop.outer_hmargin = prop.outer_vmargin = 0;
-      face_input_status = mface ();
+      face_input_status = mface_copy (face_default);
       mface_put_prop (face_input_status, Mbox, &prop);
     }
 
