@@ -454,7 +454,7 @@ MSymbol Mfont_descent;
 
     <ul>
 
-    <li> #Mdrawable, the value type must be <tt>Drawable</tt>
+    <li> #Mdrawable, the value type must be <tt>Drawable</tt>.
 
     A parameter of key #Mdisplay must also be specified.  The
     created frame can be used for drawables whose root window and
@@ -512,18 +512,37 @@ MSymbol Mfont_descent;
     $PLIST は @c NULL でも良い。
 
     $PLIST に現われるキーのうちどれが認識されるかはウィンドウシステム
-    に依存する。しかし以下のキーは常に認識される。
+    に依存する。
+
+    以下のキーは常に認識される。
 
     <ul>
 
-    <li> #Mface. 値は <tt>(MFace *)</tt> 型でなくてはならない。
+    <li> #Mdevice. 値は #Mx, #Mgd, #Mnil のいずれかでなくてはならない。
+
+    値が #Mx ならば、新しいフレームは X ウィンドウシステム用である。こ
+    のフレームと共に指定された引数 #MDrawWindow は、 @c Window 型でな
+    くてはならない。フレームは読み書きともに可能であり、すべてのGUI 関
+    数が使用できる。
+
+    値が #Mgd ならば、新しいフレームは GD ライブラリのイメージオブジェ
+    クト用である。このフレームと共に指定された引数 #MDrawWindow は、 
+    @c gdImagePtr 型でなくてはならない。フレームは書き出し専用であり、
+    minput_ で始まる名前の関数は使用できない。
+
+    値が #Mnil ならば、新しいフレームは, null デバイス用である。このフ
+    レームは読み書きできないので、引数 #MDrawWindow を必要とするmdraw_ 
+    で始まる名前の関数や、minput_ で始まる名前の関数は使用できない。
+
+    <li> #Mface. 値は #MFace へのポインタでなくてはならない。
 
     この値はフレームのデフォルトのフェースとして用いられる。
 
     </ul>
 
-    これに加えて、m17n-X ライブラリでは以下のキーも認識する。これらは
-    ルートウィンドウと、フレームで利用できる drawable の深さを指定する。
+    これに加えて、#Mdevice のキーが #Mx であれば、以下のキーも認識され
+    る。これらはルートウィンドウと、フレームで利用できる drawable の深
+    さを指定する。
 
     <ul>
 
