@@ -141,9 +141,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <dlfcn.h>
 
 #include "config.h"
+
+#ifdef HAVE_DLFCN_H
+#include <dlfcn.h>
+#endif
+
 #include "m17n-gui.h"
 #include "m17n-misc.h"
 #include "internal.h"

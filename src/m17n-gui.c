@@ -64,9 +64,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 
 #include "config.h"
+#ifdef HAVE_DLFCN_H
+#include <dlfcn.h>
+#endif
+
 #include "m17n-gui.h"
 #include "m17n-misc.h"
 #include "internal.h"
@@ -598,14 +601,14 @@ mframe (MPlist *plist)
       MERROR (MERROR_WIN, NULL);
     }
 
+  if (! mframe_default)
+    mframe_default = frame;
+
   frame->face = mface ();
   MPLIST_DO (pl, plist)
     if (MPLIST_KEY (pl) == Mface)
       mface_merge (frame->face, (MFace *) MPLIST_VAL (pl));
   mface__update_frame_face (frame);
-
-  if (! mframe_default)
-    mframe_default = frame;
 
   if (plist_created)
     M17N_OBJECT_UNREF (plist);
