@@ -1,3 +1,8 @@
+2004-09-03  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (mfont__ft_drive_otf): Use malloc and free for
+	otf_gstring.glyphs.
+
 2004-08-27  Kenichi Handa  <handa@m17n.org>
 
 	* face.c (mface_put_prop): If the new value is the same as the
