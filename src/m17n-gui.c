@@ -352,10 +352,10 @@ m17n_fini_win (void)
     argument.  */
 
 /***ja
-    @brief @e フレームとは物理的デバイスに対応するオブジェクトである.
+    @brief @e フレーム とは物理的デバイスに対応するオブジェクトである.
 
-    @e フレームとは #MFrame 型のオブジェクトであり、個々の物理的な表示／
-    入力デバイスの情報を格納するために用いられる。ほとんどすべての 
+    @e フレーム とは #MFrame 型のオブジェクトであり、個々の物理的な表
+    示／入力デバイスの情報を格納するために用いられる。ほとんどすべての 
     m17n GUI API は、引数としてフレームへのポインタを要求する。  */
 
 /*** @{ */
@@ -633,17 +633,17 @@ mframe (MPlist *plist)
 
 @verbatim
 
-	key		type of value	meaning of value
-	---             -------------   ----------------
-	Mface		MFace *		The default face.
+        key             type of value   meaning of value
+        ---             -------------   ----------------
+        Mface           MFace *         The default face.
 
-	Mfont		MFont *		The default font.
+        Mfont           MFont *         The default font.
 
-	Mfont_width	int		Width of the default font.
+        Mfont_width     int             Width of the default font.
 
-	Mfont_ascent	int		Ascent of the default font.
+        Mfont_ascent    int             Ascent of the default font.
 
-	Mfont_descent	int		Descent of the default font.
+        Mfont_descent   int             Descent of the default font.
 
 @endverbatim
 
@@ -651,16 +651,16 @@ mframe (MPlist *plist)
 
 @verbatim
 
-	key		type of value	meaning of value
-	---             -------------   ----------------
-	Mdisplay	Display *	Display associated with the frame.
+        key             type of value   meaning of value
+        ---             -------------   ----------------
+        Mdisplay        Display *       Display associated with the frame.
 
-	Mscreen		int		Screen number of a screen associated
-					with the frame.
+        Mscreen         int             Screen number of a screen associated
+                                        with the frame.
 
-	Mcolormap	Colormap	Colormap of the frame.
+        Mcolormap       Colormap        Colormap of the frame.
 
-	Mdepth		unsigned	Depth of the frame.
+        Mdepth          unsigned        Depth of the frame.
 @endverbatim
 */
 
@@ -672,17 +672,17 @@ mframe (MPlist *plist)
 
 @verbatim
 
-        キー		値の型          値の意味
-	---             -------------   ----------------
-	Mface		MFace *		デフォルトのフェース
+        キー            値の型          値の意味
+        ---             -------------   ----------------
+        Mface           MFace *         デフォルトのフェース
 
-	Mfont		MFont *		デフォルトのフォント
+        Mfont           MFont *         デフォルトのフォント
 
-	Mfont_width	int		デフォルトのフォントの幅
+        Mfont_width     int             デフォルトのフォントの幅
 
-	Mfont_ascent	int		デフォルトのフォントの ascent
+        Mfont_ascent    int             デフォルトのフォントの ascent
 
-	Mfont_descent	int		デフォルトのフォントの descent
+        Mfont_descent   int             デフォルトのフォントの descent
 
 @endverbatim
 
@@ -690,16 +690,16 @@ mframe (MPlist *plist)
 
 @verbatim
 
-        キー		値の型          値の意味
-	---             -------------   ----------------
-	Mdisplay	Display *	フレームと関連付けられたディスプレイ
+        キー            値の型          値の意味
+        ---             -------------   ----------------
+        Mdisplay        Display *       フレームと関連付けられたディスプレイ
 
-	Mscreen		int		フレームと関連付けられたスクリーン
+        Mscreen         int             フレームと関連付けられたスクリーン
                                         のスクリーンナンバ
 
-	Mcolormap	Colormap	フレームのカラーマップ
+        Mcolormap       Colormap        フレームのカラーマップ
 
-	Mdepth		unsigned	フレームの深さ
+        Mdepth          unsigned        フレームの深さ
 @endverbatim
 
 */
