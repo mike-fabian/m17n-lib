@@ -483,7 +483,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 {
   MFrame *frame = realized->frame;
   MCharset *preferred_charset = (charset == Mnil ? NULL : MCHARSET (charset));
-  MPlist *per_charset, *per_script, *per_lang, *font_group;
+  MPlist *per_charset, *per_script, *per_lang;
   MPlist *font_groups[256], *plist;
   int n_font_group = 0;
   MRealizedFont *rfont;
