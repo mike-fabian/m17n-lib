@@ -223,9 +223,9 @@ reorder_combining_chars (MGlyphString *gstring, int from, int to)
 /** Scan M-text MT from FROM to TO, and compose glyphs in GSTRING for
     displaying them on FRAME.
 
-    This function fills members <type>, <rface>, <c>, <pos>, <to>,
-    <code> of glyphs.  The other members are filled by
-    layout_glyph_string.  */
+    This function fills these members:
+      pos, to, c, code, rface, bidi_level, categories, type, combining_code
+    The other members are filled by layout_glyph_string.  */
 
 static void
 compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
@@ -233,50 +233,105 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 {
   MRealizedFace *default_rface = frame->rface;
   int stop, face_change, language_change, charset_change;
-  MGlyph g_tmp, *g;
+  MGlyph g_tmp, *g, *last_g;
   int pos;
   MSymbol language = Mnil, script = Mnil, charset = Mnil;
   MSymbol non_latin_script = Mnil;
   MRealizedFace *rface = default_rface;
+  MRealizedFont *rfont;
   int size = gstring->control.fixed_width;
   int i;
-  int last;
 
   MLIST_RESET (gstring);
   gstring->from = from;
 
-  /* At first generate glyphs while using the member <enabled> as a
-     flag for rface re-checking.  */
+  /* At first generate glyphs with <pos>, <to>, <c>, <type>,
+     <category> and <rface> members.*/
   INIT_GLYPH (g_tmp);
 
   /** Put anchor glyphs at the head and tail.  */
   g_tmp.type = GLYPH_ANCHOR;
   g_tmp.pos = g_tmp.to = from;
-  g_tmp.c = 0;
   APPEND_GLYPH (gstring, g_tmp);
-
-  stop = face_change = charset_change = language_change = pos = from;
-  last = 0;
+  stop = face_change = pos = from;
   while (1)
     {
       int c;
-      MSymbol this_script;
+      MSymbol category;
+
+      if (pos == stop)
+	{
+	  if (pos == to)
+	    break;
+	  if (pos == face_change)
+	    {
+	      MFace *faces[64];
+	      int num = mtext_get_prop_values (mt, pos, Mface,
+					       (void **) faces, 64);
+
+	      mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
+	      rface = (num > 0 ? mface__realize (frame, faces, num, size)
+		       : default_rface);
+	    }
+	  stop = to;
+	  if (stop > face_change)
+	    stop = face_change;		
+	}
 
       if (pos < mtext_nchars (mt))
 	c = mtext_ref_char (mt, pos);
       else
 	c = '\n';
-      g_tmp.category = mchar_get_prop (c, Mcategory);
-      if (c < 0x100)
+      g_tmp.type
+	= (c == ' ' || c == '\n' || c == '\t') ? GLYPH_SPACE : GLYPH_CHAR;
+      g_tmp.c = c;
+      g_tmp.pos = pos++;
+      g_tmp.to = pos;
+      g_tmp.rface = rface;
+      category = mchar_get_prop (c, Mcategory);
+      if (category == McatCf)
+	g_tmp.category = GLYPH_CATEGORY_FORMATTER;
+      else if (MSYMBOL_NAME (category)[0] == 'M')
+	g_tmp.category = GLYPH_CATEGORY_MODIFIER;
+      else
+	g_tmp.category = GLYPH_CATEGORY_NORMAL;
+      
+      if ((c <= ' ' || c == 127) && g_tmp.type == GLYPH_CHAR)
 	{
-	  /* Short cut for the obvious case.  */
-	  g_tmp.type = (c == ' ' || c == '\n' || c == '\t'
-			? GLYPH_SPACE : GLYPH_CHAR);
-	  this_script = Mlatin;
+	  MGlyph ctrl[2];
+
+	  ctrl[0] = ctrl[1] = g_tmp;
+	  ctrl[0].c = '^';
+	  ctrl[1].c = c < ' ' ? c + 0x40 : '?';
+	  APPEND_GLYPH (gstring, ctrl[0]);
+	  APPEND_GLYPH (gstring, ctrl[1]);
 	}
       else
+	APPEND_GLYPH (gstring, g_tmp);
+      if (c == '\n' && gstring->control.two_dimensional)
+	break;
+    }
+  /* Append an anchor glyph.  */
+  INIT_GLYPH (g_tmp);
+  g_tmp.type = GLYPH_ANCHOR;
+  g_tmp.pos = g_tmp.to = pos;
+  APPEND_GLYPH (gstring, g_tmp);
+  gstring->to = pos;
+
+  /* The next loop is to change each <rface> member for non-ASCII
+     characters if necessary.  */
+  stop = charset_change = language_change = from;
+  rfont = default_rface->rfont;
+  for (last_g = g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
+    {
+      int c = g->c;
+      MSymbol this_script;
+
+      if (c < 0x100)
+	/* Short cut for the obvious case.  */
+	this_script = Mlatin;
+      else
 	{
-	  g_tmp.type = GLYPH_CHAR;
 	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
 	  if (this_script == Minherited || this_script == Mnil)
 	    this_script = script;
@@ -286,12 +341,12 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    {
 	      /* Search forward for a character that explicitly
 		 specifies a non-latin script.  */
-	      int c1;
 	      MSymbol sym;
+	      MGlyph *g1;
 
-	      for (i = pos + 1; i < to; i++)
-		if ((c1 = mtext_ref_char (mt, i)) >= 0x100
-		    && (sym = mchar_get_prop (c1, Mscript)) != Mnil
+	      for (g1 = g + 1; g1->type != GLYPH_ANCHOR; g1++)
+		if (g1->c >= 0x100
+		    && (sym = mchar_get_prop (g1->c, Mscript)) != Mnil
 		    && sym != Minherited)
 		  {
 		    this_script = sym;
@@ -300,20 +355,16 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    }
 	}
 
-      if (pos == stop || script != this_script
-	  || MGLYPH (last)->type != g_tmp.type)
+      pos = g->pos;
+      if (pos == stop || script != this_script || g->rface->rfont != rfont)
 	{
-	  g = MGLYPH (last);
-	  if (g->type != GLYPH_ANCHOR)
-	    while (g < gstring->glyphs + gstring->used)
-	      g = mface__for_chars (script, language, charset,
-				    g, gstring->glyphs + gstring->used, size);
-	  if (pos == to)
-	    break;
-	  last = gstring->used;
+	  while (last_g < g)
+	    last_g = mface__for_chars (script, language, charset,
+				       last_g, g, size);
 	  script = this_script;
 	  if (script != Mnil && script != Mlatin)
 	    non_latin_script = script;
+	  rfont = g->rface->ascii_rface->rfont;
 	  if (pos == stop)
 	    {
 	      if (pos < mtext_nchars (mt) && pos == language_change)
@@ -328,63 +379,20 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		  mtext_prop_range (mt, Mcharset, pos, NULL,
 				    &charset_change, 0);
 		}
-	      if (pos < mtext_nchars (mt) && pos == face_change)
-		{
-		  MFace *faces[64];
-		  int num = mtext_get_prop_values (mt, pos, Mface,
-						   (void **) faces, 64);
-
-		  mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
-		  rface = (num > 0
-			   ? mface__realize (frame, faces, num,
-					     language, charset, size)
-			   : default_rface);
-		}
 	      stop = to;
 	      if (stop > language_change)
 		stop = language_change;
 	      if (stop > charset_change)
 		stop = charset_change;
-	      if (face_change < stop)
-		stop = face_change;		
 	    }
 	}
-
-      g_tmp.c = c;
-      g_tmp.pos = pos++;
-      g_tmp.to = pos;
-      g_tmp.rface = rface;
-      
-      if ((c <= 32 || c == 127) && g_tmp.type == GLYPH_CHAR)
-	{
-	  MGlyph ctrl[2];
-
-	  ctrl[0] = ctrl[1] = g_tmp;
-	  ctrl[0].c = '^';
-	  ctrl[1].c = c < ' ' ? c + 0x40 : '?';
-	  mface__for_chars (Mlatin, language, charset, ctrl, ctrl + 2, size);
-	  APPEND_GLYPH (gstring, ctrl[0]);
-	  APPEND_GLYPH (gstring, ctrl[1]);
-	}
-      else
-	APPEND_GLYPH (gstring, g_tmp);
-      if (c == '\n'
-	  && gstring->control.two_dimensional)
-	break;
     }
+  while (last_g < g)
+    last_g = mface__for_chars (script, language, charset, last_g, g, size);
 
-  /* Append an anchor glyph.  */
-  g_tmp.type = GLYPH_ANCHOR;
-  g_tmp.c = 0;
-  g_tmp.code = MCHAR_INVALID_CODE;
-  g_tmp.pos = g_tmp.to = pos;
-  g_tmp.rface = NULL;
-  APPEND_GLYPH (gstring, g_tmp);
-
-  gstring->to = pos;
-
-  /* Next, run FLT if necessary.  */
-  for (i = 1, g = MGLYPH (i); g->type != GLYPH_ANCHOR;)
+  /* The next loop is to run FLT or perform the default combining if
+     necessary.  */
+  for (i = 1, g = MGLYPH (1); g->type != GLYPH_ANCHOR;)
     {
       MGlyph *this = g;
 
@@ -399,7 +407,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
 	      for (prev = MGLYPH (start - 1);
 		   (prev->type == GLYPH_CHAR
-		    && prev->category == McatCf
+		    && prev->category == GLYPH_CATEGORY_FORMATTER
 		    && (code = mfont__encode_char (this->rface->rfont, prev->c)
 			!= MCHAR_INVALID_CODE));
 		   start--, prev--)
@@ -408,7 +416,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	      for (g++;
 		   (g->type == GLYPH_CHAR
 		    && (g->rface->rfont == this->rface->rfont
-			|| (g->category == McatCf
+			|| (g->category == GLYPH_CATEGORY_FORMATTER
 			    && ((code = mfont__encode_char (this->rface->rfont,
 							    g->c))
 				!= MCHAR_INVALID_CODE))));
@@ -424,8 +432,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    {
 	      while (this->type == GLYPH_CHAR
 		     && this->c >= 0x100
-		     && this->category
-		     && MSYMBOL_NAME (this->category)[0] == 'M'
+		     && this->category == GLYPH_CATEGORY_MODIFIER
 		     && this->rface->rfont
 		     && this->rface->rfont->layouter == Mnil)
 		{
@@ -770,7 +777,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	    }
 	}
 
-      if (g->category == McatCf && ignore_formatting_char)
+      if (g->category == GLYPH_CATEGORY_FORMATTER && ignore_formatting_char)
 	g->type = GLYPH_SPACE;
 
       if (g->type == GLYPH_CHAR)
@@ -785,7 +792,8 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		|| box != g->rface->box
 		|| ((fromg->code == MCHAR_INVALID_CODE)
 		    != (g->code == MCHAR_INVALID_CODE))
-		|| (g->category == McatCf && ignore_formatting_char))
+		|| (g->category == GLYPH_CATEGORY_FORMATTER
+		    && ignore_formatting_char))
 	      break;
 	  if (rfont && fromg->code != MCHAR_INVALID_CODE)
 	    {
@@ -1436,7 +1444,34 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
 
   if (pos == mt->nchars)
     {
+      MGlyph *g;
+
       gstring = &scratch_gstring;
+      if (gstring->size == 0)
+	{
+	  MGlyph g_tmp;
+
+	  INIT_GLYPH (g_tmp);
+	  g_tmp.type = GLYPH_ANCHOR;
+	  APPEND_GLYPH (gstring, g_tmp);
+	  APPEND_GLYPH (gstring, g_tmp);
+	  APPEND_GLYPH (gstring, g_tmp);
+	  gstring->glyphs[1].type = GLYPH_CHAR;
+	  gstring->glyphs[1].c = ' ';
+	  gstring->glyphs[1].code = ' ';
+	}
+      gstring->from = pos;
+      g = MGLYPH (0);
+      g->rface = frame->rface;
+      g->pos = g->to = pos;
+      g++;
+      g->rface = frame->rface;
+      g->pos = pos++, g->to = pos;
+      g->c = '\n', g->code = '\n';
+      g++;
+      g->rface = frame->rface;
+      g->pos = g->to = pos;
+      gstring->to = pos;
     }
   else
     {
@@ -1574,15 +1609,20 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
       int beg, end;
       int line = 0, y = 0;
 
-      beg = mtext_character (mt, pos, 0, '\n');
-      if (beg < 0)
-	beg = 0;
+      if (pos < mtext_nchars (mt))
+	{
+	  beg = mtext_character (mt, pos, 0, '\n');
+	  if (beg < 0)
+	    beg = 0;
+	  else
+	    beg++;
+	}
       else
-	beg++;
+	beg = pos;
       end = mtext_nchars (mt) + (control->cursor_width != 0);
-
       gstring = alloc_gstring (frame, mt, beg, control, line, y);
-      compose_glyph_string (frame, mt, beg, end, gstring);
+      if (beg < mtext_nchars (mt))
+	compose_glyph_string (frame, mt, beg, end, gstring);
       layout_glyph_string (frame, gstring);
       end = gstring->to;
       if (gstring->width_limit
@@ -2485,6 +2525,10 @@ mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
 	      break;
 	  }
     }
+  if (g->type == GLYPH_ANCHOR
+      && control->two_dimensional
+      && g[-1].c == '\n')
+    g--;
   from = g->pos;
   M17N_OBJECT_UNREF (gstring->top);
 
