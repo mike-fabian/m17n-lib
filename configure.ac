@@ -141,7 +141,7 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
     			   		     HAVE_FREETYPE=no)
     LIBS="$save_LIBS"
     if test "x$HAVE_FREETYPE" = "xyes"; then
-      FREETYPE_LD_FLAGS=`freetype-config --libtool`
+      FREETYPE_LD_FLAGS=`freetype-config --libs`
       AC_DEFINE(HAVE_FREETYPE, 1, 
 		[Define to 1 if you have FreeType library and header file.])
     fi
