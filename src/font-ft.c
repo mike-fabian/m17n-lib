@@ -570,14 +570,8 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
       else
 	{
 	  FT_Glyph_Metrics *metrics;
-	  FT_UInt code;
 
-	  if (g->otf_encoded)
-	    code = g->code;
-	  else
-	    code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
-
-	  FT_Load_Glyph (ft_face, code, FT_LOAD_RENDER);
+	  FT_Load_Glyph (ft_face, (FT_UInt) g->code, FT_LOAD_RENDER);
 	  metrics = &ft_face->glyph->metrics;
 	  g->lbearing = (metrics->horiBearingX >> 6);
 	  g->rbearing = (metrics->horiBearingX + metrics->width) >> 6;
@@ -591,10 +585,9 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 /* The FreeType font driver function ENCODE_CHAR.  */
 
 static unsigned
-ft_encode_char (MRealizedFont *rfont, int c, unsigned ignored)
+ft_encode_char (MRealizedFont *rfont, unsigned code)
 {
   MFTInfo *ft_info;
-  FT_UInt code;
 
   if (rfont->status == 0)
     {
@@ -602,10 +595,10 @@ ft_encode_char (MRealizedFont *rfont, int c, unsigned ignored)
 	return -1;
     }
   ft_info = (MFTInfo *) rfont->info;
-  code = FT_Get_Char_Index (ft_info->ft_face, (FT_ULong) c);
+  code = (unsigned) FT_Get_Char_Index (ft_info->ft_face, (FT_ULong) code);
   if (! code)
     return MCHAR_INVALID_CODE;
-  return ((unsigned) c);
+  return (code);
 
 }
 
@@ -654,18 +647,13 @@ ft_render (MDrawWindow win, int x, int y,
 
   for (g = from; g < to; x += g++->width)
     {
-      FT_UInt code;
       unsigned char *bmp;
       int intensity;
       MPointTable *ptable;
       int xoff, yoff;
       int width, pitch;
 
-      if (g->otf_encoded)
-	code = g->code;
-      else
-	code = FT_Get_Char_Index (ft_face, (FT_ULong) g->code);
-      FT_Load_Glyph (ft_face, code, load_flags);
+      FT_Load_Glyph (ft_face, (FT_UInt) g->code, load_flags);
       yoff = y - ft_face->glyph->bitmap_top + g->yoff;
       bmp = ft_face->glyph->bitmap.buffer;
       width = ft_face->glyph->bitmap.width;
