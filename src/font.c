@@ -123,6 +123,8 @@
     Narrow Bold Italic  bold    i       condensed
     Black               black   r       normal
     Black Italic        black   i       normal
+    Oblique		medium	o	normal
+    BoldOblique		bold	o	normal
 @endverbatim
 
     Style names not listed in the above table are treated as

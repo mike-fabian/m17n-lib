@@ -1,3 +1,10 @@
+2004-03-22  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (realize_font_group): Adjust the font size by
+	mfont__resize before selecting a font.
+
+	* font-ft.c (mfont__ft_init): Add oblique and boldoblique.
+
 2004-03-19  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.0 Patch Level 1 released.
