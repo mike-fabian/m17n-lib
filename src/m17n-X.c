@@ -2242,7 +2242,7 @@ mwin__xft_render (MDrawWindow win, int x, int y,
   XftColor *xft_color = (! reverse
 			 ? &((GCInfo *) rface->info)->xft_color_fore
 			 : &((GCInfo *) rface->info)->xft_color_back);
-  XftFont *xft_font = (gstring->control.anti_alias
+  XftFont *xft_font = (gstring->control.anti_alias && frame->device->depth > 1
 		       ? font_info->font_aa : font_info->font_no_aa);
   MGlyph *g;
   FT_UInt *glyphs;
