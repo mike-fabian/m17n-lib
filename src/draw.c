@@ -517,7 +517,8 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
     {
       MGlyph *base = g++;
 
-      if (base->combining_code && (base->bidi_level % 2))
+      if ((base->combining_code || base->width == 0)
+	  && (base->bidi_level % 2))
 	{
 	  MGlyph *g1 = base, *g2, temp;
 
