@@ -384,7 +384,9 @@ static char *common_weight[] =
 static char *common_style[] =
   { "o",
     "i",
+    "slanted",
     "r",
+    "rslanted",
     "ri",
     "ro" };
 static char *common_stretch[] =
