@@ -1200,13 +1200,11 @@ struct MInputContext
 
   /***en Flag telling whether the input context is currently active or
       inactive.  The value is set to 1 (active) when the input context
-      is created.  It can be toggled by the function minput_toggle
-      ().  */
+      is created.  It is toggled by the function minput_toggle ().  */
   /***ja 入力コンテクストがアクティブかどうかを示すフラグ。入力コンテ
       クストが生成された時点では値は 1 （アクティブ）であり、関数 
       minput_toggle () によってトグルされる。  */
   int active;
-
 
   /***en Spot location and size of the input context.  */
   /***ja 入力コンテクストのスポットの位置と大きさ.  */
@@ -1274,21 +1272,46 @@ struct MInputContext
   /***ja <preedit>のカーソル位置  */
   int cursor_pos;
 
+  /***en The function <im>->driver.filter () sets the value to 1 when
+      it changes <cursor_pos>.  */
   int cursor_pos_changed;
 
-  /***en Array of the current candidate texts.  */
+  /***en Plist of the current candidate groups.  Each element is an
+      M-text or a plist.  If it is an M-text (i.e. the key is Mtext),
+      candidates in that group are characters in the M-text.  If it is
+      a plist (i.e. the key is Mplist), each element is an M-text, and
+      candidates in that group are those M-texts.  */
   /***ja 現在のテキスト候補の配列.  */
   MPlist *candidate_list;
+
+  /***en Index number of the currently selected candidate.  If the
+      number is 10, and the first candidate group contains 10
+      candidates, the currently selected candidate is the first of the
+      second candidate group.  */
   int candidate_index;
+
+  /***en Start and the end positions of the preedit text where
+       <candidate_list> corresponds to.  */
   int candidate_from, candidate_to;
+
+  /***en Flag telling whether the current candidate group must be
+      shown or not.  The function <im>->driver.filter () sets the
+      value to 1 when an input method required to show candidates, and
+      sets the value to 0 otherwise.  */
   int candidate_show;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
-      it changes one of the above members.  */
+      it changed any of the above members (<candidate_XXX>), and sets
+      the value to 0 otherwise.  */
   /***ja 関数 <im>->driver.filter () は、上記のメンバの１つを変えた時
       この値を 1 に設定する。  */
   int candidates_changed;
 
+  /***en An plist that can be freely used by <im>->driver functions.
+      The driver of internal input method never use it.  The function
+      <im>->driver.create_ic () sets this to an empty plist, and the
+      function <im->driver.destroy_ic () frees it by using
+      m17n_object_unref ().  */
   MPlist *plist;
 };
 
