@@ -276,6 +276,11 @@ mdebug__report_object (char *name, M17NObjectArray *array)
     }
   fprintf (stderr, "%16s %7d %7d %7d\n", name,
 	   array->used, array->used - array->count, array->count);
+  if (array->used > 0)
+    {
+      free (array->objects);
+      array->count = array->used = 0;
+    }
 }
 
 
@@ -375,8 +380,6 @@ m17n_init_core (void)
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the core modules."));
   MDEBUG_POP_TIME ();
-
-  report_header_printed = 0;
 }
 
 void
@@ -388,21 +391,22 @@ m17n_fini_core (void)
     {
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize chartable module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
       mchartable__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize textprop module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
       mtext__prop_fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize mtext module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
       mtext__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize symbol module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
       msymbol__fini ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize plist module."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
       mplist__fini ();
       core_initialized = 0;
       MDEBUG_POP_TIME ();
-      MDEBUG_PRINT_TIME ("INIT", (stderr, " to finalize the core modules."));
+      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
       MDEBUG_POP_TIME ();
     }
+  report_header_printed = 0;
 }
 
 /*** @} */
