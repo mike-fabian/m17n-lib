@@ -270,6 +270,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 					       (void **) faces, 64);
 
 	      mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
+	      if (face_change == mtext_nchars (mt))
+		face_change++;
 	      rface = (num > 0 ? mface__realize (frame, faces, num, size)
 		       : default_rface);
 	    }
