@@ -97,7 +97,7 @@ m17n_init_win (void)
   if (win_initialized)
     return;
   m17n_init ();
-  if (merror_code < 0)
+  if (merror_code != MERROR_NONE)
     return;
 
   Mfont = msymbol ("font");
