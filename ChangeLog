@@ -1,6 +1,16 @@
+2004-04-27  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Check if Xft2 library is available.
+	(OTF_LD_FLAGS): Set to `libotf-config --libs`.
+	(FREETYPE_LD_FLAGS): Set to `freetype-config --libtool`.
+
 2004-03-29  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.0 Patch Level 2 released.
+
+2004-03-29  Kenichi Handa  <handa@etlken2>
+
+	* configure.ac: Version changed to 1.0.2.
 
 2004-03-19  Kenichi Handa  <handa@m17n.org>
 
