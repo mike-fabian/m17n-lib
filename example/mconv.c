@@ -1,4 +1,4 @@
-/* mconv.c -- Code converter.
+/* mconv.c -- Code converter.				-*- coding: euc-jp; -*-
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
