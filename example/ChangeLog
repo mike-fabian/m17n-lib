@@ -1,3 +1,7 @@
+2004-06-17  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (main): Don't set control.as_image to 1.
+
 2004-06-16  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c (main): Fix typo of error message.
