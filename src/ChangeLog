@@ -1,9 +1,31 @@
-2004-09-29  Kenichi Handa  <handa@m17n.org>
+2004-09-30  Kenichi Handa  <handa@m17n.org>
 
-	* m17n-X.c (device_init): Set xft_driver.list.
+	* font.h: Include <fontconfig/fontconfig.h>.
+	(MFTInfo): New member langset.
+	(mfont__encoding_list): Extern it.
 
-	* font-ft.c (fc_list): Check the return value of
-	FcPatternGetString.
+	* font.c (mfont__encoding_list): New function.
+	(mdebug_dump_font_list): New function.
+
+	* font-ft.c: Don't include <fontconfig/fontconfig.h> here.
+	(Mserif, Msans_serif, Mmonospace, Mmedium, Mr, Mnull): New
+	variables.
+	(ft_family_list): New variable.
+	(set_font_info): New arg basep.  Callers changed.
+	(fc_list): Check the return value of FcPatternGetString.
+	(add_font_info): New arg plist.  Callers changed. Update
+	ft_family_list.
+	(ft_list_family): New function (merged fc_list and ft_list_all).
+	(ft_select): Use ft_list_family.
+	(ft_list): Likewise.  If FONT is not NULL, check all fonts.
+	(mfont__ft_init): Initialize above new variables.
+	(mfont__ft_fini): Free ft_family_list.
+
+	* m17n-X.c (MDisplayInfo): New member all_fonts_scaned.
+	(xfont_registry_list): Change argument disp_info to frame.
+	Callers changed.
+	(xfont_list_all): New function.
+	(xfont_list): If FONT is not NULL, check all fonts.
 
 2004-09-28  Kenichi Handa  <handa@m17n.org>
 
