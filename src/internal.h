@@ -341,36 +341,19 @@ typedef struct
   void **objects;
 } M17NObjectArray;
 
+extern void mdebug__register_object (M17NObjectArray *array, void *object);
 
-#define M17N_OBJECT_REGISTER(array, object)			\
-  if (mdebug__flag & MDEBUG_FINI)				\
-    {								\
-      if ((array).used == 0)					\
-	MLIST_INIT1 (&(array), objects, 256);			\
-      (array).count++;						\
-      MLIST_APPEND1 (&(array), objects, object, MERROR_OBJECT);	\
-    }								\
+#define M17N_OBJECT_REGISTER(array, object)	\
+  if (mdebug__flag & MDEBUG_FINI)		\
+    mdebug__register_object (&array, object);	\
   else
 
-#define M17N_OBJECT_UNREGISTER(array, object)				\
-  if (mdebug__flag & MDEBUG_FINI)					\
-    {									\
-      (array).count--;							\
-      if ((array).count >= 0)						\
-	{								\
-	  int i = 0;							\
-									\
-	  while (i < (array).used && (array).objects[i] != object) i++;	\
-	  if (i < (array).used)						\
-	    (array).objects[i] = NULL;					\
-	  else								\
-	    mdebug_hook ();						\
-	}								\
-      else								\
-	mdebug_hook ();							\
-    }									\
-  else
+extern void mdebug__unregister_object (M17NObjectArray *array, void *object);
 
+#define M17N_OBJECT_UNREGISTER(array, object)	\
+  if (mdebug__flag & MDEBUG_FINI)		\
+    mdebug__unregister_object (&array, object);	\
+  else
 
 extern void mdebug__report_object (char *name, M17NObjectArray *array);
 
