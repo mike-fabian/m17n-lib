@@ -186,6 +186,10 @@ struct MFontDriver
   void (*render) (MDrawWindow win, int x, int y,
 		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
 		  int reverse, MDrawRegion region);
+
+  /** Push to PLIST a list of fonts matching with FONT.  LANGUAGE, if
+      not Mnil, limits fonts to ones that support LANGUAGE.  */
+  void (*list) (MFrame *frame, MPlist *plist, MFont *font, MSymbol language);
 };
 
 /** Initialize the members of FONT.  */
@@ -215,6 +219,7 @@ typedef struct
   MPlist *charmap_list;
   int charmap_index;
   FT_Face ft_face;
+  char *languages;
 #ifdef HAVE_OTF
   OTF *otf;
 #endif /* HAVE_OTF */
