@@ -600,8 +600,7 @@ mface__fini ()
     base faces pointed by FACES on the frame FRAME.  */
 
 MRealizedFace *
-mface__realize (MFrame *frame, MFace **faces, int num,
-		MSymbol language, MSymbol charset, int size)
+mface__realize (MFrame *frame, MFace **faces, int num, int size)
 {
   MRealizedFace *rface;
   MRealizedFont *rfont;
@@ -611,7 +610,7 @@ mface__realize (MFrame *frame, MFace **faces, int num,
   MGlyph g;
   MFaceHookFunc func;
 
-  if (num == 0 && language == Mnil && charset == Mnil && frame->rface)
+  if (num == 0 && frame->rface)
     return frame->rface;
 
   for (i = 0; i < MFACE_PROPERTY_MAX; i++)
@@ -654,7 +653,7 @@ mface__realize (MFrame *frame, MFace **faces, int num,
   g.c = ' ';
   num = 1;
   rfont = mfont__lookup_fontset (rface->rfontset, &g, &num,
-				 msymbol ("latin"), language, Mnil, size);
+				 Mlatin, Mnil, Mnil, size);
   if (rfont)
     {
       rface->rfont = rfont;
@@ -708,54 +707,46 @@ MGlyph *
 mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 		  MGlyph *from_g, MGlyph *to_g, int size)
 {
-  MRealizedFace *rface = from_g->rface->ascii_rface, *new;
   MRealizedFont *rfont;
-  int num = to_g - from_g, i;
-  MPlist *plist;
+  int num = to_g - from_g;
 
   rfont = mfont__lookup_fontset (from_g->rface->rfontset, from_g, &num,
 				 script, language, charset, size);
   if (! rfont)
-    {
-      if (rface->rfont)
-	MPLIST_DO (plist, rface->non_ascii_list)
-	  {
-	    rface = MPLIST_VAL (plist);
-	    if (! rface->rfont)
-	      break;
-	  }
-      num = 1;
-      goto finish;
-    }
-  if (rface->rfont == rfont)
-    goto finish;
-
-  MPLIST_DO (plist, rface->non_ascii_list)
-    if (((MRealizedFace *) MPLIST_VAL (plist))->rfont == rfont)
-      break;
-  if (! MPLIST_TAIL_P (plist))
-    {
-      rface = MPLIST_VAL (plist);
-      goto finish;
-    }
-
-  MSTRUCT_MALLOC (new, MERROR_FACE);
-  mplist_push (rface->non_ascii_list, Mt, new);
-  *new = *rface;
-  rface = new;
-  rface->rfont = rfont;
-  rface->non_ascii_list = NULL;
-  work_gstring.frame = rface->frame;
-  work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
-  work_gstring.glyphs[0].rface = rface;
-  mfont__get_metric (&work_gstring, 0, 1);
-  rface->ascent = work_gstring.glyphs[0].ascent;
-  rface->descent = work_gstring.glyphs[0].descent;
+    num = 1;
   
- finish:
-  for (i = 0; i < num; i++, from_g++)
-    from_g->rface = rface;
-  return from_g;
+  to_g = from_g + num;
+  while (from_g < to_g)
+    {
+      MGlyph *g = from_g;
+      MRealizedFace *rface = from_g++->rface;
+
+      while (from_g < to_g && rface == from_g->rface) from_g++;
+      if (rface->rfont != rfont)
+	{
+	  MPlist *plist = mplist_find_by_value (rface->non_ascii_list, rfont);
+	  MRealizedFace *new;
+
+	  if (plist)
+	    new = MPLIST_VAL (plist);
+	  else
+	    {
+	      MSTRUCT_MALLOC (new, MERROR_FACE);
+	      mplist_push (rface->non_ascii_list, Mt, new);
+	      *new = *rface;
+	      new->rfont = rfont;
+	      new->non_ascii_list = NULL;
+	      if (rfont)
+		{
+		  new->ascent = rfont->ascent;
+		  new->descent = rfont->descent;
+		}
+	    }
+	  while (g < from_g)
+	    g++->rface = new;
+	}
+    }
+  return to_g;
 }
 
 
@@ -774,7 +765,7 @@ void
 mface__update_frame_face (MFrame *frame)
 {
   frame->rface = NULL;
-  frame->rface = mface__realize (frame, NULL, 0, Mnil, Mnil, 0);
+  frame->rface = mface__realize (frame, NULL, 0, 0);
   frame->space_width = frame->rface->space_width;
   frame->ascent = frame->rface->ascent;
   frame->descent = frame->rface->descent;
