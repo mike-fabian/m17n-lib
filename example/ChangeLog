@@ -1,3 +1,7 @@
+2004-10-12  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (KeyProc): Cast buf to `unsigned char *'.
+
 2004-09-27  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.html: Add Sinhala.
