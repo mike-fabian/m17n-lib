@@ -1,5 +1,8 @@
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 
+	* fontset.c (mfont__lookup_fontset): Fix selection of font groups
+	by language.
+
 	* draw.c (compose_glyph_string): If langauge is specified, call
 	mface__for_chars even if a text is all latin.  Fix condition for
 	setting non_ascii_found.
