@@ -2032,15 +2032,16 @@ MInputDriver minput_default_driver;
     The variable #minput_driver is a pointer to the input method
     driver that is used by internal input methods.  The macro
     M17N_INIT () initializes it to a pointer to #minput_default_driver
-    (if <m17n.h> is included) or to #minput_gui_driver (if
-    <m17n-gui.h> is included).  */ 
+    (if <m17n<EM></EM>.h> is included) or to #minput_gui_driver (if
+    <m17n-gui<EM></EM>.h> is included).  */ 
 /***ja
     @brief 内部入力メソッド用ドライバ.
 
     変数 #minput_driver は内部入力メソッドによって使用されている入力メ
-    ソッドドライバへのポインタである。マクロM17N_INIT () はこのポイン
-    タを #minput_default_driver (<m17n.h> が含まれる時) または 
-    #minput_gui_driver ( <m17n-gui.h> が含まれる時) に初期化する。  */ 
+    ソッドドライバへのポインタである。マクロ M17N_INIT () はこのポイン
+    タを #minput_default_driver (<m17n<EM></EM>.h> が含まれる時) または
+    #minput_gui_driver ( <m17n-gui<EM></EM>.h> が含まれる時) に初期化す
+    る。  */ 
 
 MInputDriver *minput_driver;
 
