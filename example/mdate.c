@@ -44,6 +44,31 @@
     Print this message.
     </ul>
 */
+/***ja
+    @page mdate 日時を表示する
+
+    @section mdate-synopsis SYNOPSIS
+
+    mdate [ OPTION ... ]
+
+    @section mdate-description DESCRIPTION
+
+    システムの日時をさまざまなロケールでウィンドウに表示する。 
+
+    以下のオプションが利用できる。 
+
+    <ul>
+
+    <li> --version
+
+    バージョン番号を表示する。 
+
+    <li> -h, --help
+
+    このメッセージを表示する。
+
+    </ul>
+*/
 
 #ifndef FOR_DOXYGEN
 

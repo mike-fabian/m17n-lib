@@ -59,6 +59,44 @@
     @section mimx-anthy-seealso See also
     @ref mdbIM
 */
+/***ja
+    @page mimx-anthy 入力メソッド <ja, anthy> 用外部モジュール.
+
+    @section mimx-anthy-description DESCRIPTION
+
+    共有ライブラリ mimx-anthy.so は入力メソッド<ja, anthy> に用いられ 
+    る外部モジュールであり、以下の関数を export している。
+
+    <ul>
+    <li> init
+
+    モジュールの初期化。 
+
+    <li> fini
+
+    モジュールの終了。 
+
+    <li> convert
+
+    現在の preedit テキスト (ひらがな列) をかな漢字テキストに変換する。 
+
+    <li> change
+
+    現在のセグメントの候補の変遷を記録する。 
+
+    <li> resize
+
+    現在のセグメントの長さを変更する。 
+
+    <li> commit
+
+    全セグメントの最新の候補をコミットする。
+
+    </ul>
+
+    @section mimx-anthy-seealso 参照
+    @ref mdbIM
+*/
 
 #ifndef FOR_DOXYGEN
 

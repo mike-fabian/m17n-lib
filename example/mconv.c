@@ -72,6 +72,58 @@
 
     </ul>
 */
+/***ja
+    @page mconv ファイルのコードを変換する
+
+    @section mconv-synopsis SYNOPSIS
+
+    mconv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
+
+    @section mconv-description 説明
+
+    与えられたファイルのコードを別のものに変換する。 
+
+    INFILE が省略された場合は、標準入力からとる。OUTFILE が省略された 
+    場合は、標準出力へ書き出す。
+
+    以下のオプションが利用できる。
+
+    <ul>
+
+    <li> -f FROMCODE
+
+    FROMCODE は INFILE のコード系である。(デフォルトは UTF-8) 
+
+    <li> -t TOCODE
+
+    TOCODE は OUTFILE のコード系である。(デフォルトは UTF-8) 
+
+    <li> -k
+
+    エラーで変換を停止しない。
+
+    <li> -s
+
+    警告を表示しない。 
+
+    <li> -v
+
+    進行状況を表示する。 
+
+    <li> -l
+
+    利用可能なコード系を列挙する。 
+
+    <li> --version
+
+    バージョン番号を表示する。 
+
+    <li> -h, --help
+
+    このメッセージを表示する。 
+
+    </ul>
+*/
 
 #ifndef FOR_DOXYGEN
 
