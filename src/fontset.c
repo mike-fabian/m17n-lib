@@ -500,128 +500,158 @@ mfont__free_realized_fontset (MRealizedFontset *realized)
 }
 
 
+static MRealizedFont *
+try_font_group (MRealizedFontset *realized,
+		MPlist *font_group, MGlyph *g, int *num, int size)
+{
+  MFrame *frame = realized->frame;
+  MRealizedFont *rfont;
+  MPlist *plist;
+  int i;
+
+  if (MPLIST_PLIST_P (font_group))
+    realize_font_group (frame, &realized->spec, font_group, size);
+
+  MPLIST_DO (plist, font_group)
+    {
+      rfont = (MRealizedFont *) MPLIST_VAL (plist);
+      if (rfont->status < 0)
+	continue;
+      /* Check if this font can display all glyphs.  */
+      for (i = 0; i < *num; i++)
+	{
+	  g[i].code = mfont__encode_char (rfont,
+					  g[i].type == GLYPH_CHAR ? g[i].c
+					  : ' ');
+	  if (g[i].code == MCHAR_INVALID_CODE)
+	    break;
+	}
+      if (i == *num)
+	{
+	  if (rfont->status > 0
+	      || mfont__open (rfont) == 0)
+	    /* We found a font that can display all glyphs.  */
+	    return rfont;
+	}
+    }
+
+  /* We couldn't find a font that can display all glyphs.  Find one
+     that can display at least the first glyph.  */
+  MPLIST_DO (plist, font_group)
+    {
+      rfont = (MRealizedFont *) MPLIST_VAL (plist);
+      if (rfont->status < 0)
+	continue;
+      g->code = mfont__encode_char (rfont,
+				    g->type == GLYPH_CHAR ? g->c : ' ');
+      if (g->code != MCHAR_INVALID_CODE)
+	{
+	  if (rfont->status > 0
+	      || mfont__open (rfont) == 0)
+	    {
+	      /* Ok, let's use this font.  Check how many more
+		 characters it supports.  */
+	      int i;
+
+	      for (i = 1; i < *num; i++)
+		{
+		  g[i].code = mfont__encode_char (rfont,
+						  g[i].type == GLYPH_CHAR
+						  ? g[i].c : ' ');
+		  if (g[i].code == MCHAR_INVALID_CODE)
+		    break;
+		}
+	      *num = i;
+	      return rfont;
+	    }
+	}
+    }
+
+  return NULL;
+}
+
 MRealizedFont *
 mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 		       MSymbol script, MSymbol language, MSymbol charset,
 		       int size)
 {
-  MFrame *frame = realized->frame;
   MCharset *preferred_charset = (charset == Mnil ? NULL : MCHARSET (charset));
   MPlist *per_charset, *per_script, *per_lang;
-  MPlist *font_groups[256], *plist;
-  int n_font_group = 0;
-  MRealizedFont *rfont;
-  int i;
+  MPlist *plist;
+  MRealizedFont *rfont = NULL;
 
   if (realized->tick != realized->fontset->tick)
     update_fontset_elements (realized);
 
   if (preferred_charset
-      && (per_charset = mplist_get (realized->per_charset, charset)) != NULL)
-    font_groups[n_font_group++] = per_charset;
-  if (script != Mnil
-      && ((per_script = mplist_find_by_key (realized->per_script, script))
-	  != NULL))
-    {
-      /* We prefer font groups in this order:
-	  (1) group matching LANGUAGE
-	  (2) group for generic LANGUAGE
-	  (3) group non-matching LANGUAGE  */
-      if (language == Mnil)
-	language = Mt;
-      per_lang = mplist_find_by_key (MPLIST_PLIST (per_script), language);
-      if (per_lang)
-	{
-	  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
-	  if (language == Mt)
-	    {
-	      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-		if (MPLIST_KEY (per_lang) != language)
-		  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
-	    }
-	}
-      if (language != Mt)
-	{
-	  plist = mplist_get (MPLIST_PLIST (per_script), Mt);
-	  if (plist)
-	    font_groups[n_font_group++] = plist;
-	}
-      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-	if (MPLIST_KEY (per_lang) != language
-	    && MPLIST_KEY (per_lang) != Mt)
-	  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
-    }
-  font_groups[n_font_group++] = realized->fallback;
-
-  if (n_font_group == 1)
-    {
-      /* As we only have a fallback font group, try all the other
-	 fonts too.  */
-      MPLIST_DO (per_script, realized->per_script)
-	MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-	  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
-      MPLIST_DO (per_charset, realized->per_charset)
-	font_groups[n_font_group++] = MPLIST_PLIST (per_charset);
-    }
-
-  for (i = 0; i < n_font_group; i++)
-    {
-      int j;
-      
-      if (MPLIST_PLIST_P (font_groups[i]))
-	realize_font_group (frame, &realized->spec, font_groups[i], size);
-
-      MPLIST_DO (plist, font_groups[i])
-        {
-	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
-	  if (rfont->status < 0)
-	    continue;
-	  /* Check if this font can display all glyphs.  */
-	  for (j = 0; j < *num; j++)
-	    {
-	      g[j].code = mfont__encode_char (rfont,
-					      g[j].type == GLYPH_CHAR ? g[j].c
-					      : ' ');
-	      if (g[j].code == MCHAR_INVALID_CODE)
-		break;
-	    }
-	  if (j == *num)
-	    {
-	      if (rfont->status > 0
-		  || mfont__open (rfont) == 0)
-		/* We found a font that can display all glyphs.  */
-		break;
-	    }
-	}
-      if (! MPLIST_TAIL_P (plist))
-	break;
-    }
-
-  if (i < n_font_group) 
+      && (per_charset = mplist_get (realized->per_charset, charset)) != NULL
+      && (rfont = try_font_group (realized, per_charset, g, num, size)))
     return rfont;
 
-  /* We couldn't find a font that can display all glyphs.  Find one
-     that can display at least the first glyph.  */
-  for (i = 0; i < n_font_group; i++)
+  if (script != Mnil
+      && (per_script = mplist_get (realized->per_script, script)))
     {
-      MPLIST_DO (plist, font_groups[i])
+      /* We prefer font groups in this order:
+	  (1) group matching with LANGUAGE if LANGUAGE is not Mnil
+	  (2) group for generic language
+	  (3) group not matching with LANGUAGE  */
+      if (language == Mnil)
+	language = Mt;
+      if ((per_lang = mplist_get (per_script, language))
+	  && (rfont = try_font_group (realized, per_lang, g, num, size)))
+	return rfont;
+
+      if (language == Mt)
 	{
-	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
-	  if (rfont->status < 0)
-	    continue;
-	  g->code = mfont__encode_char (rfont,
-					g->type == GLYPH_CHAR ? g->c : ' ');
-	  if (g->code != MCHAR_INVALID_CODE)
-	    {
-	      if (rfont->status > 0
-		  || mfont__open (rfont) == 0)
-		break;
-	    }
+	  /* Try the above (3) */
+	  MPLIST_DO (plist, per_script)
+	    if (MPLIST_KEY (plist) != language
+		&& (rfont = try_font_group (realized, MPLIST_PLIST (plist),
+					    g, num, size)))
+	      return rfont;
 	}
-      if (! MPLIST_TAIL_P (plist))
-	break;
+      else
+	{
+	  /* At first try the above (2) */
+	  if ((per_lang = mplist_get (per_script, Mt))
+	      && (rfont = try_font_group (realized, per_lang, g, num, size)))
+	    return rfont;
+
+	  /* Then try the above (3) */
+	  MPLIST_DO (plist, per_script)
+	    if (MPLIST_KEY (plist) != language
+		&& MPLIST_KEY (plist) != Mt
+		&& (rfont = try_font_group (realized, MPLIST_PLIST (plist),
+					    g, num, size)))
+	      return rfont;
+	}
     }
-  return (i < n_font_group ? rfont : NULL);
+
+  if (language != Mnil)
+    /* Find a font group for this language from all scripts.  */
+    MPLIST_DO (plist, realized->per_script)
+      if ((per_lang = mplist_get (MPLIST_PLIST (plist), language))
+	  && (rfont = try_font_group (realized, per_lang, g, num, size)))
+	return rfont;
+
+  /* Try fallback fonts.  */
+  if ((rfont = try_font_group (realized, realized->fallback, g, num, size)))
+    return rfont;
+
+  /* At last try all fonts.  */
+  MPLIST_DO (per_script, realized->per_script)
+    {
+      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
+	if ((rfont = try_font_group (realized, MPLIST_PLIST (per_lang),
+				     g, num, size)))
+	  return rfont;
+    }
+  MPLIST_DO (per_charset, realized->per_charset)
+    if ((rfont = try_font_group (realized, MPLIST_PLIST (per_charset),
+				 g, num, size)))
+      return rfont;
+
+  return NULL;
 }
 
 /*** @} */
