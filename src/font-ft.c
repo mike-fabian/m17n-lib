@@ -908,10 +908,10 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
 		  && FcLangSetHasLang (ft_info->langset, lang) != FcLangEqual)
 		continue;
 #endif
-	      mplist_push (plist, MPLIST_KEY (pl), &ft_info->font);
+	      mplist_add (plist, MPLIST_KEY (pl), &ft_info->font);
 	      num++;
 	      if (num == maxnum)
-		break;
+		return num;
 	    }
 	  if (family != Mnil)
 	    break;
@@ -929,7 +929,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
 	      && FcLangSetHasLang (ft_info->langset, lang) != FcLangEqual)
 	    continue;
 #endif
-	  mplist_push (plist, MPLIST_KEY (p), &ft_info->font);
+	  mplist_add (plist, MPLIST_KEY (p), &ft_info->font);
 	  num++;
 	  if (num == maxnum)
 	    break;
