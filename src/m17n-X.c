@@ -1897,7 +1897,7 @@ device_open (MFrame *frame, MPlist *param)
   MPlist *plist;
   AppData app_data;
   MFace *face;
-  int use_xfont = 1, use_freetype = 1;
+  int use_xfont = 0, use_freetype = 0, use_xft = 0;
 
   for (plist = param; (key = mplist_key (plist)) != Mnil;
        plist = mplist_next (plist))
@@ -1919,10 +1919,14 @@ device_open (MFrame *frame, MPlist *param)
 	  MSymbol val = MPLIST_SYMBOL (plist);
 
 	  if (val == Mx)
-	    use_freetype = 0;
+	    use_xfont = 1;
 #ifdef HAVE_FREETYPE
 	  else if (val == Mfreetype)
-	    use_xfont = 0;
+	    use_freetype = 1;
+#ifdef HAVE_XFT2
+	  else if (val == Mxft)
+	    use_xft = 1;
+#endif
 #endif
 	}
     }
@@ -2034,18 +2038,20 @@ device_open (MFrame *frame, MPlist *param)
   frame->device_type = MDEVICE_SUPPORT_OUTPUT | MDEVICE_SUPPORT_INPUT;
   frame->driver = &x_driver;
   frame->font_driver_list = mplist ();
-  if (use_xfont)
-    mplist_add (frame->font_driver_list, Mx, &xfont_driver);
 #ifdef HAVE_XFT2
-  if (use_freetype)
-    mplist_add (frame->font_driver_list, Mfreetype, &xft_driver);
-#elif HAVE_FREETYPE
+  if (use_xft)
+    {
+      mplist_add (frame->font_driver_list, Mfreetype, &xft_driver);
+      use_freetype = 0;
+    }
+#endif	/* HAVE_XFT2 */
+#ifdef HAVE_FREETYPE
   if (use_freetype)
     mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
-#else
-  if (! use_xfont)
-    mplist_add (frame->font_driver_list, Mx, &xfont_driver);
-#endif
+#endif	/* HAVE_FREETYPE */
+  if (use_xfont || MPLIST_TAIL_P (frame->font_driver_list))
+    mplist_push (frame->font_driver_list, Mx, &xfont_driver);
+
   frame->realized_font_list = device->realized_font_list;
   frame->realized_face_list = device->realized_face_list;
   frame->realized_fontset_list = device->realized_fontset_list;
