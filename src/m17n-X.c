@@ -1614,7 +1614,6 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 {
   MFTInfo *ft_info = rfont->info;
   MXftFontInfo *font_info = ft_info->extra_info;
-  FT_Face ft_face = ft_info->ft_face;
   MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
 
   for (; g != gend; g++)
