@@ -41,6 +41,7 @@ mlang__init ()
       { {"ab", "Abkhazian"},
 	{"aa", "Afar"},
 	{"af", "Afrikaans"},
+	{"ak", "Akan"},
 	{"sq", "Albanian"},
 	{"am", "Amharic"},
 	{"ar", "Arabic"},
