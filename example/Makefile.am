@@ -24,7 +24,7 @@
 
 bin_PROGRAMS = mconv mview mdate mdump medit
 
-common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
+common_ldflags = ${top_srcdir}/src/libm17n.la
 common_ldflags_gui = ${top_srcdir}/src/libm17n-gui.la
 
 mdate_SOURCES = mdate.c
