@@ -1,3 +1,36 @@
+2004-06-30  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c: Adjusted for the change of struct MDeviceDriver.
+	(MDeviceLibraryInterface): Delete it.
+	(register_device_library): Delete it.
+	(m17n__device_library_list): Renamed from device_library_list.
+
+	* m17n-gui.h (M17N_INIT_X, M17N_INIT_GD): New macros.
+	(m17n_init_win): Adjust prototype.
+
+	* m17n-gd.c: Adjusted for the change of struct MDeviceDriver.
+	(m17n_init_gd): New function. 
+
+	* m17n-gd.h: New file.
+
+	* m17n-X.h: Include <m17n-gui.h>.
+	(m17n_init_X): Extern it.
+	(M17N_INIT): Redefine it.
+
+	* m17n-X.c: Adjusted for the change of struct MDeviceDriver.
+	(m17n_init_X): New function.
+
+	* internal-gui.h (m17n__device_library_list): Extern it.
+	(struct MDeviceDriver): New members initialized, init, and fini.
+
+	* Makefile.am (libm17n_X_la_LIBADD): Add ${X_LD_FLAGS} and
+	@XFT2_LD_FLAGS@.
+	(libm17n_X_la_LIBADD): Delete aboves.
+	(libm17n_gd_la_SOURCES): Add m17n-gd.h.
+	(libm17n_gd_la_LIBADD): Add @GD_LD_FLAGS@.
+	(libm17n_gd_la_LDFLAGS): Delete it.
+	(include_HEADERS): Add m17n-gd.h.
+
 2004-06-25  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (libm17n_X_la_LDFLAGS): Cancel previous change.
