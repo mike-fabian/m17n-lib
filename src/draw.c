@@ -236,6 +236,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   MGlyph g_tmp, *g;
   int pos;
   MSymbol language = Mnil, script = Mnil, charset = Mnil;
+  MSymbol non_latin_script = Mnil;
   MRealizedFace *rface = default_rface;
   int size = gstring->control.fixed_width;
   int i;
@@ -265,52 +266,39 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	c = mtext_ref_char (mt, pos);
       else
 	c = '\n';
+      g_tmp.category = mchar_get_prop (c, Mcategory);
       if (c < 0x100)
 	{
 	  /* Short cut for the obvious case.  */
-	  g_tmp.category = Mnil;
-	  if (c == ' ' || c == '\n' || c == '\t')
-	    g_tmp.type = GLYPH_SPACE, this_script = Mnil;
-	  else
-	    g_tmp.type = GLYPH_CHAR, this_script = Mlatin;
+	  g_tmp.type = (c == ' ' || c == '\n' || c == '\t'
+			? GLYPH_SPACE : GLYPH_CHAR);
+	  this_script = (MSYMBOL_NAME (g_tmp.category)[0] == 'L'
+			 ? Mlatin : Mnil);
 	}
       else
 	{
-	  g_tmp.category = mchar_get_prop (c, Mcategory);
 	  g_tmp.type = GLYPH_CHAR;
 	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
 	  if (this_script == Minherited || this_script == Mnil)
 	    this_script = script;
 	  if (this_script == Mnil)
-	    /* Search backward for a character that explicitly
-	       specifies a script.  */
-	    for (i = pos - 1; i >= from; i--)
-	      {
-		int c1 = mtext_ref_char (mt, i); 
-		MSymbol sym = ((c1 > 0x20 && c1 < 0x100) ? Mlatin
-			       : mchar_get_prop (c1, Mscript));
-		
-		if (sym != Minherited && sym != Mnil)
-		  {
-		    this_script = sym;
-		    break;
-		  }
-	      }
+	    this_script = non_latin_script;
 	  if (this_script == Mnil)
-	    /* Search forward for a character that explicitly
-	       specifies a script.  */
-	    for (i = pos + 1; i < to; i++)
-	      {
-		int c1 = mtext_ref_char (mt, i); 
-		MSymbol sym = ((c1 > 0x20 && c1 < 0x100) ? Mlatin
-			       : mchar_get_prop (c1, Mscript));
-		
-		if (sym != Minherited && sym != Mnil)
+	    {
+	      /* Search forward for a character that explicitly
+		 specifies a non-latin script.  */
+	      int c1;
+	      MSymbol sym;
+
+	      for (i = pos + 1; i < to; i++)
+		if ((c1 = mtext_ref_char (mt, i)) >= 0x100
+		    && (sym = mchar_get_prop (c1, Mscript)) != Mnil
+		    && sym != Minherited)
 		  {
 		    this_script = sym;
 		    break;
 		  }
-	      }
+	    }
 	}
 
       if (pos == stop || script != this_script
@@ -319,12 +307,15 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  g = MGLYPH (last);
 	  if (g->type != GLYPH_ANCHOR)
 	    while (g < gstring->glyphs + gstring->used)
-	      g = mface__for_chars (script, language, charset,
+	      g = mface__for_chars (script == Mnil ? Mlatin : script,
+				    language, charset,
 				    g, gstring->glyphs + gstring->used, size);
 	  if (pos == to)
 	    break;
 	  last = gstring->used;
 	  script = this_script;
+	  if (script != Mnil && script != Mlatin)
+	    non_latin_script = script;
 	  if (pos == stop)
 	    {
 	      if (pos < mtext_nchars (mt) && pos == language_change)
