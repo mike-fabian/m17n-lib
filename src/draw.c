@@ -237,9 +237,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   int pos;
   MSymbol language = Mnil, script = Mnil, charset = Mnil;
   MRealizedFace *rface = default_rface;
-  int non_ascii_found;
   int size = gstring->control.fixed_width;
-  int i, limit;
+  int i;
   int last;
 
   MLIST_RESET (gstring);
@@ -257,7 +256,6 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
   stop = face_change = charset_change = language_change = pos = from;
   last = 0;
-  non_ascii_found = 0;
   while (1)
     {
       int c;
@@ -267,9 +265,10 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	c = mtext_ref_char (mt, pos);
       else
 	c = '\n';
-      g_tmp.category = Mnil;
       if (c < 0x100)
 	{
+	  /* Short cut for the obvious case.  */
+	  g_tmp.category = Mnil;
 	  if (c == ' ' || c == '\n' || c == '\t')
 	    g_tmp.type = GLYPH_SPACE, this_script = Mnil;
 	  else
@@ -280,78 +279,92 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  g_tmp.category = mchar_get_prop (c, Mcategory);
 	  g_tmp.type = GLYPH_CHAR;
 	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
-	  if (this_script == Minherited)
+	  if (this_script == Minherited || this_script == Mnil)
 	    this_script = script;
+	  if (this_script == Mnil)
+	    /* Search forward for a character that explicitly
+	       specifies a script.  */
+	    for (i = pos + 1; i < to; i++)
+	      {
+		int c1 = mtext_ref_char (mt, i); 
+		MSymbol sym = ((c1 > 0x20 && c1 < 0x100) ? Mlatin
+			       : mchar_get_prop (c1, Mscript));
+		
+		if (sym != Minherited && sym != Mnil)
+		  {
+		    this_script = sym;
+		    break;
+		  }
+	      }
 	}
 
       if (pos == stop || script != this_script
 	  || MGLYPH (last)->type != g_tmp.type)
 	{
 	  g = MGLYPH (last);
-	  if ((non_ascii_found || language != Mnil)
-	      && g->type == GLYPH_CHAR)
+	  if (g->type == GLYPH_CHAR)
 	    while (g < gstring->glyphs + gstring->used)
 	      g = mface__for_chars (script, language, charset,
 				    g, gstring->glyphs + gstring->used, size);
-	  last = gstring->used;
-	  non_ascii_found = 0;
-	  script = this_script;
 	  if (pos == to)
 	    break;
-	  if (pos < mtext_nchars (mt) && pos == language_change)
+	  last = gstring->used;
+	  script = this_script;
+	  if (pos == stop)
 	    {
-	      language = (MSymbol) mtext_get_prop (mt, pos, Mlanguage);
-	      mtext_prop_range (mt, Mlanguage, pos, NULL, &language_change, 0);
-	    }
-	  if (pos < mtext_nchars (mt) && pos == charset_change)
-	    {
-	      charset = (MSymbol) mtext_get_prop (mt, pos, Mcharset);
-	      mtext_prop_range (mt, Mcharset, pos, NULL, &charset_change, 0);
-	    }
-	  if (pos < mtext_nchars (mt) && pos == face_change)
-	    {
-	      MFace *faces[64];
-	      int num = mtext_get_prop_values (mt, pos, Mface,
-					       (void **) faces, 64);
+	      if (pos < mtext_nchars (mt) && pos == language_change)
+		{
+		  language = (MSymbol) mtext_get_prop (mt, pos, Mlanguage);
+		  mtext_prop_range (mt, Mlanguage, pos, NULL,
+				    &language_change, 0);
+		}
+	      if (pos < mtext_nchars (mt) && pos == charset_change)
+		{
+		  charset = (MSymbol) mtext_get_prop (mt, pos, Mcharset);
+		  mtext_prop_range (mt, Mcharset, pos, NULL,
+				    &charset_change, 0);
+		}
+	      if (pos < mtext_nchars (mt) && pos == face_change)
+		{
+		  MFace *faces[64];
+		  int num = mtext_get_prop_values (mt, pos, Mface,
+						   (void **) faces, 64);
 
-	      mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
-	      rface = (num > 0
-		       ? mface__realize (frame, faces, num,
-					 language, charset, size)
-		       : default_rface);
+		  mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
+		  rface = (num > 0
+			   ? mface__realize (frame, faces, num,
+					     language, charset, size)
+			   : default_rface);
+		}
+	      stop = to;
+	      if (stop > language_change)
+		stop = language_change;
+	      if (stop > charset_change)
+		stop = charset_change;
+	      if (face_change < stop)
+		stop = face_change;		
 	    }
-	  stop = to;
-	  if (stop > language_change)
-	    stop = language_change;
-	  if (stop > charset_change)
-	    stop = charset_change;
-	  if (face_change < stop)
-	    stop = face_change;		
 	}
 
-      g_tmp.c = g_tmp.code = c;
+      g_tmp.c = c;
       g_tmp.pos = pos++;
       g_tmp.to = pos;
       g_tmp.rface = rface;
       
-      if (c >= 0x80)
-	non_ascii_found = 1;
-      else if (g_tmp.type == GLYPH_CHAR && (c <= 32 || c == 127))
+      if ((c <= 32 || c == 127) && g_tmp.type == GLYPH_CHAR)
 	{
-	  g_tmp.code = '^';
+	  g_tmp.c = '^';
 	  APPEND_GLYPH (gstring, g_tmp);
 	  if (c < ' ')
-	    g_tmp.code = g_tmp.c + 0x40;
+	    g_tmp.c = c + 0x40;
 	  else
-	    g_tmp.code = '?';
+	    g_tmp.c = '?';
 	}
       APPEND_GLYPH (gstring, g_tmp);
       if (c == '\n'
 	  && gstring->control.two_dimensional)
 	break;
     }
-
-  limit = pos - from;
 
   /* Append an anchor glyph.  */
   g_tmp.type = GLYPH_ANCHOR;
@@ -2483,14 +2496,16 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     }
   info->from = g->pos;
   info->to = g->to;
+  info->glyph_code = g->code;
   info->this.x = g->lbearing;
   info->this.y = - gstring->line_ascent;
   info->this.height = gstring->height;
+  info->this.width = - g->lbearing + g->width;
   if (g->rface->rfont)
     info->font = &g->rface->rfont->font;
   else
     info->font = NULL;
-  /* info->this.width is calculated later.  */
+  /* info->logical_width is calculated later.  */
 
   if (info->from > info->line_from)
     {
@@ -2567,9 +2582,10 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
   else
     info->next_to = -1;
 
-  for (info->this.width = (g++)->width;
+  for (info->logical_width = (g++)->width;
        g->pos == pos && g->type != GLYPH_ANCHOR;
-       info->this.width += (g++)->width);
+       info->this.width += g->width, info->logical_width += (g++)->width);
+  info->this.width += g[-1].rbearing - g[-1].width;
 
   if (g->type != GLYPH_ANCHOR)
     info->right_from = g->pos, info->right_to = g->to;
@@ -2602,6 +2618,52 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
   M17N_OBJECT_UNREF (gstring->top);
   return 0;
+}
+
+/*=*/
+
+int
+mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
+		  MDrawControl *control, MDrawGlyphInfo *info,
+		  int array_size, int *num_glyphs_return)
+{
+  MGlyphString *gstring;
+  MGlyph *g;
+  int n;
+
+  ASSURE_CONTROL (control);
+  *num_glyphs_return = 0;
+  M_CHECK_RANGE (mt, from, to, -1, 0);
+  gstring = get_gstring (frame, mt, from, to, control);
+  if (! gstring)
+    return -1;
+  for (g = MGLYPH (1), n = 0; g->type != GLYPH_ANCHOR; g++)
+    {
+      if (g->type == GLYPH_BOX
+	  || g->pos < from || g->pos >= to)
+	continue;
+      if (n < array_size)
+	{
+	  info->from = g->pos;
+	  info->to = g->to;
+	  info->glyph_code = (g->type == GLYPH_CHAR ? g->code : 0);
+	  info->x = g->xoff;
+	  info->y = g->yoff;
+	  info->this.x = g->lbearing;
+	  info->this.y = - g->ascent;
+	  info->this.height = g->ascent + g->descent;
+	  info->this.width = g->rbearing - g->lbearing;
+	  info->logical_width = g->width;
+	  if (g->rface->rfont)
+	    info->font = &g->rface->rfont->font;
+	  else
+	    info->font = NULL;
+	  info++;
+	}
+      n++;
+    }
+  *num_glyphs_return = n;
+  return (n <= array_size ? 0 : -1);
 }
 
 /*=*/
