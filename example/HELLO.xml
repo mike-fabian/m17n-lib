@@ -31,18 +31,19 @@
 <property key="language" value="ta" from="656" to="683" control="0"/>
 <property key="language" value="or" from="631" to="656" control="0"/>
 <property key="language" value="gu" from="620" to="631" control="0"/>
-<property key="language" value="km" from="954" to="996" control="0"/>
-<property key="language" value="my" from="922" to="954" control="0"/>
-<property key="language" value="lo" from="884" to="922" control="0"/>
-<property key="language" value="th" from="843" to="884" control="0"/>
-<property key="language" value="bo" from="782" to="843" control="0"/>
+<property key="language" value="km" from="983" to="1025" control="0"/>
+<property key="language" value="my" from="951" to="983" control="0"/>
+<property key="language" value="lo" from="913" to="951" control="0"/>
+<property key="language" value="th" from="872" to="913" control="0"/>
+<property key="language" value="bo" from="811" to="872" control="0"/>
+<property key="language" value="si" from="782" to="811" control="0"/>
 <property key="language" value="ml" from="735" to="782" control="0"/>
 <property key="language" value="kn" from="707" to="735" control="0"/>
 <property key="language" value="te" from="699" to="707" control="0"/>
-<property key="language" value="vi" from="1009" to="1031" control="0"/>
-<property key="language" value="ko" from="1090" to="1112" control="0"/>
-<property key="language" value="ja" from="1065" to="1090" control="0"/>
-<property key="language" value="zh" from="1042" to="1065" control="0"/>
+<property key="language" value="vi" from="1038" to="1060" control="0"/>
+<property key="language" value="ko" from="1119" to="1141" control="0"/>
+<property key="language" value="ja" from="1094" to="1119" control="0"/>
+<property key="language" value="zh" from="1071" to="1094" control="0"/>
 <body>Europe
   English					Hello
   French (français)			Bonjour, Salut
@@ -70,6 +71,7 @@ South/South-East Asia
   Telugu (తెలుగు)			హలో
   Kannada (ಕನ್ನಡ)			ನಮಸ್ಕಾರ
   Malayalam (മലയാളം)		നമസ്കാരം (ex: ന+്+ര=ന്ര)
+  Sinhala (සිංහල)			ආයුබෝවන්
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
   Thai (ภาษาไทย)			สวัสดีครับ, สวัสดีค่ะ
   Lao (ພາສາລາວ)			ສະບາຍດີ, ຂໍໃຫ້ໂຊກດີ
