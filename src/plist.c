@@ -1347,7 +1347,7 @@ mplist_deserialize (MText *mt)
 /***ja
     @brief プロパティリストをダンプする.
 
-    関数 mdebug_dump_plist () はプロパティリスト @PLIST を stderr に人
+    関数 mdebug_dump_plist () はプロパティリスト $PLIST を stderr に人
     間に可読な 形で印刷する。 $UNDENT は２行目以降のインデントを指定す
     る。
 
