@@ -1,3 +1,28 @@
+2004-07-26  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (visual_order): Don't treat combined glyphs specially.
+	(layout_glyphs): Don't get metrics glyphs that are already ready.
+	Pay attention to MGlyph->bidi_sensitive.  Combine a glyph of zero
+	width with the previous one. 
+
+	* font-flt.c (FontLayoutCmdOTF): Move back from internal-gui.h.
+	(run_rule): Fix place of updating cluster_begin_pos and
+	cluster_end_pos here.
+	(run_otf): Don't set left_padding.
+
+	* font-ft.c (adjust_anchor): Type of argument `code' changed.
+	Caller changed.
+	(mfont__ft_drive_otf): Renamed back from mfont__ft_drive_gsub.
+	Fix handling of GPOS.
+	(mfont__ft_drive_gpos): Delete this function.
+
+	* font.h (mfont__ft_drive_otf): Renamed back from
+	mfont__ft_drive_gsub.
+	(mfont__ft_drive_gpos): Delete extern.
+
+	* internal-gui.h (FontLayoutCmdOTF): Move back to font-flt.c.
+	(MGlyph): Delete member otf_cmd, add member bidi_sensitive.
+
 2004-07-23  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (layout_glyphs): Call mfont__ft_drive_gpos with glyphs of
