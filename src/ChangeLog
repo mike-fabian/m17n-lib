@@ -1,5 +1,8 @@
 2004-06-25  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (libm17n_X_la_LDFLAGS): Cancel previous change.
+	(libm17n_gd_la_LDFLAGS): Cancel previous change.
+
 	* m17n-gd.c (gd_render): Don't call FT_Get_Char_Index.
 
 	* font-ft.c (fc_list): If FcFontList finds no font, try
