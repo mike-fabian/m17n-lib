@@ -276,7 +276,6 @@ m17n_init_win (void)
   if (mfont__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize font module."));
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize win module."));
   if (mfont__fontset_init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize fontset module."));
