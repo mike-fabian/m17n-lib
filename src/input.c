@@ -876,6 +876,11 @@ shift_state (MInputContext *ic, MSymbol state_name)
     }
 }
 
+/* Find a candidate group that contains a candidate number INDEX from
+   PLIST.  Set START_INDEX to the first candidate number of the group,
+   END_INDEX to the last candidate number plus 1, GROUP_INDEX to the
+   candidate group number if they are non-NULL.  If INDEX is -1, find
+   the last candidate group.  */
 
 static MPlist *
 find_candidates_group (MPlist *plist, int index,
@@ -889,7 +894,8 @@ find_candidates_group (MPlist *plist, int index,
 	len = mtext_nchars (MPLIST_MTEXT (plist));
       else
 	len = mplist_length (MPLIST_PLIST (plist));
-      if (i + len > index)
+      if (index < 0 ? MPLIST_TAIL_P (MPLIST_NEXT (plist))
+	  : i + len > index)
 	{
 	  if (start_index)
 	    *start_index = i;
@@ -1119,9 +1125,14 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 				     end - start - 1, MPLIST_SYMBOL (args),
 				     NULL)
 			: MPLIST_INTEGER (args)));
-	      if (idx < 0
-		  || (idx >= end
-		      && MPLIST_TAIL_P (MPLIST_NEXT (group))))
+	      if (idx < 0)
+		{
+		  find_candidates_group (mtext_property_value (prop), -1,
+					 NULL, &end, NULL);
+		  idx = end - 1;
+		}
+	      else if (idx >= end
+		       && MPLIST_TAIL_P (MPLIST_NEXT (group)))
 		idx = 0;
 	    }
 	  else
