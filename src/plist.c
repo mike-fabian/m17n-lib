@@ -764,7 +764,7 @@ mplist__serialize (MText *mt, MPlist *plist)
 /***en
     @brief Symbol whose name is "integer".
 
-    The symbol @c Minteger has the name <tt>"integer"</tt>.  A value
+    The symbol @c Minteger has the name <tt>"integer"</tt>.  The value
     of a property whose key is @c Minteger must be an integer.  */
 /***ja
     @brief "integer" を名前として持つシンボル.
