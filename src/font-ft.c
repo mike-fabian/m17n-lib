@@ -305,7 +305,6 @@ ft_list ()
 	    char path[PATH_MAX];
 	    DIR *dir = opendir (pathname);
 	    struct dirent *dp;
-	    int result;
 
 	    if (dir)
 	      {
@@ -630,6 +629,7 @@ ft_render (MDrawWindow win, int x, int y,
       int intensity;
       MPointTable *ptable;
       int xoff, yoff;
+      int width;
 
       if (g->otf_encoded)
 	code = g->code;
@@ -638,12 +638,16 @@ ft_render (MDrawWindow win, int x, int y,
       FT_Load_Glyph (ft_face, code, load_flags);
       yoff = y - ft_face->glyph->bitmap_top + g->yoff;
       bmp = ft_face->glyph->bitmap.buffer;
+      width = ft_face->glyph->bitmap.width;
+      if (ft_face->glyph->bitmap.pitch < ft_face->glyph->bitmap.width)
+	width = ft_face->glyph->bitmap.pitch;
+
       if (gstring->anti_alias)
 	for (i = 0; i < ft_face->glyph->bitmap.rows;
 	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
 	  {
 	    xoff = x + ft_face->glyph->bitmap_left + g->xoff;
-	    for (j = 0; j < ft_face->glyph->bitmap.width; j++, xoff++)
+	    for (j = 0; j < width; j++, xoff++)
 	      {
 		intensity = bmp[j] >> 5;
 		if (intensity)
@@ -667,7 +671,7 @@ ft_render (MDrawWindow win, int x, int y,
 	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
 	  {
 	    xoff = x + ft_face->glyph->bitmap_left + g->xoff;
-	    for (j = 0; j < ft_face->glyph->bitmap.width; j++, xoff++)
+	    for (j = 0; j < width; j++, xoff++)
 	      {
 		intensity = bmp[j / 8] & (1 << (7 - (j % 8)));
 		if (intensity)
