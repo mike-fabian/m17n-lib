@@ -19,7 +19,6 @@
    License along with the m17n library; if not, write to the Free
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.  */
-
 /***en
     @addtogroup m17nCharset
     @brief Charset objects and API for them.
@@ -51,32 +50,35 @@
     code-points to character codes and to @e decode means converting
     character codes to code-points.  */
 
-/***oldja
+/***ja
     @addtogroup m17nCharset
-    @brief 文字セットオブジェクトとそれに関する API
+    @brief 文字セットオブジェクトとそれに関する API.
 
     m17n ライブラリは、符号化文字集合 (CCS) を @e 文字セット と呼ぶオ
-    ブジェクトで表現する。m17n ライブラリは多くの符号化文字集合を予め
-    サポートしているが、アプリケーションプログラムが独自に文字セットを
+    ブジェクトで表現する。m17n ライブラリは多くの符号化文字集合をあらかじめ
+    サポートしているし、アプリケーションプログラムが独自に文字セットを
     追加することも可能である。一つの文字は複数の文字セットに属してもよ
     い。
 
-    m17n ライブラリには、以下の異なる概念がある:
+    m17n ライブラリは、以下の概念を区別している:
 
     @li @e コードポイント とは、CCS がその中の個々の文字に対して定義す
-    る数値である。コードポイントは連続しているとは限らない。
+    る数値である。コードポイントは連続しているとは限らない。コードポイントは
+    @c unsigned 型によって表される。無効なコードポイントはマクロ
+    @c MCHAR_INVALID_CODE で表される。
 
-    @li @e 文字インデックス とは、CCS 内で各文字に割り当てられる正規化さ
-    れたインデックスである。文字インデックスがNの文字は、CCS 中の全文字を
-    コードポイントでソートしたときにN番目に来る。
+    @li @e 文字インデックス とは、CCS 内で各文字に割り当てられる正規化
+    されたインデックスである。文字インデックスがNの文字は、CCS 中の全
+    文字をコードポイント順に並べたときにN番目に来る。CCS中の文字イン
+    デックスは連続しており、0から始まる。
 
-    @li @e 文字コードとは、m17n ライブラリ内における文字の内部表現であ
+    @li @e 文字コード とは、m17n ライブラリ内における文字の内部表現であ
     り、21 ビット以上の長さを持つ符合付き整数である。
 
-    各文字セットオブジェクトは、それに属する文字のコードポイントと文字
-    コードとの相互変換を規定する。コードポイントから文字コードへの変換
-    を @e デコード と呼び、文字コードからコードポイントへの変換を @e 
-    エンコード と呼ぶ。  */
+    各文字セットオブジェクトは、その文字セットに属する文字のコードポイ
+    ントと文字コードとの間の変換を規定する。コードポイントから文字コー
+    ドへの変換を @e デコード と呼び、文字コードからコードポイントへの
+    変換を @e エンコード と呼ぶ。  */
 
 /*=*/
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -645,7 +647,7 @@ mcharset__load_from_database ()
 
     The macro #MCHAR_INVALID_CODE gives the invalid code-point.  */
 
-/***oldja
+/***ja
     @brief 無効なコードポイント
 
     マクロ #MCHAR_INVALID_CODE は無効なコードポイントを与える。  */
@@ -660,12 +662,12 @@ mcharset__load_from_database ()
     symbol @c Mcharset.  The name of @c Mcharset is
     <tt>"charset"</tt>.  */
 
-/***oldja
+/***ja
     @brief シンボル @c Mcharset
 
     デコードされた M-text は、キーが @c Mcharset であるようなテキスト
     プロパティを持つ。シンボル @c Mcharset は <tt>"charset"</tt> とい
-    う名前であらかじめ定義されている。  */
+    う名前を持つ。  */
 
 MSymbol Mcharset;
 /*=*/
@@ -675,12 +677,10 @@ MSymbol Mcharset;
 
     Each of the following symbols represents a predefined charset.  */
 
-/***oldja
-    @name 変数: 文字セットを表わす定義済みシンボル
+/***ja
+    @name 変数: 文字セットを表現する定義済みシンボル
 
-    以下の各シンボルは、キーが @c Mcharset であり、値が対応する文字セッ
-    トオブジェクト（ @c MCharset 型）へのポインタであるシンボルプロパ
-    ティを持つ。  */
+    以下の各シンボルは、定義済み文字セットを表現する。  */
 /*=*/
 /*** @{ */
 /*=*/
@@ -689,12 +689,12 @@ MSymbol Mcharset;
 
     The symbol #Mcharset_ascii has name <tt>"ascii"</tt> and represents
     the charset ISO 646, USA Version X3.4-1968 (ISO-IR-6).  */
-/***oldja
-    @brief ISO 646, USA Version に対応する文字セットのシンボル
+/***ja
+    @brief ASCII 文字セットを表現するシンボル
 
     シンボル #Mcharset_ascii は <tt>"ascii"</tt> という名前を持ち、 
-    ISO 646, USA Version X3.4-1968 (ISO-IR-6) に対応する文字セットを指
-    定するために使われる。  */
+    ISO 646, USA Version X3.4-1968 (ISO-IR-6) 文字セットを表現する。
+     */
 
 MSymbol Mcharset_ascii;
 
@@ -704,12 +704,12 @@ MSymbol Mcharset_ascii;
 
     The symbol #Mcharset_iso_8859_1 has name <tt>"iso-8859-1"</tt>
     and represents the charset ISO/IEC 8859-1:1998.  */
-/***oldja
-    @brief ISO/IEC 8859-1:1998 に対応する文字セットのシンボル
+/***ja
+    @brief ISO/IEC 8859-1:1998 文字セットを表現するシンボル
 
     シンボル #Mcharset_iso_8859_1 は <tt>"iso-8859-1"</tt> という名
-    前を持ち、ISO/IEC 8859-1:1998 に対応する文字セットを指定するために
-    使われる。 */
+    前を持ち、ISO/IEC 8859-1:1998 文字セットを表現する。
+    */
 
 MSymbol Mcharset_iso_8859_1;
 
@@ -718,11 +718,11 @@ MSymbol Mcharset_iso_8859_1;
 
     The symbol #Mcharset_unicode has name <tt>"unicode"</tt> and
     represents the charset Unicode.  */
-/***oldja
-    @brief Unicode に対応する文字セットのシンボル
+/***ja
+    @brief Unicode 文字セットを表現するシンボル
 
     シンボル #Mcharset_unicode は <tt>"unicode"</tt> という名前を持
-    ち、Unicode に対応する文字セットを指定するために使われる。 */
+    ち、Unicode 文字セットを表現する。 */
 
 MSymbol Mcharset_unicode;
 
@@ -733,12 +733,11 @@ MSymbol Mcharset_unicode;
     The symbol #Mcharset_m17n has name <tt>"m17n"</tt> and
     represents the charset that contains all characters supported by
     the m17n library.  */ 
-/***oldja
-    @brief 全文字を含む文字セットのシンボル
+/***ja
+    @brief 全文字を含む文字セットを表現するシンボル
 
     シンボル #Mcharset_m17n は <tt>"m17n"</tt> という名前を持ち、
-    m17n ライブラリが扱う全ての文字を含む文字セットを指定するために使
-    われる。 */
+    m17n ライブラリが扱う全ての文字を含む文字セットを表現する。 */
 
 MSymbol Mcharset_m17n;
 
@@ -752,6 +751,16 @@ MSymbol Mcharset_m17n;
     (sequence).  See @ref m17nConv @latexonly
     (P.\pageref{group__m17nConv}) @endlatexonly for more detail.  */
 
+/***ja
+    @brief デコードできない文字の文字セットを表現するシンボル
+
+    シンボル #Mcharset_binary は <tt>"binary"</tt> という名前を持ち、
+    偽の (fake) 文字セットを表現する。デコード関数は、M-text のテキス
+    トプロパティとして、無効なバイト（シークエンス）に遭遇した位置を付加する。
+
+     詳細は @ref m17nConv @latexonly
+    (P.\pageref{group__m17nConv}) @endlatexonly 参照のこと。 */
+
 MSymbol Mcharset_binary;
 
 /*=*/
@@ -764,7 +773,7 @@ MSymbol Mcharset_binary;
     These are the predefined symbols to use as parameter keys for the
     function mchar_define_charset () (which see).  */
 
-/***oldja
+/***ja
     @name 変数: mchar_define_charset 用のパラメータ・キー
 
     これらは、関数 mchar_define_charset () 用のパラメータ・キーとして
@@ -774,6 +783,9 @@ MSymbol Mcharset_binary;
 
 /***en
     Parameter key for mchar_define_charset () (which see). */ 
+
+/***ja
+    関数 mchar_define_charset () 用のパラメータ・キー. */ 
 
 MSymbol Mmethod;
 MSymbol Mdimension;
@@ -805,11 +817,12 @@ MSymbol Maliases;
     converted.  See the documentation of the mchar_define_charset ()
     function for the details.  */
 
-/***oldja
+/***ja
     @name 変数: 文字セットのメソッド指定に使われるシンボル
 
-    これらは、文字セットの @e メソッド を指定するためのシンボルであり、
-    関数 mchar_define_charset () の引数として使われる。
+    これらは、文字セットの @e メソッド を指定するための定義済みシンボ
+    ルであり、文字セットの #Mmethod パラメータの値となることができる。
+    この値は関数 mchar_define_charset () の引数として使われる
 
     メソッドとは、コードポイントと文字コードを相互変換する際の方式のこ
     とである。詳しくは関数 mchar_define_charset () の解説を参照のこと。  */
@@ -830,29 +843,39 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + MIN-CHAR
     where, MIN-CODE is a value of #Mmin_code parameter of the charset,
     and MIN-CHAR is a value of #Mmin_char parameter.  */
 
-/***oldja
+/***ja
     @brief オフセット型のメソッドを示すシンボル
 
-    シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、
-    mchar_define_charset () でオフセット型のメソッドを指定する場合の引
-    数として用いられる。*/
+    シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、文字セッ
+    トの #Mmethod パラメータの値として用いられた場合には、コードポイン
+    トと文字セットの文字コードの間の変換が以下の式に従って行われること
+    を意味する。
+
+@verbatim
+文字コード = コードポイント - MIN-CODE + MIN-CHAR
+@endverbatim
+
+    ここで、MIN-CODE は文字セットの #Mmin_code パラメータの値であり、MIN-CHAR は
+    #Mmin_char パラメータの値である。 */
 
 MSymbol Moffset;
 /*=*/
 
 /***en @brief Symbol for the map type method of charset.
 
-    The symbol #Mmap has the name <tt>"map"</tt> and, when use as a
+    The symbol #Mmap has the name <tt>"map"</tt> and, when used as a
     value of #Mmethod parameter of a charset, it means that the
     conversion of code-points and character codes of the charset is
     done by map looking up.  The map must be given by #Mmapfile
     parameter.  */
 
-/***oldja @brief マップ型のメソッドを示すシンボル
+/***ja @brief マップ型のメソッドを示すシンボル
 
-    シンボル #Mmap は <tt>"map"</tt> という名前を持ち、
-    mchar_define_charset () でマップ型のメソッドを指定する場合の引数と
-    して用いられる。*/
+    シンボル #Mmap は <tt>"map"</tt> という名前を持ち、文字セットの 
+    #Mmethod パラメータの値として用いられた場合には、コードポイントと
+    文字セットの文字コードの間の変換が
+    マップを参照することによって行われることを意味する。マップは
+    #Mmapfile パラメータとして与えなければならない。 */
 
 MSymbol Mmap;
 /*=*/
@@ -864,7 +887,7 @@ MSymbol Mmap;
     conversion of code-points and character codes of the charset is
     done by map looking up and offsetting.  The map must be given by
     #Mmapfile parameter.  For this kind of charset, a unique
-    consequent character code space for all characters is assigned.
+    continuous character code space for all characters is assigned.
     If the map has an entry for a code-point, the conversion is done
     by looking up the map.  Otherwise, the conversion is done by this
     calculation:
@@ -877,11 +900,26 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
     and LOWEST-CHAR-CODE is the lowest character code of the assigned
     code space.  */
 
-/***oldja @brief 相続型のメソッドを示すシンボル
+/***ja @brief ユニファイ型のメソッドを示すシンボル
 
-    シンボル #Minherit は <tt>"inherit"</tt> という名前を持ち、
-    mchar_define_charset () で相続型のメソッドを指定する場合の引数とし
-    て用いられる。*/
+    シンボル #Minherit は <tt>"unify"</tt> という名前を持ち、文字セッ
+    トの #Mmethod パラメータの値として用いられた場合には、コードポイン
+    トと文字セットの文字コードの間の変換が、マップの参照とオフセットの
+    組み合わせによって行われることを意味する。マップは#Mmapfile パラメー
+    タとして与えなければならない。この種の各文字セットには、全文字に対し
+    て連続するコードスペースがそれぞれ割り当てられる。
+
+    コードポイントがマップに含まれていれば、変換はマップ参照によって行
+    われる。そうでなければ、以下の式に従う。
+
+@verbatim
+CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
+@endverbatim
+    
+    ここで、MIN-CODE は文字セットの #Mmin_code パラメータの値であり、
+    LOWEST-CHAR-CODE は割り当てられたコードスペースの最も小さい文字コー
+    ドである。
+    */
 
 MSymbol Munify;
 /*=*/
@@ -904,6 +942,24 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
     code of CODE-POINT in the parent charset, and SUBSET-OFFSET is a
     value given by #Msubset_offset parameter.  */
 
+/***ja @brief サブセット型のメソッドを示すシンボル
+
+    シンボル #Msubset は <tt>"subset"</tt> という名前を持ち、文字セッ
+    トの #Mmethod パラメータの値として用いられた場合には、この文字セッ
+    トが別の文字セット（親文字セット）の部分集合であることを意味する。
+    親文字セットは #Mparents パラメータによって与えられなくてはならない。
+    コードポイントと文字セットの文字コードの間の変換は、概念的には
+    以下の式に従う。
+
+@verbatim
+CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
+@endverbatim
+
+    ここで PARENT-CODE は CODE-POINT の親文字セット中での文字コードを
+    返す擬関数であり、SUBSET-OFFSET は #Msubset_offset parameter で与
+    えられる値である。
+    */
+
 MSymbol Msubset;
 /*=*/
 
@@ -914,6 +970,16 @@ MSymbol Msubset;
     used as a value of #Mmethod parameter of a charset, it means that
     the charset is a superset of parent charsets.  The parent charsets
     must be given by #Mparents parameter.  */
+
+/***ja
+    @brief スーパーセット型のメソッドを示すシンボル
+
+    シンボル #Msuperset は <tt>"superset"</tt> という名前を持ち、文字
+    セットの #Mmethod パラメータの値として用いられた場合には、この文字
+    セットが別の文字セット（親文字セット）の上位集合であることを意味す
+    る。親文字セットは #Mparents パラメータによって与えられなくてはな
+    らない。
+    */
 
 MSymbol Msuperset;
 /*=*/
@@ -1012,8 +1078,8 @@ MSymbol Msuperset;
     <li> Key is #Mdefine_coding, value is a symbol
 
     If the dimension of the charset is 1, the value specifies whether
-    or not to define a coding system of the same name whose method is
-    @c charset.
+    or not to define a coding system of the same name whose type is
+    #Mcharset.  A coding system is defined if the value is not #Mnil.
 
     Otherwise, this parameter is ignored.
 
@@ -1024,65 +1090,103 @@ MSymbol Msuperset;
     symbol whose name is $NAME.  Otherwise it returns #Mnil and
     assigns an error code to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief 文字セットを定義する.
 
     関数 mchar_define_charset () は新しい文字セットを定義し、それを 
-    $NAME という名前のシンボル経由でアクセスできるようにする。$METHOD 
-    はその文字セットにおけるコードポイントのデコード／エンコードメソッ
-    ドを指定するシンボルであり、#Moffset, #Mmap, #Munify,
-    #Msubset, #Msuperset のいずれかの値をとる。
+    $NAME という名前を持つシンボル経由でアクセスできるようにする。
+    $PLIST は定義される文字セットのパラメータを以下のように指定する。
 
-    $DIMENSION はその文字セットのコードポイントの次元であり、1, 2, 3,
-    4のいずれかの値をとる。
+    <ul>
 
-    $CODE_RANGE は大きさが8バイトの配列であり、定義される文字セットの
-    コードポイント空間を表わす。第1バイトと第2バイトの値はコードポイン
-    トの最初の次元での最小／最大バイトの値である。第3バイトと第4バイト
-    は、2番目の次元の最小／最大値であり、 以下同様に続く。一般的に、第
-    (2N-1)バイトと第(2N)バイトがN番目の次元の最小／最大値となる (N =
-    1, 2, 3, 4)。コードポイントの @e 文字インデックス はこれらの値から
-    計算される。
+    <li> キーが #Mmethod で値がシンボルの時
 
-    $MIN_CODE と $MAX_CODE は、それぞれこの文字セットの最小および最大
-    コードポイントを表わす。0が指定された場合は $CODE_RANGE の値から計
-    算される。
+    値は、#Moffset, #Mmap (デフォルト値), #Munify, #Msubset,
+    #Msuperset のいずれかであり、文字セットのコードポイントをデコード／
+    エンコードする際のメソッドを指定する。
 
-    $FINAL_BYTE は The International Registry に登録されている
-    @e 終端バイト である。登録されていない CCS の場合には -1 でなくては
-    ならない。
+    <li> キーが #Mdimension で値が整数値の時
 
-    $REVISION は、The International Registry に登録されている@e revision
-    @e number である。もし revision number が存在しないなら -1 でなく
-    てはならない。
+    値は、1 (デフォルト値), 2, 3, 4 のいずれかであり、文字セットのコー
+    ドポイントの次元である。
 
-    @par メソッドが Moffset の場合
+    <li> キーが #Mmin_range で値が非負整数値の時
 
-    $MIN_CHAR には最小のコードポイントに対応する文字コードを与える。
-    $NPARENTS, $PARENTS, および $SUBSET_OFFSET は無視される。
+    値はコードポイントの最小の値である。すなわち、この値の N 番目のバ
+    イトはこの文字セットのコードポイントの N 番目のバイトの最小のもの
+    となる。デフォルト値は 0 。
 
-    @par メソッドが Mmap の場合
+    <li> キーが #Mmax_range で値が非負整数値の時
 
-    m17n 言語情報ベース中で \<#Mcharset, $NAME\> というタグの付いた
-    マッピングテーブルを、デコードおよびエンコードに用いる。$MIN_CHAR,
-    $NPARENTS, $PARENTS, および $SUBSET_OFFSET は無視される。
+    値はコードポイントの最大の値である。すなわち、この値の N 番目のバ
+    イトはこの文字セットのコードポイントの N 番目のバイトの最大のもの
+    となる。デフォルト値は、コードポイントの次元が 1, 2, 3, 4 の時、そ
+    れぞれ 0xFF, 0xFFFF, 0xFFFFFF, 0xFFFFFFFF 。
 
-    @par メソッドが Msubset の場合
+    <li> キーが #Mmin_code で値が非負整数値の時
 
-    $NPARENTS は1でなければならない。また $PARENTS は継承の元となる文
-    字セットを表わすシンボルへのポインタである。元の文字セットのコード
-    ポイントに $SUBSET_OFFSET を加えたものが、新しい文字セット中でのコー
-    ドポイントになる。$MIN_CHAR は無視される。
+    値はこの文字セットの最小のコードポイントである。デフォルト値は 
+    #Mmin_range の値。
 
-    @par メソッドが Msuperset の場合
+    <li> キーが #Mmax_code で値が非負整数値の時
 
-    $NPARENTS は親となる文字セットの数、$PARENTS は親文字セットのシン
-    ボルの配列を表わす。$MIN_CHAR および $SUBSET_OFFSET は無視される。
+    値はこの文字セットの最大のコードポイントである。デフォルト値は 
+    #Mmax_range の値。
 
-    @return
-    処理が成功すれば、mchar_define_charset () は $NAME という名前のシ
-    ンボルを返す。そうでなければ #Mnil を返し、外部変数 @c
-    merror_code にエラーコードを設定する。 */
+    <li> キーが  #Mascii_compatible で値がシンボルの時
+
+    値はこの文字セットが ASCII 互換であるか々かを示す。デフォルト値の
+    #Mnil であれば互換ではなく、それ以外の場合は互換である。
+
+    <li> キーが  #Mfinal_byte で値が整数値の時
+
+    値はこの文字セットの The International Registry に登録されている @e 
+    終端バイトであり、0 (デフォルト値) であるか 32..127 である。0 は登
+    録されていないことを意味する。
+
+    <li> キーが  #Mrevision で値が整数値の時
+
+    値は The International Registry に登録されている @e revision @e
+    number であり、0..127 である。文字セットが登録されていない場合には
+    この値は無視される。 0 は revision number が存在しないことを意味す
+    る。
+
+    <li> キーが  #Mmin_char で値が整数値の時
+
+    値はこの文字セットの最小の文字コードである。デフォルト値は 0 。
+
+    <li> キーが #Mmapfile で値が M-text の時
+
+    メソッドが #Mmap か #Munify の時、関数 mdatabase_define () をこの
+    値を引数 $EXTRA_INFO として呼ぶことによって、マッピングに関するデー
+    タが m17n データベースに追加される。すなわち、この値はデータファイ
+    ルの名前である。
+
+    そうでなければ、このパラメータは無視される。
+
+    <li> キーが #Mparents で値が plist の時
+
+    メソッドが #Msubset ならば、値は長さ 1 の plist であり、その値はこ
+    の文字セットの上位集合となる文字セットを示すシンボルである。
+
+    メソッドが #Msuperset ならば、値は長さ 8 以下の plist であり、それ
+    らの値はこの文字セットの下位集合である文字セットを示すシンボルであ
+    る。
+
+    そうでなければ、このパラメータは無視される。
+
+    <li> キーが  #Mdefine_coding で値がシンボルの時
+
+    文字セットの次元が 1 ならば、値は #Mcharset タイプで同じ名前のコー
+    ド系を定義するかどうかを指定する。値が #Mnil 以外の場合に定義する。
+
+    そうでなければ、このパラメータは無視される。
+
+    </ul>
+
+    @return 処理が成功すれば、mchar_define_charset() は $NAME という名
+    前のシ ンボルを返す。そうでなければ #Mnil を返し、外部変数 
+    #merror_code にエラーコードを設定する。*/
 
 /***
     @errors
@@ -1202,6 +1306,16 @@ mchar_define_charset (char *name, MPlist *plist)
     charset name, and if the canonicalized name represents a charset,
     return it.  Otherwise, return #Mnil.  */
 
+/***ja
+    @brief 文字セット名の解決
+
+    関数 mchar_resolve_charset () は $SYMBOL が文字セットを示していれ
+    ばそれを返す。
+
+    そうでなければ、$SYMBOL を文字セット名として正規化し、それが文字セッ
+    トを示していていれば正規化したものを返す。そうでなければ、#Mnil を
+    返す。 */
+
 MSymbol
 mchar_resolve_charset (MSymbol symbol)
 {
@@ -1224,6 +1338,13 @@ mchar_resolve_charset (MSymbol symbol)
     The mchar_list_charsets () function makes an array of symbols
     representing a charset, stores the pointer to the array in a place
     pointed to by $SYMBOLS, and returns the length of the array.  */
+
+/***ja
+    @brief 文字セットを表わすシンボルの列挙
+
+    関数 mchar_list_charsets () は、文字セットを示すシンボルを並べた配
+    列を作り、$SYMBOLS でポイントされた場所にこの配列へのポインタを置
+    き、配列の長さを返す。 */
 
 int
 mchar_list_charset (MSymbol **symbols)
@@ -1249,7 +1370,7 @@ mchar_list_charset (MSymbol **symbols)
     If decoding was successful, mchar_decode () returns the decoded
     character code.  Otherwise it returns -1.  */
 
-/***oldja
+/***ja
     @brief コードポイントをデコードする
 
     関数 mchar_decode () は、シンボル $CHARSET_NAME で示される文字セッ
@@ -1285,7 +1406,7 @@ mchar_decode (MSymbol charset_name, unsigned code)
     If encoding was successful, mchar_encode () returns the encoded
     code-point.  Otherwise it returns #MCHAR_INVALID_CODE.  */
 
-/***oldja
+/***ja
     @brief 文字コードをエンコードする
 
     関数 mchar_encode () は、文字コード $C をエンコードしてシンボル
@@ -1328,7 +1449,7 @@ mchar_encode (MSymbol charset_name, int c)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief 指定した文字セットのすべての文字に対して関数を呼ぶ
 
     関数 mcharset_map_chars () は $CHARSET_NAME という名前を持つ文字セッ
