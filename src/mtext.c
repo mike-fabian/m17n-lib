@@ -163,7 +163,7 @@ static int
 compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
 {
   if (mt1->format == mt2->format
-      && (mt1->format < MTEXT_FORMAT_UTF_8))
+      && (mt1->format <= MTEXT_FORMAT_UTF_8))
     {
       unsigned char *p1, *pend1, *p2, *pend2;
 
