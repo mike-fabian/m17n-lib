@@ -1,3 +1,33 @@
+2004-07-13  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (DEVICE_DELTA): New macro.
+	(adjust_anchor): New function.
+	(mfont__ft_drive_gsub): Renamed from mfont__ft_drive_otf.  Drive
+	only GSUB.
+	(mfont__ft_drive_gpos): New function.
+
+	* font-flt.c (FontLayoutCmdOTF): Moved to internal-gui.h.
+	(FontLayoutContext): Delete member `rfont'.
+	(run_otf): Set g->otf_cmd.  Call 
+	(mfont__flt_run): Don't set ctx.rfont.  Call mfont__ft_decode_otf
+	only whne HAVE_OTF is defined.
+
+	* fontset.c: Include "config.h".
+
+	* internal-gui.h (FontLayoutCmdOTF): Moved from font-flt.c.
+	(MGlyph): New member otf_cmd.
+
+	* font.h (mfont__ft_drive_gsub): Changed from mfont__ft_drive_otf.
+	(mfont__ft_drive_gpos): Extern it.
+
+	* face.c: Include "config.h".
+
+	* draw.c (layout_glyphs): Call mfont__ft_drive_gpos.
+
+	* input-gui.c: Include "config.h".
+
+	* plist.c: Include "config.h".
+
 2004-07-06  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.c, m17n-gui.h, m17n-gd.c, m17n-X.h, m17n-X.c,
