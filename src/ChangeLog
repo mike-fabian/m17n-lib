@@ -1,3 +1,19 @@
+2004-06-22  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (mfontset_lookup): Extern it.
+
+	* m17n-gui.c (m17n_init_win): Delete unnecessary printing.
+
+	* fontset.c (realize_fontset_elements)
+	(free_realized_fontset_elements, update_fontset_elements): New
+	functions.
+	(mfont__realize_fontset): Call realize_fontset_elements.
+	(mfont__free_realized_fontset): Call free_realized_fontset_elements.
+	(mfont__lookup_fontset): If a fontset was modified, update
+	the realized fontset.
+	(mfontset_modify_entry): Increment fontset->tick.
+	(mfontset_lookup): New function.
+
 2004-06-21  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (mfont__ft_parse_name): Cast the arg to FcNameParse.
