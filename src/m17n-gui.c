@@ -85,28 +85,6 @@ static int win_initialized;
 #define DLOPEN_SHLIB_EXT ".so"
 #endif
 
-/** Information about a dynamic library supporting a specific graphic
-    device.  */
-typedef struct
-{
-  /** Name of the dynamic library (e.g. "libm17n-X.so").  */
-  char *library;
-  /** Handle fo the dynamic library.  */
-  void *handle;
-  /** Function to call just after loading the library.  */
-  int (*init) ();
-  /** Function to call to open a frame on the graphic device.  */
-  void *(*open) (MFrame *frame, MPlist *param);
-  /** Function to call just before unloading the library.  */
-  int (*fini) ();
-} MDeviceLibraryInterface;
-
-
-/** Plist of device symbol vs MDeviceLibraryInterface.  */
-
-static MPlist *device_library_list;
-
-
 /** Close MFrame and free it.  */
 
 static void
@@ -121,24 +99,6 @@ free_frame (void *object)
   free (object);
 }
 
-
-/** Register a dynamic library of name LIB by a key NAME.  */
-
-static int
-register_device_library (MSymbol name, char *lib)
-{
-  MDeviceLibraryInterface *interface;
-
-  MSTRUCT_CALLOC (interface, MERROR_WIN);
-  interface->library = malloc (strlen (lib) 
-			       + strlen (DLOPEN_SHLIB_EXT) + 1);
-  sprintf (interface->library, "%s%s", lib, DLOPEN_SHLIB_EXT);
-  if (! device_library_list)
-    device_library_list = mplist ();
-  mplist_add (device_library_list, name, interface);
-  return 0;
-}
-
 
 #ifdef HAVE_FREETYPE
 /** Null device support.  */
@@ -148,36 +108,6 @@ static struct {
   MPlist *realized_font_list;
   MPlist *realized_face_list;
 } null_device;
-
-static void
-null_device_close (MFrame *frame)
-{
-}
-
-void *
-null_device_get_prop (MFrame *frame, MSymbol key)
-{
-  return NULL;
-}
-
-void
-null_device_realize_face (MRealizedFace *rface)
-{
-  rface->info = NULL;
-}
-
-void
-null_device_free_realized_face (MRealizedFace *rface)
-{
-}
-
-static MDeviceDriver null_driver =
-  {
-    null_device_close,
-    null_device_get_prop,
-    null_device_realize_face,
-    null_device_free_realized_face
-  };
 
 static int
 null_device_init ()
@@ -207,13 +137,13 @@ null_device_fini ()
   return 0;
 }
 
-static void *
+static int
 null_device_open (MFrame *frame, MPlist *param)
 {
   MFace *face;
 
+  frame->device = NULL;
   frame->device_type = 0;
-  frame->driver = &null_driver;
   frame->font_driver_list = mplist ();
   mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
   frame->realized_font_list = null_device.realized_font_list;
@@ -222,11 +152,42 @@ null_device_open (MFrame *frame, MPlist *param)
   face = mface_copy (mface__default);
   mplist_push (param, Mface, face);
   M17N_OBJECT_UNREF (face);
-  return &null_device;
+  return 0;
 }
 
-static MDeviceLibraryInterface null_interface =
-  { NULL, NULL, null_device_init, null_device_open, null_device_fini };
+static void
+null_device_close (MFrame *frame)
+{
+}
+
+static void *
+null_device_get_prop (MFrame *frame, MSymbol key)
+{
+  return NULL;
+}
+
+static void
+null_device_realize_face (MRealizedFace *rface)
+{
+  rface->info = NULL;
+}
+
+static void
+null_device_free_realized_face (MRealizedFace *rface)
+{
+}
+
+static MDeviceDriver null_driver =
+  {
+    0,
+    null_device_init,
+    null_device_fini,
+    null_device_open,
+    null_device_close,
+    null_device_get_prop,
+    null_device_realize_face,
+    null_device_free_realized_face
+  };
 
 #endif
 
@@ -234,22 +195,27 @@ static MDeviceLibraryInterface null_interface =
 
 MSymbol Mfreetype;
 
+/** Plist of device symbol vs functions to initialized the device
+    library.  */
+MPlist *m17n__device_library_list;
+
+
 /*** @} */ 
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
 
 /* External API */
 
-void
+int
 m17n_init_win (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
   if (win_initialized++)
-    return;
+    return 0;
   m17n_init ();
   if (merror_code != MERROR_NONE)
-    return;
+    return -1;
 
   MDEBUG_PUSH_TIME ();
 
@@ -269,9 +235,6 @@ m17n_init_win (void)
   Mdepth = msymbol ("depth");
   Mwidget = msymbol ("widget");
 
-  register_device_library (Mx, "libm17n-X");
-  register_device_library (Mgd, "libm17n-gd");
-
   MDEBUG_PUSH_TIME ();
   if (mfont__init () < 0)
     goto err;
@@ -290,11 +253,19 @@ m17n_init_win (void)
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input-win module."));
   mframe_default = NULL;
 
+  m17n__device_library_list = mplist ();
+#ifdef HAVE_FREETYPE
+  null_driver.initialized = 0;
+  mplist_put (m17n__device_library_list, Mt, &null_driver);
+#endif
+
+  return 0;
+
  err:
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the m17n GUI module."));
   MDEBUG_POP_TIME ();
-  return;
+  return -1;
 }
 
 void
@@ -312,23 +283,17 @@ m17n_fini_win (void)
       MDEBUG_PUSH_TIME ();
       MDEBUG_PUSH_TIME ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize device modules."));
-      MPLIST_DO (plist, device_library_list)
+      MPLIST_DO (plist, m17n__device_library_list)
 	{
-	  MDeviceLibraryInterface *interface = MPLIST_VAL (plist);
+	  MDeviceDriver *driver = MPLIST_VAL (plist);
 
-	  if (interface->handle && interface->fini)
+	  if (driver->initialized)
 	    {
-	      (*interface->fini) ();
-	      dlclose (interface->handle);
+	      (*driver->fini) ();
+	      driver->initialized = 0;
 	    }
-	  free (interface->library);
-	  free (interface);
 	}
-      M17N_OBJECT_UNREF (device_library_list);
-#ifdef HAVE_FREETYPE
-      if (null_interface.handle)
-	(*null_interface.fini) ();
-#endif	/* not HAVE_FREETYPE */
+      M17N_OBJECT_UNREF (m17n__device_library_list);
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
       minput__win_fini ();
       MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
@@ -599,13 +564,19 @@ mframe (MPlist *plist)
   int plist_created = 0;
   MPlist *pl;
   MSymbol device;
-  MDeviceLibraryInterface *interface;
+  MDeviceDriver *driver;
 
   if (plist)
     {
       pl = mplist_find_by_key (plist, Mdevice);
       if (pl)
-	device = MPLIST_VAL (pl);
+	{
+	  device = MPLIST_VAL (pl);
+	  if (device == Mt)
+	    MERROR (MERROR_WIN, NULL);
+	  if (device == Mnil)
+	    device = Mt;
+	}
       else
 	device = Mx;
     }
@@ -616,47 +587,23 @@ mframe (MPlist *plist)
       device = Mx;
     }
 
-  if (device == Mnil)
+  driver = mplist_get (m17n__device_library_list, device);
+  if (! driver)
+    MERROR (MERROR_WIN, NULL);
+  if (! driver->initialized)
     {
-#ifdef HAVE_FREETYPE
-      interface = &null_interface;
-      if (! interface->handle)
-	{
-	  (*interface->init) ();
-	  interface->handle = Mt;
-	}
-#else  /* not HAVE_FREETYPE */
-      MERROR (MERROR_WIN, NULL);
-#endif	/* not HAVE_FREETYPE */
-    }
-  else
-    {
-      interface = mplist_get (device_library_list, device);
-      if (! interface)
+      if ((*driver->init) () < 0)
 	MERROR (MERROR_WIN, NULL);
-      if (! interface->handle)
-	{
-	  interface->handle = dlopen (interface->library, RTLD_NOW);
-	  if (! interface->handle)
-	    MERROR (MERROR_WIN, NULL);
-	  interface->init = dlsym (interface->handle, "device_init");
-	  interface->open = dlsym (interface->handle, "device_open");
-	  interface->fini = dlsym (interface->handle, "device_fini");
-	  if (! interface->init || ! interface->open || ! interface->fini
-	      || (*interface->init) () < 0)
-	    {
-	      dlclose (interface->handle);
-	      MERROR (MERROR_WIN, NULL);
-	    }
-	}
-    }
+      driver->initialized = 1;
+    }      
 
   M17N_OBJECT (frame, free_frame, MERROR_FRAME);
-  if (! (frame->device = (*interface->open) (frame, plist)))
+  if ((*driver->open) (frame, plist) < 0)
     {
       free (frame);
       MERROR (MERROR_WIN, NULL);
     }
+  frame->driver = driver;
 
   if (! mframe_default)
     mframe_default = frame;
