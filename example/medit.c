@@ -1184,6 +1184,20 @@ ButtonProc (Widget w, XEvent *event, String *str, Cardinal *num)
       redraw (sel_start.y0, sel_end.y1, 1, 0);
     }
   hide_cursor ();
+  if (current_input_context)
+    {
+      MText *produced = mtext ();
+
+      minput_reset_ic (current_input_context);
+      minput_lookup (current_input_context, Mnil, NULL, produced);
+      if (mtext_len (produced) > 0)
+	{
+	  insert_chars (produced);
+	  if (pos >= cursor.from)
+	    pos += mtext_len (produced);
+	}
+      m17n_object_unref (produced);
+    }
   update_cursor (pos, 0);
 }
 
@@ -1587,13 +1601,6 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	    {
 	      redraw (0, win_height, 1, 1);
 	      return;
-	    }
-	  else if (buf[0] == 28) /* C-\ */
-	    {
-	      if (current_input_context)
-		minput_reset_ic (current_input_context);
-	      if (mtext_len (current_input_context->produced) > 0)
-		insert_chars (current_input_context->produced);
 	    }
 	  else
 	    {
