@@ -505,6 +505,12 @@ extern void mdebug__print_time ();
       fprintf (stderr, (fmt), (arg1), (arg2), (arg3), (arg4));	\
   } while (0)
 
+#define MDEBUG_PRINT5(fmt, arg1, arg2, arg3, arg4, arg5)		\
+  do {									\
+    if (mdebug__flag & mdebug_mask)					\
+      fprintf (stderr, (fmt), (arg1), (arg2), (arg3), (arg4), (arg5));	\
+  } while (0)
+
 
 #define MDEBUG_PUSH_TIME()		\
   do {					\
