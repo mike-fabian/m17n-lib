@@ -1029,7 +1029,7 @@ int
 mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
 {
   int len = to - from;
-  MGlyph *g, *prev;
+  MGlyph *g;
   int i;
   MFTInfo *ft_info;
   OTF *otf;
@@ -1116,6 +1116,7 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
 	case 4:
 	  {
 	    int base_x, base_y, mark_x, mark_y;
+	    MGlyph *prev = g - inc;
 
 	    base_x = otfg->f.f4.base_anchor->XCoordinate * size10 / u / 10;
 	    base_y = otfg->f.f4.base_anchor->YCoordinate * size10 / u / 10;
@@ -1127,9 +1128,16 @@ mfont__ft_drive_gpos (MGlyphString *gstring, int from, int to)
 			     prev, size, &base_x, &base_y);
 	    if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
 	      adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
-			     prev, size, &mark_x, &mark_y);
+			     g, size, &mark_x, &mark_y);
 	    g->xoff = (base_x - prev->width) - mark_x;
 	    g->yoff = base_y - mark_y;
+	    if (inc < 0)
+	      {
+		MGlyph temp = *g;
+
+		*g = g[1];
+		g[1] = temp;
+	      }
 	  }
 	  break;
 	case 5:
