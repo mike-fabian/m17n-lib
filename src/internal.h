@@ -345,7 +345,7 @@ typedef struct
 #define M17N_OBJECT_REGISTER(array, object)			\
   if (mdebug__flag & MDEBUG_FINI)				\
     {								\
-      if ((array).count == 0)					\
+      if ((array).used == 0)					\
 	MLIST_INIT1 (&(array), objects, 256);			\
       (array).count++;						\
       MLIST_APPEND1 (&(array), objects, object, MERROR_OBJECT);	\
