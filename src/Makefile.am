@@ -74,7 +74,7 @@ libm17n_gui_la_LDFLAGS = ${OPTIONAL_LD_FLAGS} ${VINFO}
 
 libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
 libm17n_X_la_LIBADD = libm17n-gui.la
-libm17n_X_la_LDFLAGS = -module ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${VINFO}
+libm17n_X_la_LDFLAGS = -module @XFT2_LD_FLAGS@ ${VINFO}
 
 libm17n_gd_la_SOURCES = m17n-gd.c
 libm17n_gd_la_LDFLAGS = -module ${VINFO}
