@@ -1,3 +1,13 @@
+2004-08-09  Kenichi Handa  <handa@m17n.org>
+
+	* mconv.c (VERSION): Updated to 1.1.
+
+	* mdate.c (VERSION): Likewise.
+
+	* medit.c (VERSION): Likewise.
+
+	* mview.c (VERSION): Likewise.
+
 2004-07-28  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.utf8: Add language names for Telugu and Gujarati.
