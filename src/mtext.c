@@ -51,8 +51,8 @@
 
     @brief M-text オブジェクトとそれに関する API.
 
-    m17n ライブラリは、 C-string（<tt>char *</tt> や <tt>unsigned char
-    *</tt>）ではなく @e M-text と呼ぶオブジェクトでテキストを表現する。
+    m17n ライブラリは、 C-string（<tt>char *</tt> や <tt>unsigned
+    char *</tt>）ではなく @e M-text と呼ぶオブジェクトでテキストを表現する。
     M-text は長さ 0 以上の文字列であり、種々の文字ソース（たとえば 
     C-string、ファイル、文字コード等）から作成できる。
 
