@@ -314,6 +314,14 @@ enum FontLayoutCmdType
 
 typedef struct
 {
+  MSymbol script;
+  MSymbol langsys;
+  MSymbol gsub_features;
+  MSymbol gpos_features;
+} FontLayoutCmdOTF;
+
+typedef struct
+{
   enum FontLayoutCmdType type;
   union {
     FontLayoutCmdRule rule;
@@ -978,14 +986,6 @@ run_rule (int depth,
   int i;
   int orig_from = from;
 
-  if (ctx->cluster_begin_idx)
-    {
-      if (ctx->cluster_begin_pos > MGLYPH (from)->pos)
-	ctx->cluster_begin_pos = MGLYPH (from)->pos;
-      if (ctx->cluster_end_pos < MGLYPH (to)->pos)
-	ctx->cluster_end_pos = MGLYPH (to)->pos;
-    }
-
   if (rule->src_type == SRC_SEQ)
     {
       int len;
@@ -1077,6 +1077,13 @@ run_rule (int depth,
 	    continue;
 	  i--;
 	}
+      if (ctx->cluster_begin_idx)
+	{
+	  if (ctx->cluster_begin_pos > MGLYPH (from)->pos)
+	    ctx->cluster_begin_pos = MGLYPH (from)->pos;
+	  if (ctx->cluster_end_pos < MGLYPH (to)->pos)
+	    ctx->cluster_end_pos = MGLYPH (to)->pos;
+	}
       pos = run_command (depth, rule->cmd_ids[i], gstring, from, to, ctx);
       if (pos < 0)
 	MERROR (MERROR_DRAW, -1);
@@ -1119,15 +1126,9 @@ run_otf (int depth,
 	 FontLayoutContext *ctx)
 {
 #ifdef HAVE_OTF
-  int gidx = gstring->used;
-  MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
-
-  for (; g < gend; g++)
-    g->otf_cmd = otf_cmd;
-
-  to = mfont__ft_drive_gsub (gstring, from, to);
-  if (gidx < gstring->used)
-    MGLYPH (gidx)->left_padding = ctx->left_padding;
+  to = mfont__ft_drive_otf (gstring, from, to,
+			    otf_cmd->script, otf_cmd->langsys,
+			    otf_cmd->gsub_features, otf_cmd->gpos_features);
 #endif
   return to;
 }
