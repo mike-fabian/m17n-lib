@@ -1,3 +1,9 @@
+2004-07-20  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (render_glyphs): Fix checking of g->code validity.
+
+	* face.c (mface__realize): Set g.type.
+
 2004-07-18  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am: Prepend ${top_srcdir} to all *.la in

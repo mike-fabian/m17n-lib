@@ -1,3 +1,8 @@
+2004-07-20  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): If frame creation is falied, exit by error.
+	Call M17N_FINI after destroying the application context.
+
 2004-07-18  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (common_ldflags): Don't include
