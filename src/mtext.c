@@ -1233,7 +1233,7 @@ mtext_ref_char (MText *mt, int pos)
     variable #merror_code.  */
 
 /***ja
-    @brief M-text に一文字を設定する
+    @brief M-text に一文字を設定する.
 
     関数 mtext_set_char () は、テキストプロパティ無しの文字 $C を 
     M-text $MT の位置 $POS に設定する。
@@ -1876,8 +1876,7 @@ mtext_character (MText *mt, int from, int to, int c)
 /*=*/
 
 /***en
-    @brief Return the position of the first occurrence of a
-    character in an M-text.
+    @brief Return the position of the first occurrence of a character in an M-text.
 
     The mtext_chr () function searches M-text $MT for character $C.
     Search starts from the beginning of $MT and goes toward the end.
@@ -1914,8 +1913,7 @@ mtext_chr (MText *mt, int c)
 /*=*/
 
 /***en
-    @brief Return the position of the last occurrence of a
-    character in an M-text.
+    @brief Return the position of the last occurrence of a character in an M-text.
 
     The mtext_rchr () function searches M-text $MT for character $C.
     Search starts from the end of $MT and goes backwardly toward the
@@ -1926,7 +1924,7 @@ mtext_chr (MText *mt, int c)
     returns -1.  */
 
 /***ja
-    @brief M-text 中で指定された文字が最後に現れる位置を返す
+    @brief M-text 中で指定された文字が最後に現れる位置を返す.
 
     関数 mtext_rchr () は M-text $MT 中で文字 $C を探す。探索は $MT の
     最後から先頭方向へと後向きに進む。
@@ -2001,7 +1999,7 @@ mtext_cmp (MText *mt1, MText *mt2)
     equal to, or less than $MT2, respectively.  */
 
 /***ja
-    @brief 二つの M-text の先頭部分を文字単位で比較する
+    @brief 二つの M-text の先頭部分を文字単位で比較する.
 
     関数 mtext_ncmp () は、関数 mtext_cmp () 同様の M-text 同士の比較
     を先頭から最大 $N 文字までに関して行なう。

@@ -767,9 +767,9 @@ MSymbol Mplist;
     M-text.  */
 
 /***ja
-    @brief "text" を名前として持つシンボル
+    @brief "mtext" を名前として持つシンボル.
 
-    シンボル @c Mtext は <tt>"text"</tt> という名前を持つ管理キーであ
+    シンボル @c Mtext は <tt>"mtext"</tt> という名前を持つ管理キーであ
     る。キーが @c Mtext であるプロパティの値は M-text でなくてはならな
     い。      */
 
@@ -822,7 +822,7 @@ mplist ()
     @errors
     This function never fails.  */ 
 /***ja
-    @brief  プロパティリストをコピーする.
+    @brief プロパティリストをコピーする.
 
     関数 mplist_copy () はプロパティリスト $PLIST をコピーする。コピーのすべての
     値はコピー元 $PLIST の値と同じである。
@@ -1163,7 +1163,7 @@ mplist_next (MPlist *plist)
     If the operation was successful, mplist_set () returns $PLIST.
     Otherwise, it returns @c NULL.  */
 /***ja
-    @brief プロパティリスト最初のプロパティを設定する。
+    @brief プロパティリストの最初のプロパティを設定する.
 
     関数 mplist_set () はプロパティリスト $PLIST の最初のプロパティの
     キーと値をそれぞれ $KEY と $VALUE に設定する。$KEY と $VAL に対す

@@ -42,7 +42,7 @@
 
 /***ja
     @addtogroup m17nCharacter
-    @brief 文字オブジェクトとそれに関する API
+    @brief 文字オブジェクトとそれに関する API.
 
     m17n ライブラリは @e 文字 を文字コード（整数）で表現する。最小の文
     字コードは @c 0 で、最大の文字コードはマクロ #MCHAR_MAX によって
