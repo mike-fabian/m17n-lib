@@ -1,3 +1,9 @@
+2004-07-23  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.xml: Add Myanmar.
+
+	* HELLO.utf8: Add Myanmar.
+
 2004-07-22  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (get_selection): If decoding fails and *type is not
