@@ -50,19 +50,17 @@ extern void m17n_fini_core (void);
 
 /*=*/
 
-/*** @addtogroup m17nIntro */
-/*** @{ */
-
+/*** @ingroup m17nIntro */
 /***en
     @brief Enumeration for the status of the m17n library.
 
-    The enum #MTextFormat is used as a return value of the function
+    The enum #MTextStatus is used as a return value of the function
     m17n_status ().  */
 
-/***en
+/***ja
     @brief  m17n ライブラリの状態を示す列挙型.
 
-    列挙型 #MTextFormat は関数 m17n_status () の戻り値として用いられる。 */
+    列挙型 #MTextStatus は関数 m17n_status () の戻り値として用いられる。 */
 
 enum M17NStatus
   {
@@ -76,7 +74,6 @@ enum M17NStatus
     M17N_GUI_INITIALIZED
   };
 
-/*** @} */
 /*=*/
 
 extern enum M17NStatus m17n_status (void);
