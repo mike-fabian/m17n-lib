@@ -4,6 +4,7 @@
 	(layout_glyphs): Don't get metrics glyphs that are already ready.
 	Pay attention to MGlyph->bidi_sensitive.  Combine a glyph of zero
 	width with the previous one. 
+	(draw_background): Fix bar cursor position on a r2l glyph.
 
 	* font-flt.c (FontLayoutCmdOTF): Move back from internal-gui.h.
 	(run_rule): Fix place of updating cluster_begin_pos and
