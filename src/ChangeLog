@@ -1,5 +1,15 @@
 2004-03-19  Kenichi Handa  <handa@m17n.org>
 
+	* Version 1.0 Patch Level 1 released.
+
+2004-03-19  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): New macro.
+
+	* m17n-core.c (M17NLIB_PATCH_LEVEL): Describe it.
+
+2004-03-19  Kenichi Handa  <handa@m17n.org>
+
 	Re-apply the changes forgotten in the released version.
 
 	* charset.c (mcharset__load_from_database): Call
