@@ -93,8 +93,6 @@ extern MSymbol Mwidget;
 extern MSymbol Mdepth;
 extern MSymbol Mcolormap;
 
-extern MSymbol Mx;
-
 extern MFrame *mframe (MPlist *plist);
 
 extern void *mframe_get_prop (MFrame *frame, MSymbol key);
@@ -140,6 +138,8 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
 typedef struct MFont MFont;
 
 /*=*/
+
+extern MSymbol Mx, Mfreetype, Mxft;
 
 extern MPlist *mfont_freetype_path;
 
@@ -214,6 +214,8 @@ extern MFont *mfont_find (MFrame *frame, MFont *spec,
 extern MSymbol *mfont_selection_priority ();
 
 extern int mfont_set_selection_priority (MSymbol *keys);
+
+extern int mfont_resize_ratio (MFont *font);
 
 /* end of font module */
 /*=*/
@@ -758,6 +760,33 @@ typedef struct
   int left_from, left_to;
   int right_from, right_to;
 
+  /***en Logical width of the glyph.  Nominal distance to the next
+      glyph.  */
+  /***ja グリフの論理的幅。次のグリフとの名目上の距離。  */
+  int logical_width;
+} MDrawGlyphInfo;
+
+/*=*/
+
+/*** @ingroup m17nDraw */
+/***en
+    @brief Type of information about a glyph metric and font.
+
+    The type #MDrawGlyph is the structure that contains information
+    about a glyph metric and font.  It is used by the function
+    mdraw_glyph_list ().  */
+/***ja
+    @brief グリフの寸法とフォントに関する情報の型宣言.
+
+    #MDrawGlyph 型はグリフの寸法とフォントに関する情報を含む構造体であ
+    る。mdraw_glyph_list () はこれを用いる。  */
+
+typedef struct
+{
+  /***en Character range corresponding to the glyph.  */
+  /***ja グリフに対応する文字の範囲.  */
+  int from, to;
+
   /***en Font glyph code of the glyph.  */
   /***ja フォント内のグリフコード。  */
   int glyph_code;
@@ -765,9 +794,37 @@ typedef struct
   /***en Logical width of the glyph.  Nominal distance to the next
       glyph.  */
   /***ja グリフの論理的幅。次のグリフとの名目上の距離。  */
-  int logical_width;
+  int x_advance, y_advance;
 
-} MDrawGlyphInfo;
+  /***en X/Y offset relative to the glyph position.  */
+  /***ja グリフの位置に対する X/Y オフセット.  */
+  int x_off, y_off;
+
+  /***en Metric of the glyph.  */
+  /***ja グリフの寸法.  */
+  int lbearing, rbearing;
+  int ascent, descent;
+
+  /***en Font used for the glyph.  Set to NULL if no font is found for
+      the glyph.  */
+  /***ja グリフに使われるフォント。見つからなければ NULL。
+      the glyph.  */
+  MFont *font;
+
+  /***en Type of the font.  One of Mx, Mfreetype, Mxft.  */
+  /***ja フォントのタイプ。Mx、Mfreetype、Mxft のいずれか。  */
+  MSymbol font_type;
+
+  /***en Pointer to the font structure.  The actual type is
+      (XFontStruct *) if <font_type> member is Mx, FT_Face if
+      <font_type> member is Mfreetype, and (XftFont *) if <font_type>
+      member is Mxft.  */
+  /***ja フォントの構造体へのポインタ。実際の型は <font_type> メンバが
+      Mx なら (XFontStruct *)、 Mfreetype なら FT_Face、Mxft なら
+      (XftFont *)。 */
+  void *fontp;
+
+} MDrawGlyph;
 
 /*=*/
 
@@ -851,7 +908,7 @@ extern int mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 			     MDrawControl *control, MDrawGlyphInfo *info);
 
 extern int mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
-			     MDrawControl *control, MDrawGlyphInfo *info,
+			     MDrawControl *control, MDrawGlyph *glyphs,
 			     int array_size, int *num_glyphs_return);
 
 extern void mdraw_text_items (MFrame *frame, MDrawWindow win, int x, int y,
