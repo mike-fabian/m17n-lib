@@ -629,10 +629,6 @@ extern int mtext_push_prop (MText *mt, int from, int to,
 extern int mtext_pop_prop (MText *mt, int from, int to,
 			   MSymbol key);
 
-extern int mtext_change_prop (MText *mt, int from, int to,
-			      MSymbol key,
-			      int (*func) (int, void ***, int *));
-
 extern int mtext_prop_range (MText *mt, MSymbol key, int pos,
 			     int *from, int *to, int deeper);
 
