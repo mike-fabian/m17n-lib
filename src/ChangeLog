@@ -1,3 +1,8 @@
+2004-09-22  Kenichi Handa  <handa@m17n.org>
+
+	* mtext.c (count_utf_16_chars): Count each code of invalid
+	surrogates as one.
+
 2004-09-19  Kenichi Handa  <handa@m17n.org>
 
 	* mtext.c (default_utf_16, default_utf_32): Rename them to
