@@ -1,3 +1,10 @@
+2004-08-06  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (mfont__ft_drive_otf): Fix for the case that no GSUB
+	feature to apply.
+
+	* font-flt.c (run_otf): Print debugging information if necessary.
+
 2004-08-05  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (mfont__ft_drive_otf): Fix sign of g->yoff.  Support
