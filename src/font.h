@@ -180,9 +180,6 @@ struct MFontDriver
   void (*render) (MDrawWindow win, int x, int y,
 		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
 		  int reverse, MDrawRegion region);
-
-  MFont *(*parse_name) (char *name, MFont *font);
-  char *(*build_name) (MFont *font);
 };
 
 /** Initialize the members of FONT.  */
@@ -223,6 +220,10 @@ extern MFontDriver mfont__ft_driver;
 extern int mfont__ft_init ();
 
 extern void mfont__ft_fini ();
+
+extern int mfont__ft_parse_name (char *name, MFont *font);
+
+extern char *mfont__ft_unparse_name (MFont *font);
 
 extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 				MRealizedFont *rfont,
@@ -267,6 +268,9 @@ extern int mfont__split_name (char *name, int *property_idx,
 extern void mfont__set_spec (MFont *font,
 			     MSymbol attrs[MFONT_PROPERTY_MAX],
 			     unsigned short size, unsigned short resy);
+
+extern int mfont__parse_name_into_font (char *name, MSymbol format,
+					MFont *font);
 
 extern unsigned mfont__flt_encode_char (MSymbol layouter_name, int c);
 
