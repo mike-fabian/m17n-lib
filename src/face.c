@@ -1723,6 +1723,9 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
     val = get_hline_create (val);
   else if (key == Mbox)
     val = get_box_create (val);
+
+  if (face->properties[index] == val)
+    return 0;
   face->property[index] = val;
 
   MPLIST_DO (plist, face->frame_list)
