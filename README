@@ -31,6 +31,8 @@ find out the existence of them automatically.
 	fribidi	  	-- http://fribidi.sourceforge.net/
 	freetype	-- http://www.freetype.org/
 	libotf		-- http://www.m17n.org/libotf/
+	fontconfig	-- http://freedesktop.org/Software/fontconfig
+	xft		-- http://freedesktop.org/Software/Xft
 
 The sample program medit utilizes this Japanese inputting system.  It
 is also recommened to install it.
