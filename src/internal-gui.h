@@ -289,7 +289,7 @@ extern MSymbol mwin__parse_event (MFrame *frame, void *arg, int *modifiers);
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-extern void *mwin__xft_open (MFrame *frame, char *filename, int size);
+extern void *mwin__xft_open (MFrame *frame, char *fontname, int size);
 extern void mwin__xft_close (void *xft_info);
 extern void mwin__xft_get_metric (void *xft_info, FT_Face ft_face, MGlyph *g);
 extern void mwin__xft_render (MDrawWindow win, int x, int y,
