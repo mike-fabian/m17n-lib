@@ -35,12 +35,12 @@ will find out the existence of them automatically.
 	xft		-- http://freedesktop.org/Software/Xft
 	gd		-- http://www.boutell.com/gd/http/gd-1.8.4.tar.gz
 
-The sample program medit utilizes this Japanese inputting system.  It
-is also recommended to install it.
+The sample program m17n-edit utilizes this Japanese inputting system.
+It is also recommended to install it.
 
 	anthy		-- http://anthy.sourceforge.jp/
 
-The sample program medit and mdump utilize this Thai word-boundary
+The sample program m17n-edit and mdump utilize this Thai word-boundary
 finder.  It is also recommended to install it.
 
 	wordcut		-- http://thaiwordseg.sourceforge.net/
@@ -68,18 +68,18 @@ These library files are installed in /usr/local/lib:
 This shell script is installed in /usr/local/bin:
 	m17n-config
 These sample programs are installed in /usr/local/bin too:
-	mconv, mdate, mview, mdump, medit
+	m17n-conv, m17n-date, m17n-view, m17n-dump, m17n-edit
 
 This file under `example' sub-directory is a Japanese resource file
 for medit.  It is not installed but useful in Japanese locale.  Copy
 it to your home directory (or, for instance,
-/usr/X11R6/lib/X11/ja/app-defaults) and rename it to "MEdit" if you
+/usr/X11R6/lib/X11/ja/app-defaults) and rename it to "M17NEdit" if you
 want to see labels in Japanese:
-	MEdit.ja
+	M17NEdit.ja
 
 These text files under `example' sub-directory are not installed but
 useful for testing the rendering engine of the m17n library:
-	HELLO.utf8 HELLO.xml HELLO-ja.utf8 HELLO-ja.xml
+	HELLO.utf8 HELLO.xml HELLO-ja.utf8 HELLO-ja.xml HELLO.html
 XXX.xml are generated from XXX.utf8 by attaching text property
 `language' and serializing.
 

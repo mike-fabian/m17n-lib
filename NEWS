@@ -22,6 +22,10 @@ status.
 
 ** New function minput_reset () resets the current input context.
 
+** Names of sample programs have prefix "m17n-" instead of single "m".
+This is to avoid confiliction of program names included in the other
+packages.
+
 
 * Changes in the m17n library 1.1.0
 
