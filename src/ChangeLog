@@ -13,6 +13,8 @@
 	(Minput_reset): New variable.
 	(minput_filter): Always set ic->xxx_changed to 0.
 	(minput_reset_ic): New function.
+	(integer_value): Fix typo ('>' -> '<') and calculation of length
+	of preedit text.
 
 	* m17n-core.c (merror_code): Change type to `int'.
 
