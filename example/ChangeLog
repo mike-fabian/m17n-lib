@@ -1,3 +1,8 @@
+2004-09-14  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (update_selection): Fix for the case that the selection
+	is just one line.
+
 2004-08-27  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c (help_exit): Describe about the arg "-r".
