@@ -2177,7 +2177,7 @@ void *
 mwin__xft_open (MFrame *frame, char *fontname, int size)
 {
   MXftFontInfo *font_info;
-  XftPattern *pattern;
+  XftPattern *pattern, *match;
   XftResult result;
 
   MSTRUCT_CALLOC (font_info, MERROR_WIN);
@@ -2186,24 +2186,25 @@ mwin__xft_open (MFrame *frame, char *fontname, int size)
   pattern = XftNameParse (fontname);
   XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
   XftPatternAddBool (pattern, XFT_ANTIALIAS, 1);
-  pattern = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
-			  pattern, &result);
-  font_info->font_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), pattern);
+  match = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
+			pattern, &result);
+  font_info->font_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), match);
   if (! font_info->font_aa)
     goto err;
-  pattern = XftNameParse (fontname);
-  XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
+  XftPatternDel (pattern, XFT_ANTIALIAS);
   XftPatternAddBool (pattern, XFT_ANTIALIAS, 0);
-  pattern = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
+  match = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
 			  pattern, &result);
-  font_info->font_no_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), pattern);
+  font_info->font_no_aa = XftFontOpenPattern (FRAME_DISPLAY (frame), match);
   if (! font_info->font_no_aa)
     goto err;
+  XftPatternDestroy (pattern);
   return font_info;
 
  err:
   if (font_info->font_aa)
     XftFontClose (FRAME_DISPLAY (frame), font_info->font_aa);
+  XftPatternDestroy (pattern);
   free (font_info);
   return NULL;
 }
