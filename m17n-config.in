@@ -1,0 +1,105 @@
+#!/bin/sh
+# m17n-config -- helper script for the m17n library.	-*- coding: euc-jp; -*-
+# Copyright (C) 2003, 2004
+#   National Institute of Advanced Industrial Science and Technology (AIST)
+#   Registration Number H15PRO112
+# See the end for copying conditions.
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+help ()
+{
+  echo "Usage: $0 [CORE | X] [--version | --cflags | --libs | --libtool]"
+}
+
+if test $# -eq 0; then
+  help 1>&2
+  exit 0
+fi
+
+LIBNAME=m17n
+
+case $1 in
+CORE) LIBNAME=m17n-core; shift;;
+X) LIBNAME=m17n-X; shift;;
+esac
+
+case $1 in
+--version)
+  echo "@PACKAGE_VERSION@";;
+
+--libs)
+  if test "@libdir@" != "/usr/lib"; then
+    echo "-L@libdir@ -l${LIBNAME}"
+  else
+    echo "-lm17n-X"
+  fi;;
+
+--cflags)
+  if test "@includedir@" != "/usr/include"; then
+    echo "-I@includedir@"
+  fi;;
+
+--libtool)
+  echo "@libdir@/lib${LIBNAME}.la"
+  ;;
+
+*)
+    help
+    exit 1;;
+esac
+exit 0
+
+cat > /dev/null <<EOF
+/***en @page m17n-config Print compile/link options of the m17n library */
+/***ja @page m17n-config m17n ライブラリのコンパイル・リンクオプションの表示 */
+
+/***
+@section synopsis SYNOPSIS
+
+m17n-config [CORE | X] [--cflags | --libs | --libtool] [--version]
+
+@section description DESCRIPTION
+
+The shell script m17n-config prints compile and link options for a
+program that uses the m17n library.
+
+By default, the printed options are for such a program that uses SHELL
+API of the libray.  But, if the first argument is "CORE", the options
+are for a program that uses only CORE API, if the first argument "X",
+the options are for a program that uses GUI API on X window.
+
+The other arguments are as follows.
+
+- --cflags\n
+	Print compile option (e.g. -I/usr/local/include)
+- --libs\n
+	Print link option (e.g. -L/usr/local/lib -lm17n)
+- --libtool\n
+	Print libtool option (e.g. /usr/local/lib/libm17n.la)
+- --version\n
+	Print version number of the m17n library.
+*/ 
+EOF
+
+# Copyright (C) 2003, 2004
+#   National Institute of Advanced Industrial Science and Technology (AIST)
+#   Registration Number H15PRO112
+
+# This file is part of the m17n library.
+
+# The m17n library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1 of
+# the License, or (at your option) any later version.
+
+# The m17n library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with the m17n library; if not, write to the Free
+# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.

@@ -1,0 +1,15 @@
+*.lo
+*.la
+mconv
+mdate
+mdump
+medit
+mview
+a.out
+stamp-h*
+config.h
+config.h.in
+Makefile.in
+Makefile
+.deps
+.libs

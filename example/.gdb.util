@@ -1,0 +1,57 @@
+define xchartab
+set mdebug_dump_chartab ($, 0)
+echo \n
+end
+
+define xsymbol
+set mdebug_dump_symbol ($, 0)
+echo \n
+end
+
+define xmtext
+set mdebug_dump_mtext ($, 1, 0)
+echo \n
+end
+
+define xplist
+set mdebug_dump_plist ($, 0)
+echo \n
+end
+
+define xinterval
+set dump_interval ($arg0, 0)
+echo \n
+end
+
+define xfont
+set mdebug_dump_font ($)
+echo \n
+end
+
+define xfontset
+set mdebug_dump_fontset ($, 0)
+echo \n
+end
+
+define xface
+set mdebug_dump_face ($, 0)
+echo \n
+end
+
+define xgstring
+set dump_gstring (gstring, 0)
+echo \n
+end
+
+define xim
+set mdebug_dump_im ($, 0)
+echo \n
+end
+
+define xflush
+call XFlush (display)
+end
+
+define xsynch
+call XSynchronize (display, 1)
+end
