@@ -2686,7 +2686,8 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
     property whose key is #Mtext_prop_serializer and value is a
     pointer to an appropriate serializer function.
 
-    @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
+    @seealso
+    mtext_serialize (), MTextPropSerializeFunc
   */
 
 /***ja
@@ -2697,7 +2698,8 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
     #Mtext_prop_serializer をキーとし、適切なシリアライズ関数へのポイ
     ンタを値とするシンボルプロパティを指定する。
 
-    @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
+    @seealso
+    mtext_serialize (), MTextPropSerializeFunc
   */
 MSymbol Mtext_prop_serializer;
 
@@ -2709,7 +2711,8 @@ MSymbol Mtext_prop_serializer;
     property whose key is #Mtext_prop_deserializer and value is a
     pointer to an appropriate deserializer function.
 
-    @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
+    @seealso
+    mtext_deserialize (), MTextPropSerializeFunc
   */
 
 /***ja
@@ -2720,7 +2723,8 @@ MSymbol Mtext_prop_serializer;
     #Mtext_prop_deserializer をキーとし、適切なデシリアライズ関数への
     ポインタを値とするシンボルプロパティを指定する。
 
-    @seealso Mtext_prop_serializer (), MTextPropSerializeFunc
+    @seealso
+    mtext_deserialize (), MTextPropSerializeFunc
   */
 MSymbol Mtext_prop_deserializer;
 
