@@ -170,10 +170,10 @@ struct MFontDriver
   void (*find_metric) (MRealizedFont *rfont, MGlyphString *gstring,
 		       int from, int to);
 
-  /** Encode C into the glyph code the font.  CODE is a code point of
-      C in rfont->encoder->encoding_charset.  If the font has no glyph
-      for C, return MCHAR_INVALID_CODE.  */
-  unsigned (*encode_char) (MRealizedFont *rfont, int c, unsigned code);
+  /** Encode CODE into a glyph code the font.  CODE is a code point of
+      a character in rfont->encoder->encoding_charset.  If the font
+      has no glyph for CODE, return MCHAR_INVALID_CODE.  */
+  unsigned (*encode_char) (MRealizedFont *rfont, unsigned code);
 
   /** Draw glyphs from FROM to TO (exclusive) on window WIN of FRAME
       at coordinate (X, Y) relative to WIN.  */
@@ -245,9 +245,6 @@ extern void mfont__set_spec_from_face (MFont *spec, MFace *face);
 extern MSymbol mfont__set_spec_from_plist (MFont *spec, MPlist *plist);
 
 extern void mfont__resize (MFont *spec, MFont *request);
-
-extern int mfont__encodable_p (MRealizedFont *rfont, MSymbol layouter_name,
-			       int c);
 
 extern unsigned mfont__encode_char (MRealizedFont *rfont, int c);
 
