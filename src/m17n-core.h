@@ -39,9 +39,9 @@ extern "C"
 /*=*/
 
 #define M17NLIB_MAJOR_VERSION 1
-#define M17NLIB_MINOR_VERSION 0
-#define M17NLIB_PATCH_LEVEL 2
-#define M17NLIB_VERSION_NAME "1.0.2"
+#define M17NLIB_MINOR_VERSION 1
+#define M17NLIB_PATCH_LEVEL 0
+#define M17NLIB_VERSION_NAME "1.1.0"
 
 extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()
