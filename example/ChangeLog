@@ -1,3 +1,8 @@
+2005-01-12  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8, HELLO.xml, HELLO.html: Adjust the encoding of
+	Myanmar kinzi to the new proposal by Myanmar NLP.
+
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.2.0 released.
