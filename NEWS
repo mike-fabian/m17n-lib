@@ -17,6 +17,9 @@ specify which font-backend to use.  The value must be Mx or Mfreetype.
 
 ** New function mfont_list () returns a list of matching fonts.
 
+** New function m17n_status () returns the current initialization
+status.
+
 
 * Changes in the m17n library 1.1.0
 
@@ -90,7 +93,7 @@ License along with the m17n library; if not, write to the Free
 Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 02111-1307, USA.
 
-Local variables:
+Local Variables:
 mode: outline
 paragraph-separate: "[ 	]*$"
-end:
+End:
