@@ -1,3 +1,8 @@
+2004-10-14  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac (M17N_EXT_LIBS): New variable to accumulate
+	available external libraries.
+
 2004-10-13  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Check if <freetype/ftbdf.h> is available or not.

@@ -1,4 +1,11 @@
+2004-10-14  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (device_open): Accept Mxft as the value of key Mfont.
+
 2004-10-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (device_open): Be sure to register at least one font
+	driver.
 
 	* font-ft.c: Include <freetype/ftbdf.h> conditionally.  Check
 	HAVE_FTBDF_H before calling FT_Get_BDF_Property.
