@@ -1058,9 +1058,9 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		if (format & OTF_XPlaDevice)
 		  g->xoff += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, size);
 		if (format & OTF_YPlacement)
-		  g->yoff = otfg->f.f1.value->YPlacement * size10 / u / 10;
+		  g->yoff = - (otfg->f.f1.value->YPlacement * size10 / u / 10);
 		if (format & OTF_YPlaDevice)
-		  g->yoff += DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, size);
+		  g->yoff -= DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, size);
 		if (format & OTF_XAdvance)
 		  g->width += otfg->f.f1.value->XAdvance * size10 / u / 10;
 		if (format & OTF_XAdvDevice)
@@ -1088,7 +1088,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		  adjust_anchor (otfg->f.f4.mark_anchor, ft_info->ft_face,
 				 g->code, size, &mark_x, &mark_y);
 		g->xoff = (base_x - prev->width) - mark_x;
-		g->yoff = base_y - mark_y;
+		g->yoff = mark_y - base_y;
 		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
 	      }
 	      break;
