@@ -91,7 +91,7 @@ CPPFLAGS=$save_CPPFLAGS
 if test "x$HAVE_OTF" = "xyes"; then
   AC_DEFINE(HAVE_OTF, 1, 
 	    [Define to 1 if you have OTF library and header file.])
-  OTF_LD_FLAGS="-lotf";
+  OTF_LD_FLAGS=`libotf-config --libs`
 fi
 AC_SUBST(OTF_LD_FLAGS)
 
@@ -104,19 +104,36 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
   AC_CHECK_HEADER(ft2build.h, HAVE_FREETYPE=yes,
   			      HAVE_FREETYPE=no CPPFLAGS=$save_CPPFLAGS)
   if test "x$HAVE_FREETYPE" = "xyes" ; then
-    FREETYPE_LD_FLAGS=`freetype-config --libs`;
     save_LIBS=$LIBS
-    LIBS="$LIBS $FREETYPE_LD_FLAGS"
+    LIBS="$LIBS `freetype-config --libs`"
     AC_CHECK_LIB(freetype, FT_Init_FreeType, HAVE_FREETYPE=yes,
     			   		     HAVE_FREETYPE=no)
     LIBS=$save_LIBS
     if test "x$HAVE_FREETYPE" = "xyes"; then
+      FREETYPE_LD_FLAGS=`freetype-config --libtool`
       AC_DEFINE(HAVE_FREETYPE, 1, 
 		[Define to 1 if you have FreeType library and header file.])
     fi
   fi
 fi
 AC_SUBST(FREETYPE_LD_FLAGS)
+
+# Check for Xft2 usability.
+AC_CHECK_LIB(Xft, XftDrawCreate, HAVE_XFT2=yes, HAVE_XFT2=no)
+if test "x$HAVE_XFT2" = "xyes"; then
+  AC_CHECK_HEADER(X11/Xft/Xft.h, HAVE_XFT2=yes, HAVE_XFT2=no, 
+		  [#include <X11/Xft/Xft.h>
+#if XftVersion >= 20000
+#else
+Version too old.  Compiling this line should fail.
+#endif])
+  if test "x$HAVE_XFT2" = "xyes"; then
+    AC_DEFINE(HAVE_XFT2, 1,
+	     [Define to 1 if you have Xft2 library and header file.])
+    XFT2_LD_FLAGS="-lXft"
+  fi
+fi
+AC_SUBST(XFT2_LD_FLAGS)
 
 # Check for libxml2 usability.
 AC_CHECK_LIB(xml2, xmlParseMemory, HAVE_XML2=yes, HAVE_XML2=no)
