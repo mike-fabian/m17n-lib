@@ -1,3 +1,18 @@
+2004-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.2 released.
+
+2004-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* mview.c (VERSION): Update to 1.2.
+
+	* medit.c (VERSION): Update to 1.2.
+	(main): If filename is not specified, open /dev/null.
+
+	* mdate.c (VERSION): Update to 1.2.
+
+	* mconv.c (VERSION): Update to 1.2.
+
 2004-12-09  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (SaveProc, DumpImageProc, FileDialogProc, read_file):

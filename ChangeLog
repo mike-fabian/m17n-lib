@@ -1,3 +1,11 @@
+2004-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.2 released.
+
+2004-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Versions changed to 1.2.
+
 2004-10-14  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac (M17N_EXT_LIBS): New variable to accumulate
