@@ -565,12 +565,6 @@ update_selection ()
   if (to <= sel_start.to)
     {
       sel_end = sel_start;
-      if (to >= sel_end.to)
-	{
-	  GLYPH_INFO (sel_start.from, to, info);
-	  sel_end.y1 = sel_end.y0 + info.y + info.metrics.height;
-	  sel_end.to = info.line_to;
-	}
     }
   else
     {
