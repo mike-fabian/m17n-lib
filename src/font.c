@@ -958,6 +958,8 @@ mfont__score (MFont *font, MFont *spec, MFont *request, int limited_size)
 	    return -1;
 	  if (font->property[prop])
 	    val = abs (font->property[prop] - request->property[prop]);
+	  if (val && prop <= MFONT_FAMILY)
+	    val = 1;
 	  if (prop == MFONT_SIZE)
 	    {
 	      if (font->property[MFONT_RESY] == 0)
