@@ -1133,6 +1133,7 @@ ExposeProc (Widget w, XEvent *event, String *str, Cardinal *num)
       update_top (0);
       update_cursor (0, 1);
       redraw (0, win_height, 0, 1);
+      if (current_input_method >= 0)
       {
 	int idx = current_input_method;
 
