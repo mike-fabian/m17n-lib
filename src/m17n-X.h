@@ -32,15 +32,6 @@ extern "C"
 {
 #endif
 
-/* For drawing.  */
-
-extern MSymbol Mdisplay;
-extern MSymbol Mscreen;
-extern MSymbol Mdrawable;
-extern MSymbol Mwidget;
-extern MSymbol Mdepth;
-extern MSymbol Mcolormap;
-
 /* For inputting.  */
 
 extern MInputDriver minput_xim_driver;
