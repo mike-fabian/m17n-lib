@@ -44,7 +44,7 @@
 /***ja
     @addtogroup m17nChartable 文字テーブル
 
-    @brief 文字テーブルとそれに関する API
+    @brief 文字テーブルとそれに関する API.
 
     m17n ライブラリが扱う文字の空間は広大であるため、文字毎の情報を単
     純な配列に格納しようとすると、その配列は巨大になりすぎ、非実用的で
@@ -635,7 +635,7 @@ mchartable__lookup (MCharTable *table, int c, int *next_c, int default_p)
     The symbol @c Mchar_table has the name <tt>"char-table"</tt>.  */
 
 /***ja
-    @brief "char-table" という名前を持つシンボル
+    @brief "char-table" という名前を持つシンボル.
 
     シンボル @c Mchar_table は名前 <tt>"char-table"</tt> を持つ。
     */
@@ -658,7 +658,7 @@ MSymbol Mchar_table;
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief 新しい文字テーブルを作る
+    @brief 新しい文字テーブルを作る.
 
     関数 mchartable () はキーが $KEY で要素のデフォルト値が 
     $DEFAULT_VALUE である新しい文字テーブルを作る。もし $KEY が管理キー
@@ -700,7 +700,7 @@ mchartable (MSymbol key, void *default_value)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief 文字テーブル中で文字に割り当てられた値を返す
+    @brief 文字テーブル中で文字に割り当てられた値を返す.
 
     関数 mchartable_lookup () は文字テーブル $TABLE 中で文字 $C に割り
     当てられた値を返す。$C に対する明示的な値がなければ、$TABLE のデフォ
@@ -738,7 +738,7 @@ mchartable_lookup (MCharTable *table, int c)
     variable #merror_code.  */
 
 /***ja
-    @brief 文字テーブル中での文字の値を設定する
+    @brief 文字テーブル中での文字の値を設定する.
 
     関数 mchartable_set () は、文字テーブル $TABLE 中の文字 $C に
     値 $VAL を割り当てる。
@@ -811,7 +811,7 @@ mchartable_set (MCharTable *table, int c, void *val)
     mchartable_set_range () returns immediately without an error.  */
 
 /***ja
-    @brief 指定範囲の文字に値を設定する
+    @brief 指定範囲の文字に値を設定する.
 
     関数 mchartable_set_range () は、文字テーブル $TABLE 中の $FROM か
     ら $TO まで（両端を含む）の文字に、値として $VAL を設定する。
@@ -864,7 +864,7 @@ mchartable_set_range (MCharTable *table, int from, int to, void *val)
     to -1.  */
 
 /***ja
-    @brief 値がデフォルトと異なる文字を探す
+    @brief 値がデフォルトと異なる文字を探す.
 
     関数 mchartable_range () は文字テーブル $TABLE 中で、$TABLE のデフォ
     ルト値以外の値を持つ最初と最後の文字を探し、それぞれを $FROM と 
@@ -908,7 +908,7 @@ mchartable_range (MCharTable *table, int *from, int *to)
     This function always returns 0.  */
 
 /***ja
-    @brief 文字テーブル中の文字に対して指定の関数を呼ぶ
+    @brief 文字テーブル中の文字に対して指定の関数を呼ぶ.
 
     関数 mchartable_map () は、文字テーブル $TABLE 中の文字に対して関
     数 $FUNC を呼ぶ。ただし$TABLE 中でも値が $IGNORE である文字につい
@@ -955,7 +955,7 @@ mchartable_map (MCharTable *table, void *ignore,
     This function returns $TABLE.  */
 
 /***ja
-    @brief 文字テーブルをダンプする
+    @brief 文字テーブルをダンプする.
 
     関数 mdebug_dump_chartab () は文字テーブル $TABLE を stderr に人間
     に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
