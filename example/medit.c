@@ -984,8 +984,9 @@ insert_chars (MText *newtext)
 }
 
 
-/* Convert the currently selected text to COMPOUND-TEXT.  It is called
-   when someone requests the current value of the selection.  */
+/* Convert the currently selected text to UTF8-STRING or
+   COMPOUND-TEXT.  It is called when someone requests the current
+   value of the selection.  */
 Boolean
 covert_selection (Widget w, Atom *selection_atom,
 		  Atom *target, Atom *return_type,
@@ -995,14 +996,27 @@ covert_selection (Widget w, Atom *selection_atom,
   MText *this_mt = mtext ();
   int from = mtext_property_start (selection);
   int to = mtext_property_end (selection);
+  MSymbol coding;
 
   mtext_copy (this_mt, 0, mt, from, to);
-  *length = mconv_encode_buffer (msymbol ("compound-text"),
-				 this_mt, buf, 4096);
-  *return_type = XA_COMPOUND_TEXT;
+#ifdef X_HAVE_UTF8_STRING
+  if (target != XA_COMPOUND_TEXT)
+    {
+      coding = msymbol ("utf-8");
+      *return_type = XA_UTF8_STRING;
+    }
+  else
+#endif
+    {
+      coding = msymbol ("compound-text");
+      *return_type = XA_COMPOUND_TEXT;
+    }
+  *length = mconv_encode_buffer (coding, this_mt, buf, 4096);
+  m17n_object_unref (this_mt);
+  if (*length == 0)
+    return False;
   *value = (XtPointer) buf;
   *format = 8;
-  m17n_object_unref (this_mt);
   return True;
 }
 
@@ -1031,8 +1045,10 @@ get_selection (Widget w, XtPointer cliend_data, Atom *selection,  Atom *type,
     coding = Mnil;
   else if (*type == XA_COMPOUND_TEXT)
     coding = msymbol ("compound-text");
+#ifdef X_HAVE_UTF8_STRING
   else if (*type == XA_UTF8_STRING)
     coding = msymbol ("utf-8");
+#endif
   else
     goto err;
 
