@@ -922,10 +922,10 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
   if (! font)
     MPLIST_DO (p, disp_info->base_font_list)
       {
-	mplist_push (plist, MPLIST_KEY (p), MPLIST_VAL (p));
+	mplist_add (plist, MPLIST_KEY (p), MPLIST_VAL (p));
 	num++;
 	if (num == maxnum)
-	  break;
+	  return num;
       }
   else
     {
@@ -958,10 +958,10 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
 		  xfont = xfontlist->fonts + i;
 		  if (mfont__match_p (&xfont->core, font, MFONT_REGISTRY))
 		    {
-		      mplist_push (plist, MPLIST_KEY (p), &xfont->core);
+		      mplist_add (plist, MPLIST_KEY (p), &xfont->core);
 		      num++;
 		      if (num == maxnum)
-			break;
+			return num;
 		    }
 		}
 	      if (family != Mnil)
