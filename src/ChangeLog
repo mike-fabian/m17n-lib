@@ -1,4 +1,8 @@
-2004-03-30  Kenichi Handa  <handa@etlken2>
+2004-04-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xfont_encode_char): Fix checking of byte1 and byte2.
+
+2004-03-30  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xfont_encode_char): Return MCHAR_INVALID_CODE if code
 	>= 0x10000.
