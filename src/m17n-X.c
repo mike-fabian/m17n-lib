@@ -76,10 +76,6 @@ typedef struct
 
   MPlist *iso10646_1_family_list;
 
-  /* List of information about each font.  Keys are font registries,
-     values are (MFontInfo *).  */
-  MPlist *realized_font_list;
-
  /** Modifier bit masks of the display.  */
   int meta_mask;
   int alt_mask;
@@ -146,6 +142,10 @@ typedef struct
   /** List of pointers to realized faces on the frame.  */
   MPlist *realized_face_list;
 
+  /* List of information about each font.  Keys are font registries,
+     values are (MFontInfo *).  */
+  MPlist *realized_font_list;
+
   /** List of pointers to realized fontsets on the frame.  */
   MPlist *realized_fontset_list;
 
@@ -211,10 +211,6 @@ free_display_info (void *object)
     }
   M17N_OBJECT_UNREF (disp_info->iso10646_1_family_list);
 
-  MPLIST_DO (plist, disp_info->realized_font_list)
-    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (disp_info->realized_font_list);
-
   if (disp_info->auto_display)
     XCloseDisplay (disp_info->display);
 
@@ -231,6 +227,10 @@ free_device (void *object)
        mplist_key (plist) != Mnil; plist = mplist_next (plist))
     mfont__free_realized_fontset ((MRealizedFontset *) mplist_value (plist));
   M17N_OBJECT_UNREF (device->realized_fontset_list);
+
+  MPLIST_DO (plist, device->realized_font_list)
+    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (device->realized_font_list);
 
   MPLIST_DO (plist, device->realized_face_list)
     {
@@ -941,7 +941,7 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	{
 	  XGlyphInfo extents;
 
-	  XftGlyphExtents (FRAME_DISPLAY (rfont->frame),
+	  XftGlyphExtents (FRAME_DISPLAY (gstring->frame),
 			   font_info->font_aa, &g->code, 1, &extents);
 	  g->lbearing = - extents.x;
 	  g->rbearing = extents.width - extents.x;
@@ -1825,7 +1825,6 @@ device_open (MFrame *frame, MPlist *param)
       disp_info->font_registry_list = mplist ();
       disp_info->iso8859_1_family_list = mplist ();
       disp_info->iso10646_1_family_list = mplist ();
-      disp_info->realized_font_list = mplist ();
       find_modifier_bits (disp_info);
       mplist_add (display_info_list, Mt, disp_info);
     }  
@@ -1857,6 +1856,7 @@ device_open (MFrame *frame, MPlist *param)
       device->depth = depth;
       device->cmap = cmap;
       device->realized_face_list = mplist ();
+      device->realized_font_list = mplist ();
       device->realized_fontset_list = mplist ();
       device->gc_list = mplist ();
       values.foreground = BlackPixel (display, screen_num);
@@ -1879,7 +1879,7 @@ device_open (MFrame *frame, MPlist *param)
 #elif HAVE_FREETYPE
   mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
 #endif
-  frame->realized_font_list = disp_info->realized_font_list;
+  frame->realized_font_list = device->realized_font_list;
   frame->realized_face_list = device->realized_face_list;
   frame->realized_fontset_list = device->realized_fontset_list;
 
