@@ -42,7 +42,9 @@
 
 #ifdef HAVE_FREETYPE
 
+#ifdef HAVE_FTBDF_H
 #include <freetype/ftbdf.h>
+#endif
 
 #ifdef HAVE_FONTCONFIG
 static FcConfig *fc_config;
@@ -256,6 +258,7 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info,
 
   ft_info->charmap_list = charmap_list;
 
+#ifdef HAVE_FTBDF_H
   if (! FT_IS_SCALABLE (ft_face))
     {
       BDF_PropertyRec prop;
@@ -265,6 +268,7 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info,
       FT_Get_BDF_Property (ft_face, "RESOLUTION_Y", &prop);
       font->property[MFONT_RESY] = prop.u.integer;
     }
+#endif
 
   return family;
 }
@@ -329,7 +333,10 @@ add_font_info (char *filename, MSymbol family, void *langset, MPlist *plist)
 
       if (! mplist_get (plist, style)
 	  && (FT_IS_SCALABLE (ft_face)
-	      || FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0))
+#ifdef HAVE_FTBDF_H
+	      || FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0
+#endif
+	      ))
 	{
 	  int basep;
 	  MFTInfo *ft_info;
@@ -703,6 +710,7 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 
 	      g->lbearing = 0;
 	      g->rbearing = g->width = ft_face->available_sizes->width;
+#ifdef HAVE_FTBDF_H
 	      if (FT_Get_BDF_Property (ft_face, "ASCENT", &prop) == 0)
 		{
 		  g->ascent = prop.u.integer;
@@ -710,6 +718,7 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 		  g->descent = prop.u.integer;
 		}
 	      else
+#endif
 		{
 		  g->ascent = ft_face->available_sizes->height;
 		  g->descent = 0;
