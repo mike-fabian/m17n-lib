@@ -1,3 +1,7 @@
+2004-12-24  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (reset_ic): Set key_unhandled to 0.
+
 2004-12-21  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (mfont_from_spec): Delete extern.
