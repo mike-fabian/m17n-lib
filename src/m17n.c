@@ -45,7 +45,7 @@ m17n_init (void)
   if (shell_initialized)
     return;
   m17n_init_core ();
-  if (merror_code < 0)
+  if (merror_code != MERROR_NONE)
     return;
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
