@@ -1695,8 +1695,8 @@ mface_update (MFrame *frame, MFace *face)
 /***ja
     @brief フェースをダンプする.
 
-    関数 mdebug_dump_face () はフェース $FACE を stderr に人間 に可読
-    な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_face () はフェース $FACE を stderr に人間に可読な
+    形で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $FACE を返す。  */

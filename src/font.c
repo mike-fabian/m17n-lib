@@ -102,7 +102,7 @@
     The m17n library, if configured to use the FreeType library,
     supports all fonts that can be handled by the FreeType library.
     The variable #mfont_freetype_path is initialized properly accoding
-    to the configuration of the m17n librayr and the environment
+    to the configuration of the m17n library and the environment
     variable @c M17NDIR.  See the documentation of the variable for
     details.
 
@@ -165,45 +165,144 @@
 
   */
 
-/***oldja
+/***ja
     @addtogroup m17nFont
-    @brief フォントとは、個々のシステムフォントに対応するオブジェクトである
+    @brief フォントオブジェクト
 
-    m17n-win API における @e フォント とは、@c MFont 型のオブジェクト
-    であり、ウィンドウシステム依存の @e システムフォント と一対一に対
-    応付けられる。フォントは固定個数の @e フォントプロパティ を持つ。
-    フォントプロパティはキーと値からなる。キーはシンボルであり、
+    m17n GUI API はフォントを @c MFont 型のオブジェクトとして表現する。
+    フォントは @e フォントプロパティ を持つことができる。他のタイプの
+    プロパティ同様フォントプロパティはキーと値からなる。キーは以下のシ
+    ンボルのいずれかである。
 
     @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
     @c Madstyle, @c Mregistry, @c Msize, @c Mresolution
 
-    のいずれかである。キーが @c Msize あるいは @c Mresolution の場合、
-    値は整数である。キーがそれ以外の場合、値はシンボルである。「フォン
-    ト F のフォントプロパティのうちキーが @c Mxxx であるもの」のことを
-    簡単に「F の xxx プロパティ」と呼ぶことがある。
+    キーが @c Msize あるいは @c Mresolution の場合、値は整数値であり、
+    キーがそれ以外の場合、値はシンボルである。「フォント F のフォント
+    プロパティのうちキーが @c Mxxx であるもの」のことを簡単に「F の 
+    xxx プロパティ」と呼ぶことがある。
 
-    Family プロパティの値は、times, helvetica 等のフォントファミリーを
-    表わす。
+    foundry プロパティの値は、adobe, misc 等のフォントの開発元情報を示
+    すシンボルである。
 
-    Weight プロパティの値は、normal, bold 等の太さに関する情報を表わす。
+    family プロパティの値は、times, helvetica 等のフォントファミリーを
+    示すシンボルである。
 
-    Style プロパティの値は、normal, italic 等の傾きに関する情報を表わ
-    す。
+    weight プロパティの値は、normal, bold 等の太さに関する情報を示すシ
+    ンボルである。
 
-    Stretch プロパティの値は、normal, semicondensed 等の文字幅に関する
-    情報を表わす。
+    style プロパティの値は、normal, italic 等の傾きに関する情報を示す
+    シンボルである。
 
-    Adstyle プロパティの値は、serif, sans-serif 等の抽象的なフォント
-    ファミリーを表わす。
+    stretch プロパティの値は、normal, semicondensed 等の文字幅に関する
+    情報を示すシンボルである。
 
-    Registry プロパティの値は、iso10646, iso8895-1 のレジストリを表わ
-    す。
+    adstyle プロパティの値は、serif, sans-serif 等の抽象的なフォントファ
+    ミリーに関する情報を示すシンボルである。
 
-    Size プロパティの値は、フォントのデザインサイズを表わす。単位
-    は 1/10 ポイントである。
+    registry プロパティの値は、iso10646, iso8895-1 のレジストリ情報を
+    示すシンボルである。
 
-    Resolution プロパティの値は、想定されているデバイスの解像度を 表わ
-    す。単位は dots per inch (dpi) である。  */
+    size プロパティの値は、フォントのデザインサイズを表わす整数値であ
+    り、単位は 1/10 ポイントである。
+
+    resolution プロパティの値は、想定されているデバイスの解像度を表わ
+    す整数値であり、単位は dots per inch (dpi) である。  
+
+    m17n ライブラリはフォントオブジェクトを２つの目的で用いている。ア
+    プリケーションプログラムからフォントの指定を受け取る目的と、アプリ
+    ケーションプログラムに利用可能なフォントを提示する目的である。アプ
+    リケーションプログラムに対して提示を行う際には、フォントプロパティ
+    はすべて具体的な値を持つ。
+
+    m17n ライブラリはWindow システムフォント、FreeTypeフォント、
+    OpenTypeフォントの３種類をサポートしている。
+
+    <ul>
+
+    <li> Window システムフォント
+
+    m17n X ライブラリは、X サーバとX フォントサーバが取り扱う全てのフォ
+    ントをサポートする。XLFD の各フィールドとフォントプロパティの対応
+    は以下の通り。この表にないフィールドは無視される。
+
+@verbatim
+    XLFD フィールド                             プロパティ
+    ---------------                             --------
+    FOUNDRY                                     foundry
+    FAMILY_NAME                                 family
+    WEIGHT_NAME                                 weight
+    SLANT                                       style
+    SETWIDTH_NAME                               stretch
+    ADD_STYLE_NAME                              adstyle
+    POINT_SIZE                                  size
+    RESOLUTION_Y                                resolution
+    CHARSET_REGISTRY-CHARSET_ENCODING           registry
+@endverbatim
+
+    <li> FreeType fonts
+
+    m17n ライブラリは、FreeType ライブラリを使うように設定された場合に
+    は、FreeType が扱うすべてのフォントをサポートする。変数 
+    #mfont_freetype_path はm17n ライブラリの設定と環境変数 @c M17NDIR 
+    に応じて初期化される。詳細は変数の説明を参照のこと。
+
+    FreeType フォントのファミリ名は family プロパティに対応する。
+    FreeType フォントのスタイル名は、下の表のように weight, style,
+    stretch プロパティに対応する。
+
+@verbatim
+    スタイル名          weight  style   stretch
+    ----------          ------  -----   -------
+    Regular             medium  r       normal
+    Italic              medium  i       normal
+    Bold                bold    r       normal
+    Bold Italic         bold    i       normal
+    Narrow              medium  r       condensed
+    Narrow Italic       medium  i       condensed
+    Narrow Bold         bold    r       condensed
+    Narrow Bold Italic  bold    i       condensed
+    Black               black   r       normal
+    Black Italic        black   i       normal
+    Oblique		medium	o	normal
+    BoldOblique		bold	o	normal
+@endverbatim
+
+    上の表に現われないスタイル名は "Regular" として扱われる。
+
+    platform ID と encoding ID の組み合わせはregistry プロパティに対応
+    する。たとえばあるフォントが (1 1) という ID の組合せを持てば、
+    registry プロパティは 1-1 となる。頻繁にあらわれる組合せには以下の
+    ような定義済み registry プロパティ が与えられている。
+
+@verbatim
+    platform ID         encoding ID     registry プロパティ
+    -----------         -----------     -----------------
+    0                   3               unicode-bmp
+    0                   4               unicode-full
+    1                   0               apple-roman
+    3                   1               unicode-bmp
+    3                   1               unicode-full
+@endverbatim
+
+    したがって、二つの組合せ (1 0) 、(3 1) を持つフォントは、それぞれ 
+    registry プロパティが1-0, apple-roman, 3-1, unicode-bmp である４つ
+    のフォントオブジェクトに対応する。
+
+    <li> OpenType フォント
+
+    m17n ライブラリは、FreeType ライブラリとOTF ライブラリを使用するよ
+    うに設定すれば、すべての OpenType フォントをサポートする。実際に利
+    用できるフォントのリストはFreeType フォントの場合と同様に作られる。
+    OpenType フォントを FLT (Font Layout Table) 経由で使用するようフォ
+    ントセットに指定されており、FLT に OTF 関連のコマンド (たとえば 
+    otf:deva) があれば、OTF ライブラリがフォントのOpenType レイアウト
+    テーブル従って文字列をグリフコード列に変換し、FreeType ライブラリ
+    が各グリフのビットマップイメージを提供する。
+
+    </ul>
+
+*/
 
 /*=*/
 
@@ -1040,168 +1139,164 @@ mfont__set_spec (MFont *font, MSymbol *attrs,
 /*=*/
 
 /***en @name Variables: Keys of font property.  */
-/***oldja @name 変数: フォントプロパティを指定する定義済みシンボル */
+/***ja @name 変数: フォントプロパティを指定する定義済みシンボル */
 /*** @{ */
 /*=*/
 
 /***en
-    @brief Key of font property specifying foundry.
+    @brief Key of font property specifying foundry
 
     The variable #Mfoundry is a symbol of name <tt>"foundry"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is a foundry name of a font.  */
+/***ja
+    @brief 開発元を指定するフォントプロパティのキー
+    
+    変数 は <tt>"fondry"</tt> という名前を持つシンボルであり、フォント
+    プロパティとフェースプロパティのキーとして用いられる。値は、フォン
+    トの開発元名を名前として持つシンボルでなくてはならない。
+    */
 
 MSymbol Mfoundry;
 
 /***en
-    @brief Key of font property specifying foundry.
+    @brief Key of font property specifying family
 
     The variable #Mfamily is a symbol of name <tt>"family"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a family name of a font.  */ 
-
-/***oldja
-    @brief フォントの family プロパティを指定するためのシンボル
-
-    シンボル @c Mfamily は <tt>"family"</tt> という名前を持ち、フォン
-    トの family プロパティの値を得るときに関数 mfont_get_prop () の引
-    数として使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの family を指定
-    する際に、フェースプロパティのキーとしても使われる。  */
+/***ja
+    @brief ファミリを指定するフォントプロパティのキー
+    
+    変数 は <tt>"family"</tt> という名前を持つシンボルであり、フォント
+    プロパティとフェースプロパティのキーとして用いられる。値は、フォン
+    トのファミリ名を名前として持つシンボルでなくてはならない。
+    */
 
 MSymbol Mfamily;
 
 /***en
-    @brief Key of font property specifying weight.
+    @brief Key of font property specifying weight
 
     The variable #Mweight is a symbol of name <tt>"weight"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a weight name of a font (e.g
     "medium", "bold").  */ 
-
-/***oldja
-    @brief フォントの weight プロパティを指定するためのシンボル
-
-    シンボル @c Mweight は <tt>"weight"</tt> という名前を持ち、フォン
-    トの weight プロパティの値を得るときに関数 mfont_get_prop () の引
-    数として使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの weight を指定
-    する際に、フェースプロパティのキーとしても使われる。  */
+/***ja
+    @brief weight を指定するフォントプロパティのキー
+    
+    変数 は <tt>"weight"</tt> という名前を持つシンボルであり、フォント
+    プロパティとフェースプロパティのキーとして用いられる。値は、フォン
+    トの weight 名 ( "medium", "bold" 等) を名前として持つシンボルでな
+    くてはならない。
+    */
 
 MSymbol Mweight;
 
 /***en
-    @brief Key of font property specifying style.
+    @brief Key of font property specifying style
 
     The variable #Mstyle is a symbol of name <tt>"style"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a style name of a font (e.g
     "r", "i", "o").  */ 
-
-/***oldja
-    @brief フォントの style プロパティを指定するためのシンボル
-
-    シンボル @c Mstyle は <tt>"style"</tt> という名前を持ち、フォント
-    の style プロパティの値を得るときに関数 mfont_get_prop () の引数と
-    して使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの style を指定
-    する際に、フェースプロパティのキーとしても使われる。  */
+/***ja
+    @brief スタイルを指定するフォントプロパティのキー
+    
+    変数 は <tt>"style"</tt> という名前を持つシンボルであり、フォント
+    プロパティとフェースプロパティのキーとして用いられる。値は、フォン
+    トのスタイル名 ("r", "i", "o" 等)を名前として持つシンボルでなくて
+    はならない。
+    */
 
 MSymbol Mstyle;
 
 /***en
-    @brief Key of font property specifying stretch.
+    @brief Key of font property specifying stretch
 
     The variable #Mstretch is a symbol of name <tt>"stretch"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is a stretch name of a font (e.g
     "normal", "condensed").  */ 
-
-/***oldja
-    @brief フォントの stretch プロパティを指定するためのシンボル
-
-    シンボル @c Mstretch は <tt>"stretch"</tt> という名前を持ち、フォ
-    ントの stretch プロパティの値を得るときに関数 mfont_get_prop () の
-    引数として使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの stretch を指
-    定する際に、フェースプロパティのキーとしても使われる。  */
+/***ja
+    @brief stretch を指定するフォントプロパティのキー
+    
+    変数 は <tt>"stretch"</tt> という名前を持つシンボルであり、フォン
+    トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
+    ントの stretch 名 ( "normal", "condensed" 等)を名前として持つシン
+    ボルでなくてはならない。
+    */
 
 MSymbol Mstretch;
 
 /***en
-    @brief Key of font property specifying additional style.
+    @brief Key of font property specifying additional style
 
     The variable #Madstyle is a symbol of name <tt>"adstyle"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is an additional style name of a
     font (e.g "serif", "", "sans").  */ 
-
-/***oldja
-    @brief フォントの adstyle プロパティを指定するためのシンボル
-
-    シンボル @c Madstyle は <tt>"adstyle"</tt> という名前を持ち、フォ
-    ントの adstyle プロパティの値を得るときに関数 mfont_get_prop () の
-    引数として使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの adstyle を指
-    定する際に、フェースプロパティのキーとして使われる。  */
+/***ja
+    @brief adstyle を指定するフォントプロパティのキー
+    
+    変数 は <tt>"adstyle"</tt> という名前を持つシンボルであり、フォン
+    トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
+    ントの adstyle 名("serif", "", "sans" 等)を名前として持つシンボル
+    でなくてはならない。
+    */
 
 MSymbol Madstyle;
 
 /***en
-    @brief Key of font property specifying registry.
+    @brief Key of font property specifying registry
 
     The variable #Mregistry is a symbol of name <tt>"registry"</tt>
     and is used as a key of font property.  The property value must be
     a symbol whose name is a registry name a font registry
     (e.g. "iso8859-1", "jisx0208.1983-0").  */ 
-
-/***oldja
-    @brief フォントプロパティ registry を表わすシンボル
-
-    シンボル @c Mregistry は <tt>"registry"</tt> という名前を持ち、フォ
-    ントの registry プロパティの値を得るときに、関数 mfont_get_prop () 
-    の引数として使われる。  */
+/***ja
+    @brief レジストリを指定するフォントプロパティのキー
+    
+    変数 は <tt>"registry"</tt> という名前を持つシンボルであり、フォン
+    トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
+    ントのレジストリ名 ( "iso8859-1", "jisx0208.1983-0" 等) を名前とし
+    て持つシンボルでなくてはならない。
+    */
 
 MSymbol Mregistry;
 
 /***en
-    @brief Key of font property specifying size.
+    @brief Key of font property specifying size
 
     The variable #Msize is a symbol of name <tt>"size"</tt> and is
     used as a key of font property and face property.  The property
     value must be an integer specifying a font design size in the unit
     of 1/10 point (on 100 dpi display).  */ 
-
-/***oldja
-    @brief フォントプロパティ size を表わすシンボル
-
-    シンボル @c Msize は <tt>"size"</tt> という名前を持ち、フォントの size プロ
-    パティの値を得るときに関数 mfont_get_prop () の引数として使われる。
-
-    またこのシンボルは、フェース全体におけるデフォルトの size を指定す
-    る際に、フェースプロパティのキーとして使われる。  */
+/***ja
+    @brief サイズを指定するフォントプロパティのキー
+    
+    変数 は <tt>"size"</tt> という名前を持つシンボルであり、フォントプ
+    ロパティとフェースプロパティのキーとして用いられる。値は、100 dpi 
+    のディスプレイ上でのフォントのデザインサイズを 1/10 ポイント単位で
+    示す整数値でなくてはならない。
+    */
 
 MSymbol Msize;
 
 /***en
-    @brief Key of font property specifying resolution.
+    @brief Key of font property specifying resolution
 
-    The variable #Mresolution is a symbol of name <tt>"size"</tt> and
+    The variable #Mresolution is a symbol of name <tt>"resolution"</tt> and
     is used as a key of font property and face property.  The property
     value must be an integer to specifying a font resolution in the
     unit of dots per inch (dpi).  */ 
-
-/***oldja
-    @brief フォントプロパティ resolution を表わすシンボル
-
-    シンボル @c Mresolution は <tt>"resolution"</tt> という名前を持ち、
-    フォントの resolution プロパティの値を得るときに、関数 
-    mfont_get_prop () の引数として使われる。  */
+/***ja
+    @brief 解像度を指定するフォントプロパティのキー
+    
+    変数 は <tt>"resolution"</tt> という名前を持つシンボルであり、フォ
+    ントプロパティとフェースプロパティのキーとして用いられる。値は、フォ
+    ントの解像度を dots per inch (dpi) 単位で示す整数値でなくてはならない。
+    */
 
 MSymbol Mresolution;
 
@@ -1210,7 +1305,7 @@ MSymbol Mresolution;
 /*=*/
 
 /***en
-    @brief List of font files and directories that contain font files.
+    @brief List of font files and directories that contain font files
 
     The variable @c mfont_freetype_path is a plist of FreeType font
     files and directories that contain FreeType font files.  Key of
@@ -1227,20 +1322,44 @@ MSymbol Mresolution;
 
     If the m17n library is not configured to use the FreeType library,
     this variable is not used.  */
+/***ja
+    @brief フォントファイルとフォントファイルを含むディレクトリのリスト
+
+    変数 @c mfont_freetype_path は、フォントファイルとフォントファイル
+    を含むディレクトリの plist である。各要素のキーは @c Mstring であ
+    り、値はフォントファイルかディレクトリを示す文字列である。
+
+    マクロ M17N_INIT () によって、この変数は m17n データベースと環境変
+     数"M17NDIR" 双方のサブディレクトリ "fonts" を含むように設定される。
+     mframe () の最初の呼び出しの際に、この変数から実際に使用できるフォ
+     ントの内部リストが作られる。そこでアプリケーションプログラムは、
+     mframe () を呼ぶ前に（必要ならば）この変数を変更しなくてはならな
+     い。新しい要素を追加する場合には、その値は安全に開放できる文字列
+     でなくてはならない。
+
+    m17n ライブラリが FreeType ライブラリを使うように設定されてない場
+    合には、この変数は用いられない。 */
 
 MPlist *mfont_freetype_path;
 
 /*=*/
 
 /***en
-    @brief Create a new font.
+    @brief Create a new font
 
     The mfont () function creates a new font object that has no
     property.
 
     @return
     This function returns a pointer to the created font object.  */
+/***ja
+    @brief 新しいフォントを作る.
 
+    関数 mfont () はプロパティを一切持たない新しいフォントをオブジェク
+    トを作る。
+
+    @return
+    この関数は作ったフォントオブジェクトへのポインタを返す。  */
 
 MFont *
 mfont ()
@@ -1266,18 +1385,19 @@ mfont ()
     If the operation was successful, this function returns a pointer
     to the created font.  Otherwise it returns @c NULL.  */
 
-/***oldja
+/***ja
     @brief フォント名からフォントを作る
 
-    関数 mfont_from_name () はフォント名 $NAME を解析し、新しいフォン
-    トを作る。
+    関数 mfont_from_name () は、フォント名 $NAME から取り出されたプロパ
+    ティを持つ、新しいフォントオブジェクトを作る。
 
-    フォント名の文法はウィンドウシステムに依存する。m17n-X ライブラリ
-    の場合は XLFD (X Logical Font Description) に従う。
+    どのようにプロパティを取り出すかはウィンドウシステムに依存する。
+    m17n-X ライブラリの場合は XLFD (X Logical Font Description) に従って
+    $NAME を解析する。
 
     @return
     処理が成功すれば mfont_from_name () は新しく作られたフォントへの
-    ポインタを返す。$NAME の解析に失敗した場合は @c NULL を返す。  */
+    ポインタを返す。そうでなければ @c NULL を返す。  */
 
 MFont *
 mfont_from_name (char *name)
@@ -1294,9 +1414,13 @@ mfont_from_name (char *name)
 /*=*/
 
 /***en
-    @brief Return a copy of a font.
+    @brief Make a copy of a font.
 
-    The mfont_copy () function returns a new copy of $FONT.  */
+    The mfont_copy () function returns a new copy of font $FONT.  */
+/***en
+    @brief フォントのコピーを作る.
+
+    関数 Mfont_copy () はフォント $FONT のコピーを作り、それを返す。 */
 
 MFont *
 mfont_copy (MFont *font)
@@ -1314,7 +1438,7 @@ mfont_copy (MFont *font)
     @brief Create a fontname from a font.
 
     The mfont_name () function creates a fontname string created from
-    $FONT.
+    font $FONT.
 
     The syntax of fontname is window system dependent.  The m17n-X
     library returns a fontname conforming to XLFD (X Logical Font
@@ -1323,6 +1447,17 @@ mfont_copy (MFont *font)
     @return
     This function returns the created fontname string, which is not freed
     unless the user explicitly does so by free ().  */
+/***ja
+    @brief フォント名からフォントを作る.
+
+    関数 mfont_name () はフォント名の文字列をフォント
+    $FONT を元に作る。
+
+    フォント名の文法はウィンドウシステムに依存する。m17n-X ライブラリ
+    は XLFD (X Logical Font Description) に従うフォント名を返す。
+
+    @return この関数は作ったフォント名の文字列を返す。文字列は、ユーザ
+    が free () によって明示的に解放しない限り解放されない。  */
 
 char *
 mfont_name (MFont *font)
@@ -1336,7 +1471,7 @@ mfont_name (MFont *font)
     @brief Get a property value of a font.
 
     The mfont_get_prop () function gets the value of $KEY property of
-    $FONT.  $KEY must be one of the following symbols:
+    font $FONT.  $KEY must be one of the following symbols:
 
 	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
@@ -1352,10 +1487,10 @@ mfont_name (MFont *font)
     property, it returns 0.
 
     If $KEY is something else, it returns @c NULL and assigns an error
-    code to the external variable @c merror_code.  */
+    code to the external variable #merror_code.  */
 
-/***oldja
-    @brief フォントのプロパティ値を得る
+/***ja
+    @brief フォントのプロパティ値を得る.
 
     関数 mfont_get_prop () はフォント $FONT のプロパティのうち、キーが 
     $KEY であるものの値を返す。$KEY は以下のシンボルのいずれかでなけれ
@@ -1364,11 +1499,17 @@ mfont_name (MFont *font)
 	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
 
-    @return
-    もし $KEY が @c Msize あるいは @c Mresolution の場合、
-    mfont_get_prop () は整数を返す。そうでなければシンボルを返す。エラー
-    が検出された場合は @c NULL を返し、外部変数 @c merror_code にエラー
-    コードを設定する。  */
+    @return 
+    $KEY が @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
+    Madstyle, @c Mregistry のいずれかであれば、相当する値をシンボルと
+    して返す。フォントがそのプロパティを持たない場合には @c Mnil を返す。
+    
+    $KEY が @c Msize あるいは @c Mresolution の場合には、相当する値を
+    は整数値として返す。フォントがそのプロパティを持たない場合には 0 を
+    返す。
+
+    $KEY がそれ以外のものであれば、@c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。  */
 
 void *
 mfont_get_prop (MFont *font, MSymbol key)
@@ -1407,14 +1548,26 @@ mfont_get_prop (MFont *font, MSymbol key)
     @brief Put a property value to a font.
 
     The mfont_put_prop () function puts a font property whose key is
-    $KEY and value is $VAL to $FONT.  $KEY must be one of the following
-    symbols:
+    $KEY and value is $VAL to font $FONT.  $KEY must be one of the
+    following symbols:
 
 	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
 
-    If $KEY is @c Msize of @c Mresolution, $VAL must be an integer.
+    If $KEY is @c Msize or @c Mresolution, $VAL must be an integer.
     Otherwise, $VAL must be a symbol.  */
+/***ja
+    @brief フォントにプロパティの値を設定する.
+
+    関数 mfont_put_prop () は、フォント $FONT のキーが$KEY であるプロ
+    パティの値を $VAL に設定する。$KEY は以下のシンボルのいずれかであ
+    る。
+
+	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
+
+    $KEY が @c Msize か @c Mresolution であれば $VAL は整数値でなくて
+    はらない。それ以外の場合、$VAL はシンボルでなくてはならない。*/
 
 int
 mfont_put_prop (MFont *font, MSymbol key, void *val)
@@ -1464,6 +1617,20 @@ mfont_put_prop (MFont *font, MSymbol key, void *val)
    order of this array.  A font that has a different value for a
    property of lower priority is preferred to a font that has a
    different value for a property of higher priority.  */
+/***ja
+    @brief フォント選択優先度を返す.
+
+    関数 mfont_selection_priority () は6つのシンボルからなる配列を作っ
+    て返す。配列の要素は、以下のフォントプロパティのキーを優先度順に並
+    べたものである。
+
+	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Madstyle, @c Msize.
+
+   m17n ライブラリはこの配列に従って、最も合致するフォントを選択する。
+   優先度の低いプロパティの値が違うフォントと優先度の高いプロパティの
+   値が違うフォントがある場合、前者が選択される。
+   */
 
 MSymbol *
 mfont_selection_priority ()
@@ -1509,6 +1676,18 @@ mfont_selection_priority ()
 
     See the documentation of the function mfont_selection_priority ()
     for details.  */
+/***ja
+    @brief フォント選択優先度を設定する.
+
+    関数 mfont_set_selection_priority () は、6つのシンボルの配列 $KEYS 
+    にしたがってフォント選択優先度を設定する。各要素は以下のうちのどれ
+    かであり、全て異なっていなくてはならない。
+
+	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Madstyle, @c Msize.
+
+    詳細は関数 mfont_selection_priority () の説明を参照のこと。
+     */
 
 int
 mfont_set_selection_priority (MSymbol *keys)
@@ -1559,12 +1738,16 @@ mfont_set_selection_priority (MSymbol *keys)
     $SCORE, if not NULL, must point to a place to store the score
     value that indicates how well the found font matches to $SPEC.  A
     smaller score means a better match.  */
-
-/***oldja
-    @brief フォントを探す
+/***ja
+    @brief フォントを探す.
 
     関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC にもっ
-    とも近いフォントへのポインタを返す。  */
+    とも合致する利用可能なフォントへのポインタを返す。  
+
+    $SCORE は NULL であるか、見つかったフォントが $SPEC にどれほど合っ
+    ているかを示すスコアを保存する場所へのポインタである。スコアが小さ
+    いほど良く合っていることを意味する。
+    */
 
 MFont *
 mfont_find (MFrame *frame, MFont *spec, int *score, int limited_size)
@@ -1588,12 +1771,12 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int limited_size)
     @brief Set encoding of a font.
 
     The mfont_set_encoding () function sets the encoding information
-    of $FONT.
+    of font $FONT.
 
-    If $ENCODING_NAME is be a symbol representing a charset that has
-    the same encoding as the font.
+    $ENCODING_NAME is a symbol representing a charset that has the
+    same encoding as the font.
 
-    If $REPERTORY_NAME @c Mnil or a symbol representing a charset that
+    $REPERTORY_NAME is @c Mnil or a symbol representing a charset that
     has the same repertory as the font.  If it is @c Mnil, whether a
     specific character is supported by the font is asked to each font
     driver.
@@ -1602,6 +1785,24 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int limited_size)
     If the operation was successful, this function returns 0.
     Otherwise it returns -1 and assigns an error code to the external
     variable @c merror_code.  */
+/***ja
+    @brief フォントのエンコーディングを設定する.
+
+    関数 mfont_set_encoding () はフォント $FONT のエンコーディング情報
+    を設定する。
+
+    $ENCODING_NAME はフォントと同じエンコーディングを持つ文字セットを
+    示すシンボルである。
+
+    $REPERTORY_NAME は @c Mnil であるか、フォントと同じエンコーディン
+    グを持つ文字セットを示すシンボルである。@c Mnil であれば、個々の文
+    字がそのフォントでサポートされているかどうかは、フォントドライバに
+    問い合わせる。
+
+    @return
+    処理が成功すればこの関数は 0 を返す。そうでなければ -1 を返し、外
+    部変数 #merror_code にエラーコードを設定する。  */
+
 
 int
 mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
@@ -1654,11 +1855,19 @@ mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
 /***en
     @brief Dump a font
 
-    The mdebug_dump_font () function prints $FONT in a human readable
+    The mdebug_dump_font () function prints font $FONT in a human readable
     way to the stderr.
 
     @return
     This function returns $FONT.  */
+/***ja
+    @brief フォントをダンプする.
+
+    関数 mdebug_dump_font () はフォント $FONT を stderr に人間に可読な
+    形で印刷する。
+
+    @return
+    この関数は $FONT を返す。  */
 
 MFont *
 mdebug_dump_font (MFont *font)
