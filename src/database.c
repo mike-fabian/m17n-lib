@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nDatabase
-    @brief The m17n database and API for it
+    @brief The m17n database and API for it.
 
     The m17n library dynamically acquires various kinds of information
     in need from data in the <i> m17n database</i>.  Application
@@ -68,7 +68,7 @@
 
 /***ja
     @addtogroup m17nDatabase
-    @brief m17n データベースにとそれに関する API
+    @brief m17n データベースにとそれに関する API.
 
     m17n ライブラリは必要に応じて動的に @e m17n @e データベース から情
     報を取得する。また、アプリケーションプログラムも独自のデータを 
@@ -613,7 +613,7 @@ mdatabase__fini (void)
 
     The default value is NULL.  */
 /***ja
-    @brief アプリケーション固有のデータ用ディレクトリ
+    @brief アプリケーション固有のデータ用ディレクトリ.
 
     アプリケーションプログラムが、そのプログラム固有のデータや m17n デー
     タベースを上書きするデータを提供する場合には、マクロ M17N_INIT () 
@@ -636,7 +636,7 @@ char *mdatabase_dir;
     NULL.  */
 
 /***ja
-    @brief データベースを探す
+    @brief データベースを探す.
 
     関数 mdatabase_find () は、 m17n 言語情報ベース中で $TAG0 から 
     $TAG3 までのタグを持つデータベースを探し、それへのポインタを返す。
@@ -672,7 +672,7 @@ mdatabase_find (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     any tag.  Each element of the plist has key #Mt and value a
     pointer to type #MDatabase.  */
 /***ja
-    @brief m17n データベースのデータリストを返す。
+    @brief m17n データベースのデータリストを返す.
 
     関数 mdatabase_list () は m17n データベース中から特定のタグ$TAG0
     .. $TAG3 を持つデータを探し、そのリストをplist として返す。 $TAGn 
@@ -728,7 +728,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     mdatabase_load ().  Otherwise, it returns @c NULL.  */
 
 /***ja
-    @brief m17n データベースのデータを定義する
+    @brief m17n データベースのデータを定義する.
 
     関数 mdatabase_define () は $TAG0 から $TAG3 までのタグおよび付加
     情報 $EXTRA_INFO を持つデータを定義する。
@@ -804,7 +804,7 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 
 
 /***ja
-    @brief データベースをロードする
+    @brief データベースからデータをロードする.
 
     関数 mdatabase_load () は $MDB が指すデータをロードし、その
     中身を返す。返されるものはデータのタイプによって異なる。
@@ -850,7 +850,7 @@ mdatabase_load (MDatabase *mdb)
     four.  */
 
 /***oldja
-    @brief データのタグを得る
+    @brief データのタグを得る.
 
     関数 mdatabase_tag () は、データ $MDB のタグ（シンボル）の配列を返
     す。配列の長さは 4 である。

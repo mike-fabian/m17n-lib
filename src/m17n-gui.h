@@ -63,7 +63,7 @@ extern void m17n_fini_win (void);
     @e display and @e screen in the X Window System.  */
 
 /***ja
-    @brief フレームの型宣言
+    @brief フレームの型宣言.
 
     #MFrame は、@e フレーム オブジェクト用の型である。個々のフレームは、
     それが対応する物理的な表示／入力デバイスの各種情報を保持する。
@@ -180,7 +180,7 @@ extern int mfont_set_encoding (MFont *font,
     font not greater than the #Msize property of $SPEC.  */
 
 /***ja
-    @brief フォントを探す
+    @brief フォントを探す.
 
     関数 mfont_find () は、フレーム $FRAME 上でフォント定義 $SPEC にもっ
     とも合致する使用可能なフォントへのポインタを返す。  
@@ -407,7 +407,8 @@ extern void mface_update (MFrame *frame, MFace *face);
     What it actually points depends on a window system.  A program
     that uses the m17n-X library must coerce the type @c Drawable to
     this type.  */
-/***ja ウィンドウシステムに依存する、ウィンドウの型宣言.
+/***ja 
+    @brief ウィンドウシステムに依存する、ウィンドウの型宣言.
 
     #MDrawWindow はウィンドウ、すなわち幾つかの点でスクリーンのミニチュ
     アとして働く矩形領域用の型である。
@@ -430,7 +431,7 @@ typedef void *MDrawWindow;
     that uses the m17n-X library must coerce the type @c Region to
     this type.  */
 /***ja
-    @brief  ウィンドウシステムに依存する、領域の型宣言.
+    @brief ウィンドウシステムに依存する、領域の型宣言.
 
     #MDrawRegion は領域、すなわちスクリーン上の任意のピクセルの集合
    （典型的には矩形領域）用の型である。

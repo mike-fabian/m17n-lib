@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nFont
-    @brief Font object
+    @brief Font object.
 
     The m17n GUI API represents a font by an object of the type @c
     MFont.  A font can have @e font @e properties.  Like other types
@@ -167,7 +167,7 @@
 
 /***ja
     @addtogroup m17nFont
-    @brief フォントオブジェクト
+    @brief フォントオブジェクト.
 
     m17n GUI API はフォントを @c MFont 型のオブジェクトとして表現する。
     フォントは @e フォントプロパティ を持つことができる。他のタイプの
@@ -1144,13 +1144,13 @@ mfont__set_spec (MFont *font, MSymbol *attrs,
 /*=*/
 
 /***en
-    @brief Key of font property specifying foundry
+    @brief Key of font property specifying foundry.
 
     The variable #Mfoundry is a symbol of name <tt>"foundry"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is a foundry name of a font.  */
 /***ja
-    @brief 開発元を指定するフォントプロパティのキー
+    @brief 開発元を指定するフォントプロパティのキー.
     
     変数 は <tt>"fondry"</tt> という名前を持つシンボルであり、フォント
     プロパティとフェースプロパティのキーとして用いられる。値は、フォン
@@ -1160,13 +1160,13 @@ mfont__set_spec (MFont *font, MSymbol *attrs,
 MSymbol Mfoundry;
 
 /***en
-    @brief Key of font property specifying family
+    @brief Key of font property specifying family.
 
     The variable #Mfamily is a symbol of name <tt>"family"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a family name of a font.  */ 
 /***ja
-    @brief ファミリを指定するフォントプロパティのキー
+    @brief ファミリを指定するフォントプロパティのキー.
     
     変数 は <tt>"family"</tt> という名前を持つシンボルであり、フォント
     プロパティとフェースプロパティのキーとして用いられる。値は、フォン
@@ -1176,14 +1176,14 @@ MSymbol Mfoundry;
 MSymbol Mfamily;
 
 /***en
-    @brief Key of font property specifying weight
+    @brief Key of font property specifying weight.
 
     The variable #Mweight is a symbol of name <tt>"weight"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a weight name of a font (e.g
     "medium", "bold").  */ 
 /***ja
-    @brief weight を指定するフォントプロパティのキー
+    @brief weight を指定するフォントプロパティのキー.
     
     変数 は <tt>"weight"</tt> という名前を持つシンボルであり、フォント
     プロパティとフェースプロパティのキーとして用いられる。値は、フォン
@@ -1194,14 +1194,14 @@ MSymbol Mfamily;
 MSymbol Mweight;
 
 /***en
-    @brief Key of font property specifying style
+    @brief Key of font property specifying style.
 
     The variable #Mstyle is a symbol of name <tt>"style"</tt> and is
     used as a key of font property and face property.  The property
     value must be a symbol whose name is a style name of a font (e.g
     "r", "i", "o").  */ 
 /***ja
-    @brief スタイルを指定するフォントプロパティのキー
+    @brief スタイルを指定するフォントプロパティのキー.
     
     変数 は <tt>"style"</tt> という名前を持つシンボルであり、フォント
     プロパティとフェースプロパティのキーとして用いられる。値は、フォン
@@ -1212,14 +1212,14 @@ MSymbol Mweight;
 MSymbol Mstyle;
 
 /***en
-    @brief Key of font property specifying stretch
+    @brief Key of font property specifying stretch.
 
     The variable #Mstretch is a symbol of name <tt>"stretch"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is a stretch name of a font (e.g
     "normal", "condensed").  */ 
 /***ja
-    @brief stretch を指定するフォントプロパティのキー
+    @brief stretch を指定するフォントプロパティのキー.
     
     変数 は <tt>"stretch"</tt> という名前を持つシンボルであり、フォン
     トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
@@ -1230,14 +1230,14 @@ MSymbol Mstyle;
 MSymbol Mstretch;
 
 /***en
-    @brief Key of font property specifying additional style
+    @brief Key of font property specifying additional style.
 
     The variable #Madstyle is a symbol of name <tt>"adstyle"</tt> and
     is used as a key of font property and face property.  The property
     value must be a symbol whose name is an additional style name of a
     font (e.g "serif", "", "sans").  */ 
 /***ja
-    @brief adstyle を指定するフォントプロパティのキー
+    @brief adstyle を指定するフォントプロパティのキー.
     
     変数 は <tt>"adstyle"</tt> という名前を持つシンボルであり、フォン
     トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
@@ -1248,14 +1248,14 @@ MSymbol Mstretch;
 MSymbol Madstyle;
 
 /***en
-    @brief Key of font property specifying registry
+    @brief Key of font property specifying registry.
 
     The variable #Mregistry is a symbol of name <tt>"registry"</tt>
     and is used as a key of font property.  The property value must be
     a symbol whose name is a registry name a font registry
     (e.g. "iso8859-1", "jisx0208.1983-0").  */ 
 /***ja
-    @brief レジストリを指定するフォントプロパティのキー
+    @brief レジストリを指定するフォントプロパティのキー.
     
     変数 は <tt>"registry"</tt> という名前を持つシンボルであり、フォン
     トプロパティとフェースプロパティのキーとして用いられる。値は、フォ
@@ -1266,14 +1266,14 @@ MSymbol Madstyle;
 MSymbol Mregistry;
 
 /***en
-    @brief Key of font property specifying size
+    @brief Key of font property specifying size.
 
     The variable #Msize is a symbol of name <tt>"size"</tt> and is
     used as a key of font property and face property.  The property
     value must be an integer specifying a font design size in the unit
     of 1/10 point (on 100 dpi display).  */ 
 /***ja
-    @brief サイズを指定するフォントプロパティのキー
+    @brief サイズを指定するフォントプロパティのキー.
     
     変数 は <tt>"size"</tt> という名前を持つシンボルであり、フォントプ
     ロパティとフェースプロパティのキーとして用いられる。値は、100 dpi 
@@ -1284,14 +1284,14 @@ MSymbol Mregistry;
 MSymbol Msize;
 
 /***en
-    @brief Key of font property specifying resolution
+    @brief Key of font property specifying resolution.
 
     The variable #Mresolution is a symbol of name <tt>"resolution"</tt> and
     is used as a key of font property and face property.  The property
     value must be an integer to specifying a font resolution in the
     unit of dots per inch (dpi).  */ 
 /***ja
-    @brief 解像度を指定するフォントプロパティのキー
+    @brief 解像度を指定するフォントプロパティのキー.
     
     変数 は <tt>"resolution"</tt> という名前を持つシンボルであり、フォ
     ントプロパティとフェースプロパティのキーとして用いられる。値は、フォ
@@ -1305,7 +1305,7 @@ MSymbol Mresolution;
 /*=*/
 
 /***en
-    @brief List of font files and directories that contain font files
+    @brief List of font files and directories that contain font files.
 
     The variable @c mfont_freetype_path is a plist of FreeType font
     files and directories that contain FreeType font files.  Key of
@@ -1323,7 +1323,7 @@ MSymbol Mresolution;
     If the m17n library is not configured to use the FreeType library,
     this variable is not used.  */
 /***ja
-    @brief フォントファイルとフォントファイルを含むディレクトリのリスト
+    @brief フォントファイルとフォントファイルを含むディレクトリのリスト.
 
     変数 @c mfont_freetype_path は、フォントファイルとフォントファイル
     を含むディレクトリの plist である。各要素のキーは @c Mstring であ
@@ -1345,7 +1345,7 @@ MPlist *mfont_freetype_path;
 /*=*/
 
 /***en
-    @brief Create a new font
+    @brief Create a new font.
 
     The mfont () function creates a new font object that has no
     property.
@@ -1386,7 +1386,7 @@ mfont ()
     to the created font.  Otherwise it returns @c NULL.  */
 
 /***ja
-    @brief フォント名からフォントを作る
+    @brief フォント名からフォントを作る.
 
     関数 mfont_from_name () は、フォント名 $NAME から取り出されたプロパ
     ティを持つ、新しいフォントオブジェクトを作る。
@@ -1853,7 +1853,7 @@ mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
 /*** @{ */
 
 /***en
-    @brief Dump a font
+    @brief Dump a font.
 
     The mdebug_dump_font () function prints font $FONT in a human readable
     way to the stderr.

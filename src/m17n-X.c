@@ -2169,7 +2169,7 @@ MSymbol Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap;
     $KEY is ignored.  */
 
 /***ja
-    @brief XIM用入力ドライバ
+    @brief XIM用入力ドライバ.
 
     ドライバ #minput_xim_driver は #Mxim を名前として持つ外部入力メソッ
     ド用であり、 XIM (X Input Methods) をバックグラウンドの入力エンジ

@@ -424,8 +424,10 @@ typedef struct
 /*=*/
 
 /*** @ingroup m17nConv */
-/***en @brief Types of coding system.  */
-/***ja @brief コード系のタイプ.  */
+/***en 
+    @brief Types of coding system.  */
+/***ja 
+    @brief コード系のタイプ.  */
 
 enum MCodingType
   {
@@ -502,10 +504,10 @@ enum MCodingType
 /*=*/
 
 /*** @ingroup m17nConv */
-/***en @brief Bit-masks to specify the detail of coding system whose type is
-    MCODING_TYPE_ISO_2022.  */
-/***ja @brief MCODING_TYPE_ISO_2022 タイプのコード系の詳細を表わすビットマス
-    ク.  */
+/***en 
+    @brief  Bit-masks to specify the detail of coding system whose type is MCODING_TYPE_ISO_2022.  */
+/***ja 
+    @brief MCODING_TYPE_ISO_2022 タイプのコード系の詳細を表わすビットマスク.  */
 
 enum MCodingFlagISO2022
   {
@@ -632,8 +634,7 @@ enum MCodingFlagISO2022
     MCODING_TYPE_ISO_2022.  */
 
 /***ja 
-    @brief MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用
-    構造体.
+    @brief MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用構造体.
 
     MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用を保持する
     ための構造体。
@@ -696,8 +697,7 @@ typedef struct
 
 /*** @ingroup m17nConv */
 /***en
-    @brief Structure for extra information about a coding system of
-    type #MCODING_TYPE_UTF.
+    @brief Structure for extra information about a coding system of type #MCODING_TYPE_UTF.
     */
 
 /***ja
@@ -826,7 +826,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
 /*=*/
 
 /***en
-    @brief @c struct @c MLocale
+    @brief @c struct @c MLocale.
 
     The structure @c MLocale is used to hold information about name,
     language, territory, modifier, codeset, and the corresponding
@@ -836,7 +836,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
     internal structure is concealed from application programs.  */
 
 /***ja
-    @brief @c MLocale 構造体
+    @brief @c MLocale 構造体.
 
     @c MLocale 構造体は、ロケールの名前、言語、地域、モディファイア、
     コードセット、および対応するコード系に関する情報を保持するために用

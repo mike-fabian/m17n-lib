@@ -37,7 +37,7 @@
 
 /***ja
     @addtogroup m17nInputMethodWin
-    @brief ウィンドウシステム上の入力メソッドのサポート
+    @brief ウィンドウシステム上の入力メソッドのサポート.
 
     入力ドライバ @c minput_gui_driver は、ウィンドウシステム上で用いら
     れる内部入力メソッド用である。このドライバは入力スポットに preedit 
@@ -656,7 +656,7 @@ MInputDriver minput_gui_driver;
     At last, a symbol who has the name is returned.  */
 
 /***ja
-    @brief イベントを入力キーに変換する
+    @brief イベントを入力キーに変換する.
 
     関数 minput_name_to_key () は、$FRAME のイベント $EVENT に対応する
     入力キーを返す。ここでの「対応」はウィンドウシステム依存である。

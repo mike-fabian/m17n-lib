@@ -22,7 +22,7 @@
 
 /***en
     @addtogroup m17nDraw
-    @brief Drawing M-text on a window.
+    @brief Drawing M-texts on a window.
 
     The m17n GUI API provides functions to draw M-texts.
 
@@ -36,7 +36,7 @@
 
 /***ja
     @addtogroup m17nDraw
-    @brief M-text をウィンドウに描画する
+    @brief M-text をウィンドウに描画する.
 
     m17n-gui API には、M-text を表示するための関数が用意されている。
 
@@ -1811,7 +1811,7 @@ mdraw__fini ()
     error is detected, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
 /***ja
-    @brief ウィンドウに M-text を描画する
+    @brief ウィンドウに M-text を描画する.
 
     関数 mdraw_text () は、フレーム $FRAME のウィンドウ $WIN の座標 
     ($X, $Y) に、M-text $MT の $FROM から $TO までのテキストを
@@ -1900,7 +1900,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
 
 
 /***en
-    @brief Draw an M-text on a window as an image
+    @brief Draw an M-text on a window as an image.
 
     The mdraw_image_text () function draws the text between $FROM and
     $TO of M-text $MT as image on window $WIN of frame $FRAME at
@@ -1920,7 +1920,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
     to the external variable #merror_code.  */
 
 /***ja
-    @brief ディスプレイにM-text を画像として描く
+    @brief ディスプレイにM-text を画像として描く.
   
     関数 mdraw_image_text () は、フレーム $FRAME のウィンドウ $WIN の
     座標 ($X, $Y) に、M-text $MT の $FROM から $TO までのテキストを画
@@ -1978,7 +1978,7 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
     more detail.  */
 
 /***ja
-    @brief ディスプレイにM-text を描く（詳細な制御つき）
+    @brief ディスプレイにM-text を描く（詳細な制御つき）.
 
     関数 mdraw_text_with_control () は、フレーム $FRAME のウィンドウ 
     $WIN の座標 ($X, $Y) に、M-text $MT の $FROM から $TO までのテキス
@@ -2038,7 +2038,7 @@ mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
 
 
 /***ja 
-    @brief テキストの幅（ピクセル単位）を計算する
+    @brief テキストの幅（ピクセル単位）を計算する.
 
     関数 mdraw_text_extents () は、関数 mdraw_text_with_control () が
     描画制御オブジェクト $CONTROL を用いて M-text $MT の $FROM から $TO 
@@ -2046,13 +2046,13 @@ mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
 
     $OVERALL_INK_RETURN が @c NULL でなければ、この関数は M-text の文
     字のインクのバウンディングボックスも計算し、$OVERALL_INK_RETURN が
-    指す構造体のメンバにその結果を設定する。M-text に surrounding box 
+    指す構造体のメンバにその結果を設定する。M-text に囲み枠(surrounding box)
     を指定するフェースがあれば、それもバウンディングボックスに含む。
 
     $OVERALL_LOGICAL_RETURN が @c NULL でなければ、この関数は M-text 
-    と他の graphical feature （surrounding box など）との間の最小のス
-    ペースを示すバウンディングボックスも計算し、$OVERALL_LOGICAL_RETURN が指す構造体
-    のメンバにその結果を設定する。
+    と他の graphical feature （囲み枠など）との間の最小のスペースを示
+    すバウンディングボックスも計算し、$OVERALL_LOGICAL_RETURN が指す構
+    造体のメンバにその結果を設定する。
 
     $OVERALL_LINE_RETURN が @c NULL でなければ、この関数は他の M-text 
     との間の最小のスペースを示すバウンディングボックスも計算し、
@@ -2179,6 +2179,7 @@ mdraw_text_extents (MFrame *frame,
     only the metrics of characters in the first line.  */
 /***ja
     @brief  M-text の各文字の表示範囲を計算する.
+
     関数 mdraw_text_per_char_extents () は、関数 
     mdraw_text_with_control () が描画制御オブジェクト $CONTROL を用い
     て M-text $MT の $FROM から $TO までをフレーム $FRAME に表示する際
@@ -2328,7 +2329,7 @@ mdraw_text_per_char_extents (MFrame *frame,
     last character drawn on the line $Y.  */
 
 /***ja
-    @brief 指定した座標に最も近い文字の文字位置を得る
+    @brief 指定した座標に最も近い文字の文字位置を得る.
 
     関数 mdraw_coordinates_position () は、関数 
     mdraw_text_with_control () が描画制御オブジェクト $CONTROL を用い
@@ -2699,7 +2700,7 @@ mdraw_default_line_break (MText *mt, int pos,
     the members of the structure pointed to by $OVERALL_RETURN  */
 
 /***ja
-    @brief M-text の文字毎の表示範囲情報を得る
+    @brief M-text の文字毎の表示範囲情報を得る.
 
     関数 mdraw_per_char_extents () は、M-text $MT 中の各文字の表示範囲
     を計算する。この計算に用いるフォントは、$MT のテキストプロパティで

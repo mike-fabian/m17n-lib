@@ -45,7 +45,7 @@
     of these values as an argument.  */
 
 /***ja 
-    @brief m17n ライブラリエラーコードの列挙
+    @brief m17n ライブラリエラーコードの列挙.
 
     m17n ライブラリエラーコードの列挙
 

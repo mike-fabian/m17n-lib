@@ -684,7 +684,7 @@ mface__free_realized (MRealizedFace *rface)
 /*=*/
 
 /***en
-    @brief Key of a face property specifying foreground color
+    @brief Key of a face property specifying foreground color.
 
     The variable #Mforeground is used as a key of face property.  The
     property value must be a symbol whose name is a color name, or
@@ -695,7 +695,7 @@ mface__free_realized (MRealizedFace *rface)
     color.  */
 
 /***ja
-    @brief 前景色を指定するフェースプロパティーのキー
+    @brief 前景色を指定するフェースプロパティーのキー.
 
     変数 #Mforeground はフェースプロパティのキーとして用いられる。
     プロパティの値は、色名を名前として持つシンボルか #Mnil である。
@@ -706,7 +706,7 @@ mface__free_realized (MRealizedFace *rface)
 MSymbol Mforeground;
 
 /***en
-    @brief Key of a face property specifying background color
+    @brief Key of a face property specifying background color.
 
     The variable #Mbackground is used as a key of face property.  The
     property value must be a symbol whose name is a color name, or
@@ -717,7 +717,7 @@ MSymbol Mforeground;
     color.  */
 
 /***ja
-    @brief 背景色を指定するためのフェースプロパティーのキー
+    @brief 背景色を指定するためのフェースプロパティーのキー.
 
     変数 #Mbackground はフェースプロパティのキーとして用いられる。
     プロパティの値は、色名を名前として持つシンボルか #Mnil である。
@@ -728,7 +728,7 @@ MSymbol Mforeground;
 MSymbol Mbackground;
 
 /***en
-    @brief Key of a face property specifying video mode
+    @brief Key of a face property specifying video mode.
 
     The variable #Mvideomode is used as a key of face property.  The
     property value must be #Mnormal, #Mreverse, or #Mnil.
@@ -744,7 +744,7 @@ MSymbol Mbackground;
     #Mnil means that the face does not specify a video mode.  */
 
 /***ja
-    @brief ビデオモードを指定するためのフェースプロパティーのキー
+    @brief ビデオモードを指定するためのフェースプロパティーのキー.
 
     変数 #Mvideomode はフェースプロパティのキーとして用いられる。
     プロパティの値は、#Mnormal, #Mreverse, #Mnil のいずれかでなくてはならない。
@@ -761,7 +761,7 @@ MSymbol Mbackground;
 MSymbol Mvideomode;
 
 /***en
-    @brief Key of a face property specifying font size ratio
+    @brief Key of a face property specifying font size ratio.
 
     The variable #Mratio is used as a key of face property.  The value
     RATIO must be an integer.
@@ -771,7 +771,7 @@ MSymbol Mvideomode;
     * RATIO / 100) where FONTSIZE is a font size specified by the face
     property #Msize.  */
 /***ja
-    @brief サイズの比率を指定するためのフェースプロパティーのキー
+    @brief サイズの比率を指定するためのフェースプロパティーのキー.
 
     変数 #Mratio はフェースプロパティのキーとして用いられる。値 RATIO 
     は整数値でなくてはならない。
@@ -784,7 +784,7 @@ MSymbol Mvideomode;
 MSymbol Mratio;
 
 /***en
-    @brief Key of a face property specifying horizontal line
+    @brief Key of a face property specifying horizontal line.
 
     The variable #Mhline is used as a key of face property.  The value
     must be a pointer to an object of type #MFaceHLineProp, or @c
@@ -795,7 +795,7 @@ MSymbol Mratio;
     a way specified by the object that the value points to.  */
 
 /***ja
-    @brief 水平線を指定するためのフェースプロパティーのキー
+    @brief 水平線を指定するためのフェースプロパティーのキー.
 
     変数 #Mhline はフェースプロパティのキーとして用いられる。値は 
     #MFaceHLineProp 型オブジェクトへのポインタか @c NULL でなくてはな
@@ -808,7 +808,7 @@ MSymbol Mratio;
 MSymbol Mhline;
 
 /***en
-    @brief Key of a face property specifying box
+    @brief Key of a face property specifying box.
 
     The variable #Mbox is used as a key of face property.  The value
     must be a pointer to an object of type #MFaceBoxProp, or @c NULL.
@@ -818,7 +818,7 @@ MSymbol Mhline;
     specified by the object that the value points to.  */
 
 /***ja
-    @brief 囲み枠を指定するためのフェースプロパティーのキー
+    @brief 囲み枠を指定するためのフェースプロパティーのキー.
 
     変数 #Mbox はフェースプロパティのキーとして用いられる。値は 
     #MFaceBoxProp 型オブジェクトへのポインタか @c NULL でなくてはなら
@@ -831,7 +831,7 @@ MSymbol Mhline;
 MSymbol Mbox;
 
 /***en
-    @brief Key of a face property specifying fontset 
+    @brief Key of a face property specifying fontset.
 
     The variable #Mfontset is used as a key of face property.  The
     value must be a pointer to an object of type #Mfontset, or @c
@@ -842,7 +842,7 @@ MSymbol Mbox;
     specified in the fontset.  */
 
 /***ja
-    @brief フォントセットを指定するためのフェースプロパティーのキー
+    @brief フォントセットを指定するためのフェースプロパティーのキー.
 
     変数 #Mfontset はフェースプロパティのキーとして用いられる。値は 
     #Mfontset 型オブジェクトへのポインタか @c NULL でなくてはならない。
@@ -854,7 +854,7 @@ MSymbol Mbox;
 MSymbol Mfontset;
 
 /***en
-    @brief Key of a face property specifying hook
+    @brief Key of a face property specifying hook.
 
     The variable #Mhook_func is used as a key of face property.  The
     value must be a function of type #MFaceHookFunc, or @c NULL.
@@ -863,7 +863,7 @@ MSymbol Mfontset;
     Otherwise, the specified function is called before the face is
     realized.  */
 /***ja
-    @brief フックを指定するためのフェースプロパティーのキー
+    @brief フックを指定するためのフェースプロパティーのキー.
 
     変数 #Mhook_func はフェースプロパティのキーとして用いられる。値は 
     #MFaceHookFunc 型の関数か @c NULL でなくてはならない。
@@ -873,13 +873,13 @@ MSymbol Mfontset;
 MSymbol Mhook_func;
 
 /***en
-    @brief Key of a face property specifying argument of hook
+    @brief Key of a face property specifying argument of hook.
 
     The variable #Mhook_arg is used as a key of face property.  The
     value can be anything that is passed a hook function specified by
     the face property #Mhook_func.  */
 /***ja
-    @brief フックの引数を指定するためのフェースプロパティーのキー
+    @brief フックの引数を指定するためのフェースプロパティーのキー.
 
     変数 #Mhook_arg はフェースプロパティのキーとして用いられる。値は 
     何でもよく、フェースプロパティ #Mhook_func で指定される関数に渡さ
@@ -911,7 +911,7 @@ MSymbol Mreverse;
 /*=*/
 
 /***en
-    @brief Normal video face
+    @brief Normal video face.
 
     The variable #mface_normal_video points to a face that has the
     #Mvideomode property with value #Mnormal.  The other properties
@@ -919,7 +919,7 @@ MSymbol Mreverse;
     colors (i.e. the foreground is drawn by foreground color, and
     background is drawn by background color).  */
 /***en
-    @brief 標準ビデオフェース
+    @brief 標準ビデオフェース.
 
     変数 #mface_normal_video は #Mvideomode プロパティの値が #Mnormal 
     であるフェースを指すポインタである。他のプロパティは指定されない。
@@ -929,7 +929,7 @@ MSymbol Mreverse;
 MFace *mface_normal_video;
 
 /***en
-    @brief Reverse video face
+    @brief Reverse video face.
 
     The variable #mface_reverse_video points to a face that has the
     #Mvideomode property with value #Mreverse.  The other properties
@@ -937,7 +937,7 @@ MFace *mface_normal_video;
     reversed colors (i.e. the foreground is drawn by background
     color, and background is drawn by foreground color).  */
 /***ja
-    @brief リバースビデオフェース
+    @brief リバースビデオフェース.
 
     変数 #mface_reverse_video は #Mvideomode プロパティの値が 
     #Mreverse であるフェースを指すポインタである。他のプロパティは指定
@@ -947,7 +947,7 @@ MFace *mface_normal_video;
 MFace *mface_reverse_video;
 
 /***en
-    @brief Underline face
+    @brief Underline face.
 
     The variable #mface_underline points to a face that has the
     #Mhline property with value a pointer to an object of type
@@ -964,7 +964,7 @@ MFace *mface_reverse_video;
     The other properties are not specified.  An M-text that has this
     face is drawn with an underline.  */ 
 /***ja
-    @brief 下線フェース
+    @brief 下線フェース.
 
     変数 #mface_underline は #Mhline プロパテイの値が #MFaceHLineProp 
     型オブジェクトへのポインタであるフェースを指すポインタである。オブ
@@ -984,14 +984,14 @@ MFace *mface_reverse_video;
 MFace *mface_underline;
 
 /***en
-    @brief Medium face
+    @brief Medium face.
 
     The variable #mface_medium points to a face that has the #Mweight
     property with value a symbol of name "medium".  The other
     properties are not specified.  An M-text that has this face is
     drawn with a font of medium weight.  */
 /***ja
-    @brief ミディアムフェース
+    @brief ミディアムフェース.
 
     変数 #mface_medium は #Mweight プロパテイの値が "medium" という名
     前をもつシンボルであるようなフェースを指すポインタである。他のプロ
@@ -1000,7 +1000,7 @@ MFace *mface_underline;
 MFace *mface_medium;
 
 /***en
-    @brief Bold face
+    @brief Bold face.
 
     The variable #mface_bold points to a face that has the #Mweight
     property with value a symbol of name "bold".  The other properties
@@ -1008,7 +1008,7 @@ MFace *mface_medium;
     font of bold weight.  */
 
 /***ja
-    @brief ボールドフェース
+    @brief ボールドフェース.
 
     変数 #mface_bold は #Mweight プロパテイの値が "bold" という名前を
     もつシンボルであるようなフェースを指すポインタである。他のプロパティ
@@ -1019,7 +1019,7 @@ MFace *mface_medium;
 MFace *mface_bold;
 
 /***en
-    @brief Italic face
+    @brief Italic face.
 
     The variable #mface_italic points to a face that has the #Mstyle
     property with value a symbol of name "italic".  The other
@@ -1027,7 +1027,7 @@ MFace *mface_bold;
     drawn with a font of italic style.  */
 
 /***ja
-    @brief イタリックフェース
+    @brief イタリックフェース.
 
     変数 #mface_italic は #Mstyle プロパテイの値が "italic" という名前
     をもつシンボルであるようなフェースを指すポインタである。他のプロパ
@@ -1038,7 +1038,7 @@ MFace *mface_bold;
 MFace *mface_italic;
 
 /***en
-    @brief Bold italic face
+    @brief Bold italic face.
 
     The variable #mface_bold_italic points to a face that has the
     #Mweight property with value a symbol of name "bold", and #Mstyle
@@ -1047,7 +1047,7 @@ MFace *mface_italic;
     drawn with a font of bold weight and italic style.  */
 
 /***ja
-    @brief ボールドイタリックフェース
+    @brief ボールドイタリックフェース.
 
     変数 #mface_bold_italic は、#Mweight プロパテイの値が "bold" とい
     う名前をもつシンボルであり、かつ #Mstyle プロパテイの値が "italic" 
@@ -1059,7 +1059,7 @@ MFace *mface_italic;
 MFace *mface_bold_italic;
 
 /***en
-    @brief Smallest face
+    @brief Smallest face.
 
     The variable #mface_xx_small points to a face that has the #Mratio
     property with value 50.  The other properties are not specified.
@@ -1067,7 +1067,7 @@ MFace *mface_bold_italic;
     50% of a normal font.  */
 
 /***ja
-    @brief 最小のフェース
+    @brief 最小のフェース.
 
     変数 #mface_xx_small は、#Mratio プロパティの値が 50 であるフェー
     スを指すポインタである。他のプロパティは指定されない。このフェース
@@ -1077,7 +1077,7 @@ MFace *mface_bold_italic;
 MFace *mface_xx_small;
 
 /***en
-    @brief Smaller face
+    @brief Smaller face.
 
     The variable #mface_x_small points to a face that has the #Mratio
     property with value 66.  The other properties are not specified.
@@ -1085,7 +1085,7 @@ MFace *mface_xx_small;
     66% of a normal font.  */
 
 /***ja
-    @brief もっと小さいフェース
+    @brief もっと小さいフェース.
 
     変数 #mface_x_small は、#Mratio プロパティの値が 66 であるフェー
     スを指すポインタである。他のプロパティは指定されない。このフェース
@@ -1095,7 +1095,7 @@ MFace *mface_xx_small;
 MFace *mface_x_small;
 
 /***en
-    @brief Small face
+    @brief Small face.
 
     The variable #mface_x_small points to a face that has the #Mratio
     property with value 75.  The other properties are not specified.
@@ -1103,7 +1103,7 @@ MFace *mface_x_small;
     75% of a normal font.  */
 
 /***ja
-    @brief 小さいフェース
+    @brief 小さいフェース.
 
     変数 #mface_small は、#Mratio プロパティの値が 75 であるフェースを
     指すポインタである。他のプロパティは指定されない。このフェースを持
@@ -1113,7 +1113,7 @@ MFace *mface_x_small;
 MFace *mface_small;
 
 /***en
-    @brief Normalsize face
+    @brief Normalsize face.
 
     The variable #mface_normalsize points to a face that has the
     #Mratio property with value 100.  The other properties are not
@@ -1121,7 +1121,7 @@ MFace *mface_small;
     whose size is the same as a normal font.  */
 
 /***ja
-    @brief 標準の大きさのフェース
+    @brief 標準の大きさのフェース.
 
     変数 #mface_normalsize は、#Mratio プロパティの値が 100 であるフェー
     スを指すポインタである。他のプロパティは指定されない。このフェース
@@ -1131,7 +1131,7 @@ MFace *mface_small;
 MFace *mface_normalsize;
 
 /***en
-    @brief Large face
+    @brief Large face.
 
     The variable #mface_large points to a face that has the #Mratio
     property with value 120.  The other properties are not specified.
@@ -1139,7 +1139,7 @@ MFace *mface_normalsize;
     120% of a normal font.  */
 
 /***ja
-    @brief 大きいフェース
+    @brief 大きいフェース.
 
     変数 #mface_large は、#Mratio プロパティの値が 120 であるフェース
     を指すポインタである。他のプロパティは指定されない。このフェースを
@@ -1149,7 +1149,7 @@ MFace *mface_normalsize;
 MFace *mface_large;
 
 /***en
-    @brief Larger face
+    @brief Larger face.
 
     The variable #mface_x_large points to a face that has the #Mratio
     property with value 150.  The other properties are not specified.
@@ -1157,7 +1157,7 @@ MFace *mface_large;
     150% of a normal font.  */
 
 /***ja
-    @brief もっと大きいフェース
+    @brief もっと大きいフェース.
 
     変数 #mface_x_large は、#Mratio プロパティの値が 150 であるフェー
     スを指すポインタである。他のプロパティは指定されない。このフェース
@@ -1167,7 +1167,7 @@ MFace *mface_large;
 MFace *mface_x_large;
 
 /***en
-    @brief Largest face
+    @brief Largest face.
 
     The variable #mface_xx_large points to a face that has the #Mratio
     property with value 200.  The other properties are not specified.
@@ -1175,7 +1175,7 @@ MFace *mface_x_large;
     200% of a normal font.  */
 
 /***ja
-    @brief 最大のフェース
+    @brief 最大のフェース.
 
     変数 #mface_xx_large は、#Mratio プロパティの値が 200 であるフェー
     スを指すポインタである。他のプロパティは指定されない。このフェース
@@ -1185,14 +1185,15 @@ MFace *mface_x_large;
 MFace *mface_xx_large;
 
 /***en
-    @brief Black face
+    @brief Black face.
 
     The variable #mface_black points to a face that has the
     #Mforeground property with value a symbol of name "black".  The
     other properties are not specified.  An M-text that has this face
     is drawn with black foreground.  */
 
-/***ja @brief 黒フェース
+/***ja 
+    @brief 黒フェース.
 
     変数 #mface_black は、#Mforeground プロパティの値として "black" と
     いう名前のシンボルを持つようなフェースを指すポインタである。他のプ
@@ -1202,7 +1203,7 @@ MFace *mface_xx_large;
 MFace *mface_black;
 
 /***en
-    @brief White face
+    @brief White face.
 
     The variable #mface_white points to a face that has the
     #Mforeground property with value a symbol of name "white".  The
@@ -1210,7 +1211,7 @@ MFace *mface_black;
     is drawn with white foreground.  */
 
 /***ja
-    @brief 白フェース
+    @brief 白フェース.
 
     変数 #mface_white は、#Mforeground プロパティの値として "white" と
     いう名前のシンボルを持つようなフェースを指すポインタである。他のプ
@@ -1220,7 +1221,7 @@ MFace *mface_black;
 MFace *mface_white;
 
 /***en
-    @brief Red face
+    @brief Red face.
 
     The variable #mface_red points to a face that has the
     #Mforeground property with value a symbol of name "red".  The
@@ -1228,7 +1229,7 @@ MFace *mface_white;
     is drawn with red foreground.  */
 
 /***ja
-    @brief 赤フェース
+    @brief 赤フェース.
 
     変数 #mface_red は、#Mforeground プロパティの値として "red" という
     名前のシンボルを持つようなフェースを指すポインタである。他のプロパ
@@ -1238,7 +1239,7 @@ MFace *mface_white;
 MFace *mface_red;
 
 /***en
-    @brief Green face
+    @brief Green face.
 
     The variable #mface_green points to a face that has the
     #Mforeground property with value a symbol of name "green".  The
@@ -1246,7 +1247,7 @@ MFace *mface_red;
     is drawn with green foreground.  */
 
 /***ja
-    @brief 緑フェース
+    @brief 緑フェース.
 
     変数 #mface_green は、#Mforeground プロパティの値として "green" と
     いう名前のシンボルを持つようなフェースを指すポインタである。他のプ
@@ -1256,7 +1257,7 @@ MFace *mface_red;
 MFace *mface_green;
 
 /***en
-    @brief Blue face
+    @brief Blue face.
 
     The variable #mface_blue points to a face that has the
     #Mforeground property with value a symbol of name "blue".  The
@@ -1264,7 +1265,7 @@ MFace *mface_green;
     is drawn with blue foreground.  */
 
 /***ja
-    @brief 青フェース
+    @brief 青フェース.
 
     変数 #mface_blue は、#Mforeground プロパティの値として "blue" とい
     う名前のシンボルを持つようなフェースを指すポインタである。他のプロ
@@ -1274,7 +1275,7 @@ MFace *mface_green;
 MFace *mface_blue;
 
 /***en
-    @brief Cyan face
+    @brief Cyan face.
 
     The variable #mface_cyan points to a face that has the
     #Mforeground property with value a symbol of name "cyan".  The
@@ -1282,7 +1283,7 @@ MFace *mface_blue;
     is drawn with cyan foreground.  */
 
 /***ja
-    @brief シアンフェース
+    @brief シアンフェース.
 
     変数 #mface_cyan は、#Mforeground プロパティの値として "cyan" とい
     う名前のシンボルを持つようなフェースを指すポインタである。他のプロ
@@ -1292,7 +1293,7 @@ MFace *mface_blue;
 MFace *mface_cyan;
 
 /***en
-    @brief yellow face
+    @brief yellow face.
 
     The variable #mface_yellow points to a face that has the
     #Mforeground property with value a symbol of name "yellow".  The
@@ -1300,7 +1301,7 @@ MFace *mface_cyan;
     is drawn with yellow foreground.  */
 
 /***ja
-    @brief 黄フェース
+    @brief 黄フェース.
 
     変数 #mface_yellow は、#Mforeground プロパティの値として "yellow" 
     という名前のシンボルを持つようなフェースを指すポインタである。他の
@@ -1310,7 +1311,7 @@ MFace *mface_cyan;
 MFace *mface_yellow;
 
 /***en
-    @brief Magenta face
+    @brief Magenta face.
 
     The variable #mface_magenta points to a face that has the
     #Mforeground property with value a symbol of name "magenta".  The
@@ -1318,7 +1319,7 @@ MFace *mface_yellow;
     is drawn with magenta foreground.  */
 
 /***ja
-    @brief マゼンタフェース
+    @brief マゼンタフェース.
 
     変数 #mface_magenta は、#Mforeground プロパティの値として 
     "magenta" という名前のシンボルを持つようなフェースを指すポインタで
@@ -1343,7 +1344,7 @@ MFace *mface_magenta;
     of type #MFace.  This is a managing key.  */
 
 /***ja
-    @brief フェースを指定するテキストプロパティのキー
+    @brief フェースを指定するテキストプロパティのキー.
 
     変数 #Mface は <tt>"face"</tt> という名前を持つシンボルである。こ
     のシンボルをキーとするテキストプロパティは、#MFace 型のオブジェク
@@ -1364,7 +1365,7 @@ MSymbol Mface;
     This function returns a pointer to the created face.  */
 
 /***ja
-    @brief 新しいフェースをつくる 
+    @brief 新しいフェースをつくる.
 
     関数 mface () はプロパティを一切持たない新しいフェースオブジェクト
     を作る。
@@ -1526,7 +1527,7 @@ mface_from_font (MFont *font)
     #merror_code.  */
 
 /***ja
-    @brief フェースのプロパティの値を得る
+    @brief フェースのプロパティの値を得る.
 
     関数 mface_get_prop () は、フェース $FACE が持つフェースプロパティ
     の内、キーが $KEY であるものの値を返す。$KEY は下記のいずれかでな
@@ -1583,7 +1584,7 @@ mface_get_prop (MFace *face, MSymbol key)
     variable #merror_code.  */
 
 /***ja
-    @brief フェースプロパティの値を設定する
+    @brief フェースプロパティの値を設定する.
 
     関数 mface_put_prop () は、フェース $FACE 内でキーが $KEY であるプ
     ロパティの値を $VAL に設定する。$KEY は以下のいずれかでなくてはな

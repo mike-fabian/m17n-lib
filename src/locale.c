@@ -22,14 +22,14 @@
 
 /***en
     @addtogroup m17nLocale
-    @brief Locale objects and API for them
+    @brief Locale objects and API for them.
 
     The m17n library represents locale related information as objects
     of type #MLocale.  */
 
 /***ja
     @addtogroup m17nLocale
-    @brief ロケールオブジェクトとそれに関する API
+    @brief ロケールオブジェクトとそれに関する API.
 
     m17n ライブラリはロケール関連情報を #MLocale 型のオブジェクトで
     表現する。  */
@@ -432,7 +432,7 @@ mlocale_set (int category, const char *name)
     #Mterritory, #Mcodeset, #Mmodifier, or #Mcoding.  */ 
 
 /***ja
-    @brief ロケールプロパティの値を得る
+    @brief ロケールプロパティの値を得る.
 
     関数 mlocale_get_prop () は、ロケール $LOCALE の $KEY プロパティの
     値を返す。 $KEY は #Mname, #Mlanguage, #Mterritory, #Mcodeset,

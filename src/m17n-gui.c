@@ -282,7 +282,7 @@ MSymbol Mfont_descent;
     newly created frame.  Otherwise, it returns @c NULL.  */
 
 /***ja
-    @brief  新しいフレームを作る
+    @brief 新しいフレームを作る.
 
     関数 mframe () は $PLIST 中のパラメータを持つ新しいフレームを作る。
 
@@ -491,7 +491,7 @@ mframe_get_prop (MFrame *frame, MSymbol key)
     default frame that is created by the first call of mframe ().  */
 
 /***ja
-    デフォルトのフレーム 
+    @brief デフォルトのフレーム.
 
     外部変数 #mframe_default は、デフォルトのフレームへのポインタを持
     つ。デフォルトのフレームは、最初に mframe () が呼び出されたときに
