@@ -40,8 +40,9 @@ it now.
 ** New function mplist_deseriaze () parses an M-Text and generates a
 plist.
 
-** The functions mfont_name () and mfont_from_name () are now
-obsolete.  Use mfont_parse_name () and mfont_unparse_name () instead.
+** The functions mfont_name () and mfont_from_name () are now obsolete
+(still kept for backward compatibility).  Use mfont_parse_name () and
+mfont_unparse_name () instead.
 
 ** The sample program "mdump" generates PNG image file instead of PBM.
 
