@@ -21,13 +21,13 @@
    02111-1307, USA.  */
 
 /***en
-    @enpage mdate display date and time
+    @enpage m17n-date display date and time
 
-    @section mdate-synopsis SYNOPSIS
+    @section m17n-date-synopsis SYNOPSIS
 
-    mdate [ OPTION ... ]
+    m17n-date [ OPTION ... ]
 
-    @section mdate-description DESCRIPTION
+    @section m17n-date-description DESCRIPTION
 
     Display the system date and time in many locales on a window.
 
@@ -45,13 +45,13 @@
     </ul>
 */
 /***ja
-    @japage mdate 日時を表示する
+    @japage m17n-date 日時を表示する
 
-    @section mdate-synopsis シノプシス
+    @section m17n-date-synopsis シノプシス
 
-    mdate [ OPTION ... ]
+    m17n-date [ OPTION ... ]
 
-    @section mdate-description 説明
+    @section m17n-date-description 説明
 
     システムの日時をさまざまなロケールでウィンドウに表示する。 
 
@@ -174,7 +174,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("mdate (m17n library) %s\n", VERSION);
+	  printf ("m17n-date (m17n library) %s\n", VERSION);
 	  printf ("Copyright (C) 2003 AIST, JAPAN\n");
 	  exit (0);
 	}

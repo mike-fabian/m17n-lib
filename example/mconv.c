@@ -21,13 +21,13 @@
    02111-1307, USA.  */
 
 /***en
-    @enpage mconv convert file code
+    @enpage m17n-conv convert file code
 
-    @section mconv-synopsis SYNOPSIS
+    @section m17n-conv-synopsis SYNOPSIS
 
-    mconv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
+    m17n-conv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
 
-    @section mconv-description DESCRIPTION
+    @section m17n-conv-description DESCRIPTION
 
     Convert encoding of given files from one to another.
 
@@ -73,13 +73,13 @@
     </ul>
 */
 /***ja
-    @japage mconv ファイルのコードを変換する
+    @japage m17n-conv ファイルのコードを変換する
 
-    @section mconv-synopsis SYNOPSIS
+    @section m17n-conv-synopsis SYNOPSIS
 
-    mconv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
+    m17n-conv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
 
-    @section mconv-description 説明
+    @section m17n-conv-description 説明
 
     与えられたファイルのコードを別のものに変換する。 
 

@@ -1,4 +1,4 @@
-/* mview.c -- File viewer
+/* mview.c -- File viewer				-*- coding: euc-jp; -*-
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -21,13 +21,13 @@
    02111-1307, USA.  */
 
 /***en
-    @enpage mview view file
+    @enpage m17n-view view file
 
-    @section mview-synopsis SYNOPSIS
+    @section m17n-view-synopsis SYNOPSIS
 
-    mview [ XT-OPTION ...] [ OPTION ... ] [ FILE ]
+    m17n-view [ XT-OPTION ...] [ OPTION ... ] [ FILE ]
 
-    @section mview-description DESCRIPTION
+    @section m17n-view-description DESCRIPTION
 
     Display FILE on a window.
 
@@ -59,13 +59,13 @@
     </ul>
 */
 /***ja
-    @japage mview ファイルを見る
+    @japage m17n-view ファイルを見る
 
-    @section mview-synopsis SYNOPSIS
+    @section m17n-view-synopsis SYNOPSIS
 
-    mview [ XT-OPTION ...] [ OPTION ... ] [ FILE ]
+    m17n-view [ XT-OPTION ...] [ OPTION ... ] [ FILE ]
 
-    @section mview-description DESCRIPTION
+    @section m17n-view-description DESCRIPTION
 
     FILE をウィンドウに表示する。 
 
@@ -275,7 +275,7 @@ main (int argc, char **argv)
 
   /* Open an application context.  */
   XtSetLanguageProc (NULL, NULL, NULL);
-  shell = XtOpenApplication (&context, "MView", NULL, 0, &argc, argv, NULL,
+  shell = XtOpenApplication (&context, "M17NView", NULL, 0, &argc, argv, NULL,
 			     sessionShellWidgetClass, NULL, 0);
   XtAppAddActions (context, actions, XtNumber (actions));
 
@@ -287,7 +287,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("mview (m17n library) %s\n", VERSION);
+	  printf ("m17n-view (m17n library) %s\n", VERSION);
 	  printf ("Copyright (C) 2003 AIST, JAPAN\n");
 	  exit (0);
 	}
