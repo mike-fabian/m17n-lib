@@ -225,6 +225,166 @@ intersect_rectangle (MDrawMetric *r1, MDrawMetric *r2, MDrawMetric *rect)
 
 
 static void
+gd_render (MDrawWindow win, int x, int y,
+	   MGlyphString *gstring, MGlyph *from, MGlyph *to,
+	   int reverse, MDrawRegion region)
+{
+  gdImagePtr img = (gdImagePtr) win;
+  MFTInfo *ft_info;
+  FT_Face ft_face;
+  MRealizedFace *rface = from->rface;
+  FT_Int32 load_flags = FT_LOAD_RENDER;
+  int i, j;
+  int color, pixel;
+  int r, g, b;
+  
+  pixel = RESOLVE_COLOR (img, color);
+
+  if (from == to)
+    return;
+
+  /* It is assured that the all glyphs in the current range use the
+     same realized face.  */
+  ft_info = (MFTInfo *) rface->rfont->info;
+  ft_face = ft_info->ft_face;
+  color = ((int *) rface->info)[reverse ? COLOR_INVERSE : COLOR_NORMAL];
+  pixel = RESOLVE_COLOR (img, color);
+
+  if (gstring->anti_alias)
+    r = color >> 16, g = (color >> 8) & 0xFF, b = color & 0xFF;
+  else
+    {
+#ifdef FT_LOAD_TARGET_MONO
+      load_flags |= FT_LOAD_TARGET_MONO;
+#else
+      load_flags |= FT_LOAD_MONOCHROME;
+#endif
+    }
+
+  for (; from < to; x += from++->width)
+    {
+      unsigned char *bmp;
+      int xoff, yoff;
+      int width, pitch;
+
+      FT_Load_Glyph (ft_face, (FT_UInt) from->code, load_flags);
+      yoff = y - ft_face->glyph->bitmap_top + from->yoff;
+      bmp = ft_face->glyph->bitmap.buffer;
+      width = ft_face->glyph->bitmap.width;
+      pitch = ft_face->glyph->bitmap.pitch;
+      if (! gstring->anti_alias)
+	pitch *= 8;
+      if (width > pitch)
+	width = pitch;
+
+      if (gstring->anti_alias)
+	for (i = 0; i < ft_face->glyph->bitmap.rows;
+	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
+	  {
+	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
+	    for (j = 0; j < width; j++, xoff++)
+	      if (bmp[j])
+		{
+		  int f = bmp[j] >> 5;
+		  int pixel1 = pixel;
+
+		  if (f < 7)
+		    {
+		      int r1, g1, b1, color1;
+
+		      pixel1 = gdImageGetPixel (img, xoff, yoff);
+		      r1 = gdImageRed (img, pixel1);
+		      g1 = gdImageGreen (img, pixel1);
+		      b1 = gdImageBlue (img, pixel1);
+		      color1 = ((((r * f + r1 * (7 - f)) / 7) << 16)
+				| (((g * f + g1 * (7 - f)) / 7) << 8)
+				| ((b * f + b1 * (7 - f)) / 7));
+		      pixel1 = RESOLVE_COLOR (img, color1);
+		    }
+		  gdImageSetPixel (img, xoff, yoff, pixel1);
+		}
+	  }
+      else
+	for (i = 0; i < ft_face->glyph->bitmap.rows;
+	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
+	  {
+	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
+	    for (j = 0; j < width; j++, xoff++)
+	      if (bmp[j / 8] & (1 << (7 - (j % 8))))
+		gdImageSetPixel (img, xoff, yoff, pixel);
+	  }
+    }
+}
+
+static MFontDriver gd_font_driver =
+  { NULL, NULL, NULL, NULL, gd_render };
+
+static int
+gd_init ()
+{
+  M_rgb = msymbol ("  rgb");
+  read_rgb_txt ();
+  realized_fontset_list = mplist ();
+  realized_font_list = mplist ();
+  realized_face_list = mplist ();  
+  scratch_images[0] = scratch_images[1] = NULL;
+
+  gd_font_driver.select = mfont__ft_driver.select;
+  gd_font_driver.open = mfont__ft_driver.open;
+  gd_font_driver.find_metric = mfont__ft_driver.find_metric;
+  gd_font_driver.encode_char = mfont__ft_driver.encode_char;
+
+  return 0;
+}
+
+static int
+gd_fini ()
+{
+  MPlist *plist;
+  int i;
+
+  MPLIST_DO (plist, realized_fontset_list)
+    mfont__free_realized_fontset ((MRealizedFontset *) MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (realized_fontset_list);
+
+  MPLIST_DO (plist, realized_face_list)
+    {
+      MRealizedFace *rface = MPLIST_VAL (plist);
+
+      free (rface->info);
+      mface__free_realized (rface);
+    }
+  M17N_OBJECT_UNREF (realized_face_list);
+
+  MPLIST_DO (plist, realized_font_list)
+    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (realized_font_list);
+
+  for (i = 0; i < 2; i++)
+    if (scratch_images[i])
+      gdImageDestroy (scratch_images[i]);
+  return 0;
+}
+
+static int
+gd_open (MFrame *frame, MPlist *param)
+{
+  MFace *face;
+
+  frame->device = NULL;
+  frame->device_type = MDEVICE_SUPPORT_OUTPUT;
+  frame->font_driver_list = mplist ();
+  mplist_add (frame->font_driver_list, Mfreetype, &gd_font_driver);
+  frame->realized_font_list = realized_font_list;
+  frame->realized_face_list = realized_face_list;
+  frame->realized_fontset_list = realized_fontset_list;
+  face = mface_copy (mface__default);
+  mplist_push (param, Mface, face);
+  M17N_OBJECT_UNREF (face);
+  return 0;
+}
+
+static void
 gd_close (MFrame *frame)
 {
 }
@@ -614,6 +774,10 @@ gd_dump_region (MDrawRegion region)
 
 static MDeviceDriver gd_driver =
   {
+    0,
+    gd_init,
+    gd_fini,
+    gd_open,
     gd_close,
     gd_get_prop,
     gd_realize_face,
@@ -632,166 +796,22 @@ static MDeviceDriver gd_driver =
     gd_dump_region,
   };
 
-
-static void
-gd_render (MDrawWindow win, int x, int y,
-	   MGlyphString *gstring, MGlyph *from, MGlyph *to,
-	   int reverse, MDrawRegion region)
-{
-  gdImagePtr img = (gdImagePtr) win;
-  MFTInfo *ft_info;
-  FT_Face ft_face;
-  MRealizedFace *rface = from->rface;
-  FT_Int32 load_flags = FT_LOAD_RENDER;
-  int i, j;
-  int color, pixel;
-  int r, g, b;
-  
-  pixel = RESOLVE_COLOR (img, color);
-
-  if (from == to)
-    return;
-
-  /* It is assured that the all glyphs in the current range use the
-     same realized face.  */
-  ft_info = (MFTInfo *) rface->rfont->info;
-  ft_face = ft_info->ft_face;
-  color = ((int *) rface->info)[reverse ? COLOR_INVERSE : COLOR_NORMAL];
-  pixel = RESOLVE_COLOR (img, color);
-
-  if (gstring->anti_alias)
-    r = color >> 16, g = (color >> 8) & 0xFF, b = color & 0xFF;
-  else
-    {
-#ifdef FT_LOAD_TARGET_MONO
-      load_flags |= FT_LOAD_TARGET_MONO;
-#else
-      load_flags |= FT_LOAD_MONOCHROME;
-#endif
-    }
-
-  for (; from < to; x += from++->width)
-    {
-      unsigned char *bmp;
-      int xoff, yoff;
-      int width, pitch;
-
-      FT_Load_Glyph (ft_face, (FT_UInt) from->code, load_flags);
-      yoff = y - ft_face->glyph->bitmap_top + from->yoff;
-      bmp = ft_face->glyph->bitmap.buffer;
-      width = ft_face->glyph->bitmap.width;
-      pitch = ft_face->glyph->bitmap.pitch;
-      if (! gstring->anti_alias)
-	pitch *= 8;
-      if (width > pitch)
-	width = pitch;
-
-      if (gstring->anti_alias)
-	for (i = 0; i < ft_face->glyph->bitmap.rows;
-	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
-	  {
-	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
-	    for (j = 0; j < width; j++, xoff++)
-	      if (bmp[j])
-		{
-		  int f = bmp[j] >> 5;
-		  int pixel1 = pixel;
-
-		  if (f < 7)
-		    {
-		      int r1, g1, b1, color1;
-
-		      pixel1 = gdImageGetPixel (img, xoff, yoff);
-		      r1 = gdImageRed (img, pixel1);
-		      g1 = gdImageGreen (img, pixel1);
-		      b1 = gdImageBlue (img, pixel1);
-		      color1 = ((((r * f + r1 * (7 - f)) / 7) << 16)
-				| (((g * f + g1 * (7 - f)) / 7) << 8)
-				| ((b * f + b1 * (7 - f)) / 7));
-		      pixel1 = RESOLVE_COLOR (img, color1);
-		    }
-		  gdImageSetPixel (img, xoff, yoff, pixel1);
-		}
-	  }
-      else
-	for (i = 0; i < ft_face->glyph->bitmap.rows;
-	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
-	  {
-	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
-	    for (j = 0; j < width; j++, xoff++)
-	      if (bmp[j / 8] & (1 << (7 - (j % 8))))
-		gdImageSetPixel (img, xoff, yoff, pixel);
-	  }
-    }
-}
-
-
-static MFontDriver gd_font_driver =
-  { NULL, NULL, NULL, NULL, gd_render };
-
+
+/* External API */
 int
-device_init ()
+m17n_init_gd ()
 {
-  M_rgb = msymbol ("  rgb");
-  read_rgb_txt ();
-  realized_fontset_list = mplist ();
-  realized_font_list = mplist ();
-  realized_face_list = mplist ();  
-  scratch_images[0] = scratch_images[1] = NULL;
-
-  gd_font_driver.select = mfont__ft_driver.select;
-  gd_font_driver.open = mfont__ft_driver.open;
-  gd_font_driver.find_metric = mfont__ft_driver.find_metric;
-  gd_font_driver.encode_char = mfont__ft_driver.encode_char;
-
+  gd_driver.initialized = 0;
+  mplist_put (m17n__device_library_list, Mgd, &gd_driver);
   return 0;
 }
 
+#else	/* not HAVE_GD nor HAVE_FREETYPE */
+
 int
-device_fini ()
+m17n_init_gd ()
 {
-  MPlist *plist;
-  int i;
-
-  MPLIST_DO (plist, realized_fontset_list)
-    mfont__free_realized_fontset ((MRealizedFontset *) MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (realized_fontset_list);
-
-  MPLIST_DO (plist, realized_face_list)
-    {
-      MRealizedFace *rface = MPLIST_VAL (plist);
-
-      free (rface->info);
-      mface__free_realized (rface);
-    }
-  M17N_OBJECT_UNREF (realized_face_list);
-
-  MPLIST_DO (plist, realized_font_list)
-    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
-  M17N_OBJECT_UNREF (realized_font_list);
-
-  for (i = 0; i < 2; i++)
-    if (scratch_images[i])
-      gdImageDestroy (scratch_images[i]);
-  return 0;
-}
-
-void *
-device_open (MFrame *frame, MPlist *param)
-{
-  MFace *face;
-
-  frame->device_type = MDEVICE_SUPPORT_OUTPUT;
-  frame->driver = &gd_driver;
-  frame->font_driver_list = mplist ();
-  mplist_add (frame->font_driver_list, Mfreetype, &gd_font_driver);
-  frame->realized_font_list = realized_font_list;
-  frame->realized_face_list = realized_face_list;
-  frame->realized_fontset_list = realized_fontset_list;
-  face = mface_copy (mface__default);
-  mplist_push (param, Mface, face);
-  M17N_OBJECT_UNREF (face);
-  return Mt;
+  return -1;
 }
 
 #endif	/* not HAVE_GD nor HAVE_FREETYPE */
