@@ -825,6 +825,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
 /***ja @defgroup m17nLocale ロケール */
 /*=*/
 
+/*** @ingroup m17nLocale */
 /***en
     @brief @c struct @c MLocale.
 
@@ -890,11 +891,12 @@ extern MText *mtext_toupper (MText *mt);
 /***ja @defgroup m17nInputMethod 入力メソッド (基本部分) */
 /*=*/
 
+/*** @addtogroup m17nInputMethod 
+     @{ */
+
 /* Struct forward declaration.  */
 typedef struct MInputMethod MInputMethod;
 typedef struct MInputContext MInputContext;
-
-/*** @ingroup m17nInputMethod */
 
 /***en
     @brief Type of input method callback functions.
@@ -1311,8 +1313,10 @@ extern void minput_toggle (MInputContext *ic);
 
 extern void minput_reset_ic (MInputContext *ic);
 /*=*/
+/***     @} */
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
+
 
 #ifdef __cplusplus
 }

@@ -287,7 +287,7 @@ extern int mchartable_set (MCharTable *table, int c, void *val);
 extern int mchartable_set_range (MCharTable *table, int from, int to,
 				 void *val);
 
-extern int mchartest (MCharTable *table, void *ignore,
+extern int mchartable_map  (MCharTable *table, void *ignore,
 			   void (*func) (int from, int to,
 					 void *val, void *arg), 
 			   void *func_arg);
