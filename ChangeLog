@@ -1,3 +1,7 @@
+2004-07-06  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-config.in: Cancel previous change.
+
 2004-06-30  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-config.in: Add -lm17n-X and -lm17n-gd if necessary.

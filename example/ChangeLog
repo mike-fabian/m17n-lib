@@ -1,5 +1,10 @@
 2004-07-06  Kenichi Handa  <handa@m17n.org>
 
+	* mdump.c: Cancel previous change.
+
+	* Makefile.am (X_LD_FLAGS): Fix the order of linking.
+	(medit_LDADD, mview_LDADD, mdump_LDADD): Cancel previous change.
+
 	* HELLO.xml: Add Punjabi, Kannada, Telugu, and Gujarati.
 
 	* medit.c (covert_selection): If X_HAVE_UTF8_STRING is defined and
