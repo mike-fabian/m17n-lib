@@ -27,26 +27,10 @@
 #include <X11/Xutil.h>
 #include <X11/Xresource.h>
 
-#ifndef _M17N_GUI_H_
-#include <m17n-gui.h>
-#endif
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-extern int m17n_init_X (void);
-#undef M17N_INIT_X
-#define M17N_INIT_X() m17n_init_X ()
-
-#undef M17N_INIT
-#define M17N_INIT()			\
-  do {					\
-    if (m17n_init_win () < 0) break;	\
-    if (M17N_INIT_GD () < 0) break;	\
-    M17N_INIT_X ();			\
-  } while (0)
 
 /* For inputting.  */
 

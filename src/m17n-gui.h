@@ -32,9 +32,6 @@ extern "C"
 {
 #endif
 
-#define M17N_INIT_X() 1
-#define M17N_INIT_GD() 1
-
 extern int m17n_init_win (void);
 #undef M17N_INIT
 #define M17N_INIT() m17n_init_win ()
