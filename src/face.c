@@ -105,37 +105,78 @@ static MSymbol Mlatin;
 
 static MSymbol M_face_prop_index;
 
-/** From FRAME->realized_face_list, find a plist element whose value
-    is a realized face realized from FACE and using font RFONT.  If
-    RFONT is NULL, find one from faces for ASCII (which are in the
-    head of FRAME->realized_face_list), otherwise find one that uses
-    RFONT.  */
+static MPlist *hline_prop_list;
+static MPlist *box_prop_list;
 
-static MPlist *
-find_realized_face (MFrame *frame, MFace *face, MRealizedFont *rfont)
+/** Special hook function pointer that does nothing.  */
+static MFaceHookFunc noop_hook;
+
+/**  */
+static MFaceHLineProp *
+get_hline_create (MFaceHLineProp *prop)
 {
-  MPlist *rface_list;
-  MRealizedFace *rface;
-  int i;
+  MPlist *plist;
+  MFaceHLineProp *hline;
 
-  MPLIST_DO (rface_list, frame->realized_face_list)
+  if (prop->width == 0)
+    return MPLIST_VAL (hline_prop_list);
+  MPLIST_DO (plist, MPLIST_NEXT (hline_prop_list))
     {
-      rface = MPLIST_VAL (rface_list);
-      if (! rfont)
-	{
-	  if (rface != rface->ascii_rface)
-	    return NULL;
-	}
-      else
-	{
-	  if (rface->rfont != rfont)
-	    continue;
-	}
-      for (i = 0; i < MFACE_RATIO; i++)
-	if (rface->face.property[i] != face->property[i])
-	  break;
-      if (i == MFACE_RATIO)
-	return rface_list;
+      hline = MPLIST_VAL (plist);
+      if (prop->type == hline->type
+	  && prop->width == hline->width
+	  && prop->color == hline->color)
+	return hline;
+    }
+  MSTRUCT_MALLOC (hline, MERROR_FACE);
+  *hline = *prop;
+  mplist_push (plist, Mt, hline);
+  return hline;
+}
+
+static MFaceBoxProp *
+get_box_create (MFaceBoxProp *prop)
+{
+  MPlist *plist;
+  MFaceBoxProp *box;
+
+  if (prop->width == 0)
+    return MPLIST_VAL (box_prop_list);
+  MPLIST_DO (plist, MPLIST_NEXT (box_prop_list))
+    {
+      box = MPLIST_VAL (plist);
+      if (prop->width == box->width
+	  && prop->color_top == box->color_top
+	  && prop->color_bottom == box->color_bottom
+	  && prop->color_left == box->color_left
+	  && prop->color_right == box->color_right
+	  && prop->inner_hmargin == box->inner_hmargin
+	  && prop->inner_vmargin == box->inner_vmargin
+	  && prop->outer_hmargin == box->inner_hmargin
+	  && prop->inner_vmargin == box->inner_vmargin)
+	return box;
+    }
+  MSTRUCT_MALLOC (box, MERROR_FACE);
+  *box = *prop;
+  mplist_push (plist, Mt, box);
+  return box;
+}
+
+/** From FRAME->realized_face_list, find a realized face based on
+    FACE.  */
+
+static MRealizedFace *
+find_realized_face (MFrame *frame, MFace *face)
+{
+  MPlist *plist;
+
+  MPLIST_DO (plist, frame->realized_face_list)
+    {
+      MRealizedFace *rface = MPLIST_VAL (plist);
+
+      if (memcmp (rface->face.property, face->property, sizeof face->property)
+	  == 0)
+	return rface;
     }
   return NULL;
 }
@@ -147,11 +188,7 @@ free_face (void *object)
 
   if (face->property[MFACE_FONTSET])
     M17N_OBJECT_UNREF (face->property[MFACE_FONTSET]);
-  if (face->property[MFACE_HLINE])
-    free (face->property[MFACE_HLINE]);
-  if (face->property[MFACE_BOX])
-    free (face->property[MFACE_BOX]);
-  M17N_OBJECT_UNREF (face->realized_face_list);
+  M17N_OBJECT_UNREF (face->frame_list);
   M17N_OBJECT_UNREGISTER (face_table, face);
   free (object);
 }
@@ -160,32 +197,38 @@ free_face (void *object)
 static MPlist *
 serialize_hline (MPlist *plist, MFaceHLineProp *hline)
 {
-  MPlist *pl = mplist ();
+  if (hline->width > 0)
+    {
+      MPlist *pl = mplist ();
 
-  mplist_add (pl, Minteger, (void *) hline->type);
-  mplist_add (pl, Minteger, (void *) hline->width);
-  mplist_add (pl, Msymbol, hline->color);
-  plist = mplist_add (plist, Mplist, pl);
-  M17N_OBJECT_UNREF (pl);
+      mplist_add (pl, Minteger, (void *) hline->type);
+      mplist_add (pl, Minteger, (void *) hline->width);
+      mplist_add (pl, Msymbol, hline->color);
+      plist = mplist_add (plist, Mplist, pl);
+      M17N_OBJECT_UNREF (pl);
+    }
   return plist;
 }
 
 static MPlist *
 serialize_box (MPlist *plist, MFaceBoxProp *box)
 {
-  MPlist *pl = mplist ();
+  if (box->width > 0)
+    {
+      MPlist *pl = mplist ();
 
-  mplist_add (pl, Minteger, (void *) box->width);
-  mplist_add (pl, Minteger, (void *) box->inner_hmargin);
-  mplist_add (pl, Minteger, (void *) box->inner_vmargin);
-  mplist_add (pl, Minteger, (void *) box->outer_hmargin);
-  mplist_add (pl, Minteger, (void *) box->outer_vmargin);
-  mplist_add (pl, Msymbol, box->color_top);
-  mplist_add (pl, Msymbol, box->color_bottom);
-  mplist_add (pl, Msymbol, box->color_left);
-  mplist_add (pl, Msymbol, box->color_right);
-  plist = mplist_add (plist, Mplist, pl);
-  M17N_OBJECT_UNREF (pl);
+      mplist_add (pl, Minteger, (void *) box->width);
+      mplist_add (pl, Minteger, (void *) box->inner_hmargin);
+      mplist_add (pl, Minteger, (void *) box->inner_vmargin);
+      mplist_add (pl, Minteger, (void *) box->outer_hmargin);
+      mplist_add (pl, Minteger, (void *) box->outer_vmargin);
+      mplist_add (pl, Msymbol, box->color_top);
+      mplist_add (pl, Msymbol, box->color_bottom);
+      mplist_add (pl, Msymbol, box->color_left);
+      mplist_add (pl, Msymbol, box->color_right);
+      plist = mplist_add (plist, Mplist, pl);
+      M17N_OBJECT_UNREF (pl);
+    }
   return plist;
 }
 
@@ -370,6 +413,8 @@ int
 mface__init ()
 {
   int i;
+  MFaceHLineProp *hline;
+  MFaceBoxProp *box;
 
   face_table.count = 0;
   Mface = msymbol_as_managing_key ("face");
@@ -421,15 +466,28 @@ mface__init ()
 		   (void *) (mface_prop_data[i].index + 1));
   }
 
+  hline_prop_list = mplist ();
+  MSTRUCT_CALLOC (hline, MERROR_FACE);
+  mplist_push (hline_prop_list, Mt, hline);
+  box_prop_list = mplist ();
+  MSTRUCT_CALLOC (box, MERROR_FACE);
+  mplist_push (box_prop_list, Mt, box);
+
   mface__default = mface ();
+  mface__default->property[MFACE_FOUNDRY] = msymbol ("misc");
+  mface__default->property[MFACE_FAMILY] = msymbol ("fixed");
   mface__default->property[MFACE_WEIGHT] = msymbol ("medium");
   mface__default->property[MFACE_STYLE] = msymbol ("r");
   mface__default->property[MFACE_STRETCH] = msymbol ("normal");
+  mface__default->property[MFACE_ADSTYLE] = msymbol ("");
   mface__default->property[MFACE_SIZE] = (void *) 120;
   mface__default->property[MFACE_FONTSET] = mfontset (NULL);
-  M17N_OBJECT_REF (mface__default->property[MFACE_FONTSET]);
-  /* mface__default->property[MFACE_FOREGROUND] =msymbol ("black"); */
-  /* mface__default->property[MFACE_BACKGROUND] =msymbol ("white"); */
+  mface__default->property[MFACE_FOREGROUND] = msymbol ("white");
+  mface__default->property[MFACE_FONTSET] = msymbol ("black");
+  mface__default->property[MFACE_HLINE] = hline;
+  mface__default->property[MFACE_BOX] = box;
+  mface__default->property[MFACE_VIDEOMODE] = Mnormal;
+  mface__default->property[MFACE_HOOK_FUNC] = (void *) noop_hook;
 
   mface_normal_video = mface ();
   mface_normal_video->property[MFACE_VIDEOMODE] = (void *) Mnormal;
@@ -500,6 +558,8 @@ mface__init ()
 void
 mface__fini ()
 {
+  MPlist *plist;
+
   M17N_OBJECT_UNREF (mface__default);
   M17N_OBJECT_UNREF (mface_normal_video);
   M17N_OBJECT_UNREF (mface_reverse_video);
@@ -523,6 +583,14 @@ mface__fini ()
   M17N_OBJECT_UNREF (mface_cyan);
   M17N_OBJECT_UNREF (mface_yellow);
   M17N_OBJECT_UNREF (mface_magenta);
+
+  MPLIST_DO (plist, hline_prop_list)
+    free (MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (hline_prop_list);
+  MPLIST_DO (plist, box_prop_list)
+    free (MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (box_prop_list);
+
   free (work_gstring.glyphs);
 
   mdebug__report_object ("Face", &face_table);
@@ -541,7 +609,7 @@ mface__realize (MFrame *frame, MFace **faces, int num,
   void **props;
   int i, j;
   MGlyph g;
-  MPlist *plist;
+  MFaceHookFunc func;
 
   if (num == 0 && language == Mnil && charset == Mnil && frame->rface)
     return frame->rface;
@@ -554,6 +622,12 @@ mface__realize (MFrame *frame, MFace **faces, int num,
 	  break;
 	}
 
+  if (! mplist_find_by_value (frame->face->frame_list, frame))
+    mplist_push (frame->face->frame_list, Mt, frame);
+  for (i = 0; i < num; i++)
+    if (! mplist_find_by_value (faces[i]->frame_list, frame))
+      mplist_push (faces[i]->frame_list, Mt, frame);
+
   if (merged_face.property[MFACE_RATIO])
     {
       int font_size = (int) merged_face.property[MFACE_SIZE];
@@ -561,51 +635,18 @@ mface__realize (MFrame *frame, MFace **faces, int num,
       font_size *= (int) merged_face.property[MFACE_RATIO];
       font_size /= 100;
       merged_face.property[MFACE_SIZE] = (void *) font_size;
+      merged_face.property[MFACE_RATIO] = 0;
     }
 
-  plist = find_realized_face (frame, &merged_face, NULL);
-  if (plist)
-    {
-      rface = MPLIST_VAL (plist);
-      if (! rface->need_update)
-	return rface->ascii_rface;
-      mplist_pop (plist);
-      while (! MPLIST_TAIL_P (plist))
-	{
-	  if (((MRealizedFace *) MPLIST_VAL (plist))->ascii_rface == rface)
-	    {
-	      mface__free_realized ((MRealizedFace *) MPLIST_VAL (plist));
-	      mplist_pop (plist);
-	    }
-	  else
-	    plist = MPLIST_NEXT (plist);
-	}
-      for (i = 0; i < num; i++)
-	{
-	  plist = mplist_find_by_value (faces[j]->realized_face_list, rface);
-	  if (plist)
-	    mplist_pop (plist);
-	}
-      mface__free_realized (rface);
-    }
+  rface = find_realized_face (frame, &merged_face);
+  if (rface)
+    return rface;
 
   MSTRUCT_CALLOC (rface, MERROR_FACE);
-
-  for (i = 0; i < num; i++)
-    {
-      MPlist *plist = faces[i]->realized_face_list;
-
-      if (! plist)
-	faces[i]->realized_face_list = plist = mplist ();
-      mplist_push (plist, Mt, rface);
-    }
-
-
+  mplist_push (frame->realized_face_list, Mt, rface);
   rface->frame = frame;
   rface->face = merged_face;
-  rface->need_update = 0;
   props = rface->face.property;
-
   rface->rfontset = mfont__realize_fontset (frame,
 					    (MFontset *) props[MFACE_FONTSET],
 					    &merged_face);
@@ -635,20 +676,29 @@ mface__realize (MFrame *frame, MFace **faces, int num,
     }
 
   rface->hline = (MFaceHLineProp *) props[MFACE_HLINE];
+  if (rface->hline && rface->hline->width == 0)
+    rface->hline = NULL;
   rface->box = (MFaceBoxProp *) props[MFACE_BOX];
+  if (rface->box && rface->box->width == 0)
+    rface->box = NULL;
   rface->ascii_rface = rface;
   mwin__realize_face (rface);
 
-  mplist_push (frame->realized_face_list, Mt, rface);
+  func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
+  if (func && func != noop_hook)
+    (func) (&(rface->face), rface->info, rface->face.property[MFACE_HOOK_ARG]);
 
+  rface->non_ascii_list = mplist ();
   if (rface->rfont)
     {
-      MSTRUCT_CALLOC (rface->nofont_rface, MERROR_FACE);
-      *rface->nofont_rface = *rface;
-      rface->nofont_rface->rfont = NULL;
+      MRealizedFace *nofont;
+
+      MSTRUCT_CALLOC (nofont, MERROR_FACE);
+      *nofont = *rface;
+      nofont->non_ascii_list = NULL;
+      nofont->rfont = NULL;
+      mplist_add (rface->non_ascii_list, Mt, nofont);
     }
-  else
-    rface->nofont_rface = rface;
 
   return rface;
 }
@@ -658,7 +708,7 @@ MGlyph *
 mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 		  MGlyph *from_g, MGlyph *to_g, int size)
 {
-  MRealizedFace *rface;
+  MRealizedFace *rface = from_g->rface->ascii_rface, *new;
   MRealizedFont *rfont;
   int num = to_g - from_g, i;
   MPlist *plist;
@@ -667,35 +717,41 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 				 script, language, charset, size);
   if (! rfont)
     {
-      from_g->rface = from_g->rface->nofont_rface;
-      return (from_g + 1);
+      if (rface->rfont)
+	MPLIST_DO (plist, rface->non_ascii_list)
+	  {
+	    rface = MPLIST_VAL (plist);
+	    if (! rface->rfont)
+	      break;
+	  }
+      num = 1;
+      goto finish;
     }
-  if (from_g->rface->ascii_rface->rfont == rfont)
-    rface = from_g->rface->ascii_rface;
-  else
+  if (rface->rfont == rfont)
+    goto finish;
+
+  MPLIST_DO (plist, rface->non_ascii_list)
+    if (((MRealizedFace *) MPLIST_VAL (plist))->rfont == rfont)
+      break;
+  if (! MPLIST_TAIL_P (plist))
     {
-      plist = find_realized_face (from_g->rface->frame, &(from_g->rface->face),
-				  rfont);
-      if (plist)
-	rface = MPLIST_VAL (plist);
-      else
-	rface = NULL;
+      rface = MPLIST_VAL (plist);
+      goto finish;
     }
 
-  if (! rface)
-    {
-      MSTRUCT_MALLOC (rface, MERROR_FACE);
-      *rface = *from_g->rface->ascii_rface;
-      rface->rfont = rfont;
-      work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
-      work_gstring.glyphs[0].rface = rface;
-      mfont__get_metric (&work_gstring, 0, 1);
-      rface->ascent = work_gstring.glyphs[0].ascent;
-      rface->descent = work_gstring.glyphs[0].descent;
-      mwin__realize_face (rface);
-      mplist_add (from_g->rface->frame->realized_face_list, Mt, rface);
-    }
-
+  MSTRUCT_MALLOC (new, MERROR_FACE);
+  mplist_push (rface->non_ascii_list, Mt, new);
+  *new = *rface;
+  rface = new;
+  rface->rfont = rfont;
+  rface->non_ascii_list = NULL;
+  work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
+  work_gstring.glyphs[0].rface = rface;
+  mfont__get_metric (&work_gstring, 0, 1);
+  rface->ascent = work_gstring.glyphs[0].ascent;
+  rface->descent = work_gstring.glyphs[0].descent;
+  
+ finish:
   for (i = 0; i < num; i++, from_g++)
     from_g->rface = rface;
   return from_g;
@@ -705,16 +761,23 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 void
 mface__free_realized (MRealizedFace *rface)
 {
+  MPlist *plist;
+
+  MPLIST_DO (plist, rface->non_ascii_list)
+    free (MPLIST_VAL (plist));
+  M17N_OBJECT_UNREF (rface->non_ascii_list);
   mwin__free_realized_face (rface);
-  if (rface == rface->ascii_rface)
-    {
-      if (! rface->nofont_rface)
-	mdebug_hook ();
-      else
-	free (rface->nofont_rface);
-      rface->nofont_rface = NULL;
-    }
   free (rface);
+}
+
+void
+mface__update_frame_face (MFrame *frame)
+{
+  frame->rface = NULL;
+  frame->rface = mface__realize (frame, NULL, 0, Mnil, Mnil, 0);
+  frame->space_width = frame->rface->space_width;
+  frame->ascent = frame->rface->ascent;
+  frame->descent = frame->rface->descent;
 }
 
 /*** @} */
@@ -1429,6 +1492,7 @@ mface ()
   MFace *face;
 
   M17N_OBJECT (face, free_face, MERROR_FACE);
+  face->frame_list = mplist ();
   M17N_OBJECT_REGISTER (face_table, face);
   return face;
 }
@@ -1456,25 +1520,9 @@ mface_copy (MFace *face)
   *copy = *face;
   copy->control.ref_count = 1;
   M17N_OBJECT_REGISTER (face_table, copy);
+  copy->frame_list = mplist ();
   if (copy->property[MFACE_FONTSET])
     M17N_OBJECT_REF (copy->property[MFACE_FONTSET]);
-  if (copy->property[MFACE_HLINE])
-    {
-      MFaceHLineProp *val;
-
-      MSTRUCT_MALLOC (val, MERROR_FACE); 
-      *val = *((MFaceHLineProp *) copy->property[MFACE_HLINE]);
-      copy->property[MFACE_HLINE] = val;
-    }
-  if (copy->property[MFACE_BOX])
-    {
-      MFaceBoxProp *val;
-
-      MSTRUCT_MALLOC (val, MERROR_FACE); 
-      *val = *((MFaceBoxProp *) copy->property[MFACE_BOX]);
-      copy->property[MFACE_BOX] = val;
-    }
-
   return copy;
 }
 
@@ -1501,30 +1549,28 @@ MFace *
 mface_merge (MFace *dst, MFace *src)
 {
   int i;
+  MPlist *plist;
 
   for (i = 0; i < MFACE_PROPERTY_MAX; i++)
     if (src->property[i])
       {
-	dst->property[i] = src->property[i];
 	if (i == MFACE_FONTSET)
-	  M17N_OBJECT_REF (dst->property[i]);
-	else if (i == MFACE_HLINE)
 	  {
-	    MFaceHLineProp *val;
-
-	    MSTRUCT_MALLOC (val, MERROR_FACE); 
-	    *val = *((MFaceHLineProp *) dst->property[MFACE_HLINE]);
-	    dst->property[MFACE_HLINE] = val;
+	    M17N_OBJECT_UNREF (dst->property[i]);
+	    M17N_OBJECT_REF (src->property[i]);
 	  }
-	else if (i == MFACE_BOX)
-	  {
-	    MFaceBoxProp *val;
-
-	    MSTRUCT_MALLOC (val, MERROR_FACE); 
-	    *val = *((MFaceBoxProp *) dst->property[MFACE_BOX]);
-	    dst->property[MFACE_BOX] = val;
-	  }
+	dst->property[i] = src->property[i];
       }
+
+  MPLIST_DO (plist, dst->frame_list)
+    {
+      MFrame *frame = MPLIST_VAL (plist);
+
+      frame->tick++;
+      if (dst == frame->face)
+	mface__update_frame_face (frame);
+    }
+
   return dst;
 }
 
@@ -1676,29 +1722,19 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
       M17N_OBJECT_REF (val);
     }
   else if (key == Mhline)
-    {
-      MFaceHLineProp *newval;
-
-      MSTRUCT_MALLOC (newval, MERROR_FACE);
-      *newval = *((MFaceHLineProp *) val);
-      val = newval;
-      if (face->property[index])
-	free (face->property[index]);
-    }
+    val = get_hline_create (val);
   else if (key == Mbox)
-    {
-      MFaceBoxProp *newval;
-
-      MSTRUCT_MALLOC (newval, MERROR_FACE);
-      *newval = *((MFaceBoxProp *) val);
-      val = newval;
-      if (face->property[index])
-	free (face->property[index]);
-    }
+    val = get_box_create (val);
   face->property[index] = val;
-  if (face->realized_face_list)
-    MPLIST_DO (plist, face->realized_face_list)
-      ((MRealizedFace *) MPLIST_VAL (plist))->need_update = 1;
+
+  MPLIST_DO (plist, face->frame_list)
+    {
+      MFrame *frame = MPLIST_VAL (plist);
+
+      frame->tick++;
+      if (face == frame->face)
+	mface__update_frame_face (frame);
+    }
 
   return 0;
 }
@@ -1724,7 +1760,7 @@ mface_update (MFrame *frame, MFace *face)
   MPlist *rface_list;
   MRealizedFace *rface;
 
-  if (func)
+  if (func && func != noop_hook)
     {
       MPLIST_DO (rface_list, frame->realized_face_list)
 	{
