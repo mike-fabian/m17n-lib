@@ -1127,6 +1127,11 @@ run_otf (int depth,
 	 FontLayoutContext *ctx)
 {
 #ifdef HAVE_OTF
+  MDEBUG_PRINT4 ("\n [FLT} %*s(OTF %s,%s)", depth, "",
+		 (otf_cmd->gsub_features == Mnil ? ""
+		  : MSYMBOL_NAME (otf_cmd->gsub_features)),
+		 (otf_cmd->gpos_features == Mnil ? ""
+		  : MSYMBOL_NAME (otf_cmd->gpos_features)));
   to = mfont__ft_drive_otf (gstring, from, to,
 			    otf_cmd->script, otf_cmd->langsys,
 			    otf_cmd->gsub_features, otf_cmd->gpos_features);
