@@ -2184,6 +2184,7 @@ mwin__xft_open (MFrame *frame, char *fontname, int size)
 
   font_info->frame = frame;
   pattern = XftNameParse (fontname);
+  XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
   XftPatternAddBool (pattern, XFT_ANTIALIAS, 1);
   pattern = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
 			  pattern, &result);
@@ -2191,6 +2192,7 @@ mwin__xft_open (MFrame *frame, char *fontname, int size)
   if (! font_info->font_aa)
     goto err;
   pattern = XftNameParse (fontname);
+  XftPatternAddDouble (pattern, XFT_PIXEL_SIZE, (double) size);
   XftPatternAddBool (pattern, XFT_ANTIALIAS, 0);
   pattern = XftFontMatch (FRAME_DISPLAY (frame), FRAME_SCREEN (frame),
 			  pattern, &result);
