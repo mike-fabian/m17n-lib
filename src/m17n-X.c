@@ -1845,14 +1845,16 @@ mwin__create_window (MFrame *frame, MDrawWindow parent)
   Window win;
   XWMHints wm_hints = { InputHint, False };
   XClassHint class_hints = { "M17N-IM", "m17n-im" };
-  XWindowAttributes win_attrs;
   XSetWindowAttributes set_attrs;
   unsigned long mask;
+  XGCValues values;
+  GCInfo *info = frame->rface->info;
 
   if (! parent)
     parent = (MDrawWindow) RootWindow (display, FRAME_SCREEN (frame));
-  XGetWindowAttributes (display, (Window) parent, &win_attrs);
-  set_attrs.background_pixel = win_attrs.backing_pixel;
+  mask = GCForeground;
+  XGetGCValues (display, info->gc[GC_INVERSE], mask, &values);
+  set_attrs.background_pixel = values.foreground;
   set_attrs.backing_store = Always;
   set_attrs.override_redirect = True;
   set_attrs.save_under = True;
@@ -2007,6 +2009,7 @@ mwin__adjust_window (MFrame *frame, MDrawWindow win,
     }
   if (mask)
     XConfigureWindow (display, (Window) win, mask, &values);
+  XClearWindow (display, (Window) win);
 }
 
 MSymbol
