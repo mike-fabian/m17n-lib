@@ -1,3 +1,50 @@
+2004-06-21  Kenichi Handa  <handa@m17n.org>
+
+	* mtext.c (INC_POSITION): Use CHAR_UNITS_BY_HEAD_UTF16.
+	(compare): Pay attention to format other than utf-8.
+	(copy): Delete this function.
+	(count_by_utf_8, count_by_utf_16, insert): New functions.
+	(count_utf_16_chars): Fix handling of a surrogate pair.
+	(find_char_forward, find_char_backward): Likewise.
+	(mtext__from_data): Delete unnecessary check.  Fix number of
+	allocated bytes.
+	(mtext_from_data): Don't count items.
+	(mtext_ref_char): Optimize the code.
+	(mtext_set_char): Pay attention to format other than utf-8.
+	(mtext_cat_char): Likewise.
+	(mtext_dup): Don't call copy, instead do allocation here.
+	(mtext_cat): Call insert instead of copy.
+	(mtext_ncat): Likewise.
+	(mtext_cpy): Delete character at first and call insert instead of
+	copy.
+	(mtext_ncpy): Likewise.
+	(mtext_copy): Likewise.
+	(mtext_duplicate): Call insert instead of copy.
+	(mtext_del): Pay attention to format other than utf-8.
+	(mtext_ins): Simply call insert.
+	(mtext_ins_char): Pay attention to format other than utf-8.
+	(mtext_tok): Call insert instead of copy.
+	(mtext_text): Call UNIT_BYTES.
+
+	* textprop.c (mtext__adjust_plist_for_change): New function.
+
+	* character.h (USHORT_SIZE, UINT_SIZE, UNIT_BYTES): New macros.
+	(CHAR_UNITS_UTF16, CHAR_UNITS): Simplified.
+	(CHAR_UNITS_AT): Fix typo.
+	(CHAR_UNITS_BY_HEAD): Fix typo.
+	(STRING_CHAR_AND_UNITS): Fix typo.
+
+	* internal.h (MTEXT_READ_ONLY_P): New macro. 
+
+	* mtext.h (mtext__replace): Delete the extern.
+	(mtext__adjust_foramt): Adjust prototype.
+
+	* plist.c (mplist_deserialize): Adjust the format of MT to utf-8
+	if possible.  Otherwise make a copy of mmt.
+
+	* coding.c (mconv_decode, mconv_gets): Adjust the format of MT to
+	utf-8.
+
 2004-06-18  Kenichi Handa  <handa@m17n.org>
 
 	* character.h (CHAR_STRING_UTF16): Fix syntax.
