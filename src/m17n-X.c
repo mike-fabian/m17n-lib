@@ -907,7 +907,7 @@ xim_close_im (MInputMethod *im)
   free (im_info);
 }
 
-int
+static int
 xim_create_ic (MInputContext *ic)
 {
   MInputXIMArgIC *arg = (MInputXIMArgIC *) ic->arg;
@@ -962,7 +962,7 @@ xim_create_ic (MInputContext *ic)
   return 0;
 }
 
-void
+static void
 xim_destroy_ic (MInputContext *ic)
 {
   MInputXIMContextInfo *ic_info = (MInputXIMContextInfo *) ic->info;
@@ -1018,14 +1018,14 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 
 
 #if 1
-int
+static int
 x_error_handler (Display *display, XErrorEvent *error)
 {
   mdebug_hook ();
   return 0;
 }
 
-int
+static int
 x_io_error_handler (Display *display)
 {
   mdebug_hook ();
