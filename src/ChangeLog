@@ -1,3 +1,7 @@
+2004-08-05  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (mfont__ft_drive_otf): Fix sign of g->yoff.
+
 2004-08-04  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (mfont__ft_drive_otf): Call OTF_drive_gdef.
