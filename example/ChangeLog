@@ -1,9 +1,15 @@
 2004-05-27  Kenichi Handa  <handa@m17n.org>
 
+	* medit.c (main): Make face_input_status copy of face_default.
+
+2004-05-27  Kenichi Handa  <handa@m17n.org>
+
 	* medit.c (show_cursor): Check hline->width and box->width.
 	(main): Set reverse videomode in a face for selection.
 
-	* mdump.c: Include <gd.h> instead of <X11/Xlib.h>.
+	* mdump.c: Include config.h.  Include <gd.h> instead of
+	<X11/Xlib.h>.  If not HAVE_FREETYPE nor HAVE_GD, define a pseudo
+	function main that just print an error message.
 	(help_exit): Adjusted for the change of spec.
 	(dump_image): Argument changed.  Dump PNG image instead of PBM.
 	(main): Adjusted for the change of spec.
