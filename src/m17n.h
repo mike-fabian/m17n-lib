@@ -1082,8 +1082,8 @@ typedef struct MInputDriver
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, and #Minput_toggle.  Values are functions of
-      type #MInputCallbackFunc.  */
+      #Minput_set_spot, #Minput_toggle, #Minput_reset.
+      Values are functions of type #MInputCallbackFunc.  */
   /***ja
       @brief コールバック関数のリスト.
 
@@ -1092,8 +1092,8 @@ typedef struct MInputDriver
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, #Minput_toggle。 値は#MInputCallbackFunc 型の
-      関数。.  */
+      #Minput_set_spot, #Minput_toggle, #Minput_reset。 
+      値は#MInputCallbackFunc 型の関数。  */
   MPlist *callback_list;
 
 } MInputDriver;
@@ -1117,6 +1117,7 @@ extern MSymbol Minput_candidates_draw;
 extern MSymbol Minput_candidates_done;
 extern MSymbol Minput_set_spot;
 extern MSymbol Minput_toggle;
+extern MSymbol Minput_reset;
 
 /***en
     @brief Structure of input method.
@@ -1308,6 +1309,7 @@ extern void minput_set_spot (MInputContext *ic, int x, int y,
 
 extern void minput_toggle (MInputContext *ic);
 
+extern void minput_reset_ic (MInputContext *ic);
 /*=*/
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
