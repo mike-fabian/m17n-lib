@@ -22,17 +22,18 @@
 <property key="language" value="ar" from="292" to="345" control="0"/>
 <property key="language" value="ka" from="258" to="292" control="0"/>
 <property key="language" value="tr" from="229" to="258" control="0"/>
-<property key="language" value="lo" from="746" to="785" control="0"/>
-<property key="language" value="th" from="704" to="746" control="0"/>
-<property key="language" value="vi" from="668" to="704" control="0"/>
-<property key="language" value="km" from="626" to="668" control="0"/>
-<property key="language" value="bo" from="565" to="626" control="0"/>
-<property key="language" value="ta" from="538" to="565" control="0"/>
-<property key="language" value="ml" from="491" to="538" control="0"/>
+<property key="language" value="lo" from="774" to="813" control="0"/>
+<property key="language" value="th" from="732" to="774" control="0"/>
+<property key="language" value="vi" from="696" to="732" control="0"/>
+<property key="language" value="km" from="654" to="696" control="0"/>
+<property key="language" value="bo" from="593" to="654" control="0"/>
+<property key="language" value="ta" from="566" to="593" control="0"/>
+<property key="language" value="ml" from="519" to="566" control="0"/>
+<property key="language" value="bn" from="491" to="519" control="0"/>
 <property key="language" value="hi" from="454" to="491" control="0"/>
-<property key="language" value="ko" from="844" to="867" control="0"/>
-<property key="language" value="zh" from="821" to="844" control="0"/>
-<property key="language" value="ja" from="796" to="821" control="0"/>
+<property key="language" value="ko" from="872" to="895" control="0"/>
+<property key="language" value="zh" from="849" to="872" control="0"/>
+<property key="language" value="ja" from="824" to="849" control="0"/>
 <body>Europe
   English					Hello
   French (français)			Bonjour, Salut
@@ -51,6 +52,7 @@ Middle Near East/Africa
 
 South/South-East Asia
   Hindi (हिंदी)				नमस्ते, नमस्कार ।
+  Bengali (বাংলা)			নমস্কার
   Malayalam (മലയാളം)		നമസ്കാരം (ex: ന+്+ര=ന്ര)
   Tamil (தமிழ்)				வணக்கம்
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
