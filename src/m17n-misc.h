@@ -87,6 +87,7 @@ enum MErrorCode
     MERROR_IO,
     MERROR_DEBUG,
     MERROR_MEMORY,
+    MERROR_GD,
     MERROR_MAX
   };
 
