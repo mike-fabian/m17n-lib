@@ -304,8 +304,15 @@
     The macro M17N_INIT () initializes the m17n library.  This macro
     must be called before any m17n functions are used.
 
+    It is safe to call this macro multiple times, but in that case,
+    the macro M17N_FINI () must be called the same times to free the
+    memory.
+
     If the initialization was successful, the external variable
-    #merror_code is set to 0.  Otherwise it is set to -1.  */
+    #merror_code is set to 0.  Otherwise it is set to -1.
+
+    @seealso
+    M17N_INIT (), m17n_status ()  */
 
 /***ja
     @brief m17n ライブラリを初期化する.
@@ -326,7 +333,10 @@
     The macro M17N_FINI () finalizes the m17n library.  It frees all the
     memory area used by the m17n library.  Once this macro is
     called, no m17n functions should be used until the
-    macro M17N_INIT () is called again.  */
+    macro M17N_INIT () is called again.
+
+    If the macro M17N_INIT () was called N times, the Nth call of this
+    macro actually free the memory.  */
 /***ja
     @brief m17n ライブラリを終了する. 
 
@@ -356,8 +366,6 @@
 #include "m17n-misc.h"
 #include "internal.h"
 
-static int core_initialized;
-
 static void
 default_error_handler (enum MErrorCode err)
 {
@@ -371,6 +379,10 @@ static int report_header_printed;
 
 
 /* Internal API */
+
+int m17n__core_initialized;
+int m17n__shell_initialized;
+int m17n__gui_initialized;
 
 void
 mdebug__report_object (char *name, M17NObjectArray *array)
@@ -476,7 +488,7 @@ m17n_init_core (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
-  if (core_initialized++)
+  if (m17n__core_initialized++)
     return;
 
   merror_code = MERROR_NONE;
@@ -524,27 +536,25 @@ m17n_fini_core (void)
 {
   int mdebug_mask = MDEBUG_FINI;
 
-  if (core_initialized > 1)
-    core_initialized--;
-  else
-    {
-      core_initialized = 0;
-      MDEBUG_PUSH_TIME ();
-      MDEBUG_PUSH_TIME ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
-      mchartable__fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
-      mtext__prop_fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
-      mtext__fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
-      msymbol__fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
-      mplist__fini ();
-      MDEBUG_POP_TIME ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
-      MDEBUG_POP_TIME ();
-    }
+  if (m17n__core_initialized == 0
+      || --m17n__core_initialized > 0)
+    return;
+
+  MDEBUG_PUSH_TIME ();
+  MDEBUG_PUSH_TIME ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
+  mchartable__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
+  mtext__prop_fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
+  mtext__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
+  msymbol__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
+  mplist__fini ();
+  MDEBUG_POP_TIME ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
+  MDEBUG_POP_TIME ();
   report_header_printed = 0;
 }
 
@@ -552,6 +562,32 @@ m17n_fini_core (void)
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 /*=*/
 
+/*** @addtogroup m17nIntro */
+
+/*** @{  */
+/*=*/
+
+/***en
+    @brief Report which part of the m17n library is initialized.
+
+    The m17n_status () function returns one of these values depending
+    on which part of the m17n library is initialized:
+
+	#M17N_NOT_INITIALIZED, #M17N_CORE_INITIALIZED,
+	#M17N_SHELL_INITIALIZED, #M17N_GUI_INITIALIZED  */
+
+enum M17NStatus
+m17n_status (void)
+{
+  return (m17n__gui_initialized ? M17N_GUI_INITIALIZED
+	  : m17n__shell_initialized ? M17N_SHELL_INITIALIZED
+	  : m17n__core_initialized ? M17N_CORE_INITIALIZED
+	  : M17N_NOT_INITIALIZED);
+}
+
+/*** @} */
+
+/*=*/
 /***en
     @addtogroup m17nObject
     @brief Managed objects are objects managed by the reference count.
