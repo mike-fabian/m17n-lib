@@ -1,3 +1,8 @@
+2005-02-17  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (setup_input_methods): Fix for the case that no input
+	method is available.
+
 2005-01-12  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.utf8, HELLO.xml, HELLO.html: Adjust the encoding of
