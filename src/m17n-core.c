@@ -915,7 +915,7 @@ m17n_object_unref (void *object)
 
     この変数の初期値は 0 である。  */
 
-enum MErrorCode merror_code;
+int merror_code;
 
 /*=*/
 
