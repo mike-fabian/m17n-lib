@@ -984,7 +984,7 @@ new_index (MInputContext *ic, int current, int limit, MSymbol sym, MText *mt)
 }
 
 static void
-udpate_candidate (MInputContext *ic, MTextProperty *prop, int idx)
+update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
 {
   int from = mtext_property_start (prop);
   int to = mtext_property_end (prop);
@@ -1154,7 +1154,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		ingroup_index = len - 1;
 	      idx += ingroup_index;
 	    }
-	  udpate_candidate (ic, prop, idx);
+	  update_candidate (ic, prop, idx);
 	}
       else if (name == Mshow)
 	ic->candidate_show = 1;
@@ -1307,6 +1307,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  else
 	    val1 /= val2;
 	  mplist_put (ic_info->vars, sym, (void *) val1);
+	  MDEBUG_PRINT2 ("(%s=%d)", MSYMBOL_NAME (sym), val1);
 	}
       else if (name == Mequal || name == Mless || name == Mgreater)
 	{
