@@ -147,15 +147,19 @@ extern MPlist *mfont_freetype_path;
 
 extern MFont *mfont ();
 
-extern MFont *mfont_from_name (char *name);
-
 extern MFont *mfont_copy (MFont *font);
 
-extern char *mfont_name (MFont *font);
+extern MFont *mfont_parse_name (char *name, MSymbol format);
+
+extern char *mfont_unparse_name (MFont *font, MSymbol format);
 
 extern MFont *mfont_from_spec (char *family, char *weight, char *slant,
 			       char *swidth, char *adstyle, char *registry,
 			       unsigned short point, unsigned short res);
+
+/* These two are obsolete (from 1.1.0).  */
+extern char *mfont_name (MFont *font);
+extern MFont *mfont_from_name (char *name);
 
 extern MSymbol Mfoundry;
 extern MSymbol Mfamily;
@@ -166,6 +170,8 @@ extern MSymbol Madstyle;
 extern MSymbol Mregistry;
 extern MSymbol Msize;
 extern MSymbol Mresolution;
+
+extern MSymbol Mfontconfig;
 
 extern void *mfont_get_prop (MFont *font, MSymbol key);
 
