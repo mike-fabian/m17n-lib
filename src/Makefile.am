@@ -49,7 +49,7 @@ libm17n_la_SOURCES = \
 	language.h language.c \
 	mlocale.h locale.c \
 	m17n.h m17n.c
-libm17n_la_LIBADD = libm17n-core.la -ldl
+libm17n_la_LIBADD = libm17n-core.la
 libm17n_la_LDFLAGS = ${VINFO}
 
 GUI_SOURCES = \
@@ -80,7 +80,7 @@ libm17n_gd_la_SOURCES = m17n-gd.c
 libm17n_gd_la_LIBADD = libm17n-gui.la
 libm17n_gd_la_LDFLAGS = -module @GD_LD_FLAGS@ ${VINFO}
 
-AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\"" @X_CFLAGS@
+AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\""
 
 
 include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
