@@ -1,3 +1,17 @@
+2004-07-16  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Improve the way of deciding a
+	script.  For a character that doesn't have script property, use
+	the last non-latin script.
+
+	* font-ft.c (fc_list): Cancel previous change.
+	(mfont__ft_init): Add more entries in ft_to_prop_name.
+
+2004-07-15  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (mdraw_glyph_list): Add the width of padding glyphs to
+	previous or next character glyphs.
+
 2004-07-14  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Be sure to set codes for glyphs
