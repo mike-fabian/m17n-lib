@@ -1021,6 +1021,12 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
     for (i = 0; i < len; i++)
       {
 	MGlyph temp = gstring->glyphs[from + i];
+
+	if (otf_gstring.glyphs[i].glyph_id)
+	  {
+	    temp.code = otf_gstring.glyphs[i].glyph_id;
+	    temp.otf_encoded = 1;
+	  }
 	MLIST_APPEND1 (gstring, glyphs, temp, MERROR_FONT_OTF);
       }
 
