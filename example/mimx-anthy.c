@@ -115,6 +115,7 @@ static MSymbol Manthy, Msegment;
 /* A structure to record in MInputContext->plist with key Manthy.  */
 
 typedef struct {
+  MInputContext *ic;
   anthy_context_t ac;
   /* Which candidate is selected in each segment.  */
   int *candidate_numbers;
@@ -127,21 +128,43 @@ typedef struct {
 static AnthyContext *
 new_context (MInputContext *ic)
 {
-  AnthyContext *context = NULL;
+  AnthyContext *context;
+  anthy_context_t ac;
   MSymbol euc_jp = msymbol ("euc-jp");
   /* Rebound to an actual buffer just before being used.  */
   MConverter *converter = mconv_buffer_converter (euc_jp, NULL, 0);
 
-  if (converter)
-    {
-      context = calloc (1, sizeof (AnthyContext));
-      context->ac = anthy_create_context ();
-      context->num_segments = 0;
-      context->candidate_numbers = NULL;
-      context->converter = converter;
-    }
+  if (! converter)
+    return NULL;
+  ac = anthy_create_context ();
+  if (! ac)
+    return NULL;
+  context = calloc (1, sizeof (AnthyContext));
+  context->ic = ic;
+  context->ac = ac;
+  context->num_segments = 0;
+  context->candidate_numbers = NULL;
+  context->converter = converter;
   return context;
 }
+
+static AnthyContext *
+get_context (MInputContext *ic)
+{
+  MPlist *plist = ic->plist;
+  AnthyContext *context;
+
+  for (; plist && mplist_key (plist) != Mnil; plist = mplist_next (plist))
+    {
+      if (mplist_key (plist) != Manthy)
+	continue;
+      context = mplist_value (plist);
+      if (context->ic == ic)
+	return context;
+    }
+  return NULL;
+}
+
 
 static void
 free_context (AnthyContext *context)
@@ -218,15 +241,17 @@ MPlist *
 init (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
+  AnthyContext *context;
 
-  if (! initialized)
+  if (! initialized++)
     {
       anthy_init ();
       Manthy = msymbol (" anthy");
       Msegment = msymbol (" segment");
-      initialized = 1;
     }
-  mplist_push (ic->plist, Manthy, new_context (ic));
+  context = new_context (ic);
+  if (context)
+    mplist_push (ic->plist, Manthy, context);
   return NULL;
 }
 
@@ -234,7 +259,7 @@ MPlist *
 fini (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
-  AnthyContext *context = mplist_get (ic->plist, Manthy);
+  AnthyContext *context = get_context (ic);
 
   if (context)
     free_context (context);
@@ -245,7 +270,7 @@ MPlist *
 convert (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
-  AnthyContext *context = mplist_get (ic->plist, Manthy);
+  AnthyContext *context = get_context (ic);
   struct anthy_conv_stat cs;
   MPlist *action, *actions;
   int i;
@@ -283,7 +308,7 @@ MPlist *
 change (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
-  AnthyContext *context = mplist_get (ic->plist, Manthy);
+  AnthyContext *context = get_context (ic);
   int segment;
 
   if (! context)
@@ -302,7 +327,7 @@ MPlist *
 resize (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
-  AnthyContext *context = mplist_get (ic->plist, Manthy);
+  AnthyContext *context = get_context (ic);
   struct anthy_conv_stat cs;
   MSymbol shorten;
   int segment;
@@ -347,10 +372,12 @@ MPlist *
 commit (MPlist *args)
 {
   MInputContext *ic = mplist_value (args);
-  AnthyContext *context = mplist_get (ic->plist, Manthy);
+  AnthyContext *context = get_context (ic);
   struct anthy_conv_stat cs;
   int i;
 
+  if (! context)
+    return NULL;
   anthy_get_stat (context->ac, &cs);
   for (i = 0; i < cs.nr_segment; i++)
     anthy_commit_segment (context->ac, i, context->candidate_numbers[i]);
