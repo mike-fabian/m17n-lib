@@ -1182,14 +1182,12 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
 
 	  if (from_g->type == GLYPH_CHAR)
 	    {
-	      MFontDriver *driver;
-
 	      if (rface->rfont && from_g->code >= 0)
-		driver = rface->rfont->driver;
+		(rface->rfont->driver->render) (win, x, y, gstring, from_g, g,
+						reverse, region);
 	      else
-		driver = mfont__driver_list[MFONT_TYPE_WIN];
-	      (driver->render) (win, x, y, gstring, from_g, g,
-				reverse, region);
+		mwin__draw_empty_boxes (win, x, y, gstring, from_g, g,
+					reverse, region);
 	    }
 	  else if (from_g->type == GLYPH_BOX)
 	    {
@@ -1385,6 +1383,8 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
       gstring_num++;
     }
 
+  gstring->frame = frame;
+  gstring->tick = frame->tick;
   gstring->top = gstring;
   gstring->mt = mt;
   gstring->control = *control;
@@ -1465,9 +1465,11 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
       if (prop)
 	{
 	  gstring = prop->val;
-	  if (memcmp (control, &gstring->control,
-		      (char *) (&control->with_cursor)
-		      - (char *) (control)))
+	  if (gstring->frame != frame
+	      || gstring->tick != frame->tick
+	      || memcmp (control, &gstring->control,
+			 (char *) (&control->with_cursor)
+			 - (char *) (control)))
 	    {
 	      mtext_detach_property (prop);
 	      gstring = NULL;
