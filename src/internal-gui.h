@@ -110,12 +110,18 @@ enum glyph_type
     GLYPH_TYPE_MAX
   };
 
+enum glyph_category
+  {
+    GLYPH_CATEGORY_NORMAL,
+    GLYPH_CATEGORY_MODIFIER,
+    GLYPH_CATEGORY_FORMATTER
+  };
+
 typedef struct
 {
   int pos, to;
   int c;
   unsigned code;
-  MSymbol category;
   MRealizedFace *rface;
   short width, ascent, descent, lbearing, rbearing;
   short xoff, yoff;
@@ -124,6 +130,7 @@ typedef struct
   unsigned right_padding : 1;
   unsigned otf_encoded : 1;
   unsigned bidi_level : 6;
+  enum glyph_category category : 2;
   enum glyph_type type : 3;
   int combining_code;
 } MGlyph;
