@@ -116,7 +116,7 @@ win_create_ic (MInputContext *ic)
   win_ic_info->preedit.control.as_image = 1;
   win_ic_info->preedit.control.with_cursor = 1;
   win_ic_info->preedit.control.cursor_width = 1;
-  win_ic_info->preedit.control.disable_caching = 1;
+  win_ic_info->preedit.control.enable_bidi = 1;
   win_ic_info->preedit.geometry.x = -1;
   win_ic_info->preedit.geometry.y = -1;
 
