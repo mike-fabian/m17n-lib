@@ -68,6 +68,7 @@
 #include "m17n-gui.h"
 #include "m17n-misc.h"
 #include "internal.h"
+#include "plist.h"
 #include "internal-gui.h"
 #include "font.h"
 #include "fontset.h"
@@ -209,7 +210,7 @@ MSymbol Mfont_descent;
     @brief Create a new frame.
 
     The mframe () function creates a new frame with parameters listed
-    in $PLIST.
+    in $PLIST which may be NULL.
 
     The recognized keys in $PLIST are window system dependent.
 
@@ -284,6 +285,7 @@ MSymbol Mfont_descent;
     @brief 新しいフレームを作る.
 
     関数 mframe () は $PLIST 中のパラメータを持つ新しいフレームを作る。
+    $PLIST はNULL でも良い。
 
     $PLIST に現われるキーのうちどれが認識されるかはウィンドウシステム
     に依存する。しかし以下のキーは常に認識される。
@@ -352,9 +354,15 @@ MFrame *
 mframe (MPlist *plist)
 {
   MFrame *frame;
-  MSymbol key;
+  int plist_created = 0;
+  MPlist *pl;
 
   M17N_OBJECT (frame, free_frame, MERROR_FRAME);
+  if (! plist)
+    {
+      plist = mplist ();
+      plist_created = 1;
+    }
   frame->device = mwin__open_device (frame, plist);
   if (! frame->device)
     {
@@ -362,24 +370,19 @@ mframe (MPlist *plist)
       MERROR (MERROR_WIN, NULL);
     }
 
-  frame->face = mface_from_font (frame->font);
-  frame->face->property[MFACE_FONTSET] = mfontset (NULL);
-  M17N_OBJECT_REF (mface__default->property[MFACE_FONTSET]);
-  if (plist)
-    for (; (key = mplist_key (plist)) != Mnil; plist = mplist_next (plist))
-      if (key == Mface)
-	mface_merge (frame->face, (MFace *) mplist_value (plist));
-
-  frame->rface = mface__realize (frame, NULL, 0, Mnil, Mnil, 0);
+  frame->face = mface ();
+  MPLIST_DO (pl, plist)
+    if (MPLIST_KEY (pl) == Mface)
+      mface_merge (frame->face, (MFace *) MPLIST_VAL (pl));
+  mface__update_frame_face (frame);
   if (! frame->rface->rfont)
     MERROR (MERROR_WIN, NULL);
-  frame->space_width = frame->rface->space_width;
-  frame->ascent = frame->rface->ascent;
-  frame->descent = frame->rface->descent;
 
   if (! mframe_default)
     mframe_default = frame;
 
+  if (plist_created)
+    M17N_OBJECT_UNREF (plist);
   return frame;
 }
 
