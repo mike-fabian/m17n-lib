@@ -101,10 +101,14 @@
 
     The m17n library, if configured to use the FreeType library,
     supports all fonts that can be handled by the FreeType library.
-    The variable #mfont_freetype_path is initialized properly accoding
+    The variable #mfont_freetype_path is initialized properly according
     to the configuration of the m17n library and the environment
     variable @c M17NDIR.  See the documentation of the variable for
     details.
+
+    If the m17n library is configured to use the Xft librray, in
+    addition to #mfont_freetype_path, all fonts available via
+    fontconfig are supported.
 
     The family name of a FreeType font corresponds to the family
     property.  Style names of FreeType fonts correspond to the weight,
@@ -246,6 +250,10 @@
     は、FreeType が扱うすべてのフォントをサポートする。変数 
     #mfont_freetype_path は m17n ライブラリの設定と環境変数 @c M17NDIR 
     に応じて初期化される。詳細は変数の説明を参照のこと。
+
+    もし m17n ライブラリが Xft ライブラリを使うように設定された場合には、
+    #mfont_freetype_path に加えて、 fontconfig で使用可能なフォントもす
+    べてサポートされる。
 
     FreeType フォントのファミリ名は family プロパティに対応する。
     FreeType フォントのスタイル名は、下の表のように weight, style,
