@@ -20,6 +20,11 @@
 	(ft_list): Likewise.  If FONT is not NULL, check all fonts.
 	(mfont__ft_init): Initialize above new variables.
 	(mfont__ft_fini): Free ft_family_list.
+	(STRDUP_LOWER): New macro.
+	(set_font_info): Use STRDUP_LOWER.
+	(ft_list_family): Avoid duplicate addition of font path.  Use
+	STRDUP_LOWER.
+	(fc_decode_prop): Fix typo.
 
 	* m17n-X.c (MDisplayInfo): New member all_fonts_scaned.
 	(xfont_registry_list): Change argument disp_info to frame.
