@@ -142,7 +142,7 @@ extern MSymbol Msuperset;
 /* etc. */
 extern MSymbol Mcharset;
 
-extern MSymbol mchar_define_charset (char *name, MPlist *plist);
+extern MSymbol mchar_define_charset (const char *name, MPlist *plist);
 
 extern MSymbol mchar_resolve_charset (MSymbol symbol);
 
@@ -767,9 +767,9 @@ typedef struct
 } MCodingInfoUTF;
 /*=*/
 
-extern MSymbol mconv_define_coding (char *name, MPlist *plist,
+extern MSymbol mconv_define_coding (const char *name, MPlist *plist,
 				    int (*resetter) (MConverter *),
-				    int (*decoder) (unsigned char *, int,
+				    int (*decoder) (const unsigned char *, int,
 						    MText *, MConverter *),
 				    int (*encoder) (MText *, int, int,
 						    unsigned char *, int,
