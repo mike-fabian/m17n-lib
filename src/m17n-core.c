@@ -47,10 +47,10 @@
 
     It provides GUI modules such as drawing and inputting M-texts on a
     graphic device.  The API itself is independent on a graphic device
-    but most of functions require an argument MFrame which is for a
-    specific type of graphic device.  Currently, X Window System,
-    gdImagePtr of GD library, and null device are supported as a
-    graphic device.  To use this API, an application program must
+    but most of functions require an argument MFrame which is created
+    for a specific type of graphic device.  Currently, X Window
+    System, gdImagePtr of GD library, and null device are supported as
+    a graphic device.  To use this API, an application program must
     include <m17n-gui.h>, and be linked by -lm17n-gui.  With that,
     CORE and SHELL APIs are also available.
 
@@ -74,12 +74,13 @@
     <li> @c M17NDIR
 
     Name of a directory that contains data of the m17n database.  See
-    @ref m17nDatabase for the detail.
+    @ref m17nDatabase for more details.
 
     <li> @c MDEBUG_XXXX
 
     Environment variables whose name start by "MDEBUG_" controls
-    printing of debug information.  See @ref m17nDebug for the detail.
+    printing of debug information.  See @ref m17nDebug for more
+    details.
 
     </ul>
 
@@ -139,22 +140,22 @@
 
     <li> シェル API
 
-    m17n データベースを利用するモジュールを提供する。モジュールはデー
-    タベースから必要に応じて多様なデータをロードする。利用するためには、
-    アプリケーションプログラムは <m17n.h> を include し、 -lm17n-core
-    -lm17n でリンクされなくてはならない。こうすることによってコア API 
-    も使用できる。
+    m17n データベースを利用するモジュール（コード変換、文字プロパティ
+    等）を提供する。モジュールはデータベースから必要に応じて多様なデー
+    タをロードする。利用するためには、アプリケーションプログラムは
+    <m17n.h> を include し、 -lm17n でリンクされなくてはならない。こう
+    することによってコア API も使用できる。
 
     <li> GUI API
 
-    M-texts をウィンドウ上で表示したり入力したりするといった、グラフィッ
-    クユーザインタフェースモジュールを提供する。API 自体はウィンドウシ
-    ステムとは独立であるが、 m17n ライブラリは特定のウィンドウシステム
-    を使用するように設定しなくてはならない。現時点では、X ウィンドウシ
-    ステムだけがサポートされている。利用するためにはアプリケーションプ
-    ログラムは<m17n-gui.h> と <m17n-X.h> を include し、-lm17n-core
-    -lm17n -lm17n-X でリンクされなくてはならない。 こうすることによっ
-    てコア API とシェル API も使用できる。
+    M-texts をグラフィックデバイス上で表示したり入力したりするといった、
+    グラフィックユーザインタフェースモジュールを提供する。API 自体はウィ
+    ンドウシステムとは独立であるが、多くの関数は特定のグラフィックデバ
+    イス上に作成された MFrame を引数に取る。現時点では、X ウィンドウシ
+    ステム、GD ライブラリの gdImagePtr、ヌルデバイスがグラフィックデバ
+    イスとしてサポートされている。利用するためにはアプリケーションプロ
+    グラムは <m17n-gui.h> を include し、-lm17n-gui でリンクされなくて
+    はならない。こうすることによってコア API とシェル API も使用できる。
 
     <li> その他の API
 
@@ -543,7 +544,7 @@ m17n_fini_core (void)
 
     In addition to the predefined managed object types, users can
     define their own managed object types.  See the documentation of
-    the m17n_object () for the details.  */
+    the m17n_object () for more details.  */
 /***ja
     @addtogroup m17nObject
     @brief 管理下オブジェクトとは参照数によって管理されているオブジェクトである.

@@ -240,8 +240,6 @@ MSymbol Mfreetype;
 
 /* External API */
 
-MSymbol Mdevice;
-
 void
 m17n_init_win (void)
 {
@@ -352,27 +350,57 @@ m17n_fini_win (void)
 
 /*** @addtogroup m17nFrame */
 /***en
-    @brief A @e frame is an object corresponding to the physical device.
+    @brief A @e frame is an object corresponding to the graphic device.
 
     A @e frame is an object of the type #MFrame to hold various
-    information about each physical display/input device.  Almost all
-    m17n GUI functions require a pointer to a frame as an
-    argument.  */
+    information about each display/input device.  Almost all m17n GUI
+    functions require a pointer to a frame as an argument.  */
 
 /***ja
-    @brief @e フレーム とは物理的デバイスに対応するオブジェクトである.
+    @brief @e フレーム とはグラフィックデバイスに対応するオブジェクトである.
 
-    @e フレーム とは #MFrame 型のオブジェクトであり、個々の物理的な表
-    示／入力デバイスの情報を格納するために用いられる。ほとんどすべての 
-    m17n GUI API は、引数としてフレームへのポインタを要求する。  */
+    @e フレーム とは #MFrame 型のオブジェクトであり、個々の表示／入力デ
+    バイスの情報を格納するために用いられる。ほとんどすべての m17n GUI
+    関数は、引数としてフレームへのポインタを要求する。  */
 
 /*** @{ */
 /*=*/
 
 /***en
-    @name Variables: Keys of frame property (common).  */
+    @name Variables: Keys of frame parameter
+
+    These are the symbols to use in a parameter to creat a frame.  See
+    the function mframe () for details.
+
+    #Mdevice, #Mdisplay, #Mscreen, #Mdrawable, #Mdepth, and #Mcolormap
+    are also keys of a frame property.  */
+
 /***ja
-    @name 変数： フレームプロパティのキー (共通).  */ 
+    @name 変数： フレームパラメータ用キー
+
+    フレームを生成する際のパラメータに用いるシンボル。詳しくは関数
+    mframe () の説明参照。
+
+    #Mdevice、 #Mdisplay、 #Mscreen、 #Mdrawable、 #Mdepth、#Mcolormap
+    はフレームプロパティのキーでもある。  */
+
+/*=*/
+
+MSymbol Mdevice, Mdisplay, Mscreen, Mdrawable, Mdepth, Mcolormap, Mwidget; 
+
+MSymbol Mx, Mgd;
+
+/*=*/
+
+/***en
+    @name Variables: Keys of frame property
+
+    These are the symbols to use as an argument to the function
+    mframe_get_prop ().  */
+/***ja
+    @name 変数： フレームプロパティのキー
+
+    関数 mframe_get_prop () の引数に用いられるシンボル。  */ 
 /*** @{ */ 
 /*=*/
 MSymbol Mfont;
@@ -382,27 +410,6 @@ MSymbol Mfont_descent;
 
 /*=*/
 
-/***en
-    @name Variables: Keys of frame parameter (X specific).
-
-    These are the symbols to use as parameter keys for the function
-    mframe () (which see).  They are also keys of a frame property
-    except for #Mwidget.  */
-/***ja
-    @name 変数： フレームパラメータ用キー (X 固有).
-
-    関数 mframe () のパラメータキーとして用いられるシンボル。( mframe
-    () の説明参照。) #Mwidget を除いてはフレームプロパティのキーでもあ
-    る。
-    */
-
-/*=*/
-
-MSymbol Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap;
-
-MSymbol Mx, Mgd;
-
-/*=*/
 /*** @} */ 
 /*=*/
 
@@ -410,7 +417,7 @@ MSymbol Mx, Mgd;
     @brief Create a new frame.
 
     The mframe () function creates a new frame with parameters listed
-    in $PLIST which may be NULL.
+    in $PLIST which may be @c NULL.
 
     The recognized keys in $PLIST are window system dependent.
 
@@ -418,15 +425,32 @@ MSymbol Mx, Mgd;
 
     <ul>
 
-    <li> #Mface, the value type must be <tt>(MFace *)</tt>.
+    <li> #Mdevice, the value must be one of #Mx, #Mgd, and #Mnil.
+
+    If the value is #Mx, the frame is for X Window System.  The
+    argument #MDrawWindow specified together with the frame must be of
+    type @c Window.  The frame is both readable and writable, thus all
+    GUI functions can be used.
+
+    If the value is #Mgd, the frame is for an image object of GD
+    library.  The argument #MDrawWindow specified together with the
+    frame must be of type @c gdImagePtr.  The frame is writable
+    only, thus functions minput_XXX can't be used for the frame.
+
+    If the value is #Mnil, the frame is for a null device.  The frame
+    is not writable nor readable, thus functions mdraw_XXX that
+    require the argument #MDrawWindow and functions minput_XXX can't
+    be used for the frame.
+
+    <li> #Mface, the value must be a pointer to #MFace.
 
     The value is used as the default face of the frame.
 
     </ul>
 
-    In addition, in the m17n-X library, the following keys are
-    recognized.  They are to specify the root window and the depth of
-    drawables that can be used with the frame.
+    In addition, if the value of the key #Mdevice is #Mx, the
+    following keys are recognized.  They are to specify the root
+    window and the depth of drawables that can be used with the frame.
 
     <ul>
 
@@ -485,7 +509,7 @@ MSymbol Mx, Mgd;
     @brief 新しいフレームを作る.
 
     関数 mframe () は $PLIST 中のパラメータを持つ新しいフレームを作る。
-    $PLIST はNULL でも良い。
+    $PLIST は @c NULL でも良い。
 
     $PLIST に現われるキーのうちどれが認識されるかはウィンドウシステム
     に依存する。しかし以下のキーは常に認識される。

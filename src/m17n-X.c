@@ -2214,11 +2214,11 @@ device_open (MFrame *frame, MPlist *param)
 
     The argument $ARG of the function minput_open_im () must be a
     pointer to the structure #MInputXIMArgIM.  See the documentation
-    of #MInputXIMArgIM for more detail.
+    of #MInputXIMArgIM for more details.
 
     The argument $ARG of the function minput_create_ic () must be a
     pointer to the structure #MInputXIMArgIC. See the documentation
-    of #MInputXIMArgIC for more detail.
+    of #MInputXIMArgIC for more details.
 
     The argument $ARG of the function minput_filter () must be a
     pointer to the structure @c XEvent.  The argument $KEY is ignored.
