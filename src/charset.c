@@ -98,7 +98,7 @@
 #include "chartab.h"
 #include "plist.h"
 
-static int unified_max = MCHAR_MAX;
+static int unified_max;
 
 /** List of all charsets ever defined.  */
 
@@ -114,8 +114,8 @@ static MPlist *charset_definition_list;
 
 /** Make a charset object from the template of MCharset structure
     CHARSET, and return a pointer to the new charset object.
-    CHARSET->code_range[4N + 2] and TMPL->code_range[4N + 3] are not
-    yet set.  */
+    CHARSET->code_range[4N + 2] and CHARSET->code_range[4N + 3] are
+    not yet set.  */
 
 static MCharset *
 make_charset (MCharset *charset)
@@ -151,6 +151,8 @@ make_charset (MCharset *charset)
     MERROR (MERROR_CHARSET, NULL);
 
   charset->code_range_min_code = min_code;
+  charset->fully_loaded = 0;
+  charset->simple = 0;
 
   if (charset->method == Msubset)
     {
@@ -163,67 +165,15 @@ make_charset (MCharset *charset)
 	  || charset->min_code - charset->subset_offset < parent->min_code
 	  || charset->max_code - charset->subset_offset > parent->max_code)
 	MERROR (MERROR_CHARSET, NULL);
-      if (parent->method == Moffset)
-	{
-	  unsigned code;
-
-	  code = charset->min_code - charset->subset_offset;
-	  charset->min_char = DECODE_CHAR (parent, code);
-	  code = charset->max_code - charset->subset_offset;
-	  charset->max_char = DECODE_CHAR (parent, code);
-	}
-      else
-	{
-	  unsigned min_code = charset->min_code - charset->subset_offset;
-	  unsigned max_code = charset->max_code - charset->subset_offset;
-	  int min_char = DECODE_CHAR (parent, min_code);
-	  int max_char = min_char;
-	  
-	  for (++min_code; min_code <= max_code; min_code++)
-	    {
-	      int c = DECODE_CHAR (parent, min_code);
-
-	      if (c >= 0)
-		{
-		  if (c < min_char)
-		    min_char = c;
-		  else if (c > max_char)
-		    max_char = c;
-		}
-	    }
-	  charset->min_char = min_char;
-	  charset->max_char = max_char;
-	}
-      charset->simple = 0;
     }
   else if (charset->method == Msuperset)
     {
-      int min_char = 0, max_char = 0;
-
       if (charset->nparents < 2)
 	MERROR (MERROR_CHARSET, NULL);
       for (i = 0; i < charset->nparents; i++)
 	if (charset->min_code > charset->parents[i]->min_code
 	    || charset->max_code < charset->parents[i]->max_code)
 	  MERROR (MERROR_CHARSET, NULL);
-
-      for (i = 0; i < charset->nparents; i++)
-	{
-	  MCharset *parent = charset->parents[i];
-
-	  if (charset->min_code > parent->min_code
-	    || charset->max_code < parent->max_code)
-	    MERROR (MERROR_CHARSET, NULL);
-	  if (i == 0)
-	    min_char = parent->min_char, max_char = parent->max_char;
-	  else if (parent->min_char < min_char)
-	    min_char = parent->min_char;
-	  else if (parent->max_char > max_char)
-	    max_char = parent->max_char;
-	}
-      charset->min_char = min_char;
-      charset->max_char = max_char;
-      charset->simple = 0;
     }
   else
     {
@@ -253,37 +203,16 @@ make_charset (MCharset *charset)
 	      || charset->max_char < 0 || charset->max_char > unified_max)
 	    MERROR (MERROR_CHARSET, NULL);
 	  charset->simple = charset->no_code_gap;
+	  charset->fully_loaded = 1;
 	}
-      else if (charset->method == Mmap || charset->method == Munify)
+      else if (charset->method == Munify)
 	{
-	  MDatabase *mdb = mdatabase_find (Mcharset, charset->name,
-					   Mnil, Mnil);
-	  MPlist *plist;
-
-	  charset->simple = 0;
-	  if (charset->method == Munify)
-	    {
-	      /* The magic number 12 below is to align to the
-		 SUB_BITS_2 (defined in chartab.c) boundary in a
-		 char-table.  */
-	      unified_max -= ((range[15] >> 12) + 1) << 12;
-	      charset->unified_max = unified_max;
-	    }
-
-	  if (! mdb || ! (plist = mdatabase_load (mdb)))
-	    MERROR (MERROR_CHARSET, NULL);
-	  charset->decoder = mplist_value (plist);
-	  charset->encoder = mplist_value (mplist_next (plist));
-	  M17N_OBJECT_UNREF (plist);
-	  mchartable_range (charset->encoder,
-			    &charset->min_char, &charset->max_char);
-	  if (charset->method == Mmap)
-	    charset->simple = charset->no_code_gap;
-	  else
-	    charset->max_char
-	      = charset->unified_max + 1 + charset->code_range[15];
+	  /* The magic number 12 below is to align to the SUB_BITS_2
+	     (defined in chartab.c) boundary in a char-table.  */
+	  unified_max -= ((range[15] >> 12) + 1) << 12;
+	  charset->unified_max = unified_max;
 	}
-      else
+      else if (charset->method != Mmap)
 	MERROR (MERROR_CHARSET, NULL);
     }
 
@@ -306,7 +235,6 @@ make_charset (MCharset *charset)
 	}
     }
 
-  charset->fully_loaded = 1;
   return charset;
 }
 
@@ -415,6 +343,8 @@ int
 mcharset__init ()
 {
   MPlist *param, *pl;
+
+  unified_max = MCHAR_MAX;
 
   mcharset__cache = mplist ();
   mplist_set (mcharset__cache, Mt, NULL);
@@ -673,7 +603,7 @@ mcharset__load_from_database ()
   MDEBUG_PUSH_TIME ();
   MPLIST_DO (plist, def_list)
     {
-      MPlist *pl;
+      MPlist *pl, *p;
       MSymbol name;
 
       if (! MPLIST_PLIST_P (plist))
@@ -685,7 +615,9 @@ mcharset__load_from_database ()
       pl = MPLIST_NEXT (pl);
       definitions = mplist_add (definitions, name, pl);
       M17N_OBJECT_REF (pl);
-      mchar_define_charset (MSYMBOL_NAME (name), mplist__from_plist (pl));
+      p = mplist__from_plist (pl);
+      mchar_define_charset (MSYMBOL_NAME (name), p);
+      M17N_OBJECT_UNREF (p);
       if ((pl = mplist_find_by_value (pl, Mdefine_coding))
 	  && (MSymbol) MPLIST_VAL (MPLIST_NEXT (pl)) == Mt)
 	mconv__register_charset_coding (name);
