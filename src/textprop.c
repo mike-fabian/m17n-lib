@@ -32,8 +32,8 @@
     application programs can be simple.
 
     A text property consists of a @e key and @e values, where key is a
-    symbol and values are anything that can be cast to <tt>(void
-    *)</tt>.  Unlike other types of properties, a text property can
+    symbol and values are anything that can be cast to <tt>(void *)
+    </tt>.  Unlike other types of properties, a text property can
     have multiple values.  "The text property whose key is K" may be
     shortened to "K property".  */
 
@@ -1823,7 +1823,7 @@ mtext_put_prop_values (MText *mt, int from, int to,
 
     The mtext_push_prop () function pushes a text property whose key
     is $KEY and value is $VAL to the characters between $FROM
-    (inclusive) and $TO (exclusive) in $MT.  With this functio,
+    (inclusive) and $TO (exclusive) in $MT.  With this function,
 
 @verbatim
                     FROM                    TO
