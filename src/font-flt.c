@@ -226,8 +226,6 @@ static int mdebug_mask = MDEBUG_FONT_FLT;
 
 MSymbol Mlayouter;
 
-static MSymbol McatCf;
-
 static MPlist *flt_list;
 
 /* Command ID:
@@ -1220,7 +1218,6 @@ mfont__flt_init (void)
   Mcond = msymbol ("cond");
   Mrange = msymbol ("range");
   Mlayouter = msymbol ("layouter");
-  McatCf = msymbol ("Cf");
   flt_list = mplist ();
   return 0;
 }
@@ -1312,22 +1309,6 @@ mfont__flt_run (MGlyphString *gstring, int from, int to,
       ctx.encoded[i] = (int) MGLYPH (gidx)->code;
       MGLYPH (gidx)->code = (unsigned) MGLYPH (gidx)->c;
     }
-  for (; MGLYPH (to)->type != GLYPH_ANCHOR; to++, i++)
-    {
-      MGlyph *g = MGLYPH (to);
-      unsigned code;
-
-      if (g->category != McatCf
-	  && g->rface->rfont && g->rface->rfont->layouter != Mnil
-	  && g->rface->rfont->layouter != layouter_name)
-	break;
-      code = mfont__encode_char (g->rface->rfont, g->c);
-      if (code == MCHAR_INVALID_CODE)
-	break;
-      g->code = g->c;
-      ctx.encoded[i] = (int) code;
-    }
-
   ctx.encoded[i++] = '\0';
 
   match_indices[0] = from;
