@@ -1,5 +1,9 @@
 2004-03-19  Kenichi Handa  <handa@m17n.org>
 
+	* Version 1.0 Patch Level 1 released.
+
+2004-03-19  Kenichi Handa  <handa@m17n.org>
+
 	* medit.c (VERSION): Changed to 1.0.1.
 	(update_selection): Fix for the case that the selected region is
 	expanded to the opposite direction.
