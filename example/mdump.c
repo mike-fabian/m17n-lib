@@ -221,7 +221,7 @@
 #if defined (HAVE_FREETYPE) && defined (HAVE_GD)
 #include <gd.h>
 
-#include <m17n-gui.h>
+#include <m17n-gd.h>
 #include <m17n-misc.h>
 
 #define PROGRAM_VERSION "1.1"
