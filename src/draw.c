@@ -288,7 +288,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  || MGLYPH (last)->type != g_tmp.type)
 	{
 	  g = MGLYPH (last);
-	  if (non_ascii_found && g->type == GLYPH_CHAR)
+	  if ((non_ascii_found || language != Mnil)
+	      && g->type == GLYPH_CHAR)
 	    while (g < gstring->glyphs + gstring->used)
 	      g = mface__for_chars (script, language, charset,
 				    g, gstring->glyphs + gstring->used, size);
@@ -333,7 +334,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       g_tmp.to = pos;
       g_tmp.rface = rface;
       
-      if (c >= 0x100)
+      if (c >= 0x80)
 	non_ascii_found = 1;
       else if (g_tmp.type == GLYPH_CHAR && (c <= 32 || c == 127))
 	{
