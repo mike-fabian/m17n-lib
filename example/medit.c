@@ -1844,6 +1844,7 @@ FaceProc (Widget w, XtPointer client_data, XtPointer call_data)
   int from, to;
   int old_y1;
 
+  hide_cursor ();
   if (! SELECTEDP ())
     {
       MPlist *plist;
