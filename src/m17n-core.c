@@ -37,20 +37,22 @@
 
     <li> SHELL API
 
-    It provides modules that utilize the m17n database.  They load
-    various kinds of data from the database on demand.  To use this
-    API, an application program must include <m17n.h> and be linked by
-    -lm17n-core -lm17n.  With that, CORE API is also available.
+    It provides modules that utilize the m17n database (code
+    conversion, character property, etc).  They load various kinds of
+    data from the database on demand.  To use this API, an application
+    program must include <m17n.h> and be linked by -lm17n.  With that,
+    CORE API is also available.
 
     <li> GUI API
 
     It provides GUI modules such as drawing and inputting M-texts on a
-    window system.  The API itself is independent on a window system,
-    but the m17n library must be configured to use a specific window
-    system.  Currently, we support only the X Window System.  To use
-    this API, an application program must include <m17n-gui.h> and
-    <m17n-X.h>, and be linked by -lm17n-core -lm17n -lm17n-X.  With
-    that, CORE and SHELL APIs are also available.
+    graphic device.  The API itself is independent on a graphic device
+    but most of functions require an argument MFrame which is for a
+    specific type of graphic device.  Currently, X Window System,
+    gdImagePtr of GD library, and null device are supported as a
+    graphic device.  To use this API, an application program must
+    include <m17n-gui.h>, and be linked by -lm17n-gui.  With that,
+    CORE and SHELL APIs are also available.
 
     <li> MISC API
 
