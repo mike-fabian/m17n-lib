@@ -334,8 +334,8 @@ update_top (int pos)
   top.from = info.line_from;
   top.to = info.line_to;
   top.y0 = 0;
-  top.y1 = info.this.height;
-  top.ascent = - info.this.y;
+  top.y1 = info.metrics.height;
+  top.ascent = - info.metrics.y;
 }
 
 
@@ -382,21 +382,21 @@ redraw (int y0, int y1, int clear, int scroll_bar)
 
   from = line->from;
   y = line->y0;
-  info.this.height = line->y1 - y;
-  info.this.y = - line->ascent;
+  info.metrics.height = line->y1 - y;
+  info.metrics.y = - line->ascent;
   info.line_to = line->to;
-  while (from < nchars && y + info.this.height <= y0)
+  while (from < nchars && y + info.metrics.height <= y0)
     {
-      y += info.this.height;
+      y += info.metrics.height;
       from = info.line_to;
       GLYPH_INFO (from, from, info);
     }
-  y0 = y - info.this.y;
+  y0 = y - info.metrics.y;
   to = from;
   while (to < nchars && y < y1)
     {
       GLYPH_INFO (to, to, info);
-      y += info.this.height;
+      y += info.metrics.height;
       to = info.line_to;
     }
   if (to == nchars)
@@ -408,10 +408,10 @@ redraw (int y0, int y1, int clear, int scroll_bar)
       while (to < nchars)
 	{
 	  GLYPH_INFO (to, to, info);
-	  if (y + info.this.height >= win_height)
+	  if (y + info.metrics.height >= win_height)
 	    break;
 	  to = info.line_to;
-	  y += info.this.height;
+	  y += info.metrics.height;
 	}
       update_scroll_bar (top.from, to);
     }
@@ -481,7 +481,7 @@ redraw_cursor (int clear)
 
 	  if (control.orientation_reversed)
 	    x += win_width - cursor.logical_width;
-	  CLEAR_AREA (x, cur.y0, cursor.logical_width, cursor.this.height);
+	  CLEAR_AREA (x, cur.y0, cursor.logical_width, cursor.metrics.height);
 	}
       DRAW_TEXT (cursor.x, cur.y0 + cur.ascent, cursor.from, cursor.to);
     }
@@ -501,7 +501,7 @@ update_cursor (int pos, int full)
     {
       /* CUR is inaccurate.  We can trust only TOP.  */
       GLYPH_INFO (top.from, pos, cursor);
-      cur.y0 = top.ascent + cursor.y + cursor.this.y;
+      cur.y0 = top.ascent + cursor.y + cursor.metrics.y;
     }
   else if (pos < cur.from)
     {
@@ -509,7 +509,7 @@ update_cursor (int pos, int full)
 
       TEXT_EXTENTS (from, cur.from, rect);
       GLYPH_INFO (from, pos, cursor);
-      cur.y0 -= (rect.height + rect.y) - (cursor.y + cursor.this.y);
+      cur.y0 -= (rect.height + rect.y) - (cursor.y + cursor.metrics.y);
     }
   else if (pos < cur.to)
     {
@@ -518,13 +518,13 @@ update_cursor (int pos, int full)
   else
     {
       GLYPH_INFO (cur.from, pos, cursor);
-      cur.y0 += cur.ascent + cursor.y + cursor.this.y;
+      cur.y0 += cur.ascent + cursor.y + cursor.metrics.y;
     }
 
   cur.from = cursor.line_from;
   cur.to = cursor.line_to;
-  cur.y1 = cur.y0 + cursor.this.height;
-  cur.ascent = - cursor.this.y;
+  cur.y1 = cur.y0 + cursor.metrics.height;
+  cur.ascent = - cursor.metrics.y;
 }
 
 
@@ -550,15 +550,15 @@ update_selection ()
       sel_start.ascent = - rect.y;
       GLYPH_INFO (pos, from, info);
       if (pos < info.line_from)
-	sel_start.y0 += - rect.y + info.y + info.this.y;
+	sel_start.y0 += - rect.y + info.y + info.metrics.y;
     }
   else
     {
       GLYPH_INFO (top.from, from, info);
-      sel_start.y0 = top.ascent + info.y + info.this.y;
+      sel_start.y0 = top.ascent + info.y + info.metrics.y;
     }
-  sel_start.ascent = -info.this.y;
-  sel_start.y1 = sel_start.y0 + info.this.height;
+  sel_start.ascent = -info.metrics.y;
+  sel_start.y1 = sel_start.y0 + info.metrics.height;
   sel_start.from = info.line_from;
   sel_start.to = info.line_to;
 
@@ -568,16 +568,16 @@ update_selection ()
       if (to >= sel_end.to)
 	{
 	  GLYPH_INFO (sel_start.from, to, info);
-	  sel_end.y1 = sel_end.y0 + info.y + info.this.height;
+	  sel_end.y1 = sel_end.y0 + info.y + info.metrics.height;
 	  sel_end.to = info.line_to;
 	}
     }
   else
     {
       GLYPH_INFO (sel_start.from, to, info);
-      sel_end.y0 = sel_start.y0 + sel_start.ascent + info.y + info.this.y;
-      sel_end.y1 = sel_end.y0 + info.this.height;
-      sel_end.ascent = - info.this.y;
+      sel_end.y0 = sel_start.y0 + sel_start.ascent + info.y + info.metrics.y;
+      sel_end.y1 = sel_end.y0 + info.metrics.height;
+      sel_end.ascent = - info.metrics.y;
       sel_end.from = info.line_from;
       sel_end.to = info.line_to;
     }
@@ -1352,9 +1352,9 @@ ScrollProc (Widget w, XtPointer client_data, XtPointer position)
 	{
 	  pos = bol (from - 1, 0);
 	  GLYPH_INFO (pos, from - 1, info);
-	  if (height + info.this.height > win_height)
+	  if (height + info.metrics.height > win_height)
 	    break;
-	  height += info.this.height;
+	  height += info.metrics.height;
 	  from = info.line_from;
 	}
       if (cursor_pos >= top.to)
@@ -1364,9 +1364,9 @@ ScrollProc (Widget w, XtPointer client_data, XtPointer position)
 	  while (cursor_pos < nchars)
 	    {
 	      GLYPH_INFO (pos, pos, info);
-	      if (height + info.this.height > win_height)
+	      if (height + info.metrics.height > win_height)
 		break;
-	      height += info.this.height;
+	      height += info.metrics.height;
 	      cursor_pos = pos;
 	      pos = info.line_to;
 	    }
@@ -1380,10 +1380,10 @@ ScrollProc (Widget w, XtPointer client_data, XtPointer position)
       while (from < nchars)
 	{
 	  GLYPH_INFO (from, from, info);
-	  if (height + info.this.height > win_height
+	  if (height + info.metrics.height > win_height
 	      || info.line_to >= nchars)
 	    break;
-	  height += info.this.height;
+	  height += info.metrics.height;
 	  from = info.line_to;
 	}
       if (from == nchars)
