@@ -22,9 +22,11 @@ documentation of mframe () for more detail.
 
 ** MDrawControl has a new member `anti_alias'.
 
-If MDrawControl->anti_alias is nonzero, try to draw anti-aliased text.
-If Xft2 library can be used, the anti-alias processing is done by
-Xft2's drawing routine.  Otherwise, the m17n library itself does it.
+If MDrawControl->anti_alias is nonzero, try to draw anti-aliased text
+if local fonts are used for that text via Freetype.  If Xft2 library
+can be used, the anti-alias processing is done by Xft2's drawing
+routine.  Otherwise, the m17n library itself does it by assumming that
+the background color is `background' property of a face.
 
 ** Modification of face is now automatically refelected to the next
 drawing.
@@ -36,7 +38,13 @@ it now.
 ** New function mplist_deseriaze () parses an M-Text and generates a
 plist.
 
-** The samle program "mdump" generates PNG image file instead of PBM.
+** The functions mfont_name () and mfont_from_name () are now
+obsolete.  Use mfont_parse_name () and mfont_unparse_name () instead.
+
+** The sample program "mdump" generates PNG image file instead of PBM.
+
+It now runs only when the m17n library is configured with the Freetype
+library and the GD library.
 
 
 * Changes in the m17n library 1.0
