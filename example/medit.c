@@ -176,7 +176,7 @@ MFace *face_default;
 MFace *face_xxx_large;
 MFace *face_box;
 MFace *face_courier, *face_helvetica, *face_times;
-MFace *face_dv_ttyogesh, *face_freesans, *face_freemono;
+MFace *face_dv_ttyogesh, *face_freesans, *face_freeserif, *face_freemono;
 MFace *face_default_fontset, *face_no_ctl_fontset;
 MFace *face_input_status;
 
@@ -216,6 +216,7 @@ struct FaceRec
     {"times", &face_times},
     {"dv-ttyogesh", &face_dv_ttyogesh},
     {"freesans", &face_freesans},
+    {"freeserif", &face_freeserif},
     {"freemono", &face_freemono},
 
     {"Menu Style", NULL},
@@ -2444,6 +2445,8 @@ main (int argc, char **argv)
   mface_put_prop (face_dv_ttyogesh, Mfamily, msymbol ("dv-ttyogesh"));
   face_freesans = mface ();
   mface_put_prop (face_freesans, Mfamily, msymbol ("freesans"));
+  face_freeserif = mface ();
+  mface_put_prop (face_freeserif, Mfamily, msymbol ("freeserif"));
   face_freemono = mface ();
   mface_put_prop (face_freemono, Mfamily, msymbol ("freemono"));
 
@@ -2830,6 +2833,7 @@ main (int argc, char **argv)
   m17n_object_unref (face_times);
   m17n_object_unref (face_dv_ttyogesh);
   m17n_object_unref (face_freesans);
+  m17n_object_unref (face_freeserif);
   m17n_object_unref (face_freemono);
   m17n_object_unref (face_default_fontset);
   m17n_object_unref (face_no_ctl_fontset);
