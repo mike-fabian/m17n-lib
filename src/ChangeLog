@@ -4,6 +4,8 @@
 
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
+	* input.c (minput_filter): Don't reset ic->xxx_changed.
+
 	* mtext.c (mtext_from_data): Fix documentation.
 
 2004-12-25  Kenichi Handa  <handa@m17n.org>
