@@ -525,13 +525,6 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
   MFTInfo *ft_info = (MFTInfo *) rfont->info;
   FT_Face ft_face = ft_info->ft_face;
   MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
-  FT_Int32 load_flags = FT_LOAD_RENDER;
-
-#ifdef FT_LOAD_TARGET_MONO
-  load_flags |= FT_LOAD_TARGET_MONO;
-#else
-  load_flags |= FT_LOAD_MONOCHROME;
-#endif
 
   for (; g != gend; g++)
     {
@@ -571,7 +564,7 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	{
 	  FT_Glyph_Metrics *metrics;
 
-	  FT_Load_Glyph (ft_face, (FT_UInt) g->code, FT_LOAD_RENDER);
+	  FT_Load_Glyph (ft_face, (FT_UInt) g->code, FT_LOAD_DEFAULT);
 	  metrics = &ft_face->glyph->metrics;
 	  g->lbearing = (metrics->horiBearingX >> 6);
 	  g->rbearing = (metrics->horiBearingX + metrics->width) >> 6;
