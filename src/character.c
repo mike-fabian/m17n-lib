@@ -151,7 +151,7 @@ mchar__fini (void)
     The macro #MCHAR_MAX gives the maximum character code.  */
 
 /***ja
-    @brief 文字コードの最大値
+    @brief 文字コードの最大値.
 
     マクロ #MCHAR_MAX は文字コードの最大値を与える。  */
 
@@ -252,7 +252,7 @@ MSymbol Mcategory;
     class is identical to the one defined in Unicode.  */
 
 /***ja
-    @brief 標準結合クラスを表わすキー
+    @brief 標準結合クラスを表わすキー.
 
     シンボル #Mcombining_class は <tt>"combining-class"</tt> という
     名前を持ち、文字プロパティのキーとして使われる。このプロパティの値

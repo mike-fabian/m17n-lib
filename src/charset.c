@@ -648,7 +648,7 @@ mcharset__load_from_database ()
     The macro #MCHAR_INVALID_CODE gives the invalid code-point.  */
 
 /***ja
-    @brief 無効なコードポイント
+    @brief 無効なコードポイント.
 
     マクロ #MCHAR_INVALID_CODE は無効なコードポイントを与える。  */
 
@@ -663,7 +663,7 @@ mcharset__load_from_database ()
     <tt>"charset"</tt>.  */
 
 /***ja
-    @brief シンボル @c Mcharset
+    @brief シンボル @c Mcharset.
 
     デコードされた M-text は、キーが @c Mcharset であるようなテキスト
     プロパティを持つ。シンボル @c Mcharset は <tt>"charset"</tt> とい
@@ -690,7 +690,7 @@ MSymbol Mcharset;
     The symbol #Mcharset_ascii has name <tt>"ascii"</tt> and represents
     the charset ISO 646, USA Version X3.4-1968 (ISO-IR-6).  */
 /***ja
-    @brief ASCII 文字セットを表現するシンボル
+    @brief ASCII 文字セットを表現するシンボル.
 
     シンボル #Mcharset_ascii は <tt>"ascii"</tt> という名前を持ち、 
     ISO 646, USA Version X3.4-1968 (ISO-IR-6) 文字セットを表現する。
@@ -705,7 +705,7 @@ MSymbol Mcharset_ascii;
     The symbol #Mcharset_iso_8859_1 has name <tt>"iso-8859-1"</tt>
     and represents the charset ISO/IEC 8859-1:1998.  */
 /***ja
-    @brief ISO/IEC 8859-1:1998 文字セットを表現するシンボル
+    @brief ISO/IEC 8859-1:1998 文字セットを表現するシンボル.
 
     シンボル #Mcharset_iso_8859_1 は <tt>"iso-8859-1"</tt> という名
     前を持ち、ISO/IEC 8859-1:1998 文字セットを表現する。
@@ -719,7 +719,7 @@ MSymbol Mcharset_iso_8859_1;
     The symbol #Mcharset_unicode has name <tt>"unicode"</tt> and
     represents the charset Unicode.  */
 /***ja
-    @brief Unicode 文字セットを表現するシンボル
+    @brief Unicode 文字セットを表現するシンボル.
 
     シンボル #Mcharset_unicode は <tt>"unicode"</tt> という名前を持
     ち、Unicode 文字セットを表現する。 */
@@ -734,7 +734,7 @@ MSymbol Mcharset_unicode;
     represents the charset that contains all characters supported by
     the m17n library.  */ 
 /***ja
-    @brief 全文字を含む文字セットを表現するシンボル
+    @brief 全文字を含む文字セットを表現するシンボル.
 
     シンボル #Mcharset_m17n は <tt>"m17n"</tt> という名前を持ち、
     m17n ライブラリが扱う全ての文字を含む文字セットを表現する。 */
@@ -752,7 +752,7 @@ MSymbol Mcharset_m17n;
     (P.\pageref{group__m17nConv}) @endlatexonly for more detail.  */
 
 /***ja
-    @brief デコードできない文字の文字セットを表現するシンボル
+    @brief デコードできない文字の文字セットを表現するシンボル.
 
     シンボル #Mcharset_binary は <tt>"binary"</tt> という名前を持ち、
     偽の (fake) 文字セットを表現する。デコード関数は、M-text のテキス
@@ -844,7 +844,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + MIN-CHAR
     and MIN-CHAR is a value of #Mmin_char parameter.  */
 
 /***ja
-    @brief オフセット型のメソッドを示すシンボル
+    @brief オフセット型のメソッドを示すシンボル.
 
     シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、文字セッ
     トの #Mmethod パラメータの値として用いられた場合には、コードポイン
@@ -869,7 +869,7 @@ MSymbol Moffset;
     done by map looking up.  The map must be given by #Mmapfile
     parameter.  */
 
-/***ja @brief マップ型のメソッドを示すシンボル
+/***ja @brief マップ型のメソッドを示すシンボル.
 
     シンボル #Mmap は <tt>"map"</tt> という名前を持ち、文字セットの 
     #Mmethod パラメータの値として用いられた場合には、コードポイントと
@@ -900,7 +900,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
     and LOWEST-CHAR-CODE is the lowest character code of the assigned
     code space.  */
 
-/***ja @brief ユニファイ型のメソッドを示すシンボル
+/***ja @brief ユニファイ型のメソッドを示すシンボル.
 
     シンボル #Minherit は <tt>"unify"</tt> という名前を持ち、文字セッ
     トの #Mmethod パラメータの値として用いられた場合には、コードポイン
@@ -942,7 +942,7 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
     code of CODE-POINT in the parent charset, and SUBSET-OFFSET is a
     value given by #Msubset_offset parameter.  */
 
-/***ja @brief サブセット型のメソッドを示すシンボル
+/***ja @brief サブセット型のメソッドを示すシンボル.
 
     シンボル #Msubset は <tt>"subset"</tt> という名前を持ち、文字セッ
     トの #Mmethod パラメータの値として用いられた場合には、この文字セッ
@@ -972,7 +972,7 @@ MSymbol Msubset;
     must be given by #Mparents parameter.  */
 
 /***ja
-    @brief スーパーセット型のメソッドを示すシンボル
+    @brief スーパーセット型のメソッドを示すシンボル.
 
     シンボル #Msuperset は <tt>"superset"</tt> という名前を持ち、文字
     セットの #Mmethod パラメータの値として用いられた場合には、この文字
@@ -1307,7 +1307,7 @@ mchar_define_charset (char *name, MPlist *plist)
     return it.  Otherwise, return #Mnil.  */
 
 /***ja
-    @brief 文字セット名を解決する
+    @brief 文字セット名を解決する.
 
     関数 mchar_resolve_charset () は $SYMBOL が文字セットを示していれ
     ばそれを返す。
@@ -1340,7 +1340,7 @@ mchar_resolve_charset (MSymbol symbol)
     pointed to by $SYMBOLS, and returns the length of the array.  */
 
 /***ja
-    @brief 文字セットを表わすシンボルの列挙
+    @brief 文字セットを表わすシンボルを列挙する.
 
     関数 mchar_list_charsets () は、文字セットを示すシンボルを並べた配
     列を作り、$SYMBOLS でポイントされた場所にこの配列へのポインタを置
@@ -1371,7 +1371,7 @@ mchar_list_charset (MSymbol **symbols)
     character code.  Otherwise it returns -1.  */
 
 /***ja
-    @brief コードポイントをデコードする
+    @brief コードポイントをデコードする.
 
     関数 mchar_decode () は、シンボル $CHARSET_NAME で示される文字セッ
     ト内の $CODE というコードポイントをデコードして文字コードを得る。
@@ -1407,7 +1407,7 @@ mchar_decode (MSymbol charset_name, unsigned code)
     code-point.  Otherwise it returns #MCHAR_INVALID_CODE.  */
 
 /***ja
-    @brief 文字コードをエンコードする
+    @brief 文字コードをエンコードする.
 
     関数 mchar_encode () は、文字コード $C をエンコードしてシンボル
     $CHARSET_NAME で示される文字セット内におけるコードポイントを得る。
@@ -1450,7 +1450,7 @@ mchar_encode (MSymbol charset_name, int c)
     variable #merror_code.  */
 
 /***ja
-    @brief 指定した文字セットのすべての文字に対して関数を呼ぶ
+    @brief 指定した文字セットのすべての文字に対して関数を呼ぶ.
 
     関数 mcharset_map_chars () は $CHARSET_NAME という名前を持つ文字セッ
     ト中のすべての文字に対して $FUNC を呼ぶ。呼び出しは一文字毎ではな
