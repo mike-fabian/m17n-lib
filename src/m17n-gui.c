@@ -232,8 +232,6 @@ static MDeviceLibraryInterface null_interface =
 
 /* Internal API */
 
-MSymbol Mfreetype;
-
 /*** @} */ 
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
@@ -253,10 +251,8 @@ m17n_init_win (void)
 
   MDEBUG_PUSH_TIME ();
 
-  Mx = msymbol ("x");
   Mgd = msymbol ("gd");
 
-  Mfreetype = msymbol ("freetype");
   Mfont = msymbol ("font");
   Mfont_width = msymbol ("font-width");
   Mfont_ascent = msymbol ("font-ascent");
@@ -268,9 +264,6 @@ m17n_init_win (void)
   Mdrawable = msymbol ("drawable");
   Mdepth = msymbol ("depth");
   Mwidget = msymbol ("widget");
-
-  register_device_library (Mx, "libm17n-X");
-  register_device_library (Mgd, "libm17n-gd");
 
   MDEBUG_PUSH_TIME ();
   if (mfont__init () < 0)
@@ -289,6 +282,9 @@ m17n_init_win (void)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input-win module."));
   mframe_default = NULL;
+
+  register_device_library (Mx, "libm17n-X");
+  register_device_library (Mgd, "libm17n-gd");
   return 0;
 
  err:
@@ -387,7 +383,7 @@ m17n_fini_win (void)
 
 MSymbol Mdevice, Mdisplay, Mscreen, Mdrawable, Mdepth, Mcolormap, Mwidget; 
 
-MSymbol Mx, Mgd;
+MSymbol Mgd;
 
 /*=*/
 
