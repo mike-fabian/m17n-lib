@@ -1,5 +1,11 @@
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c (compose_glyph_string): If langauge is specified, call
+	mface__for_chars even if a text is all latin.  Fix condition for
+	setting non_ascii_found.
+
+	* m17n-X.c (xft_find_metric): Fix setting of g->lbrearing.
+
 	* m17n.h (minput_char_to_key): Delete extern.
 
 	* m17n-gui.h (minput_event_to_key): Cancel previous change.
