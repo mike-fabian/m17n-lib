@@ -47,41 +47,32 @@
     value of a property whose key is a managing key must be a @e
     managed @e object.  See @ref m17nObject for the detail.
 */
-
-/***oldja
+/***ja
     @addtogroup m17nSymbol シンボル
 
-    @brief シンボルオブジェクトとそれに関する API
+    @brief シンボルオブジェクトとそれに関する API.
 
-    m17n ライブラリは一意に決まる記述子として @e シンボル と呼ぶオブジェ
+    m17n ライブラリは一意に決まる識別子として @e シンボル と呼ぶオブジェ
     クトを用いる。シンボルは X ライブラリのアトムと似ているが、0 個以
-    上の @e シンボルプロパティ を持つことができる点で、アトムより高機
-    能である。シンボルプロパティは @e キー と @e 値 からなる。キーはそ
-    れ自体シンボルであり、値は <tt>(void *)</tt> 型にキャストできるも
-    のなら何でもよい。「シンボル S が持つシンボルプロパティのうちキー
-    が K のもの」を簡単に「S の K プロパティ」と呼ぶことがある。
+    上の @e シンボルプロパティ を持つことができる。シンボルプロパティ
+    は @e キー と @e 値 からなる。キーはそれ自体シンボルであり、値は 
+    <tt>(void *)</tt> 型にキャストできるものなら何でもよい。「シンボル 
+    S が持つシンボルプロパティのうちキーが K のもの」を簡単に「S の K 
+    プロパティ」と呼ぶことがある。
 
     シンボルの用途は主に以下の3通りである。
 
-    @li シンボルプロパティ (および他のプロパティ) のキーを表わす。
+    @li シンボルプロパティおよび他のプロパティのキーを表わす。
 
     @li 文字セット、コード系、フォントセットなどの各種オブジェクトを表
     わす。
 
     @li m17n ライブラリ関数の引数となり、関数の挙動を制御する。
 
-    キーが @c Mmanaging_key で値が @c NULL 以外のシンボルプロパティを
-    持つシンボルは、@e 管理キー と呼ばれる。あるシンボルプロパティのキー
-    が管理キーの場合、その値は @e 管理下オブジェクト として扱われる。
-    管理下オブジェクトに関する詳細は @e 管理下オブジェクト の章を参照
-    のこと。
-
-    シンボルプロパティには値の代りに @e プロバイダ関数 を持たせること
-    もできる。プロバイダ関数はそのキーの値を得ようとする時に呼ばれ、そ
-    の返り値が求めるシンボルプロパティの値となる。この仕組みによってシ
-    ンボルプロパティの遅延評価が可能になる。プロバイダ関数は値を返すと
-    同時に値を設定することもでき、この場合には、プロバイダ関数自体は値
-    の設定以降は無効となる。  */
+    @e 管理キー と呼ばれる特別なシンボルがあり、管理キーをキーとして持
+    つプロパティの値は @e 管理下オブジェクト でなくてはならない。詳細
+    は @ref m17nObject 参照。
+*/
 
 /*=*/
 
@@ -277,11 +268,12 @@ MTextPropDeserializeFunc msymbol__deserializer = deserialize_symbol;
     represents @e false or @e no.  When coerced to "int", its value is
     zero.  #Mnil can't have any symbol property.  */
 
-/***oldja
-    @brief 定義済シンボル Mnil
+/***ja
+    @brief "nil" を名前として持つシンボル.
 
-    シンボル #Mnil は <tt>"nil"</tt> という名前を持ち、一般に「偽」
-    を意味する。#Mnil 自身はいかなるシンボルプロパティも持たない。  */
+    シンボル #Mnil は <tt>"nil"</tt> という名前を持ち、一般に「偽」ま
+    たは「否定」を意味する。"int" に変換された場合、値は 0 である。
+    #Mnil 自身はいかなるシンボルプロパティも持たない。  */
 
 MSymbol Mnil;
 
@@ -293,11 +285,11 @@ MSymbol Mnil;
     The symbol #Mt has the name <tt>"t"</tt> and, in general,
     represents @e true or @e yes.  */
 
-/***oldja
-    @brief 定義済シンボル Mt
+/***ja
+    @brief "t" を名前として持つシンボル.
 
-    シンボル #Mt は <tt>"t"</tt> という名前を持ち、一般に「真」を意
-    味する。  */
+    シンボル #Mt は <tt>"t"</tt> という名前を持ち、一般に「真」または
+    「肯定」を意味する。  */
 
 MSymbol Mt;
 
@@ -310,11 +302,11 @@ MSymbol Mt;
     as an argument of the functions mchar_define_property (),
     etc.  */
 
-/***oldja
-    @brief "string" を名前として持つシンボル
+/***ja
+    @brief "string" を名前として持つシンボル.
 
-    定義済みシンボル #Mstring は <tt>"string"</tt> という名前を持ち、
-    関数 mchar_define_property () 等の引数として使われる。  */
+    シンボル #Mstring は <tt>"string"</tt> という名前を持ち、関数 
+    mchar_define_property () の引数等として用いられる。  */
 
 MSymbol Mstring;
 
@@ -327,11 +319,11 @@ MSymbol Mstring;
     as an argument of the functions mchar_define_property (),
     etc.  */
 
-/***oldja
-    @brief "symbol" を名前として持つシンボル
+/***ja
+    @brief "symbol" を名前として持つシンボル.
 
     定義済みシンボル #Msymbol は <tt>"symbol"</tt> という名前を持ち、
-    関数 mchar_define_property () 等の引数として使われる。  */
+    関数 mchar_define_property () の引数等として使われる。  */
 
 MSymbol Msymbol;
 
@@ -353,11 +345,21 @@ MSymbol Msymbol;
     @errors
     This function never fails.  */
 
-/***oldja
-    @brief 指定された名前を持つシンボルを返す
+/***ja
+    @brief シンボルを得る.
 
-    関数 msymbol () は $NAME という名前のシンボルを返す。そのようなシ
-    ンボルが存在しない場合には、新しいシンボルが自動的に作られる。
+    関数 msymbol () は $NAME という名前を持つ正規化されたシンボルを返
+    す。そのようなシンボルが存在しない場合には、生成する。生成されたシ
+    ンボルは管理キーではない。
+
+    空白文字二つで始まるシンボルは m17n ライブラリ用であり、内部的にの
+    み用いられる。
+
+    @return
+    この関数は見つけたか生成したシンボルを返す。
+
+    @errors
+    この関数は決して失敗しない。
 
     @latexonly \IPAlabel{msymbol} @endlatexonly  */
 
@@ -406,6 +408,19 @@ msymbol (const char *name)
     @return
     If the operation was successful, this function returns the created
     symbol.  Otherwise, it returns #Mnil.  */
+/***ja
+    @brief 管理キーを作る.
+
+    関数 msymbol_as_managing_key () は名前 $NAME を持つ新しく作られた
+    管理キーを返す。すでに名前 $NAME を持つシンボルがあれば、#Mnil を
+    返す。
+
+    空白文字二つで始まるシンボルは m17n ライブラリ用であり、内部的にの
+    み用いられる。
+
+    @return
+    処理に成功すれば、この関数は生成したシンボルを返す。そうでなければ
+    #Mnil を返す。   */
 
 /***
     @errors
@@ -458,14 +473,17 @@ msymbol_as_managing_key (const char *name)
     @errors
     This function never fails.  */
 
-/***oldja
-    @brief 指定された名前を持つシンボルを探す
+/***ja
+    @brief 指定された名前を持つシンボルを探す.
 
-    関数 msymbol_exist () は $NAME という名前のシンボルを探す。
+    関数 msymbol_exist () は $NAME という名前を持つシンボルを探す。
 
     @return
     もしそのようなシンボルが存在するならばそのシンボルを返す。そうでな
-    ければ、定義済みシンボル #Mnil を返す。  */
+    ければ、定義済みシンボル #Mnil を返す。  
+
+    @errors
+    この関数は決して失敗しない。     */
 
 /***@seealso
     msymbol_name (), msymbol ()  */
@@ -498,15 +516,16 @@ msymbol_exist (const char *name)
     The msymbol_name () function returns a pointer to a string
     containing the name of $SYMBOL.
 
-    @return
-    Name of the specified symbol.
-
     @errors
     This function never fails.  */
-/***oldja
-    @brief シンボルの名前を返す
+/***ja
+    @brief シンボルの名前を得る.
 
-    関数 msymbol_name () は指定されたシンボル $SYMBOL の名前を返す。  */
+    関数 msymbol_name () は指定されたシンボル $SYMBOL の名前を含む文字
+    列へのポインタを返す。
+
+    @errors
+    この関数は決して失敗しない。     */
 
 /***@seealso
     msymbol (), msymbol_exist ()  */
@@ -535,13 +554,17 @@ msymbol_name (MSymbol symbol)
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***oldja
-    @brief シンボルプロパティに値を設定する
+/***ja
+    @brief シンボルプロパティに値を設定する.
 
     関数 msymbol_put () は、シンボル $SYMBOL 中でキーが $KEY であるシ
     ンボルプロパティの値を $VAL に設定する。そのシンボルプロパティにす
-    でに値があれば上書きする。$SYMBOL, $KEY とも既に生成されたシンボ
-    ルでなくてはならない。
+    でに値があれば上書きする。$SYMBOL, $KEY とも #Mnil であってはなら
+    ない。
+
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
+    この場合、古い値の参照数は @c NULL でなければ 1 減らされ、$VAL の
+    参照数は 1 増やされる。
 
     @return
     処理が成功すれば、msymbol_put () は 0 を返す。そうでなければ -1 を
@@ -573,23 +596,20 @@ msymbol_put (MSymbol symbol, MSymbol key, void *val)
     $SYMBOL has such a symbol property, its value is returned.
     Otherwise @c NULL is returned.
 
-
     @return
     If an error is detected, msymbol_get () returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief シンボルプロパティの値を探す
+/***ja
+    @brief シンボルプロパティの値を得る.
 
     関数 msymbol_get () は、シンボル $SYMBOL が持つシンボルプロパティ
     のうち、キーが $KEY であるものを探す。もし該当するシンボルプロパティ
-    が存在すれば、それの値を返す。もし該当するシンボルプロパティが存在
-    せず、かつ $KEY に対するプロバイダ関数が存在すれば、その関数を呼ん
-    でその戻り値を返す。該当するシンボルプロパティもプロバイダ関数も存
-    在しない場合は外部変数 #merror_code を変えずに @c NULL を返す。
+    が存在すれば、それの値を返す。そうでなければ @c NULL を返す。
 
-    エラーが検出された場合は @c NULL を返し、外部変数 
-    #merror_code にエラーコードを設定する。  */
+    @return 
+    エラーが検出された場合、msymbol_get () は @c NULL を返し、
+    外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -621,12 +641,23 @@ msymbol_get (MSymbol symbol, MSymbol key)
 /***en
     @brief Dump a symbol.
 
-    The mdebug_dump_symbol () function prints $SYMBOL in a human
+    The mdebug_dump_symbol () function prints symbol $SYMBOL in a human
     readable way to the stderr.  $INDENT specifies how many columns to
     indent the lines but the first one.
 
     @return
     This function returns $SYMBOL.
+
+    @errors
+    MERROR_DEBUG  */
+/***ja
+    @brief シンボルをダンプする.
+
+    関数 mdebug_dump_symbol () はシンボル $symbol を stderr に人間に可
+    読な 形で印刷する。 $UNDENT は２行目以降のインデントを指定する。
+
+    @return
+    この関数は $SYMBOL を返す。 
 
     @errors
     MERROR_DEBUG  */
@@ -667,6 +698,17 @@ mdebug_dump_symbol (MSymbol symbol, int indent)
 
     @return
     This function returns #Mnil.
+
+    @errors
+    MERROR_DEBUG  */
+/***ja
+    @brief すべてのシンボル名をダンプする.
+
+    関数 mdebug_dump_all_symbols () は、すべてのシンボルの名前を 
+    stderr に印刷する。 $UNDENT は２行目以降のインデントを指定する。
+
+    @return
+    この関数は #Mnil を返す。 
 
     @errors
     MERROR_DEBUG  */
