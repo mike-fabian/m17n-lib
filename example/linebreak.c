@@ -10,8 +10,6 @@
 static int wordcut_initiazlied = 0;
 
 #include <wordcut/wordcut.h>
-#include <wordcut/xmalloc.h>
-#include <wordcut/path.h>
 
 static Wordcut wordcut;
 
