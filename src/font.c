@@ -1250,6 +1250,14 @@ mfont__parse_name_into_font (char *name, MSymbol format, MFont *font)
   return result;
 }
 
+MPlist *
+mfont__encoding_list (void)
+{
+  if (! font_encoding_list)
+    load_font_encoding_table ();
+  return font_encoding_list;
+}
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
@@ -2149,6 +2157,29 @@ mdebug_dump_font (MFont *font)
       free (name);
     }
   return font;
+}
+
+void
+mdebug_dump_font_list (MFrame *frame, MSymbol family)
+{
+  MPlist *plist, *p;
+
+  if (family == Mnil)
+    plist = mfont_list (frame, NULL, Mnil);
+  else
+    {
+      MFont font;
+
+      MFONT_INIT (&font);
+      mfont__set_property (&font, MFONT_FAMILY, family);
+      plist = mfont_list (frame, &font, Mnil);
+    }
+  MPLIST_DO (p, plist)
+    {
+      mdebug_dump_font (MPLIST_VAL (p));
+      fprintf (stderr, "\n");
+    }
+  M17N_OBJECT_UNREF (plist);
 }
 
 /*** @} */
