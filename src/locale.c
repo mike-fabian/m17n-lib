@@ -31,8 +31,7 @@
     @addtogroup m17nLocale
     @brief ロケールオブジェクトとそれに関する API.
 
-    m17n ライブラリはロケール関連情報を #MLocale 型のオブジェクトで
-    表現する。  */
+    m17n ライブラリはロケール関連情報を #MLocale 型のオブジェクトで表現する。  */
 
 /*=*/
 
@@ -357,13 +356,11 @@ MSymbol Mcodeset;
 /***ja
     @brief 現在のロケールを設定する.
 
-    関数 mlocale_set () は現在のロケールの一部を設定したり問い合わせた
-    りする。ここで一部とは $CATEGORY で指定され、<tt>setlocale ()</tt> 
-    の有効な第一引数となるものでなくてはならない。
+    関数 mlocale_set () は現在のロケールの一部を設定したり問い合わせたりする。ここで一部とは 
+    $CATEGORY で指定され、<tt>setlocale ()</tt> の有効な第一引数となるものでなくてはならない。
 
-    $LOCALE が NULL でなければ、指定した部分のロケールが$LOCALE に設定
-    される。 $LOCALE がシステムにサポートされていなければ、設定は行わ
-    れず、現在のロケールは変わらない。
+    $LOCALE が NULL でなければ、指定した部分のロケールが$LOCALE に設定される。
+    $LOCALE がシステムにサポートされていなければ、設定は行われず、現在のロケールは変わらない。
 
     $LOCALE が NULL ならば、現在のロケールの指定した部分を問い合わせる。
 
@@ -434,9 +431,9 @@ mlocale_set (int category, const char *name)
 /***ja
     @brief ロケールプロパティの値を得る.
 
-    関数 mlocale_get_prop () は、ロケール $LOCALE の $KEY プロパティの
-    値を返す。 $KEY は #Mname, #Mlanguage, #Mterritory, #Mcodeset,
-    #Mmodifier, #Mcoding のいずれかである。 */ 
+    関数 mlocale_get_prop () は、ロケール $LOCALE の $KEY プロパティの値を返す。
+    $KEY は #Mname, #Mlanguage, #Mterritory, #Mcodeset, #Mmodifier, 
+    #Mcoding のいずれかである。 */ 
 
 MSymbol
 mlocale_get_prop (MLocale *locale, MSymbol key)
@@ -475,9 +472,8 @@ mlocale_get_prop (MLocale *locale, MSymbol key)
     @brief 日付と時間をフォーマットする.
 
     関数 mtext_ftime () は時刻データ (broken-down time) $TM を$FORMAT 
-    で指定された形式に清書し、結果をM-text $MT に付加する。フォーマッ
-    トは NULL でなければ ロケール $LOCALE に、または現在のロケール 
-    (LC_TIME) に従う。
+    で指定された形式に清書し、結果をM-text $MT に付加する。フォーマットは 
+    NULL でなければ ロケール $LOCALE に、または現在のロケール(LC_TIME) に従う。
 
     引数 $TM と $FORMAT の意味は strftime () の場合と同じ。
 
@@ -554,8 +550,8 @@ mtext_ftime (MText *mt, const char *format, const struct tm *tm,
 /***ja
     @brief 環境変数を得る.
 
-    関数 mtext_getenv () は $NAME で指される文字列と合致する文字列を
-    環境変数のリスト中から探す。
+    関数 mtext_getenv () は $NAME 
+    で指される文字列と合致する文字列を環境変数のリスト中から探す。
 
     見つかった場合には、その値を現在のロケール(LC_CTYPE) に従って 
     M-text にデコードし、そのM-text を返す。
@@ -588,9 +584,9 @@ mtext_getenv (const char *name)
 /***ja
     @brief 環境変数を変更／追加する.
 
-    関数 mtext_putenv () は M-text $MT に従って、環境変数の値を変更し
-    たり追加したりする。この関数は、現在のロケール(LC_CTYPE) に従って 
-    $MT をエンコードし、それを引数として関数 <tt>putenv</tt> を呼ぶ。
+    関数 mtext_putenv () は M-text $MT 
+    に従って、環境変数の値を変更したり追加したりする。この関数は、現在のロケール
+    (LC_CTYPE) に従って$MT をエンコードし、それを引数として関数 <tt>putenv</tt> を呼ぶ。
 
     @return
     この関数は、成功した場合には 0 を、エラーが起これば -1 を返す。
@@ -630,14 +626,13 @@ mtext_putenv (MText *mt)
 /***ja
     @brief 現在のロケールを用いて２つの M-text を比較する.
 
-    関数 mtext_coll () は２つの M-text $MT1 と $MT2 を比較する。戻り値
-    は負の整数値, 0, 正の整数値のいずれかであり、それぞれ$MT1 が $MT2 
-    より小さい、同じ、大きい場合に相当する。比較は現在のロケール 
+    関数 mtext_coll () は２つの M-text $MT1 と $MT2 
+    を比較する。戻り値は負の整数値, 0, 正の整数値のいずれかであり、それぞれ 
+    $MT1 が $MT2 より小さい、同じ、大きい場合に相当する。比較は現在のロケール 
     (LC_COLLATE) に基づいて行われる。
 
-    この関数は M-text のテキストプロパティとして自動的にキャッシュされ
-    る情報を利用するので、２度目以降の同じ比較は１度目より速く実行され
-    る。  */
+    この関数は M-text 
+    のテキストプロパティとして自動的にキャッシュされる情報を利用するので、２度目以降の同じ比較は１度目より速く実行される。  */
 
 int
 mtext_coll (MText *mt1, MText *mt2)

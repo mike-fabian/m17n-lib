@@ -2453,31 +2453,27 @@ x_io_error_handler (Display *display)
 /***ja
     @brief XIM用入力ドライバ.
 
-    ドライバ #minput_xim_driver は #Mxim を名前として持つ外部入力メソッ
-    ド用であり、 XIM (X Input Methods) をバックグラウンドの入力エンジ
-    ンとして使用する。
+    ドライバ #minput_xim_driver は #Mxim を名前として持つ外部入力メソッド用であり、
+    XIM (X Input Methods) をバックグラウンドの入力エンジンとして使用する。
 
     シンボル #Mxim はこのドライバへのポインタを値とするプロパティ
-    #Minput_driver を持ち、LANGUAGE が #Mnil で名前が #Mxim である入力
-    メソッドはこのドライバを利用する。
+    #Minput_driver を持ち、LANGUAGE が #Mnil で名前が #Mxim 
+    である入力メソッドはこのドライバを利用する。
 
-    したがって、それらの入力メソッドでは、minput_ で始まる名前を持つ関
-    数のドライバに依存する引数は次のようなものでなくてはならない。
+    したがって、それらの入力メソッドでは、minput_ 
+    で始まる名前を持つ関数のドライバに依存する引数は次のようなものでなくてはならない。
 
-    関数 minput_open_im () の引数 $ARG は構造体 #MInputXIMArgIM へのポ
-    インタでなくてはならない。詳細については #MInputXIMArgIM の説明を
-    参照。
+    関数 minput_open_im () の引数 $ARG は構造体 #MInputXIMArgIM 
+    へのポインタでなくてはならない。詳細については #MInputXIMArgIM の説明を参照。
 
-    関数 minput_create_ic () の引数 $ARG は構造体 #MInputXIMArgIC への
-    ポインタでなくてはならない。詳細については #MInputXIMArgIC の説明
-    を参照。
+    関数 minput_create_ic () の引数 $ARG は構造体 #MInputXIMArgIC 
+    へのポインタでなくてはならない。詳細については #MInputXIMArgIC の説明を参照。
 
-    関数 minput_filter () の引数 $ARG は構造体 @c XEvent へのポインタ
-    でなくてはならない。引数 $KEY は無視される。
+    関数 minput_filter () の引数 $ARG は構造体 @c XEvent 
+    へのポインタでなくてはならない。引数 $KEY は無視される。
 
     関数 minput_lookup () の引数 $ARG は関数 function minput_filter () 
-    の引数 $ARG と同じものでなくてはならない。 引数 $KEY は、無視され
-    る。  */
+    の引数 $ARG と同じものでなくてはならない。 引数 $KEY は、無視される。  */
 
 MInputDriver minput_xim_driver =
   { xim_open_im, xim_close_im, xim_create_ic, xim_destroy_ic,
