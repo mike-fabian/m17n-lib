@@ -1,3 +1,12 @@
+2005-03-11  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c (m17n_init_win): Set merror_code to MERROR_NONE at first.
+
+	* m17n.c (m17n_init): Set merror_code to MERROR_NONE at first.
+
+	* m17n-core.c (m17n_init_core): Set merror_code to MERROR_NONE at
+	first.
+
 2005-03-09  handa  <handa@m17n.org>
 
 	* m17n-gui.c (m17n_init_win): Set merror_code to MERROR_NONE before
