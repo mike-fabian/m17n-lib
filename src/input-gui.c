@@ -105,13 +105,13 @@ win_create_ic (MInputContext *ic)
   win_ic_info->ic_info = (MInputContextInfo *) ic->info;
   win_ic_info->frame = frame;
   win_ic_info->client.win = win_info->client;
-  mwin__window_geometry (frame, win_info->client, win_info->client,
+  (*frame->driver->window_geometry) (frame, win_info->client, win_info->client,
 			 &win_ic_info->client.geometry);
   win_ic_info->focus.win = win_info->focus;
-  mwin__window_geometry (frame, win_info->focus, win_info->client,
+  (*frame->driver->window_geometry) (frame, win_info->focus, win_info->client,
 			 &win_ic_info->focus.geometry);
 
-  win_ic_info->preedit.win = mwin__create_window (frame, win_info->client);
+  win_ic_info->preedit.win = (*frame->driver->create_window) (frame, win_info->client);
   win_ic_info->preedit.control.two_dimensional = 1;
   win_ic_info->preedit.control.as_image = 0;
   win_ic_info->preedit.control.with_cursor = 1;
@@ -120,11 +120,11 @@ win_create_ic (MInputContext *ic)
   win_ic_info->preedit.geometry.x = -1;
   win_ic_info->preedit.geometry.y = -1;
 
-  win_ic_info->status.win = mwin__create_window (frame, win_info->client);
+  win_ic_info->status.win = (*frame->driver->create_window) (frame, win_info->client);
   win_ic_info->status.control.as_image = 1;
   win_ic_info->status.control.enable_bidi = 1;
 
-  win_ic_info->candidates.win = mwin__create_window (frame, win_info->client);
+  win_ic_info->candidates.win = (*frame->driver->create_window) (frame, win_info->client);
   win_ic_info->candidates.control.as_image = 1;
 
   ic->info = win_ic_info;
@@ -137,10 +137,11 @@ win_destroy_ic (MInputContext *ic)
 {
   MInputGUIContextInfo *win_ic_info = (MInputGUIContextInfo *) ic->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) win_ic_info->ic_info;
+  MFrame *frame = win_ic_info->frame;
 
-  mwin__destroy_window (win_ic_info->frame, win_ic_info->preedit.win);
-  mwin__destroy_window (win_ic_info->frame, win_ic_info->status.win);
-  mwin__destroy_window (win_ic_info->frame, win_ic_info->candidates.win);
+  (*frame->driver->destroy_window) (frame, win_ic_info->preedit.win);
+  (*frame->driver->destroy_window) (frame, win_ic_info->status.win);
+  (*frame->driver->destroy_window) (frame, win_ic_info->candidates.win);
   ic->info = ic_info;
   (*minput_default_driver.destroy_ic) (ic);
   free (win_ic_info);
@@ -281,7 +282,7 @@ adjust_window_and_draw (MFrame *frame, MInputContext *ic, MText *mt, int type)
 	}
     }
 
-  mwin__adjust_window (frame, win, geometry, &physical);
+  (*frame->driver->adjust_window) (frame, win, geometry, &physical);
   mdraw_text_with_control (frame, win, -x0, -y0, mt, 0, len, control);
 }
 
@@ -298,7 +299,7 @@ win_callback (MInputContext *ic, MSymbol command)
 
       if (! win_ic_info->preedit.mapped)
 	{
-	  mwin__map_window (frame, win_ic_info->preedit.win);
+	  (*frame->driver->map_window) (frame, win_ic_info->preedit.win);
 	  win_ic_info->preedit.mapped = 1;
 	}
       win_ic_info->preedit.control.cursor_pos = ic->cursor_pos;
@@ -352,7 +353,7 @@ win_callback (MInputContext *ic, MSymbol command)
 	{
 	  if (win_ic_info->candidates.mapped)
 	    {
-	      mwin__unmap_window (frame, win_ic_info->candidates.win);
+	      (*frame->driver->unmap_window) (frame, win_ic_info->candidates.win);
 	      win_ic_info->candidates.mapped = 0;
 	    }
 	  return;
@@ -360,7 +361,7 @@ win_callback (MInputContext *ic, MSymbol command)
 
       if (! win_ic_info->candidates.mapped)
 	{
-	  mwin__map_window (frame, win_ic_info->candidates.win);
+	  (*frame->driver->map_window) (frame, win_ic_info->candidates.win);
 	  win_ic_info->candidates.mapped = 1;
 	}
 
@@ -446,7 +447,7 @@ win_callback (MInputContext *ic, MSymbol command)
     {
       if (win_ic_info->preedit.mapped)
 	{
-	  mwin__unmap_window (frame, win_ic_info->preedit.win);
+	  (*frame->driver->unmap_window) (frame, win_ic_info->preedit.win);
 	  win_ic_info->preedit.mapped = 0;
 	}
     }
@@ -454,7 +455,7 @@ win_callback (MInputContext *ic, MSymbol command)
     {
       if (! win_ic_info->status.mapped)
 	{
-	  mwin__map_window (frame, win_ic_info->status.win);
+	  (*frame->driver->map_window) (frame, win_ic_info->status.win);
 	  win_ic_info->status.mapped = 1;
 	}
     }
@@ -462,7 +463,7 @@ win_callback (MInputContext *ic, MSymbol command)
     {
       if (win_ic_info->status.mapped)
 	{
-	  mwin__unmap_window (frame, win_ic_info->status.win);
+	  (*frame->driver->unmap_window) (frame, win_ic_info->status.win);
 	  win_ic_info->status.mapped = 0;
 	}
     }
@@ -470,7 +471,7 @@ win_callback (MInputContext *ic, MSymbol command)
     {
       if (! win_ic_info->candidates.mapped)
 	{
-	  mwin__map_window (frame, win_ic_info->candidates.win);
+	  (*frame->driver->map_window) (frame, win_ic_info->candidates.win);
 	  win_ic_info->candidates.mapped = 1;
 	}
     }
@@ -478,7 +479,7 @@ win_callback (MInputContext *ic, MSymbol command)
     {
       if (win_ic_info->candidates.mapped)
 	{
-	  mwin__unmap_window (frame, win_ic_info->candidates.win);
+	  (*frame->driver->unmap_window) (frame, win_ic_info->candidates.win);
 	  win_ic_info->candidates.mapped = 0;
 	}
     }
@@ -625,6 +626,21 @@ MInputDriver minput_gui_driver;
 /*=*/
 
 /***en
+    @brief Symbol of the name "xim".
+
+    The variable Mxim is a symbol of name "xim".  It is a name of the
+    input method driver #minput_xim_driver.  */ 
+/***ja
+    @brief "xim"を名前として持つシンボル .
+
+    変数 Mxim は"xim"を名前として持つシンボルである。"xim" は入力メソッ
+    ドドライバ #minput_xim_driver の名前である。  */ 
+
+MSymbol Mxim;
+
+/*=*/
+
+/***en
     @brief Convert an event to an input key.
 
     The minput_event_to_key () function returns the input key
@@ -688,9 +704,11 @@ MSymbol
 minput_event_to_key (MFrame *frame, void *event)
 {
   int modifiers;
-  MSymbol key = mwin__parse_event (frame, event, &modifiers);
+  MSymbol key;
   char *name, *str;
 
+  M_CHECK_READABLE (frame, MERROR_IM, Mnil);
+  key = (*frame->driver->parse_event) (frame, event, &modifiers);
   if (! modifiers)
     return key;
 
