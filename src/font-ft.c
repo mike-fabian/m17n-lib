@@ -1077,7 +1077,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		break;
 	      prev = base;
 	      goto label_adjust_anchor;
-	    case 6:
+	    default:		/* i.e. case 6 */
 	      if (! mark)
 		break;
 	      prev = mark;
@@ -1101,10 +1101,6 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 		g->yoff = prev->yoff + mark_y - base_y;
 		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
 	      }
-	      break;
-	    default:		/* i.e case 6 */
-	      /* Not yet supported.  */
-	      break;
 	    }
 	  if (otfg->GlyphClass == OTF_GlyphClass0)
 	    base = mark = g;
