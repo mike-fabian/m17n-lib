@@ -1,3 +1,9 @@
+2004-04-09  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (struct): New members seq_beg, seq_end, seq_from,
+	seq_to.
+	(load_command): Setup above members.
+
 2004-04-05  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xfont_encode_char): Fix checking of byte1 and byte2.
