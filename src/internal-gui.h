@@ -227,14 +227,8 @@ typedef struct
   short x, y;
 } MDrawPoint;
 
-extern MPlist *m17n__device_library_list;
-
 struct MDeviceDriver
 {
-  int initialized;
-  int (*init) ();
-  int (*fini) ();
-  int (*open) (MFrame *frame, MPlist *param);
   void (*close) (MFrame *frame);
   void *(*get_prop) (MFrame *frame, MSymbol key);
   void (*realize_face) (MRealizedFace *rface);

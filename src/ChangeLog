@@ -1,3 +1,24 @@
+2004-07-06  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c, m17n-gui.h, m17n-gd.c, m17n-X.h, m17n-X.c,
+	internal-gui.h: Cancel previous changes.
+
+	* m17n-gd.h: Delete it.
+
+	* Makefile.am (libm17n_core_la_LIBADD): New variable.
+	(libm17n_core_la_LDFLAGS): Add -export-dynamic, move
+	@XML2_LD_FLAGS@ to above.
+	(libm17n_la_LIBADD): Add -ldl.
+	(libm17n_la_LDFLAGS): Add -export-dynamic.
+	(X_LD_FLAGS): Fix the order of linking.
+	(libm17n_gui_la_LIBADD): Add ${OPTIONAL_LD_FLAGS}.
+	(libm17n_gui_la_LDFLAGS): Add -export-dynamic, delete above.
+	(libm17n_X_la_LDFLAGS): Add -module.
+	(libm17n_gd_la_SOURCES): Delete m17n-gd.h.
+	(libm17n_gd_la_LIBADD): Add @GD_LD_FLAGS@.
+	(libm17n_gd_la_LDFLAGS): Add -module.
+	(include_HEADERS): Delete m17n-gd.h.
+
 2004-06-30  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.c: Adjusted for the change of struct MDeviceDriver.

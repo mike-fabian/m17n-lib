@@ -48,27 +48,22 @@
 
     It provides GUI modules such as drawing and inputting M-texts on a
     graphic device.  The API itself is independent on a graphic device
-    but most of functions require an argument MFrame which is created
-    for a specific type of graphic device.  Currently, a null device,
-    X Window System, and an image date (gdImagePtr) of GD library are
+    but most functions require an argument MFrame which is created for
+    a specific type of graphic device.  Currently, a null device, X
+    Window System, and an image date (gdImagePtr) of GD library are
     supported as a graphic device.
 
-    With the null device, you can't draw text nor use an input method
-    (but, for instance, the funciton mdraw_glyph_list () is
-    available).  To use this device, an application program must
-    include <m17n-gui.h> and be linked by -lm17n-core -lm17n
-    -lm17n-gui.
+    On a frame of the null device, you can't draw text nor use an
+    input method (but, for instance, the funciton mdraw_glyph_list ()
+    is available).
 
-    With the X Window System, you can use the whole GUI API.  To use
-    this device, an application program must include <m17n-X.h> and be
-    linked by -lm17n-core -lm17n -lm17n-gui -lm17n-X.
+    On a frame of the X Window System, you can use the whole GUI API.
 
-    With an image of GD library, you can use all drawing API but can't
-    use input method.  To use this device, an application program must
-    include <m17n-gd.h>, and be linked by -lm17n-core -lm17n
-    -lm17n-gui -lm17n-gd.
+    On a frame of GD library, you can use all drawing API but can't
+    use input method.
 
-    It is also possible to use multiple devices.
+    To use this device, an application program must include
+    <m17n-gui.h> and be linked by -lm17n-core -lm17n -lm17n-gui.
 
     When you use this API, CORE and SHELL API are also available.
 
@@ -176,21 +171,16 @@
     グラフィックデバイスとしてサポートされている。
 
     ヌルデバイス上では表示も入力もできない（ただしたとえば
-    mdraw_glyph_list () などの関数は使用可能）。このデバイスを使用する
-    ためには、アプリケーションプログラムは <m17n-gui.h> を include し、
-    -lm17n-core -lm17n -lm17n-gui でリンクされなくてはならない。
+    mdraw_glyph_list () などの関数は使用可能）。
 
-    X ウィンドウシステム上ではすべての GUI API が使える。このデバイスを
-    使用するためには、アプリケーションプログラムは <m17n-X.h> を
-    include し、-lm17n-core -lm17n -lm17n-gui -lm17n-X でリンクされなく
-    てはならない
+    X ウィンドウシステム上ではすべての GUI API が使える。
 
     GD ライブラリのイメージ上では、描画用の API はすべて使えるが入力は
-    できない。このデバイスを利用するためにはアプリケーションプログラム
-    は <m17n-gd.h> を include し、-lm17n-core -lm17n -lm17n-gui
-    -lm17n-gd でリンクされなくてはならない
+    できない。
 
-    複数のデバイスを同時に使用することもできる。あ
+    このデバイスを使用するためには、アプリケーションプログラムは
+    <m17n-gui.h> を include し、-lm17n-core -lm17n -lm17n-gui でリンク
+    されなくてはならない。
 
     この API を使用する際には、コア API とシェル API も使用できる。
 
