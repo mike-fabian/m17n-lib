@@ -1155,24 +1155,6 @@ mfont__resize (MFont *spec, MFont *request)
       }
 }
 
-/* Return 1 if C is encodable, 0, if C is not encodable, -1 if it
-   can't be decided now.  */
-
-int
-mfont__encodable_p (MRealizedFont *rfont, MSymbol layouter_name, int c)
-{
-  MFontEncoding *encoding;
-
-  if (layouter_name != Mnil)
-    return (mfont__flt_encode_char (layouter_name, c)
-	    != MCHAR_INVALID_CODE);
-  if (! rfont->encoding)
-    rfont->encoding = find_encoding (&rfont->spec);
-  encoding = rfont->encoding;
-  if (! encoding->repertory_charset)
-    return -1;
-  return (ENCODE_CHAR (encoding->repertory_charset, c) != MCHAR_INVALID_CODE);
-}
 
 unsigned
 mfont__encode_char (MRealizedFont *rfont, int c)
@@ -1187,14 +1169,13 @@ mfont__encode_char (MRealizedFont *rfont, int c)
   encoding = rfont->encoding;
   if (! encoding->encoding_charset)
     return MCHAR_INVALID_CODE;
+  if (encoding->repertory_charset
+      && ENCODE_CHAR (encoding->repertory_charset, c) == MCHAR_INVALID_CODE)
+    return MCHAR_INVALID_CODE;
   code = ENCODE_CHAR (encoding->encoding_charset, c);
   if (code == MCHAR_INVALID_CODE)
     return MCHAR_INVALID_CODE;
-  if (! encoding->repertory_charset)
-    return (rfont->driver->encode_char) (rfont, c, code);
-  if (ENCODE_CHAR (encoding->repertory_charset, c) == MCHAR_INVALID_CODE)
-    return MCHAR_INVALID_CODE;
-  return code;
+  return (rfont->driver->encode_char) (rfont, code);
 }
 
 void
