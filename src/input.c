@@ -2427,16 +2427,21 @@ minput_toggle (MInputContext *ic)
     @brief Reset an input context.
 
     The minput_reset_ic () function resets the input context $IC by
-    calling a callback functions corresponding to #Minput_reset.  As
-    the current preediting text is committed, if necessary, a program
-    can extract the text by calling minput_lookup ().  */
+    calling a callback functions corresponding to #Minput_reset.  It
+    actually shift the state to the initial one, and thus the current
+    preediting text (if any) is committed.  If necessary, a program
+    can extract the text by calling minput_lookup () just after the
+    call of minput_reset_ic ().  In that case, the arguments @c KEY
+    and @c ARG of minput_lookup are ignored..  */
 /***ja
     @brief 入力コンテクストをリセットする.
 
     関数 minput_reset_ic () は #Minput_reset に対応するコールバック関数
-    を呼ぶことによって入力コンテクスト $IC をリセットする。現在入力中の
-    テキストは $IC->produced に掃き出されるので、必要ならアプリケーショ
-    ンプログラムはそのテキストをそこから取り出せる。 */
+    を呼ぶことによって入力コンテクスト $IC をリセットする。これは実際は
+    入力メソッドを初期状態にシフトさせる。したがって、もし現在入力中の
+    テキストがあれば、それはコミットされる。必要ならアプリケーションプ
+    ログラムは minput_lookup () を読んでそのテキストを取り出せる。その
+    際、minput_lookup () の引数 @c KEY と @c ARG は無視される。 */
 void
 minput_reset_ic (MInputContext *ic)
 {
