@@ -2,6 +2,7 @@
 
 	* input.c (reset_ic): Check if ic_info->state is NULL.
 	(filter): If ic_info->state is NULL, return 0.
+	(load_input_method): Don't unref `maps' it it's not created.
 
 2004-11-15  Kenichi Handa  <handa@m17n.org>
 
