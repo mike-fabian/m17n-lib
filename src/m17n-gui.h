@@ -802,8 +802,7 @@ typedef struct
 
   /***en Metric of the glyph.  */
   /***ja グリフの寸法.  */
-  int lbearing, rbearing;
-  int ascent, descent;
+  int lbearing, rbearing, ascent, descent;
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
