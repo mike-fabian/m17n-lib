@@ -1471,8 +1471,6 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
       ctx.match_indices[1] = to;
     }
 
-  MDEBUG_PRINT (")\n");
-
   if (from == to)
     {
       /* Somehow there's no glyph contributing to characters between
@@ -1533,6 +1531,25 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 	    latest = glyphs[i];
 	}
     }
+  MDEBUG_PRINT ("\n [FLT]   (RESULT (");
+  if (mdebug__flag & mdebug_mask
+      && ctx.encoded_offset < to)
+    {
+      if (gstring->glyphs[from].type == GLYPH_PAD)
+	fprintf (stderr, "|");
+      else
+	fprintf (stderr, "%X", gstring->glyphs[from].code);
+      for (from++; from < to; from++)
+	{
+	  if (gstring->glyphs[from].type == GLYPH_PAD)
+	    fprintf (stderr, " |");
+	  else
+	    fprintf (stderr, " %X", gstring->glyphs[from].code);
+	}
+      fprintf (stderr, "))");
+    }
+  MDEBUG_PRINT (")\n");
+
   return to;
 }
 
