@@ -1,5 +1,9 @@
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 
+	* m17n.h (minput_char_to_key): Delete extern.
+
+	* m17n-gui.h (minput_event_to_key): Cancel previous change.
+
 	* m17n-gui.c (null_device_open): Set several members of frame.
 
 2004-06-14  Kenichi Handa  <handa@m17n.org>

@@ -27,13 +27,13 @@
     The input driver @c minput_gui_driver is provided for internal
     input methods that is useful on window systems.  It displays
     preedit text and status text at the inputting spot.  See the
-    documentation of @c minput_gui_driver for more detail.
+    documentation of @c minput_gui_driver for more details.
 
     In the m17n-X library, the foreign input method of name @c Mxim is
     provided.  It uses XIM (X Input Method) as a background input
     engine.  The symbol @c Mxim has a property @c Minput_driver whose
     value is a pointer to the input driver @c minput_xim_driver.  See
-    the documentation of @c minput_xim_driver for more detail.  */
+    the documentation of @c minput_xim_driver for more details.  */
 
 /***ja
     @addtogroup m17nInputMethodWin
@@ -581,7 +581,7 @@ minput__win_fini ()
 
     The argument $ARG of the function minput_create_ic () must be a
     pointer to the structure @c MInputGUIArgIC.  See the documentation
-    of @c MInputGUIArgIC for more detail.
+    of @c MInputGUIArgIC for more details.
 
     If the argument $KEY is @c Mnil, the argument $ARG of the
     function minput_filter () must be a pointer to the object of type

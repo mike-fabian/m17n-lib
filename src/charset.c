@@ -746,7 +746,7 @@ MSymbol Mcharset_m17n;
     represents the fake charset which the decoding functions put to an
     M-text as a text property when they encounter an invalid byte
     (sequence).  See @ref m17nConv @latexonly
-    (P.\pageref{group__m17nConv}) @endlatexonly for more detail.  */
+    (P.\pageref{group__m17nConv}) @endlatexonly for more details.  */
 
 /***ja
     @brief 正しくデコードできない文字の文字セットを表現するシンボル.
