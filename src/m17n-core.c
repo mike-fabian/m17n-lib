@@ -33,14 +33,15 @@
 
     It provides basic modules to handle M-texts.  They do not require
     the m17n database.  To use this API, an application program must
-    include <m17n-core.h> and be linked by -lm17n-core.
+    include <m17n-core<EM></EM>.h> and be linked by -lm17n-core.
 
     <li> SHELL API
 
     It provides modules that utilize the m17n database (code
     conversion, character property, etc).  They load various kinds of
     data from the database on demand.  To use this API, an application
-    program must include <m17n.h> and be linked by -lm17n-core -lm17n.
+    program must include <m17n<EM></EM>.h> and be linked by
+    -lm17n-core -lm17n.
 
     When you use this API, CORE API is also available.
 
@@ -63,7 +64,8 @@
     use input method.
 
     To use this device, an application program must include
-    <m17n-gui.h> and be linked by -lm17n-core -lm17n -lm17n-gui.
+    <m17n-gui<EM></EM>.h> and be linked by -lm17n-core -lm17n
+    -lm17n-gui.
 
     When you use this API, CORE and SHELL API are also available.
 
@@ -72,8 +74,8 @@
     It provides miscellaneous functions to support error handling and
     debugging.  This API cannot be used by itself, but with one or
     more APIs listed above.  To use the API, an application program
-    must include <m17n-misc.h> in addition to one of a header file
-    described above.
+    must include <m17n-misc<EM></EM>.h> in addition to one of a header
+    file described above.
 
     </ol>
 
@@ -147,17 +149,17 @@
     <li> コア API
 
     M-text を扱うための基本的なモジュールを提供する。この分類の API は
-    m17n データベースを必要としない。利用するためには、アプリケーショ
-    ンプログラムは<m17n-core.h> を include し、 -lm17n-core でリンクさ
-    れなくてはならない。
+    m17n データベースを必要としない。利用するためには、アプリケーション
+    プログラムは<m17n-core<EM></EM>.h> を include し、 -lm17n-core でリ
+    ンクされなくてはならない。
 
     <li> シェル API
 
     m17n データベースを利用するモジュール（コード変換、文字プロパティ
     等）を提供する。モジュールはデータベースから必要に応じて多様なデー
     タをロードする。利用するためには、アプリケーションプログラムは
-    <m17n.h> を include し、 -lm17n-core -lm17n でリンクされなくてはな
-    らない。
+    <m17n<EM></EM>.h> を include し、 -lm17n-core -lm17n でリンクされな
+    くてはならない。
 
     この API を使用する際にはコア API も使用できる。
 
@@ -179,8 +181,8 @@
     できない。
 
     このデバイスを使用するためには、アプリケーションプログラムは
-    <m17n-gui.h> を include し、-lm17n-core -lm17n -lm17n-gui でリンク
-    されなくてはならない。
+    <m17n-gui<EM></EM>.h> を include し、-lm17n-core -lm17n -lm17n-gui
+    でリンクされなくてはならない。
 
     この API を使用する際には、コア API とシェル API も使用できる。
 
@@ -188,8 +190,8 @@
 
     エラー処理、デバッグ用のその他の関数を提供する。この API はそれだけ
     では使用できず、上記の他のものと共に使う。利用するためには、上記の
-    いずれかの include ファイルに加えて、 <m17n-misc.h> を include しな
-    くてはならない。
+    いずれかの include ファイルに加えて、 <m17n-misc<EM></EM>.h> を
+    include しなくてはならない。
 
     </ol>
 
