@@ -30,32 +30,32 @@ AM_CONFIG_HEADER(src/config.h)
 API_VERSION=1:0:1
 AC_SUBST(API_VERSION)
 
-# Checks for programs for compiling.
+dnl Checks for programs for compiling.
 AC_PROG_CC
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
 AM_PROG_LIBTOOL
 
-# Checks for X libraries.
+dnl Checks for X libraries.
 AC_PATH_XTRA
 
-# Checks for standard header files.
+dnl Checks for standard header files.
 AC_HEADER_STDC
 AC_HEADER_DIRENT
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h locale.h stdlib.h \
 			  string.h strings.h sys/time.h unistd.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
+dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
 
-# Checks for endian.  This influence the default UTF-16 definition.
+dnl Checks for endian.  This influence the default UTF-16 definition.
 AC_C_BIGENDIAN
 
-# Checks for library functions.
+dnl Checks for library functions.
 AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
@@ -67,12 +67,19 @@ AC_FUNC_STRTOD
 AC_CHECK_FUNCS(memmove memset nl_langinfo putenv regcomp setlocale)
 AC_CHECK_FUNCS(strchr strdup gettimeofday)
 
-# Check several libraries without adding -lxxx to LIBS, without
-# defining HAVE_LIBXXX nor HAVE_XXX_H because they are used only for
-# libm17-X.so.  Instead, define XXX_LD_FLAGS and HAVE_XXX if library
-# XXX is available.  CPPFLAGS will be augmented.
+dnl Checks if dlopen exists, and if it's in libc or libdl.
 
-# Check for fribidi library.
+AC_SEARCH_LIBS(dlopen, dl,
+	       AC_DEFINE(HAVE_DLOPEN, 1,
+	       [Define to 1 if you have the funciton dlopen.]))
+
+dnl Check several libraries without adding -lxxx to LIBS, without
+dnl defining HAVE_LIBXXX nor HAVE_XXX_H because they are used only by
+dnl some libraries (e.g. libm17n-X.so).  Instead, define XXX_LD_FLAGS
+dnl and HAVE_XXX if library XXX is available.  CPPFLAGS will be
+dnl augmented.
+
+dnl Check for fribidi library.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_FRIBIDI_CONFIG, fribidi-config, yes)
@@ -95,7 +102,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(FRIBIDI_LD_FLAGS)
 
-# Check for otflib usability.
+dnl Check for otflib usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
@@ -119,7 +126,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(OTF_LD_FLAGS)
 
-# Check for Freetype2 usability.
+dnl Check for Freetype2 usability.
 AC_CHECK_PROG(HAVE_FREETYPE_CONFIG, freetype-config, yes)
 if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
   FREETYPE_INC=`freetype-config --cflags`
@@ -142,7 +149,7 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
 fi
 AC_SUBST(FREETYPE_LD_FLAGS)
 
-# Check for Xft2 usability.
+dnl Check for Xft2 usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_XFT_CONFIG, xft-config, yes)
@@ -170,7 +177,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(XFT2_LD_FLAGS)
 
-# Check for fontconfig usability.
+dnl Check for fontconfig usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 FONTCONFIG_LD_FLAGS=-lfontconfig
@@ -194,7 +201,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(FONTCONFIG_LD_FLAGS)
 
-# Check for gdlib usability.
+dnl Check for gdlib usability.
 save_LIBS="$LIBS"
 AC_CHECK_LIB(gd, gdImageCreate, HAVE_GD=yes, HAVE_GD=no)
 AC_CHECK_HEADER(gd.h, , HAVE_GD=no)
@@ -207,7 +214,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(GD_LD_FLAGS)
 
-# Check for libxml2 usability.
+dnl Check for libxml2 usability.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_XML2_CONFIG, xml2-config, yes)
@@ -231,7 +238,7 @@ fi
 LIBS="$save_LIBS"
 AC_SUBST(XML2_LD_FLAGS)
 
-# Check for Anthy usability.
+dnl Check for Anthy usability.
 AC_CHECK_LIB(anthydic, anthy_init_sessions, HAVE_ANTHY=yes, HAVE_ANTHY=no)
 if test "x$HAVE_ANTHY" = "xyes"; then
   AC_CHECK_LIB(anthy, anthy_init, HAVE_ANTHY=yes, HAVE_ANTHY=no, -lanthydic)
@@ -246,13 +253,13 @@ if test "x$HAVE_ANTHY" = "xyes"; then
 fi
 AC_SUBST(ANTHY_LD_FLAGS)
 
-# Check for Ispell usability.
+dnl Check for Ispell usability.
 AC_CHECK_PROG(HAVE_ISPELL, ispell, yes)
 if test "x$HAVE_ISPELL" = "xyes"; then
   AC_DEFINE(HAVE_ISPELL, 1, [Define if ispell is available.])
 fi
 
-# Check for libwordcut (for Thai).
+dnl Check for libwordcut (for Thai).
 AC_CHECK_LIB(wordcut, wordcut_init, HAVE_WORDCUT=yes, HAVE_WORDCUT=no)
 if test "x$HAVE_WORDCUT" = "xyes"; then
   if test -f "/usr/share/wordcut/tdict.wcd"; then
@@ -269,6 +276,13 @@ if test "x$HAVE_WORDCUT" = "xyes"; then
   fi
 fi
 AC_SUBST(WORDCUT_LD_FLAGS)
+
+dnl We can't include X_CFLAGS in AM_CPPFLAGS because the generated
+dnl Makefile put ${AM_CPPFLAGS} before ${CPPFLAGS} and that leads to
+dnl inclusion of an incorrect header file.  So, append X_CFLAGS to
+dnl CPPFLAGS here directly.
+
+CPPFLAGS="$CPPFLAGS $X_CFLAGS"
 
 dnl AC_ARG_ENABLE(xom, 
 dnl	      [  --enable-xom            build and install XOM library.],
