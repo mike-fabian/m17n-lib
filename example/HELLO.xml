@@ -22,11 +22,9 @@
 <property key="language" value="ar" from="293" to="346" control="0"/>
 <property key="language" value="ka" from="259" to="293" control="0"/>
 <property key="language" value="tr" from="230" to="259" control="0"/>
-<property key="language" value="lo" from="882" to="921" control="0"/>
-<property key="language" value="th" from="841" to="882" control="0"/>
-<property key="language" value="vi" from="805" to="841" control="0"/>
-<property key="language" value="km" from="763" to="805" control="0"/>
-<property key="language" value="bo" from="702" to="763" control="0"/>
+<property key="language" value="km" from="795" to="837" control="0"/>
+<property key="language" value="bo" from="734" to="795" control="0"/>
+<property key="language" value="my" from="702" to="734" control="0"/>
 <property key="language" value="gu" from="678" to="702" control="0"/>
 <property key="language" value="te" from="658" to="678" control="0"/>
 <property key="language" value="ta" from="631" to="658" control="0"/>
@@ -35,9 +33,12 @@
 <property key="language" value="pa" from="521" to="556" control="0"/>
 <property key="language" value="bn" from="492" to="521" control="0"/>
 <property key="language" value="hi" from="455" to="492" control="0"/>
-<property key="language" value="ko" from="980" to="1003" control="0"/>
-<property key="language" value="zh" from="957" to="980" control="0"/>
-<property key="language" value="ja" from="932" to="957" control="0"/>
+<property key="language" value="lo" from="914" to="953" control="0"/>
+<property key="language" value="th" from="873" to="914" control="0"/>
+<property key="language" value="vi" from="850" to="873" control="0"/>
+<property key="language" value="ko" from="1012" to="1035" control="0"/>
+<property key="language" value="zh" from="989" to="1012" control="0"/>
+<property key="language" value="ja" from="964" to="989" control="0"/>
 <body>Europe
   English					Hello
   French (français)			Bonjour, Salut
@@ -63,6 +64,7 @@ South/South-East Asia
   Tamil (தமிழ்)				வணக்கம்
   Telugu ()					హలో
   Gujarati ()				નમસ્તે
+  Myanmar (မ္ရန္‌မာ)			မင္ဂလာပာ
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
   Khmer (ខ្មៃរ)				ជំរាបសួរ (ex: ក្ក្រឿ៌)
   Vietnamese (Tiếng Việt)		Chào bạn
