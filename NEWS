@@ -20,6 +20,8 @@ specify which font-backend to use.  The value must be Mx or Mfreetype.
 ** New function m17n_status () returns the current initialization
 status.
 
+** New function minput_reset () resets the current input context.
+
 
 * Changes in the m17n library 1.1.0
 
