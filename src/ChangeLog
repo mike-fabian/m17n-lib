@@ -1,5 +1,7 @@
 2004-12-21  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-gui.h (mfont_from_spec): Delete extern.
+
 	* input-gui.c (win_callback): Handle Minput_reset.
 	(minput__win_init): Register reset_ic as a callback for
 	Minput_reset.
@@ -19,6 +21,7 @@
 	* m17n.h (Minput_reset, minput_reset_ic): Extern them.
 
 	* m17n-core.h (MTEXT_FORMAT_UTF_16, MTEXT_FORMAT_UTF_32): Adjust types.
+	(mtext_change_prop): Delete extern.
 
 	* mtext.c (MTEXT_FORMAT_UTF_16, MTEXT_FORMAT_UTF_32): Change types
 	to `int'.  Move the documents to m17n-core.h.
