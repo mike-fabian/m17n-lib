@@ -1308,8 +1308,6 @@ extern void minput_set_spot (MInputContext *ic, int x, int y,
 
 extern void minput_toggle (MInputContext *ic);
 
-extern MSymbol minput_char_to_key (int c);
-
 /*=*/
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
