@@ -1,3 +1,14 @@
+2004-10-29  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (xlfd_parse_name): If avgwidth is 0, set the size to 0.
+
+	* m17n-X.c (MXFont): Change type of the member `sizes' to int.
+	New members smallest and larger.
+	(SET_SIZE, HAVE_SIZE): Adjusted for the above change.
+	(xfont_registry_list): Likewise.
+	(xfont_select): Likewise.
+	
+
 2004-10-28  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xfont_registry_list): Include '-' before PIXEL_SIZE in
