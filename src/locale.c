@@ -370,8 +370,8 @@ MSymbol Mcodeset;
     @return 
 
     呼び出しに成功すれば、mlocale_set () はロケールに対応する opaque 
-    ロケールオブジェクトを返す。ロケールの名前は関数 mlocale_get_prop
-    () によって得ることができる。
+    ロケールオブジェクトを返す。ロケールの名前は関数
+    mlocale_get_prop () によって得ることができる。
 
     そうでなければ NULL を返す。
      */

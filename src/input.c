@@ -1887,7 +1887,7 @@ minput__char_to_key (int c)
 
     These are the predefined symbols that are used as the @c COMMAND
     argument of callback functions of an input method driver (see
-    #MInputDriver::callback_list).  */ 
+    #MInputDriver::callback_list ).  */ 
 /***ja
     @name 変数： コールバックコマンド用定義済みシンボル.
 
@@ -1918,7 +1918,7 @@ MSymbol Minput_toggle;
     internal input methods.
 
     The member MInputDriver::open_im () searches the m17n database for
-    an input method that matches the tag \<#Minput_method, $LANGUAGE,
+    an input method that matches the tag \< #Minput_method, $LANGUAGE,
     $NAME\> and loads it.
 
     The member MInputDriver::callback_list () is @c NULL.  Thus, it is
@@ -1940,7 +1940,7 @@ MSymbol Minput_toggle;
     トのドライバである。
 
     メンバ MInputDriver::open_im () は m17n データベース中からタグ 
-    \<#Minput_method, $LANGUAGE, $NAME\> に合致する入力メソッドを探し、
+    \< #Minput_method, $LANGUAGE, $NAME\> に合致する入力メソッドを探し、
     それをロードする。
 
     メンバ MInputDriver::callback_list () は @c NULL なので、プログラ
@@ -2148,7 +2148,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     The minput_destroy_ic () function destroys the input context $IC,
     which must have been created by minput_create_ic ().  It calls
     callback functions corresponding to #Minput_preedit_done,
-    #Minput_status_done, and #Minput_candidate_done in this order.  */
+    #Minput_status_done, and #Minput_candidates_done in this order.  */
 
 /***ja
     @brief 入力コンテクストを破壊する.
@@ -2156,7 +2156,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
     の入力コンテクストは minput_create_ic () によって作られたものでな
     ければならない。この関数は#Minput_preedit_done,
-    #Minput_status_done, #Minput_candidate_done に対応するコールバック関数を
+    #Minput_status_done, #Minput_candidates_done に対応するコールバック関数を
     この順に呼ぶ。
   */
 
@@ -2184,7 +2184,7 @@ minput_destroy_ic (MInputContext *ic)
     The minput_filter () function filters input key $KEY according to
     input context $IC, and calls callback functions corresponding to
     #Minput_preedit_draw, #Minput_status_draw, and
-    #Minput_candidate_draw if the preedit text, the status, and the
+    #Minput_candidates_draw if the preedit text, the status, and the
     current candidate are changed respectively.
 
     @return
@@ -2199,7 +2199,7 @@ minput_destroy_ic (MInputContext *ic)
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
     じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化
     した際にはそれぞれ#Minput_preedit_draw, #Minput_status_draw,
-    #Minput_candidate_draw に対応するコールバック関数を呼ぶ。
+    #Minput_candidates_draw に対応するコールバック関数を呼ぶ。
 
     @return 
     $KEY がフィルタされれば、この関数は 1 を返す。この場合呼び
@@ -2246,7 +2246,7 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     If a text was produced by the input method, it is concatenated
     to M-text $MT.
 
-    This function calls #MInputDriver::lookup.
+    This function calls #MInputDriver::lookup .
 
     @return
     If $KEY was correctly handled by the input method, this function
@@ -2283,16 +2283,16 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     @brief Set the spot of the input context.
 
     The minput_set_spot () function set the spot of input context $IC
-    to coordinate ($X, $Y) with the height $ASCENT and $DESCENT.
+    to coordinate ($X, $Y ) with the height $ASCENT and $DESCENT .
     The semantics of these values depend on the input method driver.
     $FONTSIZE specfies the fontsize of a preedit text in 1/10 point.
 
     For instance, an driver designed to work in CUI environment may
     use $X and $Y as column and row numbers, and ignore $ASCENT and
-    $DESCENT.  An driver designed to work on a window system may treat
-    $X and $Y as pixel offsets relative to the origin of the client
-    window, and treat $ASCENT and $DESCENT as ascent and descent
-    pixels of a line at ($X . $Y).
+    $DESCENT .  An driver designed to work on a window system may
+    treat $X and $Y as pixel offsets relative to the origin of the
+    client window, and treat $ASCENT and $DESCENT as ascent and
+    descent pixels of a line at ($X . $Y ).
 
     $MT and $POS is an M-text and a character position at the spot.
     $MT may be @c NULL, in which case, the input method cannot get
@@ -2302,16 +2302,16 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     @brief 入力コンテクストのスポットを設定する
 
     関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座
-    標 ($X, $Y)に 、高さ $ASCENT、$DESCENT で設定する。 これらの値の意
-    味は入力メソッドドライバに依存する。$FONTSIZE はpreedit テキストの
-    フォントサイズを 1/10 ポイント単位で指定する。
+    標 ($X, $Y )に 、高さ $ASCENT、 $DESCENT で設定する。 これらの値の
+    意味は入力メソッドドライバに依存する。$FONTSIZE はpreedit テキスト
+    のフォントサイズを 1/10 ポイント単位で指定する。
 
-    たとえば CUI 環境で動作するドライバは $X, $Y をそれぞれ列と行の番
-    号として用い、$ASCENT、$DESCENT を無視するかもしれない。 またウィ
-    ンドウシステム用のドライバは $X,$Y をクライアントウィンドウの
-    原点からのオフセットをピクセル単位で表したものとして扱い、$ASCENT 
-    と $DESCENT を ($X . $Y) の列のアセントとディセントをピクセル単位
-    で表したものとして扱うかもしれない。  
+    たとえば CUI 環境で動作するドライバは $X と $Y をそれぞれ列と行の
+    番号として用い、$ASCENT と $DESCENT を無視するかもしれない。 また
+    ウィンドウシステム用のドライバは $X と $Y をクライアントウィンドウ
+    の原点からのオフセットをピクセル単位で表したものとして扱い、
+    $ASCENT と $DESCENT を ($X . $Y ) の列のアセントとディセントをピク
+    セル単位で表したものとして扱うかもしれない。
 
     $MT と $POS はそのスポットの M-text と文字位置である。$MT は @c
     NULL でもよく、その場合には入力メソッドはスポット周辺のテキストに
