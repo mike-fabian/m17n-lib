@@ -1313,7 +1313,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	{
 	  int val1, val2;
 	  MPlist *actions1, *actions2;
-	  int ret;
+	  int ret = 0;
 
 	  val1 = integer_value (ic, args);
 	  args = MPLIST_NEXT (args);
