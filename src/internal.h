@@ -310,7 +310,7 @@ typedef struct
   } while (0)
 
 
-/***en Decrement the reference count of OBJECT if the count is greater
+/**en Decrement the reference count of OBJECT if the count is greater
     than 0.  In that case, if the count becomes 0, free OBJECT.  */
 
 #define M17N_OBJECT_UNREF(object)				\

@@ -26,13 +26,12 @@
 
     An input method is an object to enable inputting various
     characters.  An input method is identified by a pair of symbols,
-    LANGUAGE and NAME.  This pair decides an input driver of the input
-    method.  An input driver is a set of functions for handling the
-    input method.  There are two kinds of input methods; internal one
-    and foreign one.
+    LANGUAGE and NAME.  This pair decides a input method driver of the
+    input method.  An input method driver is a set of functions for
+    handling the input method.  There are two kinds of input methods;
+    internal one and foreign one.
 
     <ul>
-
     <li> Internal Input Method
 
     An internal input method has non @c Mnil LANGUAGE, and the body is
@@ -42,7 +41,7 @@
     GUI use.  Those driver utilize the input processing engine
     provided by the m17n library itself.  The m17n database may
     provides an input method that is not only for a specific language.
-    The database uses @c Mt as the language of such an input method.
+    The database uses @c Mt as LANGUAGE of such an input method.
 
     An internal input method accepts an input key which is a symbol
     associated with an input event.  As there is no way for the @c
@@ -57,72 +56,82 @@
     defined in an external resources (e.g. XIM of X Window System).
     For this kind of input methods, the symbol NAME must have a
     property of key @c Minput_driver, and the value must be a pointer
-    to an input driver.  So, by preparing a proper input 
-    driver, any kind of input method can be treated in the framework
-    of the @c m17n @c library.
+    to an input method driver.  So, by preparing a proper driver, any
+    kind of input method can be treated in the framework of the @c
+    m17n @c library.
 
-    For convenience, the m17n-X library provides an input driver that
-    enables the input style of OverTheSpot for XIM, and stores @c
-    Minput_driver property of the symbol @c Mxim with a pointer to
-    that driver.  See the documentation of m17n GUI API for the
-    detail.
+    For convenience, the m17n-X library provides an input method
+    driver that enables the input style of OverTheSpot for XIM, and
+    stores @c Minput_driver property of the symbol @c Mxim with a
+    pointer to the driver.  See the documentation of m17n GUI API for
+    the detail.
 
     </ul>
 
     PROCESSING FLOW
 
-    The typical processing flow of handling an input method is: open
-    an input method, create an input context for the input method,
-    filter an input key, and looking up a produced text in the input
-    context.  */
+    The typical processing flow of handling an input method is: 
+
+     @li open an input method
+     @li create an input context for the input method
+     @li filter an input key
+     @li look up a produced text in the input context  */
 
 /*=*/
-
-/***oldja
+/***ja
     @addtogroup m17nInputMethod
     @brief 入力メソッド用API
 
     入力メソッドは多様な文字を入力するためのオブジェクトである。入力メ
     ソッドはシンボル LANGUAGE と NAME の組によって識別され、この組によっ
-    て入力ドライバが決まる。入力ドライバとは指定の入力メソッドを扱うた
-    めの関数の集まりである。
+    て入力メソッドドライバが決まる。入力メソッドドライバとはある入力メ
+    ソッドを扱うための関数の集まりである。 入力メソッドには内部メソッ
+    ドと外部メソッドの二通りがある。
 
-    入力メソッドには内部メソッドと外部メソッドの二通りがある。
-
-    内部入力メソッド
+    <ul> 
+    <li> 内部入力メソッド
 
     内部入力メソッドは LANGUAGE が @c Mnil 以外のものであり、本体は
-    m17n 言語情報ベースに <Minput_method, LANGUAGE, NAME>というタグ付
-    きで定義されている。この種の入力メソッドに対して、m17nライブラリに
-    はCUI用とGUI用それぞれの入力ドライバがあらかじめ準備されている。こ
-    れらのドライバはm17nライブラリ自身の入力処理エンジンを利用する。
+    m17n データベースに <Minput_method, LANGUAGE, NAME>というタグ付き
+    で定義されている。この種の入力メソッドに対して、m17n ライブラリに
+    はCUI用とGUI用それぞれの入力メソッドドライバがあらかじめ準備されて
+    いる。これらのドライバはm17nライブラリ自身の入力処理エンジンを利用
+    する。m17n データベースには、特定の言語専用でない入力メソッドも定
+    義することができ、そのような入力メソッドの LANGUAGE は @c Mt であ
+    る。
 
     内部入力メソッドは、ユーザの入力イベントに対応した入力キーを受け取
     る。入力キーはシンボルである。@c m17n @c ライブラリ は入力イベント
     がアプリケーション・プログラムでどのように表現されているかを知る術
-    を持たないので、入力イベントから入力キーへの変換はプログラマの責任
-    で行わなくてはならない。詳細については関数 minput_event_to_key () 
-    のドキュメントを参照のこと。
+    を持たないので、入力イベントから入力キーへの変換はアプリケーション
+    プログラマの責任で行わなくてはならない。詳細については関数 
+    minput_event_to_key () の説明を参照。
 
-    外部入力メソッド
+    <li> 外部入力メソッド
 
-    外部入力メソッドは LANGUAGE が @c Mnil のものであり、で本体は外部
-    のリソースとして定義される。（たとえばX Window System のXIM など。) 
-    この種の入力メソッドではシンボル NAME は@c Minput_driver をキーと
-    するプロパティを持ち、その値は入力ドライバへのポインタでなくてはな
-    らない。したがって、適切な入力ドライバを準備することによって、いか
-    なる入力メソッドも @c m17n @c ライブラリの枠組の中で扱う事ができる。
+    外部入力メソッドは LANGUAGE が @c Mnil のものであり、本体は外部の
+    リソースとして定義される。（たとえばX Window System のXIM など。) 
+    この種の入力メソッドでは、シンボル NAME は@c Minput_driver をキー
+    とするプロパティを持ち、その値は入力メソッドドライバへのポインタで
+    なくてはならない。したがって、適切なドライバを準備することによって、
+    いかなる種類の入力メソッドも @c m17n @c ライブラリの枠組の中で扱う
+    事ができる。
 
-    簡単のため、m17n X ライブラリはXIM の OverTheSpot の入力スタイルを
-    実現する入力ドライバを提供している。またシンボル @c Mxim の @c
+    簡単のため、m17n X ライブラリは XIM の OverTheSpot の入力スタイル
+    を実現する入力メソッドドライバを提供し、またシンボル @c Mxim の @c
     Minput_driver プロパティの値としてそのドライバへのポインタを保持し
     ている。詳細についてはm17n-win API のドキュメントを参照のこと。
 
+    </ul> 
+
     処理の流れ
 
-    入力メソッド処理の典型的な処理は以下のようになる。入力メソッドのオー
-    プン、その入力メソッドの入力コンテクストの生成、入力イベントのフィ
-    ルタ、入力コンテクストでの生成テキストの検索。     */
+    入力メソッド処理の典型的な処理は以下のようになる。
+    
+    @li 入力メソッドのオープン
+    @li その入力メソッドの入力コンテクストの生成
+    @li 入力イベントのフィルタ
+    @li 入力コンテクストでの生成テキストの検索     */
 
 /*=*/
 
@@ -1879,6 +1888,12 @@ minput__char_to_key (int c)
     These are the predefined symbols that are used as the @c COMMAND
     argument of callback functions of an input method driver (see
     #MInputDriver::callback_list).  */ 
+/***ja
+    @name 変数： コールバックコマンド用定義済みシンボル.
+
+    入力メソッドドライバのコールバック関数において @c COMMAND 引数とし
+    て用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
+      */ 
 /*** @{ */ 
 /*=*/
 
@@ -1897,7 +1912,7 @@ MSymbol Minput_toggle;
 /*=*/
 
 /***en
-    @brief The default input driver for internal input methods.
+    @brief The default driver for internal input methods.
 
     The variable #minput_default_driver is the default driver for
     internal input methods.
@@ -1918,34 +1933,45 @@ MSymbol Minput_toggle;
     dependent arguments $ARG of the functions whose name begin with
     "minput_" are all ignored.  */
 
-/***oldja
-    @brief 内部入力メソッド用デフォルト入力ドライバ
+/***ja
+    @brief 内部入力メソッド用デフォルトドライバ.
 
-    入力ドライバ minput_default_driver は内部入力メソッド用のデフォル
-    トの入力ドライバである。
+    入力ドライバ #minput_default_driver は内部入力メソッド用のデフォル
+    トのドライバである。
 
-    このドライバの <callback> メンバは @c NULL なので、プログラマ側で
-    責任を持って, 適切なコールバック関数に設定し、Preedit テキスト,
-    Status テキストがユーザに表示できるようにしなくてはならない。
+    メンバ MInputDriver::open_im () は m17n データベース中からタグ 
+    \<#Minput_method, $LANGUAGE, $NAME\> に合致する入力メソッドを探し、
+    それをロードする。
 
-    関数 M17N_INIT () は変数 @c minput_driver をこのドライバへのポイン
+    メンバ MInputDriver::callback_list () は @c NULL なので、プログラ
+    マ側で責任を持って, 適切なコールバック関数の plist に設定しなくて
+    はならない。さもないと、preedit テキストなどのフィードバック情報が
+    ユーザに表示されない。
+
+    マクロ M17N_INIT () は変数 #minput_driver をこのドライバへのポイン
     タに設定し、全ての内部入力メソッドがこのドライバを使うようにする。
 
     したがって、@c minput_driver がデフォルト値のままであれば、minput_ 
-    で始まる以下の関数群のドライバに依存する引数 $ARG はどれも無視され
-    る。  */
+    で始まる関数のドライバに依存する引数 $ARG はすべて無視される。  */
 
 MInputDriver minput_default_driver;
 /*=*/
 
 /***en
-    @brief The input driver for internal input methods.
+    @brief The driver for internal input methods.
 
     The variable #minput_driver is a pointer to the input method
     driver that is used by internal input methods.  The macro
     M17N_INIT () initializes it to a pointer to #minput_default_driver
     (if <m17n.h> is included) or to #minput_gui_driver (if
     <m17n-gui.h> is included).  */ 
+/***ja
+    @brief 内部入力メソッド用ドライバ.
+
+    変数 #minput_driver は内部入力メソッドによって使用されている入力メ
+    ソッドドライバへのポインタである。マクロM17N_INIT () はこのポイン
+    タを #minput_default_driver (<m17n.h> が含まれる時) または 
+    #minput_gui_driver ( <m17n-gui.h> が含まれる時) に初期化する。  */ 
 
 MInputDriver *minput_driver;
 
@@ -1960,49 +1986,43 @@ MSymbol Minput_driver;
     language $LANGUAGE and name $NAME, and returns a pointer to the
     input method object newly allocated.
 
-    This function at first decides an input driver for the input
-    method as below.
+    This function at first decides an driver for the input method as
+    below.
 
-    If $LANGUAGE is not #Mnil, an input driver pointed by the variable
+    If $LANGUAGE is not #Mnil, the driver pointed by the variable
     #minput_driver is used.
 
     If $LANGUAGE is #Mnil and $NAME has #Minput_driver property, the
-    input driver pointed to by the property value is used to open the
-    input method.  If $NAME has no such property, @c NULL is returned.
+    driver pointed to by the property value is used to open the input
+    method.  If $NAME has no such property, @c NULL is returned.
 
-    Then, the member MInputDriver::open_im () of the input driver is
+    Then, the member MInputDriver::open_im () of the driver is
     called.  
 
     $ARG is set in the member @c arg of the structure MInputMethod so
-    that the input driver can refer to it.  */
+    that the driver can refer to it.  */
 
-/***oldja
-    @brief 入力メソッドをオープンする     
+/***ja
+    @brief 入力メソッドをオープンする.
 
-    関数 mim_open () は言語 $LANGUAGE と名前 $NAME に適合する入力メソッ
-    ドをオープンし、その新たに割り当てられた入力メソッドへのポインタを返す。
+    関数 minput_open_im () は言語 $LANGUAGE と名前 $NAME に合致する入
+    力メソッドをオープンし、新たに割り当てられた入力メソッドオブジェク
+    トへのポインタを返す。
+    
+    この関数は、まず入力メソッド用のドライバを以下のようにして決定する。
 
-    $LANGUAGE が #Mnil でなければ、m17n 言語情報ベース中から \<@c
-    Minput_method, $LANGUAGE, $NAME \> というタグに適合する入力メソッ
-    ドを探す。見つかった場合は、変数 #minput_driver でポイントされて
-    いる入力ドライバを用いてその入力メソッドをオープンする。見つからな
-    い場合やオープンできなかった場合には @c NULL を返す。
+    $LANGUAGE が #Mnil でなければ、変数 #minput_driver で指されている
+    ドライバを用いる。
 
-    変数 #minput_driver は、#minput_default_driver か @c
-    minput_gui_driver のどちらかをポイントしている。前者は CUI 用であ
-    り、関数m17n_initialize () を呼ぶことによって #minput_driver が 
-    #minput_default_driver をポイントするようになる。後者は GUI 用で
-    あり、関数 m17n_initialize_win () によってポイントされる。詳細につ
-    いてはこれらの変数のドキュメントを参照のこと。
+    $LANGUAGE が #Mnil であり、$NAME が #Minput_driver プロパティを持
+    つ場合には、そのプロパティの値で指されている入力ドライバを用いて入
+    力メソッドをオープンする。$NAME にそのようなプロパティが無かった場
+    合は @c NULL を返す。
 
-    $LANGUAGE が #Mnil であり、$NAME が #Minput_driver をキーとす
-    るプロパティを持つ場合には、そのプロパティの値でポイントされている
-    入力ドライバを用いて入力メソッドをオープンする。$NAME にそのような
-    プロパティが無かった場合やオープンできなかった場合には @c NULL を
-    返す。
+    次いで、ドライバのメンバ MInputDriver::open_im () が呼ばれる。
 
-    $ARG は、入力ドライバが参照できるように、構造体 MInputMethod のメ
-    ンバ @c arg にセットされる。
+    $ARG は、ドライバが参照できるように、構造体 MInputMethod のメンバ 
+    @c arg に設定される。
 
     @latexonly \IPAlabel{minput_open} @endlatexonly
 
@@ -2044,8 +2064,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
     The minput_close_im () function closes the input method $IM, which
     must have been created by minput_open_im ().  */
 
-/***oldja
-    @brief 入力メソッドをクローズする
+/***ja
+    @brief 入力メソッドをクローズする.
 
     関数 minput_close_im () は、入力メソッド $IM をクローズする。この
     入力メソッド $IM は minput_open_im () によって作られたものでなけれ
@@ -2073,15 +2093,19 @@ minput_close_im (MInputMethod *im)
     If an input context is successfully created, minput_create_ic ()
     returns a pointer to it.  Otherwise it returns @c NULL.  */
 
-/***oldja
-    @brief 入力コンテクストを生成する
+/***ja
+    @brief 入力コンテクストを生成する.
 
     関数 minput_create_ic () は入力メソッド $IM に対応する入力コンテク
-    ストオブジェクトを生成する。
+    ストオブジェクトを生成し、 #Minput_preedit_start,
+    #Minput_status_start, #Minput_status_draw に対応するコールバック関
+    数をこの順に呼ぶ。
 
     @return
-    処理が成功した場合、minput_create_ic () は生成した入力コンテクスト
-    へのポインタを返す。失敗した場合は @c NULL を返す。  */
+
+    入力コンテクストが生成された場合、minput_create_ic () はその入力コ
+    ンテクストへのポインタを返す。失敗した場合は @c NULL を返す。
+      */
 
 MInputContext *
 minput_create_ic (MInputMethod *im, void *arg)
@@ -2126,12 +2150,15 @@ minput_create_ic (MInputMethod *im, void *arg)
     callback functions corresponding to #Minput_preedit_done,
     #Minput_status_done, and #Mcandidate_done in this order.  */
 
-/***oldja
-    @brief 入力コンテクストを破壊する
+/***ja
+    @brief 入力コンテクストを破壊する.
 
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
     の入力コンテクストは minput_create_ic () によって作られたものでな
-    ければならない。  */
+    ければならない。この関数は#Minput_preedit_done,
+    #Minput_status_done, #Mcandidate_done に対応するコールバック関数を
+    この順に呼ぶ。
+  */
 
 void
 minput_destroy_ic (MInputContext *ic)
@@ -2164,18 +2191,21 @@ minput_destroy_ic (MInputContext *ic)
     If $KEY is filtered out, this function returns 1.  In that case,
     the caller should discard the key.  Otherwise, it returns 0, and
     the caller should handle the key, for instance, by calling the
-    function minput_lookup () with the same $KEY.  */
+    function minput_lookup () with the same key.  */
 
-/***oldja
-    @brief 入力キーのフィルタリングをする
+/***ja
+    @brief 入力キーをフィルタする.
 
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
-    じてフィルタリングする。
+    じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化
+    した際にはそれぞれ#Minput_preedit_draw, #Minput_status_draw,
+    #Mcandidate_draw に対応するコールバック関数を呼ぶ。
 
-    入力コンテクスト $IC の入力メソッドが入力キーをフィルタすれば、こ
-    の関数は 1 を返す。この場合呼び出し側はこのキーを捨てるべきである。
-    そうでなければ 0 を返し、呼び出し側が、たとえば同じ $KEY で関数 
-    minput_lookup () を呼ぶなどして、このキーを処理する。
+    @return 
+    $KEY がフィルタされれば、この関数は 1 を返す。この場合呼び
+    出し側はこのキーを捨てるべきである。そうでなければ 0 を返し、呼び
+    出し側は、たとえば同じキーで関数 minput_lookup () を呼ぶなどして、
+    このキーを処理する。
 
     @latexonly \IPAlabel{minput_filter} @endlatexonly
 */
@@ -2223,24 +2253,22 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     returns 0.  Otherwise, returns -1, even in that case, some text
     may be produced in $MT.  */
 
-/***oldja
-    @brief 入力メソッドが作ったテキストの獲得
+/***ja
+    @brief 入力メソッドが作ったテキストの検索.
 
-    関数 minput_lookup () は入力コンテクスト $IC 中のテキストを獲得す
+    関数 minput_lookup () は入力コンテクスト $IC 中のテキストを検索す
     る。$KEY は関数minput_filter () への直前の呼び出しに用いられたもの
     と同じでなくてはならない。
 
-    テキストが入力メソッドによって生成されていれば、$IC->produced に保
-    持されている。
+    テキストが入力メソッドによって生成されていれば、テキストは M-text
+    $MT に連結される。
 
-     この関数は、X ウィンドウの <tt>XLookupString ()</tt> 、
-    <tt>XmbLookupString ()</tt> 、<tt>XwcLookupString ()</tt> に対応す
-    る。
+    この関数は、#MInputDriver::lookup を呼ぶ。
 
-    @return
-    $KEY が入力メソッドによって適切に処理できていれば、この関数は 0 を
-    返す。そうでなければ -1 を返し、この場合でも$IC->produced に何らか
-    のテキストが生成されていることがある。
+    @return 
+    $KEY が入力メソッドによって適切に処理できれば、この関数は 0 を返す。
+    そうでなければ -1 を返す。この場合でも $MT に何らかのテキストが生
+    成されていることがある。
 
     @latexonly \IPAlabel{minput_lookup} @endlatexonly  */
 
@@ -2256,33 +2284,39 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 
     The minput_set_spot () function set the spot of input context $IC
     to coordinate ($X, $Y) with the height $ASCENT and $DESCENT.
+    The semantics of these values depend on the input method driver.
     $FONTSIZE specfies the fontsize of a preedit text in 1/10 point.
-    The semantics of these values depend on the input driver.
 
-    For instance, an input driver designed to work in CUI environment
-    may use $X and $Y as column and row numbers, and ignore $ASCENT
-    and $DESCENT.  An input driver designed to work on a window system
-    may treat $X and $Y as pixel offsets relative to the origin of the
-    client window, and treat $ASCENT and $DESCENT as ascent and
-    descent pixels of a line at ($X . $Y).
+    For instance, an driver designed to work in CUI environment may
+    use $X and $Y as column and row numbers, and ignore $ASCENT and
+    $DESCENT.  An driver designed to work on a window system may treat
+    $X and $Y as pixel offsets relative to the origin of the client
+    window, and treat $ASCENT and $DESCENT as ascent and descent
+    pixels of a line at ($X . $Y).
 
     $MT and $POS is an M-text and a character position at the spot.
-    $MT may be NULL, in which case, the input method can't get
+    $MT may be @c NULL, in which case, the input method cannot get
     information about the text around the spot.  */
 
-/***oldja
+/***ja
     @brief 入力コンテクストのスポットを設定する
 
     関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座
-    標 ($X, $Y)に 、高さ $ASCENT、$DESCENT で設定する。これらの値の意
-    味は入力ドライバに依存する。
+    標 ($X, $Y)に 、高さ $ASCENT、$DESCENT で設定する。 これらの値の意
+    味は入力メソッドドライバに依存する。$FONTSIZE はpreedit テキストの
+    フォントサイズを 1/10 ポイント単位で指定する。
 
-    たとえば CUI 環境で動作する入力ドライバは $X, $Y をそれぞれ列と行
-    の番号として用い、$ASCENT、$DESCENT を無視するかもしれない。 また
-    ウィンドウシステム用の入力ドライバは $X,$Y をクライアントウィンド
-    ウの原点からのオフセットをピクセル単位で表したものとして扱い、
-    $ASCENT と $DESCENT を ($X . $Y) の列のアセントとディセントをピク
-    セル単位で表したものとして扱うかもしれない。  */
+    たとえば CUI 環境で動作するドライバは $X, $Y をそれぞれ列と行の番
+    号として用い、$ASCENT、$DESCENT を無視するかもしれない。 またウィ
+    ンドウシステム用のドライバは $X,$Y をクライアントウィンドウの
+    原点からのオフセットをピクセル単位で表したものとして扱い、$ASCENT 
+    と $DESCENT を ($X . $Y) の列のアセントとディセントをピクセル単位
+    で表したものとして扱うかもしれない。  
+
+    $MT と $POS はそのスポットの M-text と文字位置である。$MT は @c
+    NULL でもよく、その場合には入力メソッドはスポット周辺のテキストに
+    関する情報を得ることができない。
+    */
 
 void
 minput_set_spot (MInputContext *ic, int x, int y,
@@ -2306,6 +2340,12 @@ minput_set_spot (MInputContext *ic, int x, int y,
 
     The minput_toggle () function toggles the input method associated
     with the input context $IC.  */
+/***ja
+    @brief 入力メソッドを切替える.
+
+    関数 minput_toggle () は入力コンテクスト $IC に対応付けられた入力
+    メソッドをトグルする。
+    */
 
 void
 minput_toggle (MInputContext *ic)
@@ -2324,7 +2364,7 @@ minput_toggle (MInputContext *ic)
 /*=*/
 
 /***en
-    @brief Dump an input method
+    @brief Dump an input method.
 
     The mdebug_dump_im () function prints the input method $IM in a
     human readable way to the stderr.  $INDENT specifies how many
@@ -2332,6 +2372,14 @@ minput_toggle (MInputContext *ic)
 
     @return
     This function returns $IM.  */
+/***ja
+    @brief 入力メソッドをダンプする.
+
+    関数 mdebug_dump_im () は入力メソッド $IM を stderr に人間に可読な
+    形で印刷する。$INDENT は２行目以降のインデントを指定する。
+
+    @return
+    この関数は $IM を返す。  */
 
 MInputMethod *
 mdebug_dump_im (MInputMethod *im, int indent)
