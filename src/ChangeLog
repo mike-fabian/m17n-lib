@@ -1,3 +1,7 @@
+2004-08-02  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (mfontset_modify_entry): Fix handling of the arg `how'.
+
 2004-07-29  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (run_rule, run_command, mfont__flt_run): Print more
