@@ -1,9 +1,14 @@
 2004-06-16  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (libm17n_gd_la_LIBADD): Delete it.
+	(libm17n_X_la_LIBADD): Delete it.
+	(libm17n_gd_la_LDFLAGS): Don't include @GD_LD_FLAGS@.
+
 	* m17n-X.c (device_open): Add parens in `if' condition.
 
 	* mtext.c (INC_POSITION): Handle format other than utf8 and utf16.
 	(DEC_POSITION): Likewise.
+	(compare): Fix case that mt1->format is MTEXT_FORMAT_UTF_8.
 
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 

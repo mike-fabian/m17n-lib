@@ -1,5 +1,7 @@
 2004-06-16  Kenichi Handa  <handa@m17n.org>
 
+	* mdump.c (main): Fix typo of error message.
+
 	* medit.c (face_freeserif): New variable.
 	(face_table): Add an entry for freeserif.
 	(main): Initialized and free face_freeserif.
