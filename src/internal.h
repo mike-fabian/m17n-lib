@@ -438,6 +438,8 @@ struct MText
   } while (0)
 
 
+#define MTEXT_READ_ONLY_P(mt) ((mt)->allocated < 0)
+
 #define M_CHECK_READONLY(mt, ret)	\
   do {					\
     if ((mt)->allocated < 0)		\
