@@ -739,6 +739,9 @@ load_input_method (MSymbol language, MSymbol name, MPlist *plist,
   MPLIST_DO (elt, maps)
     M17N_OBJECT_UNREF (MPLIST_VAL (elt));
   M17N_OBJECT_UNREF (maps);
+  if (! title)
+    title = mtext_from_data (MSYMBOL_NAME (name), MSYMBOL_NAMELEN (name),
+			     MTEXT_FORMAT_US_ASCII);
   im_info->title = title;
   im_info->externals = externals;
   im_info->macros = macros;
