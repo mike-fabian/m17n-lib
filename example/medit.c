@@ -180,6 +180,8 @@ MFace *face_dv_ttyogesh, *face_freesans, *face_freeserif, *face_freemono;
 MFace *face_default_fontset, *face_no_ctl_fontset;
 MFace *face_input_status;
 
+MSymbol Mcoding_compound_text;
+
 int logical_move = 1;		/* If 0, move cursor visually.  */
 
 typedef struct {
@@ -999,16 +1001,31 @@ covert_selection (Widget w, Atom *selection_atom,
   MSymbol coding;
 
   mtext_copy (this_mt, 0, mt, from, to);
+  if (*target == XA_TEXT)
+    {
 #ifdef X_HAVE_UTF8_STRING
-  if (target != XA_COMPOUND_TEXT)
-    {
-      coding = msymbol ("utf-8");
+      coding = Mcoding_utf_8;
       *return_type = XA_UTF8_STRING;
-    }
-  else
+#else
+      coding = Mcoding_compound_text;
+      *return_type = XA_COMPOUND_TEXT;
 #endif
+    }
+  else if (*target == XA_STRING)
     {
-      coding = msymbol ("compound-text");
+      int len = to - from;
+      int i;
+
+      for (i = 0; i < len; i++)
+	if (mtext_ref_char (this_mt, i) >= 0x100)
+	  /* Can't encode in XA_STRING */
+	  return False;
+      coding = Mcoding_iso_8859_1;
+      *return_type = XA_STRING;
+    }
+  else if (*target == XA_COMPOUND_TEXT)
+    {
+      coding = Mcoding_compound_text;
       *return_type = XA_COMPOUND_TEXT;
     }
   *length = mconv_encode_buffer (coding, this_mt, buf, 4096);
@@ -2403,6 +2420,10 @@ main (int argc, char **argv)
   XA_TEXT = XInternAtom (display, "TEXT", False);
   XA_COMPOUND_TEXT = XInternAtom (display, "COMPOUND_TEXT", False);
   XA_UTF8_STRING = XInternAtom (display, "UTF8_STRING", False);
+  Mcoding_compound_text = mconv_resolve_coding (msymbol ("compound-text"));
+  if (Mcoding_compound_text == Mnil)
+    FATAL_ERROR ("%s\n", "Don't know about COMPOUND-TEXT encoding!");
+
   {
     MPlist *plist = mplist ();
     MFace *face;
