@@ -96,14 +96,6 @@ static M17NObjectArray mtext_table;
 
 static MSymbol M_charbag;
 
-#ifdef WORDS_BIGENDIAN
-static enum MTextFormat default_utf_16 = MTEXT_FORMAT_UTF_16BE;
-static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32BE;
-#else
-static enum MTextFormat default_utf_16 = MTEXT_FORMAT_UTF_16LE;
-static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
-#endif
-
 /** Increment character position CHAR_POS and unit position UNIT_POS
     so that they point to the next character in M-text MT.  No range
     check for CHAR_POS and UNIT_POS.  */
@@ -121,7 +113,7 @@ static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
       {								\
 	c = ((unsigned short *) ((mt)->data))[(unit_pos)];	\
 								\
-	if ((mt)->format != default_utf_16)			\
+	if ((mt)->format != MTEXT_FORMAT_UTF_16)		\
 	  c = SWAP_16 (c);					\
 	(unit_pos) += CHAR_UNITS_BY_HEAD_UTF16 (c);		\
       }								\
@@ -149,7 +141,7 @@ static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
       {									\
 	int c = ((unsigned short *) ((mt)->data))[(unit_pos) - 1];	\
 									\
-	if ((mt)->format != default_utf_16)				\
+	if ((mt)->format != MTEXT_FORMAT_UTF_16)			\
 	  c = SWAP_16 (c);						\
 	(unit_pos) -= 2 - (c < 0xD800 || c >= 0xE000);			\
       }									\
@@ -251,8 +243,8 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
       /* Be sure to make mt1->format sufficient to contain all
 	 characters in mt2.  */
       if (mt1->format == MTEXT_FORMAT_UTF_8
-	  || mt1->format == default_utf_32
-	  || (mt1->format == default_utf_16
+	  || mt1->format == MTEXT_FORMAT_UTF_32
+	  || (mt1->format == MTEXT_FORMAT_UTF_16
 	      && mt2->format <= MTEXT_FORMAT_UTF_16BE
 	      && mt2->format != MTEXT_FORMAT_UTF_8))
 	;
@@ -260,8 +252,8 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
 	{
 	  if (mt2->format == MTEXT_FORMAT_UTF_8)
 	    mt1->format = MTEXT_FORMAT_UTF_8;
-	  else if (mt2->format == default_utf_16
-		   || mt2->format == default_utf_32)
+	  else if (mt2->format == MTEXT_FORMAT_UTF_16
+		   || mt2->format == MTEXT_FORMAT_UTF_32)
 	    mtext__adjust_format (mt1, mt2->format);
 	  else
 	    mtext__adjust_format (mt1, MTEXT_FORMAT_UTF_8);
@@ -313,7 +305,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
 	  p += CHAR_STRING_UTF8 (c, p);
 	}
     }
-  else if (mt1->format == default_utf_16)
+  else if (mt1->format == MTEXT_FORMAT_UTF_16)
     {
       unsigned short *p;
       int total_bytes, i, c;
@@ -335,7 +327,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
 	  p += CHAR_STRING_UTF16 (c, p);
 	}
     }
-  else				/* default_utf_32 */
+  else				/* MTEXT_FORMAT_UTF_32 */
     {
       unsigned int *p;
       int total_bytes, i;
@@ -492,7 +484,7 @@ find_char_forward (MText *mt, int from, int to, int c)
     {
       unsigned short *p = (unsigned short *) (mt->data) + from_byte;
 
-      if (mt->format == default_utf_16)
+      if (mt->format == MTEXT_FORMAT_UTF_16)
 	while (from < to && STRING_CHAR_ADVANCE_UTF16 (p) != c) from++;
       else if (c < 0x10000)
 	{
@@ -524,7 +516,7 @@ find_char_forward (MText *mt, int from, int to, int c)
       unsigned *p = (unsigned *) (mt->data) + from_byte;
       unsigned c1 = c;
 
-      if (mt->format != default_utf_32)
+      if (mt->format != MTEXT_FORMAT_UTF_32)
 	c1 = SWAP_32 (c1);
       while (from < to && *p++ != c1) from++;
     }
@@ -554,7 +546,7 @@ find_char_backward (MText *mt, int from, int to, int c)
     {
       unsigned short *p = (unsigned short *) (mt->data) + to_byte;
 
-      if (mt->format == default_utf_16)
+      if (mt->format == MTEXT_FORMAT_UTF_16)
 	{
 	  while (from < to)
 	    {
@@ -594,7 +586,7 @@ find_char_backward (MText *mt, int from, int to, int c)
       unsigned *p = (unsigned *) (mt->data) + to_byte;
       unsigned c1 = c;
 
-      if (mt->format != default_utf_32)
+      if (mt->format != MTEXT_FORMAT_UTF_32)
 	c1 = SWAP_32 (c1);
       while (from < to && p[-1] != c1) to--, p--;
     }
@@ -887,7 +879,7 @@ mtext__from_data (const void *data, int nitems, enum MTextFormat format,
   else if (format <= MTEXT_FORMAT_UTF_16BE)
     {
       if ((nchars = count_utf_16_chars (data, nitems,
-					format != default_utf_16)) < 0)
+					format != MTEXT_FORMAT_UTF_16)) < 0)
 	MERROR (MERROR_MTEXT, NULL);
       nbytes = USHORT_SIZE * nitems;
       unit_bytes = USHORT_SIZE;
@@ -956,7 +948,7 @@ mtext__adjust_format (MText *mt, enum MTextFormat format)
 	}
 
       default:
-	if (format == default_utf_16)
+	if (format == MTEXT_FORMAT_UTF_16)
 	  {
 	    unsigned short *p0, *p1;
 
@@ -1022,7 +1014,8 @@ mtext__bol (MText *mt, int pos)
   else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
       unsigned short *p = ((unsigned short *) (mt->data)) + byte_pos;
-      unsigned short newline = mt->format == default_utf_16 ? 0x0A00 : 0x000A;
+      unsigned short newline = (mt->format == MTEXT_FORMAT_UTF_16
+				? 0x0A00 : 0x000A);
 
       if (p[-1] == newline)
 	return pos;
@@ -1037,7 +1030,8 @@ mtext__bol (MText *mt, int pos)
   else
     {
       unsigned *p = ((unsigned *) (mt->data)) + byte_pos;
-      unsigned newline = mt->format == default_utf_32 ? 0x0A000000 : 0x0000000A;
+      unsigned newline = (mt->format == MTEXT_FORMAT_UTF_32
+			  ? 0x0A000000 : 0x0000000A);
 
       if (p[-1] == newline)
 	return pos;
@@ -1080,7 +1074,8 @@ mtext__eol (MText *mt, int pos)
     {
       unsigned short *p = ((unsigned short *) (mt->data)) + byte_pos;
       unsigned short *endp;
-      unsigned short newline = mt->format == default_utf_16 ? 0x0A00 : 0x000A;
+      unsigned short newline = (mt->format == MTEXT_FORMAT_UTF_16
+				? 0x0A00 : 0x000A);
 
       if (*p == newline)
 	return pos + 1;
@@ -1097,7 +1092,8 @@ mtext__eol (MText *mt, int pos)
     {
       unsigned *p = ((unsigned *) (mt->data)) + byte_pos;
       unsigned *endp;
-      unsigned newline = mt->format == default_utf_32 ? 0x0A000000 : 0x0000000A;
+      unsigned newline = (mt->format == MTEXT_FORMAT_UTF_32
+			  ? 0x0A000000 : 0x0000000A);
 
       if (*p == newline)
 	return pos + 1;
@@ -1117,6 +1113,69 @@ mtext__eol (MText *mt, int pos)
 
 /*** @addtogroup m17nMtext */
 /*** @{ */
+/*=*/
+/***en @name Variables: System's UTF-16 and UTF-32 types */
+/***ja @name 変数: システムの UTF-16 と UTF-32 のタイプ */
+/*** @{ */
+/*=*/
+
+/***en
+    @brief Variable of value MTEXT_FORMAT_UTF_16LE or MTEXT_FORMAT_UTF_16BE.
+
+    The global variable MTEXT_FORMAT_UTF_16 is initialized to
+    MTEXT_FORMAT_UTF_16LE on a "Little Endian" system (storing words
+    with the least significant byte first), and to
+    MTEXT_FORMAT_UTF_16BE depneding on a "Big Endian" system (storing
+    words with the most significant byte first).  */
+
+/***ja
+    @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
+
+    大域変数 MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム（ワー
+    ドを LSB (Least Significant Byte) を先にして格納）上では
+    MTEXT_FORMAT_UTF_16LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    MTEXT_FORMAT_UTF_16BE に初期化される。  */
+
+/***
+    @seealso mtext_from_data ()  */
+
+#ifdef WORDS_BIGENDIAN
+const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16BE;
+#else
+const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16LE;
+#endif
+
+/*=*/
+/***en
+    @brief Variable of value MTEXT_FORMAT_UTF_32LE or MTEXT_FORMAT_UTF_32BE.
+
+    The global variable MTEXT_FORMAT_UTF_32 is initialized to
+    MTEXT_FORMAT_UTF_32LE on a "Little Endian" system (storing words
+    with the least significant byte first), and to
+    MTEXT_FORMAT_UTF_32BE depneding on a "Big Endian" system (storing
+    words with the most significant byte first).  */
+
+/***ja
+    @brief 値が MTEXT_FORMAT_UTF_32LE か MTEXT_FORMAT_UTF_32BE である変数
+
+    大域変数 MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム（ワー
+    ドを LSB (Least Significant Byte) を先にして格納）上では
+    MTEXT_FORMAT_UTF_32LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    MTEXT_FORMAT_UTF_32BE に初期化される。  */
+
+/***
+    @seealso mtext_from_data ()  */
+
+#ifdef WORDS_BIGENDIAN
+const enum MTextFormat MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32BE;
+#else
+const enum MTextFormat MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
+#endif
+
+/*** @} */
+
 /*=*/
 
 /***en
@@ -1285,7 +1344,7 @@ mtext_ref_char (MText *mt, int pos)
 	= (unsigned short *) (mt->data) + POS_CHAR_TO_BYTE (mt, pos);
       unsigned short p1[2];
 
-      if (mt->format != default_utf_16)
+      if (mt->format != MTEXT_FORMAT_UTF_16)
 	{
 	  p1[0] = SWAP_16 (*p);
 	  if (p1[0] >= 0xD800 || p1[0] < 0xDC00)
@@ -1297,7 +1356,7 @@ mtext_ref_char (MText *mt, int pos)
   else
     {
       c = ((unsigned *) (mt->data))[pos];
-      if (mt->format != default_utf_32)
+      if (mt->format != MTEXT_FORMAT_UTF_32)
 	c = SWAP_32 (c);
     }
   return c;
@@ -1355,11 +1414,11 @@ mtext_set_char (MText *mt, int pos, int c)
     {
       if (c >= 0x110000)
 	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
-      else if (mt->format != default_utf_16)
-	mtext__adjust_format (mt, default_utf_16);
+      else if (mt->format != MTEXT_FORMAT_UTF_16)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_16);
     }
-  else if (mt->format != default_utf_32)
-    mtext__adjust_format (mt, default_utf_32);
+  else if (mt->format != MTEXT_FORMAT_UTF_32)
+    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_32);
 
   unit_bytes = UNIT_BYTES (mt->format);
   pos_unit = POS_CHAR_TO_BYTE (mt, pos);
@@ -1397,7 +1456,7 @@ mtext_set_char (MText *mt, int pos, int c)
 	break;
       }
     default:
-      if (mt->format == default_utf_16)
+      if (mt->format == MTEXT_FORMAT_UTF_16)
 	{
 	  unsigned short *p = (unsigned short *) mt->data + pos_unit;
 
@@ -1458,13 +1517,13 @@ mtext_cat_char (MText *mt, int c)
     }
   else if (mt->format >= MTEXT_FORMAT_UTF_32LE)
     {
-      if (mt->format != default_utf_32)
-	mtext__adjust_format (mt, default_utf_32);
+      if (mt->format != MTEXT_FORMAT_UTF_32)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_32);
     }
   else if (mt->format >= MTEXT_FORMAT_UTF_16LE)
     {
-      if (mt->format != default_utf_16)
-	mtext__adjust_format (mt, default_utf_16);
+      if (mt->format != MTEXT_FORMAT_UTF_16)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_16);
     }
 
   nunits = CHAR_UNITS (c, mt->format);
@@ -1480,7 +1539,7 @@ mtext_cat_char (MText *mt, int c)
       p += CHAR_STRING_UTF8 (c, p);
       *p = 0;
     }
-  else if (mt->format == default_utf_16)
+  else if (mt->format == MTEXT_FORMAT_UTF_16)
     {
       unsigned short *p = (unsigned short *) mt->data + mt->nbytes;
       p += CHAR_STRING_UTF16 (c, p);
@@ -1992,13 +2051,13 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     }
   else if (mt->format >= MTEXT_FORMAT_UTF_32LE)
     {
-      if (mt->format != default_utf_32)
-	mtext__adjust_format (mt, default_utf_32);
+      if (mt->format != MTEXT_FORMAT_UTF_32)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_32);
     }
   else if (mt->format >= MTEXT_FORMAT_UTF_16LE)
     {
-      if (mt->format != default_utf_16)
-	mtext__adjust_format (mt, default_utf_16);
+      if (mt->format != MTEXT_FORMAT_UTF_16)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_16);
     }
 
   nunits = CHAR_UNITS (c, mt->format);
@@ -2023,7 +2082,7 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
       for (i = 0; i < n; i++)
 	p += CHAR_STRING_UTF8 (c, p);
     }
-  else if (mt->format == default_utf_16)
+  else if (mt->format == MTEXT_FORMAT_UTF_16)
     {
       unsigned short *p = (unsigned short *) mt->data + pos_unit;
 
