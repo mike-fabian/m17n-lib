@@ -1,3 +1,10 @@
+2004-11-08  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (device_open): Try at most 32 fonts to find a
+	non-autoscaled font.
+
+	* font.c (xlfd_parse_name): Fix previous change.
+
 2004-11-05  Kenichi Handa  <handa@m17n.org>
 
 	* font.c: (commont_style): Include dummy elements "slanted" and
