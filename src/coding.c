@@ -3082,7 +3082,7 @@ mcoding__load_from_database ()
 /*** @{ */
 /*=*/
 
-/***en @name Variables: Symbols representing a coding system */
+/***en @name Variables: Symbols representing coding systems */
 /***ja @name 変数: 定義済みコード系を指定するためのシンボル */
 /*** @{ */
 /*=*/
@@ -3216,12 +3216,12 @@ MSymbol Mcoding_utf_32;
 /*=*/
 
 /***en
-    @brief Symbol for the coding system UTF-32be.
+    @brief Symbol for the coding system UTF-32BE.
 
     The symbol #Mcoding_utf_32be has name <tt>"utf-32be"</tt> and
     represents a coding system for the CES UTF-32BE (RFC 2279).  */
 /***ja
-    @brief UTF-32be コード系のシンボル.
+    @brief UTF-32BE コード系のシンボル.
 
     シンボル #Mcoding_utf_32be は <tt>"utf-32be"</tt> という名前を持ち、
     CES UTF-32BE (RFC 2279) 用のコード系を示す。     */
@@ -3283,7 +3283,7 @@ MSymbol Mlittle_endian;
 /*=*/
 
 /***en
-    @name Variables: Symbols representing coding system type.  */
+    @name Variables: Symbols representing coding system types.  */
 /***ja
     @name 変数： コード系のタイプを示すシンボル.  */
 /*** @{ */
@@ -3313,7 +3313,7 @@ MSymbol Miso_2022;
 /*=*/
 
 /***en
-    Symbol that can be a value of the #Mflags parameter of a coding
+    Symbols that can be a value of the #Mflags parameter of a coding
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
@@ -3598,10 +3598,10 @@ MSymbol Mcoding;
 
     タイプが #Mcharset ならば $EXTRA_INFO は無視される。
 
-    タイプが #Mutf ならば $EXTRA_INFO は#MCodingInfoUTF へのポインタで
+    タイプが #Mutf ならば $EXTRA_INFO は #MCodingInfoUTF へのポインタで
     なくてはならない。
 
-    タイプが #Miso_2022ならば $EXTRA_INFO は#MCodingInfoISO2022 へのポ
+    タイプが #Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 へのポ
     インタでなくてはならない。
 
     タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER を与えな
@@ -3682,7 +3682,7 @@ MSymbol Mcoding;
 
     <li> #Miso_6429
 
-    現状では用いられていない。
+    現時点では用いられていない。
 
     <li> #Mrevision_number
 
@@ -3711,7 +3711,7 @@ MSymbol Mcoding;
     <li> キーが #Minvocationで値が plist の時
 
     タイプが #Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
-    plist の長さは 1 ないし 2 である。plist のキーは#Minteger、値は集
+    plist の長さは 1 ないし 2 である。plist のキーは #Minteger、値は集
     合（graphic register)を示す数字でなければならない。最初の要素の値
     が図形文字集合左半面に呼び出される集合である。 plist の長さが 1 な
     らば、右半面には何も呼び出されない。そうでければ、２つめの要素の値
@@ -3732,7 +3732,7 @@ MSymbol Mcoding;
     <li> キーが #Mlittle_endian で値がシンボルの時 
 
     タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値はエ
-    ンコードが little endian かどうかを示す。値がデフォルト値の#Mnil 
+    ンコードが little endian かどうかを示す。値がデフォルト値の #Mnil 
     ならば big endian であり、そうでなければ little endian である。
 
     </ul>
@@ -3744,7 +3744,7 @@ MSymbol Mcoding;
     $DECODER はバイト列をこのコード系に従ってデコードする関数へのポイ
     ンタである。この関数は以下の4引数をとる。
 
-	@li バイト列へのポインタ
+	@li デコードするバイト列へのポインタ
 	@li デコードすべきバイト数
 	@li デコード結果の文字を付加する M-text へのポインタ
 	@li コンバータオブジェクトへのポインタ
@@ -3755,7 +3755,7 @@ MSymbol Mcoding;
     $ENCODER は M-text をこのコード系に従ってエンコードする関数へのポ
     インタである。この関数は以下の6引数をとる。
 
-        @li M-text へのポインタ
+        @li エンコードするM-text へのポインタ
         @li M-text のエンコード開始位置
         @li M-text のエンコード終了位置
         @li 生成したバイトを保持するメモリ領域へのポインタ
@@ -4016,7 +4016,7 @@ mconv_resolve_coding (MSymbol symbol)
 
 
 /***en
-    @brief List symbols representing a coding system.
+    @brief List symbols representing coding systems.
 
     The mconv_list_codings () function makes an array of symbols
     representing a coding system, stores the pointer to the array in a
@@ -4622,7 +4622,7 @@ mconv_decode_stream (MSymbol name, FILE *fp)
 
     関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバー
     タ $CONVERTER に現在結び付けられているバッファ領域あるいはストリー
-    ムに書き込む。
+    ムに得られたバイト列を書き込む。
 
     @return
     もし処理が成功すれば、mconv_encode () は書き込まれたバイト数を返す。
@@ -4664,7 +4664,7 @@ mconv_encode (MConverter *converter, MText *mt)
     関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
     $TO （含まない）までの範囲のテキストをエンコードして、コードコンバー
     タ $CONVERTER に現在結び付けられているバッファ領域あるいはストリー
-    ムに書き込む。
+    ムに得られたバイト列を書き込む。
 
     @return
     もし処理が成功すれば、mconv_encode_range () は書き込まれたバイト数
@@ -4860,8 +4860,8 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     @brief コードコンバータ経由で1文字読む.
 
     関数 mconv_getc () は、コードコンバータ $CONVERTER に現在結び付け
-    られているバッファ領域あるいはストリームから1文字を読み込む。バイ
-    ト列のデコードには $CONVERTER のデコーダが用いられる。$CONVERTER 
+    られているバッファ領域あるいはストリームから 1 文字を読み込む。バ
+    イト列のデコードには $CONVERTER のデコーダが用いられる。$CONVERTER 
     の内部状態は必要に応じて更新される。
 
     @return
@@ -5016,10 +5016,10 @@ mconv_putc (MConverter *converter, int c)
     @brief コードコンバータを使って1行読む.
 
     関数 mconv_gets () は、コードコンバータ $CONVERTER に現在結び付け
-    られているバッファ領域あるいはストリームから1行を読み込む。バイト
-    列のデコードには $CONVERTER のデコーダが用いられる。デコードされた
-    文字列は M-text $MT の末尾に追加される。元のバイト列の終端改行文字
-    は追加されない。$CONVERTER の内部状態は必要に応じて更新される。
+    られているバッファ領域あるいはストリームから 1 行を読み込む。バイ
+    ト列のデコードには $CONVERTER のデコーダが用いられる。デコードされ
+    た文字列は M-text $MT の末尾に追加される。元のバイト列の終端改行文
+    字は追加されない。$CONVERTER の内部状態は必要に応じて更新される。
 
     @return
     処理が成功すれば、mconv_gets () は変更された $MT を返す。もし1文字
