@@ -168,6 +168,18 @@
 /*=*/
 
 /***en
+    The #M17NLIB_PATCH_LEVEL macro gives the patch level number
+    of the m17n library.  */
+
+/***ja
+    マクロ #M17NLIB_PATCH_LEVEL は m17n ライブラリのパッチレベル番号を
+    与える。  */
+
+#define M17NLIB_PATCH_LEVEL
+
+/*=*/
+
+/***en
     The #M17NLIB_VERSION_NAME macro gives the version name of the
     m17n library as a string.  */
 
