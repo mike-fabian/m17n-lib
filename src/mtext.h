@@ -55,7 +55,7 @@ extern int mtext__cat_data (MText *mt, unsigned char *p, int nbytes,
   mtext__cat_data ((mt), (unsigned char *) (str), strlen (str),	\
 		   MTEXT_FORMAT_US_ASCII)
 
-extern MText *mtext__from_data (void *data, int nitems,
+extern MText *mtext__from_data (const void *data, int nitems,
 				enum MTextFormat format, int need_copy);
 
 extern void mtext__adjust_format (MText *mt, enum MTextFormat format);
