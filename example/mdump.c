@@ -289,6 +289,10 @@ help_exit (char *prog, int exit_code)
 	  "String containing a shell command line to be used as a filter.\n");
   printf ("  %-13s %s", "-w", "Each line is broken at word boundary.\n");
   printf ("  %-13s %s", "-a", "Enable anti-alias drawing.\n");
+  printf ("  %-13s %s", "--family FAMILY", 
+	  "Prefer a font whose family is FAMILY.\n");
+  printf ("  %-13s %s", "--language LANG", 
+	  "Prefer a font specified for the langauge LANG.\n");
   printf ("  %-13s %s", "-q", "Quiet mode.  Don't print any messages.\n");
   printf ("  %-13s %s", "--version", "Print the version number.\n");
   printf ("  %-13s %s", "-h, --help", "Print this message.\n");
