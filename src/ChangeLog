@@ -4,6 +4,8 @@
 	input method name as title.
 
 	* m17n-X.c (get_color): Make it static.
+	(xim_create_ic, xim_destroy_ic, x_error_handler)
+	(x_io_error_handler): Likewise.
 
 2004-03-01  Kenichi Handa  <handa@m17n.org>
 
