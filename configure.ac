@@ -90,6 +90,8 @@ dnl some libraries (e.g. libm17n-X.so).  Instead, define XXX_LD_FLAGS
 dnl and HAVE_XXX if library XXX is available.  CPPFLAGS will be
 dnl augmented.
 
+M17N_EXT_LIBS=
+
 dnl Check for fribidi library.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
@@ -106,6 +108,7 @@ AC_CHECK_HEADER(fribidi/fribidi.h,, HAVE_FRIBIDI=no)
 if test "x$HAVE_FRIBIDI" = "xyes"; then
   AC_DEFINE(HAVE_FRIBIDI, 1, 
 	    [Define to 1 if you have Fribidi library and header file.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS fribidi"
 else
   CPPFLAGS="$save_CPPFLAGS"
   FRIBIDI_LD_FLAGS=
@@ -130,6 +133,7 @@ CPPFLAGS="$save_CPPFLAGS"
 if test "x$HAVE_OTF" = "xyes"; then
   AC_DEFINE(HAVE_OTF, 1, 
 	    [Define to 1 if you have OTF library and header file.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
 else
   CPPFLAGS="$save_CPPFLAGS"
   OTF_LD_FLAGS=
@@ -155,6 +159,7 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
       FREETYPE_LD_FLAGS=`freetype-config --libs`
       AC_DEFINE(HAVE_FREETYPE, 1, 
 		[Define to 1 if you have FreeType library and header file.])
+      M17N_EXT_LIBS="$M17N_EXT_LIBS freetype"
       AC_CHECK_HEADER(freetype/ftbdf.h, HAVE_FTBDF_H=yes, HAVE_FTBDF_H=no,
 		      [#include <ft2build.h>
 #include FT_FREETYPE_H])
@@ -194,6 +199,7 @@ Version too old.  Compiling this line should fail.
 if test "x$HAVE_XFT2" = "xyes"; then
   AC_DEFINE(HAVE_XFT2, 1,
 	    [Define to 1 if you have Xft2 library and header file.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS xft2"
 else
   XFT2_LD_FLAGS=
   CPPFLAGS="$save_CPPFLAGS"
@@ -217,6 +223,7 @@ AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
 if test "x$HAVE_FONTCONFIG" = "xyes"; then
   AC_DEFINE(HAVE_FONTCONFIG, 1,
 	      [Define to 1 if you have fontconfig library and header file.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS fontconfig"
 else
   FONTCONFIG_LD_FLAGS=
   CPPFLAGS="$save_CPPFLAGS"
@@ -231,7 +238,8 @@ AC_CHECK_HEADER(gd.h, , HAVE_GD=no)
 if test "x$HAVE_GD" = "xyes"; then
   AC_CHECK_LIB(gd, gdImageCreateTrueColor, HAVE_GD=2, HAVE_GD=1)
   AC_DEFINE_UNQUOTED(HAVE_GD, $HAVE_GD,
-	    [Define to 1 if you have gd library and header file.])
+	    [Define to 1 or 2 if you have gd library and header file.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS gdlib"
   GD_LD_FLAGS=-lgd
 fi
 LIBS="$save_LIBS"
@@ -254,6 +262,7 @@ AC_CHECK_HEADER(libxml/tree.h,, HAVE_XML2=no, /**/)
 if test "x$HAVE_XML2" = "xyes"; then
   AC_DEFINE(HAVE_XML2, 1,
 	    [Define to 1 if you have libxml2 library and header file])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS xml2"
 else
   XML2_LD_FLAGS=
   CPPFLAGS="$save_CPPFLAGS"
@@ -270,6 +279,7 @@ if test "x$HAVE_ANTHY" = "xyes"; then
     if test "x$HAVE_ANTHY" = "xyes"; then
     AC_DEFINE(HAVE_ANTHY, 1,
 	      [Define to 1 if you have Anthy library and header file])
+    M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
     ANTHY_LD_FLAGS="-lanthy -lanthydic"
     fi
   fi
@@ -280,6 +290,7 @@ dnl Check for Ispell usability.
 AC_CHECK_PROG(HAVE_ISPELL, ispell, yes)
 if test "x$HAVE_ISPELL" = "xyes"; then
   AC_DEFINE(HAVE_ISPELL, 1, [Define if ispell is available.])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS ispell"
 fi
 
 dnl Check for libwordcut (for Thai).
@@ -294,6 +305,7 @@ if test "x$HAVE_WORDCUT" = "xyes"; then
   if test "x$tdict" != "x"; then
     AC_DEFINE(HAVE_WORDCUT, 1,
     	      [Define if you have the wordcut library and header file])
+    M17N_EXT_LIBS="$M17N_EXT_LIBS wordcut"
     AC_DEFINE_UNQUOTED(WORDCUT_TDICT, "$tdict", [Define to tdict file name])
     WORDCUT_LD_FLAGS=-lwordcut
   fi
@@ -331,6 +343,9 @@ dnl  AC_CONFIG_FILES(omM17N/Makefile)
 dnl fi
 
 AC_OUTPUT
+
+echo "The m17n library is configured with these external libraries."
+echo " $M17N_EXT_LIBS"
 
 dnl Local Variables:
 dnl comment-start: "dnl "
