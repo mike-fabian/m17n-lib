@@ -496,7 +496,7 @@ enum MCodingType
 	る。
 
 	m17n ライブラリはこのタイプ用のエンコード／デコードルーティン
-        を提供しないので、アプリケーションプログラム側でそれらを準備す
+        を提供しないので、アプリケーションプログラム側で準備す
         る必要がある。  */
 
     MCODING_TYPE_MISC
@@ -628,13 +628,13 @@ enum MCodingFlagISO2022
 
 /*** @ingroup m17nConv */
 /***en
-    @brief Structure for a coding system of type MCODING_TYPE_ISO_2022.
+    @brief Structure for a coding system of type #MCODING_TYPE_ISO_2022.
 
     Structure for extra information about a coding system of type
     MCODING_TYPE_ISO_2022.  */
 
 /***ja 
-    @brief MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用構造体.
+    @brief #MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用構造体.
 
     MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用を保持する
     ための構造体。
@@ -701,7 +701,7 @@ typedef struct
     */
 
 /***ja
-    @brief MCODING_TYPE_UTF タイプのコード系で必要な付加情報用の構造体.
+    @brief #MCODING_TYPE_UTF タイプのコード系で必要な付加情報用の構造体.
 
     @latexonly \IPApage{MCodingInfoUTF} @endlatexonly
 
@@ -887,7 +887,7 @@ extern MText *mtext_toupper (MText *mt);
 /*=*/
 /*** @ingroup m17nShell */
 /***en @defgroup m17nInputMethod Input Method (basic) */
-/***ja @defgroup m17nInputMethod 入力メソッド (基本) */
+/***ja @defgroup m17nInputMethod 入力メソッド (基本部分) */
 /*=*/
 
 /* Struct forward declaration.  */
