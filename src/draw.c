@@ -503,18 +503,22 @@ combining_code_from_class (int class)
 }
 
 
+typedef struct {
+  int width, lbearing, rbearing;
+} MSubTextExtents;
+
 static void
-layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
+layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
+	       MSubTextExtents *extents)
 {
   int g_physical_ascent, g_physical_descent;
-  int g_width, g_lbearing, g_rbearing;
   MGlyph *g = MGLYPH (from);
   MGlyph *last_g = MGLYPH (to);
   int i;
 
   g_physical_ascent = gstring->physical_ascent;
   g_physical_descent = gstring->physical_descent;
-  g_width = g_lbearing = g_rbearing = 0;
+  extents->width = extents->lbearing = extents->rbearing = 0;
 
   for (i = from; i < to;)
     {
@@ -674,16 +678,13 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 
       g_physical_ascent = MAX (g_physical_ascent, base->ascent);
       g_physical_descent = MAX (g_physical_descent, base->descent);
-      g_lbearing = MIN (g_lbearing, g_width + lbearing);
-      g_rbearing = MAX (g_rbearing, g_width + rbearing);
-      g_width += base->width;
+      extents->lbearing = MIN (extents->lbearing, extents->width + lbearing);
+      extents->rbearing = MAX (extents->rbearing, extents->width + rbearing);
+      extents->width += base->width;
     }
 
   gstring->physical_ascent = g_physical_ascent;
   gstring->physical_descent = g_physical_descent;
-  gstring->sub_width = g_width;
-  gstring->sub_lbearing = g_lbearing;
-  gstring->sub_rbearing = g_rbearing;
 }
 
 
@@ -790,9 +791,10 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	    {
 	      int extra_width;
 	      int to = GLYPH_INDEX (g);
+	      MSubTextExtents extents;
 
-	      layout_glyphs (frame, gstring, from, to);
-	      extra_width = - gstring->sub_lbearing;
+	      layout_glyphs (frame, gstring, from, to, &extents);
+	      extra_width = - extents.lbearing;
 	      if (extra_width > 0
 		  && ! control->disable_overlapping_adjustment
 		  && (! control->orientation_reversed
@@ -810,9 +812,9 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		  pad.left_padding = 1;
 		  INSERT_GLYPH (gstring, from, pad);
 		  to++;
-		  gstring->sub_lbearing = 0;
-		  gstring->sub_width += extra_width;
-		  gstring->sub_rbearing += extra_width;
+		  extents.lbearing = 0;
+		  extents.width += extra_width;
+		  extents.rbearing += extra_width;
 
 		  g = MGLYPH (from - 1);
 		  if (g->type == GLYPH_SPACE)
@@ -840,7 +842,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		}
 
 	      g = MGLYPH (to);
-	      extra_width = gstring->sub_rbearing - gstring->sub_width;
+	      extra_width = extents.rbearing - extents.width;
 	      if (extra_width > 0
 		  && ! control->disable_overlapping_adjustment
 		  && (GLYPH_INDEX (g) < gstring->used - 1
@@ -859,14 +861,14 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		    }
 		  else
 		    g[-1].width += extra_width;
-		  gstring->sub_width += extra_width;
+		  extents.width += extra_width;
 		}
 
-	      if (gstring->lbearing > gstring->width + gstring->sub_lbearing)
-		gstring->lbearing = gstring->width + gstring->sub_lbearing;
-	      if (gstring->rbearing < gstring->width + gstring->sub_rbearing)
-		gstring->rbearing = gstring->width + gstring->sub_rbearing;
-	      gstring->width += gstring->sub_width;
+	      if (gstring->lbearing > gstring->width + extents.lbearing)
+		gstring->lbearing = gstring->width + extents.lbearing;
+	      if (gstring->rbearing < gstring->width + extents.rbearing)
+		gstring->rbearing = gstring->width + extents.rbearing;
+	      gstring->width += extents.width;
 	      if (gstring->ascent < rface->ascent)
 		gstring->ascent = rface->ascent;
 	      if (gstring->descent < rface->descent)
@@ -1446,7 +1448,6 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
   gstring->frame = frame;
   gstring->tick = frame->tick;
   gstring->top = gstring;
-  gstring->mt = mt;
   gstring->control = *control;
   gstring->indent = gstring->width_limit = 0;
   if (control->format)
@@ -1469,9 +1470,9 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   int pos;
 
   /* Setup the array POS_WIDTH so that POS_WIDTH[I - GSTRING->from] is
-     a width of glyphs for the character at I of GSTRING->mt.  If I is
-     not a beginning of a grapheme cluster, the corresponding element
-     is 0.  */
+     a width of glyphs for the character at I of MT.  If I is not a
+     beginning of a grapheme cluster, the corresponding element is
+     0.  */
   MTABLE_ALLOCA (pos_width, gstring->to - gstring->from, MERROR_DRAW);
   memset (pos_width, 0, sizeof (int) * (gstring->to - gstring->from));
   for (g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
@@ -1489,7 +1490,7 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   pos = gstring->from + i;
   if (gstring->control.line_break)
     {
-      pos = (*gstring->control.line_break) (gstring->mt, gstring->from + i,
+      pos = (*gstring->control.line_break) (mt, gstring->from + i,
 					    gstring->from, gstring->to, 0, 0);
       if (pos <= gstring->from)
 	pos = gstring->from + 1;
