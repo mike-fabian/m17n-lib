@@ -1,3 +1,31 @@
+2004-09-28  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (MXFont, MXFontList): New types.
+	(MDisplayInfo): Delete members font_registry_list,
+	iso8859_1_family_list, iso10646_1_family_list, new members
+	font_list, base_font_list.
+	(free_display_info): Adusted for the change of MDisplayInfo.
+	(xfont_driver): Initialize with xfont_list.
+	(font_compare): New function.
+	(build_font_list): Deleted.
+	(xfont_registry_list): New function.
+	(xfont_select): Use xfont_registry_list.
+	(xfont_list): New function.
+	(device_open): Adusted for the change of MDisplayInfo.
+
+	* font-ft.c (add_font_info): New arg languages.  Callers changed.
+	(fc_list): Get languages from fonts..
+	(ft_list_all): Renamed from ft_list.  Callers changed.
+	(ft_list): New function.
+	(mfont__ft_driver): Initalize with ft_list.
+
+	* font.c (mfont_list): New function.
+
+	* font.h (struct MFontDriver): New member `list'.
+	(MFTInfo): New member languages.
+
+	* m17n-gui.h (mfont_list): Extern it.
+
 2004-09-27  Kenichi Handa  <handa@m17n.org>
 
 	* internal-gui.h (struct MGlyphString): Delete members mt,
