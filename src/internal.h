@@ -29,6 +29,10 @@
     longer version of internal.h description 
 */
 
+extern int m17n__core_initialized;
+extern int m17n__shell_initialized;
+extern int m17n__gui_initialized;
+
 extern int mdebug_hook ();
 
 /** Return with code RET while setting merror_code to ERR.  */
