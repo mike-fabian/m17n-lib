@@ -88,6 +88,10 @@
     So, the default behaviour is the same as specifying "cat >
     %s.png" as FILTER.
 
+    <li> -a
+
+    Enable anti-alias drawing.
+
     <li> -q
 
     Quiet mode.  Don't print any messages.
@@ -166,6 +170,10 @@
     標準入力として渡される。 FILTER が "s" を含んでいれば、それは FILE 
     のベースネームに置き換えられる。このプログラムのデフォルトの振舞い
     と、FILTER に "cat > s.png" を指定した場合の振舞は同一である。
+
+    <li> -a
+
+    アンチエイリアス処理を行う。
 
     <li> -q
 
