@@ -61,6 +61,8 @@ typedef struct {
   /* Nth bit tells the existence of a font of size (N+1).
      core.property[MFONT_SIZE] holds the smallest size.  */
   unsigned int sizes;
+  /* If sizes is not 0, smallest and largest sizes.  */
+  unsigned short smallest, largest;
 } MXFont;
 
 /* S must satisfy the condition (S > 0 && S <= 32).  */
@@ -456,7 +458,6 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
   int nfonts;
   int i, j;
   MXFont font;
-  MXFontList *xfont_table;
   MFont *bfont = NULL;
 
   plist = mplist_get (font_list, registry);
@@ -477,40 +478,16 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
 	    || font.core.property[MFONT_RESY] == 0))
       {
 	MSymbol family = FONT_PROPERTY ((MFont *) &font, MFONT_FAMILY);
-	int size = font.core.property[MFONT_SIZE] / 10;
+	MXFontList *xfont_table;
 	int sizes[256];
 	int sizes_idx = 0;
-	int smallest;
+	int size, smallest, largest;
+	int have_scalable;
 	unsigned int size_bits = 0;
 	char *base_end;
 	int base_len;
 	int fields;
 	
-	sizes[sizes_idx++] = smallest = size;
-	/* Handle fonts of the same base name.  */
-	for (base_end = names[i], fields = 0; *base_end; base_end++)
-	  if (*base_end == '-'
-	      && ++fields == 7	/* PIXEL_SIZE */)
-	    break;
-	base_len = base_end - names[i] + 1;
-	for (j = i + 1; j < nfonts && ! strncmp (names[i], names[j], base_len);
-	     i = j++)
-	  if (mfont__parse_name_into_font (names[j], Mx, (MFont *) &font) == 0
-	      && (font.core.property[MFONT_SIZE] > 0
-		  || font.core.property[MFONT_RESY] == 0))
-	    {
-	      int this_size = font.core.property[MFONT_SIZE] / 10;
-	      int k;
-
-	      for (k = 0; k < sizes_idx && sizes[k] != this_size; k++);
-	      if (k == sizes_idx && sizes_idx < 256)
-		{
-		  sizes[sizes_idx++] = this_size;
-		  if (this_size < smallest)
-		    smallest = this_size;
-		}
-	    }
-
 	if (p && MPLIST_KEY (p) != family)
 	  p = mplist_find_by_key (plist, family);
 	if (p)
@@ -523,25 +500,63 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
 	    mplist_push (p, family, xfont_table);
 	  }
 
-	for (j = 0; j < sizes_idx; j++)
+	/* Calculate how many bytes to compare to detect fonts of the
+	   same base name.  */
+	for (base_end = names[i], fields = 0; *base_end; base_end++)
+	  if (*base_end == '-'
+	      && ++fields == 7	/* PIXEL_SIZE */)
+	    break;
+	base_len = base_end - names[i] + 1;
+
+	size = font.core.property[MFONT_SIZE] / 10;
+	have_scalable = size == 0;
+	sizes[sizes_idx++] = size;
+	for (j = i + 1; j < nfonts && ! strncmp (names[i], names[j], base_len);
+	     i = j++)
+	  if (mfont__parse_name_into_font (names[j], Mx, (MFont *) &font) == 0
+	      && (font.core.property[MFONT_SIZE] > 0
+		  || font.core.property[MFONT_RESY] == 0))
+	    {
+	      int k;
+
+	      size = font.core.property[MFONT_SIZE] / 10;
+	      if (! have_scalable)
+		have_scalable = size == 0;		
+	      for (k = 0; k < sizes_idx && sizes[k] != size; k++);
+	      if (k == sizes_idx && sizes_idx < 256)
+		sizes[sizes_idx++] = size;
+	    }
+
+	for (j = 0, smallest = 0; j < sizes_idx; j++)
 	  {
-	    if (sizes[j] <= 32)
+	    size = sizes[j];
+	    if (size <= 32)
 	      {
-		if (sizes[j] != 0)
-		  SET_SIZE (size_bits, sizes[j]);
+		if (size != 0)
+		  {
+		    if (smallest == 0)
+		      smallest = largest = size;
+		    else if (size < smallest)
+		      smallest = size;
+		    else if (size > largest)
+		      largest = size;
+		    SET_SIZE (size_bits, size);
+		  }
 	      }
 	    else
 	      {
-		font.core.property[MFONT_SIZE] = sizes[j] * 10;
+		font.core.property[MFONT_SIZE] = size * 10;
 		font.sizes = 0;
 		MLIST_APPEND1 (xfont_table, fonts, font, MERROR_WIN);
 	      }
 	  }
 
-	if (size_bits || smallest == 0)
+	if (size_bits || have_scalable == 1)
 	  {
 	    font.sizes = size_bits;
-	    font.core.property[MFONT_SIZE] = smallest * 10;
+	    font.smallest = smallest;
+	    font.largest = largest;
+	    font.core.property[MFONT_SIZE] = have_scalable ? 0 : smallest * 10;
 	    MLIST_APPEND1 (xfont_table, fonts, font, MERROR_WIN);
 	  }
 	if (! bfont
@@ -593,7 +608,7 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 {
   MSymbol family = FONT_PROPERTY (spec, MFONT_FAMILY);
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
-  int requested_size = request->property[MFONT_SIZE];
+  int requested_size = request->property[MFONT_SIZE] / 10;
   MRealizedFont *rfont;
   MPlist *plist;
   int i;
@@ -619,65 +634,40 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 	      MXFont *xfont = xfont_table->fonts + i;
 	      MFont *font = (MFont *) xfont;
 	      unsigned int sizes = xfont->sizes;
+	      int orig_size = font->property[MFONT_SIZE];
 	      int size;
 
 	      if (sizes == 0)
-		{
-		  size = font->property[MFONT_SIZE];
-		  score = mfont__score (font, spec, request, limited_size);
-		}
+		size = orig_size / 10;
+	      else if (requested_size < xfont->smallest)
+		size = orig_size == 0 ? 0 : xfont->smallest;
+	      else if (requested_size > xfont->largest)
+		size = orig_size == 0 ? 0 : xfont->largest;
+	      else if (HAVE_SIZE (sizes, requested_size))
+		size = requested_size;
+	      else if (orig_size == 0)
+		size = 0;
 	      else
 		{
-		  unsigned short orig_size = font->property[MFONT_SIZE];
-		  int smallest = orig_size / 10;
-		  int s0, s1;
-
-		  size = requested_size / 10;
-		  if (size > 32)
-		    size = 32;
-		  /* Find an exact or smaller size.  */
-		  if (size < smallest)
-		    s0 = 0;
-		  else
-		    for (s0 = size;
-			 s0 > smallest && s0 > 0 && ! HAVE_SIZE (sizes, s0);
-			 s0--);
-		  if (s0 == size)
-		    /* Exact size match.  */
-		    ;
-		  else if (smallest == 0)
-		    /* Scalable font exists.  */
-		    size = 0;
-		  else if (size < smallest)
+		  for (size = requested_size - 1;
+		       size > xfont->smallest && ! HAVE_SIZE (sizes, size);
+		       size--);
+		  if (! limited_size)
 		    {
-		      /* No smaller size font.  Select the smallest one.  */
-		      if (limited_size)
-			/* Can't use a larger font.  */
-			continue;
-		      size = smallest;
+		      int s;
+		      for (s = requested_size;
+			   s < xfont->largest && ! HAVE_SIZE (sizes, s);
+			   s++);
+		      if (s - requested_size < requested_size - size)
+			size = s;
 		    }
-		  else if (size < 32)
-		    {
-		      /* Check if there's a better larger size font.  */
-		      int largest = size + (size - s0);
-
-		      if (largest > 33)
-			largest = 33;
-
-		      for (s1 = size + 1;
-			   s1 < largest && ! HAVE_SIZE (sizes, s1);
-			   s1++);
-		      size = (s1 < largest ? s1 : s0);
-		    }
-		  size *= 10;
-		  font->property[MFONT_SIZE] = size;
-		  score = mfont__score (font, spec, request, limited_size);
-		  font->property[MFONT_SIZE] = orig_size;
 		}
-
+	      font->property[MFONT_SIZE] = size * 10;
+	      score = mfont__score (font, spec, request, limited_size);
+	      font->property[MFONT_SIZE] = orig_size;
 	      if (score >= 0 && (best_score < 0 || score < best_score))
 		{
-		  best_size = size;
+		  best_size = size * 10;
 		  best_score = score;
 		  best_font = (MFont *) (xfont_table->fonts + i);
 		  if (best_score == 0)
