@@ -702,8 +702,6 @@ mfont__init ()
 	}
     }
 
-  mfont__driver_list = mplist ();
-
   /* Here, SHIFT starts from 1, not 0.  This is because the lowest bit
      of a score is a flag for a scalable font (see the documentation
      of mfont_score).  */
@@ -766,8 +764,6 @@ mfont__fini ()
   MPLIST_DO (plist, mfont_freetype_path)
     free (MPLIST_VAL (plist));
   M17N_OBJECT_UNREF (mfont_freetype_path);
-
-  M17N_OBJECT_UNREF (mfont__driver_list);
 
   if (font_resize_list)
     {
@@ -923,20 +919,24 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
 
   MDEBUG_PUSH_TIME ();
   best = NULL;
-  MPLIST_DO (plist, mfont__driver_list)
+  MPLIST_DO (plist, frame->font_driver_list)
     {
       MFontDriver *driver = MPLIST_VAL (plist);
       MRealizedFont *this
 	= (driver->select) (frame, spec, request, limited_size);
 
-      if (this
-	  && (! best
-	      || best->score < this->score))
+      if (this)
 	{
-	  free (best);
-	  best = this;
-	  if (this->score == 0)
-	    break;
+	  this->driver = driver;
+	  if (! best
+	      || best->score < this->score)
+	    {
+	      if (best)
+		mfont__free_realized (best);
+	      best = this;
+	      if (this->score == 0)
+		break;
+	    }
 	}
     }
 
@@ -998,12 +998,6 @@ mfont__open (MRealizedFont *rfont)
     }
 
   return (rfont->driver->open) (rfont);
-}
-
-void
-mfont__close (MRealizedFont *rfont)
-{
-  (rfont->driver->close) (rfont);
 }
 
 void
@@ -1407,9 +1401,22 @@ mfont ()
 MFont *
 mfont_from_name (char *name)
 {
+  MFontDriver *driver;
   MFont template, *font;
+  MPlist *plist;
+  
+  if (! mframe_default)
+    return NULL;
+  MPLIST_DO (plist, mframe_default->font_driver_list)
+    {
+      driver = MPLIST_VAL (plist);
+      if (driver->parse_name)
+	break;
+    }
+  if (MPLIST_TAIL_P (plist))
+    return NULL;
 
-  if (mwin__parse_font_name (name, &template) < 0)
+  if ((*driver->parse_name) (name, &template))
     return NULL;
   MSTRUCT_CALLOC (font, MERROR_FONT);
   *font = template;
@@ -1468,7 +1475,21 @@ mfont_copy (MFont *font)
 char *
 mfont_name (MFont *font)
 {
-  return mwin__build_font_name (font);
+  MFontDriver *driver;
+  MPlist *plist;
+  
+  if (! mframe_default)
+    return NULL;
+  MPLIST_DO (plist, mframe_default->font_driver_list)
+    {
+      driver = MPLIST_VAL (plist);
+      if (driver->build_name)
+	break;
+    }
+  if (MPLIST_TAIL_P (plist))
+    return NULL;
+
+  return (*driver->build_name) (font);
 }
 
 /*=*/
@@ -1874,8 +1895,22 @@ mfont_set_encoding (MFont *font, MSymbol encoding_name, MSymbol repertory_name)
 MFont *
 mdebug_dump_font (MFont *font)
 {
-  char *name = mwin__build_font_name (font);
+  MFontDriver *driver;
+  MPlist *plist;
+  char *name;
+  
+  if (! mframe_default)
+    return NULL;
+  MPLIST_DO (plist, mframe_default->font_driver_list)
+    {
+      driver = MPLIST_VAL (plist);
+      if (driver->build_name)
+	break;
+    }
+  if (MPLIST_TAIL_P (plist))
+    return NULL;
 
+  name = (*driver->build_name) (font);
   fprintf (stderr, "%s", name);
   free (name);
   return font;
