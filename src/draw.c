@@ -788,7 +788,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	      extra_width = - gstring->sub_lbearing;
 	      if (extra_width > 0
 		  && (GLYPH_INDEX (g) > 1
-		      || control->align_head))
+		      || (! control->orientation_reversed && control->align_head)))
 		{
 		  g = MGLYPH (from);
 		  pad = *g;
@@ -820,7 +820,7 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 			}
 		      else
 			{
-			  extra_width -= g->width - 2;
+			  extra_width = g->width - 2;
 			  g->width = 2;
 			}
 		      gstring->width -= extra_width;
@@ -828,21 +828,20 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		    }
 		}
 
+	      g = MGLYPH (to);
 	      extra_width = gstring->sub_rbearing - gstring->sub_width;
-	      if (extra_width > 0)
+	      if (extra_width > 0
+		  && (GLYPH_INDEX (g) < gstring->used - 1
+		      || (control->orientation_reversed && control->align_head)))
 		{
-		  g = MGLYPH (to);
 		  if (g->type == GLYPH_SPACE && box == g->rface->box)
 		    {
-		      g--;
-		      pad = *g;
+		      pad = g[-1];
 		      pad.type = GLYPH_PAD;
 		      pad.xoff = 0;
 		      pad.lbearing = 0;
 		      pad.width = pad.rbearing = extra_width;
-		      pad.rbearing = 1;
 		      INSERT_GLYPH (gstring, to, pad);
-		      to++;
 		    }
 		  else
 		    g[-1].width += extra_width;
@@ -858,7 +857,6 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		gstring->ascent = rface->ascent;
 	      if (gstring->descent < rface->descent)
 		gstring->descent = rface->descent;
-	      g = MGLYPH (to);
 	    }
 	  else
 	    {
