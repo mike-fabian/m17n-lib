@@ -576,20 +576,20 @@ extern MSymbol Mtext_prop_deserializer;
     @brief Type of serializer functions.
 
     This is the type of serializer functions.  If the key of a symbol
-    property is #Msymbol_prop_serializer, the value must be of this
+    property is #Mtext_prop_serializer, the value must be of this
     type.
 
     @seealso
-    mtext_prop_serialize (), Mtext_prop_serializer
+    mtext_serialize (), #Mtext_prop_serializer
 */
 /***ja
     @brief シリアライザ関数の型宣言.
 
     シリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
-    #Msymbol_prop_serializer であるとき、 値はこの型でなくてはならない。
+    #Mtext_prop_serializer であるとき、 値はこの型でなくてはならない。
 
     @seealso
-    Mtext_prop_serialize (), Mtext_prop_serializer
+    mtext_serialize (), #Mtext_prop_serializer
 */
 
 typedef MPlist *(*MTextPropSerializeFunc) (void *val);
@@ -599,11 +599,11 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     @brief Type of deserializer functions.
 
     This is the type of deserializer functions.  If the key of a
-    symbol property is #Msymbol_prop_deserializer, the value must be
-    of this type.
+    symbol property is #Mtext_prop_deserializer, the value must be of
+    this type.
 
     @seealso
-    Mtext_prop_deserialize (), Mtext_prop_deserializer
+    mtext_deserialize (), #Mtext_prop_deserializer
 */
 /***ja
     @brief デシリアライザ関数の型宣言.
