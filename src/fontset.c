@@ -837,14 +837,17 @@ mfontset_modify_entry (MFontset *fontset,
   if (fontset->mdb)
     load_fontset_contents (fontset);
 
-  MPLIST_DO (pl, fontset->font_spec_list)
-    {
-      if (! memcmp (MPLIST_VAL (pl), spec, sizeof (MFont)))
-	{
-	  font = MPLIST_VAL (pl);
-	  break;
-	}
-    }
+  if (! fontset->font_spec_list)
+    fontset->font_spec_list = mplist ();
+  else
+    MPLIST_DO (pl, fontset->font_spec_list)
+      {
+	if (! memcmp (MPLIST_VAL (pl), spec, sizeof (MFont)))
+	  {
+	    font = MPLIST_VAL (pl);
+	    break;
+	  }
+      }
   if (! font)
     {
       font = mfont ();
