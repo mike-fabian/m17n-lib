@@ -1106,9 +1106,9 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	      /* Not yet supported.  */
 	      break;
 	    }
-	  if (g->GlyphClass == OTF_GlyphClass0)
+	  if (otfg->GlyphClass == OTF_GlyphClass0)
 	    base = mark = g;
-	  else if (g->GlyphClass == OTF_GlyphMark)
+	  else if (otfg->GlyphClass == OTF_GlyphClassMark)
 	    mark = g;
 	  else
 	    base = g;
