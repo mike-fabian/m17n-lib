@@ -46,7 +46,7 @@
     An internal input method accepts an input key which is a symbol
     associated with an input event.  As there is no way for the @c
     m17n @c library to know how input events are represented in an
-    application program, a application programmer have to convert an
+    application program, an application programmer have to convert an
     input event to an input key by himself.  See the documentation of
     the function minput_event_to_key () for the detail.
 
@@ -56,9 +56,9 @@
     defined in an external resources (e.g. XIM of X Window System).
     For this kind of input methods, the symbol NAME must have a
     property of key @c Minput_driver, and the value must be a pointer
-    to an input method driver.  So, by preparing a proper driver, any
-    kind of input method can be treated in the framework of the @c
-    m17n @c library.
+    to an input method driver.  Therefore, by preparing a proper
+    driver, any kind of input method can be treated in the framework
+    of the @c m17n @c library.
 
     For convenience, the m17n-X library provides an input method
     driver that enables the input style of OverTheSpot for XIM, and
@@ -100,12 +100,12 @@
     義することができ、そのような入力メソッドの LANGUAGE は @c Mt であ
     る。
 
-    内部入力メソッドは、ユーザの入力イベントに対応した入力キーを受け取
-    る。入力キーはシンボルである。@c m17n @c ライブラリ は入力イベント
-    がアプリケーション・プログラムでどのように表現されているかを知る術
-    を持たないので、入力イベントから入力キーへの変換はアプリケーション
-    プログラマの責任で行わなくてはならない。詳細については関数 
-    minput_event_to_key () の説明を参照。
+    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入
+    力キーを受け取る。@c m17n @c ライブラリ は入力イベントがアプリケー
+    ションプログラムでどう表現されているかを知る術を持たないので、入力
+    イベントから入力キーへの変換はアプリケーションプログラマの責任で行
+    わなくてはならない。詳細については関数 minput_event_to_key () の説
+    明を参照。
 
     <li> 外部入力メソッド
 
@@ -114,13 +114,13 @@
     この種の入力メソッドでは、シンボル NAME は@c Minput_driver をキー
     とするプロパティを持ち、その値は入力メソッドドライバへのポインタで
     なくてはならない。したがって、適切なドライバを準備することによって、
-    いかなる種類の入力メソッドも @c m17n @c ライブラリの枠組の中で扱う
-    事ができる。
+    いかなる種類の入力メソッドも @c m17n @c ライブラリ の枠組の中で扱
+    う事ができる。
 
-    簡単のため、m17n X ライブラリは XIM の OverTheSpot の入力スタイル
+    利便性のため、m17n X ライブラリは XIM の OverTheSpot の入力スタイル
     を実現する入力メソッドドライバを提供し、またシンボル @c Mxim の @c
     Minput_driver プロパティの値としてそのドライバへのポインタを保持し
-    ている。詳細についてはm17n-win API のドキュメントを参照のこと。
+    ている。詳細については m17n GUI API のドキュメントを参照のこと。
 
     </ul> 
 
@@ -2148,7 +2148,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     The minput_destroy_ic () function destroys the input context $IC,
     which must have been created by minput_create_ic ().  It calls
     callback functions corresponding to #Minput_preedit_done,
-    #Minput_status_done, and #Mcandidate_done in this order.  */
+    #Minput_status_done, and #Minput_candidate_done in this order.  */
 
 /***ja
     @brief 入力コンテクストを破壊する.
@@ -2156,7 +2156,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
     の入力コンテクストは minput_create_ic () によって作られたものでな
     ければならない。この関数は#Minput_preedit_done,
-    #Minput_status_done, #Mcandidate_done に対応するコールバック関数を
+    #Minput_status_done, #Minput_candidate_done に対応するコールバック関数を
     この順に呼ぶ。
   */
 
@@ -2183,9 +2183,9 @@ minput_destroy_ic (MInputContext *ic)
 
     The minput_filter () function filters input key $KEY according to
     input context $IC, and calls callback functions corresponding to
-    #Minput_preedit_draw, #Minput_status_draw, and #Mcandidate_draw if
-    the preedit text, the status, and the current candidate are
-    changed respectively.
+    #Minput_preedit_draw, #Minput_status_draw, and
+    #Minput_candidate_draw if the preedit text, the status, and the
+    current candidate are changed respectively.
 
     @return
     If $KEY is filtered out, this function returns 1.  In that case,
@@ -2199,7 +2199,7 @@ minput_destroy_ic (MInputContext *ic)
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
     じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化
     した際にはそれぞれ#Minput_preedit_draw, #Minput_status_draw,
-    #Mcandidate_draw に対応するコールバック関数を呼ぶ。
+    #Minput_candidate_draw に対応するコールバック関数を呼ぶ。
 
     @return 
     $KEY がフィルタされれば、この関数は 1 を返す。この場合呼び
@@ -2254,7 +2254,7 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     may be produced in $MT.  */
 
 /***ja
-    @brief 入力メソッドが作ったテキストの検索.
+    @brief 入力コンテクスト中のテキストの検索.
 
     関数 minput_lookup () は入力コンテクスト $IC 中のテキストを検索す
     る。$KEY は関数minput_filter () への直前の呼び出しに用いられたもの
