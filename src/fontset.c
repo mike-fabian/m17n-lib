@@ -496,16 +496,33 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       && ((per_script = mplist_find_by_key (realized->per_script, script))
 	  != NULL))
     {
-      /* The first loop is for matching language (if any), and the second
-	 loop is for non-matching languages.  */
+      /* We prefer font groups in this order:
+	  (1) group matching LANGUAGE
+	  (2) group for generic LANGUAGE
+	  (3) group non-matching LANGUAGE  */
       if (language == Mnil)
 	language = Mt;
-      for (i = 0; i < 2; i++)
+      per_lang = mplist_find_by_key (MPLIST_PLIST (per_script), language);
+      if (per_lang)
 	{
-	  MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-	    if ((MPLIST_KEY (per_lang) == language) != i)
-	      font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
+	  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
+	  if (language == Mt)
+	    {
+	      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
+		if (MPLIST_KEY (per_lang) != language)
+		  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
+	    }
 	}
+      if (language != Mt)
+	{
+	  plist = mplist_get (MPLIST_PLIST (per_script), Mt);
+	  if (plist)
+	    font_groups[n_font_group++] = plist;
+	}
+      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
+	if (MPLIST_KEY (per_lang) != language
+	    && MPLIST_KEY (per_lang) != Mt)
+	  font_groups[n_font_group++] = MPLIST_PLIST (per_lang);
     }
   font_groups[n_font_group++] = realized->fallback;
 
