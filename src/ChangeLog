@@ -1,5 +1,7 @@
 2004-09-06  Kenichi Handa  <handa@m17n.org>
 
+	* font-flt.c (run_otf): Fix typo ('}'->']').
+
 	* internal-gui.h (MAKE_PRECOMPUTED_COMBINDING_CODE)
 	(COMBINING_PRECOMPUTED_P): New macros.
 
