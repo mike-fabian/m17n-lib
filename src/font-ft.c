@@ -41,6 +41,8 @@
 
 #ifdef HAVE_FREETYPE
 
+#include <freetype/ftbdf.h>
+
 #ifdef HAVE_OTF
 #include <otf.h>
 #endif /* HAVE_OTF */
@@ -52,6 +54,8 @@
 int fontconfig_initialized = 0;
 FcConfig *fc_config;
 #endif	/* not HAVE_XFT2 */
+
+static MSymbol Municode_bmp, Municode_full, Miso10646_1, Miso8859_1;
 
 static FT_Library ft_library;
 
@@ -81,10 +85,12 @@ typedef struct
 #endif	/* not HAVE_XFT2 */
 } MFTInfo;
 
-/* List of FreeType fonts.  Keys are family names, values are plists
-   contains fonts of the corresponding family.  In the deeper plist,
-   keys are Mt, values are (MFTInfo *).  */
+/** List of FreeType fonts.  Keys are family names, values are plists
+    contains fonts of the corresponding family.  In the deeper plist,
+    keys are Mt, values are (MFTInfo *).  */
 static MPlist *ft_font_list;
+
+static MPlist *ft_iso8859_1_font_list;
 
 /** Return 0 if NAME implies TrueType or OpenType fonts.  Othersize
     return -1.  */
@@ -114,7 +120,7 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
   int len;
   char *buf, *p;
   MPlist *charmap_list;
-  int unicode_bmp = -1, unicode_full = -1;
+  int unicode_bmp = -1, unicode_full = -1, unicode;
   int i;
 
   MFONT_INIT (font);
@@ -167,11 +173,14 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
   for (i = 0; i < ft_face->num_charmaps; i++)
     {
       char registry_buf[16];
+      MSymbol registry;
 
       sprintf (registry_buf, "%d-%d",
 	       ft_face->charmaps[i]->platform_id,
 	       ft_face->charmaps[i]->encoding_id);
-      mplist_add (charmap_list, msymbol (registry_buf), (void *) i);
+      registry = msymbol (registry_buf);
+      mplist_add (charmap_list, registry, (void *) i);
+      
       if (ft_face->charmaps[i]->platform_id == 0)
 	{
 	  if (ft_face->charmaps[i]->encoding_id == 3)
@@ -190,12 +199,49 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
 	       && ft_face->charmaps[i]->encoding_id == 0)
 	mplist_add (charmap_list, msymbol ("apple-roman"), (void *) i);
     }
-  if (unicode_bmp >= 0)
-    mplist_add (charmap_list, msymbol ("unicode-bmp"), (void *) unicode_bmp);
   if (unicode_full >= 0)
-    mplist_add (charmap_list, msymbol ("unicode-full"), (void *) unicode_full);
+    {
+      mplist_add (charmap_list, Municode_full, (void *) unicode_full);
+      mplist_add (charmap_list, Municode_bmp, (void *) unicode_full);
+      mplist_add (charmap_list, Miso10646_1, (void *) unicode_full);
+      unicode = unicode_full;
+    }
+  else if (unicode_bmp >= 0)
+    {
+      mplist_add (charmap_list, Municode_bmp, (void *) unicode_bmp);
+      mplist_add (charmap_list, Miso10646_1, (void *) unicode_bmp);
+      unicode = unicode_bmp;
+    }
+  if (unicode >= 0)
+    {
+      FT_Set_Charmap (ft_face, ft_face->charmaps[unicode]);
+      for (i = 255; i >= 32; i--)
+	{
+	  if (i == 160)
+	    i = 126;
+	  if (FT_Get_Char_Index (ft_face, (FT_ULong) i) == 0)
+	    break;
+	}
+      if (i == 31)
+	{
+	  mplist_add (charmap_list, Miso8859_1, (void *) unicode);
+	  if (! ft_iso8859_1_font_list)
+	    ft_iso8859_1_font_list = mplist ();
+	  mplist_push (ft_iso8859_1_font_list, family, ft_info);
+	}
+    }
 
   ft_info->charmap_list = charmap_list;
+
+  if (! FT_IS_SCALABLE (ft_face))
+    {
+      BDF_PropertyRec prop;
+      
+      FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop);
+      font->property[MFONT_SIZE] = prop.u.integer * 10;
+      FT_Get_BDF_Property (ft_face, "RESOLUTION_Y", &prop);
+      font->property[MFONT_RESY] = prop.u.integer;
+    }
 
   return family;
 }
@@ -213,7 +259,11 @@ add_font_list (MPlist *font_list)
 
       if (FT_New_Face (ft_library, filename, 0, &ft_face) == 0)
 	{
-	  if (ft_face->family_name && ((char *) ft_face->family_name)[0])
+	  BDF_PropertyRec prop;
+
+	  if (ft_face->family_name && ((char *) ft_face->family_name)[0]
+	      && (FT_IS_SCALABLE (ft_face)
+		  || FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0))
 	    {
 	      MSymbol family = MPLIST_KEY (plist);
 	      MFTInfo *ft_info;
@@ -240,6 +290,7 @@ add_font_list (MPlist *font_list)
 }
 
 #ifdef HAVE_XFT2
+
 static MPlist *
 xft_list (MSymbol family)
 {
@@ -264,7 +315,12 @@ xft_list (MSymbol family)
     }
 
   pattern = FcPatternCreate ();
-  FcPatternAddString (pattern, FC_FAMILY, (FcChar8 *) (msymbol_name (family)));
+  if (family)
+    FcPatternAddString (pattern, FC_FAMILY,
+			(FcChar8 *) (msymbol_name (family)));
+  else
+    family = Mt;
+
   os = FcObjectSetBuild (FC_FILE, NULL);
   fs = FcFontList (fc_config, pattern, os);
   plist = mplist ();
@@ -285,6 +341,7 @@ xft_list (MSymbol family)
 }
 
 #else  /* not HAVE_XFT2 */
+
 static MPlist *
 ft_list ()
 {
@@ -353,11 +410,14 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
   family = FONT_PROPERTY (spec, MFONT_FAMILY);
   if (family == Mnil)
     family = FONT_PROPERTY (request, MFONT_FAMILY);
-  if (family == Mnil)
-    return NULL;
   registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
   if (registry == Mnil)
     registry = Mt;
+  if (family == Mnil)
+    {
+      if (registry != Miso8859_1)
+	return NULL;
+    }
 
 #ifdef HAVE_XFT2
   if (! ft_font_list)
@@ -376,7 +436,10 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
       ft_font_list = mplist ();
       add_font_list (ft_list ());
     }
-  plist = mplist_get (ft_font_list, family);
+  if (family != Mnil)
+    plist = mplist_get (ft_font_list, family);
+  else
+    plist = ft_iso8859_1_font_list;
   if (! plist)
     return NULL;
 #endif	/* not HAVE_XFT2 */
@@ -518,14 +581,35 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
     {
       if (g->code == MCHAR_INVALID_CODE)
 	{
-	  unsigned unitsPerEm = ft_face->units_per_EM;
-	  int size = rfont->font.property[MFONT_SIZE] / 10;
+	  if (FT_IS_SCALABLE (ft_face))
+	    {
+	      unsigned unitsPerEm = ft_face->units_per_EM;
+	      int size = rfont->font.property[MFONT_SIZE] / 10;
 
-	  g->lbearing = 0;
-	  g->rbearing = ft_face->max_advance_width * size / unitsPerEm;
-	  g->width = ft_face->max_advance_width * size / unitsPerEm;
-	  g->ascent = ft_face->ascender * size / unitsPerEm;
-	  g->descent = (- ft_face->descender) * size / unitsPerEm;
+	      g->lbearing = 0;
+	      g->rbearing = ft_face->max_advance_width * size / unitsPerEm;
+	      g->width = ft_face->max_advance_width * size / unitsPerEm;
+	      g->ascent = ft_face->ascender * size / unitsPerEm;
+	      g->descent = (- ft_face->descender) * size / unitsPerEm;
+	    }
+	  else
+	    {
+	      BDF_PropertyRec prop;
+
+	      g->lbearing = 0;
+	      g->rbearing = g->width = ft_face->available_sizes->width;
+	      if (FT_Get_BDF_Property (ft_face, "ASCENT", &prop) == 0)
+		{
+		  g->ascent = prop.u.integer;
+		  FT_Get_BDF_Property (ft_face, "DESCENT", &prop);
+		  g->descent = prop.u.integer;
+		}
+	      else
+		{
+		  g->ascent = ft_face->available_sizes->height;
+		  g->descent = 0;
+		}
+	    }
 	}
       else
 	{
@@ -748,6 +832,11 @@ mfont__ft_init ()
 
   mfont__driver_list[MFONT_TYPE_FT] = &ft_driver;
 
+  Municode_bmp = msymbol ("unicode-bmp");
+  Municode_full = msymbol ("unicode-full");
+  Miso10646_1 = msymbol ("iso10646-1");
+  Miso8859_1 = msymbol ("iso8859-1");
+
   return 0;
 }
 
@@ -771,6 +860,11 @@ mfont__ft_fini ()
 	}
       M17N_OBJECT_UNREF (ft_font_list);
       ft_font_list = NULL;
+      if (ft_iso8859_1_font_list)
+	{
+	  M17N_OBJECT_UNREF (ft_iso8859_1_font_list);
+	  ft_iso8859_1_font_list = NULL;
+	}
     }
   free (ft_to_prop);
   FT_Done_FreeType (ft_library);
