@@ -5,6 +5,20 @@ Copyright (C) 2003, 2004
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.1
+
+** The "configure" script now detects Xft2 library.
+
+If Xft2 library is found, find local font files (that are to be
+handled by the Freetype library) by fontconfig, and draw text by Xft.
+
+** MDrawControl has a new member `anti_alias'.
+
+If MDrawControl->anti_alias is nonzero, try to draw anti-aliased text.
+This is done only when a local font file is used for drawing.
+
+
+
 * Changes in the m17n library 1.0
 
 ** Released.
