@@ -79,8 +79,6 @@
 #include "fontset.h"
 #include "face.h"
 
-static int win_initialized;
-
 #ifndef DLOPEN_SHLIB_EXT
 #define DLOPEN_SHLIB_EXT ".so"
 #endif
@@ -238,16 +236,19 @@ static MDeviceLibraryInterface null_interface =
 
 /* External API */
 
-int
+void
 m17n_init_win (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
-  if (win_initialized++)
-    return 0;
+  if (m17n__gui_initialized++)
+    return;
   m17n_init ();
   if (merror_code != MERROR_NONE)
-    return -1;
+    {
+      m17n__gui_initialized--;
+      return;
+    }
 
   MDEBUG_PUSH_TIME ();
 
@@ -285,61 +286,57 @@ m17n_init_win (void)
 
   register_device_library (Mx, "libm17n-X");
   register_device_library (Mgd, "libm17n-gd");
-  return 0;
+  return;
 
  err:
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the m17n GUI module."));
   MDEBUG_POP_TIME ();
-  return -1;
 }
 
 void
 m17n_fini_win (void)
 {
   int mdebug_mask = MDEBUG_FINI;
+  MPlist *plist;
 
-  if (win_initialized > 1)
-    win_initialized--;
-  else
+  if (m17n__gui_initialized == 0
+      || --m17n__gui_initialized > 0)
+    return;
+
+  MDEBUG_PUSH_TIME ();
+  MDEBUG_PUSH_TIME ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize device modules."));
+  MPLIST_DO (plist, device_library_list)
     {
-      MPlist *plist;
+      MDeviceLibraryInterface *interface = MPLIST_VAL (plist);
 
-      win_initialized = 0;
-      MDEBUG_PUSH_TIME ();
-      MDEBUG_PUSH_TIME ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize device modules."));
-      MPLIST_DO (plist, device_library_list)
+      if (interface->handle && interface->fini)
 	{
-	  MDeviceLibraryInterface *interface = MPLIST_VAL (plist);
-
-	  if (interface->handle && interface->fini)
-	    {
-	      (*interface->fini) ();
-	      dlclose (interface->handle);
-	    }
-	  free (interface->library);
+	  (*interface->fini) ();
+	  dlclose (interface->handle);
 	}
-#ifdef HAVE_FREETYPE
-      if (null_interface.handle)
-	(*null_interface.fini) ();
-#endif	/* not HAVE_FREETYPE */
-      M17N_OBJECT_UNREF (device_library_list);
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
-      minput__win_fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
-      mdraw__fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
-      mface__fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
-      mfont__fontset_fini ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
-      mfont__fini ();
-      mframe_default = NULL;
-      MDEBUG_POP_TIME ();
-      MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
-      MDEBUG_POP_TIME ();
+      free (interface->library);
     }
+#ifdef HAVE_FREETYPE
+  if (null_interface.handle)
+    (*null_interface.fini) ();
+#endif	/* not HAVE_FREETYPE */
+  M17N_OBJECT_UNREF (device_library_list);
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
+  minput__win_fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
+  mdraw__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
+  mface__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
+  mfont__fontset_fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
+  mfont__fini ();
+  mframe_default = NULL;
+  MDEBUG_POP_TIME ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
+  MDEBUG_POP_TIME ();
   m17n_fini ();
 }
 
