@@ -848,6 +848,7 @@ load_flt (MSymbol layouter_name)
   MPlist *top = NULL, *plist;
   MSymbol Mcategory = msymbol ("category");
   MSymbol Mgenerator = msymbol ("generator");
+  MSymbol Mend = msymbol ("end");
   MFontLayoutTable *layouter = NULL;
   MCharTable *category = NULL;
 
@@ -863,6 +864,9 @@ load_flt (MSymbol layouter_name)
       MSymbol sym;
       MPlist *elt;
 
+      if (MPLIST_SYMBOL_P (plist)
+	  && MPLIST_SYMBOL (plist) == Mend)
+	break;
       if (! MPLIST_PLIST (plist))
 	MERROR_GOTO (MERROR_FONT, finish);
       elt = MPLIST_PLIST (plist);
