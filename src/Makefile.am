@@ -19,6 +19,8 @@
 # Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 # 02111-1307, USA.
 
+VINFO = -version-info @API_VERSION@
+
 lib_LTLIBRARIES = \
 	libm17n-core.la \
 	libm17n.la \
@@ -37,7 +39,7 @@ libm17n_core_la_SOURCES = \
 	symbol.h symbol.c \
 	textprop.h textprop.c
 
-libm17n_core_la_LDFLAGS = @XML2_LD_FLAGS@
+libm17n_core_la_LDFLAGS = @XML2_LD_FLAGS@ ${VINFO}
 
 libm17n_la_SOURCES = \
 	charset.h charset.c \
@@ -48,6 +50,7 @@ libm17n_la_SOURCES = \
 	mlocale.h locale.c \
 	m17n.h m17n.c
 libm17n_la_LIBADD = libm17n-core.la -ldl
+libm17n_la_LDFLAGS = ${VINFO}
 
 GUI_SOURCES = \
 	face.h face.c \
@@ -67,15 +70,15 @@ OPTIONAL_LD_FLAGS = \
 
 libm17n_gui_la_SOURCES = ${GUI_SOURCES}
 libm17n_gui_la_LIBADD = libm17n.la
-libm17n_gui_la_LDFLAGS = ${X_LD_FLAGS} ${OPTIONAL_LD_FLAGS}
+libm17n_gui_la_LDFLAGS = ${X_LD_FLAGS} ${OPTIONAL_LD_FLAGS} ${VINFO}
 
 libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
 libm17n_X_la_LIBADD = libm17n-gui.la
-libm17n_X_la_LDFLAGS = -module ${X_LD_FLAGS} @XFT2_LD_FLAGS@
+libm17n_X_la_LDFLAGS = -module ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${VINFO}
 
 libm17n_gd_la_SOURCES = m17n-gd.c
 libm17n_gd_la_LIBADD = libm17n-gui.la
-libm17n_gd_la_LDFLAGS = -module @GD_LD_FLAGS@
+libm17n_gd_la_LDFLAGS = -module @GD_LD_FLAGS@ ${VINFO}
 
 AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\""
 
