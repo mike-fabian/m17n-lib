@@ -1,5 +1,7 @@
 2004-06-21  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (mfont__ft_parse_name): Cast the arg to FcNameParse.
+
 	* mtext.c (mtext_dup, mtext_cat, mtext_ncat, mtext_cpy)
 	(mtext_ncpy, mtext_duplicate): Pay attention to the case that the
 	length of source text 0.
