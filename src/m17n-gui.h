@@ -141,8 +141,6 @@ typedef struct MFont MFont;
 
 /*=*/
 
-extern MSymbol Mfont;
-
 extern MPlist *mfont_freetype_path;
 
 extern MFont *mfont ();
