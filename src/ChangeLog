@@ -1,6 +1,32 @@
-2004-12-10  Kenichi Handa  <handa@m17n.org>
+2004-12-21  Kenichi Handa  <handa@m17n.org>
 
-	* Version 1.2.0 released.
+	* input-gui.c (win_callback): Handle Minput_reset.
+	(minput__win_init): Register reset_ic as a callback for
+	Minput_reset.
+
+	* input.c (reset_ic): New arg IGNORE which is ignored.  Caller
+	changed.  At first, shift to the initial state.
+	(minput__init): Initialize Minput_reset.  Register reset_ic as a
+	callback for Minput_reset.
+	(Minput_reset): New variable.
+	(minput_filter): Always set ic->xxx_changed to 0.
+	(minput_reset_ic): New function.
+
+	* m17n-core.c (merror_code): Change type to `int'.
+
+	* m17n-misc.h (merror_code): Adjust type.
+
+	* m17n.h (Minput_reset, minput_reset_ic): Extern them.
+
+	* m17n-core.h (MTEXT_FORMAT_UTF_16, MTEXT_FORMAT_UTF_32): Adjust types.
+
+	* mtext.c (MTEXT_FORMAT_UTF_16, MTEXT_FORMAT_UTF_32): Change types
+	to `int'.  Move the documents to m17n-core.h.
+
+2004-12-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (m17n_object): Rename extern from m17n_object_setup.
+	(MTextProperty): Document it.
 
 2004-12-09  Kenichi Handa  <handa@m17n.org>
 
