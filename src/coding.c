@@ -2818,14 +2818,15 @@ find_coding (MSymbol name)
 
   if (! coding)
     {
-      MPlist *plist;
+      MPlist *plist, *pl;
       MSymbol sym = msymbol__canonicalize (name);
 
       plist = mplist_find_by_key (coding_definition_list, sym);
-
       if (! plist)
 	return NULL;
-      mconv_define_coding (MSYMBOL_NAME (name), MPLIST_VAL (plist),
+      pl = MPLIST_PLIST (plist);
+      name = MPLIST_VAL (pl);
+      mconv_define_coding (MSYMBOL_NAME (name), MPLIST_NEXT (pl),
 			   NULL, NULL, NULL, NULL);
       coding = (MCodingSystem *) msymbol_get (name, Mcoding);
       plist = mplist_pop (plist);
@@ -3009,17 +3010,17 @@ mcoding__fini (void)
 void
 mconv__register_charset_coding (MSymbol sym)
 {
-  if (! mplist_find_by_key (coding_definition_list, sym))
+  MSymbol name = msymbol__canonicalize (sym);
+
+  if (! mplist_find_by_key (coding_definition_list, name))
     {
       MPlist *param = mplist (), *charsets = mplist ();
 
       mplist_set (charsets, Msymbol, sym);
-      mplist_add (param, Msymbol, Mtype);
-      mplist_add (param, Msymbol, Mcharset);
-      mplist_add (param, Msymbol, Mcharsets);
-      mplist_add (param, Mplist, charsets);
-      sym = msymbol__canonicalize (sym);
-      mplist_put (coding_definition_list, sym, param);
+      mplist_add (param, Msymbol, sym);
+      mplist_add (param, Mtype, Mcharset);
+      mplist_add (param, Mcharsets, charsets);
+      mplist_put (coding_definition_list, name, param);
       M17N_OBJECT_UNREF (charsets);
     }
 }
@@ -3046,16 +3047,18 @@ mcoding__load_from_database ()
   MPLIST_DO (plist, def_list)
     {
       MPlist *pl;
-      MSymbol name;
+      MSymbol name, canonicalized;
 
       if (! MPLIST_PLIST_P (plist))
 	MERROR (MERROR_CHARSET, -1);
       pl = MPLIST_PLIST (plist);
       if (! MPLIST_SYMBOL_P (pl))
 	MERROR (MERROR_CHARSET, -1);
-      name = msymbol__canonicalize (MPLIST_SYMBOL (pl));
+      name = MPLIST_SYMBOL (pl);
+      canonicalized = msymbol__canonicalize (name);
       pl = mplist__from_plist (MPLIST_NEXT (pl));
-      definitions = mplist_add (definitions, name, pl);
+      mplist_push (pl, Msymbol, name);
+      definitions = mplist_add (definitions, canonicalized, pl);
     }
 
   M17N_OBJECT_UNREF (def_list);
@@ -4029,7 +4032,10 @@ mconv_list_codings (MSymbol **symbols)
   MTABLE_MALLOC ((*symbols), i, MERROR_CODING);
   i = 0;
   MPLIST_DO (plist, coding_definition_list)
-    (*symbols)[i++] = MPLIST_KEY (plist);
+    {
+      MPlist *pl = MPLIST_VAL (plist);
+      (*symbols)[i++] = MPLIST_SYMBOL (pl);
+    }
   for (j = 0; j < coding_list.used; j++)
     if (! mplist_find_by_key (coding_definition_list, 
 			      coding_list.codings[j]->name))
