@@ -1,3 +1,9 @@
+2004-07-07  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (Mcoding_compound_text): New variable.
+	(covert_selection): Fix previous change.
+	(main): Set Mcoding_compound_text.
+
 2004-07-06  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c: Cancel previous change.
