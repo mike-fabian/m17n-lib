@@ -1456,9 +1456,9 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
 	  APPEND_GLYPH (gstring, g_tmp);
 	  APPEND_GLYPH (gstring, g_tmp);
 	  APPEND_GLYPH (gstring, g_tmp);
-	  gstring->glyphs[1].type = GLYPH_CHAR;
-	  gstring->glyphs[1].c = ' ';
-	  gstring->glyphs[1].code = ' ';
+	  gstring->glyphs[1].type = GLYPH_SPACE;
+	  gstring->glyphs[1].c = '\n';
+	  gstring->glyphs[1].code = '\n';
 	}
       gstring->from = pos;
       g = MGLYPH (0);
@@ -1467,7 +1467,6 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
       g++;
       g->rface = frame->rface;
       g->pos = pos++, g->to = pos;
-      g->c = '\n', g->code = '\n';
       g++;
       g->rface = frame->rface;
       g->pos = g->to = pos;
