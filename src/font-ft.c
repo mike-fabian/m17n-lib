@@ -989,6 +989,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       && OTF_drive_cmap (otf, &otf_gstring) < 0)
     goto simple_copy;
 
+  OTF_drive_gdef (otf, &otf_gstring);
   gidx = gstring->used;
 
   if (gsub_feature_names)
