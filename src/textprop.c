@@ -2687,7 +2687,7 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
     pointer to an appropriate serializer function.
 
     @seealso
-    mtext_serialize (), MTextPropSerializeFunc
+    mtext_serialize (), #MTextPropSerializeFunc
   */
 
 /***ja
@@ -2699,7 +2699,7 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
     ンタを値とするシンボルプロパティを指定する。
 
     @seealso
-    mtext_serialize (), MTextPropSerializeFunc
+    mtext_serialize (), #MTextPropSerializeFunc
   */
 MSymbol Mtext_prop_serializer;
 
@@ -2712,7 +2712,7 @@ MSymbol Mtext_prop_serializer;
     pointer to an appropriate deserializer function.
 
     @seealso
-    mtext_deserialize (), MTextPropSerializeFunc
+    mtext_deserialize (), #MTextPropSerializeFunc
   */
 
 /***ja
@@ -2724,7 +2724,7 @@ MSymbol Mtext_prop_serializer;
     ポインタを値とするシンボルプロパティを指定する。
 
     @seealso
-    mtext_deserialize (), MTextPropSerializeFunc
+    mtext_deserialize (), #MTextPropSerializeFunc
   */
 MSymbol Mtext_prop_deserializer;
 
@@ -2766,7 +2766,7 @@ MSymbol Mtext_prop_deserializer;
     error code to the external variable #merror_code.
 
     @seealso
-    mtext_deserialize (), Mtext_prop_serializer  */
+    mtext_deserialize (), #Mtext_prop_serializer  */
 
 /***ja
     @brief M-text 中のテキストプロパティをシリアライズする.
@@ -2806,7 +2806,7 @@ MSymbol Mtext_prop_deserializer;
     を設定する。
 
     @seealso
-    mtext_deserialize (), Mtext_prop_serializer  */
+    mtext_deserialize (), #Mtext_prop_serializer  */
 
 MText *
 mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
@@ -2919,7 +2919,7 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
     code to the external variable #merror_code.
 
     @seealso
-    mtext_serialize (), Mtext_prop_deserializer  */
+    mtext_serialize (), #Mtext_prop_deserializer  */
 
 /***ja
     @brief M-text 中のテキストプロパティをデシリアライズする.
@@ -2949,7 +2949,7 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
     コードを設定する。
 
     @seealso
-    mtext_serialize (), Mtext_prop_deserializer  */
+    mtext_serialize (), #Mtext_prop_deserializer  */
 
 MText *
 mtext_deserialize (MText *mt)

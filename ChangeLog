@@ -1,5 +1,9 @@
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
+	* Version 1.2.0 released.
+
+2004-12-27  Kenichi Handa  <handa@m17n.org>
+
 	* m17n-config.in: Fix documentation.
 
 2004-12-10  Kenichi Handa  <handa@m17n.org>

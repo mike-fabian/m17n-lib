@@ -1,3 +1,7 @@
+2004-12-27  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.2.0 released.
+
 2004-12-21  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (ButtonProc): Reset the current input method (if
