@@ -372,6 +372,7 @@ encode_unsupporeted_char (int c, unsigned char *dst, unsigned char *dst_end,
   if (dst + len > dst_end)
     return 0;
 
+  mtext_put_prop (mt, pos, pos + 1, Mcoding, Mnil);
   format = (c < 0xD800 ? "<U+%04X>"
 	    : c < 0xE000 ? "<M+%04X>"
 	    : c < 0x10000 ? "<U+%04X>"
@@ -4495,6 +4496,7 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
   converter->nchars = converter->nbytes = 0;
   converter->result = MCONVERSION_RESULT_SUCCESS;
 
+  mtext_put_prop (mt, from, to, Mcoding, internal->coding->name);
   if (internal->binding == BINDING_BUFFER)
     {
       (*internal->coding->encoder) (mt, from, to,

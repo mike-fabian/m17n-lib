@@ -685,6 +685,7 @@ mcharset__load_from_database ()
       pl = MPLIST_NEXT (pl);
       definitions = mplist_add (definitions, name, pl);
       M17N_OBJECT_REF (pl);
+      mchar_define_charset (MSYMBOL_NAME (name), mplist__from_plist (pl));
       if ((pl = mplist_find_by_value (pl, Mdefine_coding))
 	  && (MSymbol) MPLIST_VAL (MPLIST_NEXT (pl)) == Mt)
 	mconv__register_charset_coding (name);
