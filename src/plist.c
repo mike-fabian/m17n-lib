@@ -56,6 +56,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
 #include "m17n.h"
 #include "m17n-misc.h"
 #include "internal.h"
