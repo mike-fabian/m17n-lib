@@ -821,6 +821,10 @@ mfont__init ()
 
   Mfontconfig = msymbol ("fontconfig");
 
+  Mx = msymbol ("x");
+  Mfreetype = msymbol ("freetype");
+  Mxft = msymbol ("xft");
+
   /* The first entry of each mfont__property_table must be Mnil so
      that actual properties get positive numeric numbers.  */
   for (i = 0; i <= MFONT_REGISTRY; i++)
@@ -1428,6 +1432,33 @@ MSymbol Mresolution;
 
 MSymbol Mfontconfig;
 
+/***en
+    @brief Symbol of name "x".
+
+    The variable #Mx is to be used for a value of <type> member of the
+    structure #MDrawGlyph to specify the type of <fontp> member is
+    actually (XFontStruct *).  */
+
+MSymbol Mx;
+
+/***en
+    @brief Symbol of name "freetype".
+
+    The variable #Mfreetype is to be used for a value of <type> member
+    of the structure #MDrawGlyph to specify the type of <fontp> member
+    is actually FT_Face.  */
+
+MSymbol Mfreetype;
+
+/***en
+    @brief Symbol of name "xft".
+
+    The variable #Mxft is to be used for a value of <type> member of the
+    structure #MDrawGlyph to specify the type of <fontp> member
+    is actually (XftFont *).  */
+
+MSymbol Mxft;
+
 /*=*/
 /*** @} */
 /*=*/
@@ -2025,6 +2056,35 @@ mfont_from_name (char *name)
 {
   return mfont_parse_name (name, Mx);
 }
+
+/*=*/
+
+/***en
+    @brief Get resize information of a font.
+
+    The mfont_resize_ratio () function lookups the m17n database
+    \<font, reisize\> and returns a resizing ratio (in percentage) of
+    FONT.  For instance, if the return value is 150, that means that
+    the m17n library uses an 1.5 time bigger font than a specified
+    size.  */
+
+/***ja
+    @brief フォントのリサイズ情報を得る
+
+    関数 mfont_resize_ratio は m17n データベース \<font, reisize\> を検
+    索し、フォント FONT のリサイズの比率（パーセンテージ）を返す。例え
+    ば返値が 150 であれば、m17n ライブラリは指定されたサイズの 1.5 倍の
+    フォントを使用することを意味する。 */
+
+int
+mfont_resize_ratio (MFont *font)
+{
+  MFont request = *font;
+
+  mfont__resize (font, &request);
+  return (font->property[MFONT_SIZE] * 100 / request.property[MFONT_SIZE]);
+}
+
 
 /*** @} */
 
