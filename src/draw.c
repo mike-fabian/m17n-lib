@@ -510,6 +510,20 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 
   mfont__get_metric (gstring, from, to);
 
+#ifdef HAVE_OTF
+  while (g < last_g)
+    {
+      MGlyph *base = g++;
+
+      if (base->otf_cmd)
+	{
+	  while (g < last_g && base->otf_cmd == g->otf_cmd) g++;
+	  mfont__ft_drive_gpos (gstring, GLYPH_INDEX (base), GLYPH_INDEX (g));
+	}
+    }
+  g = MGLYPH (from);
+#endif
+
   while (g < last_g)
     {
       MGlyph *base = g++;
