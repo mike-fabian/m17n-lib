@@ -1,3 +1,8 @@
+2004-06-21  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (medit_LDFLAGS, mview_LDFLAGS): Include -lX11 and
+	-lXt.
+
 2004-06-17  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c (main): Don't set control.as_image to 1.
