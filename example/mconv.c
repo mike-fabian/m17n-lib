@@ -138,6 +138,15 @@
 
 /* Print all coding system names.  */
 
+int
+compare_coding_name (const void *elt1, const void *elt2)
+{
+  const MSymbol *n1 = elt1;
+  const MSymbol *n2 = elt2;
+
+  return strcmp (msymbol_name (*n1), msymbol_name (*n2));
+}
+
 void
 list_coding ()
 {
@@ -147,6 +156,7 @@ list_coding ()
   int len, clm;
 
   n = mconv_list_codings (&codings);
+  qsort (codings, n, sizeof (MSymbol), compare_coding_name);
   clm = 0;
   for (i = 0; i < n; i++)
     {
