@@ -9,7 +9,7 @@
 	* Makefile.am: Put prefix "m17n-" instead of single "m" to
 	executables.
 	(EXTRA_DIST): Include HELLO.html and M17NEdit.ja.
-	
+
 	* mconv.c, mdate.c, mdump.c, medit.c, mview.c: Documentations
 	changed ("mXXXX" -> "m17n-XXXX").
 
