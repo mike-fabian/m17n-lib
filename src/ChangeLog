@@ -1,11 +1,19 @@
 2004-03-16  Kenichi Handa  <handa@etlken2>
 
+	* m17n-X.c (mwin__parse_event): Fix handling of modifier keys.
+
+	* input.c (M_key_alias): New variable.
+	(handle_key): Try M_key_alias property of a key too.
+	(minput__init): Initialize M_key_alias.  Give that property to
+	symbols in one_char_symbol.  Fix bug of initializing
+	one_char_symbol.
+
 	* draw.c (compose_glyph_string): Don't handle
 	ignore_formatting_char here.  Include formatting characters in the
 	range processed by a FTL.
 	(layout_glyph_string): Handle ignore_formatting_char here.
 
-2004-03-12  Kenichi Handa  <handa@etlken2>
+2004-03-12  Kenichi Handa  <handa@m17n.org>
 
 	* input-gui.c (win_create_ic): Enable bidi in status control.
 
