@@ -114,7 +114,6 @@ struct MRealizedFace
 extern MFace *mface__default;
 
 extern MRealizedFace *mface__realize (MFrame *frame, MFace **faces, int num,
-				      MSymbol language, MSymbol charset,
 				      int limitted_size);
 
 extern MGlyph *mface__for_chars (MSymbol script, MSymbol language,
