@@ -1,5 +1,8 @@
 2004-08-25  Kenichi Handa  <handa@m17n.org>
 
+	* fontset.c (mfontset): Initialize font_spec_list member.
+	(mfontset_copy): Load fontset if necessary.
+
 	* m17n-gui.h (MDrawGlyphInfo): Change the member name 'this' to
 	'metrics' to for C++.
 
