@@ -82,45 +82,42 @@
     @addtogroup m17nInputMethod
     @brief 入力メソッド用API.
 
-    入力メソッドは多様な文字を入力するためのオブジェクトである。入力メ
-    ソッドはシンボル LANGUAGE と NAME の組によって識別され、この組によっ
-    て入力メソッドドライバが決まる。入力メソッドドライバとは、ある入力メ
-    ソッドを扱うための関数の集まりである。 入力メソッドには内部メソッ
-    ドと外部メソッドの二種類がある。
+    入力メソッドは多様な文字を入力するためのオブジェクトである。
+    入力メソッドはシンボル LANGUAGE と NAME の組によって識別され、
+    この組合せによって入力メソッドドライバが決定する。
+    入力メソッドドライバとは、ある入力メソッドを扱うための関数の集まりである。
+    入力メソッドには内部メソッドと外部メソッドの二種類がある。
 
     <ul> 
     <li> 内部入力メソッド
 
-    内部入力メソッドは LANGUAGE が @c Mnil 以外のものであり、本体は
-    m17n データベースに <Minput_method, LANGUAGE, NAME>というタグ付き
-    で定義されている。この種の入力メソッドに対して、m17n ライブラリに
-    は CUI 用と GUI 用それぞれの入力メソッドドライバがあらかじめ準備さ
-    れている。これらのドライバは m17n ライブラリ自身の入力処理エンジン
-    を利用する。m17n データベースには、特定の言語専用でない入力メソッ
-    ドも定義することができ、そのような入力メソッドの LANGUAGE は @c Mt 
-    である。
+    内部入力メソッドとは LANGUAGE が @c Mnil 以外のものであり、その本体はm17n データベースに
+    <Minput_method, LANGUAGE, NAME> 
+    というタグを付けて定義されている。
+    この種の入力メソッドに対して、m17n ライブラリでは
+    CUI 用と GUI 用それぞれの入力メソッドドライバをあらかじめ定義している。
+    これらのドライバは m17n ライブラリ自体の入力処理エンジンを利用する。
+    m17n データベースには、特定の言語専用でない入力メソッドを定義することもでき、
+    そのような入力メソッドの LANGUAGE は @c Mt である。
 
-    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入
-    力キーを受け取る。@c m17n @c ライブラリ は入力イベントがアプリケー
-    ションプログラムでどう表現されているかを知ることができないので、入力
-    イベントから入力キーへの変換はアプリケーションプログラマの責任で行
-    わなくてはならない。詳細については関数 minput_event_to_key () の説
-    明を参照。
+    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入力キーを受け取る。
+    @c m17n @c ライブラリ は入力イベントがアプリケーションプログラムでどう表現されているかを知ることができないので、
+    入力イベントから入力キーへの変換はアプリケーションプログラマの責任で行わなくてはならない。
+    詳細については関数 minput_event_to_key () の説明を参照。
 
     <li> 外部入力メソッド
 
-    外部入力メソッドは LANGUAGE が @c Mnil のものであり、本体は外部の
-    リソースとして定義される。（たとえばX Window System のXIM など。) 
-    この種の入力メソッドでは、シンボル NAME は@c Minput_driver をキー
-    とするプロパティを持ち、その値は入力メソッドドライバへのポインタで
-    なくてはならない。したがって、適切なドライバを準備することによって、
-    いかなる種類の入力メソッドも @c m17n @c ライブラリ の枠組の中で扱
-    う事ができる。
+    外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外部のリソースとして定義される。
+    （たとえばX Window System のXIM など。) 
+    この種の入力メソッドでは、シンボル NAME は@c Minput_driver 
+    をキーとするプロパティを持ち、その値は入力メソッドドライバへのポインタである。
+    このことにより、適切なドライバを準備することによって、いかなる種類の入力メソッドも
+    @c m17n @c ライブラリ の枠組の中で扱う事ができる。
 
-    利便性のため、m17n X ライブラリは XIM の OverTheSpot の入力スタイル
-    を実現する入力メソッドドライバを提供し、またシンボル @c Mxim の @c
-    Minput_driver プロパティの値としてそのドライバへのポインタを保持し
-    ている。詳細については m17n GUI API のドキュメントを参照のこと。
+    利便性の観点から、m17n X ライブラリは XIM の OverTheSpot 
+    の入力スタイルを実現する入力メソッドドライバを提供し、またシンボル @c Mxim の 
+    @c Minput_driver プロパティの値としてそのドライバへのポインタを保持している。
+    詳細については m17n GUI API のドキュメントを参照のこと。
 
     </ul> 
 
@@ -2358,8 +2355,8 @@ minput__char_to_key (int c)
 /***ja
     @name 変数： コールバックコマンド用定義済みシンボル.
 
-    入力メソッドドライバのコールバック関数において @c COMMAND 引数とし
-    て用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
+    入力メソッドドライバのコールバック関数において @c COMMAND 
+    引数として用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
       */ 
 /*** @{ */ 
 /*=*/
@@ -2404,20 +2401,19 @@ MSymbol Minput_reset;
 /***ja
     @brief 内部入力メソッド用デフォルトドライバ.
 
-    入力ドライバ #minput_default_driver は内部入力メソッド用のデフォル
-    トのドライバである。
+    変数 #minput_default_driver は内部入力メソッド用のデフォルトのドライバを表す。
 
     メンバ MInputDriver::open_im () は m17n データベース中からタグ 
-    \< #Minput_method, $LANGUAGE, $NAME\> に合致する入力メソッドを探し、
-    それをロードする。
+    \< #Minput_method, $LANGUAGE, $NAME\> 
+    に合致する入力メソッドを探し、それをロードする。
 
-    メンバ MInputDriver::callback_list () は @c NULL なので、プログラ
-    マ側で責任を持って, 適切なコールバック関数の plist に設定しなくて
-    はならない。さもないと、preedit テキストなどのフィードバック情報が
-    ユーザに表示されない。
+    メンバ MInputDriver::callback_list () は @c NULL であり、
+    したがって、プログラマ側で責任を持って 適切なコールバック関数の plist
+    に設定しなくてはならない。さもないと、preedit 
+    テキストなどのフィードバック情報がユーザに表示されない。
 
-    マクロ M17N_INIT () は変数 #minput_driver をこのドライバへのポイン
-    タに設定し、全ての内部入力メソッドがこのドライバを使うようにする。
+    マクロ M17N_INIT () は変数 #minput_driver 
+    をこのドライバへのポインタに設定し、全ての内部入力メソッドがこのドライバを使うようにする。
 
     したがって、@c minput_driver がデフォルト値のままであれば、minput_ 
     で始まる関数のドライバに依存する引数 $ARG はすべて無視される。  */
@@ -2436,11 +2432,12 @@ MInputDriver minput_default_driver;
 /***ja
     @brief 内部入力メソッド用ドライバ.
 
-    変数 #minput_driver は内部入力メソッドによって使用されている入力メ
-    ソッドドライバへのポインタである。マクロ M17N_INIT () はこのポイン
-    タを #minput_default_driver (<m17n<EM></EM>.h> が含まれる時) または
-    #minput_gui_driver ( <m17n-gui<EM></EM>.h> が含まれる時) に初期化す
-    る。  */ 
+    変数 #minput_driver
+    は内部入力メソッドによって使用されている入力メソッドドライバへのポインタである。
+    マクロ M17N_INIT () はこのポインタを
+    #minput_default_driver (<m17n<EM></EM>.h> が include 
+    されている時) または #minput_gui_driver ( <m17n-gui<EM></EM>.h> が
+    include されている時) に初期化する。  */ 
 
 MInputDriver *minput_driver;
 
@@ -2474,24 +2471,21 @@ MSymbol Minput_driver;
 /***ja
     @brief 入力メソッドをオープンする.
 
-    関数 minput_open_im () は言語 $LANGUAGE と名前 $NAME に合致する入
-    力メソッドをオープンし、新たに割り当てられた入力メソッドオブジェク
-    トへのポインタを返す。
+    関数 minput_open_im () は言語 $LANGUAGE と名前 $NAME 
+    に合致する入力メソッドをオープンし、新たに割り当てられた入力メソッドオブジェクトへのポインタを返す。
     
     この関数は、まず入力メソッド用のドライバを以下のようにして決定する。
 
-    $LANGUAGE が #Mnil でなければ、変数 #minput_driver で指されている
-    ドライバを用いる。
+    $LANGUAGE が #Mnil でなければ、変数 #minput_driver 
+    で指されているドライバを用いる。
 
-    $LANGUAGE が #Mnil であり、$NAME が #Minput_driver プロパティを持
-    つ場合には、そのプロパティの値で指されている入力ドライバを用いて入
-    力メソッドをオープンする。$NAME にそのようなプロパティが無かった場
-    合は @c NULL を返す。
+    $LANGUAGE が #Mnil であり、$NAME が #Minput_driver
+    プロパティを持つ場合には、そのプロパティの値で指されている入力ドライバを用いて入力メソッドをオープンする。
+    $NAME にそのようなプロパティが無かった場合は @c NULL を返す。
 
     次いで、ドライバのメンバ MInputDriver::open_im () が呼ばれる。
 
-    $ARG は、ドライバが参照できるように、構造体 MInputMethod のメンバ 
-    @c arg に設定される。
+    $ARG は構造体 MInputMethod のメンバ @c arg に設定され、ドライバから参照できる。
 
     @latexonly \IPAlabel{minput_open} @endlatexonly
 
@@ -2536,9 +2530,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 /***ja
     @brief 入力メソッドをクローズする.
 
-    関数 minput_close_im () は、入力メソッド $IM をクローズする。この
-    入力メソッド $IM は minput_open_im () によって作られたものでなけれ
-    ばならない。  */
+    関数 minput_close_im () は、入力メソッド $IM をクローズする。
+    この入力メソッド $IM は minput_open_im () によって作られたものでなければならない。  */
 
 void
 minput_close_im (MInputMethod *im)
@@ -2565,15 +2558,15 @@ minput_close_im (MInputMethod *im)
 /***ja
     @brief 入力コンテクストを生成する.
 
-    関数 minput_create_ic () は入力メソッド $IM に対応する入力コンテク
-    ストオブジェクトを生成し、 #Minput_preedit_start,
-    #Minput_status_start, #Minput_status_draw に対応するコールバック関
-    数をこの順に呼ぶ。
+    関数 minput_create_ic () は入力メソッド $IM
+    に対応する入力コンテクストオブジェクトを生成し、
+    #Minput_preedit_start, #Minput_status_start, #Minput_status_draw
+    に対応するコールバック関数をこの順に呼ぶ。
 
     @return
 
-    入力コンテクストが生成された場合、minput_create_ic () はその入力コ
-    ンテクストへのポインタを返す。失敗した場合は @c NULL を返す。
+    入力コンテクストが生成された場合、minput_create_ic () 
+    はその入力コンテクストへのポインタを返す。失敗した場合は @c NULL を返す。
       */
 
 MInputContext *
@@ -2622,11 +2615,11 @@ minput_create_ic (MInputMethod *im, void *arg)
 /***ja
     @brief 入力コンテクストを破壊する.
 
-    関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
-    の入力コンテクストは minput_create_ic () によって作られたものでな
-    ければならない。この関数は#Minput_preedit_done,
-    #Minput_status_done, #Minput_candidates_done に対応するコールバッ
-    ク関数をこの順に呼ぶ。
+    関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。
+    この入力コンテクストは minput_create_ic () 
+    によって作られたものでなければならない。この関数は 
+    #Minput_preedit_done, #Minput_status_done, #Minput_candidates_done 
+    に対応するコールバック関数をこの順に呼ぶ。
   */
 
 void
@@ -2665,16 +2658,16 @@ minput_destroy_ic (MInputContext *ic)
 /***ja
     @brief 入力キーをフィルタする.
 
-    関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
-    じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化
-    した際にはそれぞれ #Minput_preedit_draw, #Minput_status_draw,
+    関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC 
+    に応じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化した時点で、それぞれ
+    #Minput_preedit_draw, #Minput_status_draw,
     #Minput_candidates_draw に対応するコールバック関数を呼ぶ。
 
     @return 
-    $KEY がフィルタされれば、この関数は 1 を返す。この場合呼び
-    出し側はこのキーを捨てるべきである。そうでなければ 0 を返し、呼び
-    出し側は、たとえば同じキーで関数 minput_lookup () を呼ぶなどして、
-    このキーを処理する。
+    $KEY がフィルタされれば、この関数は 1 を返す。
+    この場合呼び出し側はこのキーを捨てるべきである。
+    そうでなければ 0 を返し、呼び出し側は、たとえば同じキーで関数 minput_lookup ()
+    を呼ぶなどして、このキーを処理する。
 
     @latexonly \IPAlabel{minput_filter} @endlatexonly
 */
@@ -2705,7 +2698,7 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
 /*=*/
 
 /***en
-    @brief Lookup a text produced in the input context.
+    @brief Look up a text produced in the input context.
 
     The minput_lookup () function looks up a text in the input context
     $IC.  $KEY must be the same one provided to the previous call of
@@ -2722,11 +2715,10 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     may be produced in $MT.  */
 
 /***ja
-    @brief 入力コンテクスト中のテキストの検索.
+    @brief 入力コンテクスト中のテキストを探す.
 
-    関数 minput_lookup () は入力コンテクスト $IC 中のテキストを検索す
-    る。$KEY は関数 minput_filter () への直前の呼び出しに用いられたも
-    のと同じでなくてはならない。
+    関数 minput_lookup () は入力コンテクスト $IC 中のテキストを探す。
+    $KEY は関数 minput_filter () への直前の呼び出しに用いられたものと同じでなくてはならない。
 
     テキストが入力メソッドによって生成されていれば、テキストは M-text
     $MT に連結される。
@@ -2735,8 +2727,8 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
 
     @return 
     $KEY が入力メソッドによって適切に処理できれば、この関数は 0 を返す。
-    そうでなければ -1 を返す。この場合でも $MT に何らかのテキストが生
-    成されていることがある。
+    そうでなければ -1 を返す。
+    この場合でも $MT に何らかのテキストが生成されていることがある。
 
     @latexonly \IPAlabel{minput_lookup} @endlatexonly  */
 
@@ -2753,7 +2745,6 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     The minput_set_spot () function set the spot of input context $IC
     to coordinate ($X, $Y ) with the height specified by $ASCENT and $DESCENT .
     The semantics of these values depend on the input method driver.
-    $FONTSIZE specfies the fontsize of preedit text in 1/10 point.
 
     For instance, a driver designed to work in a CUI environment may
     use $X and $Y as column and row numbers, and ignore $ASCENT and
@@ -2762,6 +2753,8 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     client window, and may interpret $ASCENT and $DESCENT as the ascent- and
     descent pixels of the line at ($X . $Y ).
 
+    $FONTSIZE specifies the fontsize of preedit text in 1/10 point.
+
     $MT and $POS is the M-text and the character position at the spot.
     $MT may be @c NULL, in which case, the input method cannot get
     information about the text around the spot.  */
@@ -2769,21 +2762,21 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 /***ja
     @brief 入力コンテクストのスポットを設定する.
 
-    関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座
-    標 ($X, $Y )に 、高さ $ASCENT、 $DESCENT で設定する。 これらの値の
-    意味は入力メソッドドライバに依存する。$FONTSIZE はpreedit テキスト
-    のフォントサイズを 1/10 ポイント単位で指定する。
+    関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座標 ($X, $Y )
+    の位置に 、高さ $ASCENT、 $DESCENT 
+    で設定する。 これらの値の意味は入力メソッドドライバに依存する。
 
-    たとえば CUI 環境で動作するドライバは $X と $Y をそれぞれ列と行の
-    番号として用い、$ASCENT と $DESCENT を無視するかもしれない。 また
-    ウィンドウシステム用のドライバは $X と $Y をクライアントウィンドウ
-    の原点からのオフセットをピクセル単位で表したものとして扱い、
-    $ASCENT と $DESCENT を ($X . $Y ) の列のアセントとディセントをピク
-    セル単位で表したものとして扱うかもしれない。
+    たとえば CUI 環境で動作するドライバは $X と $Y 
+    をそれぞれ列と行の番号として用い、$ASCENT と $DESCENT 
+    を無視するかもしれない。 またウィンドウシステム用のドライバは
+    $X と $Y をクライアントウィンドウの原点からのオフセットをピクセル単位で表したものとして扱い、
+    $ASCENT と $DESCENT を ($X . $Y )
+    の列のアセントとディセントをピクセル単位で表したものとして扱うかもしれない。
+
+    $FONTSIZE には preedit テキストのフォントサイズを 1/10 ポイント単位で指定する。
 
     $MT と $POS はそのスポットの M-text と文字位置である。$MT は @c
-    NULL でもよく、その場合には入力メソッドはスポット周辺のテキストに
-    関する情報を得ることができない。
+    NULL でもよく、その場合には入力メソッドはスポット周辺のテキストに関する情報を得ることができない。
     */
 
 void
@@ -2811,8 +2804,8 @@ minput_set_spot (MInputContext *ic, int x, int y,
 /***ja
     @brief 入力メソッドを切替える.
 
-    関数 minput_toggle () は入力コンテクスト $IC に対応付けられた入力
-    メソッドをトグルする。
+    関数 minput_toggle () は入力コンテクスト $IC 
+    に対応付けられた入力メソッドをトグルする。
     */
 
 void
@@ -2836,12 +2829,12 @@ minput_toggle (MInputContext *ic)
 /***ja
     @brief 入力コンテクストをリセットする.
 
-    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関
-    数を呼ぶことによって入力コンテクスト $IC をリセットする。実
-    際には、入力メソッドを初期状態に移すことであり、したがって、もし現在入力中のテキ
-    ストがあれば、それはコミットされる。必要ならば、アプリケーションプ
-    ログラムは minput_lookup () を読んでそのコミットされたテキストを取
-    り出すことができ、その際、minput_lookup () の引数 @c KEY と @c ARG 
+    関数 minput_reset_ic () は #Minput_reset 
+    に対応するコールバック関数を呼ぶことによって入力コンテクスト $IC 
+    をリセットする。リセットとは、実際には入力メソッドを初期状態に移すことであり、したがって、もし現在入力中のテキストがあれば、それはコミットされる。
+    必要ならば、アプリケーションプログラムは minput_lookup () 
+    を読んでそのコミットされたテキストを取り出すことができ、その際、
+    minput_lookup () の引数 @c KEY と @c ARG 
     は無視される。 */
 void
 minput_reset_ic (MInputContext *ic)
@@ -2869,7 +2862,7 @@ MSymbol Mdetail_text;
     @brief Get description text of an input method.
 
     The minput_get_description () function returns an M-text that
-    briefly describs the input method specified by $LANGUAGE and
+    briefly describes the input method specified by $LANGUAGE and
     $NAME.  The returned M-text may have a text property, from its
     beginning to end, #Mdetail_text whose value is an M-text
     describing the input method in more detail.
@@ -2882,16 +2875,16 @@ MSymbol Mdetail_text;
 /***ja
     @brief 入力メソッドの説明テキストを得る.
 
-    関数 minput_get_description () は、$LANGUAGE と $NAME によって指定
-    された入力メソッドを簡単に説明する M-text を返す。返される M-text 
-    には、その全体に対して #Mdetail_text というテキストプロパティが付
-    加されている場合があり、そのプロパティの値は入力メソッドをさらに詳
-    細に説明する M-text である。
+    関数 minput_get_description () は、$LANGUAGE と $NAME 
+    によって指定された入力メソッドを簡単に説明する M-text を返す。返される M-text 
+    には、その全体に対して #Mdetail_text 
+    というテキストプロパティが付加されている場合があり、そのプロパティの値は入力メソッドをさらに詳細に説明する
+    M-text である。
 
-    @return 指定された入力メソッドが説明するテキストを持っていれば、 
+    @return 
+    指定された入力メソッドが説明するテキストを持っていれば、 
     #MText へのポインタを返す。呼び出し側は、それを m17n_object_unref
-    () を用いて解放しなくてはならない。入力メソッドに説明テキストが無
-    ければ@c NULL を返す。 */
+    () を用いて解放しなくてはならない。入力メソッドに説明テキストが無ければ@c NULL を返す。 */
 
 MText *
 minput_get_description (MSymbol language, MSymbol name)
@@ -2929,7 +2922,7 @@ minput_get_description (MSymbol language, MSymbol name)
     and have global key assignments.  Local commands are used only in
     a specific input method, and have only local key assignments.
 
-    Each input method may locally change key assignments for glabal
+    Each input method may locally change key assignments for global
     commands.  A global key assignment for a global command are
     effective only when the current input method does not have local
     key assignments for that command.
@@ -2964,48 +2957,43 @@ minput_get_description (MSymbol language, MSymbol name)
 /***ja
     @brief 入力メソッドのコマンドに関する情報を得る.
 
-    関数 minput_get_commands () は、 $LANGUAGE と $NAME によって指定さ
-    れた入力メソッドの入力メソッドコマンドに関する情報を返す。入力メソッ
-    ドコマンドとは、疑似キーイベントであり、それぞれに１つ以上の実際の
-    入力キーシークエンスが割り当てられているものを指す。
+    関数 minput_get_commands () は、 $LANGUAGE と $NAME 
+    によって指定された入力メソッドの入力メソッドコマンドに関する情報を返す。
+    入力メソッドコマンドとは、疑似キーイベントであり、それぞれに１つ以上の実際の入力キーシークエンスが割り当てられているものを指す。
 
-    コマンドにはグローバルとローカルの２種類がある。グローバルコマンド
-    は複数の入力メソッドにおいて、同じ目的で、グローバルなキー割り当て
-    で用いられる。ローカルコマンドは特定の入力メソッドでのみ、ローカル
-    なキー割当で使用される。
+    コマンドにはグローバルとローカルの２種類がある。
+    グローバルコマンドは複数の入力メソッドにおいて、同じ目的で、グローバルなキー割り当てで用いられる。
+    ローカルコマンドは特定の入力メソッドでのみ、ローカルなキー割当で使用される。
 
-    個々の入力メソッドはグローバルコマンドのキー割当を変更することもで
-    きる。グローバルコマンド用のグローバルキー割り当ては、使用する入力
-    メソッドにおいてそのコマンド用のローカルなキー割当が存在しない場合
-    にのみ有効である。
+    個々の入力メソッドはグローバルコマンドのキー割当を変更することもできる。
+    グローバルコマンド用のグローバルキー割り当ては、使用する入力メソッドにおいてそのコマンド用のローカルなキー割当が存在しない場合にのみ有効である。
 
-    $NAME が #Mnil であれば、グローバルコマンドに関する情報を返す。こ
-    の場合、$LANGUAGE は無視される。
+    $NAME が #Mnil であれば、グローバルコマンドに関する情報を返す。
+    この場合、$LANGUAGE は無視される。
 
-    $NAME が #Mnil でなければ、$LANGUAGE と $NAME によって指定される入
-    力メソッドに置けるローカルなキー割り当てを持つコマンドに関する情報
-    を返す。
+    $NAME が #Mnil でなければ、$LANGUAGE と $NAME 
+    によって指定される入力メソッドに置けるローカルなキー割り当てを持つコマンドに関する情報を返す。
 
     @return
     入力メソッドコマンドが見つからなければ、この関数は @c NULL を返す。
 
-    そうでなければプロパティリストへのポインタを返す。リストの各要素の
-    キーは個々のコマンドを示すシンボルであり、値は下記の COMMAND-INFO 
-    の形式のプロパティリストである。
+    そうでなければプロパティリストへのポインタを返す。
+    リストの各要素のキーは個々のコマンドを示すシンボルであり、値は下記の 
+    COMMAND-INFO の形式のプロパティリストである。
 
-    COMMAND-INFO の第一要素はキーとして #Mtext を、値としてそのコマン
-    ドを簡単に説明する M-text を持つ。この M-text は、#Mdetail_text を
-    キーとするテキストプロパティを持つことができ、その値はそのコマンド
-    をより詳細に説明する M-text である。
+    COMMAND-INFO の第一要素はキーとして #Mtext 
+    を、値としてそのコマンドを簡単に説明する M-text を持つ。この M-text 
+    は、#Mdetail_text 
+    をキーとするテキストプロパティを持つことができ、その値はそのコマンドをより詳細に説明する
+    M-text である。
 
-    それ以外の要素が無ければ、このコマンドに対してキーシークエンスが割
-    り当てられていないことを意味する。そうでなければ、残りの各要素はキー
-    として#Mplist を、値としてプロパティリストを持つ。このプロパティリ
-    ストのキーは #Msymbol であり、値は現在そのコマンドに割り当てられて
-    いる入力キーを表すシンボルである。
+    それ以外の要素が無ければ、このコマンドに対してキーシークエンスが割り当てられていないことを意味する。
+    そうでなければ、残りの各要素はキーとして#Mplist 
+    を、値としてプロパティリストを持つ。
+    このプロパティリストのキーは #Msymbol 
+    であり、値は現在そのコマンドに割り当てられている入力キーを表すシンボルである。
 
-    返されるプロパティリストはライブラリによって管理されており、呼び出
-    し側で変更したり解放したりしてはならない。*/
+    返されるプロパティリストはライブラリによって管理されており、呼び出し側で変更したり解放したりしてはならない。*/
 
 MPlist *
 minput_get_commands (MSymbol language, MSymbol name)
@@ -3038,20 +3026,19 @@ minput_get_commands (MSymbol language, MSymbol name)
 /***ja
     @brief 入力メソッドコマンドにキーシークエンスを割り当てる.
 
-    関数 minput_assign_command_keys () は、 $LANGUAGE と $NAME によっ
-    て指定された入力メソッド用の入力メソッドコマンド $COMMAND に対して、
-    入力キーシークエンス $KEYSEQ を割り当てる。 $NAME が #Mnil ならば、
-    $LANGUAGE に関係なく、入力キーシークエンスはグローバルに割り当てら
-    れる。そうでなれば、割り当てはローカルである。
+    関数 minput_assign_command_keys () は、 $LANGUAGE と $NAME 
+    によって指定された入力メソッド用の入力メソッドコマンド $COMMAND 
+    に対して、入力キーシークエンス $KEYSEQ を割り当てる。 $NAME が #Mnil
+    ならば、$LANGUAGE に関係なく、入力キーシークエンスはグローバルに割り当てられる。
+    そうでなれば、割り当てはローカルである。
 
-    $KEYSEQ の各要素はキーとして $Msymbol を、値として入力キーを表すシ
-    ンボルを持たなくてはならない。
+    $KEYSEQ の各要素はキーとして $Msymbol 
+    を、値として入力キーを表すシンボルを持たなくてはならない。
 
-    $KEYSEQ は @c NULL でもよい。この場合、グローバルもしくはローカル
-    なすべての割り当てが消去される。
+    $KEYSEQ は @c NULL でもよい。
+    この場合、グローバルもしくはローカルなすべての割り当てが消去される。
 
-    この割り当ては、割り当て以降新しくオープンされた入力メソッドから有
-    効になる。
+    この割り当ては、割り当て以降新しくオープンされた入力メソッドから有効になる。
 
     @return 
     処理が成功すれば 0 を返す。そうでなければ -1 を返し、
@@ -3117,7 +3104,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     The second element of VAR-INFO is for the value of the variable.
     The key is #Minteger, #Msymbol, or #Mtext, and the value is an
-    intetger, a symbol, or an M-text, respectively.  The variable is
+    integer, a symbol, or an M-text, respectively.  The variable is
     set to this value when an input context is created for the input
     method.
 
@@ -3174,34 +3161,31 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 /***ja
     @brief 入力メソッドの変数リストを得る.
 
-    関数 minput_get_variables () は、$LANGUAGE と $NAME によって指定さ
-    れた入力メソッドの振る舞いを制御する変数のプロパティリスト 
+    関数 minput_get_variables () は、$LANGUAGE と $NAME 
+    によって指定された入力メソッドの振る舞いを制御する変数のプロパティリスト 
     (#MPlist) を返す。リストの各要素のキーは変数を表すシンボルである。
-    各要素の値は下記の VAR-INFO の形式のプロパティリストであり、各変数
-    に関する情報を示している。
+    各要素の値は下記の VAR-INFO 
+    の形式のプロパティリストであり、各変数に関する情報を示している。
 
-    VAR-INFO の第一要素はキーとして #Mtext を、値としてその変数
-    を簡単に説明する M-text を持つ。この M-text は、#Mdetail_text を
-    キーとするテキストプロパティを持つことができ、その値はその変数をよ
-    り詳細に説明する M-text である。
+    VAR-INFO の第一要素はキーとして #Mtext を、値としてその変数を簡単に説明する
+    M-text を持つ。この M-text は、#Mdetail_text 
+    をキーとするテキストプロパティを持つことができ、その値はその変数をより詳細に説明する
+    M-text である。
 
     VAR-INFO の第二要素は変数の値を示す。キーは #Minteger, #Msymbol,
-    #Mtext のいずれかであり、値はそれぞれ整数値、シンボル、M-text であ
-    る。この入力メソッド用の入力コンテストが作られる際には、変数はこの
-    値に設定される。
+    #Mtext のいずれかであり、値はそれぞれ整数値、シンボル、M-text  である。
+    この入力メソッド用の入力コンテストが作られる時点では、変数はこの値に設定されている。
 
-    VAR-INFO にそれ以外の要素が無ければ、変数は上記の型に合致する限り
-    どのような値をとることもできる。そうでなければ、VAR-INFO の残りの
-    要素によって変数の有効な値が指定される。
+    VAR-INFO にそれ以外の要素が無ければ、変数は上記の型に合致する限りどのような値をとることもできる。
+    そうでなければ、VAR-INFO の残りの要素によって変数の有効な値が指定される。
 
-    変数の型が整数であれば、それ以降の要素は #Minteger か #Mplist をキー
-    として持つ。 #Minteger であれば、値は有効な値を示す整数値である。
-    #Mplist であれば、値は二つの要素を持つプロパティリストであり、各要
-    素はキーとして #Minteger を、値としてそれぞれ有効な値の上限値と下
-    限値をとる。
+    変数の型が整数であれば、それ以降の要素は #Minteger か #Mplist 
+    をキーとして持つ。 #Minteger であれば、値は有効な値を示す整数値である。
+    #Mplist であれば、値は二つの要素を持つプロパティリストであり、各要素はキーとして
+    #Minteger を、値としてそれぞれ有効な値の上限値と下限値をとる。
 
-    変数の型がシンボルか M-text であれば、それ以降の要素はキーとしてそ
-    れぞれ #Msymbol か #Mtext を持ち、値として型に従うものをとる。
+    変数の型がシンボルか M-text であれば、それ以降の要素はキーとしてそれぞれ
+    #Msymbol か #Mtext を持ち、値はその型に合致するものである。
 
     例として、ある入力メソッドが次のような変数を持つ場合を考えよう。
 
@@ -3235,9 +3219,8 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     @return 
     入力メソッドが何らかの変数を使用していれば #MPlist への変数を返す。
-    返されるプロパティリストはライブラリによって管理されており、呼
-    び出し側で変更したり解放したりしてはならない。入力メソッドが変
-    数を一切使用してなければ、@c NULL を返す。  */
+    返されるプロパティリストはライブラリによって管理されており、呼び出し側で変更したり解放したりしてはならない。
+    入力メソッドが変数を一切使用してなければ、@c NULL を返す。  */
 
 MPlist *
 minput_get_variables (MSymbol language, MSymbol name)
@@ -3264,9 +3247,9 @@ minput_get_variables (MSymbol language, MSymbol name)
 /***ja
     @brief 入力メソッド変数の初期値を設定する.
 
-    関数 minput_set_variable () は、$LANGUAGE と $NAME によって指定さ
-    れた入力メソッドの入力メソッド変数 $VARIABLE の初期値を、 $VALUE に
-    設定する。
+    関数 minput_set_variable () は、$LANGUAGE と $NAME 
+    によって指定された入力メソッドの入力メソッド変数 $VARIABLE
+    の初期値を、 $VALUE に設定する。
 
     デフォルトの初期値は 0 である。
 
@@ -3363,8 +3346,8 @@ minput_set_variable (MSymbol language, MSymbol name,
 /***ja
     @brief 入力メソッドをダンプする.
 
-    関数 mdebug_dump_im () は入力メソッド $IM を stderr に人間に可読な
-    形で印刷する。$INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_im () は入力メソッド $IM を stderr 
+    に人間に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $IM を返す。  */
