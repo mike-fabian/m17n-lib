@@ -1070,6 +1070,12 @@ get_selection (Widget w, XtPointer cliend_data, Atom *selection,  Atom *type,
     goto err;
 
   this_mt = mconv_decode_buffer (coding, (unsigned char *) value, *length);
+  if (! this_mt && *type != XA_UTF8_STRING)
+    {
+      XtGetSelectionValue (w, XA_PRIMARY, XA_UTF8_STRING, get_selection, NULL,
+			   CurrentTime);
+      goto err;
+    }
   if (this_mt)
     {
       hide_cursor ();
