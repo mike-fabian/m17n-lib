@@ -263,6 +263,17 @@ static MSymbol Mcond, Mrange;
 
 #define GLYPH_CODE_INDEX(code) ((code) - GLYPH_CODE_MIN)
 
+#define UPDATE_CLUSTER_RANGE(ctx, g)		\
+  do {						\
+    if ((ctx)->cluster_begin_idx)		\
+      {						\
+	if (ctx->cluster_begin_pos > (g).pos)	\
+	  ctx->cluster_begin_pos = (g).pos;	\
+	if (ctx->cluster_end_pos < (g).to)	\
+	  ctx->cluster_end_pos = (g).to;	\
+      }						\
+  } while (0);
+
 enum FontLayoutCmdRuleSrcType
   {
     SRC_REGEX,
@@ -1078,13 +1089,6 @@ run_rule (int depth,
 	    continue;
 	  i--;
 	}
-      if (ctx->cluster_begin_idx)
-	{
-	  if (ctx->cluster_begin_pos > MGLYPH (from)->pos)
-	    ctx->cluster_begin_pos = MGLYPH (from)->pos;
-	  if (ctx->cluster_end_pos < MGLYPH (to)->pos)
-	    ctx->cluster_end_pos = MGLYPH (to)->pos;
-	}
       pos = run_command (depth, rule->cmd_ids[i], gstring, from, to, ctx);
       if (pos < 0)
 	MERROR (MERROR_DRAW, -1);
@@ -1127,6 +1131,8 @@ run_otf (int depth,
 	 FontLayoutContext *ctx)
 {
 #ifdef HAVE_OTF
+  int from_idx = gstring->used;
+
   MDEBUG_PRINT4 ("\n [FLT] %*s(OTF %s,%s)", depth, "",
 		 (otf_cmd->gsub_features == Mnil ? ""
 		  : MSYMBOL_NAME (otf_cmd->gsub_features)),
@@ -1135,6 +1141,9 @@ run_otf (int depth,
   to = mfont__ft_drive_otf (gstring, from, to,
 			    otf_cmd->script, otf_cmd->langsys,
 			    otf_cmd->gsub_features, otf_cmd->gpos_features);
+  if (ctx->cluster_begin_idx)
+    for (; from_idx < gstring->used; from_idx++)
+      UPDATE_CLUSTER_RANGE (ctx, gstring->glyphs[from_idx]);
 #endif
   return to;
 }
@@ -1172,6 +1181,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	    g.to = tmp->to;
 	}
       APPEND_GLYPH (gstring, g);
+      UPDATE_CLUSTER_RANGE (ctx, g);
       ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
       MDEBUG_PRINT (")");
       return (from);
@@ -1215,6 +1225,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	if (ctx->left_padding)
 	  g.left_padding = ctx->left_padding;
 	APPEND_GLYPH (gstring, g);
+	UPDATE_CLUSTER_RANGE (ctx, g);
 	MDEBUG_PRINT3 ("\n [FLT] %*s(COPY 0x%X)", depth, "", g.code);
 	ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
 	return (from + 1);
