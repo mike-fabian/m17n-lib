@@ -745,8 +745,7 @@ MSymbol Mcharset_m17n;
     The symbol #Mcharset_binary has name <tt>"binary"</tt> and
     represents the fake charset which the decoding functions put to an
     M-text as a text property when they encounter an invalid byte
-    (sequence).  See @ref m17nConv @latexonly
-    (P.\pageref{group__m17nConv}) @endlatexonly for more details.  */
+    (sequence).  See @ref m17nConv for more details.  */
 
 /***ja
     @brief 正しくデコードできない文字の文字セットを表現するシンボル.
@@ -755,8 +754,7 @@ MSymbol Mcharset_m17n;
     偽の (fake) 文字セットを表現する。デコード関数は、M-text のテキス
     トプロパティとして、無効なバイト（シークエンス）に遭遇した位置を付加する。
 
-     詳細は @ref m17nConv @latexonly
-    (P.\pageref{group__m17nConv}) @endlatexonly 参照のこと。 */
+     詳細は @ref m17nConv 参照のこと。 */
 
 MSymbol Mcharset_binary;
 
