@@ -48,6 +48,34 @@ extern void m17n_init_core (void);
 extern void m17n_fini_core (void);
 #define M17N_FINI() m17n_fini_core ()
 
+/*=*/
+
+/*** @addtogroup m17nIntro */
+/*** @{ */
+
+/***en
+    @brief Enumeration for the status of the m17n librarry.
+
+    The enum #MTextFormat is used as a return value of the function
+    m17n_status ().  */
+
+enum M17NStatus
+  {
+    /***en No modules is initialized, and all modules are finalized.  */
+    M17N_NOT_INITIALIZED, 
+    /***en Only the modules in CORE API are initialized.  */
+    M17N_CORE_INITIALIZED,
+    /***en Only the modules in CORE and SHELL APIs are initialized.  */
+    M17N_SHELL_INITIALIZED, 
+    /***en All modules are initialized.  */
+    M17N_GUI_INITIALIZED
+  };
+
+/*** @} */
+/*=*/
+
+extern enum M17NStatus m17n_status (void);
+
 /***en @defgroup m17nCore CORE API  */
 /***ja @defgroup m17nCore е│ев API */
 /*=*/
