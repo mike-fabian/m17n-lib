@@ -1,3 +1,8 @@
+2004-10-25  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (take_action_list): Initialize `ret' to 0 for "=", "<",
+	">" actions.
+
 2004-10-22  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (update_candidate): Renamed from udpate_candidate.
