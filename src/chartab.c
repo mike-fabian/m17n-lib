@@ -34,7 +34,7 @@
     The m17n library utilizes this tendency to store characters and
     their attribute values efficiently in an object called @e
     Chartable.  Although a chartable object is not a simple array,
-    application programs can handle chartables as if they were arrays.
+    application programs can handle a chartable as if it is an array.
     Attribute values of a character can be obtained by accessing a
     Chartable for the attribute with the character code of the
     specified character.
@@ -46,17 +46,14 @@
 
     @brief 文字テーブルとそれに関する API.
 
-    m17n ライブラリが扱う文字の空間は広大であるため、文字毎の情報を単
-    純な配列に格納しようとすると、その配列は巨大になりすぎ、非実用的で
-    ある。しかし通常必要となる文字についての情報は、ある特定の範囲の文
-    字にのみ付いていることが多い。全文字に関して情報がある場合にも、連
-    続した文字コードを持つ文字は同じ情報を持つことが多い。
+    m17n ライブラリが扱う文字の空間は広大であるため、文字毎の情報を単純な配列に格納しようとすると、その配列は巨大になりすぎ、非実用的である。
+    しかし通常必要となる文字についての情報は、ある特定の範囲の文字にのみ付いていることが多い。
+    全文字に関して情報がある場合にも、連続した文字コードを持つ文字は同じ情報を持つことが多い。
 
     このような傾向を利用して文字とその付加情報を効率的に格納するために、
-    m17n ライブラリは @e 文字テーブル (chartable) と呼ぶオブジェクトを
-    用いる。文字テーブルは配列ではないが、アプリケーションプログラムは
-    文字テーブルを配列の一種として扱うことができる。ある文字についての特
-    定の情報は、その情報を持つ文字テーブルをその文字のコードで引くこと
+    m17n ライブラリは @e 文字テーブル (chartable) と呼ぶオブジェクトを用いる。
+    文字テーブルは配列ではないが、アプリケーションプログラムは文字テーブルを配列の一種として扱うことができる。
+    ある文字についての特定の情報は、その情報を持つ文字テーブルをその文字のコードで引くこと
     で得られる。  
 
     文字テーブルは管理下オブジェクトである。 */
@@ -661,14 +658,13 @@ MSymbol Mchar_table;
     @brief 新しい文字テーブルを作る.
 
     関数 mchartable () はキーが $KEY で要素のデフォルト値が 
-    $DEFAULT_VALUE である新しい文字テーブルを作る。もし $KEY が管理キー
-    であれば、このテーブルの要素は（デフォルト値を含めて）管理下オブジェ
-    クトか NULL のいずれかである。
+    $DEFAULT_VALUE である新しい文字テーブルを作る。もし $KEY 
+    が管理キーであれば、このテーブルの要素は（デフォルト値を含めて）管理下オブジェクトか 
+    NULL のいずれかである。
 
     @return
-    処理が成功すれば mchartable () は作成された文字テーブルへのポイン
-    タを返す。失敗した場合は @c NULL を返し、外部変数 #merror_code にエ
-    ラーコードを設定する。  */
+    処理が成功すれば mchartable () は作成された文字テーブルへのポインタを返す。
+    失敗した場合は @c NULL を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 MCharTable *
 mchartable (MSymbol key, void *default_value)
@@ -702,9 +698,9 @@ mchartable (MSymbol key, void *default_value)
 /***ja
     @brief 文字テーブル中で文字に割り当てられた値を返す.
 
-    関数 mchartable_lookup () は文字テーブル $TABLE 中で文字 $C に割り
-    当てられた値を返す。$C に対する明示的な値がなければ、$TABLE のデフォ
-    ルト値を返す。$C が妥当な文字でなければ、mchartable_lookup () は 
+    関数 mchartable_lookup () は文字テーブル $TABLE 中で文字 $C 
+    に割り当てられた値を返す。$C に対する明示的な値がなければ、$TABLE 
+    のデフォルト値を返す。$C が妥当な文字でなければ、mchartable_lookup () は 
     @c NULL を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
@@ -740,8 +736,8 @@ mchartable_lookup (MCharTable *table, int c)
 /***ja
     @brief 文字テーブル中での文字の値を設定する.
 
-    関数 mchartable_set () は、文字テーブル $TABLE 中の文字 $C に
-    値 $VAL を割り当てる。
+    関数 mchartable_set () は、文字テーブル $TABLE 中の文字 $C 
+    に値 $VAL を割り当てる。
 
     @return
     処理が成功すれば、mchartable_set () は 0 を返す。そうでなければ -1 
@@ -813,14 +809,14 @@ mchartable_set (MCharTable *table, int c, void *val)
 /***ja
     @brief 指定範囲の文字に値を設定する.
 
-    関数 mchartable_set_range () は、文字テーブル $TABLE 中の $FROM か
-    ら $TO まで（両端を含む）の文字に、値として $VAL を設定する。
+    関数 mchartable_set_range () は、文字テーブル $TABLE 中の $FROM 
+    から $TO まで（両端を含む）の文字に、値として $VAL を設定する。
 
     @return
     処理が成功すれば mchartable_set_range () は 0 を返す。そうでなければ 
     -1 を返し、外部変数 #merror_code にエラーコードを設定する。$FROM が 
-    $TO より大きいときには、 mchartable_set_range () は何もせず、エラー
-    も起こさない。  */
+    $TO より大きいときには、 mchartable_set_range () 
+    は何もせず、エラーも起こさない。  */
 
 /***
     @errors
@@ -866,9 +862,9 @@ mchartable_set_range (MCharTable *table, int from, int to, void *val)
 /***ja
     @brief 値がデフォルトと異なる文字を探す.
 
-    関数 mchartable_range () は文字テーブル $TABLE 中で、$TABLE のデフォ
-    ルト値以外の値を持つ最初と最後の文字を探し、それぞれを $FROM と 
-    $TO に設定する。すべての文字がデフォルト値を値として持っていれば、
+    関数 mchartable_range () は文字テーブル $TABLE 中で、$TABLE 
+    のデフォルト値以外の値を持つ最初と最後の文字を探し、それぞれを $FROM 
+    と $TO に設定する。すべての文字が値としてデフォルト値をとっている場合には
     $FROM と $TO を -1に設定する。  */
 
 void
@@ -910,19 +906,19 @@ mchartable_range (MCharTable *table, int *from, int *to)
 /***ja
     @brief 文字テーブル中の文字に対して指定の関数を呼ぶ.
 
-    関数 mchartable_map () は、文字テーブル $TABLE 中の文字に対して関
-    数 $FUNC を呼ぶ。ただし$TABLE 中でも値が $IGNORE である文字につい
-    ては関数呼び出しを行なわない。$IGNORE と文字の値の比較は @c == で
-    行なうので、文字列リテラルやポインタを使う際には注意を要する。
+    関数 mchartable_map () は、文字テーブル $TABLE 中の文字に対して関数
+    $FUNC を呼ぶ。ただし$TABLE 中でも値が $IGNORE 
+    である文字については関数呼び出しを行なわない。$IGNORE と文字の値の比較は 
+    @c == で行なうので、文字列リテラルやポインタを使う際には注意を要する。
 
-    mchartable_map () は、一文字ごとに $FUNC を呼ぶのではなく、関数呼
-    び出しの回数を最適化しようとする。すなわち、連続した文字が同じ値を
-    持っていた場合には、その文字のまとまり全体について一度の関数呼び出
+    mchartable_map () は、一文字ごとに $FUNC 
+    を呼ぶのではなく、関数呼び出しの回数を最適化しようとする。
+    すなわち、連続した文字が同じ値を持っていた場合には、その文字のまとまり全体について一度の関数呼び出
     ししか行なわない。
 
     文字のまとまりの大きさにかかわらず、$FUNC は $FROM, $TO, $VAL, $ARG 
-    の４引数で呼ばれる。$FROM と $TO （両端を含む）は $VAL を値として
-    持つ文字の範囲を示し、$ARG は $FUNC_ARG そのものである。
+    の４引数で呼ばれる。$FROM と $TO （両端を含む）は $VAL 
+    を値として持つ文字の範囲を示し、$ARG は $FUNC_ARG そのものである。
 
     @return
     この関数は常に0を返す。  */
@@ -957,8 +953,8 @@ mchartable_map (MCharTable *table, void *ignore,
 /***ja
     @brief 文字テーブルをダンプする.
 
-    関数 mdebug_dump_chartab () は文字テーブル $TABLE を stderr に人間
-    に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_chartab () は文字テーブル $TABLE を stderr 
+    に人間に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $TABLE を返す。  */
