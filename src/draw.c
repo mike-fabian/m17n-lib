@@ -34,14 +34,19 @@
     ways, which provides powerful 2-dimensional layouting
     facility.  */
 
-/***oldja
+/***ja
     @addtogroup m17nDraw
-    @brief M-text 表示のための m17n-gui API
+    @brief M-text をウィンドウに描画する
 
-    m17n-gui API には、M-text を表示するための関数が用意されている。表
-    示に用いられるフォントは、フレームのフォントセットとプロパティに基
-    づいて自動的に決定される。また、色や下線などの属性もフレームによっ
-    て決定される。  */
+    m17n-gui API には、M-text を表示するための関数が用意されている。
+
+    表示に用いられるフォントは、フォントセットと face プロパティに基づ
+    いて自動的に決定される。また、フォントのサイズや色や下線などの見栄
+    えも face によって決まる。
+
+    M-text の描画フォーマットは多様な方法で制御できるので、強力な二次
+    元レイアウト機能が実現できる。
+    */
 
 /*=*/
 
@@ -1754,17 +1759,18 @@ mdraw__fini ()
 
     <li> Search the text properties given to the character for the one
 	 whose key is @c Mcharset; its value should be either a symbol
-	 specifying a charset or Mnil.  If the value is Mnil, proceed
-	 to the next step.
+	 specifying a charset or #Mnil.  If the value is #Mnil,
+	 proceed to the next step.
 
 	 Otherwise, search the mapping table of the fontset for the
-	 charset.  If no entry is found proceed to the next step.  If
-	 an entry is found, use one of the fonts in the entry that has
-	 a glyph for the character and that matches best with the face
-	 properties.  If no such font exists, proceed to the next
+	 charset.  If no entry is found proceed to the next step.  
+
+         If an entry is found, use one of the fonts in the entry that
+	 has a glyph for the character and that matches best with the
+	 face properties.  If no such font exists, proceed to the next
 	 step.
 
-    <li> Get the character-property script of the character.  If it is
+    <li> Get the character property "script" of the character.  If it is
 	 inherited, get the script property from the previous
 	 characters.  If there is no previous character, or none of
 	 them has the script property other than inherited, proceed to
@@ -1776,10 +1782,12 @@ mdraw__fini ()
 
 	 Search the mapping table of the fontset for the combination
 	 of the script and language.  If no entry is found, proceed to
-	 the next step.  If an entry is found, use one of the fonts in
-	 the entry that has a glyph for the character and that matches
-	 best with the face properties.  If no such font exists,
-	 proceed to the next step.
+	 the next step.  
+
+        If an entry is found, use one of the fonts in the entry that
+	 has a glyph for the character and that matches best with the
+	 face properties.  If no such font exists, proceed to the next
+	 step.
 
     <li> Search the fall-back table of the fontset for a font that has
 	 a glyph of the character.  If such a font is found, use that
@@ -1801,66 +1809,72 @@ mdraw__fini ()
     @return
     If the operation was successful, mdraw_text () returns 0.  If an
     error is detected, it returns -1 and assigns an error code to the
-    external variable @c merror_code.  */
-
-/***oldja
-    @brief ウィンドウに M-text を表示する
+    external variable #merror_code.  */
+/***ja
+    @brief ウィンドウに M-text を描画する
 
     関数 mdraw_text () は、フレーム $FRAME のウィンドウ $WIN の座標 
     ($X, $Y) に、M-text $MT の $FROM から $TO までのテキストを
-    表示する。
-
-    ポインタ $RET_DESCENT が @c NULL でなければ、表示したテキストのディセ
-    ントがそこに格納される。
+    描画する。
 
     テキストの見栄え（フォント、スタイル、色など）は、キーが @c Mface 
     であるテキストプロパティの値によって決まる。M-text の一部あるいは
     全部にそのようなテキストプロパティが付いていない場合には、$FRAME 
     のデフォルトフェースが用いられる。
 
-    M-text の各文字を表示するフォントは、$FACE の fontset プロパティの
-    値から以下のアルゴリズムで選ばれる。
+    M-text の各文字を表示するフォントは、フェースの fontset プロパティ
+    の値から以下のアルゴリズムで選ばれる。
 
     <ol>
 
-    <li> その文字のテキストプロパティのうち、キーが @c Mlanguage であ
-         るものの値を調べる。この値は言語を表わすシンボルか @c Mnil のい
-         ずれかである。次にキーが @c Mscript であるものの値を調べる。
-         この値はスクリプトを表わすシンボルか @c Mnil のどちらかである。
-
-	 どちらも @c Mnil ならば、次のステップに進む。
-
-	 そうでなければ、その言語とスクリプトの組み合わせを使っ
-	 て、そのフォントセットのマッピングテーブルをひく。フォントが
-	 みつかり、かつそのフォントで現在の文字が表示できれば、そのフォ
-	 ントを使う。そうでなければ、次のステップに進む。
-
     <li> その文字のテキストプロパティのうち、キーが @c Mcharset である
-         ものの値を調べる。この値は文字セットを表わすシンボルか @c Mnil 
-         のどちらかである。@c Mnil ならば、次のステップに進む。
+         ものの値を調べる。この値は文字セットを表わすシンボルか #Mnil 
+         のどちらかである。#Mnil ならば、次のステップに進む。そうでな
+         ければ、そのフォントセットのマッピングテーブルからその文字セッ
+         ト用のものを探す。フォントがみつからなければ、次のステップに
+         進む。
+         
+         その文字セット用のフォントがみつかれば、それらのうち現在の文
+	 字用のグリフを持ち、フェースの各プロパティに最もよく合致して
+	 いるものを使う。そのようなフォントが無ければ次のステップに進
+	 む。
 
-	 そうでなければ、見つかった文字セット使って、そのフォントセッ
-	 トのマッピングテーブルをひく。フォントがみつかり、かつそのフォ
-	 ントで現在の文字が表示できれば、そのフォントを使う。そうでな
-	 ければ、次のステップに進む。
+    <li> その文字の文字プロパティ "script" （スクリプト）を調べる。継
+         承されているならばそれ以前の文字の文字プロパティ "script" を
+         調べる。前の文字がなかったり、その文字プロパティを持っていな
+         かった場合には、次のステップに進む。
 
-    <li> 現在の文字自身を使って、そのフォントセットのマッピングテーブ
-         ルをひく。フォントが見つかればそれを使う。
+         その文字のテキストプロパティのうち、キーが @c Mlanguage であ
+         るものの値を調べる。この値は言語を表わすシンボルか @c Mnil の
+         いずれかである。
+
+	 そうでなければ、その言語とスクリプトの組み合わせ用のフォント
+	 セットをマッピングテーブルから探す。見つからなければ次のステッ
+	 プに進む。
+
+	 そのような文字セット用のフォントがみつかれば、それらのうち現
+	 在の文字用のグリフを持ち、フェースの各プロパティに最もよく合
+	 致しているものを使う。そのようなフォントが無ければ次のステッ
+	 プに進む。
+
+    <li> その文字のグリフを持つフォントを、フォントセットのfall-backテー
+         ブルから探す。フォントが見つかればそれを使う。
 
     </ol>
 
     以上のアルゴリズムでフォントが見つからなければ、この関数はその文字
     として空の四角形を表示する。
 
-    この関数が描画するのはグリフの前景色だけである。背景色を指定するに
-    は、関数 mdraw_image_text () を使うこと。
+    この関数が描画するのはグリフの前景だけである。背景色を指定するには、
+    関数 mdraw_image_text () か関数 mdraw_text_with_control () を使う
+    こと。
 
-    この関数は、X ウィンドウにおける <tt>XDrawString ()</tt>,
+    この関数は、X ウィンドウにおける関数 <tt>XDrawString ()</tt>,
     <tt>XmbDrawString ()</tt>, <tt>XwcDrawString ()</tt> に相当する。
 
     @return
     処理が成功した場合、mdraw_text () は 0 返す。エラーが検出された場
-    合は -1 を返し、外部変数 @c merror_code にエラーコードを設定する。
+    合は -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_text} @endlatexonly  */
 
@@ -1903,17 +1917,17 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
     @return
     If the operation was successful, mdraw_image_text () returns 0.
     If an error is detected, it returns -1 and assigns an error code
-    to the external variable @c merror_code.  */
+    to the external variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief ディスプレイにM-text を画像として描く
-
+  
     関数 mdraw_image_text () は、フレーム $FRAME のウィンドウ $WIN の
     座標 ($X, $Y) に、M-text $MT の $FROM から $TO までのテキストを画
     像として描く。
 
     テキストの描画方法は mdraw_text () とほぼ同じであるが、この関数で
-    は $FACE で指定された色で背景も描く点が異なっている。
+    はフェースで指定された色で背景も描く点が異なっている。
 
     この関数は、X ウィンドウにおける <tt>XDrawImageString ()</tt>,
     <tt>XmbDrawImageString ()</tt>, <tt>XwcDrawImageString ()</tt> に
@@ -1921,7 +1935,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
 
     @return
     処理が成功した場合、mdraw_image_text () は 0 を返す。エラーが検出
-    された場合は -1 を返し、外部変数 @c m_errro にエラーコードを設定す
+    された場合は -1 を返し、外部変数 #m_errro にエラーコードを設定す
     る。
 
     @latexonly \IPAlabel{mdraw_image_text} @endlatexonly   */
@@ -1963,6 +1977,21 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
     line.  See the documentation of the structure @ MDrawControl for
     more detail.  */
 
+/***ja
+    @brief ディスプレイにM-text を描く（詳細な制御つき）
+
+    関数 mdraw_text_with_control () は、フレーム $FRAME のウィンドウ 
+    $WIN の座標 ($X, $Y) に、M-text $MT の $FROM から $TO までのテキス
+    トを描く。
+
+    テキストの描画方法は mdraw_text () とほぼ同じであるが、この関数は
+    描画制御用のオブジェクト $CONTROL での指示にも従う点が異なっている。
+
+    たとえば $CONTROL の <two_dimensional> がゼロでなければ、この関数
+    はM-text を2次元的に描く。すなわち M-text 中の改行で行を改め、続く
+    文字は次の行に描く。詳細は構造体 @ MDrawControl の説明を参照するこ
+    と。*/
+
 int
 mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
 			 MText *mt, int from, int to, MDrawControl *control)
@@ -2001,27 +2030,41 @@ mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
     max_line_descent of $CONTROL are all zero.
 
     @return
-
     This function returns the width of the text to be drawn in the
     unit of pixels.  If $CONTROL->two_dimensional is nonzero and the
     text is drawn in multiple physical lines, it returns the width of
     the widest line.  If an error occurs, it returns -1 and assigns an
-    error code to the external variable @c merror_code.  */
+    error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief テキストの幅を計算する
 
-    関数 mdraw_text_extents () は、M-text $MT の $FROM から $TO までを
-    フレーム $FRAME に表示する際に必要となる幅を返す。
+/***ja 
+    @brief テキストの幅（ピクセル単位）を計算する
 
-    ポインタ $OVERALL_RETURN が @c NULL 以外の場合、この関数はテキスト
-    全体の表示範囲情報も計算し、$OVERALL_RETURN が指す構造体のメンバに
-    その結果を設定する。
+    関数 mdraw_text_extents () は、関数 mdraw_text_with_control () が
+    描画制御オブジェクト $CONTROL を用いて M-text $MT の $FROM から $TO 
+    までをフレーム $FRAME に表示する際に必要となる幅を返す。
 
-    @return
-    この関数は表示に必要となるテキストの幅をピクセル単位で返す。エラー
-    が生じた場合は -1 を返し、外部変数 @c merror_code にエラーコードを
-    設定する。
+    $OVERALL_INK_RETURN が @c NULL でなければ、この関数は M-text の文
+    字のインクのバウンディングボックスも計算し、$OVERALL_INK_RETURN が
+    指す構造体のメンバにその結果を設定する。M-text に surrounding box 
+    を指定するフェースがあれば、それもバウンディングボックスに含む。
+
+    $OVERALL_LOGICAL_RETURN が @c NULL でなければ、この関数は M-text 
+    と他の graphical feature （surrounding box など）との間の最小のス
+    ペースを示すバウンディングボックスも計算し、$OVERALL_LOGICAL_RETURN が指す構造体
+    のメンバにその結果を設定する。
+
+    $OVERALL_LINE_RETURN が @c NULL でなければ、この関数は他の M-text 
+    との間の最小のスペースを示すバウンディングボックスも計算し、
+    $OVERALL_LINE_RETURN が指す構造体のメンバにその結果を設定する。オ
+    ブジェクト $CONTROL のメンバ min_line_ascent, min_line_descent,
+    max_line_ascent, max_line_descent がすべて0の時には、この値は 
+    $OVERALL_INK_RETURN と$OVERALL_LOGICAL_RETURN の和となる。
+
+    @return この関数は表示に必要なテキストの幅をピクセル単位で返す。
+    $CONTROL->two_dimensional が0でなく、テキストが複数の行に渡って描
+    かれる場合には、最大の幅を返す。エラーが生じた場合は -1 を返し、外
+    部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_text_extents} @endlatexonly  */
 
@@ -2127,13 +2170,37 @@ mdraw_text_extents (MFrame *frame,
     returns -1 and store the requested size in $NUM_CHARS_RETURN.
     Otherwise, it returns zero.
 
-    If pointer $OVERALL_INK_RETURN an $OVERALL_LOGICAL_RETURN are not
+    If pointer $OVERALL_INK_RETURN and $OVERALL_LOGICAL_RETURN are not
     @c NULL, this function also computes the metrics of the overall
     text and stores the results in the members of the structure
     pointed to by $OVERALL_INK_RETURN and $OVERALL_LOGICAL_RETURN.
 
     If $CONTROL->two_dimensional is nonzero, this function computes
     only the metrics of characters in the first line.  */
+/***ja
+    @brief  M-text の各文字の表示範囲を計算する.
+    関数 mdraw_text_per_char_extents () は、関数 
+    mdraw_text_with_control () が描画制御オブジェクト $CONTROL を用い
+    て M-text $MT の $FROM から $TO までをフレーム $FRAME に表示する際
+    の各文字のサイズを計算する。
+
+    $ARRAY_SIZE によって $INK_ARRAY_RETURN と$LOGICAL_ARRAY_RETURN の
+    サイズを指定する。$INK_ARRAY_RETURN と$LOGICAL_ARRAY_RETURN の各要
+    素は、それぞれ文字の描画インクと論理サイズ（M-textの表示原点からの
+    相対位値）によって順に埋められる。設定された $INK_ARRAY_RETURN と 
+    $LOGICAL_ARRAY_RETURN の要素の数は、$NUM_CHARS_RETURN に戻される。
+   
+    $ARRAY_SIZE がすべての寸法を戻せないほど小さい場合には、関数は -1 
+    を返し、必要な大きさを $NUM_CHARS_RETURN に返す。そうでなければ 0 
+    を返す。
+
+    ポインタ $OVERALL_INK_RETURN と $OVERALL_LOGICAL_RETURN が@c NULL 
+    でなければ、この関数はテキスト全体のサイズも計算し、結果を
+    $OVERALL_INK_RETURN と $OVERALL_LOGICAL_RETURN で指される構造のメ
+    ンバに保存する。
+
+    $CONTROL->two_dimensional が0でなければ、この関数は最初の行の文字
+    のサイズだけを計算する。 */
 
 int
 mdraw_text_per_char_extents (MFrame *frame,
@@ -2240,7 +2307,8 @@ mdraw_text_per_char_extents (MFrame *frame,
     and $TO of M-text $MT is drawn at the coordinate (0, 0) using the
     mdraw_text_with_control () function with the drawing control
     object $CONTROL.  Here, the character position means the number of
-    characters that precede the character in question in $MT.
+    characters that precede the character in question in $MT, that is,
+    the character position of the first character is 0.
 
     $FRAME is used only to get the default face information.
 
@@ -2259,20 +2327,17 @@ mdraw_text_per_char_extents (MFrame *frame,
     maximum X-coordinate, it returns the character position of the
     last character drawn on the line $Y.  */
 
-/***oldja
-    @brief 指定した座標にある文字の位置を得る
+/***ja
+    @brief 指定した座標に最も近い文字の文字位置を得る
 
-    関数 mdraw_coordinates_position () は、
+    関数 mdraw_coordinates_position () は、関数 
+    mdraw_text_with_control () が描画制御オブジェクト $CONTROL を用い
+    てM-text $MT の $FROM から $TO までを座標 (0, 0) を起点として描画
+    した場合に、座標 ($X, $Y) に描画される文字の文字位置を返す。ここで
+    文字位置とは、当該 M-text 中においてその文字が最初から何番目かを示
+    す整数である。ただし最初の文字の文字位置は0とする。
 
-    @li 関数 mdraw_text () を使って
-    @li M-text $MT の $FROM から $TO までを
-    @li 座標 (0, 0) を起点として仮に描画した場合
-
-    座標 ($X, $Y) に描画されるベき文字の文字位置を返す。ここで文字位置
-    とは、当該 M-text 中においてその文字が最初から何番目かを示す整数で
-    ある。ただし最初の文字の文字位置は0とする。
-
-    $FRAME はデフォルトフェースの情報を得るためだけに用いられる。
+    $FRAME はデフォルトのフェースの情報を得るためだけに用いられる。
 
     @return
     座標 ($X, $Y) がある文字のグリフで覆われる場合、 関数 
@@ -2351,13 +2416,22 @@ mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
 /***en
     @brief Compute information about a glyph.
 
-    The @c mdraw_glyph_info () function computes information about a
+    The mdraw_glyph_info () function computes information about a
     glyph that covers a character at position $POS of the M-text $MT
     assuming that the text is drawn from the character at $FROM of $MT
     on a window of frame $FRAME using the mdraw_text_with_control ()
     function with the drawing control object $CONTROL.
 
     The information is stored in the members of $INFO.  */
+/***ja
+    @brief グリフに関する情報を計算する.
+
+    関数 mdraw_glyph_info () は、関数 mdraw_text_with_control () が描
+    画制御オブジェクト $CONTROL を用いてM-text $MT の $FROM から $TO 
+    までをフレーム $FRAME に描画した場合、M-text の文字位置 $POS の文
+    字を覆うグリフに関する情報を計算する。
+
+    情報は$INFO のメンバに保持される。  */
 
 /***
     @seealso
@@ -2538,8 +2612,8 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     of the textitems to be drawn and $NITEMS is the number of
     textimtems in the array.  */
 
-/***oldja
-    @brief textitem を表示する
+/***ja
+    @brief textitem を表示する.
 
     関数 mdraw_text_items () は、一個以上のテキストアイテムを、フレー
     ム $FRAME のウィンドウ $WIN の座標 ($X, $Y) に表示する。$ITEMS は
@@ -2624,19 +2698,20 @@ mdraw_default_line_break (MText *mt, int pos,
     computes the extents of the overall text and stores the results in
     the members of the structure pointed to by $OVERALL_RETURN  */
 
-/***oldja
-    @brief M-text の文字毎の情報を得る
+/***ja
+    @brief M-text の文字毎の表示範囲情報を得る
 
     関数 mdraw_per_char_extents () は、M-text $MT 中の各文字の表示範囲
     を計算する。この計算に用いるフォントは、$MT のテキストプロパティで
-    指定されたフェースと、フレーム $FRAME のデフォルトフェースから決定
-    される。$ARRAY_RETURN の各要素は、当該 M-text 中の各文字の表示範囲
+    指定されたフェースと、フレーム $FRAME のデフォルトフェースによって決
+    まる。$ARRAY_RETURN の各要素は、当該 M-text 中の各文字の表示範囲
     情報によって順に埋められる。この表示範囲情報は、M-text の表示原点
     からの相対位置である。$ARRAY_RETURN の要素数は、M-text の文字数以
     上でなければならない。
 
-    ポインタ $OVERALL_RETURN が @c NULL でない場合は、テキスト全体の表示
-    範囲情報も計算し、その計算を $OVERALL_RETURN の指す先に格納する。
+    ポインタ $OVERALL_RETURN が @c NULL でない場合は、テキスト全体の表
+    示範囲情報も計算し、その結果を $OVERALL_RETURN の指す構造体に格納
+    する。
 
     @latexonly \IPAlabel{mdraw_per_char_extents} @endlatexonly  */
 
