@@ -64,8 +64,8 @@ struct MFace
   /** Properties of the face.  */
   void *property[MFACE_PROPERTY_MAX];
 
-  /** List of realized faces based on the face.  */
-  MPlist *realized_face_list;
+  /** List of frames affected by the face modification.  */
+  MPlist *frame_list;
 };
 
 
@@ -84,9 +84,6 @@ struct MRealizedFace
      (MFace *).  */
   MPlist *base_face_list;
 
-  /* Set to 1 if some of above faces is modified.  */
-  unsigned need_update;
-
   /* Realized font, one of <frame>->realized_font_list.  */
   MRealizedFont *rfont;
 
@@ -103,9 +100,8 @@ struct MRealizedFace
       properties. */
   MRealizedFace *ascii_rface;
 
-  /** Realized face for undisplayable chars (no font found) that has
-      the same face properties. */
-  MRealizedFace *nofont_rface;
+  /** List of realized faces that have the same face properties.  */
+  MPlist *non_ascii_list;
 
   int ascent, descent;
   int space_width;
@@ -126,5 +122,7 @@ extern MGlyph *mface__for_chars (MSymbol script, MSymbol language,
 				 int size);
 
 extern void mface__free_realized (MRealizedFace *rface);
+
+extern void mface__update_frame_face (MFrame *frame);
 
 #endif /* _M17N_FACE_H_ */
