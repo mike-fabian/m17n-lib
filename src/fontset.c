@@ -984,36 +984,78 @@ mfontset_modify_entry (MFontset *fontset,
     If $SCRIPT is @c Mt, keys of the returned plist are script name
     symbols for which some fonts are specified and values are NULL.
 
-    If $SCRIPT is a script symbol, the returned plist is decided by
-    $LANGUAGE.
+    If $SCRIPT is a script name symbol, the returned plist is decided
+    by $LANGUAGE.
+    
+    @li If $LANGUAGE is @c Mt, keys of the plist are language name
+    symbols for which some fonts are specified and values are NULL.  A
+    key may be @c Mt which means some fallback fonts are specified for
+    the script.
 
-    If $LANGUAGE is @c Mt, keys of the plist are language name symbols
-    for which some fonts are specified and values are NULL.  A key may
-    be @c Mt which means some fallback fonts are specified for the
-    script.
+    @li If $LANGUAGE is a language name symbol, the plist is a @c
+    FONT-GROUP for the specified script and language.  @c FONT-GROUP
+    is a plist whose keys are FLT (FontLayoutTable) name symbols (@c
+    Mt if no FLT is associated with the font) and values are pointers
+    to #MFont.
 
-    If $LANGUAGE is a language name symbol, the plist is a @c
-    FONT-GROUP for the specified script and language.
-
-    If $LANGUAGE is @c Mt, the plist is fallback @c FONT-GROUP for the
-    script.  @c FONT-GROUP is a plist whose keys are FLT
-    (FontLayoutTable)name symbols (@c Mt if no FLT is associated with
-    the font) and values are pointers to #MFont.
+    @li If $LANGUAGE is @c Mnil, the plist is fallback @c FONT-GROUP
+    for the script. 
 
     If $SCRIPT is @c Mnil, the returned plist is decided as below.
 
-    If $CHARSET is @c Mt, keys of the returned plist are charset name
+    @li If $CHARSET is @c Mt, keys of the returned plist are charset name
     symbols for which some fonts are specified and values are NULL.
 
-    If $CHARSET is a charset symbol, the plist is a @c FONT-GROUP for
+    @li If $CHARSET is a charset name symbol, the plist is a @c FONT-GROUP for
     the charset.
 
-    If $CHARSET is @c Mnil, the plist is a fallback @c FONT-GROUP.
-
+    @li If $CHARSET is @c Mnil, the plist is a fallback @c FONT-GROUP.
 
     @return
     It returns a plist describing the contents of a fontset.  The
     plist should be freed by m17n_object_unref ().  */
+/***ja
+    @brief フォントセットを検索する.
+
+    関数 mfontset_lookup () は $FONTSET を検索し、$FONTSET 
+    の内容のうち指定したスクリプト、言語、文字セットに対応する部分を表す
+    plist を返す。
+
+    $SCRIPT が @c Mt ならば、返す plist 
+    のキーはフォントが指定されているスクリプト名のシンボルであり、値は
+    NULL である。
+
+    $SCRIPT がスクリプト名のシンボルであれば、返す 
+    plist は $LANGUAGEによって定まる。
+    
+    @li $LANGUAGE が @c Mt ならば、plist 
+    のキーはフォントが指定されている言語名のシンボルであり、値は
+    NULL である。キーは @c Mt
+    であることもあり、その場合そのスクリプトにフォールバックフォントがあることを意味する。
+
+    @li $LANGUAGE が言語名のシンボルならば、plist は指定のスクリプトと言語に対する
+    @c FONT-GROUP である。@c FONT-GROUP とは、キーが FLT
+    (FontLayoutTable) 名のシンボルであり、値が #MFont 
+    へのポインタであるような plist である。ただしフォントに FLT 
+    が対応付けられていない時には、キーは @c Mt になる。
+
+    @li $LANGUAGE が @c Mnil ならば、plist はそのスクリプト用のフォールバック
+    @c FONT-GROUP である。
+
+    $SCRIPT が @c Mnil ならば、返す plist は以下のように定まる。
+
+    @li $CHARSET が @c Mt ならば、plist 
+    のキーはフォントが指定されている文字セット名のシンボルであり、値は
+    NULL である。
+
+    @li $CHARSET が文字セット名のシンボルならば、plist はその文字セット用の 
+    @c FONT-GROUP である。
+
+    @li $CHARSET が @c Mnil ならば、plist はフォールバック @c FONT-GROUP である。
+
+    @return
+    この関数はフォントセットの内容を表す plist を返す。
+    plist は m17n_object_unref () で解放されるべきである。  */
 
 MPlist *
 mfontset_lookup (MFontset *fontset,
