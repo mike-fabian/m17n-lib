@@ -1,3 +1,140 @@
+2004-05-27  Kenichi Handa  <handa@m17n.org>
+
+	The following chanages are to make device dependent functions
+	accessible only from MDeviceDriver structure, and to add GD and
+	null device drivers.  Font drivers get also device dependent.
+
+	* m17n.c (m17n_init): Increament shell_initialized.
+	(m17n_fini): Decremented shell_initialized.
+
+	* m17n-misc.h (enum MErrorCode): New element MERROR_GD.
+
+	* m17n-gui.c: Include <dlfcn.h> and "config.h".
+	(free_frame): Call frame->driver->close instead of
+	mwin__close_device.
+	(DLOPEN_SHLIB_EXT): New macro.
+	(MDeviceLibraryInterface): New type.
+	(device_library_list): New variable.
+	(register_device_library): New function.
+	(null_device): New variable.
+	(null_device_close, null_device_get_prop)
+	(null_device_realize_face, null_device_free_realized_face): New
+	function.
+	(null_driver): New variable.
+	(null_device_init, null_device_fini, null_device_open): New
+	functions.
+	(null_interface): New variable.
+	(Mfreetype, Mdevice): Declare them.
+	(m17n_init_win): Increment win_initialized.  Initialize Mx, Mgd,
+	Mfreetype, Mdevice, Mdisplay, Mscreen, Mdrawable, Mdevice, and
+	Mwin__Close_Device.  Register drivers for Mx and Mgd.
+	(m17n_fini_win): Decremented win_initialized.  Call "fini"
+	function of all opened devices.  Don't call mwin__fini.
+	(Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap):
+	Declare them here.
+	(mframe): Handle Mdevice key of PLIST.
+	(mframe_get_prop): Call frame->device->get_prop instead of
+	mwin__device_get_prop.
+
+	* m17n-core.h (M17NLIB_MAJOR_VERSION, M17NLIB_MINOR_VERSION)
+	(M17NLIB_PATCH_LEVEL, M17NLIB_VERSION_NAME): Updated to 1.1.0.
+
+	* m17n-core.c (m17n_init_core): Increate core_initialized.
+	(m17n_fini_core): Decremented core_initialized.
+
+	* m17n-X.h (Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget)
+	(Mcolormap): Don't extern them here.
+
+	* m17n-X.c (FRAME_DEVICE): New macro.
+	(FRAME_DISPLAY, FRAME_SCREEN, FRAME_CMAP): Use FRAME_DEVICE.
+	(free_display_info): Use MPLIST_DO.
+	(free_device): Free rface->info.
+	(xft_close): Delete it.
+	(device_init): Renamed from mwin__init.
+	(device_fini): Renamed from mwin__fini.
+	(device_open): Renamed from mwin__open_device.
+	(x_driver): New variable.
+	(MXFontInfo): Delete member frame, add member display.
+	(Mdisplay, Mscreen, Mdrawable, Mdepth, Mwidget, Mcolormap, Mxim):
+	Don't declare them here.
+
+	* internal-gui.h (MDeviceType): New enum.
+	(MWDefice): Delete it.
+	(struct MFrame): Change type of device to void *.  New members
+	device_type, driver, font_driver_list.
+	(M_CHECK_WRITABLE, M_CHECK_READABLE): New macros.
+	(MDeviceDriver): New type.
+	(Mx, Mgd, Mfreetype): Extern them.
+	(mwin__XXX): Delete all of them.
+
+	* input-gui.c (win_create_ic): Call frame->driver->XXX instead of
+	mwin__XXX.
+	(win_destroy_ic): Likewise.
+	(adjust_window_and_draw): Likewise.
+	(win_callback): Likewise.
+	(Mxim): Declare it here.
+	(minput_event_to_key): Call M_CHECK_READABLE.
+
+	* fontset.c (mfont__lookup_fontset): Delete local variable
+	font_group.
+
+	* font.h (struct MFontDriver): Delete member close, add members
+	parse_name and build_name.
+	(mfont__driver_list): Delete extern.
+	(mfont__close): Delete extern.
+
+	* font.c (mfont__init): Don't set mfont__driver_list.
+	(mfont__fini): Don't unref mfont__driver_list.
+	(mfont__select): Try font drivers in frame->font_driver_list.  Set
+	driver member of a realized font.
+	(mfont__close): Delete it.
+	(mfont_from_name, mfont_name, mdebug_dump_font): Call driver
+	functions of the default frame.
+
+	* font-ft.c (close_ft): Check ft_info->ft_face and work
+	differently.
+	(add_font_info): Allocate ft_info by M17N_OBJECT.
+	(ft_close): Delete it.
+	(mfont__ft_driver): Don't set ft_close.
+	(ft_select): Increment ref-count of best_font.
+	(ft_open): Decremented ref-count of base.  On error, call
+	FT_Done_Face and free ft_info.
+	(ft_find_metric): Always use XXX_MONO in load_flags.
+	(ft_render): Fix setting of width.  Call
+	frame->driver->draw_points instead of mwin__draw_points.
+	(ft_to_prop): Don't set mfont__driver_list.
+	(mfont__ft_fini): Just unref ft_info.
+
+	* face.c (mface__init): Exchange foreground and background of
+	mface__default.  Call mface_put_prop to set hline of
+	mface_underline,
+	(mface__realize): Call frame->driver->XXX instead of mwin__XXX.
+	(mface__free_realized): Don't call mwin__free_realized_face.
+
+	* draw.c (Mdepth): Don't declare it here.
+	(draw_background): Call frame->driver->XXX instead of mwin__XXX.
+	(render_glyphs, render_glyph_string): Likewise.
+	(mdraw__init): Don't set Mdepth.
+	(mdraw_text, mdraw_image_text, mdraw_text_with_control): Call
+	M_CHECK_WRITABLE.
+	(mdraw_text_per_char_extents): Return 0 on success and -1 on
+	error.
+	(mdraw_text_items): Check FRAME is writable.
+	(mdraw_per_char_extents): Implement body.
+
+	* Makefile.am (lib_LTLIBRARIES): Include libm17n-gui.la and
+	libm17n-gd.la.
+	(OPTIONAL_LD_FLAGS): Include @FONTCONFIG_LD_FLAGS@.
+	(GUI_SOURCES): Delete it.
+	(libm17n_X_la_SOURCES): Don't include ${GUI_SOURCES}.
+	(libm17n_gui_la_SOURCES, libm17n_gui_la_LIBADD)
+	(libm17n_gui_la_LDFLAGS, libm17n_gd_la_SOURCES)
+	(libm17n_gd_la_LIBADD, libm17n_gd_la_LDFLAGS): New targets.
+	(linkgui_LDADD): Set to libm17n-gui.la
+	(linkgui_LDFLAGS): New target.
+	(SRC): Include ${libm17n_gui_la_SOURCES} and
+	${libm17n_gd_la_SOURCES}.
+
 2004-05-24  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (draw_background): Don't draw background even if
@@ -81,7 +218,7 @@
 	(free_face): Cancep previous change.  Free face->frame_list.
 	(serialize_hline): Do nothing if hline->width is zero.
 	(serialize_box): Do nothing if box->width is zero.
-	(mface__init): Setup all properties of mfae__default.
+	(mface__init): Setup all properties of mface__default.
 	(mface__fini): Free hline_prop_list and box_prop_list.
 	(mface__realize): Cancel previous change.  Update
 	face->frame_list.  Setup rface->non_ascii_list.
