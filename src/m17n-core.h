@@ -144,10 +144,10 @@ extern void *msymbol_get (MSymbol symbol, MSymbol key);
 /* 
  *  (2-1) Property List
  */
-
+/*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nPlist Property List */
-/***ja @defgroup m17nPlist プロパティリスト・オブジェクト */
+/***ja @defgroup m17nPlist プロパティリスト */
 /*=*/
 
 /***
@@ -280,7 +280,7 @@ extern void mchartable_range (MCharTable *table, int *from, int *to);
 /*
  * (5-1) M-text basics
  */
-
+/*=*/
 /*** @ingroup m17nMtext */
 /***en
     @brief Type of @e M-texts.
@@ -409,7 +409,7 @@ extern MPlist *mplist_deserialize (MText *mt);
 /*
  * (5-3) Text properties
  */
-
+/*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nTextProperty Text Property */
 /***ja @defgroup m17nTextProperty テキストプロパティ */
