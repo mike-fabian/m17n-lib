@@ -2155,7 +2155,7 @@ device_open (MFrame *frame, MPlist *param)
 		    && (name = ((char *)
 				XGetAtomName (display, (Atom) value))))
 		  {
-		    if (frame->font = mfont_parse_name (name, Mx))
+		    if ((frame->font = mfont_parse_name (name, Mx)))
 		      nfonts = 1;
 		  }
 		XFreeFont (display, xfont);
