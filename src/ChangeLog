@@ -1,3 +1,8 @@
+2004-06-08  Kenichi Handa  <handa@m17n.org>
+
+	* character.c (mchar_put_prop): Don't increment the ref-count of
+	record->table.
+
 2004-06-04  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.c (mdebug__register_object): New function.
