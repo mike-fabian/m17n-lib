@@ -620,7 +620,9 @@ mfont__ft_init ()
       { "narrow bold", "bold", "r", "condensed" },
       { "narrow bold italic", "bold", "i", "condensed" },
       { "black", "black", "r", "normal" },
-      { "black italic", "black", "i", "normal" } };
+      { "black italic", "black", "i", "normal" },
+      { "oblique", "medium", "o", "normal" },
+      { "boldoblique", "bold", "o", "normal" } };
   int i;
 
   if (FT_Init_FreeType (&ft_library) != 0)
