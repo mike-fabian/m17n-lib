@@ -141,6 +141,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "config.h"
 
@@ -155,6 +157,7 @@
 #include "input.h"
 #include "symbol.h"
 #include "plist.h"
+#include "database.h"
 
 static int mdebug_mask = MDEBUG_INPUT;
 
@@ -176,6 +179,8 @@ static MSymbol Minit, Mfini;
 static MSymbol one_char_symbol[256];
 
 static MSymbol M_key_alias;
+
+static MSymbol M_description, M_command, M_variable;
 
 /** Structure to hold a map.  */
 
@@ -1742,6 +1747,350 @@ lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
   return (((MInputContextInfo *) ic->info)->key_unhandled ? -1 : 0);
 }
 
+static MPlist *load_im_info_keys;
+
+static MPlist *
+load_im_info (MSymbol language, MSymbol name, MSymbol key)
+{
+  MDatabase *mdb;
+  MPlist *plist;
+
+  if (language == Mnil || name == Mnil)
+    MERROR (MERROR_IM, NULL);
+
+  mdb = mdatabase_find (Minput_method, language, name, Mnil);
+  if (! mdb)
+    MERROR (MERROR_IM, NULL);
+  mplist_push (load_im_info_keys, key, Mt);
+  plist = mdatabase__load_for_keys (mdb, load_im_info_keys);
+  mplist_pop (load_im_info_keys);
+  return plist;
+}
+
+
+/* Input method command handler.  */
+
+/* List of all (global and local) commands. 
+   (LANG:(IM-NAME:(COMMAND ...) ...) ...) ...
+   COMMAND is CMD-NAME:(mtext:DESCRIPTION plist:KEYSEQ ...))
+   Global commands are storead as (t (t COMMAND ...))  */
+static MPlist *command_list;
+
+/* Check if PLIST is a valid command key sequence.
+   PLIST must be NULL or:
+   [ symbol:KEY | integer:KEY ] ...  */
+
+static int
+check_command_keyseq (MPlist *plist)
+{
+  if (! plist)
+    return 0;
+  MPLIST_DO (plist, plist)
+    {
+      if (MPLIST_SYMBOL_P (plist))
+	continue;
+      else if (MPLIST_INTEGER_P (plist))
+	{
+	  int n = MPLIST_INTEGER (plist);
+
+	  if (n < 0 || n > 9)
+	    return -1;
+	  MPLIST_KEY (plist) = Msymbol;
+	  MPLIST_VAL (plist) = one_char_symbol['0' + 9];
+	}
+      else
+	return -1;
+    }
+  return 0;
+}
+
+static MText *
+get_description_advance (MPlist *plist)
+{
+  MText *mt;
+  int pos;
+
+  if (! MPLIST_MTEXT_P (plist))
+    return NULL;
+  mt = mplist_pop (plist);
+  pos = mtext_chr (mt, '\n'); 
+  if (pos > 0)
+    {
+      MText *detail = mtext_copy (mtext (), 0, mt, pos + 1, mtext_nchars (mt));
+      mtext_del (mt, pos, mtext_nchars (mt));
+      mtext_put_prop (mt, 0, pos, Mdetail_text, detail);
+      M17N_OBJECT_UNREF (detail);
+    }
+  return mt;
+}
+
+static MPlist *
+parse_command_list (MPlist *plist, MPlist *global_list)
+{
+  MPlist *val = mplist ();
+
+  /* PLIST ::= (sym:CMD mtext:DESCRIPTION ? (sym:KEY ...) ...) ... */
+  MPLIST_DO (plist, plist)
+    {
+      MSymbol cmd;
+      MText *mt;
+      MPlist *this_val, *pl, *p;
+
+      if (! MPLIST_PLIST_P (plist))
+	continue;
+      pl = MPLIST_PLIST (plist);
+      if (! MPLIST_SYMBOL_P (pl))
+	continue;
+      cmd = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      mt = get_description_advance (pl);
+      this_val = mplist ();
+
+      if (! mt && global_list)
+	{
+	  /* Get the description from global_list.  */
+	  p = mplist_get (global_list, cmd);
+	  if (p && MPLIST_MTEXT (p))
+	    {
+	      mt = MPLIST_MTEXT (p);
+	      M17N_OBJECT_REF (mt);
+	    }
+	}
+      if (! mt)
+	mt = mtext ();
+      mplist_add (this_val, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+
+      /* PL ::= (sym:KEY ...) ... */
+      MPLIST_DO (pl, pl)
+	{
+	  if (MPLIST_PLIST_P (pl)
+	      && check_command_keyseq (MPLIST_PLIST (pl)) >= 0)
+	    /* All the elements are valid keys.  */
+	    mplist_add (this_val, Mplist, MPLIST_PLIST (pl));
+	}
+
+      mplist_put (val, cmd, this_val);
+    }
+  return val;
+}
+
+static MPlist *
+get_command_list (MSymbol language, MSymbol name)
+{
+  MPlist *per_lang;
+  MPlist *plist, *pl;
+
+  if (name == Mnil)
+    language = name = Mt;
+
+  if (! command_list)
+    {
+      MDatabase *mdb = mdatabase_find (msymbol ("input"), M_command,
+				       Mnil, Mnil);
+
+      if (mdb && (plist = mdatabase_load (mdb)))
+	{
+	  pl = parse_command_list (plist, NULL);
+	  M17N_OBJECT_UNREF (plist);
+	}
+      else
+	pl = mplist ();
+      plist = mplist ();
+      mplist_add (plist, Mt, pl);
+      command_list = mplist ();
+      mplist_add (command_list, Mt, plist);
+    }
+
+  per_lang = mplist_get (command_list, language);
+  if (per_lang)
+    {
+      plist = mplist_find_by_key (per_lang, name);
+      if (plist)
+	return (MPLIST_VAL (plist));
+    }
+  else
+    {
+      per_lang = mplist ();
+      mplist_add (command_list, language, per_lang);
+    }
+
+  /* Now we are sure that we are loading per-im info.  */
+  /* Get the global command list.  */
+  plist = load_im_info (language, name, M_command);
+  if (! plist || mplist_key (plist) == Mnil)
+    {
+      if (! plist)
+	plist = mplist ();
+      mplist_add (per_lang, name, plist);
+      return plist;
+    }
+  pl = parse_command_list (mplist_value (plist),
+			   mplist_get ((MPlist *) mplist_get (command_list, Mt),
+				       Mt));
+  M17N_OBJECT_UNREF (plist);
+  mplist_put (per_lang, name, pl);
+  return pl;
+}
+
+
+/* Input method variable handler.  */
+
+/* List of all variables. 
+   (LANG:(IM-NAME:(VAR ...) ...) ...) ...
+   VAR is VAR-NAME:(mtext:DESCRIPTION TYPE:VALUE ...))  */
+
+static MPlist *variable_list;
+
+static MPlist *
+parse_variable_list (MPlist *plist)
+{
+  MPlist *val = mplist (), *pl, *p;
+
+  /* PLIST ::= (sym:VAR mtext:DESCRIPTION TYPE:INIT-VAL ...) ...  */
+  MPLIST_DO (plist, plist)
+    {
+      MSymbol var, type;
+      MText *mt;
+      MPlist *this_val;
+
+      if (! MPLIST_PLIST_P (plist))
+	continue;
+      pl = MPLIST_PLIST (plist);
+      if (! MPLIST_SYMBOL_P (pl))
+	continue;
+      var = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      mt = get_description_advance (pl);
+      if (! mt || MPLIST_TAIL_P (pl))
+	continue;
+      this_val = mplist ();
+      mplist_add (this_val, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+      type = MPLIST_KEY (pl);
+      mplist_add (this_val, type, MPLIST_VAL (pl));
+      MPLIST_DO (pl, MPLIST_NEXT (pl))
+	{
+	  if (type != MPLIST_KEY (pl)
+	      && (type != Minteger || ! MPLIST_PLIST_P (pl)))
+	    break;
+	  if (MPLIST_PLIST_P (pl))
+	    {
+	      MPLIST_DO (p, MPLIST_PLIST (pl))
+		if (! MPLIST_INTEGER_P (p))
+		  break;
+	      if (! MPLIST_TAIL_P (p))
+		break;
+	    }
+	  mplist_add (this_val, MPLIST_KEY (pl), MPLIST_VAL (pl));
+	}
+
+      mplist_put (val, var, this_val);
+    }
+  return val;
+}
+
+
+static MPlist *
+get_variable_list (MSymbol language, MSymbol name)
+{
+  MPlist *per_lang;
+  MPlist *plist, *pl;
+
+  if (language == Mnil || name == Mnil)
+    MERROR (MERROR_IM, NULL);
+  if (! variable_list)
+    variable_list = mplist ();
+  per_lang = mplist_get (variable_list, language);
+  if (per_lang)
+    {
+      plist = mplist_find_by_key (per_lang, name);
+      if (plist)
+	return (MPLIST_VAL (plist));
+    }
+  else
+    {
+      per_lang = mplist ();
+      mplist_add (variable_list, language, per_lang);
+    }
+  plist = load_im_info (language, name, M_variable);
+  if (! plist || mplist_key (plist) == Mnil)
+    {
+      if (! plist)
+	plist = mplist ();
+      mplist_add (per_lang, name, plist);
+      return plist;
+    }
+  pl = parse_variable_list (mplist_value (plist));
+  M17N_OBJECT_UNREF (plist);
+  mplist_put (per_lang, name, pl);
+  return pl;
+}
+
+static void
+input_method_hook (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
+{
+  MPlist *plist, *pl, *p;
+  char path[PATH_MAX];
+
+  /* Cancel the hook.  */
+  msymbol_put (tag0, M_database_hook, NULL);
+  tag3 = Mnil;
+
+  mplist_push (load_im_info_keys, M_description, Mt);
+  MPLIST_DO (plist, mdatabase__dir_list)
+    {
+      char *dirname = (char *) MPLIST_VAL (plist);
+      int dirlen;
+      DIR *dir = opendir (dirname);
+      struct dirent *dp;
+
+      if (! dir)
+	continue;
+      dirlen = strlen (dirname);
+      strcpy (path, dirname);
+      while ((dp = readdir (dir)) != NULL)
+	{
+	  /* We can't trust dp->d_nameln.  */
+	  int len = strlen (dp->d_name);
+	  FILE *fp;
+
+	  if (len > 4 && memcmp (dp->d_name + len - 4, ".mim", 4) == 0)
+	    {
+	      strcpy (path + dirlen, dp->d_name);
+	      fp = fopen (path, "r");
+	      if (! fp)
+		continue;
+	      pl = mplist__from_file (fp, load_im_info_keys);
+	      fclose (fp);
+	      if (pl)
+		{
+		  if (MPLIST_PLIST_P (pl))
+		    {
+		      p = MPLIST_PLIST (pl);
+		      p = MPLIST_NEXT (p);
+		      if (MPLIST_SYMBOL_P (p))
+			{
+			  tag1 = MPLIST_VAL (p);
+			  p = MPLIST_NEXT (p);
+			  if (MPLIST_SYMBOL_P (p))
+			    {
+			      tag2 = MPLIST_VAL (p);
+			      mdatabase_define (tag0, tag1, tag2, tag3,
+						NULL, path);
+			    }
+			}
+		    }
+		  M17N_OBJECT_UNREF (pl);
+		}
+	    }
+	}
+      closedir (dir);
+    }
+  mplist_pop (load_im_info_keys);
+}
+
+
 /* Support functions for mdebug_dump_im.  */
 
 static void
@@ -1810,8 +2159,10 @@ minput__init ()
 	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
   char buf[6], buf2[256];
   int i;
+  MPlist *plist;
 
   Minput_method = msymbol ("input-method");
+  msymbol_put (Minput_method, M_database_hook, (void *) input_method_hook);
   Minput_driver = msymbol ("input-driver");
   Mtitle = msymbol ("title");
   Mmacro = msymbol ("macro");
@@ -1858,6 +2209,17 @@ minput__init ()
   Mfini = msymbol ("fini");
 
   M_key_alias = msymbol ("  key-alias");
+  M_description = msymbol ("description");
+  M_command = msymbol ("command");
+  M_variable = msymbol ("variable");
+
+  Mdetail_text = msymbol_as_managing_key ("  detail-text");
+
+  load_im_info_keys = mplist ();
+  plist = mplist_add (load_im_info_keys, Mmap, Mnil);
+  plist = mplist_add (plist, Mstate, Mnil);
+  plist = mplist_add (plist, Mmacro, Mnil);
+  plist = mplist_add (plist, Mmodule, Mnil);
 
   buf[0] = 'C';
   buf[1] = '-';
@@ -1889,6 +2251,8 @@ minput__init ()
     one_char_symbol[i] = msymbol (buf + 2);
   one_char_symbol[i] = msymbol ("M-Delete");
 
+  command_list = variable_list = NULL;
+
   minput_default_driver.open_im = open_im;
   minput_default_driver.close_im = close_im;
   minput_default_driver.create_ic = create_ic;
@@ -1905,6 +2269,39 @@ minput__init ()
 void
 minput__fini ()
 {
+  MPlist *par_lang, *par_im, *p;
+
+  if (command_list)
+    {
+      MPLIST_DO (par_lang, command_list)
+	{
+	  MPLIST_DO (par_im, MPLIST_VAL (par_lang))
+	    {
+	      MPLIST_DO (p, MPLIST_VAL (par_im))
+		M17N_OBJECT_UNREF (MPLIST_VAL (p));
+	      M17N_OBJECT_UNREF (MPLIST_VAL (par_im));
+	    }
+	  M17N_OBJECT_UNREF (MPLIST_VAL (par_lang));
+	}
+      M17N_OBJECT_UNREF (command_list);
+      command_list = NULL;
+    }
+  if (variable_list)
+    {
+      MPLIST_DO (par_lang, variable_list)
+	{
+	  MPLIST_DO (par_im, MPLIST_VAL (par_lang))
+	    {
+	      MPLIST_DO (p, MPLIST_VAL (par_im))
+		M17N_OBJECT_UNREF (MPLIST_VAL (p));
+	      M17N_OBJECT_UNREF (MPLIST_VAL (par_im));
+	    }
+	  M17N_OBJECT_UNREF (MPLIST_VAL (par_lang));
+	}
+      M17N_OBJECT_UNREF (variable_list);
+      variable_list = NULL;
+    }
+
   if (minput_default_driver.callback_list)
     {
       M17N_OBJECT_UNREF (minput_default_driver.callback_list);
@@ -1915,6 +2312,8 @@ minput__fini ()
       M17N_OBJECT_UNREF (minput_driver->callback_list);
       minput_driver->callback_list = NULL;
     }
+
+  M17N_OBJECT_UNREF (load_im_info_keys);
 }
 
 void
@@ -2450,6 +2849,327 @@ minput_reset_ic (MInputContext *ic)
     minput__callback (ic, Minput_reset);
 }
 
+/*=*/
+/***en
+    @brief Key of a text property for detailed description.
+
+    The symbol #Mdetail_text is a managing key usually used for a
+    text property whose value is an M-text that contains detailed
+    description.  */
+MSymbol Mdetail_text;
+
+/***en
+    @brief Get description text of an input method
+
+    The minput_get_description () function returns an M-text briefly
+    describing the input method specified by $LANGUAGE and $NAME.  It
+    may have a text property #Mdetail_text whose value is an M-text
+    describing the input method in more detail.
+
+    @return
+    If the specified input method has a description text, a pointer to
+    #MText is returned.  A caller have to free it by m17n_object_unref ().
+    If the input method does not have a description text, NULL is
+    returned.  */
+
+MText *
+minput_get_description (MSymbol language, MSymbol name)
+{
+  MPlist *plist = load_im_info (language, name, M_description);
+  MPlist *pl;
+  MText *mt = NULL;
+
+  if (! plist)
+    return NULL;
+  if (! MPLIST_PLIST_P (plist))
+    {
+      M17N_OBJECT_UNREF (plist);      
+      return NULL;
+    }
+  pl = MPLIST_PLIST (plist);
+  while (! MPLIST_TAIL_P (pl) && ! MPLIST_MTEXT_P (pl))
+    pl = MPLIST_NEXT (pl);
+  if (MPLIST_MTEXT_P (pl))
+    mt = get_description_advance (pl);
+  M17N_OBJECT_UNREF (plist);
+  return mt;
+}
+
+/***en
+    @brief Get information about input method commands
+
+    The minput_get_commands () function returns information about
+    input method commands of the input method specified by $LANG and
+    $NAME.  An input method command is a pseudo key event to which
+    one or more actual input key sequences are assigned.
+
+    There are two kinds of commands, global and local.  The global
+    commands are used by multiple input methods for the same purpose,
+    and has global key assignment.  Each input method may have local
+    key assignment for them.  The local commands are used only in a
+    specific input methods, and has only local key assignment.
+
+    The global key assignment for a global command is effective only
+    when an input method doesn't have local key assignment for the
+    same command.
+
+    If $NAME is #Mnil, information about global commands are returned.
+    Otherwise, information about commands that have local key
+    assignment in the specified input method is returned.
+
+    The return value is a plist (#MPlist).  The key of each element is
+    a symbol representing a command, and the value is COMMAND-INFO; a
+    plist containing information about the command.
+
+    The first element of COMMAND-INFO has key #Mtext, and the value is
+    an M-text describing the command briefly.  This M-text may have a
+    text property #Mdetail_text whose value is an M-text describing
+    the command in more detail.
+
+    If there are no more elements, that means no key sequence is
+    assigned to the command.  Otherwise, each of the remaining
+    elements (if any) has key #Mplist, and the value is a plist whose
+    keys are #Msymbol and values are symbols representing input keys.
+    This sequence of keys are currently assigned to the command.
+
+    @return
+    This function returns a pointer to #MPlist.  If there are no input
+    method commands, the plist contains no element.  As the plist is
+    kept in the library, a caller must not modify or free it.  */
+
+MPlist *
+minput_get_commands (MSymbol language, MSymbol name)
+{
+  MPlist *plist = get_command_list (language, name);
+
+  return (! plist || MPLIST_TAIL_P (plist) ? NULL : plist);
+}
+
+/***en
+    @brief Assign a key sequence to an input method command
+
+    The minput_assign_command_keys () function assigns a input key
+    sequence $KEYSEQ to an input method command $COMMAND for the input
+    method specified by $LANGUAGE and $NAME.  If $NAME is #Mnil, the
+    key sequence is assigned globally, otherwise the key sequence is
+    assigned locally.
+
+    An element of $KEYSEQ must have key $Msymbol and the value must be
+    a symbol representing an input key.
+
+    $KEYSEQ may be NULL, in which case, all assignments are deleted
+    globally or locally.
+
+    This assignment gets effective in a newly opened input method.
+
+    @return
+    If the operation was successful, 0 is returned.  Otherwise -1 is
+    returned, and #merror_code is set to #MERROR_IM.  */
+
+int
+minput_assign_command_keys (MSymbol language, MSymbol name,
+			    MSymbol command, MPlist *keyseq)
+{
+  MPlist *plist, *pl, *p;
+
+  if (check_command_keyseq (keyseq) < 0
+      || ! (plist = get_command_list (language, name)))
+    MERROR (MERROR_IM, -1);
+  pl = mplist_get (plist, command);
+  if (pl)
+    {
+      pl = MPLIST_NEXT (pl);
+      if (! keyseq)
+	while ((p = mplist_pop (pl)))
+	  M17N_OBJECT_UNREF (p);
+      else
+	{
+	  keyseq = mplist_copy (keyseq);
+	  mplist_push (pl, Mplist, keyseq);
+	  M17N_OBJECT_UNREF (keyseq);
+	}
+    }
+  else
+    {
+      if (name == Mnil)
+	MERROR (MERROR_IM, -1);
+      if (! keyseq)
+	return 0;
+      pl = get_command_list (Mnil, Mnil); /* Get global commands.  */
+      pl = mplist_get (pl, command);
+      if (! pl)
+	MERROR (MERROR_IM, -1);
+      p = mplist ();
+      mplist_add (p, Mtext, mplist_value (pl));
+      keyseq = mplist_copy (keyseq);
+      mplist_add (p, Mplist, keyseq);
+      M17N_OBJECT_UNREF (keyseq);
+      mplist_push (plist, command, p);
+    }
+  return 0;
+}
+
+/***en
+    @brief Get a list of variables of an input method
+
+    The minput_get_variables () function returns a plist (#MPlist) of
+    variables used to control the behaviour of the input method
+    specified by $LANGUAGE and $NAME.  The key of an element of the
+    plist is a symbol representing a variable, and the value is a
+    plist VAR-INFO carrying the information about the variable in the
+    following format.
+
+    The first element of VAR-INFO has key #Mtext, and the value is an
+    M-text describing the variable briefly.  This M-text may have a
+    text property #Mdetail_text whose value is an M-text describing
+    the variable in more detail.
+
+    The second element of VAR-INFO is for a value of the variable.
+    The key is #Minteger, #Msymbol, or #Mtext, and the value is an
+    intetger, a symbol, or an M-text respectively.  The variable is
+    set to this value when an input context is created for the input
+    method.
+
+    If there are no more elements, the variable can take any value
+    that matches with the above type.  Otherwise, the remaining
+    elements of VAR-INFO are to specify valid values of the variable.
+
+    If the type of the variable is integer, an element has key
+    #Minteger or #Mplist.  If it is Minteger, the value is a valid
+    integer value.  If it is Mplist, the value is a plist of two of
+    elements.  Both of them have key #Minteger, and values are the
+    minimum and maximum bounds of a valid value range.
+
+    If the type of the variable is symbol or M-text, an element of the
+    plist has key #Msymbol or #Mtext respectively, and values are
+    valid values.
+
+    For instance, if an input method has these variables:
+
+    <li> name:intvar, description:"value is an integer",
+         initial value:0, value-range:0..3,10,20
+
+    <li> name:symvar, description:"value is a symbol",
+         initial value:nil, value-range:a, b, c, nil
+
+    <li> name:txtvar, description:"value is an M-text",
+         initial value:empty text, no value-range (i.e. any text)
+
+    the returned plist has this form ('X:Y' means X is a key and Y is
+    a value, and '(...)' means a plist):
+
+@verbatim
+    plist:(intvar:(mtext:"value is an integer"
+                   integer:0
+		   plist:(integer:0 integer:3)
+                   integer: 10
+                   integer: 20))
+           symvar:(mtext:"value is a symbol"
+                   symbol:nil
+                   symbol:a
+                   symbol:b
+                   symbol:c
+                   symbol:nil))
+           txtvar:(mtext:"value is an M-text"
+                   mtext:""))
+@endverbatim
+
+    @return
+    If the input method uses any variables, a pointer to #MPlist is
+    returned.  As the plist is kept in the library, a caller must not
+    modify nor free it.  If the input method does not use any
+    variable, NULL is returned.  */
+
+MPlist *
+minput_get_variables (MSymbol language, MSymbol name)
+{
+  MPlist *plist = get_variable_list (language, name);
+
+  return (! plist || MPLIST_TAIL_P (plist) ? NULL : plist);
+}
+
+/***en
+    @brief Set the initial value of an input method variable
+
+    The minput_set_variable () function sets the initial value of
+    input method variable $VARIABLE to $VALUE for the input method
+    specified by $LANG and $NAME.
+
+    By default, the initial value is 0.
+
+    This setting is reflected to a newly opened input method.
+
+    @return
+    If the operation was successful, 0 is returned.  Otherwise -1 is
+    returned, and #merror_code is set to #MERROR_IM.  */
+
+int
+minput_set_variable (MSymbol language, MSymbol name,
+		     MSymbol variable, void *value)
+{
+  MPlist *plist, *val_element, *range_element;
+  MSymbol type;
+
+  if (language == Mnil || name == Mnil)
+    MERROR (MERROR_IM, -1);
+  plist = get_variable_list (language, name);
+  if (! plist)
+    MERROR (MERROR_IM, -1);
+  plist = (MPlist *) mplist_get (plist, variable);
+  if (! plist)
+    MERROR (MERROR_IM, -1);
+  val_element = MPLIST_NEXT (plist);
+  type = MPLIST_KEY (val_element);
+  range_element = MPLIST_NEXT (val_element);
+    
+  if (! MPLIST_TAIL_P (range_element))
+    {
+      if (type == Minteger)
+	{
+	  int val = (int) value, this_val;
+      
+	  MPLIST_DO (plist, range_element)
+	    {
+	      this_val = (int) MPLIST_VAL (plist);
+	      if (MPLIST_PLIST_P (plist))
+		{
+		  int min_bound, max_bound;
+		  MPlist *pl = MPLIST_PLIST (plist);
+
+		  min_bound = (int) MPLIST_VAL (pl);
+		  pl = MPLIST_NEXT (pl);
+		  max_bound = (int) MPLIST_VAL (pl);
+		  if (val >= min_bound && val <= max_bound)
+		    break;
+		}
+	      else if (val == this_val)
+		break;
+	    }
+	  if (MPLIST_TAIL_P (plist))
+	    MERROR (MERROR_IM, -1);
+	}
+      else if (type == Msymbol)
+	{
+	  MPLIST_DO (plist, range_element)
+	    if (MPLIST_SYMBOL (plist) == (MSymbol) value)
+	      break;
+	  if (MPLIST_TAIL_P (plist))
+	    MERROR (MERROR_IM, -1);
+	}
+      else			/* type == Mtext */
+	{
+	  MPLIST_DO (plist, range_element)
+	    if (mtext_cmp (MPLIST_MTEXT (plist), (MText *) value) == 0)
+	      break;
+	  if (MPLIST_TAIL_P (plist))
+	    MERROR (MERROR_IM, -1);
+	  M17N_OBJECT_REF (value);
+	}
+    }
+
+  mplist_set (val_element, type, value);
+  return 0;
+}
 
 /*** @} */
 /*=*/
