@@ -300,31 +300,16 @@ fc_list (MSymbol family)
   if (family)
     FcPatternAddString (pattern, FC_FAMILY,
 			(FcChar8 *) (msymbol_name (family)));
-  os = FcObjectSetBuild (FC_FILE, FC_FOUNDRY, FC_FAMILY, FC_STYLE, FC_PIXEL_SIZE, NULL);
+  os = FcObjectSetBuild (FC_FILE, NULL);
   fs = FcFontList (fc_config, pattern, os);
   if (fs)
     {
       char *filename;
 
-      if (fs->nfont > 0)
-	for (i = 0; i < fs->nfont; i++)
-	  {
-	    FcPatternGetString (fs->fonts[i], FC_FILE, 0, 
-				(FcChar8 **) &filename);
-	    add_font_info (filename, family);
-	  }
-      else
+      for (i = 0; i < fs->nfont; i++)
 	{
-	  FcPattern *match;
-	  FcResult result;
-
-	  FcConfigSubstitute (fc_config, pattern, FcMatchPattern);
-	  FcDefaultSubstitute (pattern);
-	  match = FcFontMatch (fc_config, pattern, &result);
-	  if (FcPatternGetString (match, FC_FILE, 0, (FcChar8 **) &filename)
-	      == FcResultMatch)
-	    add_font_info (filename, family);
-	  FcPatternDestroy (match);
+	  FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
+	  add_font_info (filename, family);
 	}
       FcFontSetDestroy (fs);
     }
@@ -760,8 +745,11 @@ mfont__ft_init ()
     char *weight, *style, *stretch;
   } ft_to_prop_name[] =
     { { "regular", "medium", "r", "normal" },
+      { "medium", "medium", "r", "normal" },
+      { "normal", "medium", "r", "normal" },
       { "italic", "medium", "i", "normal" },
       { "bold", "bold", "r", "normal" },
+      { "bolditalic", "bold", "i", "normal" },
       { "bold italic", "bold", "i", "normal" },
       { "narrow", "medium", "r", "condensed" },
       { "narrow italic", "medium", "i", "condensed" },
@@ -770,7 +758,8 @@ mfont__ft_init ()
       { "black", "black", "r", "normal" },
       { "black italic", "black", "i", "normal" },
       { "oblique", "medium", "o", "normal" },
-      { "boldoblique", "bold", "o", "normal" } };
+      { "boldoblique", "bold", "o", "normal" },
+      { "bold oblique", "bold", "o", "normal" } };
   int i;
 
   if (FT_Init_FreeType (&ft_library) != 0)
