@@ -206,6 +206,10 @@ extern void mfont__flt_fini ();
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#ifdef HAVE_FONTCONFIG
+#include <fontconfig/fontconfig.h>
+#endif
+
 #ifdef HAVE_OTF
 #include <otf.h>
 #endif /* HAVE_OTF */
@@ -223,6 +227,11 @@ typedef struct
 #ifdef HAVE_OTF
   OTF *otf;
 #endif /* HAVE_OTF */
+#ifdef HAVE_FONTCONFIG
+  FcLangSet *langset;
+#else
+  void *langset;
+#endif
   void *extra_info;		/* Xft uses this member.  */
 } MFTInfo;
 
@@ -283,6 +292,8 @@ extern void mfont__set_spec (MFont *font,
 
 extern int mfont__parse_name_into_font (char *name, MSymbol format,
 					MFont *font);
+
+extern MPlist *mfont__encoding_list (void);
 
 extern unsigned mfont__flt_encode_char (MSymbol layouter_name, int c);
 
