@@ -1,5 +1,9 @@
 2004-10-04  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (add_font_info): Add instead of push the element.
+	(ft_list_family): For generic fonts, try all
+	substituted. families.
+
 	* font-flt.c (UPDATE_CLUSTER_RANGE): New macro.
 	(run_rule): Don't update cluster range here.
 	(run_command): Update cluster range on appending a glyph.
