@@ -1,5 +1,7 @@
 2004-05-28  Kenichi Handa  <handa@m17n.org>
 
+	* configure.ac: New variable API_VERSION.
+
 	* m17n-config.in: Accept "GUI" flag and adjusted for the new
 	configuration.
 

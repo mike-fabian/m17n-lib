@@ -1,5 +1,9 @@
 2004-05-28  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (VINFO): New variable.
+	(libmimx_ispell_la_LDFLAGS, libmimx_anthy_la_LDFLAGS): Include
+	${VINFO}.
+
 	* mdump.c (PROGRAM_VERSION): Renamed from VERSION.
 	(main): Use PROGRAM_VERSION.
 
