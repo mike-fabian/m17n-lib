@@ -104,7 +104,7 @@ static enum MTextFormat default_utf_16 = MTEXT_FORMAT_UTF_16LE;
 static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
 #endif
 
-/** Increment character position CHAR_POS and byte position UNIT_POS
+/** Increment character position CHAR_POS and unit position UNIT_POS
     so that they point to the next character in M-text MT.  No range
     check for CHAR_POS and UNIT_POS.  */
 
@@ -123,7 +123,7 @@ static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
 								\
 	if ((mt)->format != default_utf_16)			\
 	  c = SWAP_16 (c);					\
-	(unit_pos) += (c < 0xD800 || c >= 0xE000) ? 1 : 2;	\
+	(unit_pos) += CHAR_UNITS_BY_HEAD_UTF16 (c);		\
       }								\
     else							\
       (unit_pos)++;						\
@@ -131,7 +131,7 @@ static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
   } while (0)
 
 
-/** Decrement character position CHAR_POS and byte position UNIT_POS
+/** Decrement character position CHAR_POS and unit position UNIT_POS
     so that they point to the previous character in M-text MT.  No
     range check for CHAR_POS and UNIT_POS.  */
 
@@ -151,13 +151,16 @@ static enum MTextFormat default_utf_32 = MTEXT_FORMAT_UTF_32LE;
 									\
 	if ((mt)->format != default_utf_16)				\
 	  c = SWAP_16 (c);						\
-	(unit_pos) -= (c < 0xD800 || c >= 0xE000) ? 1 : 2;		\
+	(unit_pos) -= 2 - (c < 0xD800 || c >= 0xE000);			\
       }									\
     else								\
       (unit_pos)--;							\
     (char_pos)--;							\
   } while (0)
 
+
+/* Compoare sub-texts in MT1 (range FROM1 and TO1) and MT2 (range
+   FROM2 to TO2). */
 
 static int
 compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
@@ -166,17 +169,24 @@ compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
       && (mt1->format <= MTEXT_FORMAT_UTF_8))
     {
       unsigned char *p1, *pend1, *p2, *pend2;
+      int unit_bytes = UNIT_BYTES (mt1->format);
+      int nbytes;
+      int result;
 
-      p1 = mt1->data + mtext__char_to_byte (mt1, from1);
-      pend1 = mt1->data + mtext__char_to_byte (mt1, to1);
+      p1 = mt1->data + mtext__char_to_byte (mt1, from1) * unit_bytes;
+      pend1 = mt1->data + mtext__char_to_byte (mt1, to1) * unit_bytes;
 
-      p2 = mt2->data + mtext__char_to_byte (mt2, from2);
-      pend2 = mt2->data + mtext__char_to_byte (mt2, to2);
+      p2 = mt2->data + mtext__char_to_byte (mt2, from2) * unit_bytes;
+      pend2 = mt2->data + mtext__char_to_byte (mt2, to2) * unit_bytes;
 
-      for (; p1 < pend1 && p2 < pend2; p1++, p2++)
-	if (*p1 != *p2)
-	  return (*p1 > *p2 ? 1 : -1);
-      return (p2 == pend2 ? (p1 < pend1) : -1);
+      if (pend1 - p1 < pend2 - p2)
+	nbytes = pend1 - p1;
+      else
+	nbytes = pend2 - p2;
+      result = memcmp (p1, p2, nbytes);
+      if (result)
+	return result;
+      return ((pend1 - p1) - (pend2 - p2));
     }
   for (; from1 < to1 && from2 < to2; from1++, from2++)
     {
@@ -189,68 +199,173 @@ compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
   return (from2 == to2 ? (from1 < to1) : -1);
 }
 
-static MText *
-copy (MText *mt1, int pos, MText *mt2, int from, int to)
+
+/* Return how many units are required in UTF-8 to represent characters
+   between FROM and TO of MT.  */
+
+static int
+count_by_utf_8 (MText *mt, int from, int to)
 {
-  int pos_byte = POS_CHAR_TO_BYTE (mt1, pos);
-  int nbytes;
-  struct MTextPlist *plist;
-  unsigned char *p;
+  int n, c;
 
-  if (mt2->format <= MTEXT_FORMAT_UTF_8)
+  for (n = 0; from < to; from++)
     {
-      int from_byte = POS_CHAR_TO_BYTE (mt2, from);
-
-      p = mt2->data + from_byte;
-      nbytes = POS_CHAR_TO_BYTE (mt2, to) - from_byte;
+      c = mtext_ref_char (mt, from);
+      n += CHAR_UNITS_UTF8 (c);
     }
-  else
-    {
-      unsigned char *p1;
-      int pos1;
+  return n;
+}
 
-      p = p1 = alloca (MAX_UNICODE_CHAR_BYTES * (to - from));
-      for (pos1 = from; pos1 < to; pos1++)
+
+/* Return how many units are required in UTF-16 to represent
+   characters between FROM and TO of MT.  */
+
+static int
+count_by_utf_16 (MText *mt, int from, int to)
+{
+  int n, c;
+
+  for (n = 0; from < to; from++)
+    {
+      c = mtext_ref_char (mt, from);
+      n += CHAR_UNITS_UTF16 (c);
+    }
+  return n;
+}
+
+
+/* Insert text between FROM and TO of MT2 at POS of MT1.  */
+
+static MText *
+insert (MText *mt1, int pos, MText *mt2, int from, int to)
+{
+  int pos_unit = POS_CHAR_TO_BYTE (mt1, pos);
+  int from_unit = POS_CHAR_TO_BYTE (mt2, from);
+  int new_units = POS_CHAR_TO_BYTE (mt2, to) - from_unit;
+  int unit_bytes;
+
+  if (mt1->nchars == 0)
+    mt1->format = mt2->format;
+  else if (mt1->format != mt2->format)
+    {
+      /* Be sure to make mt1->format sufficient to contain all
+	 characters in mt2.  */
+      if (mt1->format == MTEXT_FORMAT_UTF_8
+	  || mt1->format == default_utf_32
+	  || (mt1->format == default_utf_16
+	      && mt2->format <= MTEXT_FORMAT_UTF_16BE
+	      && mt2->format != MTEXT_FORMAT_UTF_8))
+	;
+      else if (mt1->format == MTEXT_FORMAT_US_ASCII)
 	{
-	  int c = mtext_ref_char (mt2, pos1);
-	  p1 += CHAR_STRING (c, p1);
+	  if (mt2->format == MTEXT_FORMAT_UTF_8)
+	    mt1->format = MTEXT_FORMAT_UTF_8;
+	  else if (mt2->format == default_utf_16
+		   || mt2->format == default_utf_32)
+	    mtext__adjust_format (mt1, mt2->format);
+	  else
+	    mtext__adjust_format (mt1, MTEXT_FORMAT_UTF_8);
 	}
-      nbytes = p1 - p;
+      else
+	{
+	  mtext__adjust_format (mt1, MTEXT_FORMAT_UTF_8);
+	  pos_unit = POS_CHAR_TO_BYTE (mt1, pos);
+	}
     }
 
+  unit_bytes = UNIT_BYTES (mt1->format);
+
+  if (mt1->format == mt2->format)
+    {
+      int pos_byte = pos_unit * unit_bytes;
+      int total_bytes = (mt1->nbytes + new_units) * unit_bytes;
+      int new_bytes = new_units * unit_bytes;
+
+      if (total_bytes + unit_bytes > mt1->allocated)
+	{
+	  mt1->allocated = total_bytes + unit_bytes;
+	  MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	}
+      if (pos < mt1->nchars)
+	memmove (mt1->data + pos_byte + new_bytes, mt1->data + pos_byte,
+		 (mt1->nbytes - pos_unit + 1) * unit_bytes);
+      memcpy (mt1->data + pos_byte, mt2->data + from_unit * unit_bytes,
+	      new_bytes);
+    }
+  else if (mt1->format == MTEXT_FORMAT_UTF_8)
+    {
+      unsigned char *p;
+      int total_bytes, i, c;
+
+      new_units = count_by_utf_8 (mt2, from, to);
+      total_bytes = mt1->nbytes + new_units;
+
+      if (total_bytes + 1 > mt1->allocated)
+	{
+	  mt1->allocated = total_bytes + 1;
+	  MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	}
+      p = mt1->data + pos_unit;
+      memmove (p + new_units, p, mt1->nbytes - pos_unit + 1);
+      for (i = from; i < to; i++)
+	{
+	  c = mtext_ref_char (mt2, i);
+	  p += CHAR_STRING_UTF8 (c, p);
+	}
+    }
+  else if (mt1->format == default_utf_16)
+    {
+      unsigned short *p;
+      int total_bytes, i, c;
+
+      new_units = count_by_utf_16 (mt2, from, to);
+      total_bytes = (mt1->nbytes + new_units) * USHORT_SIZE;
+
+      if (total_bytes + USHORT_SIZE > mt1->allocated)
+	{
+	  mt1->allocated = total_bytes + USHORT_SIZE;
+	  MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	}
+      p = (unsigned short *) mt1->data + pos_unit;
+      memmove (p + new_units, p,
+	       (mt1->nbytes - pos_unit + 1) * USHORT_SIZE);
+      for (i = from; i < to; i++)
+	{
+	  c = mtext_ref_char (mt2, i);
+	  p += CHAR_STRING_UTF16 (c, p);
+	}
+    }
+  else				/* default_utf_32 */
+    {
+      unsigned int *p;
+      int total_bytes, i;
+
+      new_units = to - from;
+      total_bytes = (mt1->nbytes + new_units) * UINT_SIZE;
+
+      if (total_bytes + UINT_SIZE > mt1->allocated)
+	{
+	  mt1->allocated = total_bytes + UINT_SIZE;
+	  MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	}
+      p = (unsigned *) mt1->data + pos_unit;
+      memmove (p + new_units, p,
+	       (mt1->nbytes - pos_unit + 1) * UINT_SIZE);
+      for (i = from; i < to; i++)
+	*p++ = mtext_ref_char (mt2, i);
+    }
+
+  mtext__adjust_plist_for_insert
+    (mt1, pos, to - from,
+     mtext__copy_plist (mt2->plist, from, to, mt1, pos));
+  mt1->nchars += to - from;
+  mt1->nbytes += new_units;
   if (mt1->cache_char_pos > pos)
     {
-      mt1->cache_char_pos = pos;
-      mt1->cache_byte_pos = pos_byte;
+      mt1->cache_char_pos += to - from;
+      mt1->cache_byte_pos += new_units;
     }
 
-  if (pos_byte + nbytes >= mt1->allocated)
-    {
-      mt1->allocated = pos_byte + nbytes + 1;
-      MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
-    }
-  memcpy (mt1->data + pos_byte, p, nbytes);
-  mt1->nbytes = pos_byte + nbytes;
-  mt1->data[mt1->nbytes] = 0;
-
-  plist = mtext__copy_plist (mt2->plist, from, to, mt1, pos);
-  if (pos == 0)
-    {
-      if (mt1->plist)
-	mtext__free_plist (mt1);
-      mt1->plist = plist;
-    }
-  else
-    {
-      if (pos < mt1->nchars)
-	mtext__adjust_plist_for_delete (mt1, pos, mt1->nchars - pos);
-      if (from < to)
-	mtext__adjust_plist_for_insert (mt1, pos, to - from, plist);
-    }
-
-  mt1->nchars = pos + (to - from);
-  if (mt1->nchars < mt1->nbytes)
-    mt1->format = MTEXT_FORMAT_UTF_8;
   return mt1;
 }
 
@@ -331,34 +446,33 @@ count_utf_16_chars (void *data, int nitems, int swap)
   unsigned short *p = (unsigned short *) data;
   unsigned short *pend = p + nitems;
   int nchars = 0;
+  int prev_surrogate = 0;
 
-  while (p < pend)
+  for (; p < pend; p++)
     {
-      unsigned b;
+      int c = *p;
 
-      for (; p < pend; nchars++, p++)
+      if (swap)
+	c = SWAP_16 (c);
+      if (prev_surrogate)
 	{
-	  b = swap ? *p & 0xFF : *p >> 8;
-
-	  if (b >= 0xD8 && b < 0xE0)
-	    {
-	      if (b >= 0xDC)
-		return -1;
-	      break;
-	    }
+	  if (c < 0xDC00 || c >= 0xE000)
+	    return -1;
+	  prev_surrogate = 0;
 	}
-      if (p == pend)
-	break;
-      if (p + 1 == pend)
-	return -1;
-      p++;
-      b = swap ? *p & 0xFF : *p >> 8;
-      if (b < 0xDC || b >= 0xE0)
-	return -1;
-      nchars++;
-      p++;
+      else
+	{
+	  if (c < 0xD800)
+	    ;
+	  else if (c < 0xDC00)
+	    prev_surrogate = 1;
+	  else if (c < 0xE000)
+	    return -1;
+	  nchars++;
+	}
     }
-
+  if (prev_surrogate)
+    return -1;
   return nchars;
 }
 
@@ -374,16 +488,12 @@ find_char_forward (MText *mt, int from, int to, int c)
 
       while (from < to && STRING_CHAR_ADVANCE_UTF8 (p) != c) from++;
     }
-  else if (mt->format <= MTEXT_FORMAT_UTF_16LE)
+  else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
       unsigned short *p = (unsigned short *) (mt->data) + from_byte;
 
       if (mt->format == default_utf_16)
-	{
-	  unsigned short *p = (unsigned short *) (mt->data) + from_byte;
-
-	  while (from < to && STRING_CHAR_ADVANCE_UTF16 (p) != c) from++;
-	}
+	while (from < to && STRING_CHAR_ADVANCE_UTF16 (p) != c) from++;
       else if (c < 0x10000)
 	{
 	  c = SWAP_16 (c);
@@ -406,8 +516,10 @@ find_char_forward (MText *mt, int from, int to, int c)
 	      p += ((*p & 0xFF) < 0xD8 || (*p & 0xFF) >= 0xE0) ? 1 : 2;
 	    }
 	}
+      else
+	from = to;
     }
-  else if (c < 0x110000)
+  else
     {
       unsigned *p = (unsigned *) (mt->data) + from_byte;
       unsigned c1 = c;
@@ -468,8 +580,8 @@ find_char_backward (MText *mt, int from, int to, int c)
 	  int c1 = (c >> 10) + 0xD800;
 	  int c2 = (c & 0x3FF) + 0xDC00;
 
-	  c1 = SWAP_32 (c1);
-	  c2 = SWAP_32 (c2);
+	  c1 = SWAP_16 (c1);
+	  c2 = SWAP_16 (c2);
 	  while (from < to && (p[-1] != c2 || p[-2] != c1))
 	    {
 	      to--;
@@ -477,7 +589,7 @@ find_char_backward (MText *mt, int from, int to, int c)
 	    }
 	}
     }
-  else if (c < 0x110000)
+  else
     {
       unsigned *p = (unsigned *) (mt->data) + to_byte;
       unsigned c1 = c;
@@ -753,8 +865,7 @@ mtext__from_data (void *data, int nitems, enum MTextFormat format,
 		  int need_copy)
 {
   MText *mt;
-  int nchars = nitems;
-  int bytes = nitems;
+  int nchars, nbytes, unit_bytes;
 
   if (format == MTEXT_FORMAT_US_ASCII)
     {
@@ -763,46 +874,41 @@ mtext__from_data (void *data, int nitems, enum MTextFormat format,
       while (p < pend)
 	if (*p++ < 0)
 	  MERROR (MERROR_MTEXT, NULL);
+      nchars = nbytes = nitems;
+      unit_bytes = 1;
     }
   else if (format == MTEXT_FORMAT_UTF_8)
     {
       if ((nchars = count_utf_8_chars (data, nitems)) < 0)
 	MERROR (MERROR_MTEXT, NULL);
+      nbytes = nitems;
+      unit_bytes = 1;
     }
   else if (format <= MTEXT_FORMAT_UTF_16BE)
     {
       if ((nchars = count_utf_16_chars (data, nitems,
 					format != default_utf_16)) < 0)
 	MERROR (MERROR_MTEXT, NULL);
-      bytes = sizeof (short) * nitems;
+      nbytes = USHORT_SIZE * nitems;
+      unit_bytes = USHORT_SIZE;
     }
-  else if (format <= MTEXT_FORMAT_UTF_32BE)
+  else				/* MTEXT_FORMAT_UTF_32XX */
     {
-      unsigned *p = (unsigned *) data, *pend = p + nitems;
-      int swap = format != default_utf_32;
-
-      for (; p < pend; p++)
-	{
-	  unsigned c = swap ? SWAP_32 (*p) : *p;
-
-	  if ((c >= 0xD800 && c < 0xE000) || (c >= 0x110000))
-	    MERROR (MERROR_MTEXT, NULL);
-	}
-      bytes = sizeof (unsigned) * nitems;
+      nchars = nitems;
+      nbytes = UINT_SIZE * nitems;
+      unit_bytes = UINT_SIZE;
     }
-  else
-    MERROR (MERROR_MTEXT, NULL);
 
   mt = mtext ();
   mt->format = format;
-  mt->allocated = need_copy ? bytes : -1;
+  mt->allocated = need_copy ? nbytes + unit_bytes : -1;
   mt->nchars = nchars;
   mt->nbytes = nitems;
   if (need_copy)
     {
-      mt->data = malloc (bytes + 1);
-      memcpy (mt->data, data, bytes);
-      mt->data[bytes] = 0;
+      MTABLE_MALLOC (mt->data, mt->allocated, MERROR_MTEXT);
+      memcpy (mt->data, data, nbytes);
+      mt->data[nbytes] = 0;
     }
   else
     mt->data = (unsigned char *) data;
@@ -810,79 +916,81 @@ mtext__from_data (void *data, int nitems, enum MTextFormat format,
 }
 
 
-/* Not yet implemented.  */
-
-int
+void
 mtext__adjust_format (MText *mt, enum MTextFormat format)
 {
-  if (mt->format == format)
-    return 0;
-  if (mt->format == MTEXT_FORMAT_US_ASCII)
-    {
-      if (format == MTEXT_FORMAT_UTF_8)
-	mt->format = MTEXT_FORMAT_UTF_8;
-      MERROR (MERROR_MTEXT, -1);
-    }
-  else if (mt->format == MTEXT_FORMAT_UTF_8)
-    {
-      MERROR (MERROR_MTEXT, -1);
-    }
-  else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
-    {
-      MERROR (MERROR_MTEXT, -1);
-    }
-  else
-    {
-      MERROR (MERROR_MTEXT, -1);
-    }
-  return 0;
-}
+  int i, c;
 
-
-int
-mtext__replace (MText *mt, int from, int to, char *from_str, char *to_str)
-{
-  int from_byte = POS_CHAR_TO_BYTE (mt, from);
-  int to_byte = POS_CHAR_TO_BYTE (mt, to);
-  unsigned char *p = MTEXT_DATA (mt) + from_byte;
-  unsigned char *endp = MTEXT_DATA (mt) + to_byte;
-  int from_str_len = strlen (from_str);
-  int to_str_len = strlen (to_str);
-  int diff = to_str_len - from_str_len;
-  unsigned char saved_byte;
-  int pos, pos_byte;
-
-  if (mtext_nchars (mt) == 0
-      || from_str_len == 0)
-    return 0;
-  M_CHECK_READONLY (mt, -1);
-  M_CHECK_RANGE (mt, from, to, -1, 0);
-
-  saved_byte = *endp;
-  *endp = '\0';
-  while ((p = (unsigned char *) strstr ((char *) p, from_str)) != NULL)
-    {
-      if (diff < 0)
+  if (mt->nchars > 0)
+    switch (format)
+      {
+      case MTEXT_FORMAT_US_ASCII:
 	{
-	  pos_byte = p - MTEXT_DATA (mt);
-	  pos = POS_BYTE_TO_CHAR (mt, pos_byte);
-	  mtext_del (mt, pos, pos - diff);
+	  unsigned char *p = mt->data;
+
+	  for (i = 0; i < mt->nchars; i++)
+	    *p++ = mtext_ref_char (mt, i);
+	  mt->nbytes = mt->nchars;
+	  mt->cache_byte_pos = mt->cache_char_pos;
+	  break;
 	}
-      else if (diff > 0)
+
+      case MTEXT_FORMAT_UTF_8:
 	{
-	  pos_byte = p - MTEXT_DATA (mt);
-	  pos = POS_BYTE_TO_CHAR (mt, pos_byte);
-	  mtext_ins_char (mt, pos, ' ', diff);
-	  /* The above may relocate mt->data.  */
-	  endp += (MTEXT_DATA (mt) + pos_byte) - p;
-	  p = MTEXT_DATA (mt) + pos_byte;
+	  unsigned char *p0, *p1;
+
+	  i = count_by_utf_8 (mt, 0, mt->nchars) + 1;
+	  MTABLE_MALLOC (p0, i, MERROR_MTEXT);
+	  mt->allocated = i;
+	  for (i = 0, p1 = p0; i < mt->nchars; i++)
+	    {
+	      c = mtext_ref_char (mt, i);
+	      p1 += CHAR_STRING_UTF8 (c, p1);
+	    }
+	  *p1 = '\0';
+	  free (mt->data);
+	  mt->data = p0;
+	  mt->nbytes = p1 - p0;
+	  mt->cache_char_pos = mt->cache_byte_pos = 0;
+	  break;
 	}
-      memmove (p, to_str, to_str_len);
-      p += to_str_len;
-      endp += diff;
-    }
-  *endp = saved_byte;
-  return 0;
+
+      default:
+	if (format == default_utf_16)
+	  {
+	    unsigned short *p0, *p1;
+
+	    i = (count_by_utf_16 (mt, 0, mt->nchars) + 1) * USHORT_SIZE;
+	    MTABLE_MALLOC (p0, i, MERROR_MTEXT);
+	    mt->allocated = i;
+	    for (i = 0, p1 = p0; i < mt->nchars; i++)
+	      {
+		c = mtext_ref_char (mt, i);
+		p1 += CHAR_STRING_UTF16 (c, p1);
+	      }
+	    *p1 = 0;
+	    free (mt->data);
+	    mt->data = (unsigned char *) p0;
+	    mt->nbytes = p1 - p0;
+	    mt->cache_char_pos = mt->cache_byte_pos = 0;
+	    break;
+	  }
+	else
+	  {
+	    unsigned int *p;
+
+	    mt->allocated = (mt->nchars + 1) * UINT_SIZE;
+	    MTABLE_MALLOC (p, mt->allocated, MERROR_MTEXT);
+	    for (i = 0; i < mt->nchars; i++)
+	      p[i] = mtext_ref_char (mt, i);
+	    p[i] = 0;
+	    free (mt->data);
+	    mt->data = (unsigned char *) p;
+	    mt->nbytes = mt->nchars;
+	    mt->cache_byte_pos = mt->cache_char_pos;
+	  }
+      }
+  mt->format = format;
 }
 
 
@@ -1110,32 +1218,9 @@ mtext ()
 MText *
 mtext_from_data (void *data, int nitems, enum MTextFormat format)
 {
-  if (nitems < 0)
+  if (nitems < 0
+      || format < MTEXT_FORMAT_US_ASCII || format >= MTEXT_FORMAT_MAX)
     MERROR (MERROR_MTEXT, NULL);
-  if (nitems == 0)
-    {
-      if (format == MTEXT_FORMAT_US_ASCII
-	  || format == MTEXT_FORMAT_UTF_8)
-	{
-	  unsigned char *p = data;
-
-	  while (*p++) nitems++;
-	}
-      else if (format <= MTEXT_FORMAT_UTF_16BE)
-	{
-	  unsigned short *p = data;
-
-	  while (*p++) nitems++;
-	}
-      else if (format <= MTEXT_FORMAT_UTF_32BE)
-	{
-	  unsigned *p = data;
-
-	  while (*p++) nitems++;
-	}
-      else
-	MERROR (MERROR_MTEXT, NULL);
-    }
   return mtext__from_data (data, nitems, format, 0);
 }
 
@@ -1192,33 +1277,28 @@ mtext_ref_char (MText *mt, int pos)
     {
       unsigned char *p = mt->data + POS_CHAR_TO_BYTE (mt, pos);
 
-      c = STRING_CHAR (p);
+      c = STRING_CHAR_UTF8 (p);
     }
   else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
       unsigned short *p
 	= (unsigned short *) (mt->data) + POS_CHAR_TO_BYTE (mt, pos);
+      unsigned short p1[2];
 
-      if (mt->format == default_utf_16)
-	c = STRING_CHAR_UTF16 (p);
-      else
+      if (mt->format != default_utf_16)
 	{
-	  c = (*p >> 8) | ((*p & 0xFF) << 8);
-	  if (c >= 0xD800 && c < 0xE000)
-	    {
-	      int c1 = (p[1] >> 8) | ((p[1] & 0xFF) << 8);
-	      c = ((c - 0xD800) << 10) + (c1 - 0xDC00) + 0x10000;
-	    }
+	  p1[0] = SWAP_16 (*p);
+	  if (p1[0] >= 0xD800 || p1[0] < 0xDC00)
+	    p1[1] = SWAP_16 (p[1]);
+	  p = p1;
 	}
+      c = STRING_CHAR_UTF16 (p);
     }
   else
     {
-      unsigned *p = (unsigned *) (mt->data) + POS_CHAR_TO_BYTE (mt, pos);
-
-      if (mt->format == default_utf_32)
-	c = *p;
-      else
-	c = SWAP_32 (*p);
+      c = ((unsigned *) (mt->data))[pos];
+      if (mt->format != default_utf_32)
+	c = SWAP_32 (c);
     }
   return c;
 }
@@ -1255,45 +1335,77 @@ mtext_ref_char (MText *mt, int pos)
 int
 mtext_set_char (MText *mt, int pos, int c)
 {
-  int byte_pos;
-  int bytes_old, bytes_new;
+  int pos_unit;
+  int old_units, new_units;
   int delta;
-  unsigned char str[MAX_UTF8_CHAR_BYTES];
   unsigned char *p;
-  int i;
+  int unit_bytes;
 
   M_CHECK_POS (mt, pos, -1);
   M_CHECK_READONLY (mt, -1);
 
-  byte_pos = POS_CHAR_TO_BYTE (mt, pos);
-  p = mt->data + byte_pos;
-  bytes_old = CHAR_BYTES_AT (p);
-  bytes_new = CHAR_STRING (c, str);
-  delta = bytes_new - bytes_old;
+  mtext__adjust_plist_for_change (mt, pos, pos + 1);
 
-  /* mtext__adjust_plist_for_change (mt, pos, pos + 1);*/
+  if (mt->format <= MTEXT_FORMAT_UTF_8)
+    {
+      if (c >= 0x80)
+	mt->format = MTEXT_FORMAT_UTF_8;
+    }
+  else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
+    {
+      if (c >= 0x110000)
+	mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+      else if (mt->format != default_utf_16)
+	mtext__adjust_format (mt, default_utf_16);
+    }
+  else if (mt->format != default_utf_32)
+    mtext__adjust_format (mt, default_utf_32);
+
+  unit_bytes = UNIT_BYTES (mt->format);
+  pos_unit = POS_CHAR_TO_BYTE (mt, pos);
+  p = mt->data + pos_unit * unit_bytes;
+  old_units = CHAR_UNITS_AT (mt, p);
+  new_units = CHAR_UNITS (c, mt->format);
+  delta = new_units - old_units;
 
   if (delta)
     {
-      int byte_pos_old = byte_pos + bytes_old;
-      int byte_pos_new = byte_pos + bytes_new;
-
       if (mt->cache_char_pos > pos)
 	mt->cache_byte_pos += delta;
 
-      if ((mt->allocated - mt->nbytes) <= delta)
+      if ((mt->nbytes + delta + 1) * unit_bytes > mt->allocated)
 	{
-	  mt->allocated = mt->nbytes + delta + 1;
+	  mt->allocated = (mt->nbytes + delta + 1) * unit_bytes;
 	  MTABLE_REALLOC (mt->data, mt->allocated, MERROR_MTEXT);
 	}
 
-      memmove (mt->data + byte_pos_old, mt->data + byte_pos_new,
-	       mt->nbytes - byte_pos_old);
+      memmove (mt->data + (pos_unit + new_units) * unit_bytes, 
+	       mt->data + (pos_unit + old_units) * unit_bytes,
+	       (mt->nbytes - pos_unit - old_units + 1) * unit_bytes);
       mt->nbytes += delta;
-      mt->data[mt->nbytes] = 0;
+      mt->data[mt->nbytes * unit_bytes] = 0;
     }
-  for (i = 0; i < bytes_new; i++)
-    mt->data[byte_pos + i] = str[i];
+  switch (mt->format)
+    {
+    case MTEXT_FORMAT_US_ASCII:
+      mt->data[pos_unit] = c;
+      break;
+    case MTEXT_FORMAT_UTF_8:
+      {
+	unsigned char *p = mt->data + pos_unit;
+	CHAR_STRING_UTF8 (c, p);
+	break;
+      }
+    default:
+      if (mt->format == default_utf_16)
+	{
+	  unsigned short *p = (unsigned short *) mt->data + pos_unit;
+
+	  CHAR_STRING_UTF16 (c, p);
+	}
+      else
+	((unsigned *) mt->data)[pos_unit] = c;
+    }
   return 0;
 }
 
@@ -1326,28 +1438,63 @@ mtext_set_char (MText *mt, int pos, int c)
 MText *
 mtext_cat_char (MText *mt, int c)
 {
-  unsigned char buf[MAX_UTF8_CHAR_BYTES];
-  int nbytes;
-  int total_bytes;
+  int nunits;
+  int unit_bytes = UNIT_BYTES (mt->format);
 
   M_CHECK_READONLY (mt, NULL);
   if (c < 0 || c > MCHAR_MAX)
     return NULL;
-  nbytes = CHAR_STRING (c, buf);
-
-  total_bytes = mt->nbytes + nbytes;
-
   mtext__adjust_plist_for_insert (mt, mt->nchars, 1, NULL);
 
-  if (total_bytes >= mt->allocated)
+  if (c >= 0x80
+      && (mt->format == MTEXT_FORMAT_US_ASCII
+	  || (c >= 0x10000
+	      && (mt->format == MTEXT_FORMAT_UTF_16LE
+		  || mt->format == MTEXT_FORMAT_UTF_16BE))))
+
     {
-      mt->allocated = total_bytes + 1;
+      mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+      unit_bytes = 1;
+    }
+  else if (mt->format >= MTEXT_FORMAT_UTF_32LE)
+    {
+      if (mt->format != default_utf_32)
+	mtext__adjust_format (mt, default_utf_32);
+    }
+  else if (mt->format >= MTEXT_FORMAT_UTF_16LE)
+    {
+      if (mt->format != default_utf_16)
+	mtext__adjust_format (mt, default_utf_16);
+    }
+
+  nunits = CHAR_UNITS (c, mt->format);
+  if ((mt->nbytes + nunits + 1) * unit_bytes > mt->allocated)
+    {
+      mt->allocated = (mt->nbytes + nunits + 1) * unit_bytes;
       MTABLE_REALLOC (mt->data, mt->allocated, MERROR_MTEXT);
     }
-  memcpy (mt->data + mt->nbytes, buf, nbytes);
-  mt->nbytes = total_bytes;
+  
+  if (mt->format <= MTEXT_FORMAT_UTF_8)
+    {
+      unsigned char *p = mt->data + mt->nbytes;
+      p += CHAR_STRING_UTF8 (c, p);
+      *p = 0;
+    }
+  else if (mt->format == default_utf_16)
+    {
+      unsigned short *p = (unsigned short *) mt->data + mt->nbytes;
+      p += CHAR_STRING_UTF16 (c, p);
+      *p = 0;
+    }
+  else
+    {
+      unsigned *p = (unsigned *) mt->data + mt->nbytes;
+      *p++ = c;
+      *p = 0;
+    }
+
   mt->nchars++;
-  mt->data[total_bytes] = 0;
+  mt->nbytes += nunits;
   return mt;
 }
 
@@ -1380,7 +1527,16 @@ mtext_cat_char (MText *mt, int c)
 MText *
 mtext_dup (MText *mt)
 {
-  return copy (mtext (), 0, mt, 0, mt->nchars);
+  MText *new = mtext ();
+  int unit_bytes = UNIT_BYTES (mt->format);
+
+  *new = *mt;
+  new->allocated = (mt->nbytes + 1) * unit_bytes;
+  MTABLE_MALLOC (new->data, new->allocated, MERROR_MTEXT);
+  memcpy (new->data, mt->data, new->allocated);
+  if (mt->plist)
+    new->plist = mtext__copy_plist (mt->plist, 0, mt->nchars, new, 0);
+  return new;
 }
 
 /*=*/
@@ -1416,7 +1572,7 @@ mtext_cat (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
 
-  return copy (mt1, mt1->nchars, mt2, 0, mt2->nchars);
+  return insert (mt1, mt1->nchars, mt2, 0, mt2->nchars);
 }
 
 
@@ -1465,7 +1621,7 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
   M_CHECK_READONLY (mt1, NULL);
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
-  return copy (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  return insert (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
 }
 
 
@@ -1502,7 +1658,8 @@ MText *
 mtext_cpy (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
-  return copy (mt1, 0, mt2, 0, mt2->nchars);
+  mtext_del (mt1, 0, mt1->nchars);
+  return insert (mt1, 0, mt2, 0, mt2->nchars);
 }
 
 /*=*/
@@ -1550,7 +1707,8 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
   M_CHECK_READONLY (mt1, NULL);
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
-  return (copy (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n));
+  mtext_del (mt1, 0, mt1->nchars);
+  return insert (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
 }
 
 /*=*/
@@ -1592,10 +1750,12 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
 MText *
 mtext_duplicate (MText *mt, int from, int to)
 {
-  MText *new = mtext ();
+  MText *new;
 
   M_CHECK_RANGE (mt, from, to, NULL, new);
-  return copy (new, 0, mt, from, to);
+  new = mtext ();
+  new->format = mt->format;
+  return insert (new, 0, mt, from, to);
 }
 
 /*=*/
@@ -1641,8 +1801,9 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
 {
   M_CHECK_POS_X (mt1, pos, NULL);
   M_CHECK_READONLY (mt1, NULL);
-  M_CHECK_RANGE (mt2, from, to, NULL, mt1);
-  return copy (mt1, pos, mt2, from, to);
+  M_CHECK_RANGE_X (mt2, from, to, NULL);
+  mtext_del (mt1, pos, mt1->nchars);
+  return insert (mt1, pos, mt2, from, to);
 }
 
 /*=*/
@@ -1683,6 +1844,7 @@ int
 mtext_del (MText *mt, int from, int to)
 {
   int from_byte, to_byte;
+  int unit_bytes = UNIT_BYTES (mt->format);
 
   M_CHECK_READONLY (mt, -1);
   M_CHECK_RANGE (mt, from, to, -1, 0);
@@ -1702,7 +1864,9 @@ mtext_del (MText *mt, int from, int to)
     }
 
   mtext__adjust_plist_for_delete (mt, from, to - from);
-  memmove (mt->data + from_byte, mt->data + to_byte, mt->nbytes - to_byte + 1);
+  memmove (mt->data + from_byte * unit_bytes, 
+	   mt->data + to_byte * unit_bytes,
+	   (mt->nbytes - to_byte + 1) * unit_bytes);
   mt->nchars -= (to - from);
   mt->nbytes -= (to_byte - from_byte);
   mt->cache_char_pos = from;
@@ -1748,35 +1912,12 @@ mtext_del (MText *mt, int from, int to)
 int
 mtext_ins (MText *mt1, int pos, MText *mt2)
 {
-  int byte_pos;
-  int total_bytes;
-
   M_CHECK_READONLY (mt1, -1);
   M_CHECK_POS_X (mt1, pos, -1);
 
   if (mt2->nchars == 0)
     return 0;
-  mtext__adjust_plist_for_insert
-    (mt1, pos, mt2->nchars,
-     mtext__copy_plist (mt2->plist, 0, mt2->nchars, mt1, pos));
-
-  total_bytes = mt1->nbytes + mt2->nbytes;
-  if (total_bytes >= mt1->allocated)
-    {
-      mt1->allocated = total_bytes + 1;
-      MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
-    }
-  byte_pos = POS_CHAR_TO_BYTE (mt1, pos);
-  if (mt1->cache_char_pos > pos)
-    {
-      mt1->cache_char_pos += mt2->nchars;
-      mt1->cache_byte_pos += mt2->nbytes;
-    }
-  memmove (mt1->data + byte_pos + mt2->nbytes, mt1->data + byte_pos,
-	   mt1->nbytes - byte_pos + 1);
-  memcpy (mt1->data + byte_pos, mt2->data, mt2->nbytes);
-  mt1->nbytes += mt2->nbytes;
-  mt1->nchars += mt2->nchars;
+  insert (mt1, pos, mt2, 0, mt2->nchars);
   return 0;
 }
 
@@ -1815,9 +1956,9 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
 int
 mtext_ins_char (MText *mt, int pos, int c, int n)
 {
-  int byte_pos;
-  int nbytes, total_bytes;
-  unsigned char *buf;
+  int nunits;
+  int unit_bytes = UNIT_BYTES (mt->format);
+  int pos_unit;
   int i;
 
   M_CHECK_READONLY (mt, -1);
@@ -1827,26 +1968,64 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
   if (n <= 0)
     return 0;
   mtext__adjust_plist_for_insert (mt, pos, n, NULL);
-  buf = alloca (MAX_UTF8_CHAR_BYTES * n);
-  for (i = 0, nbytes = 0; i < n; i++)
-    nbytes += CHAR_STRING (c, buf + nbytes);
-  total_bytes = mt->nbytes + nbytes;
-  if (total_bytes >= mt->allocated)
+
+  if (c >= 0x80
+      && (mt->format == MTEXT_FORMAT_US_ASCII
+	  || (c >= 0x10000 && (mt->format == MTEXT_FORMAT_UTF_16LE
+			       || mt->format == MTEXT_FORMAT_UTF_16BE))))
     {
-      mt->allocated = total_bytes + 1;
+      mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+      unit_bytes = 1;
+    }
+  else if (mt->format >= MTEXT_FORMAT_UTF_32LE)
+    {
+      if (mt->format != default_utf_32)
+	mtext__adjust_format (mt, default_utf_32);
+    }
+  else if (mt->format >= MTEXT_FORMAT_UTF_16LE)
+    {
+      if (mt->format != default_utf_16)
+	mtext__adjust_format (mt, default_utf_16);
+    }
+
+  nunits = CHAR_UNITS (c, mt->format);
+  if ((mt->nbytes + nunits * n + 1) * unit_bytes > mt->allocated)
+    {
+      mt->allocated = (mt->nbytes + nunits * n + 1) * unit_bytes;
       MTABLE_REALLOC (mt->data, mt->allocated, MERROR_MTEXT);
     }
-  byte_pos = POS_CHAR_TO_BYTE (mt, pos);
+  pos_unit = POS_CHAR_TO_BYTE (mt, pos);
   if (mt->cache_char_pos > pos)
     {
-      mt->cache_char_pos++;
-      mt->cache_byte_pos += nbytes;
+      mt->cache_char_pos += n;
+      mt->cache_byte_pos += nunits + n;
     }
-  memmove (mt->data + byte_pos + nbytes, mt->data + byte_pos,
-	   mt->nbytes - byte_pos + 1);
-  memcpy (mt->data + byte_pos, buf, nbytes);
-  mt->nbytes += nbytes;
+  memmove (mt->data + (pos_unit + nunits * n) * unit_bytes,
+	   mt->data + pos_unit * unit_bytes,
+	   (mt->nbytes - pos_unit + 1) * unit_bytes);
+  if (mt->format <= MTEXT_FORMAT_UTF_8)
+    {
+      unsigned char *p = mt->data + pos_unit;
+
+      for (i = 0; i < n; i++)
+	p += CHAR_STRING_UTF8 (c, p);
+    }
+  else if (mt->format == default_utf_16)
+    {
+      unsigned short *p = (unsigned short *) mt->data + pos_unit;
+
+      for (i = 0; i < n; i++)
+	p += CHAR_STRING_UTF16 (c, p);
+    }
+  else
+    {
+      unsigned *p = (unsigned *) mt->data + pos_unit;
+
+      for (i = 0; i < n; i++)
+	*p++ = c;
+    }
   mt->nchars += n;
+  mt->nbytes += nunits * n;
   return 0;
 }
 
@@ -2255,7 +2434,7 @@ mtext_tok (MText *mt, MText *delim, int *pos)
     return NULL;
 
   *pos = pos2 + span (mt, delim, pos2, Mt);
-  return (copy (mtext (), 0, mt, pos2, *pos));
+  return (insert (mtext (), 0, mt, pos2, *pos));
 }
 
 /*=*/
@@ -2297,9 +2476,7 @@ mtext_text (MText *mt1, int pos, MText *mt2)
   int use_memcmp = (mt1->format == mt2->format
 		    || (mt1->format < MTEXT_FORMAT_UTF_8
 			&& mt2->format == MTEXT_FORMAT_UTF_8));
-  int unit_bytes = (mt1->format <= MTEXT_FORMAT_UTF_8 ? 1
-		    : mt1->format <= MTEXT_FORMAT_UTF_16BE ? 2
-		    : 4);
+  int unit_bytes = UNIT_BYTES (mt1->format);
 
   if (nbytes2 > pos_byte + nbytes1)
     return -1;
