@@ -1,3 +1,23 @@
+2004-05-27  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (show_cursor): Check hline->width and box->width.
+	(main): Set reverse videomode in a face for selection.
+
+	* mdump.c: Include <gd.h> instead of <X11/Xlib.h>.
+	(help_exit): Adjusted for the change of spec.
+	(dump_image): Argument changed.  Dump PNG image instead of PBM.
+	(main): Adjusted for the change of spec.
+
+	* Makefile.am (common_ldflags_gui): Renamed from
+	common_ldflags_X.  Set to .../libm17n-gui.la.  Referrer changed.
+	(mdump_LDFLAGS): Include @GD_LD_FLAGS@
+
+	* HELLO.xml:  Add Bengali.
+
+2004-05-21  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8: Add Bengali.
+
 2004-05-20  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (redraw): If contro.anti_alias is nonzero, always clear.
