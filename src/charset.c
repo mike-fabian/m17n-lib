@@ -1192,7 +1192,7 @@ MSymbol Msuperset;
     @c MERROR_CHARSET  */
 
 MSymbol
-mchar_define_charset (char *name, MPlist *plist)
+mchar_define_charset (const char *name, MPlist *plist)
 {
   MSymbol sym = msymbol (name);
   MCharset *charset;
