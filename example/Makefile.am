@@ -22,27 +22,30 @@
 
 ## Process this file with Automake to create Makefile.in
 
-bin_PROGRAMS = mconv mview mdate mdump medit
+## Note: Source files have preifx "m" but executables have prefix
+## "m17n-" to avoid confliction of program names.
+
+bin_PROGRAMS = m17n-conv m17n-view m17n-date m17n-dump m17n-edit
 
 common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
 common_ldflags_gui = ${common_ldflags} ${top_srcdir}/src/libm17n-gui.la
 
-mdate_SOURCES = mdate.c
-mdate_LDADD = ${common_ldflags}
+m17n_date_SOURCES = mdate.c
+m17n_date_LDADD = ${common_ldflags}
 
-mconv_SOURCES = mconv.c
-mconv_LDADD = ${common_ldflags}
+m17n_conv_SOURCES = mconv.c
+m17n_conv_LDADD = ${common_ldflags}
 
 X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
 
-medit_SOURCES = medit.c linebreak.c
-medit_LDADD = ${X_LD_FLAGS} @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
+m17n_edit_SOURCES = medit.c linebreak.c
+m17n_edit_LDADD = ${X_LD_FLAGS} @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
 
-mview_SOURCES = mview.c
-mview_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui}
+m17n_view_SOURCES = mview.c
+m17n_view_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui}
 
-mdump_SOURCES = mdump.c linebreak.c
-mdump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
+m17n_dump_SOURCES = mdump.c linebreak.c
+m17n_dump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
 
 # Input method data files.
 
