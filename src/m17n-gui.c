@@ -191,10 +191,9 @@ m17n_fini_win (void)
 /*=*/
 
 /***en
-    @name Variables: Keys of frame property (common).
+    @name Variables: Keys of frame property (common).  */
 /***ja
-    @name 変数： フレームプロパティのキー (共通).
- */ 
+    @name 変数： フレームプロパティのキー (共通).  */ 
 /*** @{ */ 
 /*=*/
 MSymbol Mfont;
