@@ -1,5 +1,17 @@
 2004-07-26  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c (visual_order): Allocate one more elements for arrays as
+	a workaround of fribidi bug.
+	(layout_glyphs): Fix previous change. Check MGlyph->combining_code
+	instead of MGlyph->bidi_sensitive.
+
+	* font-ft.c (mfont__ft_drive_otf): Set MGlyph->combining_code
+	instead of MGlyph->bidi_sensitive.
+
+	* internal-gui.h (MGlyph): Delete member bidi_sensitive.
+
+2004-07-26  Kenichi Handa  <handa@m17n.org>
+
 	* draw.c (visual_order): Don't treat combined glyphs specially.
 	(layout_glyphs): Don't get metrics glyphs that are already ready.
 	Pay attention to MGlyph->bidi_sensitive.  Combine a glyph of zero
