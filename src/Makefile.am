@@ -42,8 +42,7 @@ libm17n_la_SOURCES = \
 	language.h language.c \
 	mlocale.h locale.c \
 	m17n.h m17n.c
-libm17n_la_LIBADD = libm17n-core.la
-libm17n_la_LDFLAGS = -ldl
+libm17n_la_LIBADD = libm17n-core.la -ldl
 
 GUI_SOURCES = \
 	face.h face.c \
@@ -69,7 +68,7 @@ include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
 
 AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\""
 
-bin_PROGRAMS = linkcore linkshell linkgui
+noinst_PROGRAMS = linkcore linkshell linkgui
 
 linkcore_SOURCES = linkcore.c
 linkcore_LDADD = libm17n-core.la
@@ -82,10 +81,6 @@ linkshell_LDFLAGS = -static
 linkgui_SOURCES = linkgui.c
 linkgui_LDADD = libm17n-X.la
 #linkgui_LDFLAGS = -static
-
-# We should not install the above test programs.
-install-binPROGRAMS:
-uninstall-binPROGRAMS:
 
 SRC = ${libm17n_core_la_SOURCES} ${libm17n_la_SOURCES} ${libm17n_X_la_SOURCES}
 
