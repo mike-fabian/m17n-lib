@@ -1,3 +1,7 @@
+2004-10-02  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (device_open): Handle Mfont key in PLIST.
+
 2004-09-30  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_select): Ignore family on calling mfont__score.

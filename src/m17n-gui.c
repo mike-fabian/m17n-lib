@@ -494,6 +494,14 @@ MSymbol Mfont_descent;
 
     The created frame uses the specified colormap.
 
+    <li> #Mfont, the value must be #Mx or #Mfreetype.
+
+    This specifies which font backend to use.  #Mx means to use only X
+    core fonts, and #Mfreetype means to use only local fonts supported
+    by FreeType fonts.  It is ignored if the specified font backend is
+    not supported on the device.  By default, all font backend
+    supported on the device are used.
+
     </ul>
 
     @return
@@ -581,6 +589,15 @@ MSymbol Mfont_descent;
     <li> #Mcolormap. 値は <tt>(Colormap)</tt> 型でなくてはならない。
 
     生成されたフレームは、指定したカラーマップを使用する。
+
+    <li> #Mfont. 値は #Mx か #Mfreetype でなくてはならない。
+
+    これはどのフォントバックエンドを使うかを指定する。#Mx は X コアフォ
+    ントのみを、 #Mfreetype は FreeType ライブラリによるローカルフォン
+    トのみを使うことを意味する。もし指定されたフォントバックエンドがフ
+    レームでサポートされていなかったら、この指定は無視される。この指定
+    がなければフレームでサポートされているすべてのフォントバックエンド
+    が使われる。
 
     </ul>
 
