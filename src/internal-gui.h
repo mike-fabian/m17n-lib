@@ -114,6 +114,14 @@ enum glyph_type
 
 typedef struct
 {
+  MSymbol script;
+  MSymbol langsys;
+  MSymbol gsub_features;
+  MSymbol gpos_features;
+} FontLayoutCmdOTF;
+
+typedef struct
+{
   int pos, to;
   int c;
   unsigned code;
@@ -121,6 +129,9 @@ typedef struct
   MRealizedFace *rface;
   short width, ascent, descent, lbearing, rbearing;
   short xoff, yoff;
+#ifdef HAVE_OTF
+  FontLayoutCmdOTF *otf_cmd;
+#endif
   unsigned enabled : 1;
   unsigned left_padding : 1;
   unsigned right_padding : 1;
