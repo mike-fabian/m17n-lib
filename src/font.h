@@ -144,6 +144,12 @@ struct MRealizedFont
   short ascent, descent;
 
   MFontEncoding *encoding;
+
+  /* Type of the font: Mx, Mfreetype, or Mxft.  */
+  MSymbol type;
+
+  /* Pointer to the font structure.  */
+  void *fontp;
 };
 
 /** Structure to hold a list of fonts of each registry.  */
