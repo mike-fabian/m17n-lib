@@ -84,9 +84,9 @@
 
     入力メソッドは多様な文字を入力するためのオブジェクトである。入力メ
     ソッドはシンボル LANGUAGE と NAME の組によって識別され、この組によっ
-    て入力メソッドドライバが決まる。入力メソッドドライバとはある入力メ
+    て入力メソッドドライバが決まる。入力メソッドドライバとは、ある入力メ
     ソッドを扱うための関数の集まりである。 入力メソッドには内部メソッ
-    ドと外部メソッドの二通りがある。
+    ドと外部メソッドの二種類がある。
 
     <ul> 
     <li> 内部入力メソッド
@@ -94,15 +94,15 @@
     内部入力メソッドは LANGUAGE が @c Mnil 以外のものであり、本体は
     m17n データベースに <Minput_method, LANGUAGE, NAME>というタグ付き
     で定義されている。この種の入力メソッドに対して、m17n ライブラリに
-    はCUI用とGUI用それぞれの入力メソッドドライバがあらかじめ準備されて
-    いる。これらのドライバはm17nライブラリ自身の入力処理エンジンを利用
-    する。m17n データベースには、特定の言語専用でない入力メソッドも定
-    義することができ、そのような入力メソッドの LANGUAGE は @c Mt であ
-    る。
+    は CUI 用と GUI 用それぞれの入力メソッドドライバがあらかじめ準備さ
+    れている。これらのドライバは m17n ライブラリ自身の入力処理エンジン
+    を利用する。m17n データベースには、特定の言語専用でない入力メソッ
+    ドも定義することができ、そのような入力メソッドの LANGUAGE は @c Mt 
+    である。
 
     内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入
     力キーを受け取る。@c m17n @c ライブラリ は入力イベントがアプリケー
-    ションプログラムでどう表現されているかを知る術を持たないので、入力
+    ションプログラムでどう表現されているかを知ることができないので、入力
     イベントから入力キーへの変換はアプリケーションプログラマの責任で行
     わなくてはならない。詳細については関数 minput_event_to_key () の説
     明を参照。
@@ -2625,8 +2625,8 @@ minput_create_ic (MInputMethod *im, void *arg)
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。こ
     の入力コンテクストは minput_create_ic () によって作られたものでな
     ければならない。この関数は#Minput_preedit_done,
-    #Minput_status_done, #Minput_candidates_done に対応するコールバック関数を
-    この順に呼ぶ。
+    #Minput_status_done, #Minput_candidates_done に対応するコールバッ
+    ク関数をこの順に呼ぶ。
   */
 
 void
@@ -2667,7 +2667,7 @@ minput_destroy_ic (MInputContext *ic)
 
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC に応
     じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化
-    した際にはそれぞれ#Minput_preedit_draw, #Minput_status_draw,
+    した際にはそれぞれ #Minput_preedit_draw, #Minput_status_draw,
     #Minput_candidates_draw に対応するコールバック関数を呼ぶ。
 
     @return 
@@ -2725,8 +2725,8 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     @brief 入力コンテクスト中のテキストの検索.
 
     関数 minput_lookup () は入力コンテクスト $IC 中のテキストを検索す
-    る。$KEY は関数minput_filter () への直前の呼び出しに用いられたもの
-    と同じでなくてはならない。
+    る。$KEY は関数 minput_filter () への直前の呼び出しに用いられたも
+    のと同じでなくてはならない。
 
     テキストが入力メソッドによって生成されていれば、テキストは M-text
     $MT に連結される。
@@ -2767,7 +2767,7 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     information about the text around the spot.  */
 
 /***ja
-    @brief 入力コンテクストのスポットを設定する
+    @brief 入力コンテクストのスポットを設定する.
 
     関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座
     標 ($X, $Y )に 、高さ $ASCENT、 $DESCENT で設定する。 これらの値の
@@ -2837,12 +2837,12 @@ minput_toggle (MInputContext *ic)
     @brief 入力コンテクストをリセットする.
 
     関数 minput_reset_ic () は #Minput_reset に対応するコールバック関
-    数を呼ぶことによって入力コンテクスト $IC をリセットする。これは実
-    際は入力メソッドを初期状態にシフトさせる。したがって、もし現在入力
-    中のテキストがあれば、それはコミットされる。必要ならアプリケーショ
-    ンプログラムは minput_lookup () を読んでそのコミットされたテキスト
-    を取り出せる。その際、minput_lookup () の引数 @c KEY と @c ARG は
-    無視される。 */
+    数を呼ぶことによって入力コンテクスト $IC をリセットする。実
+    際には、入力メソッドを初期状態に移すことであり、したがって、もし現在入力中のテキ
+    ストがあれば、それはコミットされる。必要ならば、アプリケーションプ
+    ログラムは minput_lookup () を読んでそのコミットされたテキストを取
+    り出すことができ、その際、minput_lookup () の引数 @c KEY と @c ARG 
+    は無視される。 */
 void
 minput_reset_ic (MInputContext *ic)
 {
@@ -2857,10 +2857,16 @@ minput_reset_ic (MInputContext *ic)
     The symbol #Mdetail_text is a managing key usually used for a
     text property whose value is an M-text that contains detailed
     description.  */
+/***ja
+    @brief 詳細説明用テキストプロパティのキー.
+
+    シンボル #Mdetail_text は管理キーであり、通常詳細な説明を含む 
+    M-text を値として持つテキストプロパティに用いられる。
+    */
 MSymbol Mdetail_text;
 
 /***en
-    @brief Get description text of an input method
+    @brief Get description text of an input method.
 
     The minput_get_description () function returns an M-text that
     briefly describs the input method specified by $LANGUAGE and
@@ -2873,6 +2879,19 @@ MSymbol Mdetail_text;
     #MText is returned.  A caller have to free it by m17n_object_unref ().
     If the input method does not have a description text, @c NULL is
     returned.  */
+/***ja
+    @brief 入力メソッドの説明テキストを得る.
+
+    関数 minput_get_description () は、$LANGUAGE と $NAME によって指定
+    された入力メソッドを簡単に説明する M-text を返す。返される M-text 
+    には、その全体に対して #Mdetail_text というテキストプロパティが付
+    加されている場合があり、そのプロパティの値は入力メソッドをさらに詳
+    細に説明する M-text である。
+
+    @return 指定された入力メソッドが説明するテキストを持っていれば、 
+    #MText へのポインタを返す。呼び出し側は、それを m17n_object_unref
+    () を用いて解放しなくてはならない。入力メソッドに説明テキストが無
+    ければ@c NULL を返す。 */
 
 MText *
 minput_get_description (MSymbol language, MSymbol name)
@@ -2898,7 +2917,7 @@ minput_get_description (MSymbol language, MSymbol name)
 }
 
 /***en
-    @brief Get information about input method commands
+    @brief Get information about input method commands.
 
     The minput_get_commands () function returns information about
     input method commands of the input method specified by $LANGUAGE
@@ -2907,14 +2926,13 @@ minput_get_description (MSymbol language, MSymbol name)
 
     There are two kinds of commands, global and local.  Global
     commands are used by multiple input methods for the same purpose,
-    and have global key assignments.  Each input method may locally
-    change key assignments for glabal commands.  Local commands are
-    used only in a specific input method, and have only local key
-    assignments.
+    and have global key assignments.  Local commands are used only in
+    a specific input method, and have only local key assignments.
 
-    Global key assignments for a global command are effective only
-    when the current input method does not have local key assignments
-    for that command.
+    Each input method may locally change key assignments for glabal
+    commands.  A global key assignment for a global command are
+    effective only when the current input method does not have local
+    key assignments for that command.
 
     If $NAME is #Mnil, information about global commands is returned.
     In this case $LANGUAGE is ignored.
@@ -2928,7 +2946,7 @@ minput_get_description (MSymbol language, MSymbol name)
 
     Otherwise, a pointer to a plist is returned.  The key of each
     element in the plist is a symbol representing a command, and the
-    value is a plist of the form COMMAND-INFO (see below).
+    value is a plist of the form COMMAND-INFO described below.
 
     The first element of COMMAND-INFO has the key #Mtext, and the
     value is an M-text describing the command briefly.  This M-text
@@ -2943,6 +2961,51 @@ minput_get_description (MSymbol language, MSymbol name)
 
     As the returned plist is kept in the library, the caller must not
     modify nor free it.  */
+/***ja
+    @brief 入力メソッドのコマンドに関する情報を得る.
+
+    関数 minput_get_commands () は、 $LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの入力メソッドコマンドに関する情報を返す。入力メソッ
+    ドコマンドとは、疑似キーイベントであり、それぞれに１つ以上の実際の
+    入力キーシークエンスが割り当てられているものを指す。
+
+    コマンドにはグローバルとローカルの２種類がある。グローバルコマンド
+    は複数の入力メソッドにおいて、同じ目的で、グローバルなキー割り当て
+    で用いられる。ローカルコマンドは特定の入力メソッドでのみ、ローカル
+    なキー割当で使用される。
+
+    個々の入力メソッドはグローバルコマンドのキー割当を変更することもで
+    きる。グローバルコマンド用のグローバルキー割り当ては、使用する入力
+    メソッドにおいてそのコマンド用のローカルなキー割当が存在しない場合
+    にのみ有効である。
+
+    $NAME が #Mnil であれば、グローバルコマンドに関する情報を返す。こ
+    の場合、$LANGUAGE は無視される。
+
+    $NAME が #Mnil でなければ、$LANGUAGE と $NAME によって指定される入
+    力メソッドに置けるローカルなキー割り当てを持つコマンドに関する情報
+    を返す。
+
+    @return
+    入力メソッドコマンドが見つからなければ、この関数は @c NULL を返す。
+
+    そうでなければプロパティリストへのポインタを返す。リストの各要素の
+    キーは個々のコマンドを示すシンボルであり、値は下記の COMMAND-INFO 
+    の形式のプロパティリストである。
+
+    COMMAND-INFO の第一要素はキーとして #Mtext を、値としてそのコマン
+    ドを簡単に説明する M-text を持つ。この M-text は、#Mdetail_text を
+    キーとするテキストプロパティを持つことができ、その値はそのコマンド
+    をより詳細に説明する M-text である。
+
+    それ以外の要素が無ければ、このコマンドに対してキーシークエンスが割
+    り当てられていないことを意味する。そうでなければ、残りの各要素はキー
+    として#Mplist を、値としてプロパティリストを持つ。このプロパティリ
+    ストのキーは #Msymbol であり、値は現在そのコマンドに割り当てられて
+    いる入力キーを表すシンボルである。
+
+    返されるプロパティリストはライブラリによって管理されており、呼び出
+    し側で変更したり解放したりしてはならない。*/
 
 MPlist *
 minput_get_commands (MSymbol language, MSymbol name)
@@ -2953,7 +3016,7 @@ minput_get_commands (MSymbol language, MSymbol name)
 }
 
 /***en
-    @brief Assign a key sequence to an input method command
+    @brief Assign a key sequence to an input method command.
 
     The minput_assign_command_keys () function assigns input key
     sequence $KEYSEQ to input method command $COMMAND for the input
@@ -2972,6 +3035,27 @@ minput_get_commands (MSymbol language, MSymbol name)
     @return
     If the operation was successful, 0 is returned.  Otherwise -1 is
     returned, and #merror_code is set to #MERROR_IM.  */
+/***ja
+    @brief 入力メソッドコマンドにキーシークエンスを割り当てる.
+
+    関数 minput_assign_command_keys () は、 $LANGUAGE と $NAME によっ
+    て指定された入力メソッド用の入力メソッドコマンド $COMMAND に対して、
+    入力キーシークエンス $KEYSEQ を割り当てる。 $NAME が #Mnil ならば、
+    $LANGUAGE に関係なく、入力キーシークエンスはグローバルに割り当てら
+    れる。そうでなれば、割り当てはローカルである。
+
+    $KEYSEQ の各要素はキーとして $Msymbol を、値として入力キーを表すシ
+    ンボルを持たなくてはならない。
+
+    $KEYSEQ は @c NULL でもよい。この場合、グローバルもしくはローカル
+    なすべての割り当てが消去される。
+
+    この割り当ては、割り当て以降新しくオープンされた入力メソッドから有
+    効になる。
+
+    @return 
+    処理が成功すれば 0 を返す。そうでなければ -1 を返し、
+    #merror_code を #MERROR_IM に設定する。  */
 
 int
 minput_assign_command_keys (MSymbol language, MSymbol name,
@@ -3017,14 +3101,14 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 }
 
 /***en
-    @brief Get a list of variables of an input method
+    @brief Get a list of variables of an input method.
 
     The minput_get_variables () function returns a plist (#MPlist) of
     variables used to control the behavior of the input method
     specified by $LANGUAGE and $NAME.  The key of an element of the
     plist is a symbol representing a variable, and the value is a
-    plist of the form VAR-INFO (see below) carrying the information
-    about the variable.
+    plist of the form VAR-INFO (described below) that carries the
+    information about the variable.
 
     The first element of VAR-INFO has the key #Mtext, and the value is
     an M-text describing the variable briefly.  This M-text may have a
@@ -3041,18 +3125,18 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     that matches with the above type.  Otherwise, the remaining
     elements of VAR-INFO are to specify valid values of the variable.
 
-    If the type of the variable is integer, the third and later elements
+    If the type of the variable is integer, the following elements
     have the key #Minteger or #Mplist.  If it is #Minteger, the value
     is a valid integer value.  If it is #Mplist, the value is a plist
     of two of elements.  Both of them have the key #Minteger, and
     values are the minimum and maximum bounds of the valid value
     range.
 
-    If the type of the variable is symbol or M-text, the third and
-    later elements of the plist have the key #Msymbol or #Mtext,
+    If the type of the variable is symbol or M-text, the following
+    elements of the plist have the key #Msymbol or #Mtext,
     respectively, and the value must be a valid one.
 
-    For instance, suppose an input method has the following variables:
+    For instance, suppose an input method has the variables:
 
     <li> name:intvar, description:"value is an integer",
          initial value:0, value-range:0..3,10,20
@@ -3087,6 +3171,73 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     returned.  As the plist is kept in the library, a caller must not
     modify nor free it.  If the input method does not use any
     variable, @c NULL is returned.  */
+/***ja
+    @brief 入力メソッドの変数リストを得る.
+
+    関数 minput_get_variables () は、$LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの振る舞いを制御する変数のプロパティリスト 
+    (#MPlist) を返す。リストの各要素のキーは変数を表すシンボルである。
+    各要素の値は下記の VAR-INFO の形式のプロパティリストであり、各変数
+    に関する情報を示している。
+
+    VAR-INFO の第一要素はキーとして #Mtext を、値としてその変数
+    を簡単に説明する M-text を持つ。この M-text は、#Mdetail_text を
+    キーとするテキストプロパティを持つことができ、その値はその変数をよ
+    り詳細に説明する M-text である。
+
+    VAR-INFO の第二要素は変数の値を示す。キーは #Minteger, #Msymbol,
+    #Mtext のいずれかであり、値はそれぞれ整数値、シンボル、M-text であ
+    る。この入力メソッド用の入力コンテストが作られる際には、変数はこの
+    値に設定される。
+
+    VAR-INFO にそれ以外の要素が無ければ、変数は上記の型に合致する限り
+    どのような値をとることもできる。そうでなければ、VAR-INFO の残りの
+    要素によって変数の有効な値が指定される。
+
+    変数の型が整数であれば、それ以降の要素は #Minteger か #Mplist をキー
+    として持つ。 #Minteger であれば、値は有効な値を示す整数値である。
+    #Mplist であれば、値は二つの要素を持つプロパティリストであり、各要
+    素はキーとして #Minteger を、値としてそれぞれ有効な値の上限値と下
+    限値をとる。
+
+    変数の型がシンボルか M-text であれば、それ以降の要素はキーとしてそ
+    れぞれ #Msymbol か #Mtext を持ち、値として型に従うものをとる。
+
+    例として、ある入力メソッドが次のような変数を持つ場合を考えよう。
+
+    <li> name:intvar, 説明:"value is an integer",
+         初期値:0, 値の範囲:0..3,10,20
+
+    <li> name:symvar, 説明:"value is a symbol",
+         初期値:nil, 値の範囲:a, b, c, nil
+
+    <li> name:txtvar, 説明:"value is an M-text",
+         初期値:empty text, 値の範囲なし(どんな M-text でも可)
+
+    この場合、返されるリストは以下のようになる。（'X:Y' という記法は X 
+    がキーで Y が値であることを、また '(...)' はプロパティリストを示す。）
+
+@verbatim
+    plist:(intvar:(mtext:"value is an integer"
+                   integer:0
+		   plist:(integer:0 integer:3)
+                   integer:10
+                   integer:20))
+           symvar:(mtext:"value is a symbol"
+                   symbol:nil
+                   symbol:a
+                   symbol:b
+                   symbol:c
+                   symbol:nil))
+           txtvar:(mtext:"value is an M-text"
+                   mtext:""))
+@endverbatim
+
+    @return 
+    入力メソッドが何らかの変数を使用していれば #MPlist への変数を返す。
+    返されるプロパティリストはライブラリによって管理されており、呼
+    び出し側で変更したり解放したりしてはならない。入力メソッドが変
+    数を一切使用してなければ、@c NULL を返す。  */
 
 MPlist *
 minput_get_variables (MSymbol language, MSymbol name)
@@ -3097,7 +3248,7 @@ minput_get_variables (MSymbol language, MSymbol name)
 }
 
 /***en
-    @brief Set the initial value of an input method variable
+    @brief Set the initial value of an input method variable.
 
     The minput_set_variable () function sets the initial value of
     input method variable $VARIABLE to $VALUE for the input method
@@ -3110,6 +3261,20 @@ minput_get_variables (MSymbol language, MSymbol name)
     @return
     If the operation was successful, 0 is returned.  Otherwise -1 is
     returned, and #merror_code is set to #MERROR_IM.  */
+/***ja
+    @brief 入力メソッド変数の初期値を設定する.
+
+    関数 minput_set_variable () は、$LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの入力メソッド変数 $VARIABLE の初期値を、 $VALUE に
+    設定する。
+
+    デフォルトの初期値は 0 である。
+
+    この設定は、新しくオープンされた入力メソッドから有効となる。
+
+    @return
+    処理が成功すれば 0 を返す。そうでなければ -1 を返し、
+    #merror_code を #MERROR_IM に設定する。  */
 
 int
 minput_set_variable (MSymbol language, MSymbol name,
