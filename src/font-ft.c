@@ -35,6 +35,7 @@
 #include "m17n-misc.h"
 #include "internal.h"
 #include "plist.h"
+#include "symbol.h"
 #include "internal-gui.h"
 #include "font.h"
 #include "face.h"
@@ -234,11 +235,8 @@ close_ft (void *object)
 	OTF_close (ft_info->otf);
 #endif /* HAVE_OTF */
     }
-  else
-    {
-      free (ft_info->filename);
-      M17N_OBJECT_UNREF (ft_info->charmap_list);
-    }
+  free (ft_info->filename);
+  M17N_OBJECT_UNREF (ft_info->charmap_list);
   free (ft_info);
 }
 
@@ -360,17 +358,7 @@ ft_list ()
 
 #endif	/* not HAVE_FONTCONFIG */
 
-static MRealizedFont *ft_select (MFrame *, MFont *, MFont *, int);
-static int ft_open (MRealizedFont *);
-static void ft_find_metric (MRealizedFont *, MGlyphString *, int, int);
-static unsigned ft_encode_char (MRealizedFont *, int, unsigned);
-static void ft_render (MDrawWindow, int, int, MGlyphString *,
-		       MGlyph *, MGlyph *, int, MDrawRegion);
-
-MFontDriver mfont__ft_driver =
-  { ft_select, ft_open, ft_find_metric, ft_encode_char, ft_render };
-
-/* The FreeType font driver function LIST.  */
+/* The FreeType font driver function SELECT.  */
 
 static MRealizedFont *
 ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
@@ -488,9 +476,10 @@ ft_open (MRealizedFont *rfont)
 
   M17N_OBJECT (ft_info, close_ft, MERROR_FONT_FT);
   ft_info->font = base->font;
-  ft_info->filename = base->filename;
+  ft_info->filename = strdup (base->filename);
   ft_info->otf_flag = base->otf_flag;
   ft_info->charmap_list = base->charmap_list;
+  M17N_OBJECT_REF (ft_info->charmap_list);
   M17N_OBJECT_UNREF (base);
   rfont->info = ft_info;
 
@@ -517,10 +506,13 @@ ft_open (MRealizedFont *rfont)
   return 0;
 
  err:
+  MDEBUG_PRINT1 (" [FT-FONT] x %s\n", ft_info->filename);
   if (ft_info->ft_face)
     FT_Done_Face (ft_info->ft_face);
+  M17N_OBJECT_UNREF (ft_info->charmap_list);
+  free (ft_info->filename);
   free (ft_info);
-  MDEBUG_PRINT1 (" [FT-FONT] x %s\n", ft_info->filename);
+  rfont->info = NULL;
   return -1;
 }
 
@@ -752,6 +744,10 @@ ft_render (MDrawWindow win, int x, int y,
 }
 
 
+/* Internal API */
+
+MFontDriver mfont__ft_driver =
+  { ft_select, ft_open, ft_find_metric, ft_encode_char, ft_render };
 
 int
 mfont__ft_init ()
@@ -820,6 +816,72 @@ mfont__ft_fini ()
   all_fonts_scaned = 0;
 }
 
+
+#ifdef HAVE_FONTCONFIG
+int
+mfont__ft_parse_name (char *name, MFont *font)
+{
+  FcPattern *pat = FcNameParse (name);
+  FcResult result;
+  FcChar8 *str;
+  double size;
+  
+  if (! pat)
+    return -1;
+  if ((result = FcPatternGetString (pat, FC_FOUNDRY, 0, &str)) == FcResultMatch)
+    mfont__set_property (font, MFONT_FOUNDRY, msymbol ((char *) str));
+  if ((result = FcPatternGetString (pat, FC_FAMILY, 0, &str)) == FcResultMatch)
+    mfont__set_property (font, MFONT_FAMILY, msymbol ((char *) str));
+  if ((result = FcPatternGetString (pat, FC_STYLE, 0, &str)) == FcResultMatch)
+    {
+      MSymbol style = msymbol ((char *) str);
+      int i;
+
+      for (i = 0; i < ft_to_prop_size; i++)
+	if (ft_to_prop[i].ft_style == style)
+	  {
+	    mfont__set_property (font, MFONT_WEIGHT, ft_to_prop[i].weight);
+	    mfont__set_property (font, MFONT_STYLE, ft_to_prop[i].style);
+	    mfont__set_property (font, MFONT_STRETCH, ft_to_prop[i].stretch);
+	    break;
+	  }
+    }
+  if ((result = FcPatternGetDouble (pat, FC_PIXEL_SIZE, 0, &size))
+      == FcResultMatch)
+    font->property[MFONT_SIZE] = size * 10;
+  FcPatternDestroy (pat);
+  return 0;
+}
+
+char *
+mfont__ft_unparse_name (MFont *font)
+{
+  FcPattern *pat = FcPatternCreate ();
+  MSymbol sym, weight, style, stretch;
+  char *name;
+  int i;
+
+  if ((sym = (MSymbol) FONT_PROPERTY (font, MFONT_FOUNDRY)) != Mnil)
+    FcPatternAddString (pat, FC_FOUNDRY, (FcChar8 *) MSYMBOL_NAME (sym));
+  if ((sym = (MSymbol) FONT_PROPERTY (font, MFONT_FAMILY)) != Mnil)
+    FcPatternAddString (pat, FC_FAMILY, (FcChar8 *) MSYMBOL_NAME (sym));
+  if ((weight = (MSymbol) FONT_PROPERTY (font, MFONT_WEIGHT)) == Mnil)
+    weight = msymbol ("medium");
+  if ((style = (MSymbol) FONT_PROPERTY (font, MFONT_STYLE)) == Mnil)
+    style = msymbol ("r");
+  if ((stretch = (MSymbol) FONT_PROPERTY (font, MFONT_STRETCH)) == Mnil)
+    stretch = msymbol ("normal");
+  for (i = 0; i < ft_to_prop_size; i++)
+    if (ft_to_prop[i].weight == weight
+	&& ft_to_prop[i].style == style
+	&& ft_to_prop[i].stretch == stretch)
+      FcPatternAddString (pat, FC_STYLE,
+			  (FcChar8 *) MSYMBOL_NAME (ft_to_prop[i].ft_style));
+  name = (char *) FcNameUnparse (pat);
+  FcPatternDestroy (pat);
+  return name;
+}
+#endif	/* HAVE_FONTCONFIG */
 
 int
 mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
