@@ -181,7 +181,7 @@ else
       LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
     fi
   fi
-  AC_CHECK_LIB(fontconfig, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
+  AC_CHECK_LIB(fontconfig, FcInit, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
   AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
 fi
 if test "x$HAVE_FONTCONFIG" = "xyes"; then
