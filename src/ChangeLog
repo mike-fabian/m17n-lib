@@ -1,3 +1,13 @@
+2004-09-06  Kenichi Handa  <handa@m17n.org>
+
+	* internal-gui.h (MAKE_PRECOMPUTED_COMBINDING_CODE)
+	(COMBINING_PRECOMPUTED_P): New macros.
+
+	* draw.c (layout_glyphs): Hanlde precomputed combining code.
+
+	* font-ft.c (mfont__ft_drive_otf): Set g->combining_code to a
+	precomupted combining code.
+
 2004-09-03  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (mfont__ft_drive_otf): Use malloc and free for
