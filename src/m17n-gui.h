@@ -224,7 +224,8 @@ extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language,
 /***en @defgroup m17nFontset Fontset */
 /***ja @defgroup m17nFontset フォントセット */
 /*=*/
-
+/*** @addtogroup m17nFontset
+     @{   */
 typedef struct MFontset MFontset;
 
 extern MFontset *mfontset (char *name);
@@ -241,7 +242,7 @@ extern int mfontset_modify_entry (MFontset *fontset,
 
 extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
 				MSymbol language, MSymbol charset);
-
+/*** @}   */
 /* end of fontset module */
 /*=*/
 
