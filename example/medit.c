@@ -2687,7 +2687,9 @@ main (int argc, char **argv)
   memset (&control, 0, sizeof control);
   control.two_dimensional = 1;
   control.enable_bidi = 1;
+#if 0
   control.anti_alias = 1;
+#endif
   control.min_line_ascent = font_ascent;
   control.min_line_descent = font_descent;
   control.max_line_width = win_width;
