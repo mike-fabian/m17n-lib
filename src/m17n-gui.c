@@ -496,13 +496,16 @@ MSymbol Mfont_descent;
 
     <li> #Mfont, the value must be #Mx, #Mfreetype, or #Mxft.
 
-    This specifies which font backend to use.  #Mx means to use X core
-    fonts, #Mfreetype means to use local fonts supported by FreeType
-    fonts, #Mxft means to use local fonts via Xft library.  It is
-    ignored if the specified font backend is not supported on the
-    device.  You can specify this parameter more than once with
-    different values if you want to use multiple font backends.  By
-    default, all font backend supported on the device are used.
+    The created frame uses the specified font backend.  The value #Mx
+    instructs to use X core fonts, #Mfreetype to use local fonts
+    supported by FreeType fonts, and #Mxft to use local fonts via Xft
+    library.  You can specify this parameter more than once with
+    different values if you want to use multiple font backends.  This
+    is ignored if the specified font backend is not supported on the
+    device.
+    
+    When this parameter is not specified, all font backend supported
+    on the device are used.
 
     </ul>
 
@@ -591,6 +594,19 @@ MSymbol Mfont_descent;
     <li> #Mcolormap. 値は <tt>(Colormap)</tt> 型でなくてはならない。
 
     生成されたフレームは、指定したカラーマップを使用する。
+
+    <li> #Mfont. 値は、#Mx, #Mfreetype, #Mxft のいずれか。
+
+    生成されたフレームは指定したフォントバックエンドを使用する。値が 
+    #Mx であれば X のコアフォント、#Mfreetype であれば FreeType でサポー
+    トされているローカルフォント、#Mxft であれば Xft ライブラリ経由で
+    用いるローカルフォントを使用する。複数のフォントバックエンドを使用
+    したい場合には、このパラメータを複数回、異なる値で指定することがで
+    きる。指定したバックエンドがサポートされていないデバイスでは、この
+    パラメータは無視される。
+
+    このパラメータが無い場合には、デバイスでサポートされているすべての
+    フォントバックエンドを利用する。
 
     </ul>
 
