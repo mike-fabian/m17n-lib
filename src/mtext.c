@@ -46,15 +46,15 @@
     In addition, the library provides many functions to manipulate an
     M-text just the same way as a C-string.  */
 
-/***oldja
+/***ja
     @addtogroup m17nMtext
 
-    @brief M-text オブジェクトとそれに関する API
+    @brief M-text オブジェクトとそれに関する API.
 
-    m17n ライブラリは通常の C-string（<tt>char *</tt> や <tt>unsigned
-    char *</tt>）ではなく M-text と呼ぶオブジェクトでテキストを表現す
-    る。M-text は長さ０以上の文字の列からなり、種々の文字ソース（例え
-    ば C-string、ファイル、文字コード等）から作成できる。
+    m17n ライブラリは、 C-string（<tt>char *</tt> や <tt>unsigned char
+    *</tt>）ではなく @e M-text と呼ぶオブジェクトでテキストを表現する。
+    M-text は長さ 0 以上の文字列であり、種々の文字ソース（たとえば 
+    C-string、ファイル、文字コード等）から作成できる。
 
     M-text には、C-string にない以下の特徴がある。     
 
@@ -69,8 +69,8 @@
     また、M-text 自体が豊富な情報を持つため、アプリケーションプログラ
     ム中の各関数を簡素化することができる。
 
-    さらに、m17n ライブラリは C-string を操作するために提供される種々の
-    関数と同等ものを M-text を操作するために提供する。  */
+    さらにm17n ライブラリは、 C-string を操作するために提供される種々
+    の関数と同等ものを M-text を操作するためにサポートしている。  */
 
 /*=*/
 
@@ -1015,8 +1015,8 @@ mtext__eol (MText *mt, int pos)
     unless the user explicitly does so with the m17n_object_free ()
     function.  */
 
-/***oldja
-    @brief 新しいM-textを割り当てる
+/***ja
+    @brief 新しいM-textを割り当てる.
 
     関数 mtext () は、長さ 0 の新しい M-text を割り当て、それへのポイ
     ンタを返す。割り当てられた M-text は、関数 m17n_object_free () に
@@ -1069,6 +1069,35 @@ mtext ()
     If the operation was successful, mtext_from_data () returns a
     pointer to the allocated M-text.  Otherwise it returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
+/***ja
+    @brief 指定のデータを元に新しい M-text を割り当てる.
+
+    関数 mtext_from_data () は、要素数 $NITEMS の配列 $DATA で指定され
+    た文字列を持つ新しい M-text を割り当てる。$FORMAT は $DATA のフォー
+    マットを示す。
+
+    $FORMAT が #MTEXT_FORMAT_US_ASCII か #MTEXT_FORMAT_UTF_8 ならば、
+    $DATA の内容は @c unsigned @c char 型であり、$NITEMS はバイト単位
+    で表されている。
+
+    $FORMAT が #MTEXT_FORMAT_UTF_16LE か #MTEXT_FORMAT_UTF_16BE ならば、
+    $DATA の内容は @c unsigned @c short 型であり、$NITEMS は unsigned
+    short 単位である。
+
+    $FORMAT が #MTEXT_FORMAT_UTF_32LE か #MTEXT_FORMAT_UTF_32BE ならば、
+    $DATA の内容は@c unsigned 型であり、$NITEMS は unsigned 単位である。
+
+    割り当てられた M-text の文字列は変更できない。$DATA の内容は 
+    M-text が有効な間は変更してはならない。
+
+    割り当てられた M-text は、関数 m17n_object_free () によってユーザ
+    が明示的に行なわない限り、解放されない。その場合でも $DATA は解放
+    されない。
+
+    @return 
+    処理が成功すれば、mtext_from_data () は割り当てられたM-text へのポ
+    インタを返す。そうでなければ @c NULL を返し外部変数 #merror_code に
+    エラーコードを設定する。  */
 
 /***
     @errors
@@ -1114,10 +1143,10 @@ mtext_from_data (void *data, int nitems, enum MTextFormat format)
     The mtext_len () function returns the number of characters in
     M-text $MT.  */
 
-/***oldja
-    @brief M-text 中の文字数
+/***ja
+    @brief M-text 中の文字の数.
 
-    関数 mtext_len () は M-text $MT 中の文字数を返す。
+    関数 mtext_len () は M-text $MT 中の文字の数を返す。
 
     @latexonly \IPAlabel{mtext_len} @endlatexonly  */
 
@@ -1136,8 +1165,8 @@ mtext_len (MText *mt)
     M-text $MT.  If an error is detected, it returns -1 and assigns an
     error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief M-text 中の指定された位置の文字を返す
+/***ja
+    @brief M-text 中の指定された位置の文字を返す.
 
     関数 mtext_ref_char () は、M-text $MT の位置 $POS の文字を返す。
     エラーが検出された場合は -1 を返し、外部変数 #merror_code
@@ -1203,11 +1232,11 @@ mtext_ref_char (MText *mt, int pos)
     Otherwise it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***oldja
+/***ja
     @brief M-text に一文字を設定する
 
     関数 mtext_set_char () は、テキストプロパティ無しの文字 $C を 
-    M-text $MT の $POS の位置に設定する。
+    M-text $MT の位置 $POS に設定する。
 
     @return
     処理に成功すれば mtext_set_char () は 0 を返す。失敗すれば -1 を返
@@ -1276,8 +1305,8 @@ mtext_set_char (MText *mt, int pos, int c)
     This function returns a pointer to the resulting M-text $MT.  If
     $C is an invalid character, it returns @c NULL.  */
 
-/***oldja
-    @brief M-text に一文字追加する
+/***ja
+    @brief M-text に一文字追加する.
 
     関数 mtext_cat_char () は、テキストプロパティ無しの文字 $C を 
     M-text $MT の末尾に追加する。
@@ -1330,7 +1359,7 @@ mtext_cat_char (MText *mt, int c)
     This function returns a pointer to the created copy.  */
 
 /***oldja
-    @brief M-text のコピーを作る
+    @brief M-text のコピーを作る.
 
     関数 mtext_dup () は、M-text $MT のコピーを作る。$MT のテキストプ
     ロパティはすべて継承される。
@@ -1362,8 +1391,8 @@ mtext_dup (MText *mt)
     @return
     This function returns a pointer to the resulting M-text $MT1.  */
 
-/***oldja
-    @brief 2個の M-textを連結する
+/***ja
+    @brief 2個の M-textを連結する.
 
     関数 mtext_cat () は、 M-text $MT2 を M-text $MT1 の末尾に付け加え
     る。$MT2 のテキストプロパティはすべて継承される。$MT2 は変更されな
@@ -1404,13 +1433,12 @@ mtext_cat (MText *mt1, MText *mt2)
     merror_code.  */
 
 
-/***oldja
-    @brief M-text の一部を別の M-text に付加する
+/***ja
+    @brief M-text の一部を別の M-text に付加する.
 
     関数 mtext_ncat () は、M-text $MT2 のはじめの $N 文字を M-text
     $MT1 の末尾に付け加える。$MT2 のテキストプロパティはすべて継承され
     る。$MT2 の長さが $N 以下ならば、$MT2 のすべての文字が付加される。
-    $N が負の場合、$MT1 は変更されない。
     $MT2 は変更されない。
 
     @return
@@ -1450,8 +1478,8 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
     @return
     This function returns a pointer to the resulting M-text $MT1.  */
 
-/***oldja
-    @brief M-text をコピーする
+/***ja
+    @brief M-text を別の M-text にコピーする.
 
     関数 mtext_cpy () は M-text $MT2 を M-text $MT1 に上書きコピーする。
     $MT2 のテキストプロパティはすべて継承される。$MT1 の長さは必要に応
@@ -1490,17 +1518,17 @@ mtext_cpy (MText *mt1, MText *mt2)
     @c NULL and assigns an error code to the global variable @c
     merror_code.  */
 
-/***oldja
-    @brief M-text に含まれる最初の何文字かをコピーする
+/***ja
+    @brief M-text に含まれる最初の何文字かをコピーする.
 
     関数 mtext_ncpy () は、M-text $MT2 の最初の $N 文字を M-text $MT1 
-    に上書きコピーする。もし $MT2 の長さが $N よりも小さければ $MT2 の
-    すべての文字をコピーする。$MT2 のテキストプロパティはすべて継承さ
-    れる。$MT1 の長さは必要に応じて伸ばされる。$MT2 は変更されない。
+    に上書きコピーする。$MT2 のテキストプロパティはすべて継承される。
+    もし $MT2 の長さが $N よりも小さければ $MT2 のすべての文字をコピー
+    する。$MT1 の長さは必要に応じて伸ばされる。$MT2 は変更されない。
 
-    @return
-    処理が成功した場合、mtext_ncpy () は変更された M-text$MT1 へのポイ
-    ンタを返す。エラーが検出された場合は @c NULL を返し、外部変数 @c
+    @return 
+    処理が成功した場合、mtext_ncpy () は変更された M-text $MT1 へのポ
+    インタを返す。エラーが検出された場合は @c NULL を返し、外部変数 @c
     merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ncpy} @endlatexonly  */
@@ -1536,17 +1564,17 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
     pointer to the created M-text.  If an error is detected, it returns 0
     and assigns an error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief M-text の一部から新しい M-text をつくる
+/***ja
+    @brief 既存の M-text の一部から新しい M-text をつくる.
 
     関数 mtext_duplicate () は、M-text $MT の $FROM （含む）から $TO 
-    （含まない）までの部分文字列のコピーを作る。このとき $MT のテキス
-    トプロパティはすべて継承される。$MT そのものは変更されない。
+    （含まない）までの部分のコピーを作る。このとき $MT のテキストプロ
+    パティはすべて継承される。$MT そのものは変更されない。
 
     @return
     処理が成功すれば、mtext_duplicate () は作られた M-text へのポイン
-    タを返す。エラーが検出された場合は @c NULL を返し、外部変数 #merror_code 
-    にエラーコードを設定する。
+    タを返す。エラーが検出された場合は @c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_duplicate} @endlatexonly  */
 
@@ -1582,8 +1610,8 @@ mtext_duplicate (MText *mt, int from, int to)
     to the modified $MT1.  Otherwise, it returns @c NULL and assigns
     an error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief M-text の指定範囲の文字をコピーする
+/***ja
+    @brief M-text の指定範囲の文字をコピーする.
 
     関数 mtext_copy () は、 M-text $MT2 の $FROM （含む）から $TO （含
     まない）までの範囲のテキストを M-text $MT1 の位置 $POS から上書き
@@ -1629,8 +1657,8 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***oldja
-    @brief 指定範囲の文字を破壊的に取り除く
+/***ja
+    @brief 指定範囲の文字を破壊的に取り除く.
 
     関数 mtext_del () は、M-text $MT の $FROM （含む）から $TO （含ま
     ない）までの文字を破壊的に取り除く。結果的に $MT は長さが ($TO @c
@@ -1638,7 +1666,7 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
 
     @return
     処理が成功すれば mtext_del () は 0 を返す。そうでなければ -1 を返
-    し、同時に外部変数 #merror_code にエラーコードを設定する。  */
+    し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -1694,17 +1722,17 @@ mtext_del (MText *mt, int from, int to)
     Otherwise, it returns -1 and assigns an error code to the external
     variable #merror_code.  */
 
-/***oldja
-    @brief M-text を別の M-text に挿入する
+/***ja
+    @brief M-text を別の M-text に挿入する.
 
     関数 mtext_ins () は M-text $MT1 の $POS の位置に 別の M-text $MT2 
-    を挿入する。この結果 $MT1 の長さは $MT2 のぶんだけ増える。挿入の際、
-    $MT2 のテキストプロパティはすべて継承される。$MT2 そのものは変更さ
-    れない。
+    を挿入する。この結果 $MT1 の長さは $MT2 の長さ分だけ増える。挿入の
+    際、$MT2 のテキストプロパティはすべて継承される。$MT2 そのものは変
+    更されない。
 
     @return
     処理が成功すれば mtext_ins () は 0 を返す。そうでなければ -1 を返
-    し、同時に外部変数 #merror_code にエラーコードを設定する。  */
+    し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -1805,14 +1833,14 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     external variable #merror_code.  If an error is detected, it returns -1 and
     assigns an error code to the external variable #merror_code.  */
 
-/***oldja
-    @brief M-text 中の特定の文字を探す
+/***ja
+    @brief M-text 中で文字を探す.
 
-    関数 mtext_character () は M-text $MT 中における文字 $C の出現位置
-    を調べる。もし $FROM < $TO ならば、探索は位置 $FROM から末尾方向へ、
-    最大 ($TO - 1) まで進む。そうでなければ位置 ($FROM - 1) から先頭方
-    向へ、最大 $TO まで進む。位置の指定に誤りがある場合は、$FROM と 
-    $TO の両方に 0 が指定されたものと見なす。
+    関数 mtext_character () は M-text $MT 中で文字 $C を探す。もし 
+    $FROM < $TO ならば、探索は位置 $FROM から末尾方向へ、最大 ($TO -
+    1) まで進む。そうでなければ位置 ($FROM - 1) から先頭方向へ、最大 
+    $TO まで進む。位置の指定に誤りがある場合は、$FROM と $TO の両方に 
+    0 が指定されたものと見なす。
 
     @return
     もし $C が見つかれば、mtext_character () はその最初の出現位置を返
@@ -1858,11 +1886,11 @@ mtext_character (MText *mt, int from, int to, int c)
     If $C is found, mtext_chr () returns its position; otherwise it
     returns.  */
 
-/***oldja
-    @brief M-text 中で指定された文字が最初に現れる位置を返す
+/***ja
+    @brief M-text 中で指定された文字が最初に現れる位置を返す.
 
-    関数 mtext_chr () は M-text $MT 中における文字 $C の出現位置を調べ
-    る。探索は $MT の先頭から末尾方向に進む。
+    関数 mtext_chr () は M-text $MT 中で文字 $C を探す。探索は $MT の
+    先頭から末尾方向に進む。
 
     @return
     もし $C が見つかれば、mtext_chr () はその出現位置を返す。見つから
@@ -1894,17 +1922,17 @@ mtext_chr (MText *mt, int c)
     beginning.
 
     @return
-    If $C is found, mtext_chr () returns its position; otherwise it
+    If $C is found, mtext_rchr () returns its position; otherwise it
     returns -1.  */
 
-/***oldja
+/***ja
     @brief M-text 中で指定された文字が最後に現れる位置を返す
 
-    関数 mtext_rchr () は M-text $MT 中における文字 $C の出現位置を調
-    べる。探索は $MT の最後から先頭方向へと後向きに進む。
+    関数 mtext_rchr () は M-text $MT 中で文字 $C を探す。探索は $MT の
+    最後から先頭方向へと後向きに進む。
 
     @return
-    もし $C が見つかれば、mtext_chr () はその出現位置を返す。見つから
+    もし $C が見つかれば、mtext_rchr () はその出現位置を返す。見つから
     なかった場合は -1 を返す。
 
     @latexonly \IPAlabel{mtext_rchr} @endlatexonly  */
@@ -1936,8 +1964,8 @@ mtext_rchr (MText *mt, int c)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***oldja
-    @brief 二つの M-text を文字単位で比較する
+/***ja
+    @brief 二つの M-text を文字単位で比較する.
 
     関数 mtext_cmp () は、 M-text $MT1 と $MT2 を文字単位で比較する。
 
@@ -1963,7 +1991,7 @@ mtext_cmp (MText *mt1, MText *mt2)
 /*=*/
 
 /***en
-    @brief Compare two M-texts character-by-character.
+    @brief Compare initial parts of two M-texts character-by-character.
 
     The mtext_ncmp () function is similar to mtext_cmp (), but
     compares at most $N characters from the beginning.
@@ -1972,8 +2000,8 @@ mtext_cmp (MText *mt1, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***oldja
-    @brief 二つの M-text を文字単位で比較する
+/***ja
+    @brief 二つの M-text の先頭部分を文字単位で比較する
 
     関数 mtext_ncmp () は、関数 mtext_cmp () 同様の M-text 同士の比較
     を先頭から最大 $N 文字までに関して行なう。
@@ -2001,7 +2029,7 @@ mtext_ncmp (MText *mt1, MText *mt2, int n)
 /*=*/
 
 /***en
-    @brief Compare two M-texts.
+    @brief Compare specified regions of two M-texts.
 
     The mtext_compare () function compares two M-texts $MT1 and $MT2,
     character-by-character.  The compared regions are between $FROM1
@@ -2016,8 +2044,8 @@ mtext_ncmp (MText *mt1, MText *mt2, int n)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***oldja
-    @brief 二つの M-text を比較する
+/***ja
+    @brief 二つの M-text の指定した領域同士を比較する.
 
     関数 mtext_compare () は二つの M-text $MT1 と $MT2 を文字単位で比
     較する。比較対象となるのは $MT1 では $FROM1 から $TO1 まで、$MT2 
@@ -2058,11 +2086,11 @@ mtext_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
     segment of M-text $MT1 that consists entirely of characters in
     M-text $MT2.  */
 
-/***oldja
-    @brief ある文字の集合を M-text の中で探す
+/***ja
+    @brief ある集合の文字を M-text の中で探す.
 
     関数 mtext_spn () は、M-text $MT1 の先頭部分で M-text $MT2 に含ま
-    れる文字だけでできている部分の最大長さを計算する。
+    れる文字だけでできている部分の最大長さを返す。
 
     @latexonly \IPAlabel{mtext_spn} @endlatexonly  */
 
@@ -2084,8 +2112,8 @@ mtext_spn (MText *mt, MText *accept)
     The mtext_cspn () returns the length of the initial segment of
     M-text $MT1 that consists entirely of characters not in M-text $MT2.  */
 
-/***oldja
-    @brief ある集合に属さない文字を M-text の中で探す
+/***ja
+    @brief ある集合に属さない文字を M-text の中で探す.
 
     関数 mtext_cspn () は、M-text $MT1 の先頭部分で M-text $MT2 に含ま
     れない文字だけでできている部分の最大長さを返す。
@@ -2105,7 +2133,7 @@ mtext_cspn (MText *mt, MText *reject)
 /*=*/
 
 /***en
-    @brief Search an M-text for any of a set of characters
+    @brief Search an M-text for any of a set of characters.
 
     The mtext_pbrk () function locates the first occurrence in M-text
     $MT1 of any of the characters in M-text $MT2.
@@ -2114,15 +2142,15 @@ mtext_cspn (MText *mt, MText *reject)
     This function returns the position in $MT1 of the found character.
     If no such character is found, it returns -1. */
 
-/***oldja
-    @brief 別の M-text に含まれる文字の最初の出現位置を見つける
+/***ja
+    @brief ある集合の文字のどれかを M-text の中で探す.
 
     関数 mtext_pbrk () は、M-text $MT1 中で M-text $MT2 のいずれかの文
     字が最初に現れる位置を調べる。
 
-    @return
+    @return 
     見つかった文字の、$MT1 内における出現位置を返す。もしそのような文
-    字が見つからなかった場合は -1 を返す。
+    字がなければ -1 を返す。
 
     @latexonly \IPAlabel{mtext_pbrk} @endlatexonly  */
 
@@ -2138,7 +2166,7 @@ mtext_pbrk (MText *mt, MText *accept)
 /*=*/
 
 /***en
-    @brief Look for a token in an M-text
+    @brief Look for a token in an M-text.
 
     The mtext_tok () function searches a token that firstly occurs
     after position $POS in M-text $MT.  Here, a token means a
@@ -2153,13 +2181,13 @@ mtext_pbrk (MText *mt, MText *accept)
     error is detected, it returns @c NULL and assigns an error code
     to the external variable #merror_code. */
 
-/***oldja
-    @brief M-text 中のトークンを探す
+/***ja
+    @brief M-text 中のトークンを探す.
 
-    関数 mtext_tok () は、M-text $MT の中で $POS 以降最初に現れるトー
-    クンを探す。ここでトークンとは M-text $DELIM の中に現われない文字
-    だけからなる部分文字列である。$POS の型が @c int ではなくて @c int 
-    へのポインタであることに注意。
+    関数 mtext_tok () は、M-text $MT の中で位置 $POS 以降最初に現れる
+    トークンを探す。ここでトークンとは M-text $DELIM の中に現われない
+    文字だけからなる部分文字列である。$POS の型が @c int ではなくて @c
+    int へのポインタであることに注意。
 
     @return
     もしトークンが見つかれば mtext_tok ()はそのトークンに相当する部分
@@ -2211,11 +2239,12 @@ mtext_tok (MText *mt, MText *delim, int *pos)
     first occurrence.  Otherwise it returns -1.  If $MT2 is empty, it
     returns 0.  */
 
-/***oldja
-    @brief M-text 中の別の M-text を探す
+/***ja
+    @brief M-text 中で別の M-text を探す.
 
-    関数 mtext_text () は、M-text $MT1 中における M-text $MT2 の最初の
-    出現位置を調べる。テキストプロパティの違いは無視される。
+    関数 mtext_text () は、M-text $MT1 中で位置 $POS 以降に現われる 
+    M-text $MT2 の最初の位置を調べる。テキストプロパティの違いは無視さ
+    れる。
 
     @return
     $MT1 中に $MT2 が見つかれば、mtext_text() はその最初の出現位置を返
@@ -2316,8 +2345,8 @@ mtext_search (MText *mt1, int from, int to, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***oldja
-    @brief 二つの M-text を大文字／小文字の区別を無視して比較する
+/***ja
+    @brief 二つの M-text を大文字／小文字の区別を無視して比較する.
 
     関数 mtext_casecmp () は、関数 mtext_cmp () 同様の M-text 同士の比
     較を、大文字／小文字の区別を無視して行なう。
@@ -2342,7 +2371,7 @@ mtext_casecmp (MText *mt1, MText *mt2)
 /*=*/
 
 /***en
-    @brief Compare two M-texts ignoring cases.
+    @brief Compare initial parts of two M-texts ignoring cases.
 
     The mtext_ncasecmp () function is similar to mtext_casecmp (), but
     compares at most $N characters from the beginning.
@@ -2351,8 +2380,8 @@ mtext_casecmp (MText *mt1, MText *mt2)
     This function returns 1, 0, or -1 if $MT1 is found greater than,
     equal to, or less than $MT2, respectively.  */
 
-/***oldja
-    @brief 二つの M-text を大文字／小文字の区別を無視して比較する
+/***ja
+    @brief 二つの M-text の先頭部分を大文字／小文字の区別を無視して比較する.
 
     関数 mtext_ncasecmp () は、関数 mtext_casecmp () 同様の M-text 同
     士の比較を先頭から最大 $N 文字までに関して行なう。
@@ -2380,7 +2409,7 @@ mtext_ncasecmp (MText *mt1, MText *mt2, int n)
 /*=*/
 
 /***en
-    @brief Compare two M-texts ignoring cases.
+    @brief Compare specified regions of two M-texts ignoring cases. 
 
     The mtext_case_compare () function compares two M-texts $MT1 and
     $MT2, character-by-character, ignoring cases.  The compared
@@ -2396,8 +2425,8 @@ mtext_ncasecmp (MText *mt1, MText *mt2, int n)
     equal to, or less than $MT2, respectively.  Comparison is based on
     character codes.  */
 
-/***oldja
-    @brief 二つの M-text を、大文字／小文字の区別を無視した文字単位で比較する
+/***ja 
+    @brief 二つの M-text の指定した領域を、大文字／小文字の区別を無視して比較する.
 
     関数 mtext_compare () は二つの M-text $MT1 と $MT2 を、大文字／小
     文字の区別を無視しつつ文字単位で比較する。比較対象となるのは $MT1 
@@ -2441,7 +2470,7 @@ mtext_case_compare (MText *mt1, int from1, int to1,
 /*** @{  */
 
 /***en
-    @brief Dump an M-text
+    @brief Dump an M-text.
 
     The mdebug_dump_mtext () function prints the M-text $MT in a human
     readable way to the stderr.  $INDENT specifies how many columns to
@@ -2451,6 +2480,16 @@ mtext_case_compare (MText *mt1, int from1, int to1,
 
     @return
     This function returns $MT.  */
+/***ja
+    @brief M-text をダンプする.
+
+    関数 mdebug_dump_mtext () は M-text $MT を stderr に人間に可読な 
+    形で印刷する。 $UNDENT は２行目以降のインデントを指定する。$FULLP 
+    が 0 ならば、文字コード列だけを印刷する。そうでなければ、内部バイ
+    ト列とテキストプロパティも印刷する。
+
+    @return
+    この関数は $MT を返す。  */
 
 MText *
 mdebug_dump_mtext (MText *mt, int indent, int fullp)
