@@ -1,3 +1,8 @@
+2004-07-22  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (get_selection): If decoding fails and *type is not
+	XA_UTF8_STRING, try to get selection value of type XA_UTF8_STRING.
+
 2004-07-20  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): If frame creation is falied, exit by error.
