@@ -17,7 +17,8 @@
 	ft_family_list.
 	(ft_list_family): New function (merged fc_list and ft_list_all).
 	(ft_select): Use ft_list_family.
-	(ft_list): Likewise.  If FONT is not NULL, check all fonts.
+	(ft_list): Likewise.  If FONT is not NULL, check all fonts.  Fix
+	typo (== -> !=).
 	(mfont__ft_init): Initialize above new variables.
 	(mfont__ft_fini): Free ft_family_list.
 	(STRDUP_LOWER): New macro.
