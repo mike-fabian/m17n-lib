@@ -1,3 +1,51 @@
+2004-06-02  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (enum xlfd_field_idx): Moved from m17n-X.c.
+	(xlfd_parse_name): Merge split_font_name and xfont_parse_name.
+	(xlfd_unparse_name): Renamed from xfont_build_name.
+	(mfont__init): Initialized Mfontconfig.
+	(mfont__free_realized): Unconditionally unref rfont->info.
+	(mfont__select): Free `this' if it's not best.
+	(mfont__open): Don't check frame->realized_font_list.
+	(mfont__parse_name_into_font): New function.
+	(Mfontconfig): New variable.
+	(mfont_from_name): Call mfont_parse_name.
+	(mfont_name): Call mfont_unparse_name.
+	(mdebug_dump_font): Likewise.
+
+	* font.h (struct MFontDriver): Delete members parse_name and
+	build_name.
+	(mfont__ft_parse_name, mfont__ft_unparse_name): Extern them.
+	(mfont__parse_name_into_font): Extern it.
+
+	* font-ft.c: Include "symbol.h".
+	(close_ft): Unconditionally free filename and charmap_list of
+	ft_into.
+	(ft_open): Duplicate base->filename.  Increment ref-count of
+	ft_info->charmap_list.  Free ft_info->charmap_list and
+	ft_info->filename on error.
+	(mfont__ft_parse_name, mfont__ft_unparse_name): New functions.
+
+	* m17n-X.c (xfont_driver): Don't include xfont_parse_name and
+	xfont_build_name.
+	(enum xlfd_field_idx): Moved to font.c.
+	(split_font_name, build_font_name): Likewise.
+	(build_font_list): Call mfont__parse_name_info_font.
+	(xfont_open): Call mfont__unparse_name.  Free name.
+	(xfont_parse_name, xfont_build_name): Moved to font.c
+	(xft_select): Prototype deleted.
+	(device_open): Check HAVE_FREETYPE on using mfont__ft_driver.
+	Call mfont_pase_name.
+
+	* m17n-gui.c (free_frame): Unref frame->font_driver_list.
+	(m17n_fini_win): Add check HAVE_FREETYPE on using null_interface.
+	(mframe): Likewise.
+
+	* m17n-gui.h (mfont_parse_name, mfont_unparse_name, Mfontconfig):
+	Extern them.
+
+	* Makefile.am (linkgui_LDADD): Add libm17n-X.la and libm17n-gd.la.
+
 2004-06-01  Kenichi Handa  <handa@m17n.org>
 
 	* fontset.c (mfontset_modify_entry): Pay attention to the case
