@@ -484,6 +484,28 @@ win_callback (MInputContext *ic, MSymbol command)
 	  win_ic_info->candidates.mapped = 0;
 	}
     }
+  else if (command == Minput_reset)
+    {
+      MInputCallbackFunc func;
+
+      if (minput_default_driver.callback_list
+	  && (func = ((MInputCallbackFunc)
+		      mplist_get (minput_default_driver.callback_list,
+				  Minput_reset))))
+	{
+	  MInputContextInfo *ic_info
+	    = (MInputContextInfo *) win_ic_info->ic_info;
+	  ic->info = ic_info;
+	  (func) (ic, Minput_reset);
+	  ic->info = win_ic_info;
+	}
+      if (ic->preedit_changed)
+	minput__callback (ic, Minput_preedit_draw);
+      if (ic->status_changed)
+	minput__callback (ic, Minput_status_draw);
+      if (ic->candidates_changed)
+	minput__callback (ic, Minput_candidates_draw);
+    }
 }
 
 static int
@@ -525,6 +547,7 @@ minput__win_init ()
     plist = mplist_add (plist, Minput_candidates_done, (void *) win_callback);
     plist = mplist_add (plist, Minput_set_spot, (void *) win_callback);
     plist = mplist_add (plist, Minput_toggle, (void *) win_callback);
+    plist = mplist_add (plist, Minput_reset, (void *) win_callback);
   }
   minput_driver = &minput_gui_driver;
 
