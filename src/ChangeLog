@@ -34,7 +34,13 @@
 
 	* m17n.c (m17n_fini): Fix debugging information.
 
+	* mtext.c (mtext__adjust_foramt): New function.
+
+	* mtext.h (mtext__adjust_foramt): Extern it.
+
 	* plist.c (mplist_deserialize): Renamed from mplist__deserialize.
+
+	* plist.h (mplist__deserialize): Don't extern it.
 
 	* symbol.c (msymbol__fini): Set freed_symbols to 0.  Set all
 	elements of symbol_table to NULL.  Report about created and freed
