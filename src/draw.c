@@ -2672,8 +2672,6 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	    {
 	      pad_width = 0;
 	      info[-1].x += g->width;
-	      info[-1].this.x += g->width;
-	      info[-1].this.width += g->width;
 	      info[-1].logical_width += g->width;
 	    }
 	  continue;
@@ -2685,11 +2683,11 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  info->glyph_code = g->code;
 	  info->x = g->xoff + pad_width;
 	  info->y = g->yoff;
-	  info->this.x = g->lbearing + pad_width;
+	  info->this.x = g->lbearing;
 	  info->this.y = - g->ascent;
 	  info->this.height = g->ascent + g->descent;
-	  info->this.width = g->rbearing - g->lbearing + pad_width;
-	  info->logical_width = g->width;
+	  info->this.width = g->rbearing - g->lbearing;
+	  info->logical_width = g->width + pad_width;
 	  if (g->rface->rfont)
 	    info->font = &g->rface->rfont->font;
 	  else
