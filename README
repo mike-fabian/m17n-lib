@@ -115,11 +115,11 @@ The shell script "m17n-config" helps compiling and linking of a
 program that uses the m17n library.  For instance this compiles PROG.c
 that uses SHELL API and builds executable PROG.
 
-	% gcc -o PROG `m17n-config --clags` `m17n-config --libs` PROG.c
+	% gcc -o PROG `m17n-config --cflags` `m17n-config --libs` PROG.c
 
 This compiles PROX.c that uses GUI API and builds executable PROX.
 
-	% gcc -o PROX `m17n-config GUI --clags` `m17n-config GUI --libs` PROX.c
+	% gcc -o PROX `m17n-config GUI --cflags` `m17n-config GUI --libs` PROX.c
 
 ----------------------------------------------------------------------
 Copyright information
