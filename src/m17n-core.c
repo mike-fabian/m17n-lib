@@ -40,8 +40,8 @@
     It provides modules that utilize the m17n database (code
     conversion, character property, etc).  They load various kinds of
     data from the database on demand.  To use this API, an application
-    program must include <m17n.h> and be linked by -lm17n.  With that,
-    CORE API is also available.
+    program must include <m17n.h> and be linked by -lm17n (some system
+    requires -lm17n-core in addition).  With that, CORE API is also available.
 
     <li> GUI API
 
@@ -51,8 +51,9 @@
     for a specific type of graphic device.  Currently, X Window
     System, gdImagePtr of GD library, and null device are supported as
     a graphic device.  To use this API, an application program must
-    include <m17n-gui.h>, and be linked by -lm17n-gui.  With that,
-    CORE and SHELL APIs are also available.
+    include <m17n-gui.h>, and be linked by -lm17n-gui (some system
+    requires -lm17n-core -lm17n in addition).  With that, CORE and
+    SHELL APIs are also available.
 
     <li> MISC API
 
@@ -143,8 +144,9 @@
     m17n データベースを利用するモジュール（コード変換、文字プロパティ
     等）を提供する。モジュールはデータベースから必要に応じて多様なデー
     タをロードする。利用するためには、アプリケーションプログラムは
-    <m17n.h> を include し、 -lm17n でリンクされなくてはならない。こう
-    することによってコア API も使用できる。
+    <m17n.h> を include し、 -lm17n でリンクされなくてはならない（シス
+    テムによっては -lm17n-core も必要）。こうすることによってコア API
+    も使用できる。
 
     <li> GUI API
 
@@ -155,7 +157,8 @@
     ステム、GD ライブラリの gdImagePtr、ヌルデバイスがグラフィックデバ
     イスとしてサポートされている。利用するためにはアプリケーションプロ
     グラムは <m17n-gui.h> を include し、-lm17n-gui でリンクされなくて
-    はならない。こうすることによってコア API とシェル API も使用できる。
+    はならない（システムによっては -lm17n-core -lm17n も必要）。こうす
+    ることによってコア API とシェル API も使用できる。
 
     <li> その他の API
 
