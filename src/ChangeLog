@@ -1,3 +1,55 @@
+2005-02-17  Kenichi Handa  <handa@m17n.org>
+
+	* input.c: Include <sys/types.h>, <dirent.h>, and "database.h".
+	(M_description, M_command, M_variable): New variables.
+	(load_im_info_keys): New variables.
+	(load_im_info, check_command_keyseq, get_description_advance)
+	(parse_command_list, get_command_list, parse_variable_list)
+	(get_variable_list, input_method_hook): New functions.
+	(command_list, variable_list): New variables.
+	(minput__init): Put input_method_hook to Minput_method.
+	Initialize M_description, M_command, M_variable, Mdetail_text,
+	load_im_info_keys, command_list, variable_list.
+	(minput__fini): Unref command_list, variable_list, load_im_info_keys.
+	(Mdetail_text): New variable.
+	(minput_get_description, minput_get_commands)
+	(minput_assign_command_keys, minput_get_variables)
+	(minput_set_variable): New functions.
+
+	* m17n.h (Mdetail_text, minput_get_description, minput_get_commands)
+	(minput_assign_command_keys, minput_get_variables)
+	(minput_set_variable): Extern them.
+
+	* plist.c (UNGETC): Just decrement st->p.
+	(read_mtext_element): New arg skip.
+	(read_integer_element): Likewise.
+	(read_symbol_element): Likewise.
+	(read_element): New arg KEYS.
+	(mplist__from_plist): Don't increment ref-count of NULL object.
+	(mplist__from_file): New arg KEYS.
+	(mplist_put): Don't increment ref-count of NULL object.
+	(mplist_add): Likewise.
+	(mplist_push): Likewise.
+	(mplist_set): Likewise.  Call M17N_OBJECT_UNREF unconditionally.
+
+	* plist.h (mplist__from_file): Prototype adjusted.
+
+	* database.c (mdatabase__dir_list): Renamed from mdb_dir_list.
+	(get_database_stream): New function.
+	(load_database): Use get_database_stream.
+	(M_database_hook): New variable
+	(mdatabase__init): Initialize M_database_hook.
+	(mdatabase__load_for_keys): New function.
+	(mdatabase_find, mdatabase_list, mdatabase_define): Check hook
+	function.
+	(mdatabase_define): Free mdb->extra_info if necessary.
+
+	* database.h (mdatabase__dir_list, M_database_hook)
+	(mdatabase__load_for_keys): Extern them.
+	(MDatabaseHookFunc): New type.
+
+	* internal.h (M17N_OBJECT_UNREF): When freed, set OBJECT to NULL.
+
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.2.0 released.
