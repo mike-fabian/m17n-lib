@@ -1,3 +1,17 @@
+2004-06-03  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (find_coding): Find by canonicalized name.  Don't have
+	to modify the element of coding_definition_list by
+	mplist__from_plist.
+	(mconv__define_coding_from_charset): Delete it.
+	(mconv__register_charset_coding): Canonicalize sym.
+	(mcoding__load_from_database): Register plist modified by
+	mplist__from_plist.
+
+	* coding.h (mconv__define_coding_from_charset): Don't extern it.
+
+	* font-ft.c (ft_open): Fix setting of rfont->descent.
+
 2004-06-02  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (enum xlfd_field_idx): Moved from m17n-X.c.
