@@ -741,7 +741,7 @@ typedef struct
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
-  /***ja そのグリフ用に使われるフォント。見つからなければ NULL。
+  /***ja グリフに使われるフォント。見つからなければ NULL。
       the glyph.  */
   MFont *font;
 
@@ -759,6 +759,15 @@ typedef struct
   /***ja 表示上の左右のグリフに対応する文字の範囲。  */
   int left_from, left_to;
   int right_from, right_to;
+
+  /***en Font glyph code of the glyph.  */
+  /***ja フォント内のグリフコード。  */
+  int glyph_code;
+
+  /***en Logical width of the glyph.  Nominal distance to the next
+      glyph.  */
+  /***ja グリフの論理的幅。次のグリフとの名目上の距離。  */
+  int logical_width;
 
 } MDrawGlyphInfo;
 
@@ -842,6 +851,10 @@ extern int mdraw_text_per_char_extents (MFrame *frame,
 
 extern int mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 			     MDrawControl *control, MDrawGlyphInfo *info);
+
+extern int mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
+			     MDrawControl *control, MDrawGlyphInfo *info,
+			     int array_size, int *num_glyphs_return);
 
 extern void mdraw_text_items (MFrame *frame, MDrawWindow win, int x, int y,
 			      MDrawTextItem *items, int nitems);
