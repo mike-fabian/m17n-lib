@@ -29,8 +29,6 @@ enum MDeviceType
     MDEVICE_SUPPORT_INPUT = 2
   };
 
-extern MSymbol Mfont;
-
 typedef struct MRealizedFont MRealizedFont;
 typedef struct MRealizedFace MRealizedFace;
 typedef struct MRealizedFontset MRealizedFontset;
