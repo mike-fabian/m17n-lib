@@ -931,9 +931,9 @@ mfontset_modify_entry (MFontset *fontset,
     layouter_name = Mt;
   for (i--; i >= 0; i--)
     {
-      if (how == -1)
+      if (how == 1)
 	mplist_push (plist[i], layouter_name, font);
-      else if (how == 1)
+      else if (how == -1)
 	mplist_add (plist[i], layouter_name, font);
       else
 	{
