@@ -1,7 +1,14 @@
+2004-06-16  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (face_freeserif): New variable.
+	(face_table): Add an entry for freeserif.
+	(main): Initialized and free face_freeserif.
+
 2004-06-15  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c: Add command line arguments --family and --language.
 	(help_exit): Print info about those arguemnts.
+	(main): Make family name to lowercase.
 
 2004-06-04  Kenichi Handa  <handa@m17n.org>
 
