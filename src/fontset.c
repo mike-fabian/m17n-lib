@@ -531,6 +531,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       MPLIST_DO (plist, font_groups[i])
         {
 	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
+	  if (rfont->status < 0)
+	    continue;
 	  g->code = mfont__encode_char (rfont, g->c);
 	  if (g->code != MCHAR_INVALID_CODE)
 	    break;
@@ -553,6 +555,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       MPLIST_DO (plist, MPLIST_NEXT (plist))
 	{
 	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
+	  if (rfont->status < 0)
+	    continue;
 	  for (j = 0; j < *num; j++)
 	    {
 	      g[j].code = mfont__encode_char (rfont, g[j].c);
