@@ -304,14 +304,6 @@ typedef struct
   int *cmd_ids;
 } FontLayoutCmdCond;
 
-typedef struct
-{
-  MSymbol script;
-  MSymbol langsys;
-  MSymbol gsub_features;
-  MSymbol gpos_features;
-} FontLayoutCmdOTF;
-
 enum FontLayoutCmdType
   {
     FontLayoutCmdTypeRule,
@@ -964,7 +956,6 @@ typedef struct
   int cluster_end_pos;
   int combining_code;
   int left_padding;
-  MRealizedFont *rfont;
 } FontLayoutContext;
 
 static int run_command (int depth,
@@ -1125,10 +1116,12 @@ run_otf (int depth,
 {
 #ifdef HAVE_OTF
   int gidx = gstring->used;
+  MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
 
-  to = mfont__ft_drive_otf (gstring, from, to, ctx->rfont,
-			    otf_cmd->script, otf_cmd->langsys,
-			    otf_cmd->gsub_features, otf_cmd->gpos_features);
+  for (; g < gend; g++)
+    g->otf_cmd = otf_cmd;
+
+  to = mfont__ft_drive_gsub (gstring, from, to);
   if (gidx < gstring->used)
     MGLYPH (gidx)->left_padding = ctx->left_padding;
 #endif
@@ -1342,7 +1335,6 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 
   /* Setup CTX.  */
   memset (&ctx, 0, sizeof ctx);
-  ctx.rfont = rface->rfont;
   table = MPLIST_VAL (layouter);
   layouter = MPLIST_NEXT (layouter);
   stage = (FontLayoutStage *) MPLIST_VAL (layouter);
@@ -1418,7 +1410,7 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 	    ctx.encoded[i - from] = ' ';
 	  else if (! g->otf_encoded)
 	    ctx.encoded[i - from] = (int) mchartable_lookup (table, g->code);
-#ifdef HAVE_FREETYPE
+#if defined (HAVE_FREETYPE) && defined (HAVE_OTF)
 	  else
 	    {
 	      int c = mfont__ft_decode_otf (g);
@@ -1431,7 +1423,7 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 		}
 	      ctx.encoded[i - from] = (c >= 0 ? c : 1);
 	    }
-#endif	/* HAVE_FREETYPE */
+#endif	/* HAVE_FREETYPE && HAVE_OTF */
 	}
       ctx.encoded[i - from] = '\0';
       ctx.encoded_offset = from;
