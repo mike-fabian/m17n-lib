@@ -3138,20 +3138,20 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     For instance, suppose an input method has the variables:
 
-    <li> name:intvar, description:"value is an integer",
+    @li name:intvar, description: "value is an integer",
          initial value:0, value-range:0..3,10,20
 
-    <li> name:symvar, description:"value is a symbol",
+    @li name:symvar, description: "value is a symbol",
          initial value:nil, value-range:a, b, c, nil
 
-    <li> name:txtvar, description:"value is an M-text",
+    @li name:txtvar, description: "value is an M-text",
          initial value:empty text, no value-range (i.e. any text)
 
     Then, the returned plist has this form ('X:Y' means X is a key and Y is
     a value, and '(...)' means a plist):
 
 @verbatim
-    plist:(intvar:(mtext:"value is an integer"
+    plist:(intvar:(mtext:'value is an integer'
                    integer:0
 		   plist:(integer:0 integer:3)
                    integer:10
@@ -3205,14 +3205,14 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     例として、ある入力メソッドが次のような変数を持つ場合を考えよう。
 
-    <li> name:intvar, 説明:"value is an integer",
-         初期値:0, 値の範囲:0..3,10,20
+    @li name:intvar, 説明:"value is an integer",
+        初期値:0, 値の範囲:0..3,10,20
 
-    <li> name:symvar, 説明:"value is a symbol",
+    @li name:symvar, 説明:"value is a symbol",
          初期値:nil, 値の範囲:a, b, c, nil
 
-    <li> name:txtvar, 説明:"value is an M-text",
-         初期値:empty text, 値の範囲なし(どんな M-text でも可)
+    @li name:txtvar, 説明:"value is an M-text",
+        初期値:empty text, 値の範囲なし(どんな M-text でも可)
 
     この場合、返されるリストは以下のようになる。（'X:Y' という記法は X 
     がキーで Y が値であることを、また '(...)' はプロパティリストを示す。）
