@@ -9,6 +9,9 @@
 
 	* m17n-misc.h (enum MErrorCode): New element MERROR_GD.
 
+	* m17n-gui.h (Mdevice, Mdisplay, Mscreen, Mdrawable, Mdepth)
+	(Mwidget, Mcolormap, Mx): Extern them.
+
 	* m17n-gui.c: Include <dlfcn.h> and "config.h".
 	(free_frame): Call frame->driver->close instead of
 	mwin__close_device.
