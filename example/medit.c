@@ -2476,7 +2476,7 @@ main (int argc, char **argv)
 	}
     }
   if (! filename)
-    filename = "/dev/null";
+    filename = strdup ("/dev/null");
 
   mdatabase_dir = ".";
   /* Initialize the m17n library.  */
