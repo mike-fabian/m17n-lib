@@ -2752,26 +2752,24 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
+  fprintf (stderr,
+	   "(mtext (size %d %d %d) (cache %d %d)",
+	   mt->nchars, mt->nbytes, mt->allocated,
+	   mt->cache_char_pos, mt->cache_byte_pos);
   if (! fullp)
     {
-      fprintf (stderr, "\"");
-      for (i = 0; i < mt->nbytes; i++)
+      fprintf (stderr, " \"");
+      for (i = 0; i < mt->nchars; i++)
 	{
-	  int c = mt->data[i];
+	  int c = mtext_ref_char (mt, i);
 	  if (c >= ' ' && c < 127)
 	    fprintf (stderr, "%c", c);
 	  else
 	    fprintf (stderr, "\\x%02X", c);
 	}
       fprintf (stderr, "\"");
-      return mt;
     }
-
-  fprintf (stderr,
-	   "(mtext (size %d %d %d) (cache %d %d)",
-	   mt->nchars, mt->nbytes, mt->allocated,
-	   mt->cache_char_pos, mt->cache_byte_pos);
-  if (mt->nchars > 0)
+  else if (mt->nchars > 0)
     {
       fprintf (stderr, "\n%s (bytes \"", prefix);
       for (i = 0; i < mt->nbytes; i++)
@@ -2784,7 +2782,7 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 	  int len;
 	  int c = STRING_CHAR_AND_BYTES (p, len);
 
-	  if (c >= ' ' && c < 127 && c != '\\' && c != '"')
+	  if (c >= ' ' && c < 127 && c != '\\' && c != '\"')
 	    fputc (c, stderr);
 	  else
 	    fprintf (stderr, "\\x%X", c);
