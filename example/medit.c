@@ -1588,6 +1588,13 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	      redraw (0, win_height, 1, 1);
 	      return;
 	    }
+	  else if (buf[0] == 28) /* C-\ */
+	    {
+	      if (current_input_context)
+		minput_reset_ic (current_input_context);
+	      if (mtext_len (current_input_context->produced) > 0)
+		insert_chars (current_input_context->produced);
+	    }
 	  else
 	    {
 	      MText *temp = mtext ();
