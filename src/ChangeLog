@@ -1,3 +1,29 @@
+2004-06-24  Kenichi Handa  <handa@m17n.org>
+
+	* character.c (mchar_define_property): Add const to an arg.
+
+	* charset.c (mchar_define_charset): Add const to an arg.
+
+	* coding.c (MCodingSystem): Add const to an arg or decoder.
+	(finish_decoding): Add const to an arg.
+	(decode_coding_charset, decode_coding_utf_8)
+	(decode_coding_utf_16, decode_coding_utf_32)
+	(decode_coding_iso_2022, decode_coding_sjis)
+	(mconv_define_coding): Likewise.
+
+	* m17n-X.c (xft_find_metric): Delete unused variable.
+
+	* m17n-core.h (mchar_define_property, mtext_from_data): Adjust
+	prototypes.
+
+	* m17n.h (mchar_define_charset, mconv_define_coding): Adjust
+	prototypes.
+
+	* mtext.c (count_utf_8_chars, count_utf_16_chars)
+	(mtext__from_data, mtext_from_data): Add `const' to an arg.
+
+	* mtext.h (mtext__from_data): Ajust prototype.
+
 2004-06-23  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Always get glyph codes by
