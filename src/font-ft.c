@@ -260,12 +260,14 @@ close_ft (void *object)
 #endif /* HAVE_OTF */
     }
   free (ft_info->filename);
+  if (ft_info->languages)
+    free (ft_info->languages);
   M17N_OBJECT_UNREF (ft_info->charmap_list);
   free (ft_info);
 }
 
 static void
-add_font_info (char *filename, MSymbol family)
+add_font_info (char *filename, MSymbol family, char *languages)
 {
   FT_Face ft_face;
   BDF_PropertyRec prop;
@@ -281,6 +283,8 @@ add_font_info (char *filename, MSymbol family)
 
 	  M17N_OBJECT (ft_info, close_ft, MERROR_FONT_FT);
 	  ft_info->filename = strdup (filename);
+	  if (languages)
+	    ft_info->languages = strdup (languages);
 	  ft_info->otf_flag = check_otf_filename (filename);
 	  fam = set_font_info (ft_face, ft_info, family);
 	  plist = mplist_get (ft_font_list, fam);
@@ -328,7 +332,7 @@ fc_list (MSymbol family)
   if (family)
     FcPatternAddString (pattern, FC_FAMILY,
 			(FcChar8 *) (msymbol_name (family)));
-  os = FcObjectSetBuild (FC_FILE, NULL);
+  os = FcObjectSetBuild (FC_FILE, FC_FAMILY, FC_LANG, NULL);
   fs = FcFontList (fc_config, pattern, os);
   if (fs->nfont == 0
       && family != Mnil
@@ -340,10 +344,22 @@ fc_list (MSymbol family)
     }
   for (i = 0; i < fs->nfont; i++)
     {
-      char *filename;
+      char *filename, *languages;
 
       FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
-      add_font_info (filename, family);
+      FcPatternGetString (fs->fonts[i], FC_LANG, 0, (FcChar8 **) &languages);
+      if (family == Mnil)
+	{
+	  MSymbol fam;
+	  char *fname;
+
+	  FcPatternGetString (fs->fonts[i], FC_FAMILY, 0, (FcChar8 **) &fname);
+	  fam = msymbol (fname);
+	  if (! mplist_get (ft_font_list, fam))
+	    add_font_info (filename, fam, languages);
+	}
+      else
+	add_font_info (filename, family, languages);
     }
   FcFontSetDestroy (fs);
   FcObjectSetDestroy (os);
@@ -353,7 +369,7 @@ fc_list (MSymbol family)
 #else  /* not HAVE_FONTCONFIG */
 
 static void
-ft_list ()
+ft_list_all ()
 {
   MPlist *plist;
   struct stat buf;
@@ -365,7 +381,7 @@ ft_list ()
 	&& stat (pathname, &buf) == 0)
       {
 	if (S_ISREG (buf.st_mode))
-	  add_font_info (pathname, Mnil);
+	  add_font_info (pathname, Mnil, NULL);
 	else if (S_ISDIR (buf.st_mode))
 	  {
 	    int len = strlen (pathname);
@@ -381,7 +397,7 @@ ft_list ()
 		while ((dp = readdir (dir)) != NULL)
 		  {
 		    strcpy (path + len, dp->d_name);
-		    add_font_info (path, Mnil);
+		    add_font_info (path, Mnil, NULL);
 		  }
 		closedir (dir);
 	      }
@@ -439,7 +455,7 @@ ft_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 #else  /* not HAVE_FONTCONFIG */
   if (! all_fonts_scaned)
     {
-      ft_list ();
+      ft_list_all ();
       all_fonts_scaned = 1;
     }
   if (family != Mnil)
@@ -759,11 +775,56 @@ ft_render (MDrawWindow win, int x, int y,
     }
 }
 
+static MPlist *
+ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
+{
+  MPlist *pl, *p;
+  MSymbol family = font ? FONT_PROPERTY (font, MFONT_FAMILY) : Mnil;
+  char *lang = language != Mnil ? MSYMBOL_NAME (language) : NULL;
+
+  if (! all_fonts_scaned)
+    {
+#ifdef HAVE_FONTCONFIG
+      fc_list (Mnil);
+#else
+      ft_list_all ();
+#endif
+      all_fonts_scaned = 1;
+    }
+
+  if (family == Mnil)
+    pl = ft_font_list;
+  else
+    {
+      pl = mplist_find_by_key (ft_font_list, family);
+      if (! pl)
+	return NULL;
+    }
+
+  MPLIST_DO (pl, pl)
+    {
+      MPLIST_DO (p, MPLIST_VAL (pl))
+	{
+	  MFTInfo *ft_info = MPLIST_VAL (p);
+
+	  if (lang && ft_info->languages && strstr (ft_info->languages, lang))
+	    continue;
+	  if (font && ! mfont__match_p (&ft_info->font, font, MFONT_REGISTRY))
+	    continue;
+	  mplist_push (plist, FONT_PROPERTY (&ft_info->font, MFONT_FAMILY),
+		       &ft_info->font);
+	}
+      if (family != Mnil)
+	break;
+    }
+  return plist;
+}
+
 
 /* Internal API */
 
 MFontDriver mfont__ft_driver =
-  { ft_select, ft_open, ft_find_metric, ft_encode_char, ft_render };
+  { ft_select, ft_open, ft_find_metric, ft_encode_char, ft_render, ft_list };
 
 int
 mfont__ft_init ()
