@@ -33,6 +33,9 @@ So, for instance, an application can change the default face of a
 frame after the frame is created.  The sample program "medit" utilize
 it now.
 
+** New function mplist_deseriaze () parses an M-Text and generates a
+plist.
+
 ** The samle program "mdump" generates PNG image file instead of PBM.
 
 
