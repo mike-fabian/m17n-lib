@@ -40,28 +40,45 @@
     It provides modules that utilize the m17n database (code
     conversion, character property, etc).  They load various kinds of
     data from the database on demand.  To use this API, an application
-    program must include <m17n.h> and be linked by -lm17n (some system
-    requires -lm17n-core in addition).  With that, CORE API is also available.
+    program must include <m17n.h> and be linked by -lm17n-core -lm17n.
+
+    When you use this API, CORE API is also available.
 
     <li> GUI API
 
     It provides GUI modules such as drawing and inputting M-texts on a
     graphic device.  The API itself is independent on a graphic device
     but most of functions require an argument MFrame which is created
-    for a specific type of graphic device.  Currently, X Window
-    System, gdImagePtr of GD library, and null device are supported as
-    a graphic device.  To use this API, an application program must
-    include <m17n-gui.h>, and be linked by -lm17n-gui (some system
-    requires -lm17n-core -lm17n in addition).  With that, CORE and
-    SHELL APIs are also available.
+    for a specific type of graphic device.  Currently, a null device,
+    X Window System, and an image date (gdImagePtr) of GD library are
+    supported as a graphic device.
+
+    With the null device, you can't draw text nor use an input method
+    (but, for instance, the funciton mdraw_glyph_list () is
+    available).  To use this device, an application program must
+    include <m17n-gui.h> and be linked by -lm17n-core -lm17n
+    -lm17n-gui.
+
+    With the X Window System, you can use the whole GUI API.  To use
+    this device, an application program must include <m17n-X.h> and be
+    linked by -lm17n-core -lm17n -lm17n-gui -lm17n-X.
+
+    With an image of GD library, you can use all drawing API but can't
+    use input method.  To use this device, an application program must
+    include <m17n-gd.h>, and be linked by -lm17n-core -lm17n
+    -lm17n-gui -lm17n-gd.
+
+    It is also possible to use multiple devices.
+
+    When you use this API, CORE and SHELL API are also available.
 
     <li> MISC API
 
     It provides miscellaneous functions to support error handling and
-    debugging.  This API cannot be used by itself, but with one or more
-    APIs listed above.  To use the API, an application program must
-    include <m17n-misc.h> in addition to one of <m17n-core.h>,
-    <m17n.h>, and <m17n-gui.h>.
+    debugging.  This API cannot be used by itself, but with one or
+    more APIs listed above.  To use the API, an application program
+    must include <m17n-misc.h> in addition to one of a header file
+    described above.
 
     </ol>
 
@@ -144,28 +161,45 @@
     m17n データベースを利用するモジュール（コード変換、文字プロパティ
     等）を提供する。モジュールはデータベースから必要に応じて多様なデー
     タをロードする。利用するためには、アプリケーションプログラムは
-    <m17n.h> を include し、 -lm17n でリンクされなくてはならない（シス
-    テムによっては -lm17n-core も必要）。こうすることによってコア API
-    も使用できる。
+    <m17n.h> を include し、 -lm17n-core -lm17n でリンクされなくてはな
+    らない。
+
+    この API を使用する際にはコア API も使用できる。
 
     <li> GUI API
 
     M-texts をグラフィックデバイス上で表示したり入力したりするといった、
-    グラフィックユーザインタフェースモジュールを提供する。API 自体はウィ
-    ンドウシステムとは独立であるが、多くの関数は特定のグラフィックデバ
-    イス上に作成された MFrame を引数に取る。現時点では、X ウィンドウシ
-    ステム、GD ライブラリの gdImagePtr、ヌルデバイスがグラフィックデバ
-    イスとしてサポートされている。利用するためにはアプリケーションプロ
-    グラムは <m17n-gui.h> を include し、-lm17n-gui でリンクされなくて
-    はならない（システムによっては -lm17n-core -lm17n も必要）。こうす
-    ることによってコア API とシェル API も使用できる。
+    グラフィックユーザインタフェースモジュールを提供する。API 自体はグ
+    ラフィックデバイスとは独立であるが、多くの関数は特定のグラフィック
+    デバイス上に作成された MFrame を引数に取る。現時点では、ヌルデバイ
+    ス、X ウィンドウシステム、GD ライブラリのイメージ（gdImagePtr）、が
+    グラフィックデバイスとしてサポートされている。
+
+    ヌルデバイス上では表示も入力もできない（ただしたとえば
+    mdraw_glyph_list () などの関数は使用可能）。このデバイスを使用する
+    ためには、アプリケーションプログラムは <m17n-gui.h> を include し、
+    -lm17n-core -lm17n -lm17n-gui でリンクされなくてはならない。
+
+    X ウィンドウシステム上ではすべての GUI API が使える。このデバイスを
+    使用するためには、アプリケーションプログラムは <m17n-X.h> を
+    include し、-lm17n-core -lm17n -lm17n-gui -lm17n-X でリンクされなく
+    てはならない
+
+    GD ライブラリのイメージ上では、描画用の API はすべて使えるが入力は
+    できない。このデバイスを利用するためにはアプリケーションプログラム
+    は <m17n-gd.h> を include し、-lm17n-core -lm17n -lm17n-gui
+    -lm17n-gd でリンクされなくてはならない
+
+    複数のデバイスを同時に使用することもできる。あ
+
+    この API を使用する際には、コア API とシェル API も使用できる。
 
     <li> その他の API
 
-    エラー処理、デバッグ用のその他の関数を提供する。この API はそれだ
-    けでは使用できず、上記の他のものと共に使う。利用するためには
-    <m17n-core.h>, <m17n.h>, <m17n-gui.h> のいずれかに加えて、 
-    <m17n-misc.h> を include しなくてはならない。
+    エラー処理、デバッグ用のその他の関数を提供する。この API はそれだけ
+    では使用できず、上記の他のものと共に使う。利用するためには、上記の
+    いずれかの include ファイルに加えて、 <m17n-misc.h> を include しな
+    くてはならない。
 
     </ol>
 

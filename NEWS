@@ -10,9 +10,9 @@ See the end for copying conditions.
 ** The "configure" script now detects Fontconfig, Xft2, and GD
 libraries.
 
-If Fontconfig library is found, find local font files (that are to be
-handled by the Freetype library) by fontconfig, and if Xft2 library is
-also found, draw text by Xft.
+If Fontconfig library is found, the library find local font files
+(that are to be handled by the Freetype library) by fontconfig, and if
+Xft2 library is also found, draw text by Xft.
 
 ** Mdevice (new symbol) is recoginized as a key in the argument PLIST
 of mframe ().
