@@ -245,19 +245,23 @@ typedef struct
 typedef struct
 {
   /**en Reference count of the object.  */
+  /**ja オブジェクトの参照数.  */
   unsigned ref_count : 16;
 
   unsigned ref_count_extended : 1;
 
   /**en A flag bit used for various perpose.  */
+  /**ja さまざまな目的に用いられるフラグビット.  */
   unsigned flag : 15;
 
   union {
     /**en If <ref_count_extended> is zero, a function to free the
        object.  */
+    /**ja <ref_count_extended> が 0 ならばオブジェクトを解放する関数.  */
     void (*freer) (void *);
     /**en If <ref_count_extended> is nonzero, a pointer to the
        struct M17NObjectRecord.  */
+    /**ja <ref_count_extended> が 0 でなければ構造体 M17NObjectRecord へのポインタ.  */
     M17NObjectRecord *record;
   } u;
 } M17NObject;
@@ -275,6 +279,7 @@ typedef struct
 
 /**en Increment the reference count of OBJECT if the count is not
    0.  */
+/**ja OBJECT の参照数が 0 でなければ 1 増やす.  */
 
 #define M17N_OBJECT_REF(object)				\
   do {							\
@@ -315,7 +320,9 @@ typedef struct
 
 
 /**en Decrement the reference count of OBJECT if the count is greater
-    than 0.  In that case, if the count becomes 0, free OBJECT.  */
+      than 0.  In that case, if the count becomes 0, free OBJECT.  */
+/**ja OBJECT の参照数が 0 より大きければ 1 減らす。減らして 0 になれば
+      OBJECT を解放する.  */
 
 #define M17N_OBJECT_UNREF(object)				\
   do {								\
