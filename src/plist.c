@@ -983,10 +983,10 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
 /*=*/
 
 /***en
-    @brief Push a property to a property list.
+    @brief Add a property at the beginning of a property list.
 
-    The mplist_push () function pushes at the top of property list
-     $PLIST a property whose key is $KEY and value is $VAL.
+    The mplist_push () function inserts at the beginning of property
+    list $PLIST a property whose key is $KEY and value is $VAL.
 
     If $KEY is a managing key, $VAL must be a managed object.  In this
     case, the reference count of $VAL is incremented by one.
@@ -995,10 +995,10 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
     If the operation was successful, this function returns $PLIST.
     Otherwise, it returns @c NULL.  */
 /***ja
-    @brief プロパティリストプロパティをプッシュする.
+    @brief プロパティリストの先頭にプロパティを挿入する.
 
-    関数 mplist_push () はプロパティリスト $PLIST の上ににキーが $KEY 
-    で値が $VAL であるオブジェクトをプッシュする。
+    関数 mplist_push () はプロパティリスト $PLIST の先頭にキーが $KEY 
+    で値が $VAL であるオブジェクトを挿入する。
 
     $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。
     この場合、$VAL の参照数は 1 増やされる。
@@ -1017,7 +1017,7 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
   MPLIST_NEW (pl);
   MPLIST_KEY (pl) = MPLIST_KEY (plist);
   MPLIST_VAL (pl) = MPLIST_VAL (plist);
-  pl->next = plist->next;
+  MPLIST_NEXT (pl) = MPLIST_NEXT (plist);
   plist->next = pl;
   if (key->managing_key)
     M17N_OBJECT_REF (val);
@@ -1029,24 +1029,24 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
 /*=*/
 
 /***en
-    @brief Pop a property from a property list.
+    @brief Remove a property at the beginning of a property list.
 
-    The mplist_pop () function pops the topmost property from property
-    list $PLIST.  As a result, the key and value of $PLIST becomes
-    those of the next of $PLIST.
+    The mplist_pop () function removes a property at the beginning of
+    property list $PLIST.  As a result, the second key and value of
+    the original $PLIST become the first of those of the new $PLIST.
 
     @return
     If the operation was successful, this function return the value of
     the just popped property.  Otherwise, it returns @c NULL.  */
 /***ja
-    @brief プロパティリストプロパティをポップする.
+    @brief プロパティリストの先頭からプロパティを削除する.
 
-    関数 mplist_pop () はプロパティリスト $PLIST から最上位のプロパティ
-    をポップする。結果として $PLIST のキーと値は $PLIST の次のキーと値
-    になる。
+    関数 mplist_pop () はプロパティリスト $PLIST の先頭のプロパティを
+    削除する。結果として、元の $PLIST の2番目のキーと値が、新しい 
+    $PLIST の先頭のキーと値になる。
 
     @return 
-    処理に成功すれば、この関数はポップされたプロパティの値を返す。そう
+    処理に成功すれば、この関数は削除されたプロパティの値を返す。そう
     でなければ @c NULL を返す。  */
 
 void *
@@ -1058,14 +1058,14 @@ mplist_pop (MPlist *plist)
   if (MPLIST_TAIL_P (plist))
     return NULL;
   val = MPLIST_VAL (plist);
-  next = plist->next;
+  next = MPLIST_NEXT (plist);
   MPLIST_KEY (plist) = MPLIST_KEY (next);
   MPLIST_VAL (plist) = MPLIST_VAL (next);
   if (MPLIST_KEY (plist) != Mnil
       && MPLIST_KEY (plist)->managing_key
       && MPLIST_VAL (plist))
     M17N_OBJECT_REF (MPLIST_VAL (plist));
-  plist->next = next->next;
+  MPLIST_NEXT (plist) = MPLIST_NEXT (next);
   if (plist->next)
     M17N_OBJECT_REF (plist->next);
   M17N_OBJECT_UNREF (next);
@@ -1084,7 +1084,7 @@ mplist_pop (MPlist *plist)
     If $KEY is @c Mnil, it returns a sublist of $PLIST whose
     first element is the last one of $PLIST.  */
 /***ja
-    @brief プロパティリスト中から指定のキーを持つオブジェクトを探す.
+    @brief プロパティリスト中から指定のキーを持つプロパティを探す.
 
     関数 mplist_find_by_key () はプロパティリスト $PLIST を始めから探
     して、キーが $KEY であるプロパティを見つける。見つかれば、そのプロ
@@ -1112,7 +1112,7 @@ mplist_find_by_key (MPlist *plist, MSymbol key)
     property is found, a sublist of $PLIST whose first element is the
     found one is returned.  Otherwise, @c NULL is returned.  */
 /***ja
-    @brief プロパティリスト中から指定の値を持つオブジェクトを探す.
+    @brief プロパティリスト中から指定の値を持つプロパティを探す.
 
     関数 mplist_find_by_value () はプロパティリスト $PLIST を始めから
     探して、値が $VAL であるプロパティを見つける。見つかれば、そのプロ
@@ -1156,7 +1156,7 @@ mplist_next (MPlist *plist)
 /***en
     @brief Set the first property in a property list.
 
-    The mplist_set () function sets the key and value of the first
+    The mplist_set () function sets the key and the value of the first
     property in property list $PLIST to $KEY and $VALUE, respectively.
     See the documentation of mplist_add () for the restriction on $KEY
     and $VAL.
@@ -1255,7 +1255,7 @@ mplist_key (MPlist *plist)
     property in property list  $PLIST.  If the length of $PLIST
     is zero, it returns @c NULL.  */
 /***ja
-    @brief プロパティリスト中の最初のプロパティのキーを返す.
+    @brief プロパティリスト中の最初のプロパティの値を返す.
 
     関数 mplist_value () は、プロパティリスト $PLIST 中の
     最初のプロパティの値を返す。$PLIST の長さが 0 ならば、 @c Mnil を
