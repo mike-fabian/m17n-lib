@@ -1519,7 +1519,7 @@ mtext_get_prop (MText *mt, int pos, MSymbol key)
 /*=*/
 
 /***en
-    @brief Get multiple values of a text property
+    @brief Get multiple values of a text property.
 
     The mtext_get_prop_values () function searches the character at
     $POS in M-text $MT for the property whose key is $KEY.  If such
@@ -1970,7 +1970,7 @@ mtext_push_prop (MText *mt, int from, int to,
 /*=*/
 
 /***en
-    @brief Pop a text property
+    @brief Pop a text property.
 
     The mtext_pop_prop () function removes the topmost text property
     whose key is $KEY from the characters between $FROM (inclusive)
@@ -2518,7 +2518,7 @@ mtext_attach_property (MText *mt, int from, int to, MTextProperty *prop)
     @return
     This function always returns 0.  */
 /***ja
-    @brief  M-text からテキストプロパティを分離する。
+    @brief  M-text からテキストプロパティを分離する.
 
     関数 mtext_detach_property () はテキストプロパティ $PROP を分離する。
 
