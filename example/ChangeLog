@@ -1,3 +1,14 @@
+2004-06-30  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c: Include <m17n-gd.h> instead of <m17n-gui.h>.
+
+	* Makefile.am (X_LD_FLAGS): New variable.
+	(medit_LDADD, mview_LDADD, mdump_LDADD): Add all depending
+	libraries.
+	(medit_LDFLAGS, mview_LDFLAGS, mdump_LDFLAGS): Delete them.
+	(libmimx_anthy_la_LIBADD): Add @ANTHY_LD_FLAGS@.
+	(libmimx_anthy_la_LDFLAGS): Delete @ANTHY_LD_FLAGS@.
+
 2004-06-25  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* HELLO.utf8: Add Punjabi.
