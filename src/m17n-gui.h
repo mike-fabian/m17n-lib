@@ -217,6 +217,9 @@ extern int mfont_set_selection_priority (MSymbol *keys);
 
 extern int mfont_resize_ratio (MFont *font);
 
+extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language);
+
+
 /* end of font module */
 /*=*/
 
