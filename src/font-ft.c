@@ -965,7 +965,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
     gpos_feature_names = NULL;
 
   otf_gstring.size = otf_gstring.used = len;
-  otf_gstring.glyphs = (OTF_Glyph *) alloca (sizeof (OTF_Glyph) * len);
+  otf_gstring.glyphs = (OTF_Glyph *) malloc (sizeof (OTF_Glyph) * len);
   memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
   for (i = 0, need_cmap = 0; i < len; i++)
     {
@@ -1111,6 +1111,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	    base = g;
 	}
     }
+  free (otf_gstring.glyphs);
   return to;
 
  simple_copy:
@@ -1120,6 +1121,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       MGlyph temp = gstring->glyphs[from + i];
       MLIST_APPEND1 (gstring, glyphs, temp, MERROR_FONT_OTF);
     }
+  free (otf_gstring.glyphs);
   return to;
 }
 
