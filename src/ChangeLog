@@ -1,3 +1,16 @@
+2004-05-31  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c: Include <dlfcn.h> only when HAVE_DLFCN_H is defined.
+
+	* input.c: Include <dlfcn.h> only when HAVE_DLFCN_H is defined.
+
+	* font.c (mfont__select): Print score the a font for debugging.
+
+	* Makefile.am (libm17n_la_LIBADD): Delete -ldl.
+
+	* coding.c (reset_coding_sjis): Check kanji and kana instead of
+	kanji_sym and kana_sym.
+
 2004-05-28  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (VINFO): New variable.
