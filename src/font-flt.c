@@ -1457,15 +1457,19 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
     }
   else
     {
-      /* Here we must check if all characters in the range is covered
-	 by some glyph(s).  If not, change <pos> and <to> of glyphs to
-	 cover uncovered characters.  */
+      /* Get actual glyph IDs of glyphs.  Also check if all characters
+	 in the range is covered by some glyph(s).  If not, change
+	 <pos> and <to> of glyphs to cover uncovered characters.  */
       int len = to_pos - from_pos;
       int pos;
       MGlyph **glyphs = alloca (sizeof (MGlyph) * len);
       MGlyph *g, *gend = MGLYPH (to);
       MGlyph *latest = gend;
 
+      for (g = MGLYPH (from); g != gend; g++)
+	if (g->type == GLYPH_CHAR && ! g->otf_encoded)
+	  g->code
+	    = (rface->rfont->driver->encode_char) (rface->rfont, g->code);
       for (i = 0; i < len; i++)
 	glyphs[i] = NULL;
       for (g = MGLYPH (from); g != gend; g++)
