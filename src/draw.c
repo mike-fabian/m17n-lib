@@ -1015,7 +1015,6 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 	    }
 	  if (width > 0
 	      && (control->as_image
-		  || rface->face.property[MFACE_BACKGROUND] != Mnil
 		  || rface->face.property[MFACE_VIDEOMODE] == Mreverse))
 	    {
 	      int this_x = x, this_width = width;
