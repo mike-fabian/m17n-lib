@@ -36,6 +36,7 @@ extern "C"
 {
 #endif
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 extern void m17n_init (void);
 #undef M17N_INIT
 #define M17N_INIT() m17n_init ()
@@ -43,6 +44,7 @@ extern void m17n_init (void);
 extern void m17n_fini (void);
 #undef M17N_FINI
 #define M17N_FINI() m17n_fini ()
+#endif
 
 /***en @defgroup m17nShell SHELL API */
 /***ja @defgroup m17nShell シェル API */
@@ -106,7 +108,10 @@ extern MDatabase *mdatabase_define (MSymbol tag1, MSymbol tag2,
 /***en @defgroup m17nCharset Charset */
 /***ja @defgroup m17nCharset 文字セット */
 /*=*/
+
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 #define MCHAR_INVALID_CODE 0xFFFFFFFF
+#endif
 
 /* Predefined charsets */ 
 extern MSymbol Mcharset_ascii;

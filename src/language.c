@@ -28,6 +28,8 @@
 #include "language.h"
 #include "symbol.h"
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+
 
 /* Internal API */
 
@@ -247,3 +249,5 @@ void
 mlang__fini (void)
 {
 }
+
+#endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */

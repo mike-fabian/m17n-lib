@@ -38,6 +38,8 @@ extern "C"
 /***ja @defgroup m17nIntro はじめに  */
 /*=*/
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+
 #define M17NLIB_MAJOR_VERSION 1
 #define M17NLIB_MINOR_VERSION 1
 #define M17NLIB_PATCH_LEVEL 0
@@ -47,6 +49,8 @@ extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()
 extern void m17n_fini_core (void);
 #define M17N_FINI() m17n_fini_core ()
+
+#endif
 
 /*=*/
 
@@ -236,8 +240,10 @@ extern void *mplist_value (MPlist *plist);
 /***ja @defgroup m17nCharacter 文字 */
 /*=*/
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 #define MCHAR_MAX 0x3FFFFF
 /*#define MCHAR_MAX 0x7FFFFFFF*/
+#endif
 
 extern MSymbol Mscript;
 extern MSymbol Mname;
@@ -287,9 +293,8 @@ extern int mchartable_set (MCharTable *table, int c, void *val);
 extern int mchartable_set_range (MCharTable *table, int from, int to,
 				 void *val);
 
-extern int mchartable_map  (MCharTable *table, void *ignore,
-			   void (*func) (int from, int to,
-					 void *val, void *arg), 
+extern int mchartable_map (MCharTable *table, void *ignore,
+			   void (*func) (int, int, void *, void *), 
 			   void *func_arg);
 
 extern void mchartable_range (MCharTable *table, int *from, int *to);
@@ -362,22 +367,20 @@ extern MText *mtext ();
 
 /*=*/
 
-/*** @addtogroup m17nMtext 
-     @{ */
-
-/***en @name Variables: System's UTF-16 and UTF-32 types */
-/***ja @name 変数: システムの UTF-16 と UTF-32 のタイプ */
-
+/***en @name Variables: Default Endian of UTF-16 and UTF-32 */
+/***ja @name 変数: UTF-16 と UTF-32 のデフォルトのエンディアン */
+/*** @{ */
 /*=*/
 
+/*** @ingroup m17nMtext */
 /***en
     @brief Variable of value MTEXT_FORMAT_UTF_16LE or MTEXT_FORMAT_UTF_16BE.
 
     The global variable #MTEXT_FORMAT_UTF_16 is initialized to
     #MTEXT_FORMAT_UTF_16LE on a "Little Endian" system (storing words
     with the least significant byte first), and to
-    #MTEXT_FORMAT_UTF_16BE depneding on a "Big Endian" system (storing
-    words with the most significant byte first).  */
+    #MTEXT_FORMAT_UTF_16BE on a "Big Endian" system (storing words
+    with the most significant byte first).  */
 
 /***ja
     @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
@@ -395,13 +398,14 @@ extern MText *mtext ();
 extern const int MTEXT_FORMAT_UTF_16;
 /*=*/
 
+/*** @ingroup m17nMtext */
 /***en
     @brief Variable of value MTEXT_FORMAT_UTF_32LE or MTEXT_FORMAT_UTF_32BE.
 
     The global variable #MTEXT_FORMAT_UTF_32 is initialized to
     #MTEXT_FORMAT_UTF_32LE on a "Little Endian" system (storing words
     with the least significant byte first), and to
-    #MTEXT_FORMAT_UTF_32BE depneding on a "Big Endian" system (storing
+    #MTEXT_FORMAT_UTF_32BE on a "Big Endian" system (storing
     words with the most significant byte first).  */
 
 /***ja
@@ -420,13 +424,14 @@ extern const int MTEXT_FORMAT_UTF_16;
 extern const int MTEXT_FORMAT_UTF_32;
 
 /*=*/
+/*** @} */
+/*=*/
 
 extern MText *mtext_from_data (const void *data, int nitems,
 			       enum MTextFormat format);
 
-
 /*=*/
-/***     @} */
+/*** @} */
 
 /*
  *  (5-2) Functions to manipulate M-texts.  They correspond to string
