@@ -1724,7 +1724,7 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
   else if (key == Mbox)
     val = get_box_create (val);
 
-  if (face->properties[index] == val)
+  if (face->property[index] == val)
     return 0;
   face->property[index] = val;
 
