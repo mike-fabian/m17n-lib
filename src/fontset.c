@@ -486,8 +486,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
   MPlist *per_charset, *per_script, *per_lang, *font_group;
   MPlist *font_groups[256], *plist;
   int n_font_group = 0;
-  MRealizedFont *first = NULL, *rfont;
-  int first_len;
+  MRealizedFont *rfont;
   int i;
 
   if (preferred_charset
@@ -533,30 +532,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
 	  if (rfont->status < 0)
 	    continue;
-	  g->code = mfont__encode_char (rfont, g->c);
-	  if (g->code != MCHAR_INVALID_CODE)
-	    break;
-	}
-      if (MPLIST_TAIL_P (plist))
-	continue;
-      for (j = 1; j < *num; j++)
-	{
-	  g[j].code = mfont__encode_char (rfont, g[j].c);
-	  if (g[j].code == MCHAR_INVALID_CODE)
-	    break;
-	}
-      if (! first)
-	first = rfont, first_len = j;
-      if (j == *num)
-	/* We found a font that can display all requested
-	   characters.  */
-	break;
-
-      MPLIST_DO (plist, MPLIST_NEXT (plist))
-	{
-	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
-	  if (rfont->status < 0)
-	    continue;
+	  /* Check if this font can display all glyphs.  */
 	  for (j = 0; j < *num; j++)
 	    {
 	      g[j].code = mfont__encode_char (rfont, g[j].c);
@@ -564,27 +540,41 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 		break;
 	    }
 	  if (j == *num)
-	    break;
+	    {
+	      if (rfont->status > 0
+		  || mfont__open (rfont) == 0)
+		/* We found a font that can display all glyphs.  */
+		break;
+	    }
 	}
       if (! MPLIST_TAIL_P (plist))
 	break;
     }
 
-  if (i == n_font_group) 
+  if (i < n_font_group) 
+    return rfont;
+
+  /* We couldn't find a font that can display all glyphs.  Find one
+     that can display at least the first glyph.  */
+  for (i = 0; i < n_font_group; i++)
     {
-      if (! first)
-	return NULL;
-      rfont = first, *num = first_len;
-      for (i = 0; i < *num; i++)
-	g[i].code = mfont__encode_char (rfont, g[i].c);
+      MPLIST_DO (plist, font_groups[i])
+	{
+	  rfont = (MRealizedFont *) MPLIST_VAL (plist);
+	  if (rfont->status < 0)
+	    continue;
+	  g->code = mfont__encode_char (rfont, g->c);
+	  if (g->code != MCHAR_INVALID_CODE)
+	    {
+	      if (rfont->status > 0
+		  || mfont__open (rfont) == 0)
+		break;
+	    }
+	}
+      if (! MPLIST_TAIL_P (plist))
+	break;
     }
-  if (! rfont->status
-      && mfont__open (rfont) < 0)
-    {
-      MPLIST_VAL (font_group) = NULL;
-      return NULL;
-    }
-  return rfont;
+  return (i < n_font_group ? rfont : NULL);
 }
 
 /*** @} */
@@ -644,21 +634,25 @@ mfontset (char *name)
   MFontset *fontset;
 
   if (! name)
-    return default_fontset;
-  sym = msymbol (name);
-  fontset = mplist_get (fontset_list, sym);
-  if (fontset)
-    return fontset;
-  M17N_OBJECT (fontset, free_fontset, MERROR_FONTSET);
-  fontset->name = sym;
-  fontset->mdb = mdatabase_find (Mfontset, sym, Mnil, Mnil);
-  if (! fontset->mdb)
+    fontset = default_fontset;
+  else
     {
-      fontset->per_script = mplist ();
-      fontset->per_charset = mplist ();
-      fontset->fallback = mplist ();
+      sym = msymbol (name);
+      fontset = mplist_get (fontset_list, sym);
+      if (! fontset)
+	{
+	  M17N_OBJECT (fontset, free_fontset, MERROR_FONTSET);
+	  fontset->name = sym;
+	  fontset->mdb = mdatabase_find (Mfontset, sym, Mnil, Mnil);
+	  if (! fontset->mdb)
+	    {
+	      fontset->per_script = mplist ();
+	      fontset->per_charset = mplist ();
+	      fontset->fallback = mplist ();
+	    }
+	  mplist_put (fontset_list, sym, fontset);
+	}
     }
-  mplist_put (fontset_list, sym, fontset);
   M17N_OBJECT_REF (fontset);
   return fontset;
 }
