@@ -291,7 +291,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       category = mchar_get_prop (c, Mcategory);
       if (category == McatCf)
 	g_tmp.category = GLYPH_CATEGORY_FORMATTER;
-      else if (MSYMBOL_NAME (category)[0] == 'M')
+      else if (category != Mnil && MSYMBOL_NAME (category)[0] == 'M')
 	g_tmp.category = GLYPH_CATEGORY_MODIFIER;
       else
 	g_tmp.category = GLYPH_CATEGORY_NORMAL;
