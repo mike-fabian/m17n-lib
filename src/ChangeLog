@@ -1,5 +1,7 @@
 2004-06-16  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-X.c (device_open): Add parens in `if' condition.
+
 	* mtext.c (INC_POSITION): Handle format other than utf8 and utf16.
 	(DEC_POSITION): Likewise.
 
