@@ -57,7 +57,7 @@ cat > /dev/null <<EOF
 /***
 @section synopsis SYNOPSIS
 
-m17n-config [CORE | X] [--cflags | --libs | --libtool] [--version]
+m17n-config [CORE | GUI] [--cflags | --libs | --libtool] [--version]
 
 @section description DESCRIPTION
 
@@ -66,8 +66,8 @@ program that uses the m17n library.
 
 By default, the printed options are for such a program that uses SHELL
 API of the libray.  But, if the first argument is "CORE", the options
-are for a program that uses only CORE API, if the first argument "X",
-the options are for a program that uses GUI API on X window.
+are for a program that uses only CORE API, if the first argument "GUI",
+the options are for a program that uses GUI API.
 
 The other arguments are as follows.
 
