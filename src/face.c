@@ -650,12 +650,11 @@ mface__realize (MFrame *frame, MFace **faces, int num,
   rface->rfontset = mfont__realize_fontset (frame,
 					    (MFontset *) props[MFACE_FONTSET],
 					    &merged_face);
+  g.type = GLYPH_SPACE;
   g.c = ' ';
   num = 1;
   rfont = mfont__lookup_fontset (rface->rfontset, &g, &num,
-				 msymbol ("latin"), language, Mnil,
-				 size);
-
+				 msymbol ("latin"), language, Mnil, size);
   if (rfont)
     {
       rface->rfont = rfont;
