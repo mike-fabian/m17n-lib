@@ -111,7 +111,7 @@ typedef struct
 /*=*/
 
 /* Return a newly allocated managed object.  */
-extern void *m17n_object_setup (int size, void (*freer) (void *));
+extern void *m17n_object (int size, void (*freer) (void *));
 
 /* Increment the reference count of managed object OBJECT.  */
 extern int m17n_object_ref (void *object);
@@ -331,10 +331,7 @@ typedef struct MText MText;
 
 /*=*/
 
-extern MText *mtext ();
-
-/*=*/
-
+/*** @ingroup m17nMtext */
 /***en
     @brief Enumeration for specifying the format of an M-text.
 
@@ -359,6 +356,10 @@ enum MTextFormat
     MTEXT_FORMAT_UTF_32BE,
     MTEXT_FORMAT_MAX
   };
+/*=*/
+
+extern MText *mtext ();
+
 /*=*/
 
 extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
@@ -578,6 +579,19 @@ extern int mtext_prop_range (MText *mt, MSymbol key, int pos,
 			     int *from, int *to, int deeper);
 
 /*=*/
+/***
+    @ingroup m17nTextProperty */
+/***en
+    @brief Type of text properties.
+
+    The type #MTextProperty is for a @e text @e property objects.  Its
+    internal structure is concealed from application programs.  */
+/***ja
+    @brief @c テキストプロパティの型宣言.
+
+    #MTextProperty は @e テキストプロパティ オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
+
 typedef struct MTextProperty MTextProperty;
 
 /*=*/
