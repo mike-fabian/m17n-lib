@@ -314,7 +314,7 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("mconv (m17n library) %s\n", VERSION);
+	  printf ("m17n-conv (m17n library) %s\n", VERSION);
 	  printf ("Copyright (C) 2003 AIST, JAPAN\n");
 	  exit (0);
 	}
