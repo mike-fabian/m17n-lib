@@ -22,23 +22,25 @@
 <property key="language" value="ar" from="293" to="346" control="0"/>
 <property key="language" value="ka" from="259" to="293" control="0"/>
 <property key="language" value="tr" from="230" to="259" control="0"/>
-<property key="language" value="km" from="795" to="837" control="0"/>
-<property key="language" value="bo" from="734" to="795" control="0"/>
-<property key="language" value="my" from="702" to="734" control="0"/>
-<property key="language" value="gu" from="678" to="702" control="0"/>
-<property key="language" value="te" from="658" to="678" control="0"/>
+<property key="language" value="te" from="658" to="668" control="0"/>
 <property key="language" value="ta" from="631" to="658" control="0"/>
 <property key="language" value="ml" from="584" to="631" control="0"/>
 <property key="language" value="kn" from="556" to="584" control="0"/>
 <property key="language" value="pa" from="521" to="556" control="0"/>
 <property key="language" value="bn" from="492" to="521" control="0"/>
 <property key="language" value="hi" from="455" to="492" control="0"/>
-<property key="language" value="lo" from="914" to="953" control="0"/>
-<property key="language" value="th" from="873" to="914" control="0"/>
-<property key="language" value="vi" from="850" to="873" control="0"/>
-<property key="language" value="ko" from="1012" to="1035" control="0"/>
-<property key="language" value="zh" from="989" to="1012" control="0"/>
-<property key="language" value="ja" from="964" to="989" control="0"/>
+<property key="language" value="gu" from="684" to="696" control="0"/>
+<property key="language" value="te" from="674" to="684" control="0"/>
+<property key="language" value="km" from="808" to="850" control="0"/>
+<property key="language" value="bo" from="747" to="808" control="0"/>
+<property key="language" value="my" from="715" to="747" control="0"/>
+<property key="language" value="gu" from="703" to="715" control="0"/>
+<property key="language" value="lo" from="927" to="966" control="0"/>
+<property key="language" value="th" from="886" to="927" control="0"/>
+<property key="language" value="vi" from="863" to="886" control="0"/>
+<property key="language" value="ko" from="1025" to="1048" control="0"/>
+<property key="language" value="zh" from="1002" to="1025" control="0"/>
+<property key="language" value="ja" from="977" to="1002" control="0"/>
 <body>Europe
   English					Hello
   French (français)			Bonjour, Salut
@@ -62,8 +64,8 @@ South/South-East Asia
   Kannada (ಕನ್ನಡ)			ನಮಸ್ಕಾರ
   Malayalam (മലയാളം)		നമസ്കാരം (ex: ന+്+ര=ന്ര)
   Tamil (தமிழ்)				வணக்கம்
-  Telugu ()					హలో
-  Gujarati ()				નમસ્તે
+  Telugu (తెలుగు)					హలో
+  Gujarati (ગુજરાતી)				નમસ્તે
   Myanmar (မ္ရန္‌မာ)			မင္ဂလာပာ
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
   Khmer (ខ្មៃរ)				ជំរាបសួរ (ex: ក្ក្រឿ៌)
