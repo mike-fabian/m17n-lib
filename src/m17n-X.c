@@ -1744,7 +1744,7 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
   int len;
   char buf[512];
   KeySym keysym;
-  MSymbol key;
+  MSymbol key = Mnil;
 
   *modifiers = 0;
   if (event->xany.type != KeyPress
@@ -1773,7 +1773,7 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
     }
   else if (keysym >= XK_Shift_L && keysym <= XK_Hyper_R)
     return Mnil;
-  else
+  if (key == Mnil)
     {
       char *str = XKeysymToString (keysym);
 
