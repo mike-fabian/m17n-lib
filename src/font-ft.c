@@ -864,7 +864,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 
 #ifdef HAVE_FONTCONFIG
 	      if (lang && ft_info->langset
-		  && FcLangSetHasLang (ft_info->langset, lang) == FcLangEqual)
+		  && FcLangSetHasLang (ft_info->langset, lang) != FcLangEqual)
 		continue;
 #endif
 	      if (! mfont__match_p (&ft_info->font, font, MFONT_REGISTRY))
@@ -883,7 +883,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, MSymbol language)
 
 #ifdef HAVE_FONTCONFIG
 	  if (lang && ft_info->langset
-	      && FcLangSetHasLang (ft_info->langset, lang) == FcLangEqual)
+	      && FcLangSetHasLang (ft_info->langset, lang) != FcLangEqual)
 	    continue;
 #endif
 	  mplist_push (plist, MPLIST_KEY (p), &ft_info->font);
