@@ -1088,7 +1088,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 				 g->code, size, &mark_x, &mark_y);
 		g->xoff = (base_x - prev->width) - mark_x;
 		g->yoff = base_y - mark_y;
-		g->bidi_sensitive = 1;
+		g->combining_code = MAKE_COMBINING_CODE_BY_CLASS (0);
 	      }
 	      break;
 	    case 5:
