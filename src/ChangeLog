@@ -1,3 +1,7 @@
+2004-07-22  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (load_flt): Treat the symbol Mend as end-of-file.
+
 2004-07-20  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (render_glyphs): Fix checking of g->code validity.
