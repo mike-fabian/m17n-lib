@@ -1106,7 +1106,12 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
 	      /* Not yet supported.  */
 	      break;
 	    }
-	  prev = g;
+	  if (g->GlyphClass == OTF_GlyphClass0)
+	    base = mark = g;
+	  else if (g->GlyphClass == OTF_GlyphMark)
+	    mark = g;
+	  else
+	    base = g;
 	}
     }
   return to;
