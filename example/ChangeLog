@@ -1,4 +1,12 @@
-2004-03-12  Kenichi Handa  <handa@etlken2>
+2004-03-17  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (update_selection): Fix for the case that the selected
+	region is expanded to the opposite direction.
+	(ButtonMoveProc): Likewise.
+	(main): Use alloca instead of malloc for allocating menu names.
+	Free several memory areas and GCs.  Set control.anti_alias to 1.
+
+2004-03-12  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (input_status_control): New variable.
 	(input_status): Use input_status_control.

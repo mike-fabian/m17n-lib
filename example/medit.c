@@ -328,8 +328,8 @@ redraw (int y0, int y1, int clear, int scroll_bar)
   if (clear)
     CLEAR_AREA (0, y0, win_width, y1 - y0);
 
-  /* Find a line closest to y0.  The lihe is a cursor line if the
-     cursor is at the position above Y0, otherwise the top line.  */
+  /* Find a line closest to y0.  It is a cursor line if the cursor is
+     Y0, otherwise the top line.  */
   if (y0 >= cur.y0)
     line = &cur;
   else
@@ -498,28 +498,28 @@ update_selection ()
 
   if (from < top.from)
     {
-      GLYPH_INFO (bol (from, 0), from, info);
-      sel_start.ascent = -info.this.y;
-      sel_start.from = info.line_from;
-      sel_start.to = info.line_to;
-      TEXT_EXTENTS (from, top.from, rect);      
-      sel_start.y0 = - rect.height;
-      sel_start.y1 = sel_start.y0 + info.this.height;
+      int pos = bol (from, 0);
+
+      TEXT_EXTENTS (pos, top.from, rect);
+      sel_start.y0 = top.y0 - rect.height;
+      sel_start.ascent = - rect.y;
+      GLYPH_INFO (pos, from, info);
+      if (pos < info.line_from)
+	sel_start.y0 += - rect.y + info.y + info.this.y;
     }
   else
     {
       GLYPH_INFO (top.from, from, info);
       sel_start.y0 = top.ascent + info.y + info.this.y;
-      sel_start.y1 = sel_start.y0 + info.this.height;
-      sel_start.ascent = -info.this.y;
-      sel_start.from = info.line_from;
-      sel_start.to = info.line_to;
     }
+  sel_start.ascent = -info.this.y;
+  sel_start.y1 = sel_start.y0 + info.this.height;
+  sel_start.from = info.line_from;
+  sel_start.to = info.line_to;
 
   if (to <= sel_start.to)
     {
       sel_end = sel_start;
-      to = bol (to - 1, 1) - 1;
       if (to >= sel_end.to)
 	{
 	  GLYPH_INFO (sel_start.from, to, info);
@@ -529,7 +529,6 @@ update_selection ()
     }
   else
     {
-      to = bol (to - 1, 1) - 1;
       GLYPH_INFO (sel_start.from, to, info);
       sel_end.y0 = sel_start.y0 + sel_start.ascent + info.y + info.this.y;
       sel_end.y1 = sel_end.y0 + info.this.height;
@@ -1143,25 +1142,61 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
 
       if (cursor.from == from)
 	{
-	  /* Start position of selection changed.  */
-	  select_region (pos, to);
-	  if (pos > from)
-	    /* Shrunken.  Previous selection face must be cleared.  */
-	    redraw (start_y0, sel_start.y1, 1, 0);
+	  /* Starting position changed.  */
+	  if (pos <= from)
+	    {
+	      /* Enlarged.  We can simply overdraw.  */
+	      select_region (pos, to);
+	      redraw (sel_start.y0, start_y1, 0, 0);
+	    }
+	  else if (pos < to)
+	    {
+	      /* Shrunken.  Previous selection face must be cleared.  */
+	      select_region (pos, to);
+	      redraw (start_y0, sel_start.y1, 1, 0);
+	    }
+	  else if (pos == to)
+	    {
+	      /* Shrunken to zero.  */
+	      XtDisownSelection (w, XA_PRIMARY, CurrentTime);
+	      mtext_detach_property (selection);
+	      redraw (start_y0, end_y1, 1, 0);
+	    }
 	  else
-	    /* Enlarged.  We can simply overdraw.  */
-	    redraw (sel_start.y0, start_y1, 0, 0);
+	    {
+	      /* Full update is necessary.  */
+	      select_region (to, pos);
+	      redraw (start_y0, sel_end.y1, 1, 0);
+	    }
 	}
       else
 	{
-	  /* End position of selection changed.  */
-	  select_region (from, pos);
-	  if (pos < to)
-	    /* Shrunken.  Previous selection face must be cleared.  */
-	    redraw (sel_end.y0, end_y1, 1, 0);
+	  /* Ending position changed.  */
+	  if (pos < from)
+	    {
+	      /* Full update is necessary.  */
+	      select_region (pos, from);
+	      redraw (sel_start.y0, end_y1, 1, 0);
+	    }
+	  else if (pos == from)
+	    {
+	      /* Shrunken to zero.  */
+	      XtDisownSelection (w, XA_PRIMARY, CurrentTime);
+	      mtext_detach_property (selection);
+	      redraw (start_y0, end_y1, 1, 0);
+	    }
+	  else if (pos < to)
+	    {
+	      /* Shrunken.  Previous selection face must be cleared.  */
+	      select_region (from, pos);
+	      redraw (sel_end.y0, end_y1, 1, 0);
+	    }
 	  else
-	    /* Enlarged.  We can simply overdraw.  */
-	    redraw (end_y0, sel_end.y1, 0, 0);
+	    {
+	      /* Enlarged.  We can simply overdraw.  */
+	      select_region (from, pos);
+	      redraw (end_y0, sel_end.y1, 0, 0);
+	    }
 	}
     }
   else
@@ -2585,7 +2620,7 @@ main (int argc, char **argv)
       for (i = 0; i < 11; i++)
 	if (plist[i])
 	  {
-	    char *name = malloc (9);
+	    char *name = alloca (9);
 
 	    sprintf (name, "Menu %c-%c", 'A' + i * 2, 'A' + i * 2 + 1);
 	    if (i == 10)
@@ -2652,6 +2687,7 @@ main (int argc, char **argv)
   memset (&control, 0, sizeof control);
   control.two_dimensional = 1;
   control.enable_bidi = 1;
+  control.anti_alias = 1;
   control.min_line_ascent = font_ascent;
   control.min_line_descent = font_descent;
   control.max_line_width = win_width;
@@ -2675,7 +2711,6 @@ main (int argc, char **argv)
   for (i = 0; i < num_input_methods; i++)
     minput_close_im (input_method_table[i]);
   m17n_object_unref (frame);
-
   m17n_object_unref (mt);
   m17n_object_unref (face_xxx_large);
   m17n_object_unref (face_box);
@@ -2693,7 +2728,13 @@ main (int argc, char **argv)
   M17N_FINI ();
 
   free (fontset_name);
+  free (filename);
+  free (input_method_table);
+  free (InputMethodMenus);
 
+  XFreeGC (display, mono_gc);
+  XFreeGC (display, mono_gc_inv);
+  XFreeGC (display, gc_inv);
   XtUninstallTranslations (form);
   XtUninstallTranslations (TextWidget);
   XtDestroyWidget (ShellWidget);

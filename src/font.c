@@ -776,11 +776,12 @@ mfont__set_spec_from_plist (MFont *spec, MPlist *plist)
 }
 
 MRealizedFont *
-mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
+mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size,
+	       MSymbol layouter)
 {
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
   MPlist *realized_font_list;
-  MRealizedFont *best_font[MFONT_TYPE_MAX];
+  MRealizedFont *best_font[MFONT_TYPE_MAX], *best;
   int best_index;
   int i;
   int mdebug_mask = MDEBUG_FONT;
@@ -790,15 +791,29 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 
   MPLIST_DO (realized_font_list, frame->realized_font_list)
     {
-      MRealizedFont *best = MPLIST_VAL (realized_font_list);
-
+      best = MPLIST_VAL (realized_font_list);
       if (MPLIST_KEY (realized_font_list) == registry
 	  && ! memcmp (&best->spec, spec, sizeof (MFont))
 	  && ! memcmp (&best->request, request, sizeof (MFont)))
-	return best;
+	{
+	  if (best->layouter != layouter)
+	    {
+	      MRealizedFont *copy;
+
+	      MSTRUCT_MALLOC (copy, MERROR_FONT);
+	      *copy = *best;
+	      copy->layouter = layouter;
+	      if (copy->info)
+		M17N_OBJECT_REF (copy->info);
+	      mplist_add (frame->realized_font_list, registry, copy);
+	      best = copy;
+	    }
+	  return best;
+	}
     }
 
   MDEBUG_PUSH_TIME ();
+  best = NULL;
   best_index = -1;
   for (i = 0; i < MFONT_TYPE_MAX; i++)
     {
@@ -809,13 +824,13 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 		      : NULL);
       if (best_font[i]
 	  && (best_index < 0
-	      || best_font[best_index]->score > best_font[i]->score))
+	      || best_font[best_index]->score < best_font[i]->score))
 	best_index = i;
     }
   for (i = 0; i < MFONT_TYPE_MAX; i++)
     {
       if (i == best_index)
-	mplist_add (frame->realized_font_list, registry, best_font[i]);
+	best = best_font[i];
       else if (best_font[i])
 	free (best_font[i]);
     }
@@ -830,18 +845,21 @@ mfont__select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
 	  font.property[i] = request->property[i];
       gen_font_name (buf2, &font);
 
-      if (best_index >= 0)
+      if (best)
 	MDEBUG_PRINT_TIME ("FONT", 
 			   (stderr, " to select <%s> from <%s>.",
-			    gen_font_name (buf1,
-					   &best_font[best_index]->font),
+			    gen_font_name (buf1, &best->font),
 			    buf2));
       else
 	MDEBUG_PRINT_TIME ("FONT", (stderr, " to fail to find <%s>.", buf2));
       MDEBUG_POP_TIME ();
     }
 
-  return (best_index >= 0 ? best_font[best_index] : NULL);
+  if (! best)
+    return NULL;
+  best->layouter = layouter;
+  mplist_add (frame->realized_font_list, registry, best);
+  return best;
 }
 
 
@@ -957,9 +975,22 @@ mfont__encode_char (MRealizedFont *rfont, int c)
 }
 
 void
-mfont__get_metric (MRealizedFont *rfont, MGlyph *g)
+mfont__get_metric (MGlyphString *gstring, int from, int to)
 {
-  (rfont->driver->find_metric) (rfont, g);
+  MGlyph *from_g = MGLYPH (from), *to_g = MGLYPH (to), *g;
+  MRealizedFont *rfont = from_g->rface->rfont;
+
+  for (g = from_g; g != to_g; g++)
+    if (g->rface->rfont != rfont)
+      {
+	int idx = GLYPH_INDEX (g);
+
+	(rfont->driver->find_metric) (rfont, gstring, from, idx);
+	from_g = g;
+	rfont = g->rface->rfont;
+	from = idx;
+      }
+  (rfont->driver->find_metric) (rfont, gstring, from, GLYPH_INDEX (g));
 }
 
 
@@ -1542,7 +1573,7 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int limited_size)
   MFONT_INIT (&spec_copy);
   spec_copy.property[MFONT_REGISTRY] = spec->property[MFONT_REGISTRY];
 
-  rfont = mfont__select (frame, &spec_copy, spec, limited_size);
+  rfont = mfont__select (frame, &spec_copy, spec, limited_size, Mnil);
   if (!rfont)
     return NULL;
   if (score)

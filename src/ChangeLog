@@ -1,4 +1,105 @@
-2004-03-16  Kenichi Handa  <handa@etlken2>
+2004-03-18  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (Mdepth): New variable.
+	(visual_order): Delete unused local var `pos'.
+	(compose_glyph_string): Fix for the case that gstring->glyphs is
+	realloced.  Stop generating glyphs at TO.  Fix handling of
+	control charaters.
+	(layout_glyphs): Get metrics of all glyphs in advance.  Set
+	lbearing and rbearing of base of composition glyph correctly.
+	Handle left-overhang glyphs correctly.
+	(alloc_gstring): New arg frame.  Set gstring->anti_alias.  Caller
+	changed.
+	(dump_combining_code): Change the defualt off_x character to ".".
+	(mdraw__init): Initialize Mdepth.
+
+	* face.c (work_gstring): New variable
+	(mface__init): Initialize work_gstring.
+	(mface__fini): Free work_gstring.glyphs.
+	(mface__realize): Don't handle videomode property here.  Adjusted
+	for the change of mfont__get_metric.
+	(mface__for_chars): Adjusted for the change of mfont__get_metric.
+
+	* face.h (enum face_gc): Moved to m17n-X.c.
+
+	* font.h (struct MFontDriver): Arguments of find_metric changed.
+	(mfont__select): Prototype adjusted.
+	(mfont__get_metric): Likewise.
+	(mfont__ft_drive_otf): Likewise.
+	(mfont__flt_run): Likewise.
+	
+	* font.c (mfont__select): New argument layouter.  If layouter is
+	different in the registered font, make a new copy of realized
+	font.
+	(mfont__get_metric): Argument changed.  Get metrics of multiple
+	glyphs.
+	(mfont_find): Call mfont__select with layouter as Mnil.
+
+	* font-flt.c (FontLayoutContext): New member rfont.
+	(run_otf): Adjusted for the change of mfont__ft_drive_otf.
+	(mfont__flt_run): Argument changed.  Initialize ctx.rfont.
+
+	* font-ft.c (ft_find_metric): Arguments changed.  Get metrics of
+	multiple glyphs.
+	(NUM_POINTS): New macro.
+	(MPointTable): New type.
+	(ft_render): Use mwin__draw_points instead of mwin__draw_bitmap.
+	(mfont__ft_drive_otf): New argument rfont.
+
+	* fontset.c (realize_font_group): Adjusted for the changed of
+	mfont__select.
+	(check_fontset_element): This function deleted.
+
+	* input-gui.c (adjust_window_and_draw): Locate a preedit window
+	off the parent window if the preedit text is zero length.
+
+	* internal-gui.h (struct MFrame): New members foreground,
+	background, videomode, font.
+	(struct MGlyphString): New member anti_alias.
+	(MDrawPoint): New type.
+	(mwin__draw_bitmap): Prototype deleted.
+	(mwin__draw_points): Prototype added.
+
+	* m17n-gui.h (MDrawControl): New member anti_alias.
+
+	* m17n-gui.c (free_frame): Free frame->font.
+	(mframe): Set the fontset of frame->face to the default fontset.
+
+	* m17n-X.c (RGB_GC): New type.
+	(enum gc_index): Renamed from enum face_gc.  Member names changed.
+	(GCInfo): New typel
+	(struct MWDevice): Members foreground and background deleted.  New
+	member scratch_gc, gc_list.
+	(DEFAULT_FONT, FALLBACK_FONT): New macros.
+	(free_device): Free GCs in device->gc_list.
+	(get_rgb_gc): New function.
+	(get_gc): Renamed and argument changed from get_color.
+	(get_gc_for_anti_alias): New function.
+	(xfont_find_metric): Arguments changed.  Get metrics of multiple
+	glyphs.
+	(set_region): Argument changed.  Caller changed.
+	(xfont_render): Allways set a font in gc.
+	(x_error_handler, x_io_error_handler): Define only if
+	X_SET_ERROR_HANDLER is defined.
+	(mwin__open_device): Create device->scratch_gc.  Set members
+	foreground, background, and videomode of frame.  Call
+	XSetErrorHandler and XSetIOErrorHandler only if
+	X_SET_ERROR_HANDLER is defined.
+	(struct gc_list): Deleted.
+	(REGISTER_GC, UNREGISTER_GC): These macros deleted.
+	(mwin__realize_face): Adjusted for the change of the format of
+	rface->info and the charge of set_region.
+	(mwin__free_realized_face, mwin__fill_space, mwin__draw_hline)
+	(mwin__draw_box): Likewise.
+	(mwin__draw_bitmap): This function deleted.
+	(mwin__draw_points): New function.
+	(mwin__verify_region): Adjusted for the change of the format of
+	rface->info and the charge of set_region.
+	(mwin__create_window): Inherit backgound pixel from parent.
+	(mwin__dump_gc): Adjusted for the change of the format of
+	rface->info.
+
+2004-03-16  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (mwin__parse_event): Fix handling of modifier keys.
 
@@ -17,7 +118,7 @@
 
 	* input-gui.c (win_create_ic): Enable bidi in status control.
 
-	* draw.c (visual_order): Avoid re-ordering only combining glyphs.
+	* draw.c (visual_order): Avoid re-ordering of combining glyphs only.
 
 2004-03-09  Kenichi Handa  <handa@m17n.org>
 

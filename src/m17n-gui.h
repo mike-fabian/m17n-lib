@@ -438,6 +438,10 @@ typedef struct
       implemented.  */
   unsigned fixed_width : 1;
 
+  /***en If nonzero, draw glyphs with anti-aliasing if a backend font
+      driver supports it.  */
+  unsigned anti_alias : 1;
+
   /***en If nonzero, the values are minimum line ascent and descent
       pixels.  */
   unsigned int min_line_ascent;

@@ -84,6 +84,35 @@ typedef struct
 /* Anchor of the chain of MDisplayInfo objects.  */
 static MPlist *display_info_list;
 
+
+/* Color value and the corresponding GC.  */
+typedef struct
+{
+  unsigned int rgb;	       /* (red << 16) | (green << 8) | blue */
+  GC gc;
+} RGB_GC;
+
+enum gc_index
+  {
+    GC_INVERSE,
+    GC_NORMAL = GC_INVERSE + 7,
+    GC_HLINE,
+    GC_BOX_TOP,
+    GC_BOX_BOTTOM,
+    GC_BOX_LEFT,
+    GC_BOX_RIGHT,
+    GC_MAX
+  };
+
+typedef struct
+{
+  int rgb_fore;
+  int rgb_back;
+  /* The first 8 elements are indexed by an intensity for
+     anti-aliasing.  The 2nd to 7th are created on demand.  */
+  GC gc[GC_MAX];
+} GCInfo;
+
 struct MWDevice
 {
   /* Common header for the m17n object.  */
@@ -99,7 +128,7 @@ struct MWDevice
 
   Colormap cmap;
 
-  unsigned long foreground, background;
+  GC scratch_gc;
 
   /** List of pointers to realized faces on the frame.  */
   MPlist *realized_face_list;
@@ -107,6 +136,8 @@ struct MWDevice
   /** List of pointers to realized fontsets on the frame.  */
   MPlist *realized_fontset_list;
 
+  /** List of XColors vs GCs on the frame.  */
+  MPlist *gc_list;
 };
 
 static MPlist *device_list;
@@ -115,6 +146,17 @@ static MSymbol M_iso8859_1, M_iso10646_1;
 
 #define FRAME_DISPLAY(frame) (frame->device->display_info->display)
 #define FRAME_SCREEN(frame) (frame->device->screen_num)
+
+#define DEFAULT_FONT "-misc-fixed-medium-r-normal--*-120-*-*-*-*-iso8859-1"
+#define FALLBACK_FONT "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1"
+
+typedef struct
+{
+  String font;
+  String foreground;
+  String background;
+  Boolean reverse_video;
+} AppData, *AppDataPtr;
 
 static void
 free_display_info (void *object)
@@ -182,6 +224,15 @@ free_device (void *object)
     mface__free_realized ((MRealizedFace *) mplist_value (plist));
   M17N_OBJECT_UNREF (device->realized_face_list);
 
+  MPLIST_DO (plist, device->gc_list)
+    {
+      XFreeGC (device->display_info->display,
+	       ((RGB_GC *) MPLIST_VAL (plist))->gc);
+      free (MPLIST_VAL (plist));
+    }
+  M17N_OBJECT_UNREF (device->gc_list);
+  XFreeGC (device->display_info->display, device->scratch_gc);
+
   XFreePixmap (device->display_info->display, device->drawable);
   M17N_OBJECT_UNREF (device->display_info);
   free (object);
@@ -238,22 +289,102 @@ find_modifier_bits (MDisplayInfo *disp_info)
   XFreeModifiermap (mods);
 }
 
-static unsigned long
-get_color (Display *display, Colormap cmap,
-	   MSymbol color_name, MSymbol default_name,
-	   unsigned long default_pixel)
+static RGB_GC *
+get_rgb_gc (MWDevice *device, XColor *xcolor)
 {
-  XColor exact_def;
+  int rgb = (((xcolor->red >> 8) << 16) | ((xcolor->green >> 8) << 8)
+	     | (xcolor->blue >> 8));
+  MPlist *plist;
+  RGB_GC *rgb_gc;
+  unsigned long valuemask = GCForeground;
+  XGCValues values;
 
-  if (XParseColor (display, cmap, msymbol_name (color_name), &exact_def)
-      && XAllocColor (display, cmap, &exact_def))
-    return exact_def.pixel;
+  MPLIST_DO (plist, device->gc_list)
+    {
+      rgb_gc = MPLIST_VAL (plist);
 
-  if (XParseColor (display, cmap, msymbol_name (default_name), &exact_def)
-      && XAllocColor (display, cmap, &exact_def))
-    return exact_def.pixel;
+      if (rgb_gc->rgb == rgb)
+	return rgb_gc;
+      if (rgb_gc->rgb > rgb)
+	break;
+    }
 
-  return default_pixel;
+  if (! XAllocColor (device->display_info->display, device->cmap, xcolor))
+    return NULL;
+
+  rgb_gc = malloc (sizeof (RGB_GC));
+  rgb_gc->rgb = rgb;
+  values.foreground = xcolor->pixel;
+  rgb_gc->gc = XCreateGC (device->display_info->display,
+			  device->drawable, valuemask, &values);
+  mplist_push (plist, Mt, rgb_gc);
+  return rgb_gc;
+}
+
+static GC
+get_gc (MFrame *frame, MSymbol color, int for_foreground, int *rgb_ret)
+{
+  MWDevice *device = frame->device;
+  XColor xcolor;
+  RGB_GC *rgb_gc;
+
+  if (color == Mnil)
+    {
+      if (frame->rface)
+	goto no_color;
+      color = for_foreground ? frame->foreground : frame->background;
+    }
+  if (! XParseColor (FRAME_DISPLAY (frame), device->cmap,
+		     msymbol_name (color), &xcolor))
+    goto no_color;
+  rgb_gc = get_rgb_gc (device, &xcolor);
+  if (! rgb_gc)
+    goto no_color;
+  if (rgb_ret)
+    *rgb_ret = rgb_gc->rgb;
+  return rgb_gc->gc;
+
+ no_color:
+  {
+    GCInfo *info = frame->rface->info;
+    GC gc;
+    int rgb;
+
+    if (for_foreground)
+      rgb = info->rgb_fore, gc = info->gc[GC_NORMAL];
+    else
+      rgb = info->rgb_back, gc = info->gc[GC_INVERSE];
+    if (rgb_ret)
+      *rgb_ret = rgb;
+    return gc;
+  }
+}
+
+static GC
+get_gc_for_anti_alias (MWDevice *device, GCInfo *info, int intensity)
+{
+  int rgb_fore, rgb_back;
+  XColor xcolor;
+  RGB_GC *rgb_gc;
+  GC gc;
+
+  if (info->gc[intensity])
+    return info->gc[intensity];
+
+  rgb_fore = info->rgb_fore, rgb_back = info->rgb_back;
+  xcolor.red = ((((rgb_fore & 0xFF0000) >> 16) * intensity
+		 + ((rgb_back & 0xFF0000) >> 16) * (7 - intensity)) / 7) << 8;
+  xcolor.green = ((((rgb_fore & 0xFF00) >> 8) * intensity
+		   + ((rgb_back & 0xFF00) >> 8) * (7 - intensity)) / 7) << 8;
+  xcolor.blue = (((rgb_fore & 0xFF) * intensity
+		  + (rgb_back & 0xFF) * (7 - intensity)) / 7) << 8;
+  rgb_gc = get_rgb_gc (device, &xcolor);
+  if (rgb_gc)
+    gc = rgb_gc->gc;
+  else
+    gc =get_gc_for_anti_alias (device, info,
+			       intensity < 4 ? intensity - 1 : intensity + 1);
+  return (info->gc[intensity] = gc);
 }
 
 
@@ -447,7 +578,7 @@ build_font_list (MFrame *frame, MSymbol family, MSymbol registry,
 static MRealizedFont *xfont_select (MFrame *, MFont *, MFont *, int);
 static int xfont_open (MRealizedFont *);
 static void xfont_close (MRealizedFont *);
-static void xfont_find_metric (MRealizedFont *, MGlyph *);
+static void xfont_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static unsigned xfont_encode_char (MRealizedFont *, int, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
@@ -598,68 +729,73 @@ xfont_close (MRealizedFont *rfont)
 /* The X font driver function FIND_METRIC.  */
 
 static void
-xfont_find_metric (MRealizedFont *rfont, MGlyph *g)
+xfont_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
+		   int from, int to)
 {
-  XCharStruct *pcm = NULL;
   MXFontInfo *xfont = (MXFontInfo *) rfont->info;
   XFontStruct *f = xfont->f;
-  int byte1, byte2;
+  MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
 
-  if (g->code == MCHAR_INVALID_CODE)
+  for (; g != gend; g++)
     {
-      g->lbearing = f->max_bounds.lbearing;
-      g->rbearing = f->max_bounds.rbearing;
-      g->width = f->max_bounds.width;
-      g->ascent = f->ascent;
-      g->descent = f->descent;
-      return;
-    }
-
-  byte1 = g->code >> 8;
-  byte2 = g->code & 0xFF;
-
-  if (f->per_char != NULL)
-    {
-      if (f->min_byte1 == 0 && f->max_byte1 == 0)
+      if (g->code == MCHAR_INVALID_CODE)
 	{
-	  if (byte1 == 0
-	      && byte2 >= f->min_char_or_byte2
-	      && byte2 <= f->max_char_or_byte2)
-	    pcm = f->per_char + byte2 - f->min_char_or_byte2;
+	  g->lbearing = f->max_bounds.lbearing;
+	  g->rbearing = f->max_bounds.rbearing;
+	  g->width = f->max_bounds.width;
+	  g->ascent = f->ascent;
+	  g->descent = f->descent;
 	}
       else
 	{
-	  if (byte1 >= f->min_byte1
-	      && byte1 <= f->max_byte1
-	      && byte2 >= f->min_char_or_byte2
-	      && byte2 <= f->max_char_or_byte2)
+	  int byte1 = g->code >> 8, byte2 = g->code & 0xFF;
+	  XCharStruct *pcm = NULL;
+
+	  if (f->per_char != NULL)
 	    {
-	      pcm = (f->per_char
-		     + ((f->max_char_or_byte2-f->min_char_or_byte2 + 1)
-			* (byte1 - f->min_byte1))
-		     + (byte2 - f->min_char_or_byte2));
+	      if (f->min_byte1 == 0 && f->max_byte1 == 0)
+		{
+		  if (byte1 == 0
+		      && byte2 >= f->min_char_or_byte2
+		      && byte2 <= f->max_char_or_byte2)
+		    pcm = f->per_char + byte2 - f->min_char_or_byte2;
+		}
+	      else
+		{
+		  if (byte1 >= f->min_byte1
+		      && byte1 <= f->max_byte1
+		      && byte2 >= f->min_char_or_byte2
+		      && byte2 <= f->max_char_or_byte2)
+		    {
+		      pcm = (f->per_char
+			     + ((f->max_char_or_byte2-f->min_char_or_byte2 + 1)
+				* (byte1 - f->min_byte1))
+			     + (byte2 - f->min_char_or_byte2));
+		    }
+		}
+	    }
+
+	  if (pcm)
+	    {
+	      g->lbearing = pcm->lbearing;
+	      g->rbearing = pcm->rbearing;
+	      g->width = pcm->width;
+	      g->ascent = pcm->ascent;
+	      g->descent = pcm->descent;
+	    }
+	  else
+	    {
+	      /* If the per_char pointer is null, all glyphs between
+		 the first and last character indexes inclusive have
+		 the same information, as given by both min_bounds and
+		 max_bounds.  */
+	      g->lbearing = 0;
+	      g->rbearing = f->max_bounds.width;
+	      g->width = f->max_bounds.width;
+	      g->ascent = f->ascent;
+	      g->descent = f->descent;
 	    }
 	}
-    }
-
-  if (pcm)
-    {
-      g->lbearing = pcm->lbearing;
-      g->rbearing = pcm->rbearing;
-      g->width = pcm->width;
-      g->ascent = pcm->ascent;
-      g->descent = pcm->descent;
-    }
-  else
-    {
-      /* If the per_char pointer is null, all glyphs between the first
-	 and last character indexes inclusive have the same
-	 information, as given by both min_bounds and max_bounds.  */
-      g->lbearing = 0;
-      g->rbearing = f->max_bounds.width;
-      g->width = f->max_bounds.width;
-      g->ascent = f->ascent;
-      g->descent = f->descent;
     }
 }
 
@@ -717,16 +853,14 @@ xfont_encode_char (MRealizedFont *rfont, int c, unsigned code)
 }
 
 static GC
-set_region (Display *display, MRealizedFace *rface, GC gc, MDrawRegion region)
+set_region (MFrame *frame, GC gc, MDrawRegion region)
 {
-  GC gc1;
-  XRectangle xrect;
+  unsigned long valuemask = GCForeground;
 
-  XClipBox (region, &xrect);  
-  gc1 = ((GC *) rface->info)[MFACE_GC_SCRATCH];
-  XCopyGC (display, gc, GCFont | GCForeground | GCBackground, gc1);
-  XSetRegion (display, gc1, region);
-  return gc1;
+  XCopyGC (FRAME_DISPLAY (frame), gc, valuemask,
+	   frame->device->scratch_gc);
+  XSetRegion (FRAME_DISPLAY (frame), frame->device->scratch_gc, region);
+  return frame->device->scratch_gc;
 }
 
 /* The X font driver function RENDER.  */
@@ -738,8 +872,7 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
   MRealizedFace *rface = from->rface;
   Display *display;
   XChar2b *code;
-  GC *gcs = rface->info;
-  GC gc = gcs[reverse ? MFACE_GC_INVERSE : MFACE_GC_NORMAL];
+  GC gc = ((GCInfo *) rface->info)->gc[reverse ? GC_INVERSE : GC_NORMAL];
   MGlyph *g;
   int i;
 
@@ -751,7 +884,8 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
   display = FRAME_DISPLAY (rface->frame);
 
   if (region)
-    gc = set_region (display, rface, gc, region);
+    gc = set_region (rface->frame, gc, region);
+  XSetFont (display, gc, ((MXFontInfo *) (rface->rfont->info))->f->fid);
 
   if (from->code == MCHAR_INVALID_CODE)
     {
@@ -1017,7 +1151,7 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 
 
 
-#if 1
+#ifdef X_SET_ERROR_HANDLER
 static int
 x_error_handler (Display *display, XErrorEvent *error)
 {
@@ -1063,15 +1197,6 @@ mwin__fini ()
   M17N_OBJECT_UNREF (display_info_list);
   M17N_OBJECT_UNREF (device_list);
 }
-
-typedef struct
-{
-  String font;
-  String foreground;
-  String background;
-  Boolean reverse_video;
-} AppData, *AppDataPtr;
-
 
 int
 mwin__parse_font_name (char *name, MFont *font)
@@ -1155,6 +1280,7 @@ mwin__open_device (MFrame *frame, MPlist *param)
   XWindowAttributes attr;
   unsigned depth = 0;
   MPlist *plist;
+  AppData app_data;
 
   if (param)
     for (plist = param; (key = mplist_key (plist)) != Mnil;
@@ -1253,6 +1379,9 @@ mwin__open_device (MFrame *frame, MPlist *param)
     M17N_OBJECT_REF (device);
   else
     {
+      unsigned long valuemask = GCForeground;
+      XGCValues values;
+
       M17N_OBJECT (device, free_device, MERROR_WIN);
       device->display_info = disp_info;
       device->screen_num = screen_num;
@@ -1264,8 +1393,10 @@ mwin__open_device (MFrame *frame, MPlist *param)
       device->cmap = cmap;
       device->realized_face_list = mplist ();
       device->realized_fontset_list = mplist ();
-      device->foreground = BlackPixel (display, screen_num);
-      device->background = WhitePixel (display, screen_num);
+      device->gc_list = mplist ();
+      values.foreground = BlackPixel (display, screen_num);
+      device->scratch_gc = XCreateGC (display, device->drawable,
+				      valuemask, &values);
     }
 
   frame->realized_font_list = disp_info->realized_font_list;
@@ -1274,11 +1405,9 @@ mwin__open_device (MFrame *frame, MPlist *param)
 
   if (widget)
     {
-      AppData app_data;
       XtResource resources[] = {
 	{ XtNfont, XtCFont, XtRString, sizeof (String),
-	  XtOffset (AppDataPtr, font), XtRString,
-	  "-misc-fixed-medium-r-normal--*-120-*-*-*-*-iso8859-1" },
+	  XtOffset (AppDataPtr, font), XtRString, DEFAULT_FONT },
 	{ XtNforeground, XtCForeground, XtRString, sizeof (String),
 	  XtOffset (AppDataPtr, foreground), XtRString, "black" },
 	{ XtNbackground, XtCBackground, XtRString, sizeof (String),
@@ -1286,62 +1415,60 @@ mwin__open_device (MFrame *frame, MPlist *param)
 	{ XtNreverseVideo, XtCReverseVideo, XtRBoolean, sizeof (Boolean),
 	  XtOffset (AppDataPtr, reverse_video), XtRImmediate, (caddr_t) FALSE }
       };
-      MFace *face = NULL;
-      MFont font;
-      char **names;
-      int nfonts;
 
       XtGetApplicationResources (widget, &app_data,
 				 resources, XtNumber (resources), NULL, 0);
-      names = XListFonts (display, app_data.font, 1, &nfonts);
-      if (nfonts == 1)
-	{
-	  if (mwin__parse_font_name (names[0], &font) >= 0)
-	    face = mface_from_font (&font);
-	  else
-	    {
-	      /* The font name does not conform to XLFD.  Try to open the
-		 font and get XA_FONT property.  */
-	      XFontStruct *xfont = XLoadQueryFont (display, names[0]);
-
-	      if (xfont)
-		{
-		  unsigned long value;
-		  char *name;
-
-		  if (XGetFontProperty (xfont, XA_FONT, &value)
-		      && (name = ((char *)
-				  XGetAtomName (display, (Atom) value))))
-		    {
-		      if (mwin__parse_font_name (name, &font) >= 0)
-			face = mface_from_font (&font);
-		    }
-		  XFreeFont (display, xfont);
-		}
-	    }
-	  XFreeFontNames (names);
-	}
-
-      if (app_data.reverse_video == True)
-	{
-	  if (! face)
-	    face = mface ();
-	  mface_put_prop (face, Mvideomode, Mreverse);
-	}
-      if (face)
-	{
-	  mplist_push (param, Mface, face);
-	  M17N_OBJECT_UNREF (face);
-	}
-      device->foreground
-	= get_color (display, cmap, msymbol (app_data.foreground), Mnil,
-		     device->foreground);
-      device->background
-	= get_color (display, cmap, msymbol (app_data.background), Mnil,
-		     device->background);
+      frame->foreground = msymbol (app_data.foreground);
+      frame->background = msymbol (app_data.background);
+      frame->videomode = app_data.reverse_video == True ? Mreverse : Mnormal;
     }
+  else
+    {
+      app_data.font = DEFAULT_FONT;
+      frame->foreground = msymbol ("black");
+      frame->background = msymbol ("white");
+      frame->videomode = Mnormal;
+    }
+
+  frame->font = mfont ();
+  {
+    int nfonts;
+    char **names = XListFonts (display, app_data.font, 1, &nfonts);
+
+    if (nfonts > 0)
+      {
+	if (mwin__parse_font_name (names[0], frame->font) < 0)
+	  {
+	    /* The font name does not conform to XLFD.  Try to open the
+	       font and get XA_FONT property.  */
+	    XFontStruct *xfont = XLoadQueryFont (display, names[0]);
+
+	    nfonts = 0;
+	    if (xfont)
+	      {
+		unsigned long value;
+		char *name;
+
+		if (XGetFontProperty (xfont, XA_FONT, &value)
+		    && (name = ((char *)
+				XGetAtomName (display, (Atom) value))))
+		  {
+		    if (mwin__parse_font_name (name, frame->font) >= 0)
+		      nfonts = 1;
+		  }
+		XFreeFont (display, xfont);
+	      }
+	  }
+	XFreeFontNames (names);
+      }
+    if (! nfonts)
+      mwin__parse_font_name (FALLBACK_FONT, frame->font);
+  }
+
+#ifdef X_SET_ERROR_HANDLER
   XSetErrorHandler (x_error_handler);
-  /* XSetIOErrorHandler (x_io_error_handler); */
+  XSetIOErrorHandler (x_io_error_handler);
+#endif
 
   return device;
 }
@@ -1367,155 +1494,77 @@ mwin__device_get_prop (MWDevice *device, MSymbol key)
   return NULL;
 }
 
-struct {
-  int size, inc, used;
-  GC *gc_table;
-} gc_list;
-
-#define REGISTER_GC(gc)					\
-  do {							\
-    if (! gc_list.size)					\
-      MLIST_INIT1 (&gc_list, gc_table, 100);		\
-    MLIST_APPEND1 (&gc_list, gc_table, gc, MERROR_WIN);	\
-  } while (0)
-
-
-#define UNREGISTER_GC(gc)			\
-  do {						\
-    int j;					\
-    for (j = 0; j < gc_list.used; j++)		\
-      if (gc_list.gc_table[j] == gc)		\
-	gc_list.gc_table[j] = (GC) NULL;	\
-  } while (0)
-
-
 void
 mwin__realize_face (MRealizedFace *rface)
 {
-  MFrame *frame = rface->frame;
-  MWDevice *device = frame->device;
-  Display *display = FRAME_DISPLAY (frame);
-  XGCValues values;
-  int mask = GCForeground | GCBackground;
-  MSymbol foreground = rface->face.property[MFACE_FOREGROUND];
-  MSymbol background = rface->face.property[MFACE_BACKGROUND];
-  MFaceHLineProp *hline = rface->hline;
-  MFaceBoxProp *box = rface->box;
-  MFaceHookFunc func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
-  MSymbol default_foreground
-    = (MSymbol) mface_get_prop (frame->face, Mforeground);
-  MSymbol default_background
-    = (MSymbol) mface_get_prop (frame->face, Mbackground);
-  GC *gcs;
-  unsigned long pixel;
+  MFrame *frame;
+  MSymbol foreground, background, videomode;
+  MFaceHLineProp *hline;
+  MFaceBoxProp *box;
+  MFaceHookFunc func;
+  GCInfo *info;
 
-  MTABLE_CALLOC (gcs, MFACE_GCS, MERROR_WIN);
-
-  values.foreground = get_color (display, device->cmap, foreground,
-				 default_foreground, device->foreground);
-  values.background = get_color (display, device->cmap, background,
-				 default_background, device->background);
-  if (rface->face.property[MFACE_VIDEOMODE] == Mreverse)
-    pixel = values.foreground,
-      values.foreground = values.background,
-      values.background = pixel;
-
-  if (rface->rfont
-      && rface->rfont->font.property[MFONT_TYPE] - 1 == MFONT_TYPE_WIN)
+  if (rface != rface->ascii_rface)
     {
-      values.font = ((MXFontInfo *) (rface->rfont->info))->f->fid;
-      mask |= GCFont;
+      rface->info = rface->ascii_rface->info;
+      return;
     }
 
-  gcs[MFACE_GC_NORMAL] = XCreateGC (display, device->drawable, mask, &values);
-  REGISTER_GC (gcs[MFACE_GC_NORMAL]);
+  frame = rface->frame;
+  MSTRUCT_CALLOC (info, MERROR_WIN);
 
-  gcs[MFACE_GC_SCRATCH] = XCreateGC (display, device->drawable, mask, &values);
-  REGISTER_GC (gcs[MFACE_GC_SCRATCH]);
-
-  pixel = values.foreground;
-  values.foreground = values.background;
-  values.background = pixel;
-  gcs[MFACE_GC_INVERSE] = XCreateGC (display, device->drawable, mask, &values);
-  REGISTER_GC (gcs[MFACE_GC_INVERSE]);
-  values.background = values.foreground;
-  values.foreground = pixel;
-
-  mask &= ~GCFont;
-
-  if (rface == rface->ascii_rface)
+  foreground = rface->face.property[MFACE_FOREGROUND];
+  background = rface->face.property[MFACE_BACKGROUND];
+  videomode = rface->face.property[MFACE_VIDEOMODE];
+  if (! videomode)
+    videomode = frame->videomode;
+  if (videomode != Mreverse)
     {
-      /* This realized face is for ASCII.  Setup GCs for hline and
-	 box.  */
-      if (hline && hline->color != foreground)
-	{
-	  values.foreground
-	    = get_color (display, device->cmap, hline->color,
-			 default_foreground, device->foreground);
-	  gcs[MFACE_GC_HLINE]
-	    = XCreateGC (display, device->drawable, mask, &values);
-	  REGISTER_GC (gcs[MFACE_GC_HLINE]);
-	  values.foreground = pixel;
-	}
-
-      if (box)
-	{
-	  if (box->color_top)
-	    {
-	      values.foreground
-		= get_color (display, device->cmap, box->color_top,
-			     default_foreground, device->foreground);
-	      gcs[MFACE_GC_BOX_TOP]
-		= XCreateGC (display, device->drawable, mask, &values);
-	      REGISTER_GC (gcs[MFACE_GC_BOX_TOP]);
-	    }
-
-	  if (box->color_left
-	      && box->color_left != box->color_top)
-	    {
-	      values.foreground
-		= get_color (display, device->cmap, box->color_left,
-			     default_foreground, device->foreground);
-	      gcs[MFACE_GC_BOX_LEFT]
-		= XCreateGC (display, device->drawable, mask, &values);
-	      REGISTER_GC (gcs[MFACE_GC_BOX_LEFT]);
-	    }
-
-	  if (box->color_right
-	      && box->color_right != box->color_top)
-	    {
-	      values.foreground
-		= get_color (display, device->cmap, box->color_right,
-			     default_foreground, device->foreground);
-	      gcs[MFACE_GC_BOX_RIGHT]
-		= XCreateGC (display, device->drawable, mask, &values);
-	      REGISTER_GC (gcs[MFACE_GC_BOX_RIGHT]);
-	    }
-
-	  if (box->color_bottom
-	      && box->color_bottom != box->color_top)
-	    {
-	      values.foreground
-		= get_color (display, device->cmap, box->color_bottom,
-			     default_foreground, device->foreground);
-	      gcs[MFACE_GC_BOX_BOTTOM]
-		= XCreateGC (display, device->drawable, mask, &values);
-	      REGISTER_GC (gcs[MFACE_GC_BOX_BOTTOM]);
-	    }
-	}
+      info->gc[GC_NORMAL] = get_gc (frame, foreground, 1, &info->rgb_fore);
+      info->gc[GC_INVERSE] = get_gc (frame, background, 0, &info->rgb_back);
     }
   else
     {
-      /* This realized face is not for ASCII.  GCs for hline and box
-	 are shared with that of the corresponding ASCII face.  */
-      GC *ascii_gcs = rface->ascii_rface->info;
-      int i;
-
-      for (i = MFACE_GC_HLINE; i < MFACE_GCS; i++)
-	gcs[i] = ascii_gcs[i];
+      info->gc[GC_NORMAL] = get_gc (frame, background, 0, &info->rgb_fore);
+      info->gc[GC_INVERSE] = get_gc (frame, foreground, 1, &info->rgb_back);
     }
 
-  rface->info = gcs;
+  hline = rface->hline;
+  if (hline)
+    {
+      if (hline->color)
+	info->gc[GC_HLINE] = get_gc (frame, hline->color, 1, NULL);
+      else
+	info->gc[GC_HLINE] = info->gc[GC_NORMAL];
+    }
+
+  box = rface->box;
+  if (box)
+    {
+      if (box->color_top)
+	info->gc[GC_BOX_TOP] = get_gc (frame, box->color_top, 1, NULL);
+      else
+	info->gc[GC_BOX_TOP] = info->gc[GC_NORMAL];
+
+      if (box->color_left && box->color_left != box->color_top)
+	info->gc[GC_BOX_LEFT] = get_gc (frame, box->color_left, 1, NULL);
+      else
+	info->gc[GC_BOX_LEFT] = info->gc[GC_NORMAL];
+
+      if (box->color_bottom && box->color_bottom != box->color_top)
+	info->gc[GC_BOX_BOTTOM] = get_gc (frame, box->color_bottom, 1, NULL);
+      else
+	info->gc[GC_BOX_BOTTOM] = info->gc[GC_NORMAL];
+
+      if (box->color_right && box->color_right != box->color_top)
+	info->gc[GC_BOX_RIGHT] = get_gc (frame, box->color_right, 1, NULL);
+      else
+	info->gc[GC_BOX_RIGHT] = info->gc[GC_NORMAL];
+    }
+
+  rface->info = info;
+
+  func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
   if (func)
     (func) (&(rface->face), rface->info, rface->face.property[MFACE_HOOK_ARG]);
 }
@@ -1524,18 +1573,8 @@ mwin__realize_face (MRealizedFace *rface)
 void
 mwin__free_realized_face (MRealizedFace *rface)
 {
-  GC *gcs = rface->info;
-  enum face_gc limit
-    = rface == rface->ascii_rface ? MFACE_GCS : MFACE_GC_HLINE;
-  int i;
-
-  for (i = 0; i < limit; i++)
-    if (gcs[i])
-      {
-	UNREGISTER_GC (gcs[i]);
-	XFreeGC (FRAME_DISPLAY (rface->frame), gcs[i]);
-      }	    
-  free (gcs);
+  if (rface == rface->ascii_rface)
+    free (rface->info);
 }
 
 
@@ -1544,11 +1583,10 @@ mwin__fill_space (MFrame *frame, MDrawWindow win, MRealizedFace *rface,
 		  int reverse,
 		  int x, int y, int width, int height, MDrawRegion region)
 {
-  GC *gcs = rface->info;
-  GC gc = gcs[reverse ? MFACE_GC_NORMAL : MFACE_GC_INVERSE];
+  GC gc = ((GCInfo *) rface->info)->gc[reverse ? GC_NORMAL : GC_INVERSE];
 
   if (region)
-    gc = set_region (FRAME_DISPLAY (frame), rface, gc, region);
+    gc = set_region (frame, gc, region);
 
   XFillRectangle (FRAME_DISPLAY (frame), (Window) win, gc,
 		  x, y, width, height);
@@ -1561,8 +1599,8 @@ mwin__draw_hline (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
 		 int x, int y, int width, MDrawRegion region)
 {
   enum MFaceHLineType type = rface->hline->type;
-  GC *gcs = rface->info;
-  GC gc;
+  GCInfo *info = rface->info;
+  GC gc = gc = info->gc[GC_HLINE];
   int i;
 
   y = (type == MFACE_HLINE_BOTTOM
@@ -1572,15 +1610,8 @@ mwin__draw_hline (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
        : type == MFACE_HLINE_STRIKE_THROUGH
        ? y - ((gstring->ascent + gstring->descent) / 2)
        : y - gstring->text_ascent);
-  if (reverse)
-    gc = gcs[MFACE_GC_INVERSE];
-  else if (gcs[MFACE_GC_HLINE])
-    gc = gcs[MFACE_GC_HLINE];
-  else
-    gc = gcs[MFACE_GC_NORMAL];
-
   if (region)
-    gc = set_region (FRAME_DISPLAY (frame), rface, gc, region);
+    gc = set_region (frame, gc, region);
 
   for (i = 0; i < rface->hline->width; i++)
     XDrawLine (FRAME_DISPLAY (frame), (Window) win, gc,
@@ -1595,7 +1626,7 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
   Display *display = FRAME_DISPLAY (frame);
   MRealizedFace *rface = g->rface;
   MFaceBoxProp *box = rface->box;
-  GC *gcs = rface->info;
+  GCInfo *info = rface->info;
   GC gc_top, gc_left, gc_right, gc_btm;
   int y0, y1;
   int i;
@@ -1605,14 +1636,13 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
   y1 = y + (gstring->text_descent
 	    + rface->box->inner_vmargin + rface->box->width - 1);
 
-  gc_top = gcs[MFACE_GC_BOX_TOP];
-  if (! gc_top)
-    gc_top = gcs[MFACE_GC_NORMAL];
+  gc_top = info->gc[GC_BOX_TOP];
   if (region)
-    gc_top = set_region (FRAME_DISPLAY (frame), rface, gc_top, region);
-  gc_btm = gcs[MFACE_GC_BOX_BOTTOM];
-  if (! gc_btm)
+    gc_top = set_region (frame, gc_top, region);
+  if (info->gc[GC_BOX_TOP] == info->gc[GC_BOX_BOTTOM])
     gc_btm = gc_top;
+  else
+    gc_btm = info->gc[GC_BOX_BOTTOM];
 
   if (g->type == GLYPH_BOX)
     {
@@ -1628,19 +1658,22 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
 	XDrawLine (display, (Window) win, gc_top, x0, y0 + i, x1, y0 + i);
 
       /* Draw the bottom side.  */
-      if (region)
-	gc_btm = set_region (display, rface, gc_btm, region);
+      if (region && gc_btm != gc_top)
+	gc_btm = set_region (frame, gc_btm, region);
       for (i = 0; i < box->width; i++)
 	XDrawLine (display, (Window) win, gc_btm, x0, y1 - i, x1, y1 - i);
 
       if (g->left_padding > 0)
 	{
 	  /* Draw the left side.  */
-	  gc_left = gcs[MFACE_GC_BOX_LEFT];
-	  if (! gc_left)
+	  if (info->gc[GC_BOX_LEFT] == info->gc[GC_BOX_TOP])
 	    gc_left = gc_top;
-	  else if (region)
-	    gc_left = set_region (display, rface, gc_left, region);
+	  else
+	    {
+	      gc_left = info->gc[GC_BOX_LEFT];
+	      if (region)
+		gc_left = set_region (frame, gc_left, region);
+	    }
 	  for (i = 0; i < rface->box->width; i++)
 	    XDrawLine (display, (Window) win, gc_left,
 		       x0 + i, y0 + i, x0 + i, y1 - i);
@@ -1648,11 +1681,14 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
       else
 	{
 	  /* Draw the right side.  */
-	  gc_right = gcs[MFACE_GC_BOX_RIGHT];
-	  if (! gc_right)
+	  if (info->gc[GC_BOX_RIGHT] == info->gc[GC_BOX_TOP])
 	    gc_right = gc_top;
-	  else if (region)
-	    gc_right = set_region (display, rface, gc_right, region);
+	  else
+	    {
+	      gc_right = info->gc[GC_BOX_RIGHT];
+	      if (region)
+		gc_right = set_region (frame, gc_right, region);
+	    }
 	  for (i = 0; i < rface->box->width; i++)
 	    XDrawLine (display, (Window) win, gc_right,
 		       x1 - i, y0 + i, x1 - i, y1 - i);
@@ -1666,8 +1702,8 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
 		   x, y0 + i, x + width - 1, y0 + i);
 
       /* Draw the bottom side.  */
-      if (region)
-	gc_btm = set_region (display, rface, gc_btm, region);
+      if (region && gc_btm != gc_top)
+	gc_btm = set_region (frame, gc_btm, region);
       for (i = 0; i < box->width; i++)
 	XDrawLine (display, (Window) win, gc_btm,
 		   x, y1 - i, x + width - 1, y1 - i);
@@ -1675,6 +1711,7 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
 }
 
 
+#if 0
 void
 mwin__draw_bitmap (MFrame *frame, MDrawWindow win, MRealizedFace *rface,
 		   int reverse, int x, int y,
@@ -1683,16 +1720,34 @@ mwin__draw_bitmap (MFrame *frame, MDrawWindow win, MRealizedFace *rface,
 {
   Display *display = FRAME_DISPLAY (frame);
   int i, j;
-  GC *gcs = rface->info;
-  GC gc = gcs[reverse ? MFACE_GC_INVERSE : MFACE_GC_NORMAL];
+  GC gc = ((GCInfo *) rface->info)->gc[reverse ? GC_INVERSE : GC_NORMAL];
 
   if (region)
-    gc = set_region (FRAME_DISPLAY (frame), rface, gc, region);
+    gc = set_region (frame, gc, region);
 
   for (i = 0; i < height; i++, bmp += row_bytes)
     for (j = 0; j < width; j++)
       if (bmp[j / 8] & (1 << (7 - (j % 8))))
 	XDrawPoint (display, (Window) win, gc, x + j, y + i);
+}
+#endif
+
+void
+mwin__draw_points (MFrame *frame, MDrawWindow win, MRealizedFace *rface,
+		   int intensity, MDrawPoint *points, int num,
+		   MDrawRegion region)
+{
+  GCInfo *info = rface->info;
+  GC gc;
+
+  if (! (gc = info->gc[intensity]))
+    gc = info->gc[intensity] = get_gc_for_anti_alias (frame->device, info,
+						      intensity);
+  if (region)
+    gc = set_region (frame, gc, region);
+
+  XDrawPoints (FRAME_DISPLAY (frame), (Window) win, gc,
+	       (XPoint *) points, num, CoordModeOrigin);
 }
 
 
@@ -1781,35 +1836,31 @@ mwin__dump_region (MDrawRegion region)
 void
 mwin__verify_region (MFrame *frame, MDrawRegion region)
 {
-  set_region (FRAME_DISPLAY (frame), frame->rface,
-	      ((GC *) frame->rface->info)[MFACE_GC_NORMAL], region);
+  set_region (frame, ((GCInfo *) frame->rface->info)->gc[GC_NORMAL], region);
 }
 
 MDrawWindow
 mwin__create_window (MFrame *frame, MDrawWindow parent)
 {
-  MWDevice *device = frame->device;
   Display *display = FRAME_DISPLAY (frame);
-  int screen = FRAME_SCREEN (frame);
   Window win;
   XWMHints wm_hints = { InputHint, False };
   XClassHint class_hints = { "M17N-IM", "m17n-im" };
-  XSetWindowAttributes attrs;
+  XWindowAttributes win_attrs;
+  XSetWindowAttributes set_attrs;
   unsigned long mask;
-  MSymbol background = mface_get_prop (frame->face, Mbackground);
 
-  attrs.background_pixel = get_color (display, device->cmap,
-				      background, background,
-				      WhitePixel (display, screen));
-  attrs.backing_store = Always;
-  attrs.override_redirect = True;
-  attrs.save_under = True;
-  mask = CWBackPixel | CWBackingStore | CWOverrideRedirect | CWSaveUnder;
   if (! parent)
-    parent = (MDrawWindow) RootWindow (display, screen);
+    parent = (MDrawWindow) RootWindow (display, FRAME_SCREEN (frame));
+  XGetWindowAttributes (display, (Window) parent, &win_attrs);
+  set_attrs.background_pixel = win_attrs.backing_pixel;
+  set_attrs.backing_store = Always;
+  set_attrs.override_redirect = True;
+  set_attrs.save_under = True;
+  mask = CWBackPixel | CWBackingStore | CWOverrideRedirect | CWSaveUnder;
   win = XCreateWindow (display, (Window) parent, 0, 0, 1, 1, 0,
 		       CopyFromParent, InputOutput, CopyFromParent,
-		       mask, &attrs);
+		       mask, &set_attrs);
   XSetWMProperties (display, (Window) win, NULL, NULL, NULL, 0,
 		    NULL, &wm_hints, &class_hints);
   XSelectInput (display, (Window) win, StructureNotifyMask | ExposureMask);
@@ -2034,12 +2085,12 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
   unsigned long valuemask = GCForeground | GCBackground | GCClipMask;
   XGCValues values;
   Display *display = FRAME_DISPLAY (frame);
-  GC *gcs = rface->info;
+  GCInfo *info = rface->info;
   int i;
 
-  for (i = 0; i <= MFACE_GC_SCRATCH; i++)
+  for (i = 0; i <= GC_INVERSE; i++)
     {
-      XGetGCValues (display, gcs[i], valuemask, &values);
+      XGetGCValues (display, info->gc[i], valuemask, &values);
       fprintf (stderr, "GC%d: fore/#%lX back/#%lX", i,
 	       values.foreground, values.background);
       fprintf (stderr, "\n");

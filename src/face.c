@@ -386,6 +386,8 @@ deserialize_face (MPlist *plist)
   return face;
 }
 
+static MGlyphString work_gstring;
+
 
 
 /* Internal API */
@@ -515,6 +517,11 @@ mface__init ()
   mface_yellow->property[MFACE_FOREGROUND] = (void *) msymbol ("yellow");
   mface_magenta = mface ();
   mface_magenta->property[MFACE_FOREGROUND] = (void *) msymbol ("magenta");
+
+  work_gstring.glyphs = malloc (sizeof (MGlyph) * 2);
+  work_gstring.size = 2;
+  work_gstring.used = 0;
+  work_gstring.inc = 1;
   return 0;
 }
 
@@ -544,6 +551,8 @@ mface__fini ()
   M17N_OBJECT_UNREF (mface_cyan);
   M17N_OBJECT_UNREF (mface_yellow);
   M17N_OBJECT_UNREF (mface_magenta);
+  free (work_gstring.glyphs);
+
   mdebug__report_object ("Face", &face_table);
 }
 
@@ -585,15 +594,6 @@ mface__realize (MFrame *frame, MFace **faces, int num,
       merged_face.property[MFACE_SIZE] = (void *) font_size;
     }
 
-  if ((MSymbol) merged_face.property[MFACE_VIDEOMODE] == Mreverse)
-    {
-      MSymbol foreground = (MSymbol) merged_face.property[MFACE_FOREGROUND];
-      MSymbol background = (MSymbol) merged_face.property[MFACE_BACKGROUND];
-
-      merged_face.property[MFACE_FOREGROUND] = background;
-      merged_face.property[MFACE_BACKGROUND] = foreground;
-    }
-
   rface = find_realized_face (frame, &merged_face, NULL);
   if (rface && rface->tick == tick)
     return rface->ascii_rface;
@@ -617,12 +617,14 @@ mface__realize (MFrame *frame, MFace **faces, int num,
     {
       rface->rfont = rfont;
       g.otf_encoded = 0;
-      mfont__get_metric (rfont, &g);
-      rface->space_width = g.width;
-      g.code = MCHAR_INVALID_CODE;
-      mfont__get_metric (rface->rfont, &g);
-      rface->ascent = g.ascent;
-      rface->descent = g.descent;
+      work_gstring.glyphs[0] = g;
+      work_gstring.glyphs[0].rface = rface;
+      work_gstring.glyphs[1].code = MCHAR_INVALID_CODE;
+      work_gstring.glyphs[1].rface = rface;
+      mfont__get_metric (&work_gstring, 0, 2);
+      rface->space_width = work_gstring.glyphs[0].width;
+      rface->ascent = work_gstring.glyphs[1].ascent;
+      rface->descent = work_gstring.glyphs[1].descent;
     }
   else
     {
@@ -673,12 +675,11 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
       *rface = *from_g->rface->ascii_rface;
       rface->rfont = rfont;
       {
-	MGlyph tmp;
-
-	tmp.code = MCHAR_INVALID_CODE;
-	mfont__get_metric (rfont, &tmp);
-	rface->ascent = tmp.ascent;
-	rface->descent = tmp.descent;
+	work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
+	work_gstring.glyphs[0].rface = rface;
+	mfont__get_metric (&work_gstring, 0, 1);
+	rface->ascent = work_gstring.glyphs[0].ascent;
+	rface->descent = work_gstring.glyphs[0].descent;
       }
       mwin__realize_face (rface);
       mplist_add (from_g->rface->frame->realized_face_list, Mt, rface);

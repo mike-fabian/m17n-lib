@@ -169,7 +169,9 @@ struct MFontDriver
   /** Close a font specified by RFONT.   */
   void (*close) (MRealizedFont *rfont);
 
-  void (*find_metric) (MRealizedFont *rfont, MGlyph *g);
+  /** Set metrics of glyphs in GSTRING from FROM to TO.  */
+  void (*find_metric) (MRealizedFont *rfont, MGlyphString *gstring,
+		       int from, int to);
 
   /** Encode C into the glyph code the font.  CODE is a code point of
       C in rfont->encoder->encoding_charset.  If the font has no glyph
@@ -202,6 +204,7 @@ extern int mfont__ft_init ();
 extern void mfont__ft_fini ();
 
 extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
+				MRealizedFont *rfont,
 				MSymbol script, MSymbol langsys,
 				MSymbol gsub_features, MSymbol gpos_features);
 extern int mfont__ft_decode_otf (MGlyph *g);
@@ -227,13 +230,14 @@ extern int mfont__encodable_p (MRealizedFont *rfont, MSymbol layouter_name,
 extern unsigned mfont__encode_char (MRealizedFont *rfont, int c);
 
 extern MRealizedFont *mfont__select (MFrame *frame, MFont *spec,
-				     MFont *request, int limitted_size);
+				     MFont *request, int limitted_size,
+				     MSymbol layouter);
 
 extern int mfont__open (MRealizedFont *rfont);
 
 extern void mfont__close (MRealizedFont *rfont);
 
-extern void mfont__get_metric (MRealizedFont *rfont, MGlyph *g);
+extern void mfont__get_metric (MGlyphString *gstring, int from, int to);
 
 extern void mfont__set_property (MFont *font, enum MFontProperty key,
 				 MSymbol val);
@@ -248,6 +252,6 @@ extern void mfont__set_spec (MFont *font,
 extern unsigned mfont__flt_encode_char (MSymbol layouter_name, int c);
 
 extern int mfont__flt_run (MGlyphString *gstring, int from, int to,
-			   MSymbol layouter_name, MRealizedFace *ascii_rface);
+			   MRealizedFace *rface);
 
 #endif /* _M17N_FONT_H_ */

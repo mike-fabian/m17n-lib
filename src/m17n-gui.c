@@ -76,6 +76,7 @@ free_frame (void *object)
 
   M17N_OBJECT_UNREF (frame->face);
   mwin__close_device ((MFrame *) object);
+  free (frame->font);
   free (object);
 }
 
@@ -313,7 +314,9 @@ mframe (MPlist *plist)
       MERROR (MERROR_WIN, NULL);
     }
 
-  frame->face = mface_copy (mface__default);
+  frame->face = mface_from_font (frame->font);
+  frame->face->property[MFACE_FONTSET] = mfontset (NULL);
+  M17N_OBJECT_REF (mface__default->property[MFACE_FONTSET]);
   if (plist)
     for (; (key = mplist_key (plist)) != Mnil; plist = mplist_next (plist))
       if (key == Mface)
