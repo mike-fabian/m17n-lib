@@ -482,8 +482,8 @@ mface__init ()
   mface__default->property[MFACE_ADSTYLE] = msymbol ("");
   mface__default->property[MFACE_SIZE] = (void *) 120;
   mface__default->property[MFACE_FONTSET] = mfontset (NULL);
-  mface__default->property[MFACE_FOREGROUND] = msymbol ("white");
-  mface__default->property[MFACE_FONTSET] = msymbol ("black");
+  mface__default->property[MFACE_FOREGROUND] = msymbol ("black");
+  mface__default->property[MFACE_BACKGROUND] = msymbol ("white");
   mface__default->property[MFACE_HLINE] = hline;
   mface__default->property[MFACE_BOX] = box;
   mface__default->property[MFACE_VIDEOMODE] = Mnormal;
@@ -496,14 +496,13 @@ mface__init ()
   mface_reverse_video->property[MFACE_VIDEOMODE] = (void *) Mreverse;
 
   {
-    MFaceHLineProp *hline_prop;
+    MFaceHLineProp hline_prop;
 
-    MSTRUCT_MALLOC (hline_prop, MERROR_FACE);
-    hline_prop->type = MFACE_HLINE_UNDER;
-    hline_prop->width = 1;
-    hline_prop->color = Mnil;
+    hline_prop.type = MFACE_HLINE_UNDER;
+    hline_prop.width = 1;
+    hline_prop.color = Mnil;
     mface_underline = mface ();
-    mface_underline->property[MFACE_HLINE] = (void *) hline_prop;
+    mface_put_prop (mface_underline, Mhline, &hline_prop);
   }
 
   mface_medium = mface ();
@@ -682,7 +681,7 @@ mface__realize (MFrame *frame, MFace **faces, int num,
   if (rface->box && rface->box->width == 0)
     rface->box = NULL;
   rface->ascii_rface = rface;
-  mwin__realize_face (rface);
+  (*frame->driver->realize_face) (rface);
 
   func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
   if (func && func != noop_hook)
@@ -766,7 +765,6 @@ mface__free_realized (MRealizedFace *rface)
   MPLIST_DO (plist, rface->non_ascii_list)
     free (MPLIST_VAL (plist));
   M17N_OBJECT_UNREF (rface->non_ascii_list);
-  mwin__free_realized_face (rface);
   free (rface);
 }
 
