@@ -302,9 +302,10 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  || MGLYPH (last)->type != g_tmp.type)
 	{
 	  g = MGLYPH (last);
-	  while (g < gstring->glyphs + gstring->used)
-	    g = mface__for_chars (script, language, charset,
-				  g, gstring->glyphs + gstring->used, size);
+	  if (g->type != GLYPH_ANCHOR)
+	    while (g < gstring->glyphs + gstring->used)
+	      g = mface__for_chars (script, language, charset,
+				    g, gstring->glyphs + gstring->used, size);
 	  if (pos == to)
 	    break;
 	  last = gstring->used;
