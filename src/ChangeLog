@@ -1,3 +1,8 @@
+2004-12-25  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_MINOR_VERSION): Update to 2.
+	(M17NLIB_VERSION_NAME): Update to "1.2.".
+
 2004-12-24  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (reset_ic): Set key_unhandled to 0.
