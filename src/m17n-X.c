@@ -913,7 +913,9 @@ MFontDriver xft_driver =
   { NULL,			/* Set to ft_select in device_init (). */
     xft_open, xft_find_metric,
     NULL,			/* Set to ft_encode_char in device_init (). */
-    xft_render };
+    xft_render,
+    NULL			/* Set to ft_list in device_init (). */
+  };
 
 
 static void
@@ -1772,6 +1774,7 @@ device_init ()
 #ifdef HAVE_XFT2
   xft_driver.select = mfont__ft_driver.select;
   xft_driver.encode_char = mfont__ft_driver.encode_char;
+  xft_driver.list = mfont__ft_driver.list;
 #endif
 
   Mxim = msymbol ("xim");
