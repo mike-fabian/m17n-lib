@@ -31,7 +31,7 @@
     <ol>
     <li> CORE API
 
-    It provides basic modules to handle M-texts.  They don't require
+    It provides basic modules to handle M-texts.  They do not require
     the m17n database.  To use this API, an application program must
     include <m17n-core.h> and be linked by -lm17n-core.
 
@@ -55,7 +55,7 @@
     <li> MISC API
 
     It provides miscellaneous functions to support error handling and
-    debugging.  This API can't be used by itself, but with one or more
+    debugging.  This API cannot be used by itself, but with one or more
     APIs listed above.  To use the API, an application program must
     include <m17n-misc.h> in addition to one of <m17n-core.h>,
     <m17n.h>, and <m17n-gui.h>.
@@ -103,10 +103,10 @@
     <li> symbol variables -- Mname
 
     Variables of type MSymbol start with 'M' followed by their names
-    (e.g. Mlanguage (name is "langauge"), Miso_2022 (name is
+    (e.g. Mlanguage (name is "language"), Miso_2022 (name is
     "iso-2022").
 
-    <li> macross -- MOBJECT_XXX
+    <li> macros -- MOBJECT_XXX
 
     They start by 'M' followed by upper case object names.
 
@@ -119,27 +119,104 @@
 
   */
 
-/***oldja
+/***ja
     @addtogroup m17nIntro
+    @brief m17n ライブラリ イントロダクション
 
-    @e m17nライブラリ は C 言語用多言語情報処理ライブラリである。
-    このライブラリは、多言語文書を扱うために必要な以下の基本機能をアプ
-    リケーションプログラムに提供する。
+    @em APIのレベル
 
-    @li 多言語テキスト用オブジェクトとしての構造体 @e M-text
+    m17n ライブラリの API は以下の４種に分類されている。
 
-    @li M-text を扱うための多くの関数・マクロ群
+    <ol>
+    <li> コア API
 
-    @li 種々のフォーマットでエンコードされたテキストと M-text 間の変換
-    を行なうデコーダ／エンコーダ
+    M-text を扱うための基本的なモジュールを提供する。この分類の API は
+    m17n データベースを必要としない。利用するためには、アプリケーショ
+    ンプログラムは<m17n-core.h> を include し、 -lm17n-core でリンクさ
+    れなくてはならない。
 
-    @li Unicode の全ての文字に加え、それと同じ数の非 Unicode 文字を扱
-    える巨大な文字空間
+    <li> シェル API
 
-    @li 文字毎の情報を効率良く格納する構造体 @e 文字テーブル (CharTable)
+    m17n データベースを利用するモジュールを提供する。モジュールはデー
+    タベースから必要に応じて多様なデータをロードする。利用するためには、
+    アプリケーションプログラムは <m17n.h> を include し、 -lm17n-core
+    -lm17n でリンクされなくてはならない。こうすることによってコア API 
+    も使用できる。
 
-    @li オプション：M-textのウィンドウシステム上での表示・入力システム。
-    （このための API は m17n-win.h に含まれている。）  */
+    <li> GUI API
+
+    M-texts をウィンドウ上で表示したり入力したりするといった、グラフィッ
+    クユーザインタフェースモジュールを提供する。API 自体はウィンドウシ
+    ステムとは独立であるが、 m17n ライブラリは特定のウィンドウシステム
+    を使用するように設定しなくてはならない。現時点では、X ウィンドウシ
+    ステムだけがサポートされている。利用するためにはアプリケーションプ
+    ログラムは<m17n-gui.h> と <m17n-X.h> を include し、-lm17n-core
+    -lm17n -lm17n-X でリンクされなくてはならない。 こうすることによっ
+    てコア API とシェル API も使用できる。
+
+    <li> その他の API
+
+    エラー処理、デバッグ用のその他の関数を提供する。この API はそれだ
+    けでは使用できず、上記の他のものと共に使う。利用するためには
+    <m17n-core.h>, <m17n.h>, <m17n-gui.h> のいずれかに加えて、 
+    <m17n-misc.h> を include しなくてはならない。
+
+    </ol>
+
+    @ref m17n-config "m17n-config(1)" 節も参照。
+
+    @em 環境変数
+
+    m17n ライブラリは次の環境変数を考慮する。
+
+    <ul>
+    <li> @c M17NDIR
+
+    m17n データベースのデータを含むディレクトリの名前。詳細は@ref
+    m17nDatabase 参照。
+
+    <li> @c MDEBUG_XXXX
+
+    "MDEBUG_" で始まる名前を持つ環境変数はデバッグ情報を制御する。詳細
+    は@ref m17nDebug 参照。
+
+    </ul>
+
+    @em API @em の命名規則 コマンド
+
+    ライブラリは、関数、変数、マクロ、型を export する。それらは'm' ま
+    たは 'M' のあとにオブジェクト名("symbol" や "plist" など。ただし 
+    "mtext" オブジェクトははじめの 'm' の重複を避けるため "text" を用
+    いる。) またはモジュール名(draw, input など) を続けたものである。
+    
+    <ul>
+
+    <li> 関数 -- mobject () または mobject_xxx ()
+
+    'm' のあとに小文字でオブジェクト名が続く。たとえば、msymbol (),
+     mtext_ref_char (), mdraw_text () など。
+
+    <li> シンボルでない変数 -- mobject,  または mobject_xxx
+    
+    関数と同じ命名規則に従う。(たとえば  mface_large)
+
+    <li> シンボル変数 -- Mname
+
+    MSymbol 型変数は、'M' の後に名前が続く。たとえば Mlanguage (名前は 
+    "language"), Miso_2022 (名前は"iso-2022")など。
+
+    <li> マクロ -- MOBJECT_XXX
+
+    'M' の後に大文字でオブジェクト名が続く。
+
+    <li> タイプ -- MObject または MObjectXxx
+
+    'M' の後に大文字で始めてオブジェクト名をが続く。 (たとえば
+    MConverter, MInputDriver)
+
+    </ul>
+    
+    */
 /*=*/
 /*** @{ */
 #ifdef FOR_DOXYGEN
@@ -147,7 +224,7 @@
     The #M17NLIB_MAJOR_VERSION macro gives the major version number
     of the m17n library.  */
 
-/***oldja
+/***ja
     マクロ #M17NLIB_MAJOR_VERSION は m17n ライブラリのメジャーバージョ
     ン番号を与える。  */
 
@@ -159,7 +236,7 @@
     The #M17NLIB_MINOR_VERSION macro gives the minor version number
     of the m17n library.  */
 
-/***oldja
+/***ja
     マクロ #M17NLIB_MINOR_VERSION は m17n ライブラリのマイナーバージョ
     ン番号を与える。  */
 
@@ -171,7 +248,7 @@
     The #M17NLIB_PATCH_LEVEL macro gives the patch level number
     of the m17n library.  */
 
-/***oldja
+/***ja
     マクロ #M17NLIB_PATCH_LEVEL は m17n ライブラリのパッチレベル番号を
     与える。  */
 
@@ -183,9 +260,9 @@
     The #M17NLIB_VERSION_NAME macro gives the version name of the
     m17n library as a string.  */
 
-/***oldja
+/***ja
     マクロ #M17NLIB_VERSION_NAME は m17n ライブラリのバージョン名を
-    C-string の形で与える。  */
+    文字列として与える。  */
 
 #define M17NLIB_VERSION_NAME
 
@@ -194,20 +271,20 @@
 /***en
     @brief Initialize the m17n library.
 
-    The macro M17N_INIT () initializes the m17n library.  This
-    function must be called before any m17n functions are used.
+    The macro M17N_INIT () initializes the m17n library.  This macro
+    must be called before any m17n functions are used.
 
-    If the initialization was successful, the external variable @c
-    merror_code is set to 0.  Otherwise it is set to -1.  */
+    If the initialization was successful, the external variable
+    #merror_code is set to 0.  Otherwise it is set to -1.  */
 
-/***oldja
-    @brief m17n ライブラリの初期化
+/***ja
+    @brief m17n ライブラリを初期化する.
 
-    マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n ライブラ
-    リを使うときは、最初にこの関数を呼ばなくてはならない。
-
-    変数 #merror_code は、初期化が成功すれば 0 に、そうでなければ -1 
-    に設定される。  */
+    マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n の関数を
+    利用する前に、このマクロをまず呼ばなくてはならない。
+    
+    外部変数 #merror_code は、初期化が成功すれば 0 に、そうでなければ 
+    -1 に設定される。  */
 
 #define M17N_INIT()
 
@@ -217,12 +294,16 @@
     @brief Finalize the m17n library.
 
     The macro M17N_FINI () finalizes the m17n library.  It frees all the
-    memory area used by the m17n library.  Once this function is
+    memory area used by the m17n library.  Once this macro is
     called, no m17n functions should be used until the
     macro M17N_INIT () is called again.  */
+/***ja
+    @brief m17n ライブラリを終了する. 
 
-/***oldja
-    @brief m17n ライブラリの終了  */
+    マクロ M17N_FINI () は m17n ライブラリを終了する。m17n ライブラリ
+    が使った全てのメモリ領域は解放される。一度このマクロが呼ばれたら、
+    マクロ M17N_INIT () が再度呼ばれるまで m17n 関数は使うべきでない。
+ */
 
 #define M17N_FINI()
 #endif /* FOR_DOXYGEN */
@@ -433,6 +514,24 @@ m17n_fini_core (void)
     In addition to the predefined managed object types, users can
     define their own managed object types.  See the documentation of
     the m17n_object () for the details.  */
+/***ja
+    @addtogroup m17nObject
+    @brief 管理下オブジェクトとは参照数によって管理されているオブジェクトである.
+
+    m17n オブジェクトのある型のものは、参照数によって管理されている。
+    それらのオブジェクトは @e 管理下オブジェクト と呼ばれる。生成され
+    た時点での参照数は 0 に初期化されている。関数 m17n_object_ref () 
+    は管理下オブジェクトの参照数を 1 増やし、関数m17n_object_unref () 
+    は 1 減らす。参照数が 0 になった管理下オブジェクトは自動的に解放さ
+    れる。
+
+    キーが管理キーであるプロパティは、値として管理下オブジェクトだけを
+    取る。関数 msymbol_put () や mplist_put () などはそれらのプロパティ
+    を特別扱いする。
+
+    定義済み管理下オブジェクトタイプの他に、ユーザは必要な管理下オブジェ
+    クトタイプを自分で定義することができる。詳細はm17n_object () の説
+    明を参照。  */
 
 /*** @{  */
 /*=*/
@@ -454,6 +553,24 @@ m17n_fini_core (void)
 
     @errors
     This function never fails.  */
+
+/***ja
+    @brief 管理下オブジェクトを割り当てる.
+
+    関数 m17n_object () は$SIZE バイトの新しい管理下オブジェクトを割り
+    当て、その参照数を 1 とする。 $FREER は参照数が 0 になった際にその
+    オブジェクトを解放するために用いられる関数である。$FREER が NULLな
+    らば、オブジェクトは関数 free () によって解放される。
+
+    割り当てられたオブジェクト冒頭のバイトは、#M17NObjectHead が占める。 
+    この領域は m17n ライブラリが使用するので、アプリケーションプログラ
+    ムは触れてはならない。
+
+    @return
+    この関数は新しく割り当てられたオブジェクトを返す。
+
+    @errors
+    この関数は失敗しない。    */
 
 #if EXAMPLE_CODE
 typedef struct
@@ -509,6 +626,18 @@ m17n_object (int size, void (*freer) (void *))
 
     @errors
     This function never fails.  */
+/***ja
+    @brief 管理下オブジェクトの参照数を 1 増やす.
+
+    関数 m17n_object_ref () は $OBJECT で指される管理下オブジェクトの
+    参照数を 1 増やす。
+
+    @return 
+    この関数は、増やした参照数が 16 ビットの符号無し整数値(すなわち 
+    0x10000 未満)におさまれば、それを返す。そうでなければ -1 を返す。
+
+    @errors
+    この関数は失敗しない。    */
 
 int
 m17n_object_ref (void *object)
@@ -557,7 +686,20 @@ m17n_object_ref (void *object)
 
     @errors
     This function never fails.  */
+/***ja
+    @brief 管理下オブジェクトの参照数を 1 減らす.
 
+    関数 m17n_object_unref () は $OBJECT で指される管理下オブジェクト
+    の参照数を 1 減らす。参照数が 0 になれば、オブジェクトは解放関数に
+    よって解放される。
+
+    @return 
+    この関数は、減らした参照数が 16 ビットの符号無し整数値(すなわち 
+    0x10000 未満)におさまれば、それを返す。そうでなければ -1 を返す。
+    つまり、0 が返って来た場合は$OBJECT は解放されている。
+
+    @errors
+    この関数は失敗しない。    */
 int
 m17n_object_unref (void *object)
 {
@@ -615,9 +757,9 @@ m17n_object_unref (void *object)
     functions call a function pointed to by the external variable @c
     m17n_memory_full_handler.  The default value of the variable is a
     pointer to the default_error_handle () function, which just calls
-    exit ().  */
+    <tt> exit ()</tt>.  */
 
-/***oldja
+/***ja
     @addtogroup m17nError エラー処理
     @brief m17n ライブラリのエラー処理
 
@@ -629,8 +771,9 @@ m17n_object_unref (void *object)
 
     もう一つの種類はメモリ割当てエラーである。システムが必要な量のメモ
     リを割当てることができない場合、ライブラリ関数は外部変数 @c
-    m17n_memory_full_handler が指す関数を呼ぶ。デフォルトでは、単に
-    <tt>exit ()</tt> を呼ぶことになっている。
+    m17n_memory_full_handler が指す関数を呼ぶ。デフォルトでは、関数 
+    default_error_handle () を指しており、この関数は単に <tt>exit
+    ()</tt> を呼ぶ。
 */
 
 /*** @{ */
@@ -645,13 +788,13 @@ m17n_object_unref (void *object)
 
     This variable initially has the value 0.  */
 
-/***oldja @brief m17n ライブラリのエラーコードを保持する外部変数
+/***ja @brief m17n ライブラリのエラーコードを保持する外部変数
 
     外部変数 #merror_code は、m17n ライブラリのエラーコードを保持する。
-    ライブラリ関数が妥当でない引数とともに呼ばれた際には、
-    この変数を @c enum #MErrorCode の一つにセットする。
+    ライブラリ関数が妥当でない引数とともに呼ばれた際には、この変数を 
+    @c enum #MErrorCode の一つにセットする。
 
-    この変数の初期値は０である。  */
+    この変数の初期値は 0 である。  */
 
 enum MErrorCode merror_code;
 
@@ -665,12 +808,12 @@ enum MErrorCode merror_code;
     function the error occurred.
 
     This variable initially points a function that simply calls the
-    exit () function with $ERR as an argument.
+    <tt>exit </tt>() function with $ERR as an argument.
 
     An application program that needs a different error handling can
     change this variable to point a proper function.  */
 
-/***oldja @brief メモリ割当てエラーハンドラ
+/***ja @brief メモリ割当てエラーハンドラ
 
     変数 #m17n_memory_full_handler は、ライブラリ関数がメモリ割当て
     に失敗した際に呼ぶべき関数へのポインタである。$ERR は @c enum
@@ -745,6 +888,58 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
 
     </ul>
 */
+/***ja
+    @addtogroup m17nDebug
+    @brief m17n ライブラリユーザのためのプログラムデバッグサポート
+
+    m17n ライブラリは、そのユーザが自分のプログラムをデバッグするため
+    に、以下の機能をサポートしている。
+
+    <ul>
+
+    <li> さまざまな情報のプリントを制御する環境変数。
+
+    <ul>
+
+    <li> MDEBUG_INIT -- 1 ならば、M17N_INIT () が呼ばれた時点で、ライ
+    ブラリの初期化に関する情報をプリントする。
+
+    <li> MDEBUG_FINI -- 1 ならば、M17N_FINI () が呼ばれた時点で、まだ
+    解放されていないオブジェクトの参照数をプリントする。
+
+    <li> MDEBUG_CHARSET -- 1 ならば、m17n データベースからロードされた
+    文字セットについての情報をプリントする。
+
+    <li> MDEBUG_CODING --  1 ならば、m17n データベースからロードされた
+    コード系についての情報をプリントする。
+
+    <li> MDEBUG_DATABASE -- 1 ならば、m17n データベースからロードされ
+    たデータについての情報をプリントする。
+
+    <li> MDEBUG_FONT -- 1 ならば、選択されてオープンされたフォントにつ
+    いての情報をプリントする。
+
+    <li> MDEBUG_FONT_FLT -- 1 ならば、Font Layout Table のどのコマンド
+    が実行中かについてのをプリントする。
+
+    <li> MDEBUG_FONT_OTF -- 1 ならば、OpenType Layout Table のどの属性
+    が実行中かについてのをプリントする。
+
+    <li> MDEBUG_INPUT -- 1 ならば、実行中の入力メソッドの状態に付いて
+    の情報をプリントする。
+
+    <li> MDEBUG_ALL -- 1 ならば、上記すべての変数を 1 にしたのと同じ効
+    果を持つ。
+
+    </ul>
+
+    <li> 種々のオブジェクトを人間に可読な形でプリントする関数。詳細は
+    関数 mdebug_dump_XXXX () の説明参照。
+
+    <li> エラー発生時に呼ばれるフック関数。mdebug_hook () の説明参照。
+
+    </ul>
+*/
 
 /*=*/
 /*** @{ */
@@ -754,8 +949,15 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     @brief Hook function called on an error.
 
     The mdebug_hook () function is called when an error happens.  It
-    returns -1q without doing anything.  It is useful to set a break
+    returns -1 without doing anything.  It is useful to set a break
     point on this function in a debugger.  */ 
+/***ja
+    @brief エラーの際に呼ばれるフック関数.
+
+    関数 mdebug_hook () はエラーが起こった際に呼ばれ、何もせずに-1 を
+    返す。デバッガ内でブレークポイントを設定するために用いることができ
+    る。
+    */ 
 
 int
 mdebug_hook ()
