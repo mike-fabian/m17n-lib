@@ -1,3 +1,7 @@
+2004-12-09  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h: Fix typo (MTextStatus -> M17NStatus).
+
 2004-12-03  Kenichi Handa  <handa@m17n.org>
 
 	* internal.h (m17n__core_initialized, m17n__shell_initialized,
