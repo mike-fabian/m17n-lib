@@ -282,6 +282,21 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  if (this_script == Minherited || this_script == Mnil)
 	    this_script = script;
 	  if (this_script == Mnil)
+	    /* Search backward for a character that explicitly
+	       specifies a script.  */
+	    for (i = pos - 1; i >= from; i--)
+	      {
+		int c1 = mtext_ref_char (mt, i); 
+		MSymbol sym = ((c1 > 0x20 && c1 < 0x100) ? Mlatin
+			       : mchar_get_prop (c1, Mscript));
+		
+		if (sym != Minherited && sym != Mnil)
+		  {
+		    this_script = sym;
+		    break;
+		  }
+	      }
+	  if (this_script == Mnil)
 	    /* Search forward for a character that explicitly
 	       specifies a script.  */
 	    for (i = pos + 1; i < to; i++)
