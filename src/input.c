@@ -239,7 +239,7 @@ integer_value (MInputContext *ic, MPlist *arg)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int code;
   MText *preedit = ic->preedit;
-  int len = mtext_nbytes (preedit);
+  int len = mtext_nchars (preedit);
 
   if (MPLIST_INTEGER_P (arg))
     return MPLIST_INTEGER (arg);
@@ -256,7 +256,7 @@ integer_value (MInputContext *ic, MPlist *arg)
     code = ic->cursor_pos + 1;
   else if (code == '<')
     code = 0;
-  else if (code == '<')
+  else if (code == '>')
     code = len;
   return (code >= 0 && code < len ? mtext_ref_char (preedit, code) : -1);
 }
