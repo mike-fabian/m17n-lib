@@ -2704,6 +2704,7 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  glyphs->ascent = g->ascent;
 	  glyphs->descent = g->descent;
 	  glyphs->x_advance = g->width + pad_width;
+	  glyphs->y_advance = 0;
 	  if (g->rface->rfont)
 	    {
 	      glyphs->font = &g->rface->rfont->font;
