@@ -1,3 +1,9 @@
+2004-07-29  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (layout_glyphs): Don't combine a zero width glyph with
+	the previous one if the zero width glyph has left or right
+	padding.
+
 2004-07-26  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xft_render): Pay attention to members left_padding and
