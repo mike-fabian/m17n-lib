@@ -628,7 +628,6 @@ main (int argc, char **argv)
   }
 
   memset (&control, 0, sizeof control);
-  control.as_image = 1;
   control.two_dimensional = 1;
   control.enable_bidi = 1;
   control.anti_alias = anti_alias;
