@@ -96,7 +96,7 @@ linkshell_LDADD = libm17n.la
 linkshell_LDFLAGS = -static
 
 linkgui_SOURCES = linkgui.c
-linkgui_LDADD = libm17n-gui.la
+linkgui_LDADD = libm17n-gui.la libm17n-X.la libm17n-gd.la
 linkgui_LDFLAGS = -static
 
 SRC =	${libm17n_core_la_SOURCES} \
