@@ -4,7 +4,7 @@
 
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
-	* m17n-config.in: Fix documentation.
+	* m17n-config.in: Fix documentation.  Doxygen's section name fixed.
 
 2004-12-10  Kenichi Handa  <handa@m17n.org>
 
