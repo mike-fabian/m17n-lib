@@ -678,7 +678,7 @@ static int
 xlfd_parse_name (char *name, MFont *font)
 {
   char *field[XLFD_FIELD_MAX];
-  unsigned short size, resy;
+  unsigned short size, resy, avgwidth;
   MSymbol attrs[MFONT_PROPERTY_MAX];
   char copy[513];
   int i;
@@ -710,7 +710,10 @@ xlfd_parse_name (char *name, MFont *font)
     field[i++] = NULL;
 
   resy = field[XLFD_RESY] ? atoi (field[XLFD_RESY]) : 0;
-  if (! field[XLFD_PIXEL])
+  avgwidth = field[XLFD_AVGWIDTH] ? atoi (field[XLFD_AVGWIDTH]) : 0;
+  if (! avgwidth)
+    size = 0;
+  else if (! field[XLFD_PIXEL])
     size = field[XLFD_POINT] ? atoi (field[XLFD_POINT]) * resy / 72 : 0;
   else if (field[XLFD_PIXEL][0] == '[')
     {
