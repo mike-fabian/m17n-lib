@@ -186,7 +186,7 @@ visual_order (MGlyphString *gstring)
       *(MGLYPH (gidx)) = glyphs[k];
       for (gidx++, k++;
 	   (k < gstring->used - 1
-	    && (glyphs[k].pos == pos || glyphs[k].combining_code));
+	    && glyphs[k].combining_code);
 	   gidx++, k++)
 	{
 	  glyphs[k].bidi_level = levels[j];
