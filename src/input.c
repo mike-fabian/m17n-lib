@@ -2751,18 +2751,18 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     @brief Set the spot of the input context.
 
     The minput_set_spot () function set the spot of input context $IC
-    to coordinate ($X, $Y ) with the height $ASCENT and $DESCENT .
+    to coordinate ($X, $Y ) with the height specified by $ASCENT and $DESCENT .
     The semantics of these values depend on the input method driver.
-    $FONTSIZE specfies the fontsize of a preedit text in 1/10 point.
+    $FONTSIZE specfies the fontsize of preedit text in 1/10 point.
 
-    For instance, an driver designed to work in CUI environment may
+    For instance, a driver designed to work in a CUI environment may
     use $X and $Y as column and row numbers, and ignore $ASCENT and
-    $DESCENT .  An driver designed to work on a window system may
-    treat $X and $Y as pixel offsets relative to the origin of the
-    client window, and treat $ASCENT and $DESCENT as ascent and
-    descent pixels of a line at ($X . $Y ).
+    $DESCENT .  A driver designed to work in a window system may
+    interpret $X and $Y as pixel offsets relative to the origin of the
+    client window, and may interpret $ASCENT and $DESCENT as the ascent- and
+    descent pixels of the line at ($X . $Y ).
 
-    $MT and $POS is an M-text and a character position at the spot.
+    $MT and $POS is the M-text and the character position at the spot.
     $MT may be @c NULL, in which case, the input method cannot get
     information about the text around the spot.  */
 
@@ -2807,7 +2807,7 @@ minput_set_spot (MInputContext *ic, int x, int y,
     @brief Toggle input method.
 
     The minput_toggle () function toggles the input method associated
-    with the input context $IC.  */
+    with input context $IC.  */
 /***ja
     @brief 入力メソッドを切替える.
 
@@ -2826,22 +2826,23 @@ minput_toggle (MInputContext *ic)
 /***en
     @brief Reset an input context.
 
-    The minput_reset_ic () function resets the input context $IC by
-    calling a callback functions corresponding to #Minput_reset.  It
+    The minput_reset_ic () function resets input context $IC by
+    calling a callback function corresponding to #Minput_reset.  It
     actually shifts the state to the initial one, and thus the current
     preediting text (if any) is committed.  If necessary, a program
-    can extract that text by calling minput_lookup () just after the
-    call of minput_reset_ic ().  In that case, the arguments @c KEY
-    and @c ARG of minput_lookup () are ignored.  */
+    can extract that committed text by calling minput_lookup () just
+    after the call of minput_reset_ic ().  In that case, the arguments
+    @c KEY and @c ARG of minput_lookup () are ignored.  */
 /***ja
     @brief 入力コンテクストをリセットする.
 
-    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関数
-    を呼ぶことによって入力コンテクスト $IC をリセットする。これは実際は
-    入力メソッドを初期状態にシフトさせる。したがって、もし現在入力中の
-    テキストがあれば、それはコミットされる。必要ならアプリケーションプ
-    ログラムは minput_lookup () を読んでそのテキストを取り出せる。その
-    際、minput_lookup () の引数 @c KEY と @c ARG は無視される。 */
+    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関
+    数を呼ぶことによって入力コンテクスト $IC をリセットする。これは実
+    際は入力メソッドを初期状態にシフトさせる。したがって、もし現在入力
+    中のテキストがあれば、それはコミットされる。必要ならアプリケーショ
+    ンプログラムは minput_lookup () を読んでそのコミットされたテキスト
+    を取り出せる。その際、minput_lookup () の引数 @c KEY と @c ARG は
+    無視される。 */
 void
 minput_reset_ic (MInputContext *ic)
 {
@@ -2861,15 +2862,16 @@ MSymbol Mdetail_text;
 /***en
     @brief Get description text of an input method
 
-    The minput_get_description () function returns an M-text briefly
-    describing the input method specified by $LANGUAGE and $NAME.  It
-    may have a text property #Mdetail_text whose value is an M-text
+    The minput_get_description () function returns an M-text that
+    briefly describs the input method specified by $LANGUAGE and
+    $NAME.  The returned M-text may have a text property, from its
+    beginning to end, #Mdetail_text whose value is an M-text
     describing the input method in more detail.
 
     @return
     If the specified input method has a description text, a pointer to
     #MText is returned.  A caller have to free it by m17n_object_unref ().
-    If the input method does not have a description text, NULL is
+    If the input method does not have a description text, @c NULL is
     returned.  */
 
 MText *
@@ -2899,43 +2901,48 @@ minput_get_description (MSymbol language, MSymbol name)
     @brief Get information about input method commands
 
     The minput_get_commands () function returns information about
-    input method commands of the input method specified by $LANG and
-    $NAME.  An input method command is a pseudo key event to which
+    input method commands of the input method specified by $LANGUAGE
+    and $NAME.  An input method command is a pseudo key event to which
     one or more actual input key sequences are assigned.
 
-    There are two kinds of commands, global and local.  The global
+    There are two kinds of commands, global and local.  Global
     commands are used by multiple input methods for the same purpose,
-    and has global key assignment.  Each input method may have local
-    key assignment for them.  The local commands are used only in a
-    specific input methods, and has only local key assignment.
+    and have global key assignments.  Each input method may locally
+    change key assignments for glabal commands.  Local commands are
+    used only in a specific input method, and have only local key
+    assignments.
 
-    The global key assignment for a global command is effective only
-    when an input method doesn't have local key assignment for the
-    same command.
+    Global key assignments for a global command are effective only
+    when the current input method does not have local key assignments
+    for that command.
 
-    If $NAME is #Mnil, information about global commands are returned.
-    Otherwise, information about commands that have local key
-    assignment in the specified input method is returned.
+    If $NAME is #Mnil, information about global commands is returned.
+    In this case $LANGUAGE is ignored.
 
-    The return value is a plist (#MPlist).  The key of each element is
-    a symbol representing a command, and the value is COMMAND-INFO; a
-    plist containing information about the command.
-
-    The first element of COMMAND-INFO has key #Mtext, and the value is
-    an M-text describing the command briefly.  This M-text may have a
-    text property #Mdetail_text whose value is an M-text describing
-    the command in more detail.
-
-    If there are no more elements, that means no key sequence is
-    assigned to the command.  Otherwise, each of the remaining
-    elements (if any) has key #Mplist, and the value is a plist whose
-    keys are #Msymbol and values are symbols representing input keys.
-    This sequence of keys are currently assigned to the command.
+    If $NAME is not #Mnil, information about those commands that have
+    local key assignments in the input method specified by $LANGUAGE
+    and $NAME is returned.
 
     @return
-    This function returns a pointer to #MPlist.  If there are no input
-    method commands, the plist contains no element.  As the plist is
-    kept in the library, a caller must not modify or free it.  */
+    If no input method commands are found, this function returns @c NULL.
+
+    Otherwise, a pointer to a plist is returned.  The key of each
+    element in the plist is a symbol representing a command, and the
+    value is a plist of the form COMMAND-INFO (see below).
+
+    The first element of COMMAND-INFO has the key #Mtext, and the
+    value is an M-text describing the command briefly.  This M-text
+    may have a text property whose key is #Mdetail_text and whose
+    value is an M-text describing the command in more detail.
+
+    If there are no more elements, that means no key sequences are
+    assigned to the command.  Otherwise, each of the remaining
+    elements has the key #Mplist, and the value is a plist whose keys are
+    #Msymbol and values are symbols representing input keys, which are
+    currently assigned to the command.
+
+    As the returned plist is kept in the library, the caller must not
+    modify nor free it.  */
 
 MPlist *
 minput_get_commands (MSymbol language, MSymbol name)
@@ -2948,16 +2955,16 @@ minput_get_commands (MSymbol language, MSymbol name)
 /***en
     @brief Assign a key sequence to an input method command
 
-    The minput_assign_command_keys () function assigns a input key
-    sequence $KEYSEQ to an input method command $COMMAND for the input
+    The minput_assign_command_keys () function assigns input key
+    sequence $KEYSEQ to input method command $COMMAND for the input
     method specified by $LANGUAGE and $NAME.  If $NAME is #Mnil, the
-    key sequence is assigned globally, otherwise the key sequence is
-    assigned locally.
+    key sequence is assigned globally no matter what $LANGUAGE is.
+    Otherwise the key sequence is assigned locally.
 
-    An element of $KEYSEQ must have key $Msymbol and the value must be
-    a symbol representing an input key.
+    Each element of $KEYSEQ must have the key $Msymbol and the value
+    must be a symbol representing an input key.
 
-    $KEYSEQ may be NULL, in which case, all assignments are deleted
+    $KEYSEQ may be @c NULL, in which case, all assignments are deleted
     globally or locally.
 
     This assignment gets effective in a newly opened input method.
@@ -3013,20 +3020,20 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     @brief Get a list of variables of an input method
 
     The minput_get_variables () function returns a plist (#MPlist) of
-    variables used to control the behaviour of the input method
+    variables used to control the behavior of the input method
     specified by $LANGUAGE and $NAME.  The key of an element of the
     plist is a symbol representing a variable, and the value is a
-    plist VAR-INFO carrying the information about the variable in the
-    following format.
+    plist of the form VAR-INFO (see below) carrying the information
+    about the variable.
 
-    The first element of VAR-INFO has key #Mtext, and the value is an
-    M-text describing the variable briefly.  This M-text may have a
+    The first element of VAR-INFO has the key #Mtext, and the value is
+    an M-text describing the variable briefly.  This M-text may have a
     text property #Mdetail_text whose value is an M-text describing
     the variable in more detail.
 
-    The second element of VAR-INFO is for a value of the variable.
+    The second element of VAR-INFO is for the value of the variable.
     The key is #Minteger, #Msymbol, or #Mtext, and the value is an
-    intetger, a symbol, or an M-text respectively.  The variable is
+    intetger, a symbol, or an M-text, respectively.  The variable is
     set to this value when an input context is created for the input
     method.
 
@@ -3034,17 +3041,18 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     that matches with the above type.  Otherwise, the remaining
     elements of VAR-INFO are to specify valid values of the variable.
 
-    If the type of the variable is integer, an element has key
-    #Minteger or #Mplist.  If it is Minteger, the value is a valid
-    integer value.  If it is Mplist, the value is a plist of two of
-    elements.  Both of them have key #Minteger, and values are the
-    minimum and maximum bounds of a valid value range.
+    If the type of the variable is integer, the third and later elements
+    have the key #Minteger or #Mplist.  If it is #Minteger, the value
+    is a valid integer value.  If it is #Mplist, the value is a plist
+    of two of elements.  Both of them have the key #Minteger, and
+    values are the minimum and maximum bounds of the valid value
+    range.
 
-    If the type of the variable is symbol or M-text, an element of the
-    plist has key #Msymbol or #Mtext respectively, and values are
-    valid values.
+    If the type of the variable is symbol or M-text, the third and
+    later elements of the plist have the key #Msymbol or #Mtext,
+    respectively, and the value must be a valid one.
 
-    For instance, if an input method has these variables:
+    For instance, suppose an input method has the following variables:
 
     <li> name:intvar, description:"value is an integer",
          initial value:0, value-range:0..3,10,20
@@ -3055,15 +3063,15 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     <li> name:txtvar, description:"value is an M-text",
          initial value:empty text, no value-range (i.e. any text)
 
-    the returned plist has this form ('X:Y' means X is a key and Y is
+    Then, the returned plist has this form ('X:Y' means X is a key and Y is
     a value, and '(...)' means a plist):
 
 @verbatim
     plist:(intvar:(mtext:"value is an integer"
                    integer:0
 		   plist:(integer:0 integer:3)
-                   integer: 10
-                   integer: 20))
+                   integer:10
+                   integer:20))
            symvar:(mtext:"value is a symbol"
                    symbol:nil
                    symbol:a
@@ -3078,7 +3086,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     If the input method uses any variables, a pointer to #MPlist is
     returned.  As the plist is kept in the library, a caller must not
     modify nor free it.  If the input method does not use any
-    variable, NULL is returned.  */
+    variable, @c NULL is returned.  */
 
 MPlist *
 minput_get_variables (MSymbol language, MSymbol name)
@@ -3093,11 +3101,11 @@ minput_get_variables (MSymbol language, MSymbol name)
 
     The minput_set_variable () function sets the initial value of
     input method variable $VARIABLE to $VALUE for the input method
-    specified by $LANG and $NAME.
+    specified by $LANGUAGE and $NAME.
 
     By default, the initial value is 0.
 
-    This setting is reflected to a newly opened input method.
+    This setting gets effective in a newly opened input method.
 
     @return
     If the operation was successful, 0 is returned.  Otherwise -1 is
