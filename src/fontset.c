@@ -607,8 +607,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
     vacant.
 
     The macro M17N_INIT () creates the default fontset.  An
-    application program can modify it before the first call of mframe
-    ().
+    application program can modify it before the first call of 
+    mframe ().
 
     @return
     This function returns a pointer to the found or newly created
@@ -616,9 +616,9 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 /***ja 
     @brief フォントセットを返す.
 
-    関数 mfontset は名前$ NAME を持つフォントセットオブジェクトへのポイ
-    ンタを返す。 $NAME が @c NULL ならば、デフォルトフォントセットへの
-    ポインタを返す。
+    関数 mfontset () は名前 $NAME を持つフォントセットオブジェクトへの
+    ポインタを返す。 $NAME が @c NULL ならば、デフォルトフォントセット
+    へのポインタを返す。
 
     $NAME という名前を持つフォントセットがなければ、新しいものが作られ
     る。その際、m17n データベースに \<@c fontset, $NAME\> というデータ
@@ -664,7 +664,7 @@ mfontset (char *name)
 /***en
     @brief Return the name of a fontset.
 
-    The mfontset_name () function returns the name of fontset$FONTSET.  */
+    The mfontset_name () function returns the name of fontset $FONTSET.  */
 /***ja
     @brief フォントセットの名前を返す.
 
@@ -678,7 +678,7 @@ mfontset_name (MFontset *fontset)
 /*=*/
 
 /***en
-    @brief Make a copy a fontset.
+    @brief Make a copy of a fontset.
 
     The mfontset_copy () function makes a copy of fontset $FONTSET, gives it a
     name $NAME, and returns a pointer to the created copy.  $NAME must
@@ -739,8 +739,9 @@ mfontset_copy (MFontset *fontset, char *name)
 /***en
     @brief Modify the contents of a fontset.
 
-    The mfontset_modify_entry () function associates, in $FONTSET, a
-    copy of $FONT with the $SCRIPT / $LANGUAGE pair or with $CHARSET.
+    The mfontset_modify_entry () function associates, in fontset
+    $FONTSET, a copy of $FONT with the $SCRIPT / $LANGUAGE pair or
+    with $CHARSET.
 
     Each font in a fontset is associated with a particular
     script/language pair, with a particular charset, or with the
@@ -778,33 +779,33 @@ mfontset_copy (MFontset *fontset, char *name)
     @return
     If the operation was successful, mfontset_modify_entry () returns 0.
     Otherwise it returns -1 and assigns an error code to the external
-    variable @c merror_code.  */
+    variable #merror_code.  */
 
 /***ja
     @brief フォントセットの内容を変更する.
 
-    関数 The mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み
-    合わせまたは $CHARSET に対して $FONT のコピーを使うように、フォン
-    トセット $FONTSET を設定する。
+    関数 mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み合わ
+    せまたは $CHARSET に対して $FONT のコピーを使うように、フォントセッ
+    ト $FONTSET を設定する。
 
     フォントセットの各フォントは、特定のスクリプトと言語のペア、特定の
     文字セット、シンボル @c Mnil のいずれかと関連付けられている。同じ
     ものと関連付けられたフォントはグループを構成する。
 
     $SCRIPT は @c Mnil であるか、スクリプトを特定するシンボルである。
-    シンボルである場合には、$LANGUAGE は言語を特定するシンボルか@c
+    シンボルである場合には、$LANGUAGE は言語を特定するシンボルか @c
     Mnil であり、$FONT はthe $SCRIPT / $LANGUAGE ペアに関連付けられる。
 
     $CHARSET は @c Mnil であるか、文字セットオブジェクトを表すシンボル
-    である。シンボルである場合には$FONT はその文字セットと関連付けられ
+    である。シンボルである場合には $FONT はその文字セットと関連付けられ
     る。
 
     $SCRIPT と $CHARSET の双方が @c Mnil でない場合には $FONT のコピー
     が２つ作られ、それぞれ $SCRIPT / $LANGUAGE ペアと文字セットに関連
     付けられる。
 
-    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は@c Mnil と関
-    連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
+    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は @c Mnil と
+    関連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
 
     引数 $HOW は $FONT の優先度を指定する。$HOW が正ならば、$FONT は同
     じものと関連付けられたグループ中で最高の優先度を持つ。$HOW が負な
@@ -813,12 +814,12 @@ mfontset_copy (MFontset *fontset, char *name)
     から取り除かれる。
 
     $LAYOUTER_NAME は @c Mnil であるか、@ref flt を示すシンボルである。
-    シンボルであれば、$FONT を用いてM-text を表示する際には、その font
-    layout table を使って文字列からグリフコード列を生成する。
+    シンボルであれば、$FONT を用いてM-text を表示する際には、その FONT
+    LAYOUT TABLE を使って文字列からグリフコード列を生成する。
 
     @return 
     処理が成功したとき、mfontset_modify_entry () は 0 を返す。
-    失敗したときは -1 を返し、外部変数 @c merror_code にエラーコードを
+    失敗したときは -1 を返し、外部変数 #merror_code にエラーコードを
     設定する。  */
 
 /***

@@ -1782,7 +1782,7 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int limited_size)
     @return
     If the operation was successful, this function returns 0.
     Otherwise it returns -1 and assigns an error code to the external
-    variable @c merror_code.  */
+    variable #merror_code.  */
 /***ja
     @brief フォントのエンコーディングを設定する.
 

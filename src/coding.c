@@ -4139,8 +4139,8 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
 
     @return If the operation was successful, mconv_stream_converter ()
     returns the created code converter.  Otherwise it returns @c NULL
-    and assigns an error code to the external variable @c
-    merror_code.  */
+    and assigns an error code to the external variable 
+    #merror_code.  */
 
 /***ja
     @brief ストリームに結び付けられたコードコンバータを作る.
@@ -5009,8 +5009,8 @@ mconv_putc (MConverter *converter, int c)
     If the operation was successful, mconv_gets () returns the
     modified $MT.  If it encounters EOF without reading a single
     character, it returns $MT without changing it.  If an error is
-    detected, it returns @c NULL and assigns an error code to @c
-    merror_code.  */
+    detected, it returns @c NULL and assigns an error code to 
+    #merror_code.  */
 
 /***ja
     @brief コードコンバータを使って1行読む.
@@ -5048,7 +5048,7 @@ mconv_gets (MConverter *converter, MText *mt)
       mtext_cat_char (mt, c);
     }
   if (c == EOF && converter->result != MCONVERSION_RESULT_SUCCESS)
-    /* mconv_getc () sets merror_code */
+    /* mconv_getc () sets #merror_code */
     return NULL;
   return mt;
 }

@@ -1426,11 +1426,11 @@ mtext_cat (MText *mt1, MText *mt2)
     text properties.  If the length of $MT2 is less than $N, all
     characters are copied.  $MT2 is not modified.  
 
-    @return
-    If the operation was successful, mtext_ncat () returns a pointer
-    to the resulting M-text $MT1.  If an error is detected, it returns
-    @c NULL and assigns an error code to the global variable @c
-    merror_code.  */
+    @return 
+    If the operation was successful, mtext_ncat () returns a
+    pointer to the resulting M-text $MT1.  If an error is detected, it
+    returns @c NULL and assigns an error code to the global variable
+    #merror_code.  */
 
 
 /***ja
@@ -1443,8 +1443,8 @@ mtext_cat (MText *mt1, MText *mt2)
 
     @return
     処理が成功した場合、mtext_ncat () は変更された M-text $MT1 へのポ
-    インタを返す。エラーが検出された場合は @c NULL を返し、外部変数 @c
-    merror_code にエラーコードを設定する。
+    インタを返す。エラーが検出された場合は @c NULL を返し、外部変数
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ncat} @endlatexonly  */
 
@@ -1515,8 +1515,8 @@ mtext_cpy (MText *mt1, MText *mt2)
     @return
     If the operation was successful, mtext_ncpy () returns a pointer
     to the resulting M-text $MT1.  If an error is detected, it returns
-    @c NULL and assigns an error code to the global variable @c
-    merror_code.  */
+    @c NULL and assigns an error code to the global variable 
+    #merror_code.  */
 
 /***ja
     @brief M-text に含まれる最初の何文字かをコピーする.
@@ -1528,8 +1528,8 @@ mtext_cpy (MText *mt1, MText *mt2)
 
     @return 
     処理が成功した場合、mtext_ncpy () は変更された M-text $MT1 へのポ
-    インタを返す。エラーが検出された場合は @c NULL を返し、外部変数 @c
-    merror_code にエラーコードを設定する。
+    インタを返す。エラーが検出された場合は @c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ncpy} @endlatexonly  */
 
