@@ -574,8 +574,6 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
   if (MPLIST_TAIL_P (plist))
     return NULL;
   best_score = -1, best_font = NULL;
-  if (family == Mnil)
-    family = FONT_PROPERTY (request, MFONT_FAMILY);
   MPLIST_DO (plist, plist)
     {
       if (family == Mnil || family == MPLIST_KEY (plist))
@@ -2044,6 +2042,9 @@ device_open (MFrame *frame, MPlist *param)
 #elif HAVE_FREETYPE
   if (use_freetype)
     mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
+#else
+  if (! use_xfont)
+    mplist_add (frame->font_driver_list, Mx, &xfont_driver);
 #endif
   frame->realized_font_list = device->realized_font_list;
   frame->realized_face_list = device->realized_face_list;
