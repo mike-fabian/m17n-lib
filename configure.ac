@@ -161,6 +161,7 @@ if test "x$HAVE_XFT2" = "xyes"; then
   AC_DEFINE(HAVE_XFT2, 1,
 	    [Define to 1 if you have Xft2 library and header file.])
 else
+  XFT2_LD_FLAGS=
   CPPFLAGS="$save_CPPFLAGS"
 fi
 LIBS="$save_LIBS"
@@ -221,6 +222,7 @@ if test "x$HAVE_XML2" = "xyes"; then
   AC_DEFINE(HAVE_XML2, 1,
 	    [Define to 1 if you have libxml2 library and header file])
 else
+  XML2_LD_FLAGS=
   CPPFLAGS="$save_CPPFLAGS"
 fi
 LIBS="$save_LIBS"
