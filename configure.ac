@@ -309,6 +309,9 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  example/Makefile
 		 m17n-config
+		 m17n-core.pc
+		 m17n-shell.pc
+		 m17n-gui.pc
 		 ])
 
 dnl if test "x$XOM" = "xyes"; then
