@@ -69,9 +69,7 @@ mlang__init ()
 	{"hr", "Croatian"},
 	{"cs", "Czech"},
 	{"da", "Danish"},
-#if 0
-	{"??", "Divehi"},
-#endif
+	{"dv", "Dhivehi"},
 	{"nl", "Dutch"},
 #if 0
 	{"??", "Edo"},
