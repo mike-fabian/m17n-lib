@@ -69,6 +69,10 @@ struct MFrame
 
   /** List of realized fontsets.  */
   MPlist *realized_fontset_list;
+
+  /** Initialized to 0 and incremented on each modification of a face
+      on which one of the realized faces is based.  */
+  unsigned tick;
 };
 
 enum glyph_type
@@ -102,6 +106,9 @@ typedef struct
 struct MGlyphString
 {
   M17NObject head;
+
+  MFrame *frame;
+  int tick;
 
   int size, inc, used;
   MGlyph *glyphs;
@@ -230,6 +237,16 @@ extern void mwin__fill_space (MFrame *frame, MDrawWindow win,
 			      int x, int y, int width, int height,
 			      MDrawRegion region);
 
+extern void mwin__draw_rect (MFrame *frame, MDrawWindow win,
+			     MRealizedFace *face,
+			     int x, int y, int width, int height,
+			     MDrawRegion region);
+
+extern void mwin__draw_empty_boxes (MDrawWindow win, int x, int y,
+				    MGlyphString *gstring,
+				    MGlyph *from, MGlyph *to,
+				    int reverse, MDrawRegion region);
+
 extern void mwin__draw_hline (MFrame *frame, MDrawWindow win,
 			      MGlyphString *gstring,
 			      MRealizedFace *rface, int reverse,
@@ -283,19 +300,5 @@ extern void mwin__adjust_window (MFrame *frame, MDrawWindow win,
 				 MDrawMetric *current, MDrawMetric *new);
 
 extern MSymbol mwin__parse_event (MFrame *frame, void *arg, int *modifiers);
-
-#ifdef HAVE_XFT2
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-extern void *mwin__xft_open (MFrame *frame, char *fontname, int size);
-extern void mwin__xft_close (void *xft_info);
-extern void mwin__xft_get_metric (void *xft_info, FT_Face ft_face, MGlyph *g);
-extern void mwin__xft_render (MDrawWindow win, int x, int y,
-			      MGlyphString *gstring, MGlyph *from, MGlyph *to,
-			      int reverse, MDrawRegion region,
-			      void *xft_info, FT_Face ft_face);
-#endif	/* HAVE_XFT2 */
 
 #endif /* _M_INTERNAL_GUI_H */
