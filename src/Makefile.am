@@ -80,7 +80,7 @@ libm17n_gd_la_SOURCES = m17n-gd.c
 libm17n_gd_la_LIBADD = libm17n-gui.la
 libm17n_gd_la_LDFLAGS = -module @GD_LD_FLAGS@ ${VINFO}
 
-AM_CPPFLAGS = -DM17NDIR="\"$(datadir)/m17n\""
+AM_CPPFLAGS = -DM17NDIR="\"@M17NDIR@\""
 
 
 include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
