@@ -113,7 +113,7 @@ win_create_ic (MInputContext *ic)
 
   win_ic_info->preedit.win = mwin__create_window (frame, win_info->client);
   win_ic_info->preedit.control.two_dimensional = 1;
-  win_ic_info->preedit.control.as_image = 1;
+  win_ic_info->preedit.control.as_image = 0;
   win_ic_info->preedit.control.with_cursor = 1;
   win_ic_info->preedit.control.cursor_width = 1;
   win_ic_info->preedit.control.enable_bidi = 1;
