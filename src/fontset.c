@@ -39,16 +39,15 @@
 
     @brief フォントセットは文字からフォントへの対応付けを行うオブジェクトである.
 
-    @e フォントセット は @c MFontset 型のオブジェクトである。M-text を
-    表示する際、フォントセットは M-text 中の個々の文字に対してどのフォ
-    ントを用いるかの規則を、以下の情報に従って与える。
+    @e フォントセット は @c MFontset 型のオブジェクトである。M-text 
+    の表示の際、フォントセットは以下の情報を用いて M-text 
+    中の個々の文字にどのフォントを用いるか決める規則を与える。
 
     @li 文字の文字プロパティ "スクリプト"
     @li 文字のテキストプロパティ "言語"
     @li 文字のテキストプロパティ "文字セット"
 
-    これらの情報がどのように用いられるかは mdraw_text () の説明を参照
-    のこと。
+    これらの情報がどのように用いられるかは mdraw_text () の説明を参照のこと。
 
     */
 
@@ -687,18 +686,16 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 /***ja 
     @brief フォントセットを返す.
 
-    関数 mfontset () は名前 $NAME を持つフォントセットオブジェクトへの
-    ポインタを返す。 $NAME が @c NULL ならば、デフォルトフォントセット
-    へのポインタを返す。
+    関数 mfontset () は名前 $NAME を持つフォントセットオブジェクトへのポインタを返す。 
+    $NAME が @c NULL ならば、デフォルトフォントセットへのポインタを返す。
 
-    $NAME という名前を持つフォントセットがなければ、新しいものが作られ
-    る。その際、m17n データベースに \<@c fontset, $NAME\> というデータ
-    があれば、フォントセットはそのデータに沿って初期化される。なければ、
-    空のままにされる。
+    $NAME という名前を持つフォントセットがなければ、新しいものが作られる。その際、
+    m17n データベースに \<@c fontset, $NAME\> 
+    というデータがあれば、フォントセットはそのデータに沿って初期化される。
+    なければ、空のままにされる。
 
-    マクロ M17N_INIT () はデフォルトのフォントセットを作る。アプリケー
-    ションプログラムは mframe () を初めて呼ぶまではデフォルトフォント
-    セットを変更することができる。
+    マクロ M17N_INIT () はデフォルトのフォントセットを作る。アプリケーションプログラムは
+    mframe () を初めて呼ぶまでの間はデフォルトフォントセットを変更することができる。
 
     @return
     この関数は見つかった、あるいは作ったフォントセットへのポインタを返す。
@@ -763,9 +760,9 @@ mfontset_name (MFontset *fontset)
 /***ja
     @brief フォントセットのコピーを作る.
 
-    関数 mfontset_copy () はフォントセット $FONTSET のコピーを作って、
-    名前 $NAME を与え、そのコピーへのポインタを返す。$NAME は既存の
-    フォントセットの名前であってはならない。その場合にはコピーを作らず
+    関数 mfontset_copy () はフォントセット $FONTSET のコピーを作って、名前
+    $NAME を与え、そのコピーへのポインタを返す。$NAME 
+    は既存のフォントセットの名前であってはならない。そのような場合にはコピーを作らずに
     NULL を返す。  */
 
 MFontset *
@@ -850,10 +847,10 @@ mfontset_copy (MFontset *fontset, char *name)
     only available font for the associated item; all the other fonts
     are removed from the group.
 
-    If $LAYOUTER_NAME is not @c Mnil, it must be a symbol
-    representing a @ref flt.  In that case, if $FONT is selected for
-    drawing an M-text, that font layout table is used to generate a
-    glyph code sequence from a character sequence.
+    If $LAYOUTER_NAME is not @c Mnil, it must be a symbol representing
+    a @ref flt (font layout table).  In that case, if $FONT is
+    selected for drawing an M-text, that font layout table is used to
+    generate a glyph code sequence from a character sequence.
 
     @return
     If the operation was successful, mfontset_modify_entry () returns 0.
@@ -863,43 +860,38 @@ mfontset_copy (MFontset *fontset, char *name)
 /***ja
     @brief フォントセットの内容を変更する.
 
-    関数 mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み合わ
-    せまたは $CHARSET に対して $FONT のコピーを使うように、フォントセッ
-    ト $FONTSET を設定する。
+    関数 mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み合わせ、または
+    $CHARSET に対して $FONT のコピーを使うように、フォントセット $FONTSET を設定する。
 
-    フォントセットの各フォントは、特定のスクリプトと言語のペア、特定の
-    文字セット、シンボル @c Mnil のいずれかと関連付けられている。同じ
-    ものと関連付けられたフォントはグループを構成する。
+    フォントセット中の各フォントは、特定のスクリプトと言語のペア、特定の文字セット、シンボル
+    @c Mnil のいずれかと関連付けられている。同じものと関連付けられたフォントはグループを構成する。
 
     $SCRIPT は @c Mnil であるか、スクリプトを特定するシンボルである。
     シンボルである場合には、$LANGUAGE は言語を特定するシンボルか @c
     Mnil であり、$FONT はthe $SCRIPT / $LANGUAGE ペアに関連付けられる。
 
-    $CHARSET は @c Mnil であるか、文字セットオブジェクトを表すシンボル
-    である。シンボルである場合には $FONT はその文字セットと関連付けられ
-    る。
+    $CHARSET は @c Mnil であるか、文字セットオブジェクトを表すシンボルである。
+    シンボルである場合には $FONT はその文字セットと関連付けられる。
 
-    $SCRIPT と $CHARSET の双方が @c Mnil でない場合には $FONT のコピー
-    が２つ作られ、それぞれ $SCRIPT / $LANGUAGE ペアと文字セットに関連
-    付けられる。
+    $SCRIPT と $CHARSET の双方が @c Mnil でない場合には $FONT 
+    のコピーが２つ作られ、それぞれ $SCRIPT / $LANGUAGE 
+    ペアと文字セットに関連付けられる。
 
-    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は @c Mnil と
-    関連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
+    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は @c Mnil 
+    と関連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
 
-    引数 $HOW は $FONT の優先度を指定する。$HOW が正ならば、$FONT は同
-    じものと関連付けられたグループ中で最高の優先度を持つ。$HOW が負な
-    らば、最低の優先度を持つ。$HOW が 0 ならば、$FONT は関連付けられた
-    ものに対する唯一の利用可能なフォントとなり、他のフォントはグループ
-    から取り除かれる。
+    引数 $HOW は $FONT の優先度を指定する。$HOW が正ならば、$FONT 
+    は同じものと関連付けられたグループ中で最高の優先度を持つ。$HOW 
+    が負ならば、最低の優先度を持つ。$HOW が 0 ならば、$FONT 
+    は関連付けられたものに対する唯一の利用可能なフォントとなり、他のフォントはグループから取り除かれる。
 
-    $LAYOUTER_NAME は @c Mnil であるか、@ref flt を示すシンボルである。
-    シンボルであれば、$FONT を用いてM-text を表示する際には、その FONT
-    LAYOUT TABLE を使って文字列からグリフコード列を生成する。
+    $LAYOUTER_NAME は @c Mnil であるか、@ref flt 
+    （フォントレイアウトテーブル）を示すシンボルである。シンボルであれば、$FONT を用いて
+    M-text を表示する際には、そのフォントレイアウトテーブルを使って文字列からグリフコード列を生成する。
 
     @return 
     処理が成功したとき、mfontset_modify_entry () は 0 を返す。
-    失敗したときは -1 を返し、外部変数 #merror_code にエラーコードを
-    設定する。  */
+    失敗したときは -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -992,7 +984,7 @@ mfontset_modify_entry (MFontset *fontset,
     If $SCRIPT is @c Mt, keys of the returned plist are script name
     symbols for which some fonts are specified and values are NULL.
 
-    If $SCIRPT is a script symbol, the returned plist is decided by
+    If $SCRIPT is a script symbol, the returned plist is decided by
     $LANGUAGE.
 
     If $LANGUAGE is @c Mt, keys of the plist are language name symbols
@@ -1001,10 +993,12 @@ mfontset_modify_entry (MFontset *fontset,
     script.
 
     If $LANGUAGE is a language name symbol, the plist is a @c
-    FONT-GROUP for the specified script and langauge.
+    FONT-GROUP for the specified script and language.
 
-    If $LANGAUGE is @c Mt, the plist is fallback @c FONT-GROUP for the
-    script.
+    If $LANGUAGE is @c Mt, the plist is fallback @c FONT-GROUP for the
+    script.  @c FONT-GROUP is a plist whose keys are FLT
+    (FontLayoutTable)name symbols (@c Mt if no FLT is associated with
+    the font) and values are pointers to #MFont.
 
     If $SCRIPT is @c Mnil, the returned plist is decided as below.
 
@@ -1016,9 +1010,6 @@ mfontset_modify_entry (MFontset *fontset,
 
     If $CHARSET is @c Mnil, the plist is a fallback @c FONT-GROUP.
 
-    @c FONT-GROUP is a plist whose keys are FLT name symbols (@c Mt if
-    no FLT is associated with the font) and values are pointers to
-    #MFont.
 
     @return
     It returns a plist describing the contents of a fontset.  The
@@ -1098,9 +1089,8 @@ mfontset_lookup (MFontset *fontset,
 /***ja
     @brief フォントセットをダンプする.
 
-    関数 mdebug_dump_face () はフォントセット $FONTSET を stderr に人
-    間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定す
-    る。
+    関数 mdebug_dump_face () はフォントセット $FONTSET を stderr 
+    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $FONTSET を返す。  */
