@@ -57,12 +57,24 @@ static FT_Library ft_library;
 
 typedef struct
 {
-  MSymbol ft_style;
-  MSymbol weight, style, stretch;
+  char *ft_style;
+  int len;
+  enum MFontProperty prop;
+  char *val;
 } MFTtoProp;
 
-static int ft_to_prop_size;
-static MFTtoProp *ft_to_prop;
+static MFTtoProp ft_to_prop[] =
+  { { "italic", 0, MFONT_STYLE, "i" },
+    { "roman", 0, MFONT_STYLE, "r" },
+    { "oblique", 0, MFONT_STYLE, "p" },
+    { "regular", 0, MFONT_WEIGHT, "medium" },
+    { "normal", 0, MFONT_WEIGHT, "medium" },
+    /* We need this entry even if "bold" is in commone_weight[] to
+       handle such style names as "bolditalic" and "boldoblique".  */
+    { "bold", 0, MFONT_WEIGHT, "bold" },
+    { "demi bold", 0, MFONT_WEIGHT, "demibold" },
+    { "demi", 0, MFONT_WEIGHT, "demibold" } };
+static int ft_to_prop_size = sizeof ft_to_prop / sizeof ft_to_prop[0];
 
 /** List of FreeType fonts.  Keys are family names, values are plists
     contains fonts of the corresponding family.  In the deeper plist,
@@ -95,7 +107,6 @@ static MSymbol
 set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
 {
   MFont *font = &ft_info->font;
-  MSymbol style;
   int len;
   char *buf, *p;
   MPlist *charmap_list;
@@ -115,6 +126,10 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
       family = msymbol (buf);
     }
   mfont__set_property (font, MFONT_FAMILY, family);
+  mfont__set_property (font, MFONT_WEIGHT, msymbol ("medium"));
+  mfont__set_property (font, MFONT_STYLE, msymbol ("r"));
+  mfont__set_property (font, MFONT_STRETCH, msymbol ("normal"));
+  mfont__set_property (font, MFONT_ADSTYLE, msymbol (""));
 
   if (ft_face->style_name)
     {
@@ -124,27 +139,36 @@ set_font_info (FT_Face ft_face, MFTInfo *ft_info, MSymbol family)
       for (p = buf; *p; p++)
 	if (*p >= 'A' && *p <= 'Z')
 	  *p += 'a' - 'A';
-      style = msymbol (buf);
-      for (i = 0; i < ft_to_prop_size; i++)
-	if (ft_to_prop[i].ft_style == style)
-	  {
-	    mfont__set_property (font, MFONT_WEIGHT, ft_to_prop[i].weight);
-	    mfont__set_property (font, MFONT_STYLE, ft_to_prop[i].style);
-	    mfont__set_property (font, MFONT_STRETCH, ft_to_prop[i].stretch);
-	    break;
-	  }
-    }
-  else
-    i = ft_to_prop_size;
+      p = buf;
+      while (*p && (*p < 'a' || *p > 'z')) p++;
+      while (*p)
+	{
+	  for (i = 0; i < ft_to_prop_size; i++)
+	    if (! strncmp (ft_to_prop[i].ft_style, p, ft_to_prop[i].len))
+	      {
+		mfont__set_property (font, ft_to_prop[i].prop,
+				     msymbol (ft_to_prop[i].val));
+		p += ft_to_prop[i].len;
+		break;
+	      }
+	  if (i == ft_to_prop_size)
+	    {
+	      char *p1 = p + 1;
+	      MSymbol sym;
 
-  if (i == ft_to_prop_size)
-    {
-      mfont__set_property (font, MFONT_WEIGHT, msymbol ("medium"));
-      mfont__set_property (font, MFONT_STYLE, msymbol ("r"));
-      mfont__set_property (font, MFONT_STRETCH, msymbol ("normal"));
+	      while (*p1 >= 'a' && *p1 <= 'z') p1++;
+	      sym = msymbol__with_len (p, p1 - p);
+	      for (i = MFONT_WEIGHT; i <= MFONT_STYLE; i++)
+		if (msymbol_get (sym, mfont__property_table[i].property))
+		  {
+		    mfont__set_property (font, i, sym);
+		    break;
+		  }
+	      p = p1;
+	    }
+	  while (*p && (*p < 'a' || *p > 'z')) p++;
+	}
     }
-
-  mfont__set_property (font, MFONT_ADSTYLE, msymbol (""));
 
   charmap_list = mplist ();
   mplist_add (charmap_list, Mt, (void *) -1);
@@ -273,6 +297,8 @@ add_font_info (char *filename, MSymbol family)
 
 #ifdef HAVE_FONTCONFIG
 
+static MPlist *fc_generic_family_list;
+
 static void
 fc_list (MSymbol family)
 {
@@ -302,17 +328,22 @@ fc_list (MSymbol family)
 			(FcChar8 *) (msymbol_name (family)));
   os = FcObjectSetBuild (FC_FILE, NULL);
   fs = FcFontList (fc_config, pattern, os);
-  if (fs)
+  if (fs->nfont == 0
+      && family != Mnil
+      && mplist_get (fc_generic_family_list, family)
+      && FcConfigSubstitute (fc_config, pattern, FcMatchPattern) == FcTrue)
+    {
+      FcFontSetDestroy (fs);
+      fs = FcFontList (fc_config, pattern, os);
+    }
+  for (i = 0; i < fs->nfont; i++)
     {
       char *filename;
 
-      for (i = 0; i < fs->nfont; i++)
-	{
-	  FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
-	  add_font_info (filename, family);
-	}
-      FcFontSetDestroy (fs);
+      FcPatternGetString (fs->fonts[i], FC_FILE, 0, (FcChar8 **) &filename);
+      add_font_info (filename, family);
     }
+  FcFontSetDestroy (fs);
   FcObjectSetDestroy (os);
   FcPatternDestroy (pattern);
 }
@@ -735,45 +766,28 @@ MFontDriver mfont__ft_driver =
 int
 mfont__ft_init ()
 {
-  struct {
-    char *ft_style;
-    char *weight, *style, *stretch;
-  } ft_to_prop_name[] =
-    { { "regular", "medium", "r", "normal" },
-      { "medium", "medium", "r", "normal" },
-      { "normal", "medium", "r", "normal" },
-      { "italic", "medium", "i", "normal" },
-      { "bold", "bold", "r", "normal" },
-      { "bolditalic", "bold", "i", "normal" },
-      { "bold italic", "bold", "i", "normal" },
-      { "narrow", "medium", "r", "condensed" },
-      { "narrow italic", "medium", "i", "condensed" },
-      { "narrow bold", "bold", "r", "condensed" },
-      { "narrow bold italic", "bold", "i", "condensed" },
-      { "black", "black", "r", "normal" },
-      { "black italic", "black", "i", "normal" },
-      { "oblique", "medium", "o", "normal" },
-      { "boldoblique", "bold", "o", "normal" },
-      { "bold oblique", "bold", "o", "normal" } };
   int i;
 
   if (FT_Init_FreeType (&ft_library) != 0)
     MERROR (MERROR_FONT_FT, -1);
 
-  ft_to_prop_size = sizeof (ft_to_prop_name) / sizeof (ft_to_prop_name[0]);
-  MTABLE_MALLOC (ft_to_prop, ft_to_prop_size, MERROR_FONT_FT);
   for (i = 0; i < ft_to_prop_size; i++)
-    {
-      ft_to_prop[i].ft_style = msymbol (ft_to_prop_name[i].ft_style);
-      ft_to_prop[i].weight = msymbol (ft_to_prop_name[i].weight);
-      ft_to_prop[i].style = msymbol (ft_to_prop_name[i].style);
-      ft_to_prop[i].stretch = msymbol (ft_to_prop_name[i].stretch);
-    }
+    ft_to_prop[i].len = strlen (ft_to_prop[i].ft_style);
 
   Municode_bmp = msymbol ("unicode-bmp");
   Municode_full = msymbol ("unicode-full");
   Miso10646_1 = msymbol ("iso10646-1");
   Miso8859_1 = msymbol ("iso8859-1");
+
+#ifdef HAVE_FONTCONFIG
+  fc_generic_family_list = mplist ();
+  mplist_push (fc_generic_family_list, msymbol ("serif"), Mt);
+  mplist_push (fc_generic_family_list, msymbol ("sans-serif"), Mt);
+  mplist_push (fc_generic_family_list, msymbol ("monospace"), Mt);
+  mplist_push (fc_generic_family_list, msymbol ("sans"), Mt);
+  mplist_push (fc_generic_family_list, msymbol ("sans serif"), Mt);
+  mplist_push (fc_generic_family_list, msymbol ("mono"), Mt);
+#endif
 
   return 0;
 }
@@ -798,43 +812,92 @@ mfont__ft_fini ()
       M17N_OBJECT_UNREF (ft_font_list);
       ft_font_list = NULL;
     }
-  free (ft_to_prop);
   FT_Done_FreeType (ft_library);
   all_fonts_scaned = 0;
+
+#ifdef HAVE_FONTCONFIG
+  m17n_object_unref (fc_generic_family_list);
+#endif
+
 }
 
 
 #ifdef HAVE_FONTCONFIG
+typedef struct
+{
+  int fc_value;
+  char *m17n_value;
+} FC_vs_M17N_font_prop;
+
+static FC_vs_M17N_font_prop fc_weight_table[] =
+  { { FC_WEIGHT_ULTRALIGHT, "extralight" },
+    { FC_WEIGHT_LIGHT, "light" },
+    { FC_WEIGHT_NORMAL, "normal" },
+    { FC_WEIGHT_MEDIUM, "medium" },
+    { FC_WEIGHT_DEMIBOLD, "demibold" },
+    { FC_WEIGHT_EXTRABOLD, "extrabold" },
+    { FC_WEIGHT_BLACK, "black" },
+    { FC_WEIGHT_MEDIUM, NULL } };
+
+static FC_vs_M17N_font_prop fc_slant_table[] =
+  { { FC_SLANT_ROMAN, "r" },
+    { FC_SLANT_ITALIC, "i" },
+    { FC_SLANT_OBLIQUE, "o" },
+    { FC_SLANT_ROMAN, NULL } };
+
+static FC_vs_M17N_font_prop fc_width_table[] =
+  { { FC_WIDTH_CONDENSED, "condensed" },
+    { FC_WIDTH_SEMIEXPANDED, "semicondensed" },
+    { FC_WIDTH_NORMAL, "normal" },
+    { FC_WIDTH_SEMIEXPANDED, "semiexpanded" },
+    { FC_WIDTH_EXPANDED, "expanded" },
+    { FC_WIDTH_NORMAL, NULL } };
+
+
+static MSymbol
+fc_decode_prop (int val, FC_vs_M17N_font_prop *table)
+{
+  int i;
+
+  for (i = 0; table[i].m17n_value; i++)
+    if (val <= table[i].fc_value)
+      msymbol ("table[i].m17n_value");
+  return msymbol ("table[i - 1].m17n_value");
+}
+
+static int
+fc_encode_prop (char *name, FC_vs_M17N_font_prop *table)
+{
+  int i;
+
+  for (i = 0; table[i].m17n_value && strcmp (name, table[i].m17n_value); i++);
+  return table[i].fc_value;
+}
+
 int
 mfont__ft_parse_name (char *name, MFont *font)
 {
   FcPattern *pat = FcNameParse ((FcChar8 *) name);
-  FcResult result;
   FcChar8 *str;
+  int val;
   double size;
   
   if (! pat)
     return -1;
-  if ((result = FcPatternGetString (pat, FC_FOUNDRY, 0, &str)) == FcResultMatch)
+  if (FcPatternGetString (pat, FC_FOUNDRY, 0, &str) == FcResultMatch)
     mfont__set_property (font, MFONT_FOUNDRY, msymbol ((char *) str));
-  if ((result = FcPatternGetString (pat, FC_FAMILY, 0, &str)) == FcResultMatch)
+  if (FcPatternGetString (pat, FC_FAMILY, 0, &str) == FcResultMatch)
     mfont__set_property (font, MFONT_FAMILY, msymbol ((char *) str));
-  if ((result = FcPatternGetString (pat, FC_STYLE, 0, &str)) == FcResultMatch)
-    {
-      MSymbol style = msymbol ((char *) str);
-      int i;
-
-      for (i = 0; i < ft_to_prop_size; i++)
-	if (ft_to_prop[i].ft_style == style)
-	  {
-	    mfont__set_property (font, MFONT_WEIGHT, ft_to_prop[i].weight);
-	    mfont__set_property (font, MFONT_STYLE, ft_to_prop[i].style);
-	    mfont__set_property (font, MFONT_STRETCH, ft_to_prop[i].stretch);
-	    break;
-	  }
-    }
-  if ((result = FcPatternGetDouble (pat, FC_PIXEL_SIZE, 0, &size))
-      == FcResultMatch)
+  if (FcPatternGetInteger (pat, FC_WEIGHT, 0, &val) == FcResultMatch)
+    mfont__set_property (font, MFONT_WEIGHT,
+			 fc_decode_prop (val, fc_weight_table));
+  if (FcPatternGetInteger (pat, FC_SLANT, 0, &val) == FcResultMatch)
+    mfont__set_property (font, MFONT_STYLE,
+			 fc_decode_prop (val, fc_slant_table));
+  if (FcPatternGetInteger (pat, FC_WIDTH, 0, &val) == FcResultMatch)
+    mfont__set_property (font, MFONT_STRETCH,
+			 fc_decode_prop (val, fc_width_table));
+  if (FcPatternGetDouble (pat, FC_PIXEL_SIZE, 0, &size) == FcResultMatch)
     font->property[MFONT_SIZE] = size * 10;
   FcPatternDestroy (pat);
   return 0;
@@ -846,24 +909,20 @@ mfont__ft_unparse_name (MFont *font)
   FcPattern *pat = FcPatternCreate ();
   MSymbol sym, weight, style, stretch;
   char *name;
-  int i;
 
   if ((sym = (MSymbol) FONT_PROPERTY (font, MFONT_FOUNDRY)) != Mnil)
     FcPatternAddString (pat, FC_FOUNDRY, (FcChar8 *) MSYMBOL_NAME (sym));
   if ((sym = (MSymbol) FONT_PROPERTY (font, MFONT_FAMILY)) != Mnil)
     FcPatternAddString (pat, FC_FAMILY, (FcChar8 *) MSYMBOL_NAME (sym));
-  if ((weight = (MSymbol) FONT_PROPERTY (font, MFONT_WEIGHT)) == Mnil)
-    weight = msymbol ("medium");
-  if ((style = (MSymbol) FONT_PROPERTY (font, MFONT_STYLE)) == Mnil)
-    style = msymbol ("r");
-  if ((stretch = (MSymbol) FONT_PROPERTY (font, MFONT_STRETCH)) == Mnil)
-    stretch = msymbol ("normal");
-  for (i = 0; i < ft_to_prop_size; i++)
-    if (ft_to_prop[i].weight == weight
-	&& ft_to_prop[i].style == style
-	&& ft_to_prop[i].stretch == stretch)
-      FcPatternAddString (pat, FC_STYLE,
-			  (FcChar8 *) MSYMBOL_NAME (ft_to_prop[i].ft_style));
+  if ((weight = (MSymbol) FONT_PROPERTY (font, MFONT_WEIGHT)) != Mnil)
+    FcPatternAddInteger (pat, FC_WEIGHT, fc_encode_prop (MSYMBOL_NAME (weight),
+							 fc_weight_table));
+  if ((style = (MSymbol) FONT_PROPERTY (font, MFONT_STYLE)) != Mnil)
+    FcPatternAddInteger (pat, FC_SLANT, fc_encode_prop (MSYMBOL_NAME (style),
+							fc_slant_table));
+  if ((stretch = (MSymbol) FONT_PROPERTY (font, MFONT_STRETCH)) != Mnil)
+    FcPatternAddInteger (pat, FC_WIDTH, fc_encode_prop (MSYMBOL_NAME (stretch),
+							fc_width_table));
   name = (char *) FcNameUnparse (pat);
   FcPatternDestroy (pat);
   return name;
