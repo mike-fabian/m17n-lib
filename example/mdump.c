@@ -213,6 +213,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <libgen.h>
 
 #include "config.h"
@@ -609,7 +610,13 @@ main (int argc, char **argv)
     mface_put_prop (face, Mfontset, fontset);
     mface_put_prop (face, Msize, (void *) (fontsize * dpi / 100));
     if (family_name)
-      mface_put_prop (face, Mfamily, msymbol (family_name));
+      {
+	char *p;
+
+	for (p = family_name; *p; p++)
+	  if (isupper (*p)) *p = tolower (*p);
+	mface_put_prop (face, Mfamily, msymbol (family_name));
+      }
 
     p = mplist_add (plist, Mdevice, msymbol ("gd"));
     p = mplist_add (p, Mface, face);
