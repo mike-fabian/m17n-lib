@@ -487,7 +487,7 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
 	  if (*base_end == '-'
 	      && ++fields == 7	/* PIXEL_SIZE */)
 	    break;
-	base_len = base_end - names[i];
+	base_len = base_end - names[i] + 1;
 	for (j = i + 1; j < nfonts && ! strncmp (names[i], names[j], base_len);
 	     i = j++)
 	  if (mfont__parse_name_into_font (names[j], Mx, (MFont *) &font) == 0
@@ -555,8 +555,8 @@ typedef struct
 /* The X font driver function SELECT.  */
 
 static MRealizedFont *
-xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
-
+xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size)
+{
   MSymbol family = FONT_PROPERTY (spec, MFONT_FAMILY);
   MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
   int requested_size = request->property[MFONT_SIZE];
@@ -593,11 +593,12 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
 	      else if (xfont->sizes[0] & 1)
 		/* Scalable font.  */
 		size = 0;
-	      else if (limited_size)
-		/* We can't use a larger font.  */
-		continue;
 	      else if (s0 == 0)
 		{
+		  /* No smaller size font.  Try a larger font.  */
+		  if (limited_size)
+		    /* We can't use a larger font.  */
+		    continue;
 		  for (s0 = size + 1; s0 < 64 && ! HAVE_SIZE (xfont, s0); s0++);
 		  if (s0 == 64)
 		    continue;
@@ -605,9 +606,12 @@ xfont_select (MFrame *frame, MFont *spec, MFont *request, int limited_size){
 		}
 	      else
 		{
-		  for (s1 = size + (size - s0) - 1;
-		       s1 > size && HAVE_SIZE (xfont, s1); s1++);
-		  size = (s1 > size ? s1 : s0);
+		  /* Check if there's a better larger size font.  */
+		  int size_limit = size + (size - s0);
+		  for (s1 = size + 1;
+		       s1 < size_limit && ! HAVE_SIZE (xfont, s1);
+		       s1++);
+		  size = (s1 < size_limit ? s1 : s0);
 		}
 	      font->property[MFONT_SIZE] = size * 10;
 
