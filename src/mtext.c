@@ -413,7 +413,7 @@ span (MText *mt1, MText *mt2, int pos, MSymbol not)
 
 
 static int
-count_utf_8_chars (void *data, int nitems)
+count_utf_8_chars (const void *data, int nitems)
 {
   unsigned char *p = (unsigned char *) data;
   unsigned char *pend = p + nitems;
@@ -441,7 +441,7 @@ count_utf_8_chars (void *data, int nitems)
 }
 
 static int
-count_utf_16_chars (void *data, int nitems, int swap)
+count_utf_16_chars (const void *data, int nitems, int swap)
 {
   unsigned short *p = (unsigned short *) data;
   unsigned short *pend = p + nitems;
@@ -861,7 +861,7 @@ mtext__cat_data (MText *mt, unsigned char *p, int nbytes,
 }
 
 MText *
-mtext__from_data (void *data, int nitems, enum MTextFormat format,
+mtext__from_data (const void *data, int nitems, enum MTextFormat format,
 		  int need_copy)
 {
   MText *mt;
@@ -869,7 +869,7 @@ mtext__from_data (void *data, int nitems, enum MTextFormat format,
 
   if (format == MTEXT_FORMAT_US_ASCII)
     {
-      char *p = (char *) data, *pend = p + nitems;
+      const char *p = (char *) data, *pend = p + nitems;
 
       while (p < pend)
 	if (*p++ < 0)
@@ -1216,7 +1216,7 @@ mtext ()
     @c MERROR_MTEXT  */
 
 MText *
-mtext_from_data (void *data, int nitems, enum MTextFormat format)
+mtext_from_data (const void *data, int nitems, enum MTextFormat format)
 {
   if (nitems < 0
       || format < MTEXT_FORMAT_US_ASCII || format >= MTEXT_FORMAT_MAX)
