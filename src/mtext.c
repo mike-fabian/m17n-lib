@@ -2334,7 +2334,7 @@ mtext_text (MText *mt1, int pos, MText *mt2)
 /***ja
     @brief M-text 中の特定の領域で別の M-text を探す.
 
-    関数 mtext_text () は、M-text $MT1 中の $FROM から $TO までの間の
+    関数 mtext_search () は、M-text $MT1 中の $FROM から $TO までの間の
     領域でM-text $MT2 が最初に現われる位置を調べる。テキストプロパティ
     の違いは無視される。もし $FROM が $TO より小さければ探索は位置 
     $FROM から末尾方向へ、そうでなければ $TO から先頭方向へ最大 $TO ま
