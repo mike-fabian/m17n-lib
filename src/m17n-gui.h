@@ -532,6 +532,12 @@ typedef struct
       合のみ。） */
   unsigned anti_alias : 1;
 
+  /***en If nonzero, disable the adjustment of glyph positions to
+      avoid horizontal overlapping at font boundary.  */
+  /***ja 0 でなければ、フォント境界での水平方向のグリフの重なりを避け
+      るためのグリフ位置の調整を無効にする。  */
+  unsigned disable_overlapping_adjustment : 1;
+
   /***en If nonzero, the values are minimum line ascent and descent
       pixels.  */
   /***ja 0 でなければ、値は行の ascent と descent の最小値を示す。  */
