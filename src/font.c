@@ -373,9 +373,9 @@ static char *common_weight[] =
     "light",
     "demilight",
     "book",
+    "regular",
     "normal",
     "medium",
-    "regular",
     "demibold",
     "bold",
     "extrabold",
@@ -844,8 +844,8 @@ mfont__init ()
 
 	  if (sym == Mnil)
 	    return -1;
-	  if (msymbol_put(sym, mfont__property_table[i].property,
-			  (void *) (j + 1)) < 0)
+	  if (msymbol_put (sym, mfont__property_table[i].property,
+			   (void *) (j + 1)) < 0)
 	    return -1;
 	  MLIST_APPEND1 (&mfont__property_table[i], names, sym, MERROR_FONT);
 	}
