@@ -177,7 +177,7 @@ else
   if test "x$HAVE_PKG_CONFIG" = "xyes"; then
     if pkg-config --exists fontconfig; then
       CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
-      FONTCONFIG_LD_FLAGS="`pkg-conifg --libs fontconfig`"
+      FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
       LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
     fi
   fi
