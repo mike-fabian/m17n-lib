@@ -430,6 +430,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		}
 	      if (start + 1 < i)
 		reorder_combining_chars (gstring, start, i);
+	      if (this->type == GLYPH_ANCHOR)
+		break;
 	    }
 	  g = MGLYPH (i);
 	}
