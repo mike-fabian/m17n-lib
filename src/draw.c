@@ -536,7 +536,7 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
       int size = rfont->font.property[MFONT_SIZE];
       int width, lbearing, rbearing;
 
-      if (g == last_g || ! g->combining_code || g->otf_encoded)
+      if (g == last_g || ! g->combining_code)
 	{
 	  /* No combining.  */
 	  if (base->width == 0 && ! base->left_padding && ! base->right_padding
@@ -587,48 +587,53 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to)
 
 	  while (g != last_g && g->combining_code)
 	    {
-	      int combining_code, base_x, base_y, add_x, add_y, off_x, off_y;
-
-	      combining_code = g->combining_code;
-	      if (COMBINING_BY_CLASS_P (combining_code))
-		g->combining_code = combining_code
-		  = combining_code_from_class (COMBINING_CODE_CLASS
-					       (combining_code));
-
-	      rfont = g->rface->rfont;
-	      size = rfont->font.property[MFONT_SIZE];
-	      off_x = (size * (COMBINING_CODE_OFF_X (combining_code) - 128)
-		       / 1000);
-	      off_y = (size * (COMBINING_CODE_OFF_Y (combining_code) - 128)
-		       / 1000);
-	      base_x = COMBINING_CODE_BASE_X (combining_code);
-	      base_y = COMBINING_CODE_BASE_Y (combining_code);
-	      add_x = COMBINING_CODE_ADD_X (combining_code);
-	      add_y = COMBINING_CODE_ADD_Y (combining_code);
+	      int combining_code = g->combining_code;
 
 	      if (begin > g->pos)
 		begin = g->pos;
 	      else if (end < g->to)
 		end = g->to;
 		
-	      g->xoff = left + (width * base_x - g->width * add_x) / 2 + off_x;
-	      if (g->xoff < left)
-		left = g->xoff;
-	      if (g->xoff + g->width > right)
-		right = g->xoff + g->width;
-	      width = right - left;
+	      if (! COMBINING_PRECOMPUTED_P (combining_code))
+		{
+		  int base_x, base_y, add_x, add_y, off_x, off_y;
+
+		  if (COMBINING_BY_CLASS_P (combining_code))
+		    g->combining_code = combining_code
+		      = combining_code_from_class (COMBINING_CODE_CLASS
+						   (combining_code));
+
+		  rfont = g->rface->rfont;
+		  size = rfont->font.property[MFONT_SIZE];
+		  off_x = (size * (COMBINING_CODE_OFF_X (combining_code) - 128)
+			   / 1000);
+		  off_y = (size * (COMBINING_CODE_OFF_Y (combining_code) - 128)
+			   / 1000);
+		  base_x = COMBINING_CODE_BASE_X (combining_code);
+		  base_y = COMBINING_CODE_BASE_Y (combining_code);
+		  add_x = COMBINING_CODE_ADD_X (combining_code);
+		  add_y = COMBINING_CODE_ADD_Y (combining_code);
+
+		  g->xoff = left + (width * base_x - g->width * add_x) / 2 + off_x;
+		  if (g->xoff < left)
+		    left = g->xoff;
+		  if (g->xoff + g->width > right)
+		    right = g->xoff + g->width;
+		  width = right - left;
+
+		  if (base_y < 3)
+		    g->yoff = top + height * base_y / 2;
+		  else
+		    g->yoff = 0;
+		  if (add_y < 3)
+		    g->yoff -= (g->ascent + g->descent) * add_y / 2 - g->ascent;
+		  g->yoff -= off_y;
+		}
+
 	      if (g->xoff + g->lbearing < left + lbearing)
 		lbearing = g->xoff + g->lbearing - left;
 	      if (g->xoff + g->rbearing > left + rbearing)
 		rbearing = g->xoff + g->rbearing - left;
-
-	      if (base_y < 3)
-		g->yoff = top + height * base_y / 2;
-	      else
-		g->yoff = 0;
-	      if (add_y < 3)
-		g->yoff -= (g->ascent + g->descent) * add_y / 2 - g->ascent;
-	      g->yoff -= off_y;
 	      if (g->yoff - g->ascent < top)
 		top = g->yoff - g->ascent;
 	      if (g->yoff + g->descent > bottom)
