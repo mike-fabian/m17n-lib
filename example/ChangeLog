@@ -1,3 +1,8 @@
+2004-12-09  handa  <handa@m17n.org>
+
+	* Makefile.am (common_ldflags): Include libm17n-core.la.
+	(common_ldflags_gui): Include ${common_ldflags}
+	
 2004-12-03  Kenichi Handa  <handa@m17n.org>
 
 	* mimx-anthy.c (AnthyContext): New member ic.
