@@ -16,9 +16,6 @@ See the end for copying conditions.
 
 ** Add <plist> in MFont to allow any property.
 
-** Make such an M-text modifiable that has a format other than
-MTEXT_FORMAT_UTF_8.
-
 ** Allow regex for font properties.
 
 ** Should we change the type of property value from (void *) to
@@ -30,10 +27,13 @@ MPropValue?
 
 ** Improve the handling of scratch gstring.
 
-** Imporve the font selection for characters of the same script.
-
 
 * done
+
+** Make such an M-text modifiable that has a format other than
+MTEXT_FORMAT_UTF_8.
+
+** Imporve the font selection for characters of the same script.
 
 
 * Copyright information
