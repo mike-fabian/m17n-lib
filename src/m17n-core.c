@@ -312,7 +312,7 @@
     #merror_code is set to 0.  Otherwise it is set to -1.
 
     @seealso
-    M17N_INIT (), m17n_status ()  */
+    M17N_FINI (), m17n_status ()  */
 
 /***ja
     @brief m17n ライブラリを初期化する.
@@ -320,8 +320,14 @@
     マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n の関数を
     利用する前に、このマクロをまず呼ばなくてはならない。
     
+    このマクロを複数回呼んでも安全であるが、その場合メモリを解放するた
+    めにマクロ M17N_FINI () を同じ回数呼ぶ必要がある。
+
     外部変数 #merror_code は、初期化が成功すれば 0 に、そうでなければ 
-    -1 に設定される。  */
+    -1 に設定される。  
+
+    @seealso
+    M17N_FINI (), m17n_status ()  */
 
 #define M17N_INIT()
 
@@ -336,14 +342,22 @@
     macro M17N_INIT () is called again.
 
     If the macro M17N_INIT () was called N times, the Nth call of this
-    macro actually free the memory.  */
+    macro actually free the memory. 
+
+    @seealso
+    M17N_INIT (), m17n_status ()  */
 /***ja
     @brief m17n ライブラリを終了する. 
 
     マクロ M17N_FINI () は m17n ライブラリを終了する。m17n ライブラリ
     が使った全てのメモリ領域は解放される。一度このマクロが呼ばれたら、
     マクロ M17N_INIT () が再度呼ばれるまで m17n 関数は使うべきでない。
- */
+
+    マクロ M17N_INIT () が N 回呼ばれていた場合には、このマクロが N 回
+    呼ばれて初めてメモリが解放される。
+
+    @seealso
+    M17N_INIT (), m17n_status ()  */
 
 #define M17N_FINI()
 #endif /* FOR_DOXYGEN */
@@ -572,6 +586,15 @@ m17n_fini_core (void)
 
     The m17n_status () function returns one of these values depending
     on which part of the m17n library is initialized:
+
+	#M17N_NOT_INITIALIZED, #M17N_CORE_INITIALIZED,
+	#M17N_SHELL_INITIALIZED, #M17N_GUI_INITIALIZED  */
+
+/***ja
+    @brief m17n ライブラリのどの部分が初期化されたか報告する.
+
+    関数 m17n_status () はm17n ライブラリのどの部分が初期化されたかに
+    応じて、以下の値のいずれかを返す。
 
 	#M17N_NOT_INITIALIZED, #M17N_CORE_INITIALIZED,
 	#M17N_SHELL_INITIALIZED, #M17N_GUI_INITIALIZED  */
