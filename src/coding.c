@@ -4049,11 +4049,11 @@ mconv_list_codings (MSymbol **symbols)
     @brief Create a code converter bound to a buffer.
 
     The mconv_buffer_converter () function creates a pointer to a code
-    converter for coding system $CODING.  The code converter is bound
+    converter for coding system $NAME.  The code converter is bound
     to buffer area of $N bytes pointed to by $BUF.  Subsequent
     decodings and encodings are done to/from this buffer area.
 
-    $CODING can be #Mnil.  In this case, a coding system associated
+    $NAME can be #Mnil.  In this case, a coding system associated
     with the current locale (LC_CTYPE) is used.
 
     @return
@@ -4064,12 +4064,12 @@ mconv_list_codings (MSymbol **symbols)
 /***ja
     @brief バッファに結び付けられたコードコンバータを作る.
 
-    関数 mconv_buffer_converter () は、コード系 $CODING 用のコードコン
+    関数 mconv_buffer_converter () は、コード系 $NAME 用のコードコン
     バータを作る。このコードコンバータは、$BUF で示される大きさ $N バ
     イトのバッファ領域に結び付けられる。これ以降のデコードおよび
     エンコードは、このバッファ領域に対して行なわれる。
 
-    $CODING は #Mnil であってもよい。この場合は現在のロケール 
+    $NAME は #Mnil であってもよい。この場合は現在のロケール 
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return
@@ -4126,12 +4126,12 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
 /***en
     @brief Create a code converter bound to a stream.
 
-    The mconv_stream_converter () function create a pointer to a code
-    converter for coding system $CODING.  The code converter is bound
+    The mconv_stream_converter () function creates a pointer to a code
+    converter for coding system $NAME.  The code converter is bound
     to stream $FP.  Subsequent decodings and encodings are done
     to/from this stream.
 
-    $CODING can be #Mnil.  In this case, a coding system associated
+    $NAME can be #Mnil.  In this case, a coding system associated
     with the current locale (LC_CTYPE) is used.
 
     @return If the operation was successful, mconv_stream_converter ()
@@ -4142,12 +4142,12 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
 /***ja
     @brief ストリームに結び付けられたコードコンバータを作る.
 
-    関数 mconv_stream_converter () は、コード系 $CODING 用のコードコン
+    関数 mconv_stream_converter () は、コード系 $NAME 用のコードコン
     バータを作る。このコードコンバータは、ストリーム $FP に結び付けら
     れる。これ以降のデコードおよびエンコードは、このストリームに対して
     行なわれる。
 
-    $CODING は #Mnil であってもよい。この場合は現在のロケール 
+    $NAME は #Mnil であってもよい。この場合は現在のロケール 
     (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return 
@@ -4367,7 +4367,8 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
 
     The mconv_decode () function decodes a byte sequence and appends
     the result at the end of M-text $MT.  The source byte sequence is
-    taken from currently bound the buffer area or the stream.
+    taken from either the buffer area or the stream that is currently
+    bound to $CONVERTER.
 
     @return
     If the operation was successful, mconv_decode () returns updated
@@ -4378,8 +4379,8 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     @brief バイト列を M-text にデコードする.
 
     関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
-    $MT の末尾に追加する。デコード元のバイト列は、現在結び付けられている
-    バッファ領域あるいはストリームから取られる。
+    $MT の末尾に追加する。デコード元のバイト列は、$CONVERTER に現在結
+    び付けられているバッファ領域あるいはストリームから取られる。
 
     @return
     もし処理が成功すれば、mconv_decode () は更新された $MT を返す。そ
@@ -4506,7 +4507,7 @@ mconv_decode (MConverter *converter, MText *mt)
 /***en
     @brief Decode a buffer area based on a coding system.
 
-    The mconv_decode_buffer () function decodes $N bytes of buffer
+    The mconv_decode_buffer () function decodes $N bytes of the buffer
     area pointed to by $BUF based on the coding system $NAME.  A
     temporary code converter for decoding is automatically created
     and freed.
@@ -4659,7 +4660,7 @@ mconv_encode (MConverter *converter, MText *mt)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text の一部ををバイト列にエンコードする.
+    @brief M-text の一部をバイト列にエンコードする.
 
     関数 mconv_encode_range () は、M-text $MT の $FROM （含む）から 
     $TO （含まない）までの範囲のテキストをエンコードして、コードコンバー
@@ -4960,7 +4961,7 @@ mconv_ungetc (MConverter *converter, int c)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief コードコンバータを経由で1文字書く.
+    @brief コードコンバータを経由して1文字書く.
 
     関数 mconv_putc () は、コードコンバータ $CONVERTER に現在結び付け
     られているバッファ領域あるいはストリームに文字 $C を書き出す。文字
