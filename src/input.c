@@ -814,7 +814,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
 {
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
-  MIMState *state = ic_info->state;
+  MIMState *state;
 
   /* Find a state to shift to.  If not found, shift to the initial
      state.  */
@@ -1501,16 +1501,17 @@ handle_key (MInputContext *ic)
 }
 
 static void
-reset_ic (MInputContext *ic)
+reset_ic (MInputContext *ic, MSymbol ignore)
 {
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
-  MLIST_RESET (ic_info);
   if (im_info->states)
-    ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
+    /* Shift to the initial state.  */
+    shift_state (ic, Mnil);
   else
     ic_info->state = NULL;
+  MLIST_RESET (ic_info);
   ic_info->map = ic_info->state ? ic_info->state->map : NULL;
   ic_info->state_key_head = ic_info->key_head = 0;
   ic->cursor_pos = ic_info->state_pos = 0;
@@ -1629,7 +1630,7 @@ create_ic (MInputContext *ic)
 	}
       M17N_OBJECT_UNREF (func_args);
     }
-  reset_ic (ic);
+  reset_ic (ic, Mnil);
   return 0;
 }
 
@@ -1690,7 +1691,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       {
 	/* KEY was not handled.  Reset the status and break the
 	   loop.  */
-	reset_ic (ic);
+	reset_ic (ic, Mnil);
 	/* This forces returning 1.  */
 	ic_info->key_unhandled = 1;
 	break;
@@ -1698,7 +1699,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
     if (i++ == 100)
       {
 	mdebug_hook ();
-	reset_ic (ic);
+	reset_ic (ic, Mnil);
 	ic_info->key_unhandled = 1;
 	break;
       }
@@ -1847,6 +1848,7 @@ minput__init ()
   Minput_candidates_draw = msymbol ("input-candidates-draw");
   Minput_set_spot = msymbol ("input-set-spot");
   Minput_toggle = msymbol ("input-toggle");
+  Minput_reset = msymbol ("input-reset");
 
   Mcandidate_list = msymbol_as_managing_key ("  candidate-list");
   Mcandidate_index = msymbol ("  candidate-index");
@@ -1892,7 +1894,9 @@ minput__init ()
   minput_default_driver.destroy_ic = destroy_ic;
   minput_default_driver.filter = filter;
   minput_default_driver.lookup = lookup;
-  minput_default_driver.callback_list = NULL;
+  minput_default_driver.callback_list = mplist ();
+  mplist_put (minput_default_driver.callback_list, Minput_reset,
+	      (void *) reset_ic);
   minput_driver = &minput_default_driver;
   return 0;
 }
@@ -1971,6 +1975,7 @@ MSymbol Minput_candidates_done;
 MSymbol Minput_candidates_draw;
 MSymbol Minput_set_spot;
 MSymbol Minput_toggle;
+MSymbol Minput_reset;
 /*** @} */
 /*=*/
 
@@ -2291,8 +2296,8 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
 	minput__callback (ic, Minput_status_draw);
       if (ic->candidates_changed)
 	minput__callback (ic, Minput_candidates_draw);
-      ic->preedit_changed = ic->status_changed = ic->candidates_changed = 0;
     }
+  ic->preedit_changed = ic->status_changed = ic->candidates_changed = 0;
 
   return ret;
 }
@@ -2416,6 +2421,27 @@ minput_toggle (MInputContext *ic)
   if (ic->im->driver.callback_list)
     minput__callback (ic, Minput_toggle);
   ic->active = ! ic->active;
+}
+
+/***en
+    @brief Reset an input context.
+
+    The minput_reset_ic () function resets the input context $IC by
+    calling a callback functions corresponding to #Minput_reset.  As
+    the current preediting text is committed to $IC->produce, if
+    necessary, a program can extract the text from there.  */
+/***ja
+    @brief 入力コンテクストをリセットする.
+
+    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関数
+    を呼ぶことによって入力コンテクスト $IC をリセットする。現在入力中の
+    テキストは $IC->produced に掃き出されるので、必要ならアプリケーショ
+    ンプログラムはそのテキストをそこから取り出せる。 */
+void
+minput_reset_ic (MInputContext *ic)
+{
+  if (ic->im->driver.callback_list)
+    minput__callback (ic, Minput_reset);
 }
 
 
