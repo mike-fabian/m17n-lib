@@ -112,7 +112,7 @@ extern int m17n_object_unref (void *object);
     #MSymbol はシンボルオブジェクトの型である。内部構造はアプリケーショ
     ンプログラムからは見えない。  */
 
-typedef struct MSymbol *MSymbol;
+typedef struct MSymbolStruct *MSymbol;
 
 /*=*/
 
