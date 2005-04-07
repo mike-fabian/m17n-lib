@@ -293,9 +293,9 @@ load_chartable (FILE *fp, MSymbol type)
 	{
 	  char *p = buf + i;
 
-	  while (! isspace (*p)) 
+	  while (*p && ! isspace (*p)) 
 	    {
-	      if (*p == '\\' || p[1] != '\0')
+	      if (*p == '\\' && p[1] != '\0')
 		{
 		  memmove (p, p + 1, buf + len - (p + 1));
 		  len--;
