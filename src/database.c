@@ -246,13 +246,13 @@ load_chartable (FILE *fp, MSymbol type)
 	i++, to = read_number (buf, &i);
       else
 	to = from;
-      if (from < 0 || to < 0)
-	goto label_error;
+      if (from < 0 || to < from)
+	continue;
 
       while (buf[i] && isspace ((unsigned) buf[i])) i++;
       c = buf[i];
       if (!c)
-	break;
+	continue;
 
       if (type == Mstring)
 	{
@@ -291,6 +291,18 @@ load_chartable (FILE *fp, MSymbol type)
 	}
       else if (type == Msymbol)
 	{
+	  char *p = buf + i;
+
+	  while (! isspace (*p)) 
+	    {
+	      if (*p == '\\' || p[1] != '\0')
+		{
+		  memmove (p, p + 1, buf + len - (p + 1));
+		  len--;
+		}
+	      p++;
+	    }
+	  *p = '\0';
 	  if (! strcmp (buf + i, "nil"))
 	    val = (void *) Mnil;
 	  else
