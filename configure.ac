@@ -294,22 +294,47 @@ if test "x$HAVE_ISPELL" = "xyes"; then
 fi
 
 dnl Check for libwordcut (for Thai).
-AC_CHECK_LIB(wordcut, wordcut_init, HAVE_WORDCUT=yes, HAVE_WORDCUT=no)
+PKG_CHECK_MODULES(WORDCUT, wordcut, HAVE_WORDCUT=yes, HAVE_WORDCUT=no)
 if test "x$HAVE_WORDCUT" = "xyes"; then
-  if test -f "/usr/share/wordcut/tdict.wcd"; then
-    tdict="/usr/share/wordcut/tdict.wcd"
-  elif test -f "/usr/local/share/wordcut/tdict.wcd"; then
-    tdict="/usr/local/share/wordcut/tdict.wcd"
+  save_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $WORDCUT_CFLAGS"
+  AC_TRY_CPP([#include <wordcut/wcwordcut.h>], , HAVE_WORDCUT=no)
+  if test "x$HAVE_WORDCUT" = "xno"; then
+    PKG_CHECK_MODULES(GLIB_2_0, glib-2.0, HAVE_GLIB_2_0=yes, HAVE_GLIB_2_0=no)
+    if test "x$HAVE_GLIB_2_0" = "xyes"; then
+      CPPFLAGS="$CPPFLAGS $GLIB_2_0_CFLAGS"
+      AC_TRY_CPP([#include <wordcut/wcwordcut.h>], HAVE_WORDCUT=yes)
+    fi
   fi
-  echo "TDICT=$tdict"
-  if test "x$tdict" != "x"; then
+  if test "x$HAVE_WORDCUT" = "xyes"; then
+    WORDCUT_LD_FLAGS="$WORDCUT_LIBS"
     AC_DEFINE(HAVE_WORDCUT, 1,
-    	      [Define if you have the wordcut library and header file])
+	      [Define if you have the wordcut library and header file])
     M17N_EXT_LIBS="$M17N_EXT_LIBS wordcut"
-    AC_DEFINE_UNQUOTED(WORDCUT_TDICT, "$tdict", [Define to tdict file name])
-    WORDCUT_LD_FLAGS=-lwordcut
+  else
+    CPPFLAGS="$save_CPPFLAGS"
   fi
-fi
+else
+  AC_CHECK_LIB(wordcut, wordcut_init, HAVE_WORDCUT_OLD=yes)
+  if test "x$HAVE_WORDCUT_OLD" = "xyes"; then
+    if test -f "/usr/share/wordcut/tdict.wcd"; then
+      tdict="/usr/share/wordcut/tdict.wcd"
+    elif test -f "/usr/local/share/wordcut/tdict.wcd"; then
+      tdict="/usr/local/share/wordcut/tdict.wcd"
+    fi
+    echo "TDICT=$tdict"
+    if test "x$tdict" != "x"; then
+      AC_DEFINE_UNQUOTED(WORDCUT_TDICT, "$tdict", [Define to tdict file name])
+      AC_DEFINE(HAVE_WORDCUT_OLD, 1,
+		[Define if you have the old version of wordcut library])
+      WORDCUT_LD_FLAGS=-lwordcut
+      M17N_EXT_LIBS="$M17N_EXT_LIBS wordcut-old"
+    else
+      HAVE_WORDCUT=no
+    fi
+  fi
+fi  
+
 AC_SUBST(WORDCUT_LD_FLAGS)
 
 dnl We can't include X_CFLAGS in AM_CPPFLAGS because the generated
@@ -323,11 +348,13 @@ dnl AC_ARG_ENABLE(xom,
 dnl	      [  --enable-xom            build and install XOM library.],
 dnl	      XOM="$enableval")
 
+SHLIB_EXT=".so"
 case $host_os in
 darwin* | rhapsody*)
-  AC_DEFINE(DLOPEN_SHLIB_EXT, ".dylib",
-  	    [Define to loadable module extention]);;
+  SHLIB_EXT=".dylib";;
 esac
+AC_DEFINE_UNQUOTED(DLOPEN_SHLIB_EXT, "$SHLIB_EXT",
+		   [Define to loadable module extention])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
