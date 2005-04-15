@@ -1,3 +1,9 @@
+2005-04-15  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Check the version of wordcut library and
+	HAVE_WORDCUT or HAVE_WORDCUT_OLD.
+	(DLOPEN_SHLIB_EXT): Define it.
+
 2004-12-27  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.2.0 released.

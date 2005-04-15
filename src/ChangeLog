@@ -1,3 +1,39 @@
+2005-04-15  Kenichi Handa  <handa@m17n.org>
+
+	* word-thai.c: New file.
+
+	* word-thai.h: New file.
+
+	* mtext.c: Include word-thai.h.
+	(wordseg_func_table): New variable.
+	(mtext__init): Initialize wordseg_func_table and call
+	mtext__word_thai_init.
+	(mtext__fini): Call mtext__word_thai_fini, free
+	wordseg_func_table.
+	(MTextWordsegFunc): New type.
+	(mtext__word_segment): New function.
+
+	* mtext.h (wordseg_func_table): Extern it.
+	(mtext__word_segment): Extern it.
+
+	* m17n.c (m17n_init): Fix typo (== -> =).
+
+	* Makefile.am (libm17n_core_la_SOURCES): Include word-thai.[ch].
+	(libm17n_core_la_LIBADD): Add @WORDCUT_LD_FLAGS@.
+
+	* textprop.h (MTEXTPROP_START, MTEXTPROP_END, MTEXTPROP_KEY)
+	(MTEXTPROP_VAL): New macros.
+
+	* input.c (DLOPEN_SHLIB_EXT): Don't define it.
+
+2005-04-07  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (load_chartable): Fix pursing of symbol name.
+
+2005-03-24  Kenichi Handa  <handa@m17n.org>
+
+	* m17n.c (m17n_init): Fix typo (== -> =).
+
 2005-03-11  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.c (m17n_init_win): Set merror_code to MERROR_NONE at first.
