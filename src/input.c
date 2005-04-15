@@ -579,10 +579,6 @@ load_macros (MPlist *plist, MPlist *macros)
       PLIST ::= ( MODULE-NAME FUNCTION * )
    EXTERNALS is a plist of MODULE-NAME vs (MIMExternalModule *).  */
 
-#ifndef DLOPEN_SHLIB_EXT
-#define DLOPEN_SHLIB_EXT ".so"
-#endif
-
 static int
 load_external_module (MPlist *plist, MPlist *externals)
 {
