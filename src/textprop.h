@@ -50,6 +50,10 @@ struct MTextProperty
   void *val;
 };
 
+#define MTEXTPROP_START(prop) (prop)->start
+#define MTEXTPROP_END(prop) (prop)->end
+#define MTEXTPROP_KEY(prop) (prop)->key
+#define MTEXTPROP_VAL(prop) (prop)->val
 
 extern struct MTextPlist *mtext__copy_plist (struct MTextPlist *, 
 					     int from, int to,
