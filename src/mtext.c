@@ -1,5 +1,5 @@
 /* mtext.c -- M-text module.
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -93,6 +93,7 @@
 #include "character.h"
 #include "mtext.h"
 #include "plist.h"
+#include "word-thai.h"
 
 static M17NObjectArray mtext_table;
 
@@ -682,11 +683,15 @@ case_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
 
 /* Internal API */
 
+MCharTable *wordseg_func_table;
+
 int
 mtext__init ()
 {
   M_charbag = msymbol_as_managing_key ("  charbag");
   mtext_table.count = 0;
+  wordseg_func_table = mchartable (Mnil, NULL);
+  mtext__word_thai_init ();
   return 0;
 }
 
@@ -694,6 +699,9 @@ mtext__init ()
 void
 mtext__fini (void)
 {
+  mtext__word_thai_fini ();
+  M17N_OBJECT_UNREF (wordseg_func_table);
+  wordseg_func_table = NULL;
   mdebug__report_object ("M-text", &mtext_table);
 }
 
@@ -1102,6 +1110,21 @@ mtext__eol (MText *mt, int pos)
       return pos;
     }
 }
+
+typedef int (*MTextWordsegFunc) (MText *mt, int pos, int *from, int *to);
+
+int
+mtext__word_segment (MText *mt, int pos, int *from, int *to)
+{
+  int c = mtext_ref_char (mt, pos);
+  MTextWordsegFunc func = (MTextWordsegFunc) mchartable_lookup (wordseg_func_table, c);
+
+  if (func)
+    return (func) (mt, pos, from, to);
+  *from = *to = pos;
+  return -1;
+}
+
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
