@@ -38,14 +38,14 @@ m17n_conv_LDADD = ${common_ldflags}
 
 X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
 
-m17n_edit_SOURCES = medit.c linebreak.c
-m17n_edit_LDADD = ${X_LD_FLAGS} @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
+m17n_edit_SOURCES = medit.c
+m17n_edit_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui} -ldl
 
 m17n_view_SOURCES = mview.c
 m17n_view_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui}
 
-m17n_dump_SOURCES = mdump.c linebreak.c
-m17n_dump_LDADD = @GD_LD_FLAGS@ @WORDCUT_LD_FLAGS@ ${common_ldflags_gui}
+m17n_dump_SOURCES = mdump.c
+m17n_dump_LDADD = @GD_LD_FLAGS@ ${common_ldflags_gui}
 
 # Input method data files.
 
