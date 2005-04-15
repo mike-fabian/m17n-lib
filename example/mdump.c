@@ -635,7 +635,7 @@ main (int argc, char **argv)
   else
     control.ignore_formatting_char = 1;
   if (break_by_word)
-    control.line_break = line_break;
+    control.line_break = mdraw_default_line_break;
 
   if (paper == PAPER_NOLIMIT)
     {
