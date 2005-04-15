@@ -1,3 +1,13 @@
+2005-04-15  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (main): Set control.line_break to
+	mdraw_default_line_break.
+
+	* Makefile.am (m17n_edit_SOURCES): Don't include linebreak.c.
+	(m17n_dump_SOURCES): Likewise.
+	(m17n_edit_LDADD): Don't include @WORDCUT_LD_FLAGS@.
+	(m17n_dump_LDADD): Likewise.
+
 2005-03-09  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.utf8, HELLO.xml, HELLO.html: Fix Telugu line.
