@@ -42,7 +42,7 @@ m17n_init (void)
 {
   int mdebug_mask = MDEBUG_INIT;
 
-  merror_code == MERROR_NONE;
+  merror_code = MERROR_NONE;
   if (m17n__shell_initialized++)
     return;
   m17n_init_core ();
