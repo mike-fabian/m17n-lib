@@ -64,4 +64,8 @@ extern int mtext__bol (MText *mt, int pos);
 
 extern int mtext__eol (MText *mt, int pos);
 
+extern MCharTable *wordseg_func_table;
+
+extern int mtext__word_segment (MText *mt, int pos, int *from, int *to);
+
 #endif /* _M17N_MTEXT_H_ */
