@@ -1,5 +1,18 @@
 2005-04-15  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c: Include mtext.h.
+	(linebreak_table, M_break_at_space, M_break_at_word)
+	(M_break_at_any, M_kinsoku_bol, M_kinsoku_eol): New variables.
+	(compose_glyph_string): Check POS before getting Mface text
+	property.
+	(truncate_gstring): Give correct TO arg to line_break function.
+	(GET_LB_TYPE): New macro.
+	(find_break_backward, find_break_forward): New functions.
+	(mdraw__init): Initialize the above new variables.
+	(mdraw__fini): Free linebreak_table.
+	(mdraw_default_line_break): Use find_break_backward and
+	find_break_forward.
+
 	* word-thai.c: New file.
 
 	* word-thai.h: New file.
