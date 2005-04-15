@@ -95,6 +95,7 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <locale.h>
+#include <dlfcn.h>
 
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
@@ -171,6 +172,8 @@ MText *mt;
 int nchars;			/* == mtext_len (mt) */
 MDrawControl control, input_status_control;
 MTextProperty *selection;
+
+MSymbol Mword;
 
 MFace *face_default;
 MFace *face_xxx_large;
@@ -490,7 +493,7 @@ redraw_cursor (int clear)
 
 /* Update the information about the location of cursor to the position
    $POS.  If $FULL is nonzero, update the information fully only from
-   the information about the top line.  Otherwise, truct the current
+   the information about the top line.  Otherwise, trust the current
    information in the structure $CUR.  */
 void
 update_cursor (int pos, int full)
@@ -795,14 +798,8 @@ show_cursor (XtPointer client_data)
 
   if (control.cursor_pos < nchars)
     {
-      MSymbol sym = Mnil;
+      MSymbol sym = mtext_get_prop (mt, control.cursor_pos, Mlanguage);
 
-      if (control.cursor_pos > 0
-	  && mtext_ref_char (mt, control.cursor_pos - 1) != '\n')
-	sym = mtext_get_prop (mt, control.cursor_pos - 1, Mlanguage);
-      if (sym == Mnil)
-	sym = mtext_get_prop (mt, control.cursor_pos, Mlanguage);
-    
       if (sym == Mnil)
 	{
 	  XtSetArg (arg[0], XtNborderWidth, 0);
@@ -902,8 +899,9 @@ delete_char (int n)
 {
   MDrawMetric rect;
   MDrawGlyphInfo info;
-  int old_y1, new_y1;
+  int y0, old_y1, new_y1;
   int from, to;
+  int line_from = cursor.line_from;
 
   if (n > 0)
     from = cursor.from, to = from + n;
@@ -942,6 +940,10 @@ delete_char (int n)
     update_top (top.from);
   update_cursor (from, 1);
 
+  y0 = cur.y0;
+  if (line_from != cursor.line_from)
+    y0 -= 1;
+
   TEXT_EXTENTS (cur.from, bol (to, 1), rect);
   new_y1 = cur.y0 + rect.height;
 
@@ -956,6 +958,7 @@ insert_chars (MText *newtext)
   int n = mtext_len (newtext);
   MDrawMetric rect;
   int y0, old_y1, new_y1;
+  int line_from;
 
   if (SELECTEDP ())
     {
@@ -966,8 +969,14 @@ insert_chars (MText *newtext)
     }
 
   y0 = cur.y0;
+  if (cursor.line_from > 0
+      && mtext_ref_char (mt, cursor.line_from - 1) != '\n')
+    y0 -= control.min_line_descent;
+
   TEXT_EXTENTS (cur.from, bol (cur.to - 1, 1), rect);
   old_y1 = y0 + rect.height;
+
+  line_from = cursor.line_from;
 
   /* Now insert chars.  */
   mtext_ins (mt, cursor.from, newtext);
@@ -981,6 +990,57 @@ insert_chars (MText *newtext)
 
   update_region (y0, old_y1, new_y1);
   update_selection ();
+}
+
+
+int
+word_constituent_p (int c)
+{
+  MSymbol category = (MSymbol) mchar_get_prop (c, Mcategory);
+  char *name = category != Mnil ? msymbol_name (category) : NULL;
+
+  return (name && (name[0] == 'L' || name[0] == 'M'));
+}
+
+
+void
+forward_word ()
+{
+  int pos = cursor.from;
+
+  while (pos < nchars && ! word_constituent_p (mtext_ref_char (mt, pos)))
+    pos++;
+  if (pos < nchars)
+    {
+      MTextProperty *prop = mtext_get_property (mt, pos, Mword);
+
+      if (prop)
+	pos = mtext_property_end (prop);
+      else
+	while (pos < nchars && word_constituent_p (mtext_ref_char (mt, pos)))
+	  pos++;
+    }
+  update_cursor (pos, 0);
+}
+
+void
+backward_word ()
+{
+  int pos = cursor.from;
+
+  while (pos > 0 && ! word_constituent_p (mtext_ref_char (mt, pos - 1)))
+    pos--;
+  if (pos > 0)
+    {
+      MTextProperty *prop = mtext_get_property (mt, pos - 1, Mword);
+
+      if (prop)
+	pos = mtext_property_start (prop);
+      else
+	while (pos > 0 && word_constituent_p (mtext_ref_char (mt, pos - 1)))
+	  pos--;
+    }
+  update_cursor (pos, 0);
 }
 
 
@@ -1589,6 +1649,22 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	ScrollProc (w, NULL, (XtPointer) -1);
       break;
 
+    case XK_b:
+      if (key_event->state >= Mod1Mask)
+	{
+	  lose_selection (NULL, NULL);
+	  backward_word ();
+	  break;
+	}
+
+    case XK_f:
+      if (key_event->state >= Mod1Mask)
+	{
+	  lose_selection (NULL, NULL);
+	  forward_word ();
+	  break;
+	}
+
     default:
       if (ret > 0)
 	{
@@ -1735,8 +1811,6 @@ BidiProc (Widget w, XtPointer client_data, XtPointer call_data)
   redraw (0, win_height, 1, 0);
 }
 
-extern int line_break (MText *mt, int pos, int from, int to, int line, int y);
-
 void
 LineBreakProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
@@ -1748,7 +1822,7 @@ LineBreakProc (Widget w, XtPointer client_data, XtPointer call_data)
   else
     {
       control.max_line_width = win_width;
-      control.line_break = (data == 1 ? NULL : line_break);
+      control.line_break = (data == 1 ? NULL : mdraw_default_line_break);
     }
   for (i = 0; i < 3; i++)
     {
@@ -1761,6 +1835,25 @@ LineBreakProc (Widget w, XtPointer client_data, XtPointer call_data)
 
   update_cursor (cursor.from, 1);
   redraw (0, win_height, 1, 0);
+}
+
+void
+FilterProc (Widget w, XtPointer client_data, XtPointer call_data)
+{
+  char *filter_module = (char *) client_data;
+  void *handle;
+  void (*func) (MText *, int, int);
+
+  if (! SELECTEDP ())
+    return;
+  handle = dlopen (filter_module, RTLD_NOW);
+  if (! handle)
+    return;
+  *(void **) (&func) = dlsym (handle, "filter");
+  if (func)
+    (*func) (mt, mtext_property_start (selection),
+	     mtext_property_end (selection));
+  dlclose (handle);
 }
 
 void
@@ -2420,6 +2513,7 @@ main (int argc, char **argv)
   int font_width, font_ascent, font_descent;
   int with_xim = 0;
   int i, j;
+  char *filter = NULL;
 
   setlocale (LC_ALL, "");
   /* Create the top shell.  */
@@ -2468,6 +2562,11 @@ main (int argc, char **argv)
 	{
 	  with_xim = 1;
 	}
+      else if (! strcmp (argv[i], "--filter"))
+	{
+	  i++;
+	  filter = argv[i];
+	}
       else if (argv[i][0] != '-')
 	{
 	  filename = strdup (argv[i]);
@@ -2491,6 +2590,8 @@ main (int argc, char **argv)
   serialized = 0;
 
   nchars = mtext_len (mt);
+
+  Mword = msymbol ("word");
 
   {
     MFace *face = mface ();
@@ -2748,6 +2849,14 @@ main (int argc, char **argv)
     InputMethodMenus = malloc (sizeof (Widget) * (num_input_methods + 2));
     for (i = 0; i < num_input_methods + 2; i++)
       InputMethodMenus[i] = menus[i].w;
+
+    if (filter)
+      {
+	SetMenu (menus[0], 0, filter, NULL, FilterProc, filter, 0);
+	w = create_menu_button (ShellWidget, HeadWidget, w, "Filter",
+				"Filter Menu", menus, 1,
+				"Select filter to run");
+      }
 
     input_status_width = font_width * 8;
     input_status_height = (font_ascent + font_descent) * 2.4;
