@@ -1,5 +1,19 @@
 2005-04-15  Kenichi Handa  <handa@m17n.org>
 
+	* medit.c: Include dlfcn.h.
+	(Mword): New variable.
+	(show_cursor): Check Mlanguage text property of the cursor
+	position only.
+	(delete_char): Pay attention to the change of line beginning
+	position because of filling.
+	(insert_chars): Likewise.
+	(word_constituent_p, forward_word, backward_word): New functions.
+	(KeyProc): Assign XK_b and XK_f for back/foreward word.
+	(line_break): Delete extern.
+	(LineBreakProc): Use mdraw_default_line_break.
+	(FilterProc): New function.
+	(main): Handle --filter arg.  Initialize Mword.  
+
 	* mdump.c (main): Set control.line_break to
 	mdraw_default_line_break.
 
