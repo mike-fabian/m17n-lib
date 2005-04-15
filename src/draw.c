@@ -64,6 +64,7 @@
 #include "m17n-misc.h"
 #include "internal.h"
 #include "symbol.h"
+#include "mtext.h"
 #include "textprop.h"
 #include "internal-gui.h"
 #include "face.h"
@@ -82,6 +83,10 @@ static MSymbol M_glyph_string;
 static MSymbol Minherited;
 /* Special categories */
 static MSymbol McatCc, McatCf;
+
+static MCharTable *linebreak_table;
+static MSymbol M_break_at_space, M_break_at_word, M_break_at_any;
+static MSymbol M_kinsoku_bol, M_kinsoku_eol;
 
 
 /* Glyph-string composer.  */
@@ -264,15 +269,20 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    break;
 	  if (pos == face_change)
 	    {
-	      MFace *faces[64];
-	      int num = mtext_get_prop_values (mt, pos, Mface,
-					       (void **) faces, 64);
+	      if (pos < mtext_nchars (mt))
+		{
+		  MFace *faces[64];
+		  int num = mtext_get_prop_values (mt, pos, Mface,
+						   (void **) faces, 64);
 
-	      mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
-	      if (face_change == mtext_nchars (mt))
-		face_change++;
-	      rface = (num > 0 ? mface__realize (frame, faces, num, size)
-		       : default_rface);
+		  mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
+		  if (face_change == mtext_nchars (mt))
+		    face_change++;
+		  rface = (num > 0 ? mface__realize (frame, faces, num, size)
+			   : default_rface);
+		}
+	      else
+		rface = default_rface;
 	    }
 	  stop = to;
 	  if (stop > face_change)
@@ -1526,7 +1536,7 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   if (gstring->control.line_break)
     {
       pos = (*gstring->control.line_break) (mt, gstring->from + i,
-					    gstring->from, gstring->to, 0, 0);
+					    gstring->from, gstring->from + i, 0, 0);
       if (pos <= gstring->from)
 	pos = gstring->from + 1;
       else if (pos >= gstring->to)
@@ -1732,6 +1742,100 @@ find_glyph_in_gstring (MGlyphString *gstring, int pos, int forwardp)
   return g;
 }
 
+#define GET_LB_TYPE(MT, POS, LB_TYPE)					\
+  do {									\
+    int c = mtext_ref_char ((MT), (POS));				\
+    (LB_TYPE) = ((c == ' ' || c == '\t' || c == '\n') ? M_kinsoku_bol	\
+		 : mchartable_lookup (linebreak_table, c));		\
+  } while (0)
+
+static int
+find_break_backward (MText *mt, int pos, int limit)
+{
+  MSymbol lb_type;
+
+  if (pos <= limit)
+    return limit;
+
+  GET_LB_TYPE (mt, pos, lb_type);
+  if (lb_type == M_kinsoku_bol)
+    return find_break_backward (mt, pos - 1, limit);
+  if (lb_type == Mnil)
+    {
+      while (pos > limit)
+	{
+	  GET_LB_TYPE (mt, pos - 1, lb_type);
+	  if (lb_type != Mnil)
+	    break;
+	  pos--;
+	}
+    }
+  else if (lb_type == M_break_at_word)
+    {
+      int beg = limit, end = mtext_nchars (mt);
+      int in_word = mtext__word_segment (mt, pos, &beg, &end);
+
+      if (in_word)
+	pos = beg;
+      else if (beg > limit)
+	{
+	  end = beg;
+	  beg = limit;
+	  mtext__word_segment (mt, beg - 1, &beg, &end);
+	  pos = beg;
+	}
+    }
+  while (pos > limit)
+    {
+      GET_LB_TYPE (mt, pos - 1, lb_type);
+      if (lb_type != M_kinsoku_eol)
+	return pos;
+      pos--;
+    }
+  return limit;
+}
+
+static int
+find_break_forward (MText *mt, int pos, int limit)
+{
+  MSymbol lb_type;
+
+  GET_LB_TYPE (mt, pos, lb_type);
+  if (lb_type == Mnil)
+    {
+      while (pos < limit)
+	{
+	  pos++;
+	  GET_LB_TYPE (mt, pos, lb_type);
+	}
+    }
+  else if (lb_type == M_break_at_word)
+    {
+      int beg = 0, end = mtext_nchars (mt);
+      int in_word = mtext__word_segment (mt, pos, &beg, &end);
+
+      if (! in_word)
+	pos = end;
+      else if (end < limit)
+	{
+	  beg = end;
+	  pos = end = mtext_nchars (mt);
+	  mtext__word_segment (mt, pos, &beg, &end);
+	  pos = end;
+	}
+    }
+  else if (lb_type == M_kinsoku_bol)
+    pos++;
+  while (pos < limit)
+    {
+      GET_LB_TYPE (mt, pos, lb_type);
+      if (lb_type != M_kinsoku_bol)
+	return pos;
+      pos++;
+    }
+  return limit;
+}
+
 
 /* for debugging... */
 char work[16];
@@ -1821,6 +1925,12 @@ mdraw__init ()
   fribidi_set_mirroring (TRUE);
 #endif
 
+  M_break_at_space = msymbol ("bs");
+  M_break_at_word = msymbol ("bw");
+  M_break_at_any = msymbol ("ba");
+  M_kinsoku_bol = msymbol ("kb");
+  M_kinsoku_eol = msymbol ("ke");
+
   return 0;
 }
 
@@ -1828,6 +1938,8 @@ void
 mdraw__fini ()
 {
   MLIST_FREE1 (&scratch_gstring, glyphs);
+  M17N_OBJECT_UNREF (linebreak_table);
+  linebreak_table = NULL;
 }
 
 /*** @} */
@@ -2901,31 +3013,32 @@ int
 mdraw_default_line_break (MText *mt, int pos,
 			  int from, int to, int line, int y)
 {
-  int c = mtext_ref_char (mt, pos);
-  int orig_pos = pos;
+  int p;
 
-  if (c == ' ' || c == '\t')
+  if (! linebreak_table)
     {
-      pos++;
-      while (pos < to
-	     && ((c = mtext_ref_char (mt, pos)) == ' ' || c == '\t'))
-	pos++;
+      MDatabase *mdb = mdatabase_find (Mchar_table, Msymbol,
+				       msymbol ("linebreak"), Mnil);
+
+      if (mdb)
+	linebreak_table = mdatabase_load (mdb);
+      if (! linebreak_table)
+	linebreak_table = mchartable (Msymbol, Mnil);
     }
-  else
+
+  if (pos > from)
     {
-      while (pos > from)
-	{
-	  if (c == ' ' || c == '\t')
-	    break;
-	  pos--;
-	  c = mtext_ref_char (mt, pos);
-	}
-      if (pos == from)
-	pos = orig_pos;
-      else
-	pos++;
+      p = find_break_backward (mt, pos, from);
+      if (p > from)
+	return p;
     }
-  return pos;
+  if (pos < to)
+    {
+      p = find_break_forward (mt, pos, to);
+      if (p < to)
+	return p;
+    }
+  return to;
 }
 
 /*=*/
