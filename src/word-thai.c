@@ -20,6 +20,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.  */
 
+#include <stdio.h>
+
 #include "config.h"
 #include "m17n-core.h"
 #include "m17n-misc.h"
@@ -66,7 +68,7 @@ static MTextProperty *
 wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 {
   gulong i, count;
-  MTextProperty *prop;
+  MTextProperty *prop = NULL;
 
   if (! word_vector)
     word_vector = wc_word_vector_new ();
@@ -134,9 +136,9 @@ static MTextProperty *
 wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 {
   int i, last;
-  MTextProperty *prop;
+  MTextProperty *prop = NULL;
 
-  wc_wordcut_cut (&wordcut, (char *) tis, &wordcut_result);
+  wordcut_cut (&wordcut, (char *) tis, &wordcut_result);
   wordcut_result_used = 1;
   for (i = 0, last = from; i < wordcut_result.count; i++)
     {
@@ -154,7 +156,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 	    M17N_OBJECT_UNREF (this);
 	}
 
-      last = from + wordcut_result.start[i]
+      last = from + wordcut_result.start[i];
       mtext_attach_property (mt, last, last + wordcut_result.offset[i], prop);
       if (pos >= last && pos < last + wordcut_result.offset[i])
 	prop = this;
@@ -162,6 +164,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 	m17n_object_unref (prop);
       last += wordcut_result.offset[i];
     }
+  return prop;
 }
 
 #else  /* not HAVE_WORDCUT nor HAVE_WORDCUT_OLD */
