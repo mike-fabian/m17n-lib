@@ -1,3 +1,7 @@
+2005-04-16  Kenichi Handa  <handa@m17n.org>
+
+	* word-thai.c: Include <stdio.h>.
+
 2005-04-15  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c: Include mtext.h.
