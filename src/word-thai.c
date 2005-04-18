@@ -21,6 +21,7 @@
    02111-1307, USA.  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "config.h"
 #include "m17n-core.h"
@@ -180,6 +181,13 @@ fini_wordseg_library (void)
 {
   return;
 }
+
+static MTextProperty *
+wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
+{
+  return NULL;
+}
+
 
 #endif  /* not HAVE_WORDCUT nor HAVE_WORDCUT_OLD */
 
