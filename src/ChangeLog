@@ -3,6 +3,7 @@
 	* word-thai.c: Include stdlib.h.
 	(wordseg_propertize): Add dummy function for the case that wordcut
 	library doesn't exist.
+	(wordseg_propertize): Fix for old wordcut library.
 
 2005-04-16  Kenichi Handa  <handa@m17n.org>
 
