@@ -157,12 +157,14 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 	    M17N_OBJECT_UNREF (this);
 	}
 
+      this = mtext_property (Mthai_wordseg, Mt,
+			     MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
       last = from + wordcut_result.start[i];
-      mtext_attach_property (mt, last, last + wordcut_result.offset[i], prop);
+      mtext_attach_property (mt, last, last + wordcut_result.offset[i], this);
       if (pos >= last && pos < last + wordcut_result.offset[i])
 	prop = this;
       else
-	m17n_object_unref (prop);
+	m17n_object_unref (this);
       last += wordcut_result.offset[i];
     }
   return prop;
