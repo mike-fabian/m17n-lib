@@ -1,3 +1,9 @@
+2005-04-18  Kenichi Handa  <handa@m17n.org>
+
+	* word-thai.c: Include stdlib.h.
+	(wordseg_propertize): Add dummy function for the case that wordcut
+	library doesn't exist.
+
 2005-04-16  Kenichi Handa  <handa@m17n.org>
 
 	* word-thai.c: Include <stdio.h>.
