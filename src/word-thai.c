@@ -99,8 +99,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 	  mtext_attach_property (mt, from, from + word->len, this);
 	  if (pos >= from && pos < from + word->len)
 	    prop = this;
-	  else
-	    M17N_OBJECT_UNREF (this);
+	  M17N_OBJECT_UNREF (this);
 	  from += word->len;
 	}
     }
@@ -150,11 +149,10 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 	  this = mtext_property (Mthai_wordseg, Mnil,
 				 MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
 	  mtext_attach_property (mt, last, from + wordcut_result.start[i],
-				 prop);
+				 this);
 	  if (pos >= last && pos < from + wordcut_result.start[i])
 	    prop = this;
-	  else
-	    M17N_OBJECT_UNREF (this);
+	  M17N_OBJECT_UNREF (this);
 	}
 
       this = mtext_property (Mthai_wordseg, Mt,
@@ -163,8 +161,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
       mtext_attach_property (mt, last, last + wordcut_result.offset[i], this);
       if (pos >= last && pos < last + wordcut_result.offset[i])
 	prop = this;
-      else
-	m17n_object_unref (this);
+      m17n_object_unref (this);
       last += wordcut_result.offset[i];
     }
   return prop;
@@ -244,7 +241,6 @@ thai_wordseg (MText *mt, int pos, int *from, int *to)
   *from = MTEXTPROP_START (prop);
   *to = MTEXTPROP_END (prop);
   in_word = MTEXTPROP_VAL (prop) == Mt;
-  M17N_OBJECT_UNREF (prop);
   return in_word;
 }
 
