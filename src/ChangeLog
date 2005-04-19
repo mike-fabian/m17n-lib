@@ -1,3 +1,9 @@
+2005-04-19  Kenichi Handa  <handa@m17n.org>
+
+	* word-thai.c (wordseg_propertize): Always unref the attached
+	property.
+	(thai_wordseg): Don't unref the property.
+
 2005-04-18  Kenichi Handa  <handa@m17n.org>
 
 	* word-thai.c: Include stdlib.h.
