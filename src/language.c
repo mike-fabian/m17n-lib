@@ -47,6 +47,7 @@ mlang__init ()
 	{"sq", "Albanian"},
 	{"am", "Amharic"},
 	{"ar", "Arabic"},
+	{"an", "Aragonese"},
 	{"hy", "Armenian"},
 	{"as", "Assamese"},
 	{"ay", "Aymara"},
