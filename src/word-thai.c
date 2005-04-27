@@ -24,6 +24,9 @@
 #include <stdlib.h>
 
 #include "config.h"
+
+#ifdef HAVE_THAI_WORDSEG
+
 #include "m17n-core.h"
 #include "m17n-misc.h"
 #include "internal.h"
@@ -42,7 +45,69 @@ static MTextProperty *wordseg_propertize (MText *mt, int pos, int from, int to,
 static int wordseg_library_initialized;
 static MSymbol Mthai_wordseg;
 
-#ifdef HAVE_WORDCUT
+#ifdef HAVE_LIBTHAI
+
+#include <thai/thbrk.h>
+
+static int
+init_wordseg_library (void)
+{
+  return 0;
+}
+
+static void
+fini_wordseg_library (void)
+{
+  return;
+}
+
+static MTextProperty *
+wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
+{
+  int len = to - from;
+  int *breaks = alloca ((sizeof (int)) * len);
+  int count = th_brk ((thchar_t *) tis, breaks, len);
+  MTextProperty *prop = NULL;
+
+  if (count == 0)
+    {
+      prop = mtext_property (Mthai_wordseg, Mt,
+			     MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
+      mtext_attach_property (mt, from, to, prop);
+      M17N_OBJECT_UNREF (prop);
+    }
+  else
+    {
+      int last, i;
+      MTextProperty *this;
+
+      for (i = 0, last = from; i < count; i++)
+	{
+	  this = mtext_property (Mthai_wordseg, Mt,
+				 MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
+	  mtext_attach_property (mt, last, from + breaks[i], this);
+	  if (pos >= last && pos < from + breaks[i])
+	    prop = this;
+	  M17N_OBJECT_UNREF (this);
+	  last = from + breaks[i];
+	}
+      if (last < to)
+	{
+	  this = mtext_property (Mthai_wordseg, Mt,
+				 MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
+	  mtext_attach_property (mt, last, to, this);
+	  if (pos >= last && pos < to)
+	    prop = this;
+	  M17N_OBJECT_UNREF (this);
+	}
+    }
+
+  if (! prop)
+    mdebug_hook ();
+  return prop;
+}
+
+#elif HAVE_WORDCUT
 
 #include <wordcut/wcwordcut.h>
 
@@ -106,7 +171,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
   return prop;
 }
 
-#elif HAVE_WORDCUT_OLD
+#else  /* HAVE_WORDCUT_OLD */
 
 #include <wordcut/wordcut.h>
 
@@ -167,28 +232,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
   return prop;
 }
 
-#else  /* not HAVE_WORDCUT nor HAVE_WORDCUT_OLD */
-
-int
-init_wordseg_library (void)
-{  
-  return -1;
-}
-
-void
-fini_wordseg_library (void)
-{
-  return;
-}
-
-static MTextProperty *
-wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
-{
-  return NULL;
-}
-
-
-#endif  /* not HAVE_WORDCUT nor HAVE_WORDCUT_OLD */
+#endif  /* not HAVE_LIBTHA, HAVE_WORDCUT nor HAVE_WORDCUT_OLD */
 
 int
 thai_wordseg (MText *mt, int pos, int *from, int *to)
@@ -244,12 +288,15 @@ thai_wordseg (MText *mt, int pos, int *from, int *to)
   return in_word;
 }
 
+#endif	/* HAVE_THAI_WORDSEG */
+
 
 /* Internal API */
 
 int
 mtext__word_thai_init ()
 {
+#ifdef HAVE_THAI_WORDSEG
   if (! wordseg_library_initialized)
     {
       if (init_wordseg_library () < 0)
@@ -259,15 +306,18 @@ mtext__word_thai_init ()
     }
   mchartable_set_range (wordseg_func_table, THAI_BEG, THAI_END,
 			(void *) thai_wordseg);
+#endif
   return 0;
 }
 
 void
 mtext__word_thai_fini ()
 {
+#ifdef HAVE_THAI_WORDSEG
   if (wordseg_library_initialized)
     {
       fini_wordseg_library ();
       wordseg_library_initialized = 0;
     }
+#endif
 }
