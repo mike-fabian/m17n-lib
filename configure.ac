@@ -293,9 +293,23 @@ if test "x$HAVE_ISPELL" = "xyes"; then
   M17N_EXT_LIBS="$M17N_EXT_LIBS ispell"
 fi
 
-dnl Check for libwordcut (for Thai).
+dnl Check for Thai word-segmentation library.
+dnl If we have one, define HAVE_THAI_WORDSEG and one of these:
+dnl   HAVE_LIBTHAI, HAVE_WORDCUT, or HAVE_WORDCUT_OLD
+dnl In addition, set THAI_WORDSEG_LD_FLAGS to a proper value.
+
+PKG_CHECK_MODULES(LIBTHAI, libthai, HAVE_LIBTHAI=yes, HAVE_LIBTHAI=no)
 PKG_CHECK_MODULES(WORDCUT, wordcut, HAVE_WORDCUT=yes, HAVE_WORDCUT=no)
-if test "x$HAVE_WORDCUT" = "xyes"; then
+
+if test "x$HAVE_LIBTHAI" == "xyes"; then
+
+  AC_DEFINE(HAVE_LIBTHAI, 1, [Define if you have libthai])
+  THAI_WORDSEG_LD_FLAGS="$LIBTHAI_LIBS"
+  M17N_EXT_LIBS="$M17N_EXT_LIBS libthai"
+  HAVE_THAI_WORDSEG=yes
+
+elif test "x$HAVE_WORDCUT" = "xyes"; then
+
   save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $WORDCUT_CFLAGS"
   AC_TRY_CPP([#include <wordcut/wcwordcut.h>], , HAVE_WORDCUT=no)
@@ -307,14 +321,17 @@ if test "x$HAVE_WORDCUT" = "xyes"; then
     fi
   fi
   if test "x$HAVE_WORDCUT" = "xyes"; then
-    WORDCUT_LD_FLAGS="$WORDCUT_LIBS"
+    THAI_WORDSEG_LD_FLAGS="$WORDCUT_LIBS"
     AC_DEFINE(HAVE_WORDCUT, 1,
 	      [Define if you have the wordcut library and header file])
     M17N_EXT_LIBS="$M17N_EXT_LIBS wordcut"
+    HAVE_THAI_WORDSEG=yes
   else
     CPPFLAGS="$save_CPPFLAGS"
   fi
+
 else
+
   AC_CHECK_LIB(wordcut, wordcut_init, HAVE_WORDCUT_OLD=yes)
   if test "x$HAVE_WORDCUT_OLD" = "xyes"; then
     if test -f "/usr/share/wordcut/tdict.wcd"; then
@@ -324,18 +341,23 @@ else
     fi
     echo "TDICT=$tdict"
     if test "x$tdict" != "x"; then
-      AC_DEFINE_UNQUOTED(WORDCUT_TDICT, "$tdict", [Define to tdict file name])
       AC_DEFINE(HAVE_WORDCUT_OLD, 1,
 		[Define if you have the old version of wordcut library])
-      WORDCUT_LD_FLAGS=-lwordcut
+      AC_DEFINE_UNQUOTED(WORDCUT_TDICT, "$tdict", [Define tdict file name])
+      THAI_WORDSEG_LD_FLAGS=-lwordcut
       M17N_EXT_LIBS="$M17N_EXT_LIBS wordcut-old"
+      HAVE_THAI_WORDSEG=yes
     else
       HAVE_WORDCUT=no
     fi
   fi
 fi  
 
-AC_SUBST(WORDCUT_LD_FLAGS)
+if test "x$HAVE_THAI_WORDSEG" = "xyes"; then
+  AC_DEFINE(HAVE_THAI_WORDSEG, 1,
+            [Define if you have some Thai word-segmentation library])
+fi
+AC_SUBST(THAI_WORDSEG_LD_FLAGS)
 
 dnl We can't include X_CFLAGS in AM_CPPFLAGS because the generated
 dnl Makefile put ${AM_CPPFLAGS} before ${CPPFLAGS} and that leads to
