@@ -93,7 +93,9 @@
 #include "character.h"
 #include "mtext.h"
 #include "plist.h"
+#ifdef HAVE_THAI_WORDSEG
 #include "word-thai.h"
+#endif
 
 static M17NObjectArray mtext_table;
 
@@ -691,7 +693,9 @@ mtext__init ()
   M_charbag = msymbol_as_managing_key ("  charbag");
   mtext_table.count = 0;
   wordseg_func_table = mchartable (Mnil, NULL);
+#ifdef HAVE_THAI_WORDSEG
   mtext__word_thai_init ();
+#endif
   return 0;
 }
 
@@ -699,7 +703,9 @@ mtext__init ()
 void
 mtext__fini (void)
 {
+#ifdef HAVE_THAI_WORDSEG
   mtext__word_thai_fini ();
+#endif
   M17N_OBJECT_UNREF (wordseg_func_table);
   wordseg_func_table = NULL;
   mdebug__report_object ("M-text", &mtext_table);
@@ -1117,7 +1123,8 @@ int
 mtext__word_segment (MText *mt, int pos, int *from, int *to)
 {
   int c = mtext_ref_char (mt, pos);
-  MTextWordsegFunc func = (MTextWordsegFunc) mchartable_lookup (wordseg_func_table, c);
+  MTextWordsegFunc func
+    = (MTextWordsegFunc) mchartable_lookup (wordseg_func_table, c);
 
   if (func)
     return (func) (mt, pos, from, to);
