@@ -1,7 +1,5 @@
 2005-04-27  Kenichi Handa  <handa@m17n.org>
 
-	* language.c (mlang__init): Add "an" (Aragonese).
-
 	* word-thai.c: Add support for libthai.
 	(mtext__word_thai_init): Initialize wordseg library conditionaly.
 	(mtext__word_thai_fini): Finalize wordseg library conditionaly.
