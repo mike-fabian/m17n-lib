@@ -1,10 +1,10 @@
 *.lo
 *.la
-mconv
-mdate
-mdump
-medit
-mview
+m17n-conv
+m17n-date
+m17n-dump
+m17n-edit
+m17n-view
 a.out
 stamp-h*
 config.h

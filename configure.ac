@@ -45,6 +45,8 @@ AC_HEADER_DIRENT
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h locale.h stdlib.h \
 			  string.h strings.h sys/time.h unistd.h])
+AC_CHECK_HEADER(X11/Xaw/Command.h, XAW_LD_FLAGS=-lXaw)
+AC_SUBST(XAW_LD_FLAGS)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
