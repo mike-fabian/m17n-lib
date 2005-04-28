@@ -102,6 +102,15 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
+
+#include <m17n-gui.h>
+#include <m17n-misc.h>
+#include <m17n-X.h>
+
+#include <config.h>
+
+#ifdef HAVE_X11_XAW_COMMAND_H
+
 #include <X11/Xaw/Command.h>
 #include <X11/Xaw/Box.h>
 #include <X11/Xaw/Form.h>
@@ -112,10 +121,6 @@
 #include <X11/Xaw/SmeBSB.h>
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/MenuButton.h>
-
-#include <m17n-gui.h>
-#include <m17n-misc.h>
-#include <m17n-X.h>
 
 #define VERSION "1.2.0"
 
@@ -3096,4 +3101,17 @@ main (int argc, char **argv)
 
   exit (0);
 }
+
+#else  /* not HAVE_X11_XAW_COMMAND_H */
+
+int
+main (int argc, char **argv)
+{
+  fprintf (stderr,
+	   "Building of this program failed (lack of some header files)\n");
+  exit (1);
+}
+
+#endif /* not HAVE_X11_XAW_COMMAND_H */
+
 #endif /* not FOR_DOXYGEN */
