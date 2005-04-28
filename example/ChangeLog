@@ -1,3 +1,15 @@
+2005-04-28  Kenichi Handa  <handa@m17n.org>
+
+	* .cvsignore: Change mXXXX to m17n-XXXX.
+
+	* Makefile.am (X_LD_FLAGS): Include @XAW_LD_FLAGS@, not -lXaw.
+
+	* medit.c: Check HAVE_X11_XAW_COMMAND_H, and if it not defined,
+	add dummy code.
+
+	* mview.c: Check HAVE_X11_XAW_COMMAND_H, and if it not defined,
+	add dummy code.
+
 2005-04-15  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c: Include dlfcn.h.
