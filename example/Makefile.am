@@ -36,7 +36,7 @@ m17n_date_LDADD = ${common_ldflags}
 m17n_conv_SOURCES = mconv.c
 m17n_conv_LDADD = ${common_ldflags}
 
-X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXaw -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
+X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @XAW_LD_FLAGS@ -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
 
 m17n_edit_SOURCES = medit.c
 m17n_edit_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui} -ldl
