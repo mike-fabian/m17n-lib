@@ -1,4 +1,10 @@
+2005-05-09  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (mwin__close_device): Fix arg to M17N_OBJECT_UNREF.
+
 2005-04-27  Kenichi Handa  <handa@m17n.org>
+
+	* language.c (mlang__init): Add "an" (Aragonese).
 
 	* word-thai.c: Add support for libthai.
 	(mtext__word_thai_init): Initialize wordseg library conditionaly.
