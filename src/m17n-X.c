@@ -1212,7 +1212,9 @@ xft_render (MDrawWindow win, int x, int y,
 static void
 mwin__close_device (MFrame *frame)
 {
-  M17N_OBJECT_UNREF (FRAME_DEVICE (frame));
+  MWDevice *device = FRAME_DEVICE (frame);
+
+  M17N_OBJECT_UNREF (device);
 }
 
 static void *
