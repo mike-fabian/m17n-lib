@@ -45,7 +45,13 @@ AC_HEADER_DIRENT
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h locale.h stdlib.h \
 			  string.h strings.h sys/time.h unistd.h])
-AC_CHECK_HEADER(X11/Xaw/Command.h, XAW_LD_FLAGS=-lXaw)
+AC_CHECK_HEADER(X11/Xaw/Command.h, HAVE_XAW=yes)
+if test "x$HAVE_XAW" = "xyes"; then
+  XAW_LD_FLAGS=-lXaw
+  AC_DEFINE(HAVE_X11_XAW_COMMAND_H, 1,
+	    [Define to 1 if you have the Xaw header files.])
+fi
+
 AC_SUBST(XAW_LD_FLAGS)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
