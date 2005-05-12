@@ -1,3 +1,7 @@
+2005-05-12  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Define HAVE_X11_XAW_COMMAND explicitly.
+
 2005-04-28  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Check the availability of libXaw.
