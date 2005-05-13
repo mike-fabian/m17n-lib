@@ -682,9 +682,9 @@ MSymbol Mxim;
     the byte is bitwise anded by 0x1F and the Control modifier is
     cleared.
 
-    If $EVENT still has Shift, Control, Meta, Alt, Super, and/or Hyper
-    modifiers, the name is preceded by "S-", "C-", "M-", "A-", "s-",
-    and/or "H-" respectively in this order.
+    If $EVENT still has modifiers, the name is preceded by "H-"
+    (Hyper), "s-" (Super), "A-" (Alt), "M-" (Meta), "C-" (Control),
+    and/or "S-" (Shift) in this order.
 
     For instance, if the keysym name is "a" and the event has Shift,
     Meta, and Hyper modifiers, the resulting name is "H-M-A".
@@ -694,7 +694,7 @@ MSymbol Mxim;
 /***ja
     @brief イベントを入力キーに変換する.
 
-    関数 minput_name_to_key () は、$FRAME のイベント $EVENT 
+    関数 minput_event_to_key () は、$FRAME のイベント $EVENT 
     に対応する入力キーを返す。ここでの「対応」はウィンドウシステムに依存する。
 
     m17n-X ライブラリの場合には、$EVENT は 構造体 @c XKeyEvent 
@@ -708,11 +708,11 @@ MSymbol Mxim;
     モディファイアは取り除かれる。
 
     名前が１バイト長で $EVENT に Control モディファイアがあれば、名前と
-    0x1F とをビット単位 and 演算する。Control モディファイアは取り除かれる。
+    0x1F とをビット単位で and 演算し、Control モディファイアは取り除かれる。
 
-    $EVENT にまだ Shift, Control, Meta, Alt, Super, Hyper 
-    などのモディファイアがあれば、名前の前にそれぞれ"S-", "C-", "M-", "A-", "s-",
-    "H-" が付く。
+    それでも $EVENT にまだモディファイアがあれば、名前の前にそれぞれ
+    "H-" (Hyper), "s-" (Super), "A-" (Alt), "M-" (Meta), "C-"
+    (Control), "S-" (Shift) がこの順番で付く。
     
     たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper 
     モディファイアを持てば、得られる名前は "H-M-A" である。
