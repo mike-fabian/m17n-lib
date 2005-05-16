@@ -1,3 +1,9 @@
+2005-05-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.c (m17n_object): Be sure to initialize all members.
+
+	* font-ft.c (fc_decode_prop): Fix args to msymbol.
+
 2005-05-09  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (mwin__close_device): Fix arg to M17N_OBJECT_UNREF.
