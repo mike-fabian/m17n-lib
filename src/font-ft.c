@@ -1098,8 +1098,8 @@ fc_decode_prop (int val, FC_vs_M17N_font_prop *table)
 
   for (i = 0; table[i].m17n_value; i++)
     if (val <= table[i].fc_value)
-      return msymbol ("table[i].m17n_value");
-  return msymbol ("table[i - 1].m17n_value");
+      return msymbol (table[i].m17n_value);
+  return msymbol (table[i - 1].m17n_value);
 }
 
 static int
