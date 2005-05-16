@@ -714,6 +714,8 @@ m17n_object (int size, void (*freer) (void *))
   M17NObject *obj = malloc (size);
 
   obj->ref_count = 1;
+  obj->ref_count_extended = 0;
+  obj->flag = 0;
   obj->u.freer = freer;
   return obj;
 }
