@@ -1,4 +1,10 @@
+2005-05-19  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): Explicitly set minput_driver.
+
 2005-04-28  Kenichi Handa  <handa@m17n.org>
+
+	* .cvsignore: Change mXXXX to m17n-XXXX.
 
 	* Makefile.am (X_LD_FLAGS): Include @XAW_LD_FLAGS@, not -lXaw.
 
