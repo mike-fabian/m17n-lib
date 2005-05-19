@@ -2590,6 +2590,7 @@ main (int argc, char **argv)
   M17N_INIT ();
   if (merror_code != MERROR_NONE)
     FATAL_ERROR ("%s\n", "Fail to initialize the m17n library!");
+  minput_driver = &minput_gui_driver;
 
   mt = read_file (filename);
   serialized = 0;
