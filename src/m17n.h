@@ -838,6 +838,7 @@ typedef struct MLocale MLocale;
 /*=*/
 
 extern MSymbol Mlanguage;
+extern MSymbol Miso639_1, Miso639_2;
 extern MSymbol Mterritory;
 extern MSymbol Mmodifier;
 extern MSymbol Mcodeset;
