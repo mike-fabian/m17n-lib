@@ -187,6 +187,24 @@ msymbol__with_len (const char *name, int len)
   return msymbol (p);
 }
 
+/** Return a plist of symbols that has non-NULL property PROP.  If
+    PROP is Mnil, return a plist of all symbols.  Values of the plist
+    is NULL.  */
+
+MPlist *
+msymbol__list (MSymbol prop)
+{
+  MPlist *plist = mplist ();
+  int i;
+  MSymbol sym;
+
+  for (i = 0; i < SYMBOL_TABLE_SIZE; i++)
+    for (sym = symbol_table[i]; sym; sym = sym->next)
+      if (prop == Mnil || msymbol_get (sym, prop))
+	mplist_push (plist, sym, NULL);
+  return plist;
+}
+
 
 /** Canonicalize the name of SYM, and return a symbol of the
     canonicalized name.  Canonicalization is done by this rule:
@@ -704,7 +722,7 @@ MSymbol
 mdebug_dump_all_symbols (int indent)
 {
   char *prefix;
-  int i;
+  int i, n;
   MSymbol sym;
 
   if (indent < 0)
@@ -714,14 +732,15 @@ mdebug_dump_all_symbols (int indent)
   prefix[indent] = 0;
 
   fprintf (stderr, "(symbol-list");
-  for (i = 0; i < SYMBOL_TABLE_SIZE; i++)
+  for (i = n = 0; i < SYMBOL_TABLE_SIZE; i++)
     if ((sym = symbol_table[i]))
       {
 	fprintf (stderr, "\n%s  (%4d", prefix, i);
-	for (; sym; sym = sym->next)
+	for (; sym; sym = sym->next, n++)
 	  fprintf (stderr, " '%s'", sym->name);
 	fprintf (stderr, ")");
       }
+  fprintf (stderr, "\n%s  (total %d)", prefix, n);
   fprintf (stderr, ")");
   return Mnil;
 }
