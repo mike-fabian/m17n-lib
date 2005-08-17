@@ -1185,7 +1185,7 @@ dump_textplist (MTextPlist *plist, int indent)
 int
 mtext__prop_init ()
 {
-  text_property_table.count = 0;
+  M17N_OBJECT_ADD_ARRAY (text_property_table, "Text property");
   Mtext_prop_serializer = msymbol ("text-prop-serializer");
   Mtext_prop_deserializer = msymbol ("text-prop-deserializer");
   return 0;
@@ -1203,7 +1203,6 @@ mtext__prop_fini ()
       pool = next;
     }
   interval_pool_root.next = NULL;  
-  mdebug__report_object ("Text property", &text_property_table);
 }
 
 
