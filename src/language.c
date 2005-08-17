@@ -27,8 +27,11 @@
 #include "internal.h"
 #include "language.h"
 #include "symbol.h"
+#include "plist.h"
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+
+static MSymbol M_script_lang_list;
 
 
 /* Internal API */
@@ -36,213 +39,60 @@
 int
 mlang__init ()
 {
-  /* ISO 639 */
-  struct {
-    char *name, *fullname;
-  } lang_rec[] =
-      { {"ab", "Abkhazian"},
-	{"aa", "Afar"},
-	{"af", "Afrikaans"},
-	{"ak", "Akan"},
-	{"sq", "Albanian"},
-	{"am", "Amharic"},
-	{"ar", "Arabic"},
-	{"an", "Aragonese"},
-	{"hy", "Armenian"},
-	{"as", "Assamese"},
-	{"ay", "Aymara"},
-	{"az", "Azerbaijani"},
-	{"ba", "Bashkir"},
-	{"eu", "Basque"},
-	{"bn", "Bengali"},		/* Bangla */
-	{"dz", "Bhutani"},
-	{"bh", "Bihari"},
-	{"bi", "Bislama"},
-	{"br", "Breton"},
-	{"bg", "Bulgarian"},
-	{"my", "Burmese"},
-	{"be", "Byelorussian"},	/* Belarusian */
-	{"km", "Cambodian"},	/* Khmer */
-	{"ca", "Catalan"},
-#if 0
-	{"??", "Cherokee"},
-	{"??", "Chewa"},
-#endif
-	{"zh", "Chinese"},
-	{"co", "Corsican"},
-	{"hr", "Croatian"},
-	{"cs", "Czech"},
-	{"da", "Danish"},
-	{"dv", "Dhivehi"},
-	{"nl", "Dutch"},
-#if 0
-	{"??", "Edo"},
-#endif
-	{"en", "English"},
-	{"eo", "Esperanto"},
-	{"et", "Estonian"},
-	{"fo", "Faeroese"},
-	{"fa", "Farsi"},
-	{"fj", "Fiji"},
-	{"fi", "Finnish"},
-#if 0
-	{"??", "Flemish"},
-#endif
-	{"fr", "French"},
-	{"fy", "Frisian"},
-#if 0
-	{"??", "Fulfulde"},
-#endif
-	{"gl", "Galician"},
-	{"gd", "Gaelic(Scottish)"},		/* Scottish */
-	{"gv", "Gaelic(Manx)"},		/* Manx */
-	{"ka", "Georgian"},
-	{"de", "German"},
-	{"el", "Greek"},
-	{"kl", "Greenlandic"},
-	{"gn", "Guarani"},
-	{"gu", "Gujarati"},
-	{"ha", "Hausa"},
-#if 0
-	{"??", "Hawaiian"},
-	{"iw", "Hebrew"},
-#endif
-	{"he", "Hebrew"},
-	{"hi", "Hindi"},
-	{"hu", "Hungarian"},
-#if 0
-	{"??", "Ibibio"},
-#endif
-	{"is", "Icelandic"},
-#if 0
-	{"??", "Igbo"},
-	{"in", "Indonesian"},
-#endif
-	{"id", "Indonesian"},
-#if 0
-	{"ia", "Interlingua"},
-	{"ie", "Interlingue"},
-#endif
-	{"iu", "Inuktitut"},
-	{"ik", "Inupiak"},
-	{"ga", "Irish"},
-	{"it", "Italian"},
-	{"ja", "Japanese"},
-	{"jw", "Javanese"},
-	{"kn", "Kannada"},
-#if 0
-	{"??", "Kanuri"},
-#endif
-	{"ks", "Kashmiri"},
-	{"kk", "Kazakh"},
-	{"rw", "Kinyarwanda"},	/* Ruanda */
-	{"ky", "Kirghiz"},
-	{"rn", "Kirundi"},		/* Rundi */
-	{"ko", "Korean"},
-	{"ku", "Kurdish"},
-	{"lo", "Laothian"},
-	{"la", "Latin"},
-	{"lv", "Latvian"},		/* Lettish */
-	{"ln", "Lingala"},
-	{"lt", "Lithuanian"},
-	{"mk", "Macedonian"},
-	{"mg", "Malagasy"},
-	{"ms", "Malay"},
-	{"ml", "Malayalam"},
-#if 0
-	{"??", "Manipuri"},
-#endif
-	{"mt", "Maltese"},
-	{"mi", "Maori"},
-	{"mr", "Marathi"},
-	{"mo", "Moldavian"},
-	{"mn", "Mongolian"},
-	{"na", "Nauru"},
-	{"ne", "Nepali"},
-	{"no", "Norwegian"},
-	{"oc", "Occitan"},
-	{"or", "Oriya"},
-	{"om", "Oromo"},		/* Afan, Galla */
-#if 0
-	{"??", "Papiamentu"},
-#endif
-	{"ps", "Pashto"},		/* Pushto */
-	{"pl", "Polish"},
-	{"pt", "Portuguese"},
-	{"pa", "Punjabi"},
-	{"qu", "Quechua"},
-	{"rm", "Rhaeto-Romance"},
-	{"ro", "Romanian"},
-	{"ru", "Russian"},
-#if 0
-	{"??", "Sami"},		/* Lappish */
-#endif
-	{"sm", "Samoan"},
-	{"sg", "Sangro"},
-	{"sa", "Sanskrit"},
-	{"sr", "Serbian"},
-	{"sh", "Serbo-Croatian"},
-	{"st", "Sesotho"},
-	{"tn", "Setswana"},
-	{"sn", "Shona"},
-	{"sd", "Sindhi"},
-	{"si", "Sinhalese"},
-	{"ss", "Siswati"},
-	{"sk", "Slovak"},
-	{"sl", "Slovenian"},
-	{"so", "Somali"},
-	{"es", "Spanish"},
-	{"su", "Sundanese"},
-	{"sw", "Swahili"},		/* Kiswahili */
-	{"sv", "Swedish"},
-#if 0
-	{"??", "Syriac"},
-#endif
-	{"tl", "Tagalog"},
-	{"tg", "Tajik"},
-#if 0
-	{"??", "Tamazight"},
-#endif
-	{"ta", "Tamil"},
-	{"tt", "Tatar"},
-	{"te", "Telugu"},
-	{"th", "Thai"},
-	{"bo", "Tibetan"},
-	{"ti", "Tigrinya"},
-	{"to", "Tonga"},
-	{"ts", "Tsonga"},
-	{"tr", "Turkish"},
-	{"tk", "Turkmen"},
-	{"tw", "Twi"},
-	{"ug", "Uighur"},
-	{"uk", "Ukrainian"},
-	{"ur", "Urdu"},
-	{"uz", "Uzbek"},
-#if 0
-	{"??", "Venda"},
-#endif
-	{"vi", "Vietnamese"},
-	{"vo", "Volapuk"},
-	{"cy", "Welsh"},
-	{"wo", "Wolof"},
-	{"xh", "Xhosa"},
-#if 0
-	{"??", "Yi"},
-	{"ji", "Yiddish"},
-#endif
-	{"yi", "Yiddish"},
-	{"yo", "Yoruba"},
-	{"zu", "Zulu"} };
-  int i;
+  MDatabase *mdb;
+  MPlist *plist, *pl;
 
   Mlanguage = msymbol ("language");
   msymbol_put (Mlanguage, Mtext_prop_serializer,
 	       (void *) msymbol__serializer);
   msymbol_put (Mlanguage, Mtext_prop_deserializer,
 	       (void *) msymbol__deserializer);
-  for (i = 0; i < ((sizeof lang_rec) / (sizeof lang_rec[0])); i++)
-    msymbol_put (msymbol (lang_rec[i].name), Mlanguage,
-		 msymbol (lang_rec[i].fullname));
+  Miso639_2 = msymbol ("iso639-2");
+  Miso639_1 = msymbol ("iso639-1");
+  M_script_lang_list = msymbol_as_managing_key ("  script-lang-list");
+
+  mdb = mdatabase_find (msymbol ("standard"), Mlanguage,
+			msymbol ("iso639"), Mnil);
+  if (! mdb)
+    return 0;
+  if (! (plist = mdatabase_load (mdb)))
+    MERROR (MERROR_DB, -1);
+
+  MPLIST_DO (pl, plist)
+    {
+      MPlist *p;
+      MSymbol code3, code2, lang;
+      MText *native;
+
+      if (! MPLIST_PLIST_P (pl))
+	continue;
+      p = MPLIST_PLIST (pl);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      code3 = MPLIST_SYMBOL (p);
+      p = MPLIST_NEXT (p);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      code2 = MPLIST_SYMBOL (p);
+      p = MPLIST_NEXT (p);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      lang = MPLIST_SYMBOL (p);
+      msymbol_put (code3, Mlanguage, lang);
+      p = MPLIST_NEXT (p);      
+      native = MPLIST_MTEXT_P (p) ? MPLIST_MTEXT (p) : NULL;
+      if (native)
+	msymbol_put (code3, Mtext, native);
+      if (code2 != Mnil)
+	{
+	  msymbol_put (code3, Miso639_1, code2);
+	  msymbol_put (code2, Mlanguage, lang);
+	  msymbol_put (code2, Miso639_2, code3);
+	  if (native)
+	    msymbol_put (code2, Mtext, native);
+	}
+    }
+  M17N_OBJECT_UNREF (plist);
   return 0;
 }
 
@@ -251,4 +101,97 @@ mlang__fini (void)
 {
 }
 
+
+/** Return a plist of languages that use SCRIPT.  If SCRIPT is Mnil,
+    return a plist of all languages.  Each element of the plist has
+    3-letter language code as a key and 2-letter language code as a
+    value.  A caller must unref the returned value when finished.  */
+
+MPlist *
+mlanguage__list (MSymbol script)
+{
+  MDatabase *mdb;
+  MPlist *language_list, *plist, *pl;
+
+  if (script)
+    {
+      if ((language_list = msymbol_get (script, M_script_lang_list)))
+	{
+	  M17N_OBJECT_REF (language_list);
+	  return language_list;
+	}
+      mdb = mdatabase_find (msymbol ("unicode"), Mscript, Mlanguage, Mnil);
+      if (! mdb
+	  || ! (plist = mdatabase_load (mdb)))
+	MERROR (MERROR_DB, NULL);
+      MPLIST_DO (pl, plist)
+	{
+	  MPlist *p, *lang_list;
+	  MSymbol code3, code2;
+
+	  if (! MPLIST_PLIST_P (pl))
+	    continue;
+	  p = MPLIST_PLIST (pl);
+	  if (! MPLIST_SYMBOL_P (p))
+	    continue;
+	  lang_list = mplist ();
+	  if (MPLIST_SYMBOL (p) == script)
+	    language_list = lang_list;
+	  msymbol_put (MPLIST_SYMBOL (p), M_script_lang_list, lang_list);
+	  MPLIST_DO (p, MPLIST_NEXT (p))
+	    if (MPLIST_SYMBOL_P (p))
+	      {
+		code2 = MPLIST_SYMBOL (p);
+		if (MSYMBOL_NAMELEN (code2) == 2)
+		  code3 = msymbol_get (code2, Miso639_2);
+		else
+		  code3 = code2, code2 = Mnil;
+		if (code3 != Mnil)
+		  mplist_push (lang_list, code3, code2);
+	      }
+	  M17N_OBJECT_UNREF (lang_list);
+	}
+      M17N_OBJECT_UNREF (plist);
+      if (language_list)
+	M17N_OBJECT_REF (language_list);
+      else
+	{
+	  language_list = mplist ();
+	  msymbol_put (script, M_script_lang_list, language_list);
+	}
+    }
+  else
+    {
+      mdb = mdatabase_find (msymbol ("standard"), Mlanguage,
+			    msymbol ("iso639"), Mnil);
+      if (! mdb
+	  || ! (plist = mdatabase_load (mdb)))
+	MERROR (MERROR_DB, NULL);
+      MPLIST_DO (pl, plist)
+	{
+	  MPlist *p;
+	  MSymbol code3, code2;
+
+	  if (! MPLIST_PLIST_P (pl))
+	    continue;
+	  p = MPLIST_PLIST (pl);
+	  if (! MPLIST_SYMBOL_P (p))
+	    continue;
+	  code3 = MPLIST_SYMBOL (p);
+	  p = MPLIST_NEXT (p);
+	  if (! MPLIST_SYMBOL_P (p))
+	    continue;
+	  code2 = MPLIST_SYMBOL (p);
+	  mplist_push (language_list, code3, code2);
+	}
+      M17N_OBJECT_UNREF (plist);
+    }
+  return language_list;
+}
+
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
+
+
+/* External API */
+
+MSymbol Miso639_1, Miso639_2;
