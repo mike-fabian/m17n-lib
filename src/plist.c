@@ -581,7 +581,7 @@ mplist__init ()
 {
   int i;
 
-  plist_table.count = 0;
+  M17N_OBJECT_ADD_ARRAY (plist_table, "Plist");
 
   Minteger = msymbol ("integer");
   Mplist = msymbol_as_managing_key ("plist");
@@ -611,7 +611,6 @@ mplist__init ()
 void
 mplist__fini (void)
 {
-  mdebug__report_object ("Plist", &plist_table);
 }
 
 
