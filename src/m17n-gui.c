@@ -112,7 +112,6 @@ free_frame (void *object)
 
   (*frame->driver->close) (frame);
   M17N_OBJECT_UNREF (frame->face);
-  free (frame->font);
   M17N_OBJECT_UNREF (frame->font_driver_list);
   free (object);
 }
@@ -197,8 +196,8 @@ null_device_fini ()
     mface__free_realized ((MRealizedFace *) MPLIST_VAL (plist));
   M17N_OBJECT_UNREF (null_device.realized_face_list);
 
-  MPLIST_DO (plist, null_device.realized_font_list)
-    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
+  if (MPLIST_VAL (null_device.realized_font_list))
+    mfont__free_realized (MPLIST_VAL (null_device.realized_font_list));
   M17N_OBJECT_UNREF (null_device.realized_font_list);
   return 0;
 }
@@ -314,6 +313,7 @@ m17n_fini_win (void)
 	  dlclose (interface->handle);
 	}
       free (interface->library);
+      free (interface);
     }
 #ifdef HAVE_FREETYPE
   if (null_interface.handle)
@@ -648,9 +648,13 @@ mframe (MPlist *plist)
       if (! interface->handle)
 	{
 	  if (! (interface->handle = dlopen (interface->library, RTLD_NOW))
-	      || ! (interface->init = dlsym (interface->handle, "device_init"))
-	      || ! (interface->open = dlsym (interface->handle, "device_open"))
-	      || ! (interface->fini = dlsym (interface->handle, "device_fini"))
+	      || ! (interface->init
+		    = (int (*) ()) dlsym (interface->handle, "device_init"))
+	      || ! (interface->open
+		    = (int (*) (MFrame *, MPlist *)) dlsym (interface->handle,
+							    "device_open"))
+	      || ! (interface->fini
+		    = (int (*) ()) dlsym (interface->handle, "device_fini"))
 	      || (*interface->init) () < 0)
 	    {
 	      fprintf (stderr, "%s\n", (char *) dlerror ());
@@ -676,6 +680,7 @@ mframe (MPlist *plist)
     if (MPLIST_KEY (pl) == Mface)
       mface_merge (frame->face, (MFace *) MPLIST_VAL (pl));
   mface__update_frame_face (frame);
+  frame->font = frame->rface->rfont ? frame->rface->rfont->font : NULL;
 
   if (plist_created)
     M17N_OBJECT_UNREF (plist);
@@ -770,7 +775,7 @@ mframe_get_prop (MFrame *frame, MSymbol key)
   if (key == Mface)
     return frame->face;
   if (key == Mfont)
-    return &frame->rface->rfont->font;
+    return (frame->rface->rfont ? frame->rface->rfont->font : NULL);
   if (key == Mfont_width)
     return (void *) (frame->space_width);
   if (key == Mfont_ascent)
