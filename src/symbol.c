@@ -148,8 +148,7 @@ void
 msymbol__fini ()
 {
   int i;
-  MSymbol sym, next;
-  int freed_symbols = 0;
+  MSymbol sym;
 
   for (i = 0; i < SYMBOL_TABLE_SIZE; i++)
     for (sym = symbol_table[i]; sym; sym = sym->next)
@@ -158,7 +157,17 @@ msymbol__fini ()
 	  if (sym->plist.key->managing_key)
 	    M17N_OBJECT_UNREF (sym->plist.val);
 	  M17N_OBJECT_UNREF (sym->plist.next);
+	  sym->plist.key = Mnil;
 	}
+}
+
+void
+msymbol__free_table ()
+{
+  int i;
+  MSymbol sym, next;
+  int freed_symbols = 0;
+
   for (i = 0; i < SYMBOL_TABLE_SIZE; i++)
     {
       for (sym = symbol_table[i]; sym; sym = next)
@@ -464,6 +473,23 @@ msymbol_as_managing_key (const char *name)
   sym->next = symbol_table[hash];
   symbol_table[hash] = sym;
   return sym;
+}
+
+/*=*/
+
+/***en
+    @brief Check if a symbol is a managing key.
+
+    The msymbol_is_managing_key () function checks if the sysmbol
+    $SYMBOL is a managing key or not.
+
+    @return Return 1 if the symbol is a managing key.  Otherwise,
+    return 0.  */
+
+int
+msymbol_is_managing_key (MSymbol symbol)
+{
+  return (symbol->managing_key == 1);
 }
 
 /*=*/
