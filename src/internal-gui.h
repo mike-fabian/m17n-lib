@@ -223,8 +223,6 @@ struct MGlyphString
 
 typedef struct MGlyphString MGlyphString;
 
-typedef struct MFontDriver MFontDriver;
-
 typedef struct
 {
   short x, y;
