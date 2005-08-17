@@ -60,6 +60,11 @@ extern int mdebug_hook ();
     goto warning;	\
   } while (0)
 
+#define MFATAL(err)	\
+  do {			\
+    mdebug_hook ();	\
+    exit (err);		\
+  } while (0)
 
 #define M_CHECK_CHAR(c, ret)		\
   if ((c) < 0 || (c) > MCHAR_MAX)	\
@@ -148,6 +153,42 @@ extern int mdebug_hook ();
 
 
 #define MSTRUCT_CALLOC(p, err) MTABLE_CALLOC ((p), 1, (err))
+
+#define USE_SAFE_ALLOCA \
+  int sa_must_free = 0, sa_size = 0
+
+/* P must be the same in all calls to SAFE_ALLOCA and SAFE_FREE in a
+   function.  */
+
+#define SAFE_ALLOCA(P, SIZE)		\
+  do {					\
+    if (sa_size < (SIZE))		\
+      {					\
+	if (sa_must_free)		\
+	  (P) = realloc ((P), (SIZE));	\
+	else				\
+	  {				\
+	    (P) = alloca ((SIZE));	\
+	    if (! (P))			\
+	      {				\
+		(P) = malloc (SIZE);	\
+		sa_must_free = 1;	\
+	      }				\
+	  }				\
+	if (! (P))			\
+	  MEMORY_FULL (1);		\
+	sa_size = (SIZE);		\
+      }					\
+  } while (0)
+
+#define SAFE_FREE(P)			\
+  do {					\
+    if (sa_must_free && sa_size > 0)	\
+      {					\
+	free ((P));			\
+	sa_must_free = sa_size = 0;	\
+      }					\
+  } while (0)
 
 
 /** Extendable array.  */
@@ -324,34 +365,46 @@ typedef struct
 /**ja OBJECT の参照数が 0 より大きければ 1 減らす。減らして 0 になれば
       OBJECT を解放する.  */
 
-#define M17N_OBJECT_UNREF(object)				\
-  do {								\
-    if (object)							\
-      {								\
-	if (((M17NObject *) (object))->ref_count_extended)	\
-	  m17n_object_unref (object);				\
-	else if (((M17NObject *) (object))->ref_count == 0)	\
-	  break;						\
-	else if (((M17NObject *) (object))->ref_count > 1)	\
-	  ((M17NObject *) (object))->ref_count--;		\
-	else							\
-	  {							\
-	    if (((M17NObject *) (object))->u.freer)		\
-	      (((M17NObject *) (object))->u.freer) (object);	\
-	    else						\
-	      free (object);					\
-	    (object) = NULL;					\
-	  }							\
-      }								\
+#define M17N_OBJECT_UNREF(object)					\
+  do {									\
+    if (object)								\
+      {									\
+	if (((M17NObject *) (object))->ref_count_extended)		\
+	  m17n_object_unref (object);					\
+	else if (((M17NObject *) (object))->ref_count == 0)		\
+	  break;							\
+	else								\
+	  {								\
+	    ((M17NObject *) (object))->ref_count--;			\
+	    if (((M17NObject *) (object))->ref_count == 0)		\
+	      {								\
+		if (((M17NObject *) (object))->u.freer)			\
+		  (((M17NObject *) (object))->u.freer) (object);	\
+		else							\
+		  free (object);					\
+		(object) = NULL;					\
+	      }								\
+	  }								\
+      }									\
   } while (0)
 
+typedef struct _M17NObjectArray M17NObjectArray;
 
-typedef struct
+struct _M17NObjectArray
 {
+  char *name;
   int count;
   int size, inc, used;
   void **objects;
-} M17NObjectArray;
+  M17NObjectArray *next;
+};
+
+extern void mdebug__add_object_array (M17NObjectArray *array, char *name);
+
+#define M17N_OBJECT_ADD_ARRAY(array, name)	\
+  if (mdebug__flag & MDEBUG_FINI)		\
+    mdebug__add_object_array (&array, name);	\
+  else
 
 extern void mdebug__register_object (M17NObjectArray *array, void *object);
 
@@ -366,8 +419,6 @@ extern void mdebug__unregister_object (M17NObjectArray *array, void *object);
   if (mdebug__flag & MDEBUG_FINI)		\
     mdebug__unregister_object (&array, object);	\
   else
-
-extern void mdebug__report_object (char *name, M17NObjectArray *array);
 
 
 
