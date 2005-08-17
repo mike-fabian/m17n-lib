@@ -166,6 +166,7 @@ extern MSymbol Madstyle;
 extern MSymbol Mregistry;
 extern MSymbol Msize;
 extern MSymbol Mresolution;
+extern MSymbol Mfontfile;
 
 extern MSymbol Mfontconfig;
 
@@ -218,6 +219,10 @@ extern int mfont_resize_ratio (MFont *font);
 extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language,
 			   int maxnum);
 
+typedef struct MFontset MFontset;
+
+extern int mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
+			MSymbol script, MSymbol language);
 
 /* end of font module */
 /*=*/
@@ -228,8 +233,6 @@ extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language,
 /*=*/
 /*** @addtogroup m17nFontset
      @{   */
-typedef struct MFontset MFontset;
-
 extern MFontset *mfontset (char *name);
 
 extern MSymbol mfontset_name (MFontset *fontset);
@@ -309,6 +312,8 @@ extern MFace *mface_magenta;
 extern MSymbol Mface;
 
 extern MFace *mface ();
+
+extern int mface_equal (MFace *face1, MFace *face2);
 
 extern MFace *mface_copy (MFace *face);
 
