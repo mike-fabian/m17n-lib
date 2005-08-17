@@ -23,4 +23,6 @@
 #ifndef _M17N_LANGUAGE_H_
 #define _M17N_LANGUAGE_H_
 
+extern MPlist *mlanguage__list (MSymbol script);
+
 #endif /* _M17N_LANGUAGE_H_ */
