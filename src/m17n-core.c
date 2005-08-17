@@ -373,6 +373,7 @@
 #include "m17n-core.h"
 #include "m17n-misc.h"
 #include "internal.h"
+#include "symbol.h"
 
 static void
 default_error_handler (enum MErrorCode err)
@@ -383,7 +384,29 @@ default_error_handler (enum MErrorCode err)
 static struct timeval time_stack[16];
 static int time_stack_index;
 
-static int report_header_printed;
+static M17NObjectArray *object_array_root;
+
+static void
+report_object_array ()
+{
+  fprintf (stderr, "%16s %7s %7s %7s\n",
+	   "object", "created", "freed", "alive");
+  fprintf (stderr, "%16s %7s %7s %7s\n",
+	   "------", "-------", "-----", "-----");
+  for (; object_array_root; object_array_root = object_array_root->next)
+    {
+      M17NObjectArray *array = object_array_root;
+
+      fprintf (stderr, "%16s %7d %7d %7d\n", array->name,
+	       array->used, array->used - array->count, array->count);
+      if (array->used > 0)
+	{
+	  free (array->objects);
+	  array->count = array->used = 0;
+	}
+    }
+}
+
 
 
 /* Internal API */
@@ -391,29 +414,6 @@ static int report_header_printed;
 int m17n__core_initialized;
 int m17n__shell_initialized;
 int m17n__gui_initialized;
-
-void
-mdebug__report_object (char *name, M17NObjectArray *array)
-{
-  if (! (mdebug__flag & MDEBUG_FINI))
-    return;
-  if (! report_header_printed)
-    {
-      fprintf (stderr, "%16s %7s %7s %7s\n",
-	       "object", "created", "freed", "alive");
-      fprintf (stderr, "%16s %7s %7s %7s\n",
-	       "------", "-------", "-----", "-----");
-      report_header_printed = 1;
-    }
-  fprintf (stderr, "%16s %7d %7d %7d\n", name,
-	   array->used, array->used - array->count, array->count);
-  if (array->used > 0)
-    {
-      free (array->objects);
-      array->count = array->used = 0;
-    }
-}
-
 
 void *(*mdatabase__finder) (MSymbol tag1, MSymbol tag2,
 			   MSymbol tag3, MSymbol tag4);
@@ -456,6 +456,16 @@ mdebug__print_time ()
     if (env_value && env_value[0] == '1')	\
       mdebug__flag |= (mask);			\
   } while (0)
+
+
+void
+mdebug__add_object_array (M17NObjectArray *array, char *name)
+{
+  array->name = name;
+  array->count = 0;
+  array->next = object_array_root;
+  object_array_root = array;
+}
 
 
 void
@@ -521,14 +531,14 @@ m17n_init_core (void)
   if  (mplist__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize plist module."));
+  if  (mchartable__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize chartable module."));
   if (mtext__init () < 0)
     goto err;
   if (mtext__prop_init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize mtext module."));
-  if  (mchartable__init () < 0)
-    goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize chartable module."));
 
   mdatabase__finder = NULL;
   mdatabase__loader = NULL;
@@ -563,7 +573,9 @@ m17n_fini_core (void)
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
   MDEBUG_POP_TIME ();
-  report_header_printed = 0;
+  if (mdebug__flag & MDEBUG_FINI)
+    report_object_array ();
+  msymbol__free_table ();
 }
 
 /*** @} */
