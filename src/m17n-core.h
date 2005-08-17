@@ -162,6 +162,9 @@ extern MSymbol msymbol (const char *name);
 /* Return a managing key of name NAME.  */
 extern MSymbol msymbol_as_managing_key (const char *name);
 
+/* Check if SYMBOL is a managing key.  */
+extern int msymbol_is_managing_key (MSymbol symbol);
+
 /* Return a symbol of name NAME if it already exists.  */
 extern MSymbol msymbol_exist (const char *name);
 
@@ -364,6 +367,9 @@ enum MTextFormat
 
 extern MText *mtext ();
 
+extern void *mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
+			 int *pos_idx, int *unit_idx);
+
 /*=*/
 
 /***en @name Variables: Default Endian of UTF-16 and UTF-32 */
@@ -394,7 +400,7 @@ extern MText *mtext ();
     @seealso
     mtext_from_data ()  */
 
-extern const int MTEXT_FORMAT_UTF_16;
+extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
 /*=*/
 
 /*** @ingroup m17nMtext */
