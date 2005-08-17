@@ -1,5 +1,5 @@
 /* input.c -- input method module.
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -852,8 +852,6 @@ shift_state (MInputContext *ic, MSymbol state_name)
       ic->preedit_changed = ic->candidates_changed = 1;
       MPLIST_DO (p, ic_info->markers)
 	MPLIST_VAL (p) = 0;
-      MPLIST_DO (p, ic_info->vars)
-	MPLIST_VAL (p) = 0;
       ic->cursor_pos = 0;
       memmove (ic_info->keys, ic_info->keys + ic_info->state_key_head,
 	       sizeof (int) * (ic_info->used - ic_info->state_key_head));
@@ -1335,12 +1333,20 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    actions2 = NULL;
 	  else
 	    actions2 = MPLIST_PLIST (args);
+	  MDEBUG_PRINT2 ("(%d,%d)", val1, val2);
 	  if (name == Mequal ? val1 == val2
 	      : name == Mless ? val1 < val2
 	      : val1 > val2)
-	    ret = take_action_list (ic, actions1);
-	  else if (actions2)
-	    ret = take_action_list (ic, actions2);
+	    {
+	      MDEBUG_PRINT ("ok");
+	      ret = take_action_list (ic, actions1);
+	    }
+	  else
+	    {
+	      MDEBUG_PRINT ("no");
+	      if (actions2)
+		ret = take_action_list (ic, actions2);
+	    }
 	  if (ret < 0)
 	    return ret;
 	}
