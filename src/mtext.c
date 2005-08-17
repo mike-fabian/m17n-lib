@@ -690,6 +690,7 @@ MCharTable *wordseg_func_table;
 int
 mtext__init ()
 {
+  M17N_OBJECT_ADD_ARRAY (mtext_table, "M-text");
   M_charbag = msymbol_as_managing_key ("  charbag");
   mtext_table.count = 0;
   wordseg_func_table = mchartable (Mnil, NULL);
@@ -708,7 +709,6 @@ mtext__fini (void)
 #endif
   M17N_OBJECT_UNREF (wordseg_func_table);
   wordseg_func_table = NULL;
-  mdebug__report_object ("M-text", &mtext_table);
 }
 
 
@@ -1140,9 +1140,9 @@ mtext__word_segment (MText *mt, int pos, int *from, int *to)
 /* External API */
 
 #ifdef WORDS_BIGENDIAN
-const int MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16BE;
+const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16BE;
 #else
-const int MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16LE;
+const enum MTextFormat MTEXT_FORMAT_UTF_16 = MTEXT_FORMAT_UTF_16LE;
 #endif
 
 #ifdef WORDS_BIGENDIAN
@@ -1257,6 +1257,86 @@ mtext_from_data (const void *data, int nitems, enum MTextFormat format)
       || format < MTEXT_FORMAT_US_ASCII || format >= MTEXT_FORMAT_MAX)
     MERROR (MERROR_MTEXT, NULL);
   return mtext__from_data (data, nitems, format, 0);
+}
+
+/*=*/
+
+/***en
+    @brief Get information about the text data in M-text.
+
+    The mtext_data () function returns a pointer to the text data of
+    M-text $MT.  If $FMT is not NULL, the format of the text data is
+    stored in it.  If $NUNITS is not NULL, the number of units of the
+    text data is stored in it.
+
+    If $POS_IDX is not NULL and it points to a non-negative number,
+    what it points to is a character position.  In this case, the
+    return value is a pointer to the text data of a character at that
+    position.
+
+    Otherwise, if $UNIT_IDX is not NULL, it points to a unit position.
+    In this case, the return value is a pointer to the text data of a
+    character containing that unit.
+
+    The character position and unit position of the return value are
+    stored in $POS_IDX and $UNIT_DIX respectively if they are not
+    NULL.
+
+    <ul>
+
+    <li> If the format of the text data is MTEXT_FORMAT_US_ASCII or
+    MTEXT_FORMAT_UTF_8, one unit is unsigned char.
+
+    <li> If the format is MTEXT_FORMAT_UTF_16LE or
+    MTEXT_FORMAT_UTF_16BE, one unit is unsigned short.
+
+    <li> If the format is MTEXT_FORMAT_UTF_32LE or
+    MTEXT_FORMAT_UTF_32BE, one unit is unsigned int.
+
+    </ul> */
+
+void *
+mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
+	    int *pos_idx, int *unit_idx)
+{
+  void *data;
+  int pos = 0, unit_pos = 0;
+
+  if (fmt)
+    *fmt = mt->format;
+  data = MTEXT_DATA (mt);
+  if (pos_idx && *pos_idx >= 0)
+    {
+      pos = *pos_idx;
+      if (pos > mtext_nchars (mt))
+	MERROR (MERROR_MTEXT, NULL);
+      unit_pos = POS_CHAR_TO_BYTE (mt, pos);
+    }
+  else if (unit_idx)
+    {
+      unit_pos = *unit_idx;
+
+      if (unit_pos < 0 || unit_pos > mtext_nbytes (mt))
+	MERROR (MERROR_MTEXT, NULL);
+      pos = POS_BYTE_TO_CHAR (mt, unit_pos);
+      unit_pos = POS_CHAR_TO_BYTE (mt, pos);
+    }
+  if (nunits)
+    *nunits = mtext_nbytes (mt) - unit_pos;
+  if (pos_idx)
+    *pos_idx = pos;
+  if (unit_idx)
+    *unit_idx = unit_pos;
+  if (unit_pos > 0)
+    {
+      if (mt->format <= MTEXT_FORMAT_UTF_8)
+	data = (unsigned char *) data + unit_pos;
+      else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
+	data = (unsigned short *) data + unit_pos;
+      else
+	data = (unsigned int *) data + unit_pos;
+    }
+  return data;
 }
 
 /*=*/
@@ -2507,9 +2587,7 @@ int
 mtext_text (MText *mt1, int pos, MText *mt2)
 {
   int from = pos;
-  int pos_byte = POS_CHAR_TO_BYTE (mt1, pos);
   int c = mtext_ref_char (mt2, 0);
-  int nbytes1 = mtext_nbytes (mt1);
   int nbytes2 = mtext_nbytes (mt2);
   int limit;
   int use_memcmp = (mt1->format == mt2->format
@@ -2517,13 +2595,14 @@ mtext_text (MText *mt1, int pos, MText *mt2)
 			&& mt2->format == MTEXT_FORMAT_UTF_8));
   int unit_bytes = UNIT_BYTES (mt1->format);
 
-  if (nbytes2 > pos_byte + nbytes1)
+  if (from + mtext_nchars (mt2) > mtext_nchars (mt1))
     return -1;
-  pos_byte = nbytes1 - nbytes2;
-  limit = POS_BYTE_TO_CHAR (mt1, pos_byte);
+  limit = mtext_nchars (mt1) - mtext_nchars (mt2) + 1;
 
   while (1)
     {
+      int pos_byte;
+
       if ((pos = mtext_character (mt1, from, limit, c)) < 0)
 	return -1;
       pos_byte = POS_CHAR_TO_BYTE (mt1, pos);
@@ -2598,7 +2677,7 @@ mtext_search (MText *mt1, int from, int to, MText *mt2)
 	return -1;
       while (1)
 	{
-	  if ((from = find_char_backward (mt1, from, to, c)) < 0)
+	  if ((from = find_char_backward (mt1, to, from + 1, c)) < 0)
 	    return -1;
 	  from_byte = POS_CHAR_TO_BYTE (mt1, from);
 	  if (! memcmp (mt1->data + from_byte, mt2->data, nbytes2))
