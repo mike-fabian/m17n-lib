@@ -600,14 +600,13 @@ dump_sub_chartab (MSubCharTable *table, void *default_value,
 int
 mchartable__init ()
 {
-  chartable_table.count = 0;
+  M17N_OBJECT_ADD_ARRAY (chartable_table, "Chartable");
   return 0;
 }
 
 void
 mchartable__fini ()
 {
-  mdebug__report_object ("Chartable", &chartable_table);
 }
 
 void *
