@@ -431,16 +431,22 @@ get_database_stream (char *filename)
   else
     {
       MPlist *plist;
-      char path[PATH_MAX];
+      char *path;
+      int filelen = strlen (filename);
+      USE_SAFE_ALLOCA;
 
       MPLIST_DO (plist, mdatabase__dir_list)
 	{
+	  int require = strlen ((char *) MPLIST_VAL (plist)) + filelen + 1;
+
+	  SAFE_ALLOCA (path, require);
 	  strcpy (path, (char *) MPLIST_VAL (plist));
 	  strcat (path, filename);
 	  fp = fopen (path, "r");
 	  if (fp)
 	    break;
 	}
+      SAFE_FREE (path);
     }
   return fp;
 }
@@ -508,6 +514,8 @@ mdatabase__init ()
   int i;
   MPlist *plist;
   FILE *fp;
+  char *path;
+  USE_SAFE_ALLOCA;
 
   Mchar_table = msymbol ("char-table");
   M_database_hook = msymbol ("  database-hook");
@@ -533,12 +541,14 @@ mdatabase__init ()
     {
       MPlist *pl, *p;
       int len;
-      char path[PATH_MAX];
 
       dir = (char *) MPLIST_VAL (plist);
       len = strlen (dir);
+#ifdef PATH_MAX
       if (len + MDB_DIR_LEN >= PATH_MAX)
 	continue;
+#endif	/* PATH_MAX */
+      SAFE_ALLOCA (path, len + MDB_DIR_LEN);
       memcpy (path, dir, len);
       memcpy (path + len, MDB_DIR, MDB_DIR_LEN);
       if (! (fp = fopen (path, "r")))
@@ -551,6 +561,7 @@ mdatabase__init ()
 	{
 	  MDatabase mdb;
 	  MPlist *p1;
+	  MText *mt;
 	  int nbytes;
 
 	  if (! MPLIST_PLIST_P (p))
@@ -569,16 +580,26 @@ mdatabase__init ()
 	    continue;
 
 	  mdb.loader = load_database;
-	  nbytes = mconv_encode_buffer (Mcoding_utf_8,  MPLIST_MTEXT (p1),
-					(unsigned char *) path, PATH_MAX);
-	  if (nbytes < 0 || nbytes >= PATH_MAX)
+	  mt = MPLIST_MTEXT (p1);
+	  if (mt->format >= MTEXT_FORMAT_UTF_16LE)
+	    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+	  nbytes = mtext_nbytes (mt);
+#ifdef PATH_MAX
+	  if (nbytes > PATH_MAX)
 	    continue;
-	  path[nbytes++] = '\0';
+#endif	/* PATH_MAX */
+	  SAFE_ALLOCA (path, nbytes + 1);
+	  memcpy (path, mt->data, nbytes);
+	  path[nbytes] = '\0';
 	  mdb.extra_info = (void *) strdup (path);
+	  if (! mdb.extra_info)
+	    MEMORY_FULL (MERROR_DB);
 	  MLIST_APPEND1 (&mdb_list, mdbs, mdb, MERROR_DB);
 	}
       M17N_OBJECT_UNREF (pl);
     }
+
+  SAFE_FREE (path);
 
   mdatabase__finder = ((void *(*) (MSymbol, MSymbol, MSymbol, MSymbol))
 		       mdatabase_find);
