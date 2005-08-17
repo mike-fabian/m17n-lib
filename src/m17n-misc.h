@@ -80,6 +80,7 @@ enum MErrorCode
     MERROR_FONT,
     MERROR_FONTSET,
     MERROR_FONT_OTF,
+    MERROR_FONT_X,
     MERROR_FONT_FT,
     MERROR_IM,
     MERROR_DB,
