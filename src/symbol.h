@@ -46,7 +46,11 @@ struct MSymbolStruct
 #define MSYMBOL_NAME(sym) ((sym)->name)
 #define MSYMBOL_NAMELEN(sym) ((sym)->length - 1)
 
+extern void msymbol__free_table ();
+
 extern MSymbol msymbol__with_len (const char *name, int len);
+
+extern MPlist *msymbol__list (MSymbol prop);
 
 extern MSymbol msymbol__canonicalize (MSymbol sym);
 
