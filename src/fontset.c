@@ -97,9 +97,6 @@ struct MFontset
 
   /* FONT-GROUP */
   MPlist *fallback;
-
-  /* Plist of Mt vs font specs. */
-  MPlist *font_spec_list;
 };
 
 static MFontset *default_fontset;
@@ -114,8 +111,11 @@ struct MRealizedFontset
   /* Initialized to <fontset>->tick.  */
   unsigned tick;
 
-  /* Font spec extracted from a face.  */
-  MFont spec;
+  /* Font spec that must be satisfied, or NULL.  */
+  MFont *spec;
+
+  /* Font spec requested by a face.  */
+  MFont request;
 
   /* The frame on which the realized fontset is realized.  */
   MFrame *frame;
@@ -129,13 +129,13 @@ struct MRealizedFontset
 
 
 static MPlist *
-load_font_group (MPlist *plist, MPlist *elt, MPlist *spec_list)
+load_font_group (MPlist *plist, MPlist *elt)
 {
   MPLIST_DO (elt, elt)
     {
-      /* ELT ::= ( FONT-SPEC-LIST [ LAYOUTER ] ) ...  */
-      MPlist *elt2, *p;
-      MFont font, *spec = NULL;
+      /* ELT ::= ( FONT-SPEC [ LAYOUTER ] ) ...  */
+      MPlist *elt2;
+      MFont *font;
       MSymbol layouter_name;
 
       if (! MPLIST_PLIST_P (elt))
@@ -143,28 +143,15 @@ load_font_group (MPlist *plist, MPlist *elt, MPlist *spec_list)
       elt2 = MPLIST_PLIST (elt);
       if (! MPLIST_PLIST_P (elt2))
 	MWARNING (MERROR_FONTSET);
-      mfont__set_spec_from_plist (&font, MPLIST_PLIST (elt2));
-      MPLIST_DO (p, spec_list)
-        {
-	  if (! memcmp (MPLIST_VAL (p), &font, sizeof (MFont)))
-	    {
-	      spec = MPLIST_VAL (p);
-	      break;
-	    }
-        }
-      if (! spec)
-	{
-	  MSTRUCT_MALLOC (spec, MERROR_FONTSET);
-	  *spec = font;
-	  mplist_add (spec_list, Mt, spec);
-	}
+      MSTRUCT_CALLOC (font, MERROR_FONTSET);
+      mfont__set_spec_from_plist (font, MPLIST_PLIST (elt2));
       elt2 = MPLIST_NEXT (elt2);
       layouter_name = Mt;
       if (MPLIST_SYMBOL_P (elt2))
 	layouter_name = MPLIST_SYMBOL (elt2);
       if (layouter_name == Mnil)
 	layouter_name = Mt;
-      plist = mplist_add (plist, layouter_name, spec);
+      plist = mplist_add (plist, layouter_name, font);
       continue;
     warning:
       /* ANSI-C requires some statement after a label.  */
@@ -178,59 +165,53 @@ load_font_group (MPlist *plist, MPlist *elt, MPlist *spec_list)
 static void
 load_fontset_contents (MFontset *fontset)
 {
-  MPlist *per_script, *per_charset, *fallback, *spec_list, *font_group;
-  MSymbol script, lang;
+  MPlist *per_script, *per_charset, *font_group;
   MPlist *fontset_def, *plist;
 
   fontset->per_script = per_script = mplist ();
   fontset->per_charset = per_charset = mplist ();
-  fontset->fallback = fallback = mplist ();
-  fontset->font_spec_list = spec_list = mplist ();
+  fontset->fallback = mplist ();
   if (! (fontset_def = (MPlist *) mdatabase_load (fontset->mdb)))
     return;
 
   MPLIST_DO (plist, fontset_def)
     {
-      /* PLIST ::= ( SCRIPT ( LANGUAGE FONT-SPEC-ELT ... ) ... )
-		   | (CHARSET FONT-SPEC-ELT ...)
-		   | FONT-SPEC-ELT  */
+      /* PLIST ::=   ( SCRIPT ( LANGUAGE ( FONT-SPEC [LAYOUTER]) ... ) ... )
+		   | ( CHARSET ( FONT-SPEC [LAYOUTER] ) ...)
+		   | ( nil ( FONT-SPEC [LAYOUTER] ) ...)
+	 FONT-SPEC :: = ( ... ) */
       MPlist *elt;
+      MSymbol sym;
 
       if (! MPLIST_PLIST_P (plist))
 	MWARNING (MERROR_FONTSET);
       elt = MPLIST_PLIST (plist);
       if (! MPLIST_SYMBOL_P (elt))
 	MWARNING (MERROR_FONTSET);
-      script = MPLIST_SYMBOL (elt);
+      sym = MPLIST_SYMBOL (elt);
       elt = MPLIST_NEXT (elt);
       if (! MPLIST_PLIST_P (elt))
 	MWARNING (MERROR_FONTSET);
-      if (script == Mnil)
-	fallback = load_font_group (fallback, elt, spec_list);
+      if (sym == Mnil)
+	load_font_group (fontset->fallback, elt);
       else if (MPLIST_PLIST_P (MPLIST_PLIST (elt)))
 	{
-	  font_group = mplist_find_by_key (fontset->per_charset, script);
-	  if (! font_group)
-	    {
-	      font_group = mplist ();
-	      per_charset = mplist_add (per_charset, script, font_group);
-	    }
-	  load_font_group (font_group, elt, spec_list);
+	  /* SYM is a charset.  */
+	  font_group = mplist ();
+	  per_charset = mplist_add (per_charset, sym, font_group);
+	  load_font_group (font_group, elt);
 	}
       else
 	{
-	  MPlist *per_lang = mplist_find_by_key (fontset->per_script, script);
+	  /* SYM is a script */
+	  MPlist *per_lang = mplist ();
 
-	  if (! per_lang)
-	    {
-	      per_lang = mplist ();
-	      per_script = mplist_add (per_script, script, per_lang);
-	    }
-
+	  per_script = mplist_add (per_script, sym, per_lang);
 	  MPLIST_DO (elt, elt)
 	    {
 	      /* ELT ::= ( LANGUAGE FONT-DEF ...) ... */
 	      MPlist *elt2;
+	      MSymbol lang;
 
 	      if (! MPLIST_PLIST_P (elt))
 		MWARNING (MERROR_FONTSET);
@@ -240,14 +221,10 @@ load_fontset_contents (MFontset *fontset)
 	      lang = MPLIST_SYMBOL (elt2);
 	      if (lang == Mnil)
 		lang = Mt;
-	      font_group = mplist_find_by_key (per_lang, lang);
-	      if (! font_group)
-		{
-		  font_group = mplist ();
-		  mplist_add (per_lang, lang, font_group);
-		}
+	      font_group = mplist ();
+	      mplist_add (per_lang, lang, font_group);
 	      elt2 = MPLIST_NEXT (elt2);
-	      load_font_group (font_group, elt2, spec_list);
+	      load_font_group (font_group, elt2);
 	    }
 	}
       continue;
@@ -273,6 +250,8 @@ free_fontset (void *object)
 	{
 	  MPLIST_DO (pl, MPLIST_PLIST (plist))
 	    {
+	      MPLIST_DO (p, MPLIST_PLIST (pl))
+		free (MPLIST_VAL (p));
 	      p = MPLIST_PLIST (pl);
 	      M17N_OBJECT_UNREF (p);
 	    }
@@ -283,68 +262,39 @@ free_fontset (void *object)
     }
   if (fontset->per_charset)
     {
-      MPLIST_DO (plist, fontset->per_charset)
+      MPLIST_DO (pl, fontset->per_charset)
 	{
-	  pl = MPLIST_PLIST (plist);
-	  M17N_OBJECT_UNREF (pl);
+	  MPLIST_DO (p, MPLIST_PLIST (pl))
+	    free (MPLIST_VAL (p));
+	  p = MPLIST_PLIST (p);
+	  M17N_OBJECT_UNREF (p);
 	}
       M17N_OBJECT_UNREF (fontset->per_charset);
     }
   if (fontset->fallback)
-    M17N_OBJECT_UNREF (fontset->fallback);
+    {
+      MPLIST_DO (p, fontset->fallback)
+	free (MPLIST_VAL (p));
+      M17N_OBJECT_UNREF (fontset->fallback);
+    }
+
   plist = mplist_find_by_key (fontset_list, fontset->name);
   if (! plist)
     mdebug_hook ();
   mplist_pop (plist);
-  if (fontset->font_spec_list)
-    {
-      if (((M17NObject *) (fontset->font_spec_list))->ref_count == 1)
-	MPLIST_DO (plist, fontset->font_spec_list)
-	  free (MPLIST_VAL (plist));
-      M17N_OBJECT_UNREF (fontset->font_spec_list);
-    }
   free (object);
 }
 
 static void
-realize_font_group (MFrame *frame, MFont *request, MPlist *font_group,
-		    int size)
+realize_fontset_elements (MFrame *frame, MRealizedFontset *realized)
 {
-  MPlist *plist = MPLIST_VAL (font_group), *pl, *p;
+  MFontset *fontset = realized->fontset;
+  MPlist *per_script, *per_charset, *font_group;
+  MPlist *plist, *pl, *p;
 
-  mplist_set (font_group, Mnil, NULL);
-  MPLIST_DO (pl, plist)
-    {
-      MSymbol layouter = MPLIST_KEY (pl);
-      MFont this_request = *request;
-      MRealizedFont *rfont;
-
-      mfont__resize (MPLIST_VAL (pl), &this_request);
-      rfont = mfont__select (frame, MPLIST_VAL (pl), &this_request,
-			     size, layouter == Mt ? Mnil : layouter);
-
-      if (rfont)
-	{
-	  MPLIST_DO (p, font_group)
-	    if (((MRealizedFont *) (MPLIST_VAL (p)))->score > rfont->score)
-	      break;
-	  mplist_push (p, Mt, rfont);
-	}
-    }
-}
-
-static void
-realize_fontset_elements (MFrame *frame, MRealizedFontset *realized,
-			  MFontset *fontset, MFont *request)
-{
-  MPlist *per_script, *per_lang, *per_charset, *font_group;
-  MPlist *plist, *pl;
-
-  realized->fontset = fontset;
-  realized->tick = fontset->tick;
-  realized->spec = *request;
-  realized->frame = frame;
   realized->per_script = per_script = mplist ();
+  /* The actual elements of per_script are realized on demand.  */
+#if 0
   MPLIST_DO (plist, fontset->per_script)
     {
       per_lang = mplist ();
@@ -352,29 +302,74 @@ realize_fontset_elements (MFrame *frame, MRealizedFontset *realized,
       MPLIST_DO (pl, MPLIST_PLIST (plist))
 	{
 	  font_group = mplist ();
-	  mplist_add (font_group, Mplist, MPLIST_VAL (pl));
 	  per_lang = mplist_add (per_lang, MPLIST_KEY (pl), font_group);
+	  MPLIST_DO (p, MPLIST_PLIST (pl))
+	    font_group = mplist_add (font_group,
+				     MPLIST_KEY (p), MPLIST_VAL (p));
 	}
     }
+#endif
 
   realized->per_charset = per_charset = mplist ();
-  MPLIST_DO (plist, fontset->per_charset)
+  MPLIST_DO (pl, fontset->per_charset)
     {
       font_group = mplist ();
-      mplist_add (font_group, Mplist, MPLIST_VAL (plist));
       per_charset = mplist_add (per_charset, MPLIST_KEY (plist), font_group);
+      MPLIST_DO (p, MPLIST_PLIST (pl))
+	font_group = mplist_add (font_group, MPLIST_KEY (p), MPLIST_VAL (p));
     }
+  realized->fallback = font_group = mplist ();
+  MPLIST_DO (p, fontset->fallback)
+    font_group = mplist_add (font_group, MPLIST_KEY (p), MPLIST_VAL (p));
+}
 
-  realized->fallback = mplist ();
-  mplist_add (realized->fallback, Mplist, fontset->fallback);
+MPlist *
+get_per_script (MFontset *fontset, MSymbol script)
+{
+  MPlist *plist;
 
+  if (script == Mnil)
+    return fontset->fallback;
+  plist = mplist_get (fontset->per_script, script);
+  if (! plist)
+    {
+      int len = MSYMBOL_NAMELEN (script);
+      char *cap = alloca (8 + len + 1);
+      MSymbol capability;
+      MFont *font;
+      MPlist *pl, *p;
+
+      sprintf (cap, ":script=%s", MSYMBOL_NAME (script));
+      capability = msymbol (cap);
+
+      pl = mplist ();
+      MPLIST_DO (p, fontset->fallback)
+	{
+	  font = mfont_copy (MPLIST_VAL (p));
+	  mfont_put_prop (font, Mregistry, Municode_bmp);
+	  font->source = MFONT_SOURCE_FT;
+	  font->capability = capability;
+	  mplist_add (pl, Mt, font);
+
+	  font = mfont_copy (MPLIST_VAL (p));
+	  mfont_put_prop (font, Mregistry, Miso10646_1);
+	  font->source = MFONT_SOURCE_X;
+	  font->capability = capability;
+	  mplist_add (pl, Mt, font);
+	}
+      plist = mplist ();
+      mplist_add (plist, Mt, pl);
+      mplist_add (fontset->per_script, script, plist);
+    }
+  return plist;
 }
 
 static void
 free_realized_fontset_elements (MRealizedFontset *realized)
 {
   MPlist *plist, *pl, *p;
-  MRealizedFont *rfont;
+  MFont *font;
+  MFontList *font_list;
 
   if (realized->per_script)
     {
@@ -383,8 +378,18 @@ free_realized_fontset_elements (MRealizedFontset *realized)
 	  MPLIST_DO (pl, MPLIST_PLIST (plist))
 	    {
 	      MPLIST_DO (p, MPLIST_PLIST (pl))
-		if ((rfont = MPLIST_VAL (p)) && ! rfont->frame)
-		  free (rfont);
+		{
+		  font = MPLIST_VAL (p);
+		  if (font->type == MFONT_TYPE_OBJECT)
+		    {
+		      font_list = (MFontList *) font;
+		      free (font_list->fonts);
+		      free (font_list);
+		    }
+		  /* This is to avoid freeing rfont again by the later
+		     M17N_OBJECT_UNREF (p) */
+		  MPLIST_KEY (p) = Mt;
+		}
 	      p = MPLIST_PLIST (pl);
 	      M17N_OBJECT_UNREF (p);
 	    }
@@ -398,8 +403,16 @@ free_realized_fontset_elements (MRealizedFontset *realized)
       MPLIST_DO (plist, realized->per_charset)
 	{
 	  MPLIST_DO (pl, MPLIST_PLIST (plist))
-	    if ((rfont = MPLIST_VAL (pl)) && ! rfont->frame)
-	      free (rfont);
+	    {
+	      font = MPLIST_VAL (pl);
+	      if (font->type == MFONT_TYPE_OBJECT)
+		{
+		  font_list = (MFontList *) font;
+		  free (font_list->fonts);
+		  free (font_list);
+		}
+	      MPLIST_KEY (pl) = Mt;
+	    }
 	  pl = MPLIST_PLIST (plist);
 	  M17N_OBJECT_UNREF (pl);
 	}
@@ -408,8 +421,16 @@ free_realized_fontset_elements (MRealizedFontset *realized)
   if (realized->fallback)
     {
       MPLIST_DO (plist, realized->fallback)
-	if ((rfont = MPLIST_VAL (plist)) && ! rfont->frame)
-	  free (rfont);
+	{
+	  font = MPLIST_VAL (plist);
+	  if (font->type == MFONT_TYPE_OBJECT)
+	    {
+	      font_list = (MFontList *) font;
+	      free (font_list->fonts);
+	      free (font_list);
+	    }
+	  MPLIST_KEY (plist) = Mt;
+	}
       M17N_OBJECT_UNREF (realized->fallback);
     }
 }
@@ -418,8 +439,7 @@ static void
 update_fontset_elements (MRealizedFontset *realized)
 {
   free_realized_fontset_elements (realized);
-  realize_fontset_elements (realized->frame, realized, realized->fontset,
-			    &realized->spec);
+  realize_fontset_elements (realized->frame, realized);
 }
 
 
@@ -461,7 +481,8 @@ mfont__fontset_fini ()
 
 
 MRealizedFontset *
-mfont__realize_fontset (MFrame *frame, MFontset *fontset, MFace *face)
+mfont__realize_fontset (MFrame *frame, MFontset *fontset,
+			MFace *face, MFont *spec)
 {
   MRealizedFontset *realized;
   MFont request;
@@ -471,21 +492,33 @@ mfont__realize_fontset (MFrame *frame, MFontset *fontset, MFace *face)
     load_fontset_contents (fontset);
 
   mfont__set_spec_from_face (&request, face);
-  if (request.property[MFONT_SIZE] <= 0)
+  if (request.size <= 0)
     {
       mdebug_hook ();
-      request.property[MFONT_SIZE] = 120;
+      request.size = 120;
     }
   MPLIST_DO (plist, frame->realized_fontset_list)
     {
       realized = (MRealizedFontset *) MPLIST_VAL (plist);
       if (fontset->name == MPLIST_KEY (plist)
-	  && ! memcmp (&request, &realized->spec, sizeof (request)))
+	  && ! memcmp (&request, &realized->request, sizeof (MFont))
+	  && (realized->spec
+	      ? (spec && ! memcmp (spec, &realized->spec, sizeof (MFont)))
+	      : ! spec))
 	return realized;
     }
 
-  MSTRUCT_MALLOC (realized, MERROR_FONTSET);
-  realize_fontset_elements (frame, realized, fontset, &request);
+  MSTRUCT_CALLOC (realized, MERROR_FONTSET);
+  realized->fontset = fontset;
+  realized->tick = fontset->tick;
+  if (spec)
+    {
+      MSTRUCT_CALLOC (realized->spec, MERROR_FONTSET);
+      *realized->spec = *spec;
+    }
+  realized->request = request;
+  realized->frame = frame;
+  realize_fontset_elements (frame, realized);
   mplist_add (frame->realized_fontset_list, fontset->name, realized);
   return realized;
 }
@@ -495,75 +528,177 @@ void
 mfont__free_realized_fontset (MRealizedFontset *realized)
 {
   free_realized_fontset_elements (realized);
+  if (realized->spec)
+    free (realized->spec);
   free (realized);
 }
 
 
 static MRealizedFont *
-try_font_group (MRealizedFontset *realized,
+try_font_list (MFrame *frame, MFontList *font_list, MFont *request,
+	       MSymbol layouter, MGlyph *g, int *num, int all, int exact)
+{
+  int i, j;
+  MFont *font;
+  MRealizedFont *rfont;
+
+  for (i = 0; i < font_list->nfonts; i++)
+    {
+      if (font_list->fonts[i].font->type == MFONT_TYPE_SPEC)
+	MFATAL (MERROR_FONT);
+      if (exact)
+	{
+	  if (font_list->fonts[i].score > 0)
+	    break;
+	}
+      else
+	{
+	  if (font_list->fonts[i].score == 0)
+	    continue;
+	}
+      font = font_list->fonts[i].font;
+      if (font->type == MFONT_TYPE_FAILURE)
+	continue;
+      /* Check if this font can display all glyphs.  */
+      for (j = 0; j < *num; j++)
+	{
+	  int c = g[j].type == GLYPH_CHAR ? g[j].c : ' ';
+	  if (layouter != Mt
+	      ? mfont__flt_encode_char (layouter, c) == MCHAR_INVALID_CODE
+	      : ! mfont__has_char (frame, font, &font_list->object, c))
+	    break;
+	}
+      if (j == 0 && *num > 0)
+	continue;
+      if (j == *num || !all)
+	{
+	  /* We found a font that can display the requested range of
+	     glyphs.  */
+	  if (font->type == MFONT_TYPE_REALIZED)
+	    rfont = (MRealizedFont *) font;
+	  else
+	    {
+	      rfont = mfont__open (frame, font, &font_list->object);
+	      if (! rfont)
+		continue;
+	      font_list->fonts[i].font = (MFont *) rfont;
+	    }
+	  rfont->layouter = layouter == Mt ? Mnil : layouter;
+	  *num = j;
+	  for (j = 0; j < *num; j++)
+	    {
+	      int c = g[j].type == GLYPH_CHAR ? g[j].c : ' ';
+
+	      g[j].code = (rfont->layouter
+			   ? mfont__flt_encode_char (rfont->layouter, c)
+			   : mfont__encode_char (frame, (MFont *) rfont,
+						 &font_list->object, c));
+	    }
+	  return rfont;
+	}
+    }
+  return NULL;
+}
+
+
+static MRealizedFont *
+try_font_group (MRealizedFontset *realized, MFont *request,
 		MPlist *font_group, MGlyph *g, int *num, int size)
 {
   MFrame *frame = realized->frame;
+  MFont *font;
+  MFontList *font_list;
   MRealizedFont *rfont;
   MPlist *plist;
-  int i;
+  MSymbol layouter;
+  int best_score = -1, worst_score;
 
-  if (MPLIST_PLIST_P (font_group))
-    realize_font_group (frame, &realized->spec, font_group, size);
-
-  MPLIST_DO (plist, font_group)
+  for (plist = font_group; ! MPLIST_TAIL_P (plist); )
     {
-      rfont = (MRealizedFont *) MPLIST_VAL (plist);
-      if (rfont->status < 0)
-	continue;
-      /* Check if this font can display all glyphs.  */
-      for (i = 0; i < *num; i++)
+      int this_score;
+
+      layouter = MPLIST_KEY (plist);
+      font = MPLIST_VAL (plist);
+      if (font->type == MFONT_TYPE_SPEC)
 	{
-	  g[i].code = mfont__encode_char (rfont,
-					  g[i].type == GLYPH_CHAR ? g[i].c
-					  : ' ');
-	  if (g[i].code == MCHAR_INVALID_CODE)
-	    break;
+	  if (realized->spec)
+	    {
+	      MFont this = *font;
+	      
+	      if (mfont__merge (&this, realized->spec, 1) < 0)
+		{
+		  mplist_pop (plist);
+		  continue;
+		}
+	      font_list = mfont__list (frame, &this, &this, size);
+	    }
+	  else
+	    font_list = mfont__list (frame, font, request, size);
+	  if (! font_list)
+	    {
+	      mplist_pop (plist);
+	      continue;
+	    }
+	  MPLIST_VAL (plist) = font_list;
 	}
-      if (i == *num)
+      else
+	font_list = (MFontList *) font;
+
+      this_score = font_list->fonts[0].score;
+      if ((this_score == 0)
+	  && (rfont = try_font_list (frame, font_list, request,
+				     layouter, g, num, 1, 1)))
+	return rfont;
+      if (best_score < 0)
 	{
-	  if (rfont->status > 0
-	      || mfont__open (rfont) == 0)
-	    /* We found a font that can display all glyphs.  */
-	    return rfont;
+	  best_score = worst_score = this_score;
+	  plist = MPLIST_NEXT (plist);
+	}
+      else if (this_score >= worst_score)
+	{
+	  worst_score = this_score;
+	  plist = MPLIST_NEXT (plist);
+	}
+      else
+	{
+	  MPlist *pl;
+
+	  MPLIST_DO (pl, font_group)
+	    if (this_score < ((MFontList *) MPLIST_VAL (pl))->fonts[0].score)
+	      break;
+	  mplist_pop (plist);
+	  mplist_push (pl, layouter, font_list);
 	}
     }
 
-  /* We couldn't find a font that can display all glyphs.  Find one
-     that can display at least the first glyph.  */
+  /* We couldn't find an exact matching font that can display all
+     glyphs.  Find one that can at least display all glyphs.  */
   MPLIST_DO (plist, font_group)
     {
-      rfont = (MRealizedFont *) MPLIST_VAL (plist);
-      if (rfont->status < 0)
-	continue;
-      g->code = mfont__encode_char (rfont,
-				    g->type == GLYPH_CHAR ? g->c : ' ');
-      if (g->code != MCHAR_INVALID_CODE)
-	{
-	  if (rfont->status > 0
-	      || mfont__open (rfont) == 0)
-	    {
-	      /* Ok, let's use this font.  Check how many more
-		 characters it supports.  */
-	      int i;
+      rfont = try_font_list (frame, MPLIST_VAL (plist), request,
+			     MPLIST_KEY (plist), g, num, 1, 0);
+      if (rfont)
+	return rfont;
+    }
 
-	      for (i = 1; i < *num; i++)
-		{
-		  g[i].code = mfont__encode_char (rfont,
-						  g[i].type == GLYPH_CHAR
-						  ? g[i].c : ' ');
-		  if (g[i].code == MCHAR_INVALID_CODE)
-		    break;
-		}
-	      *num = i;
-	      return rfont;
-	    }
-	}
+  /* We couldn't find a font that can display all glyphs.  Find an
+     exact matching font that can at least display the first
+     glyph.  */
+  MPLIST_DO (plist, font_group)
+    {
+      rfont = try_font_list (frame, MPLIST_VAL (plist), request,
+			     MPLIST_KEY (plist), g, num, 0, 1);
+      if (rfont)
+	return rfont;
+    }
+
+  /* Find any font that can at least display the first glyph.  */
+  MPLIST_DO (plist, font_group)
+    {
+      rfont = try_font_list (frame, MPLIST_VAL (plist), request,
+			     MPLIST_KEY (plist), g, num, 0, 0);
+      if (rfont)
+	return rfont;
     }
 
   return NULL;
@@ -572,7 +707,7 @@ try_font_group (MRealizedFontset *realized,
 MRealizedFont *
 mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 		       MSymbol script, MSymbol language, MSymbol charset,
-		       int size)
+		       int size, int ignore_fallback)
 {
   MCharset *preferred_charset = (charset == Mnil ? NULL : MCHARSET (charset));
   MPlist *per_charset, *per_script, *per_lang;
@@ -584,12 +719,29 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 
   if (preferred_charset
       && (per_charset = mplist_get (realized->per_charset, charset)) != NULL
-      && (rfont = try_font_group (realized, per_charset, g, num, size)))
+      && (rfont = try_font_group (realized, &realized->request, per_charset,
+				  g, num, size)))
     return rfont;
 
-  if (script != Mnil
-      && (per_script = mplist_get (realized->per_script, script)))
+  if (script != Mnil)
     {
+      MFont request = realized->request;
+
+      if (script != Mlatin)
+	/* These are not appropriate for non-Latin scripts.  */
+	request.property[MFONT_FOUNDRY]
+	  = request.property[MFONT_FAMILY]
+	  = request.property[MFONT_REGISTRY] = 0;
+
+      per_script = mplist_get (realized->per_script, script);
+      if (! per_script)
+	{
+	  per_script = mplist_copy (get_per_script (realized->fontset, script));
+	  MPLIST_DO (plist, per_script)
+	    MPLIST_VAL (plist) = mplist_copy (MPLIST_VAL (plist));
+	  mplist_add (realized->per_script, script, per_script);
+	}
+
       /* We prefer font groups in this order:
 	  (1) group matching with LANGUAGE if LANGUAGE is not Mnil
 	  (2) group for generic language
@@ -597,7 +749,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       if (language == Mnil)
 	language = Mt;
       if ((per_lang = mplist_get (per_script, language))
-	  && (rfont = try_font_group (realized, per_lang, g, num, size)))
+	  && (rfont = try_font_group (realized, &request, per_lang,
+				      g, num, size)))
 	return rfont;
 
       if (language == Mt)
@@ -605,7 +758,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  /* Try the above (3) */
 	  MPLIST_DO (plist, per_script)
 	    if (MPLIST_KEY (plist) != language
-		&& (rfont = try_font_group (realized, MPLIST_PLIST (plist),
+		&& (rfont = try_font_group (realized, &request,
+					    MPLIST_PLIST (plist),
 					    g, num, size)))
 	      return rfont;
 	}
@@ -613,41 +767,57 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	{
 	  /* At first try the above (2) */
 	  if ((per_lang = mplist_get (per_script, Mt))
-	      && (rfont = try_font_group (realized, per_lang, g, num, size)))
+	      && (rfont = try_font_group (realized, &request, per_lang,
+					  g, num, size)))
 	    return rfont;
 
 	  /* Then try the above (3) */
 	  MPLIST_DO (plist, per_script)
 	    if (MPLIST_KEY (plist) != language
 		&& MPLIST_KEY (plist) != Mt
-		&& (rfont = try_font_group (realized, MPLIST_PLIST (plist),
+		&& (rfont = try_font_group (realized, &request,
+					    MPLIST_PLIST (plist),
 					    g, num, size)))
 	      return rfont;
 	}
+      if (ignore_fallback)
+	return NULL;
     }
 
   if (language != Mnil)
     /* Find a font group for this language from all scripts.  */
     MPLIST_DO (plist, realized->per_script)
-      if ((per_lang = mplist_get (MPLIST_PLIST (plist), language))
-	  && (rfont = try_font_group (realized, per_lang, g, num, size)))
-	return rfont;
+      {
+	MFont request = realized->request;
+
+	if (MPLIST_KEY (plist) != Mlatin)
+	  request.property[MFONT_FOUNDRY]
+	    = request.property[MFONT_FAMILY]
+	    = request.property[MFONT_FAMILY] = 0;
+	if ((per_lang = mplist_get (MPLIST_PLIST (plist), language))
+	    && (rfont = try_font_group (realized, &request, per_lang,
+					g, num, size)))
+	  return rfont;
+      }
 
   /* Try fallback fonts.  */
-  if ((rfont = try_font_group (realized, realized->fallback, g, num, size)))
+  if ((rfont = try_font_group (realized, &realized->request,
+			       realized->fallback, g, num, size)))
     return rfont;
+
+  return NULL;
 
   /* At last try all fonts.  */
   MPLIST_DO (per_script, realized->per_script)
     {
       MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-	if ((rfont = try_font_group (realized, MPLIST_PLIST (per_lang),
-				     g, num, size)))
+	if ((rfont = try_font_group (realized, &realized->request,
+				     MPLIST_PLIST (per_lang), g, num, size)))
 	  return rfont;
     }
   MPLIST_DO (per_charset, realized->per_charset)
-    if ((rfont = try_font_group (realized, MPLIST_PLIST (per_charset),
-				 g, num, size)))
+    if ((rfont = try_font_group (realized, &realized->request,
+				 MPLIST_PLIST (per_charset), g, num, size)))
       return rfont;
 
   return NULL;
@@ -723,7 +893,6 @@ mfontset (char *name)
 	      fontset->per_script = mplist ();
 	      fontset->per_charset = mplist ();
 	      fontset->fallback = mplist ();
-	      fontset->font_spec_list = mplist ();
 	    }
 	  mplist_put (fontset_list, sym, fontset);
 	}
@@ -770,7 +939,7 @@ mfontset_copy (MFontset *fontset, char *name)
 {
   MSymbol sym = msymbol (name);
   MFontset *copy = mplist_get (fontset_list, sym);
-  MPlist *plist, *pl;
+  MPlist *plist, *pl, *p;
 
   if (copy)
     return NULL;
@@ -785,25 +954,44 @@ mfontset_copy (MFontset *fontset, char *name)
       copy->per_script = mplist ();
       MPLIST_DO (plist, fontset->per_script)
         {
-	  MPlist *new = mplist ();
+	  MPlist *per_lang = mplist ();
 
+	  mplist_add (copy->per_script, MPLIST_KEY (plist), per_lang);
 	  MPLIST_DO (pl, MPLIST_PLIST (plist))
-	    mplist_add (new, MPLIST_KEY (pl), mplist_copy (MPLIST_PLIST (pl)));
-	  mplist_add (copy->per_script, MPLIST_KEY (plist), new);
+	    {
+	      MPlist *font_group = mplist ();
+
+	      per_lang = mplist_add (per_lang, MPLIST_KEY (pl), font_group);
+	      MPLIST_DO (p, MPLIST_PLIST (pl))
+		font_group = mplist_add (font_group, MPLIST_KEY (p),
+					 mfont_copy (MPLIST_VAL (p)));
+	    }
 	}
     }
   if (fontset->per_charset)
     {
-      copy->per_charset = mplist ();
-      MPLIST_DO (plist, fontset->per_charset)
-	mplist_add (copy->per_charset, MPLIST_KEY (plist),
-		    mplist_copy (MPLIST_PLIST (plist)));
+      MPlist *per_charset = mplist ();
+
+      copy->per_charset = per_charset;
+      MPLIST_DO (pl, fontset->per_charset)
+	{
+	  MPlist *font_group = mplist ();
+
+	  per_charset = mplist_add (per_charset, MPLIST_KEY (pl), font_group);
+	  MPLIST_DO (p, MPLIST_PLIST (pl))
+	    font_group = mplist_add (font_group, MPLIST_KEY (p),
+				     mfont_copy (MPLIST_VAL (p)));
+	}
     }
   if (fontset->fallback)
-    copy->fallback = mplist_copy (fontset->fallback);
+    {
+      MPlist *font_group = mplist ();
 
-  copy->font_spec_list = fontset->font_spec_list;
-  M17N_OBJECT_REF (copy->font_spec_list);
+      copy->fallback = font_group;
+      MPLIST_DO (p, fontset->fallback)
+	font_group = mplist_add (font_group, MPLIST_KEY (p),
+				 mfont_copy (MPLIST_VAL (p)));
+    }				 
 
   mplist_put (fontset_list, sym, copy);
   M17N_OBJECT_REF (copy);
@@ -903,30 +1091,12 @@ mfontset_modify_entry (MFontset *fontset,
 		       MFont *spec, MSymbol layouter_name,
 		       int how)
 {
-  MPlist *per_lang, *plist[3], *pl;
+  MPlist *per_lang, *plist[3];
   MFont *font = NULL;
   int i;
 
   if (fontset->mdb)
     load_fontset_contents (fontset);
-
-  if (! fontset->font_spec_list)
-    fontset->font_spec_list = mplist ();
-  else
-    MPLIST_DO (pl, fontset->font_spec_list)
-      {
-	if (! memcmp (MPLIST_VAL (pl), spec, sizeof (MFont)))
-	  {
-	    font = MPLIST_VAL (pl);
-	    break;
-	  }
-      }
-  if (! font)
-    {
-      font = mfont ();
-      *font = *spec;
-      mplist_add (fontset->font_spec_list, Mt, font);
-    }
 
   i = 0;
   if (script != Mnil)
@@ -957,12 +1127,18 @@ mfontset_modify_entry (MFontset *fontset,
     layouter_name = Mt;
   for (i--; i >= 0; i--)
     {
+      font = mfont_copy (spec);
+      font->type = MFONT_TYPE_SPEC;
       if (how == 1)
 	mplist_push (plist[i], layouter_name, font);
       else if (how == -1)
 	mplist_add (plist[i], layouter_name, font);
       else
 	{
+	  MPlist *pl;
+
+	  MPLIST_DO (pl, plist[i])
+	    free (MPLIST_VAL (pl));
 	  mplist_set (plist[i], Mnil, NULL);
 	  mplist_add (plist[i], layouter_name, font);
 	}
@@ -1076,10 +1252,8 @@ mfontset_lookup (MFontset *fontset,
     }
   if (script != Mnil)
     {
-      if (! fontset->per_script)
-	return plist;
-      pl = mplist_get (fontset->per_script, script);
-      if (! pl)
+      pl = get_per_script (fontset, script);
+      if (MPLIST_TAIL_P (pl))
 	return plist;
       if (language == Mt)
 	{
@@ -1156,7 +1330,8 @@ mdebug_dump_fontset (MFontset *fontset, int indent)
 	    fprintf (stderr, "\n    %s(%s", prefix, MPLIST_KEY (pl)->name);
 	    MPLIST_DO (p, MPLIST_PLIST (pl))
 	      {
-		fprintf (stderr, "\n      %s(%s ", prefix,
+		fprintf (stderr, "\n      %s(0x%X %s ", prefix,
+			 (unsigned) MPLIST_VAL (p),
 			 MPLIST_KEY (p)->name);
 		mdebug_dump_font (MPLIST_VAL (p));
 		fprintf (stderr, ")");
