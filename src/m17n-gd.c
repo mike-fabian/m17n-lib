@@ -223,6 +223,49 @@ intersect_rectangle (MDrawMetric *r1, MDrawMetric *r2, MDrawMetric *rect)
   gdImageColorResolve ((img), (color) >> 16, ((color) >> 8) & 0xFF,	\
 		       (color) & 0xFF)
 
+static MRealizedFont *gd_font_open (MFrame *, MFont *, MFont *,
+				    MRealizedFont *);
+static void gd_render (MDrawWindow, int, int, MGlyphString *,
+		       MGlyph *, MGlyph *, int, MDrawRegion);
+
+static MFontDriver gd_font_driver =
+  { NULL, gd_font_open, NULL, NULL, NULL, gd_render, NULL };
+
+static MRealizedFont *
+gd_font_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
+{
+  double size = font->size ? font->size : spec->size;
+  int reg = spec->property[MFONT_REGISTRY];
+  MRealizedFont *new;
+
+  if (rfont)
+    {
+      MRealizedFont *save = NULL;
+
+      for (; rfont; rfont = rfont->next)
+	if (rfont->font == font
+	    && (rfont->font->size ? rfont->font->size == size
+		: rfont->spec.size == size)
+	    && rfont->spec.property[MFONT_REGISTRY] == reg)
+	  {
+	    if (! save)
+	      save = rfont;
+	    if (rfont->driver == &gd_font_driver)
+	      return rfont;
+	  }
+      rfont = save;
+    }
+  rfont = (mfont__ft_driver.open) (frame, font, spec, rfont);
+  if (! rfont)
+    return NULL;
+  M17N_OBJECT_REF (rfont->info);
+  MSTRUCT_CALLOC (new, MERROR_GD);
+  *new = *rfont;
+  new->driver = &gd_font_driver;
+  new->next = MPLIST_VAL (frame->realized_font_list);
+  MPLIST_VAL (frame->realized_font_list) = new;
+  return new;
+}
 
 static void
 gd_render (MDrawWindow win, int x, int y,
@@ -230,7 +273,6 @@ gd_render (MDrawWindow win, int x, int y,
 	   int reverse, MDrawRegion region)
 {
   gdImagePtr img = (gdImagePtr) win;
-  MFTInfo *ft_info;
   FT_Face ft_face;
   MRealizedFace *rface = from->rface;
   FT_Int32 load_flags = FT_LOAD_RENDER;
@@ -245,8 +287,7 @@ gd_render (MDrawWindow win, int x, int y,
 
   /* It is assured that the all glyphs in the current range use the
      same realized face.  */
-  ft_info = (MFTInfo *) rface->rfont->info;
-  ft_face = ft_info->ft_face;
+  ft_face = rface->rfont->fontp;
   color = ((int *) rface->info)[reverse ? COLOR_INVERSE : COLOR_NORMAL];
   pixel = RESOLVE_COLOR (img, color);
 
@@ -315,9 +356,6 @@ gd_render (MDrawWindow win, int x, int y,
 	  }
     }
 }
-
-static MFontDriver gd_font_driver =
-  { NULL, NULL, NULL, NULL, gd_render };
 
 static void
 gd_close (MFrame *frame)
@@ -740,9 +778,10 @@ device_init ()
   scratch_images[0] = scratch_images[1] = NULL;
 
   gd_font_driver.select = mfont__ft_driver.select;
-  gd_font_driver.open = mfont__ft_driver.open;
   gd_font_driver.find_metric = mfont__ft_driver.find_metric;
+  gd_font_driver.has_char = mfont__ft_driver.has_char;
   gd_font_driver.encode_char = mfont__ft_driver.encode_char;
+  gd_font_driver.list = mfont__ft_driver.list;
 
   return 0;
 }
@@ -766,8 +805,8 @@ device_fini ()
     }
   M17N_OBJECT_UNREF (realized_face_list);
 
-  MPLIST_DO (plist, realized_font_list)
-    mfont__free_realized ((MRealizedFont *) MPLIST_VAL (plist));
+  if (MPLIST_VAL (realized_font_list))
+    mfont__free_realized (MPLIST_VAL (realized_font_list));
   M17N_OBJECT_UNREF (realized_font_list);
 
   for (i = 0; i < 2; i++)
