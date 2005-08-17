@@ -25,13 +25,14 @@
 
 extern MRealizedFontset *mfont__realize_fontset (MFrame *frame,
 						 MFontset *fontset,
-						 MFace *face);
+						 MFace *face, MFont *spec);
 
 void mfont__free_realized_fontset (MRealizedFontset *realized);
 
 extern MRealizedFont *mfont__lookup_fontset (MRealizedFontset *realized,
 					     MGlyph *g, int *num,
 					     MSymbol script, MSymbol language,
-					     MSymbol charset, int size);
+					     MSymbol charset, int size,
+					     int ignore_fallback);
 
 #endif /* _M17N_FONTSET_H_ */
