@@ -1,5 +1,5 @@
 /* mdump.c -- Dump text image				-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -449,6 +449,8 @@ main (int argc, char **argv)
   MDrawMetric rect;
   char *filename = "output";
   int len, from;
+  char *fontset_name = "truetype";
+
 
   /* Parse the command line arguments.  */
   for (i = 1; i < argc; i++)
@@ -562,6 +564,11 @@ main (int argc, char **argv)
 	    FATAL_ERROR ("Fail to open the file %s!\n", argv[i]);
 	  filename = basename (argv[i]);
 	}
+      else if (! strcmp (argv[i], "--fontset"))
+	{
+	  fontset_name = argv[++i];
+	}
+
       else
 	{
 	  fprintf (stderr, "Unknown or invalid option: %s\n", argv[i]);
@@ -596,7 +603,7 @@ main (int argc, char **argv)
 
   {
     MPlist *plist = mplist (), *p;
-    MFontset *fontset = mfontset ("truetype");
+    MFontset *fontset = mfontset (fontset_name);
     MFace *face = mface ();
 
     mface_put_prop (face, Mfontset, fontset);
