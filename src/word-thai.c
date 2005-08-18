@@ -20,6 +20,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.  */
 
+#if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
+/*** @addtogroup m17nInternal
+     @{ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -321,3 +325,6 @@ mtext__word_thai_fini ()
     }
 #endif
 }
+
+/*** @} */
+#endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
