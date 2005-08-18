@@ -864,24 +864,9 @@ xlfd_unparse_name (MFont *font)
   return strdup (name);
 }
 
-void
-mfont__free_realized (MRealizedFont *rfont)
-{
-  MRealizedFont *next;
-
-  for (; rfont; rfont = next)
-    {
-      next = rfont->next;
-      M17N_OBJECT_UNREF (rfont->info);
-      free (rfont);
-      rfont = next;
-    }
-}
-
-
 /* Compare FONT with REQUEST and return how much they differs.  */
 
-int
+static int
 font_score (MFont *font, MFont *request)
 {
   int score = 0;
@@ -1328,6 +1313,20 @@ mdebug_dump_font_list (MFontList *font_list)
     }
 }
 
+void
+mfont__free_realized (MRealizedFont *rfont)
+{
+  MRealizedFont *next;
+
+  for (; rfont; rfont = next)
+    {
+      next = rfont->next;
+      M17N_OBJECT_UNREF (rfont->info);
+      free (rfont);
+      rfont = next;
+    }
+}
+
 MFontList *
 mfont__list (MFrame *frame, MFont *spec, MFont *request, int max_size)
 {
@@ -1579,7 +1578,7 @@ mfont__parse_name_into_font (char *name, MSymbol format, MFont *font)
 #ifdef HAVE_FONTCONFIG
   if (format == Mfontconfig || (! result && format == Mnil))
     result = mfont__ft_parse_name (name, font);
-#endif
+#endif /* HAVE_FONTCONFIG */
   return result;
 }
 
@@ -2702,7 +2701,12 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
 /*=*/
 
 /***en
-    @brief Check if FONT can be used for SCRIPT and LANGUAGE in FONTSET.
+    @brief Check the usability of a font.
+
+    The function mfont_check () checkes if $FONT can be used for
+    $SCRIPT and RLANGUAGE in $FONTSET on $FRAME.
+
+    @return If the font is usable, return 1.  Otherwise return 0.
  */
 
 int
