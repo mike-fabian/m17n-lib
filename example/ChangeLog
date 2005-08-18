@@ -1,3 +1,10 @@
+2005-08-18  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): Adjusted for the change of symbol's language
+	property (now in lowercase).
+
+	* mdump.c (main): Handle --fontset arg.
+
 2005-05-19  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): Explicitly set minput_driver.
