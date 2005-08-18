@@ -110,6 +110,7 @@
 	(mfont_resize_ratio): Adjusted for the change of MFont.
 	(mfont_list): Use mfont__list.
 	(mfont_check): New function.
+	(font_score): Make it static.
 
 	* fontset.h (mfont__realize_fontset): Prototype adjusted.
 	(mfont__lookup_fontset): Likewise.
