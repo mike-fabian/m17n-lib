@@ -23,22 +23,6 @@
 #ifndef _M17N_FONT_H_
 #define _M17N_FONT_H_
 
-/** Type of font.  Now obsolete.  */
-
-enum MFontType
-  {
-    /** Fonts supproted by a window system natively.  On X Window
-	System, it is an X font.  */
-    MFONT_TYPE_WIN,
-
-    /** Fonts supported by FreeType library.  */
-    MFONT_TYPE_FT,
-
-    /** anchor */
-    MFONT_TYPE_MAX
-  };
-
-
 enum MFontProperty
   {
     /* The order of MFONT_FOUNDRY to MFONT_ADSTYLE must be the same as
@@ -50,11 +34,31 @@ enum MFontProperty
     MFONT_STRETCH,
     MFONT_ADSTYLE,
     MFONT_REGISTRY,
-    MFONT_SIZE,
     MFONT_RESY,
+    /* Actually this should not be used as an index to
+       MFont->propperty.  */
+    MFONT_SIZE,
     /* anchor */
-    MFONT_PROPERTY_MAX
+    MFONT_PROPERTY_MAX = MFONT_SIZE
   };
+
+enum MFontType
+  {
+    MFONT_TYPE_SPEC,
+    MFONT_TYPE_OBJECT,
+    MFONT_TYPE_REALIZED,
+    MFONT_TYPE_FAILURE
+  };
+
+enum MFontSource
+  {
+    MFONT_SOURCE_UNDECIDED = 0,
+    MFONT_SOURCE_X = 1,
+    MFONT_SOURCE_FT = 2
+  };
+
+typedef struct MFontEncoding MFontEncoding;
+typedef struct MFontDriver MFontDriver;
 
 /** Information about a font.  This structure is used in three ways:
     FONT-OBJ, FONT-OPENED, and FONT-SPEC.  
@@ -80,8 +84,6 @@ struct MFont
       means that the correponding property is not specified (i.e. wild
       card).
 
-      <property>[MFONT_SIZE] is the size of the font in 1/10 pixels.
-
       For FONT-OBJ: If the value is 0, the font is scalable or
       auto-scaled.
 
@@ -93,6 +95,13 @@ struct MFont
       For the time being, we mention only Y-resolution (resy) and
       assume that resx is always equal to resy.  */
   unsigned short property[MFONT_PROPERTY_MAX];
+  enum MFontType type : 2;
+  enum MFontSource source : 2;
+  /* Size of the font in 1/10 pixels.  */
+  unsigned size : 26;
+  MSymbol file;
+  MSymbol capability;
+  MFontEncoding *encoding;
 };
 
 typedef struct
@@ -106,80 +115,77 @@ extern MFontPropertyTable mfont__property_table[MFONT_REGISTRY + 1];
 
 /** Return the symbol of the Nth font property of FONT.  */
 #define FONT_PROPERTY(font, n)	\
-  mfont__property_table[(n)].names[(font)->property[(n)]]
-
-typedef struct MFontEncoding MFontEncoding;
+  (mfont__property_table[(n)].names[(font)->property[(n)]])
 
 struct MRealizedFont
 {
+  /* Font spec used to find the font.
+     MRealizedFont::spec.property[MFONT_TYPE] is MFONT_TYPE_REALIZED
+     so that this object can be distingushed from MFont.  */
+  MFont spec;
+
   /* Frame on which the font is realized.  */
   MFrame *frame;
 
-  /* Font spec used to find the font.  */
-  MFont spec;
-
-  /* Font spec requested by a face.  */
-  MFont request;
-
   /* The found font.  */
-  MFont font;
-
-  /* How well <font> matches with <request>.  */
-  int score;
+  MFont *font;
 
   MFontDriver *driver;
 
-  /* Font Layout Table for the font.  */
+  /* Font Layout Table for the font.  This is just a container to
+     carry the infomation.  */
   MSymbol layouter;
 
-  /* 0: not yet tried to open
-     -1: failed to open
-     1: succeessfully opened.  */
-  int status;
-
-  /* Extra information set by <driver>->select or <driver>->open.  If
+  /* Extra information set by MRealizedFont::driver->open.  If
      non-NULL, it must be a pointer to a managed object.  */
   void *info;
 
   short ascent, descent;
 
-  MFontEncoding *encoding;
-
-  /* Type of the font: Mx, Mfreetype, or Mxft.  */
-  MSymbol type;
-
   /* Pointer to the font structure.  */
   void *fontp;
+
+  MRealizedFont *next;
 };
 
-/** Structure to hold a list of fonts of each registry.  */
+typedef struct {
+  MFont *font;
+  int score;
+} MFontScore;
+
+/** Structure to hold a list of fonts.  */
 
 typedef struct
 {
-  MSymbol tag;
+  MFont object;
+  MFontScore *fonts;
   int nfonts;
-  MFont *fonts;
 } MFontList;
-
 
 struct MFontDriver
 {
-  /** Return a font satisfying REQUEST and best matching with SPEC.
-      For the moment, LIMITTED_SIZE is ignored.  */
-  MRealizedFont *(*select) (MFrame *frame, MFont *spec, MFont *request,
-			    int limitted_size);
+  /** Return a font best matching with FONT.  */
+  MFont *(*select) (MFrame *frame, MFont *font, int limited_size);
 
   /** Open a font specified by RFONT.  */
-  int (*open) (MRealizedFont *rfont);
+  MRealizedFont *(*open) (MFrame *frame, MFont *font, MFont *spec,
+			  MRealizedFont *rfont);
 
   /** Set metrics of glyphs in GSTRING from FROM to TO.  */
   void (*find_metric) (MRealizedFont *rfont, MGlyphString *gstring,
 		       int from, int to);
 
+  /** Check if the font has a glyph for CODE.  CODE is a code point of
+      a character in font->encoder->encoding_charset.  Return nonzero
+      iff the font has the glyph.  */
+  int (*has_char) (MFrame *frame, MFont *font, MFont *spec,
+		   int c, unsigned code);
+
   /** Encode CODE into a glyph code the font.  CODE is a code point of
       a character in rfont->encoder->encoding_charset.  If the font
       has no glyph for CODE, return MCHAR_INVALID_CODE.  */
-  unsigned (*encode_char) (MRealizedFont *rfont, unsigned code);
+  unsigned (*encode_char) (MFrame *frame, MFont *font, MFont *spec,
+			   unsigned code);
 
   /** Draw glyphs from FROM to TO (exclusive) on window WIN of FRAME
       at coordinate (X, Y) relative to WIN.  */
@@ -187,12 +193,10 @@ struct MFontDriver
 		  MGlyphString *gstring, MGlyph *from, MGlyph *to,
 		  int reverse, MDrawRegion region);
 
-  /** Push to PLIST fonts matching with FONT.  LANGUAGE, if not Mnil,
-      limits fonts to ones that support LANGUAGE.  MAXNUM if greater
-      than 0 limits the number of listed fonts.  Return how many fonts
-      a listed.  */
-  int (*list) (MFrame *frame, MPlist *plist, MFont *font, MSymbol language,
-	       int maxnum);
+  /** Push to PLIST fonts matching with FONT.  MAXNUM if greater than
+      0 limits the number of listed fonts.  Return the number of fonts
+      listed.  */
+  int (*list) (MFrame *frame, MPlist *plist, MFont *font, int maxnum);
 };
 
 /** Initialize the members of FONT.  */
@@ -200,6 +204,8 @@ struct MFontDriver
 #define MFONT_INIT(font) memset ((font), 0, sizeof (MFont))
 
 extern MSymbol Mlayouter;
+extern MSymbol Miso8859_1, Miso10646_1, Municode_bmp, Municode_full;
+extern MSymbol Mapple_roman;
 
 extern int mfont__flt_init ();
 
@@ -215,28 +221,32 @@ extern void mfont__flt_fini ();
 
 #ifdef HAVE_OTF
 #include <otf.h>
-#endif /* HAVE_OTF */
+#else  /* not HAVE_OTF */
+typedef unsigned OTF_Tag;
+#endif /* not HAVE_OTF */
+
+enum MFontOpenTypeTable
+  {
+    MFONT_OTT_GSUB,
+    MFONT_OTT_GPOS,
+    MFONT_OTT_MAX
+  };
 
 typedef struct
 {
   M17NObject control;
-  MFont font;
-  char *filename;
-  int otf_flag;	/* This font is OTF (1), may be OTF (0), is not OTF (-1).  */
-  MPlist *charmap_list;
-  int charmap_index;
-  FT_Face ft_face;
-  char *languages;
+  MSymbol *lang;
+  MSymbol script;
+  OTF_Tag script_tag;
 #ifdef HAVE_OTF
-  OTF *otf;
-#endif /* HAVE_OTF */
-#ifdef HAVE_FONTCONFIG
-  FcLangSet *langset;
-#else
-  void *langset;
+  OTF_Tag langsys_tag;
+  struct {
+    char *str;
+    int nfeatures;
+    OTF_Tag *tags;
+  } features[MFONT_OTT_MAX];
 #endif
-  void *extra_info;		/* Xft uses this member.  */
-} MFTInfo;
+} MFontCapability;
 
 extern MFontDriver mfont__ft_driver;
 
@@ -251,8 +261,7 @@ extern char *mfont__ft_unparse_name (MFont *font);
 #ifdef HAVE_OTF
 
 extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
-				MSymbol script, MSymbol langsys,
-				MSymbol gsub_features, MSymbol gpos_features);
+				MFontCapability *capability);
 
 extern int mfont__ft_decode_otf (MGlyph *g);
 
@@ -264,8 +273,7 @@ extern void mfont__free_realized (MRealizedFont *rfont);
 
 extern int mfont__match_p (MFont *font, MFont *spec, int prop);
 
-extern int mfont__score (MFont *font, MFont *spec, MFont *request,
-			 int limitted_size);
+extern int mfont__merge (MFont *dst, MFont *src, int error_on_conflict);
 
 extern void mfont__set_spec_from_face (MFont *spec, MFace *face);
 
@@ -273,13 +281,17 @@ extern MSymbol mfont__set_spec_from_plist (MFont *spec, MPlist *plist);
 
 extern void mfont__resize (MFont *spec, MFont *request);
 
-extern unsigned mfont__encode_char (MRealizedFont *rfont, int c);
+extern int mfont__has_char (MFrame *frame, MFont *font, MFont *spec, int c);
 
-extern MRealizedFont *mfont__select (MFrame *frame, MFont *spec,
-				     MFont *request, int limitted_size,
-				     MSymbol layouter);
+extern unsigned mfont__encode_char (MFrame *frame, MFont *font, MFont *spec,
+				    int c);
 
-extern int mfont__open (MRealizedFont *rfont);
+extern MFont *mfont__select (MFrame *frame, MFont *font, int max_size);
+
+extern MFontList *mfont__list (MFrame *frame, MFont *spec, MFont *request,
+			       int limited_size);
+
+extern MRealizedFont *mfont__open (MFrame *frame, MFont *font, MFont *spec);
 
 extern void mfont__get_metric (MGlyphString *gstring, int from, int to);
 
@@ -291,12 +303,14 @@ extern int mfont__split_name (char *name, int *property_idx,
 
 extern void mfont__set_spec (MFont *font,
 			     MSymbol attrs[MFONT_PROPERTY_MAX],
-			     unsigned short size, unsigned short resy);
+			     unsigned size, unsigned short resy);
 
 extern int mfont__parse_name_into_font (char *name, MSymbol format,
 					MFont *font);
 
 extern MPlist *mfont__encoding_list (void);
+
+extern MFontCapability *mfont__get_capability (MSymbol sym);
 
 extern unsigned mfont__flt_encode_char (MSymbol layouter_name, int c);
 
