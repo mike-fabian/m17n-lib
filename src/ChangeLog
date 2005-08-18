@@ -1,5 +1,8 @@
 2005-08-18  Kenichi Handa  <handa@m17n.org>
 
+	* word-thai.c: Surround code by #ifdef and #endif to escape from
+	doxygen.
+
 	* font-ft.c: Mostly re-written.
 
 	* font-flt.c (FontLayoutCmdOTF): This type deleted.
