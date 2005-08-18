@@ -325,19 +325,11 @@ enum FontLayoutCmdType
 
 typedef struct
 {
-  MSymbol script;
-  MSymbol langsys;
-  MSymbol gsub_features;
-  MSymbol gpos_features;
-} FontLayoutCmdOTF;
-
-typedef struct
-{
   enum FontLayoutCmdType type;
   union {
     FontLayoutCmdRule rule;
     FontLayoutCmdCond cond;
-    FontLayoutCmdOTF otf;
+    MFontCapability *otf;
   } body;
 } FontLayoutCmd;
 
@@ -410,49 +402,31 @@ load_category_table (MPlist *plist)
 	[FEATURE[,FEATURE]*] | ' '  */
 
 static int
-load_otf_command (FontLayoutCmd *cmd, char *name)
+load_otf_command (FontLayoutCmd *cmd, MSymbol sym)
 {
-  char *p = name, *beg;
+  char *name = MSYMBOL_NAME (sym);
 
-  cmd->type = FontLayoutCmdTypeOTF;
-  cmd->body.otf.script = cmd->body.otf.langsys = Mnil;
-  cmd->body.otf.gsub_features = cmd->body.otf.gpos_features = Mt;
-
-  while (*p)
+  if (name[0] != ':')
     {
-      if (*p == ':')
-	{
-	  for (beg = ++p; *p && *p != '/' && *p != '=' && *p != '+'; p++);
-	  if (beg < p)
-	    cmd->body.otf.script = msymbol__with_len (beg, p - beg);
-	}
-      else if (*p == '/')
-	{
-	  for (beg = ++p; *p && *p != '=' && *p != '+'; p++);
-	  if (beg < p)
-	    cmd->body.otf.langsys = msymbol__with_len (beg, p - beg);
-	}
-      else if (*p == '=')
-	{
-	  for (beg = ++p; *p && *p != '+'; p++);
-	  if (beg < p)
-	    cmd->body.otf.gsub_features = msymbol__with_len (beg, p - beg);
-	  else
-	    cmd->body.otf.gsub_features = Mnil;
-	}
-      else if (*p == '+')
-	{
-	  for (beg = ++p; *p && *p != '+'; p++);
-	  if (beg < p)
-	    cmd->body.otf.gpos_features = msymbol__with_len (beg, p - beg);
-	  else
-	    cmd->body.otf.gpos_features = Mnil;
-	}
-      else
-	p++;
+      /* This is old format of "otf:...".  Change it to ":otf=...".  */
+      char *str = alloca (MSYMBOL_NAMELEN (sym) + 2);
+
+      sprintf (str, ":otf=");
+      strcat (str, name + 4);
+      sym = msymbol (str);
     }
 
-  return (cmd->body.otf.script == Mnil ? -1 : 0);
+  cmd->body.otf = mfont__get_capability (sym);
+  if (! cmd->body.otf)
+    return -1;
+  if (cmd->body.otf->script == Mnil)
+    {
+      cmd->body.otf = NULL;
+      return -1;
+    }
+  M17N_OBJECT_REF (cmd->body.otf);
+  cmd->type = FontLayoutCmdTypeOTF;
+  return 0;
 }
 
 
@@ -736,8 +710,11 @@ load_command (FontLayoutStage *stage, MPlist *plist,
       FontLayoutCmd cmd;
 
       if (len > 4
-	  && ! strncmp (name, "otf:", 4)
-	  && load_otf_command (&cmd, name + 3) >= 0)
+	  && ((name[0] == 'o' && name[1] == 't'
+	       && name[2] == 'f' && name[3] == ':')
+	      || (name[0] == ':' && name[1] == 'o' && name[2] == 't'
+		  && name[3] == 'f' && name[4] == '='))
+	  && load_otf_command (&cmd, sym) >= 0)
 	{
 	  if (id == INVALID_CMD_ID)
 	    {
@@ -814,6 +791,8 @@ free_flt_command (FontLayoutCmd *cmd)
     }
   else if (cmd->type == FontLayoutCmdTypeCond)
     free (cmd->body.cond.cmd_ids);
+  else if (cmd->type == FontLayoutCmdTypeOTF)
+    M17N_OBJECT_UNREF (cmd->body.otf);
 }
 
 /* Load a generator from PLIST into a newly allocated FontLayoutStage,
@@ -1127,26 +1106,26 @@ run_cond (int depth,
 
 static int
 run_otf (int depth,
-	 FontLayoutCmdOTF *otf_cmd, MGlyphString *gstring, int from, int to,
+	 MFontCapability *otf_cmd, MGlyphString *gstring, int from, int to,
 	 FontLayoutContext *ctx)
 {
 #ifdef HAVE_OTF
   int from_idx = gstring->used;
 
   MDEBUG_PRINT4 ("\n [FLT] %*s(OTF %s,%s)", depth, "",
-		 (otf_cmd->gsub_features == Mnil ? ""
-		  : MSYMBOL_NAME (otf_cmd->gsub_features)),
-		 (otf_cmd->gpos_features == Mnil ? ""
-		  : MSYMBOL_NAME (otf_cmd->gpos_features)));
-  to = mfont__ft_drive_otf (gstring, from, to,
-			    otf_cmd->script, otf_cmd->langsys,
-			    otf_cmd->gsub_features, otf_cmd->gpos_features);
+		 (! otf_cmd->features[MFONT_OTT_GSUB].str ? ""
+		  : otf_cmd->features[MFONT_OTT_GSUB].str),
+		 (! otf_cmd->features[MFONT_OTT_GPOS].str ? ""
+		  : otf_cmd->features[MFONT_OTT_GPOS].str));
+  to = mfont__ft_drive_otf (gstring, from, to, otf_cmd);
   if (ctx->cluster_begin_idx)
     for (; from_idx < gstring->used; from_idx++)
       UPDATE_CLUSTER_RANGE (ctx, gstring->glyphs[from_idx]);
 #endif
   return to;
 }
+
+extern char *dump_combining_code (int code);
 
 static int
 run_command (int depth, int id, MGlyphString *gstring, int from, int to,
@@ -1200,7 +1179,7 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
       else if (cmd->type == FontLayoutCmdTypeCond)
 	to = run_cond (depth, &cmd->body.cond, gstring, from, to, ctx);
       else if (cmd->type == FontLayoutCmdTypeOTF)
-	to = run_otf (depth, &cmd->body.otf, gstring, from, to, ctx);
+	to = run_otf (depth, cmd->body.otf, gstring, from, to, ctx);
 
       if (to < 0)
 	return -1;
@@ -1210,6 +1189,8 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
   if (id <= CMD_ID_OFFSET_COMBINING)
     {
       ctx->combining_code = CMD_ID_TO_COMBINING_CODE (id);
+      MDEBUG_PRINT3 ("\n [FLT] %*s(CMB %s)", depth, "",
+		     dump_combining_code (ctx->combining_code));
       return from;
     }
 
@@ -1338,7 +1319,7 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   MCharTable *table;
   int encoded_len;
   int match_indices[NMATCH];
-  MSymbol layouter_name = rface->rfont->layouter;
+  MSymbol layouter_name = rface->layouter;
   MFontLayoutTable *layouter = get_font_layout_table (layouter_name);
   MRealizedFace *ascii_rface = rface->ascii_rface;
   FontLayoutStage *stage;
@@ -1399,6 +1380,7 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
       int len = to - from;
       int result;
 
+      ctx.code_offset = ctx.combining_code = ctx.left_padding = 0;
       MDEBUG_PRINT2 ("\n [FLT]   (STAGE %d \"%s\"", stage_idx, ctx.encoded);
       if (mdebug__flag & mdebug_mask
 	  && ctx.encoded_offset < to)
@@ -1498,8 +1480,8 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 
       for (g = MGLYPH (from); g != gend; g++)
 	if (g->type == GLYPH_CHAR && ! g->otf_encoded)
-	  g->code
-	    = (rface->rfont->driver->encode_char) (rface->rfont, g->code);
+	  g->code = ((rface->rfont->driver->encode_char)
+		     (NULL, (MFont *) rface->rfont, NULL, g->code));
       for (i = 0; i < len; i++)
 	glyphs[i] = NULL;
       for (g = MGLYPH (from); g != gend; g++)
