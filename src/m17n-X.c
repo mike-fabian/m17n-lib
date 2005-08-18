@@ -2420,7 +2420,7 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 /* External API */
 
 /*** @addtogroup m17nInputMethodWin */
-/*=*/
+
 /*** @{ */
 
 /***en
