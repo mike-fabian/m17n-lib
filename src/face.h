@@ -50,8 +50,8 @@ enum MFaceProperty
     MFACE_HOOK_FUNC,
     MFACE_HOOK_ARG,
 
-    /* In a realized face, this is already reflected in MFACE_SIZE,
-       thus is ignored.  */
+    /* In a realized face, this is ignored because it is already
+       reflected in MFACE_SIZE.  */
     MFACE_RATIO,
 
     MFACE_PROPERTY_MAX
@@ -79,6 +79,9 @@ struct MRealizedFace
 
   /** Properties of all stacked faces are merged into here.  */
   MFace face;
+
+  /** Font explicitly specified for the face (maybe NULL).  */
+  MFont *font;
 
   /** From what faces this is realized.  Keys are Mface and values are
      (MFace *).  */
@@ -114,7 +117,7 @@ struct MRealizedFace
 extern MFace *mface__default;
 
 extern MRealizedFace *mface__realize (MFrame *frame, MFace **faces, int num,
-				      int limitted_size);
+				      int limitted_size, MFont *font);
 
 extern MGlyph *mface__for_chars (MSymbol script, MSymbol language,
 				 MSymbol charset, MGlyph *from_g, MGlyph *to_g,
