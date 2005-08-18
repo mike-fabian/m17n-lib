@@ -80,7 +80,7 @@
 static MSymbol M_glyph_string;
 
 /* Special scripts */
-static MSymbol Minherited;
+static MSymbol Minherited, Mcommon;
 /* Special categories */
 static MSymbol McatCc, McatCf;
 
@@ -183,7 +183,8 @@ visual_order (MGlyphString *gstring)
 	  /* Mirrored.  */
 	  g->c = visual[j];
 	  if (g->rface->rfont)
-	    g->code = mfont__encode_char (g->rface->rfont, g->c);
+	    g->code = mfont__encode_char (NULL, (MFont *) g->rface->rfont,
+					  NULL, g->c);
 	}
 #endif /* HAVE_FRIBIDI */
       g->bidi_level = levels[i];
@@ -236,7 +237,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		      MGlyphString *gstring)
 {
   MRealizedFace *default_rface = frame->rface;
-  int stop, face_change, language_change, charset_change;
+  int stop, face_change, language_change, charset_change, font_change;
   MGlyph g_tmp, *g, *last_g;
   int pos;
   MSymbol language = Mnil, script = Mnil, charset = Mnil;
@@ -257,7 +258,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   g_tmp.type = GLYPH_ANCHOR;
   g_tmp.pos = g_tmp.to = from;
   APPEND_GLYPH (gstring, g_tmp);
-  stop = face_change = pos = from;
+  stop = face_change = font_change = pos = from;
   while (1)
     {
       int c;
@@ -267,24 +268,39 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	{
 	  if (pos == to)
 	    break;
-	  if (pos == face_change)
+	  if (pos < mtext_nchars (mt))
 	    {
-	      if (pos < mtext_nchars (mt))
-		{
-		  MFace *faces[64];
-		  int num = mtext_get_prop_values (mt, pos, Mface,
-						   (void **) faces, 64);
+	      MFont *font = rface->font;
+	      MFace *faces[64];
+	      int num;
 
+	      if (pos == font_change)
+		{
+		  font = mtext_get_prop (mt, pos, Mfont);
+		  mtext_prop_range (mt, Mfont, pos, NULL, &font_change, 0);
+		  if (font_change == mtext_nchars (mt))
+		    font_change++;
+		}
+	      if (pos == face_change)
+		{
+		  num = mtext_get_prop_values (mt, pos, Mface,
+					       (void **) faces, 64);
 		  mtext_prop_range (mt, Mface, pos, NULL, &face_change, 1);
 		  if (face_change == mtext_nchars (mt))
 		    face_change++;
-		  rface = (num > 0 ? mface__realize (frame, faces, num, size)
-			   : default_rface);
 		}
 	      else
-		rface = default_rface;
+		{
+		  faces[0] = &rface->face;
+		  num = 1;
+		}
+	      rface = mface__realize (frame, faces, num, size, font);
 	    }
+	  else
+	    rface = default_rface;
 	  stop = to;
+	  if (stop > font_change)
+	    stop = font_change;		
 	  if (stop > face_change)
 	    stop = face_change;		
 	}
@@ -344,11 +360,11 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
       else
 	{
 	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
-	  if (this_script == Minherited || this_script == Mnil)
+	  if (this_script == Minherited || this_script == Mcommon)
 	    this_script = script;
-	  if (this_script == Mnil)
+	  if (this_script == Mcommon)
 	    this_script = non_latin_script;
-	  if (this_script == Mnil)
+	  if (this_script == Mcommon)
 	    {
 	      /* Search forward for a character that explicitly
 		 specifies a non-latin script.  */
@@ -357,7 +373,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
 	      for (g1 = g + 1; g1->type != GLYPH_ANCHOR; g1++)
 		if (g1->c >= 0x100
-		    && (sym = mchar_get_prop (g1->c, Mscript)) != Mnil
+		    && (sym = mchar_get_prop (g1->c, Mscript)) != Mcommon
 		    && sym != Minherited)
 		  {
 		    this_script = sym;
@@ -411,7 +427,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	{
 	  int start = i++;
 
-	  if (this->rface->rfont->layouter != Mnil)
+	  if (this->rface->layouter != Mnil)
 	    {
 	      MGlyph *prev;
 	      unsigned code;
@@ -419,16 +435,21 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	      for (prev = MGLYPH (start - 1);
 		   (prev->type == GLYPH_CHAR
 		    && prev->category == GLYPH_CATEGORY_FORMATTER
-		    && (code = mfont__encode_char (this->rface->rfont, prev->c)
+		    && (code = mfont__encode_char (NULL,
+						   (MFont *) this->rface->rfont,
+						   NULL, prev->c)
 			!= MCHAR_INVALID_CODE));
 		   start--, prev--)
 		prev->code = code;
 
 	      for (g++;
 		   (g->type == GLYPH_CHAR
+		    && g->rface->layouter == this->rface->layouter
 		    && (g->rface->rfont == this->rface->rfont
 			|| (g->category == GLYPH_CATEGORY_FORMATTER
-			    && ((code = mfont__encode_char (this->rface->rfont,
+			    && ((code = mfont__encode_char (NULL,
+							    (MFont *) this->rface->rfont,
+							    NULL,
 							    g->c))
 				!= MCHAR_INVALID_CODE))));
 		   i++, g++)
@@ -556,7 +577,7 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
     {
       MGlyph *base = g++;
       MRealizedFont *rfont = base->rface->rfont;
-      int size = rfont->font.property[MFONT_SIZE];
+      int size = rfont->spec.size;
       int width, lbearing, rbearing;
 
       if (g == last_g || ! g->combining_code)
@@ -627,7 +648,7 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
 						   (combining_code));
 
 		  rfont = g->rface->rfont;
-		  size = rfont->font.property[MFONT_SIZE];
+		  size = rfont->spec.size;
 		  off_x = (size * (COMBINING_CODE_OFF_X (combining_code) - 128)
 			   / 1000);
 		  off_y = (size * (COMBINING_CODE_OFF_Y (combining_code) - 128)
@@ -1911,6 +1932,7 @@ mdraw__init ()
   MLIST_INIT1 (&scratch_gstring, glyphs, 3);
 
   Minherited = msymbol ("inherited");
+  Mcommon = msymbol ("common");
 
   McatCc = msymbol ("Cc");
   McatCf = msymbol ("Cf");
@@ -2703,7 +2725,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
   info->metrics.height = gstring->height;
   info->metrics.width = - g->lbearing + g->width;
   if (g->rface->rfont)
-    info->font = &g->rface->rfont->font;
+    info->font = (MFont *) g->rface->rfont;
   else
     info->font = NULL;
   /* info->logical_width is calculated later.  */
@@ -2908,8 +2930,11 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  glyphs->y_advance = 0;
 	  if (g->rface->rfont)
 	    {
-	      glyphs->font = &g->rface->rfont->font;
-	      glyphs->font_type = g->rface->rfont->type;
+	      glyphs->font = (MFont *) g->rface->rfont;
+	      glyphs->font_type
+		= (g->rface->rfont->font->type == MFONT_SOURCE_X ? Mx
+		   : g->rface->rfont->driver == &mfont__ft_driver ? Mfreetype
+		   : Mxft);
 	      glyphs->fontp = g->rface->rfont->fontp;
 	    }
 	  else
