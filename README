@@ -1,6 +1,6 @@
-This directory tree holds version 1.2.0 of the m17n library.	-*- text -*-
+This directory tree holds version 1.3.0 of the m17n library.	-*- text -*-
 
-Copyright (C) 2003, 2004
+Copyright (C) 2003, 2004, 2005
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
@@ -91,8 +91,8 @@ Please read also INSTALL for the generic installation instructions.
 The m17n library utilizes the m17n database available at:
 	http://www.m17n.org/m17n-lib/m17n-db
 Without this database, the m17n library loses half its value.  Please
-install it too before you try the above sample programs or develop a
-program that uses the m17n library.
+install it (Ver.1.3.0 or the later is required) too before you try the
+above sample programs or develop a program that uses the m17n library.
 
 
 (3) DOCUMENTATION
@@ -124,7 +124,7 @@ This compiles PROX.c that uses GUI API and builds executable PROX.
 ----------------------------------------------------------------------
 Copyright information
 
-Copyright (C) 2003, 2004
+Copyright (C) 2003, 2004, 2005
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 
