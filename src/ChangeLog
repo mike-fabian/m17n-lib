@@ -250,7 +250,9 @@
 	* m17n-core.h (msymbol_is_managing_key): Extern it.
 	(mtext_data): Extern it.
 	(MTEXT_FORMAT_UTF_16): Correct type.
-
+	(M17NLIB_MINOR_VERSION): Changed to 3.
+	(M17NLIB_VERSION_NAME): Changed to "1.3.0".
+	
 	* chartab.c (mchartable__init): Initalize chartable_table.count.
 	(mchartable__fini): Use N17N_OBJECT_ADD_ARRAY instead of
 	mdebug__report_object.
