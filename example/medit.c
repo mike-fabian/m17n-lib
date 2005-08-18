@@ -2958,9 +2958,9 @@ main (int argc, char **argv)
 		char *name = msymbol_name (fullname);
 		char c = name[0];
 
-		if (c >= 'A' && c <= 'Z')
+		if (c >= 'a' && c <= 'z')
 		  {
-		    int idx = (c < 'U') ? (c - 'A') / 2 : 10;
+		    int idx = (c < 'u') ? (c - 'a') / 2 : 10;
 
 		    pl = plist[idx];
 		    if (! pl)
