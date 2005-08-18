@@ -1,3 +1,268 @@
+2005-08-18  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c: Mostly re-written.
+
+	* font-flt.c (FontLayoutCmdOTF): This type deleted.
+	(FontLayoutCmd): Type of the member otf changed..
+	(load_otf_command): Adjusted for the format change of otf command.
+	(load_command): Likewise.
+	(free_flt_command): Unref cmd->body.otf.
+	(run_otf): Ajusted for the type change of otf_cmd.
+	(run_command): Ajusted for the type change of otf_cmd.  On
+	debugging, print ctx->combining_code.
+	(mfont__flt_run): Initialize ctx's members code_offset,
+	combining_code, and left_padding to 0.
+
+	* face.h (struct MRealizedFace): New member font.
+	(mface__realize): Prototype adjusted.
+
+	* face.c (find_realized_face): New arg font.
+	(find_realized_face): Adjusted for the change of MFont.
+	(mface__init): Call M17N_OBJECT_ADD_ARRAY.
+	(mface__fini): Don't call mdebug__report_object.
+	(mface__realize): New arg font.
+	(mface__for_chars): Adjusted for the change of mfont__encode_char.
+	Optimize the latin case.
+	(mface__free_realized): Free rface->font.
+	(mface__update_frame_face): Adjusted for the change of mface__realize.
+	(mface_equal): New function.
+
+	* draw.c (Mcommon): New variable.
+	(visual_order): Args to mfont__encode_char changed.
+	(compose_glyph_string): Handle Mfont text property.
+	(layout_glyphs): Adjusted for the change of MFont.
+	(mdraw__init): Initialize Mcommon.
+	(mdraw_glyph_info): Adjusted for the change of MRealizedFont.
+
+	* font.h (enum MFontType): Members completely changed.
+	(enum MFontProperty): Move MFONT_SIZE to the tail.
+	(enum MFontSource): New enum.
+	(struct MFont): New members type, source, sizes, file, capability,
+	and encoding.
+	(struct MRealizedFont): Type of member font changed. Members
+	score, status, and encoding deleted.
+	(MFontScore): New type.
+	(MFontList): Member changed.
+	(struct MFontDriver): New member has_char.  Types of members
+	changed.
+	(Miso8859_1, Miso10646_1, Municode_bmp, Municode_full)
+	(Mapple_roman): Extern them.
+	(OTF_Tag): Typedefed if not HAVE_OTF.
+	(enum MFontOpenTypeTable): New enum.
+	(MFontCapability): New type.
+	(mfont__ft_drive_otf): Prototype adjusted.
+	(mfont__score): Extern deleted.
+	(mfont__merge): Extern it.
+	(mfont__has_char): Extern it.
+	(mfont__encode_char): Prototype adjusted.
+	(mfont__open): Extern it.
+	(mfont__set_spec): Prototype adjusted.
+	(mfont__get_capability): Extern it.
+
+	* font.c: Include "fontset.h".
+	(M_font_capability, M_font_list, M_font_list_len): New variables.
+	(font_score_priority): Change order of initial elements.
+	(font_score_shift_bits): Fix array size.
+	(common_weight): Add "thin", "semibold", and "heavy".
+	(common_stretch): Add "ultracondensed", "extracondensed",
+	"extraexpanded", and "utltraexpand".
+	(font_weight_regular, font_weight_normal, font_weight_medium): New
+	variables.
+	(gen_font_name): This function deleted.
+	(find_encoding): Set font->encoding.
+	(OTF_tag): New function.
+	(otf_script_list): New variable.
+	(load_otf_script_list): New function.
+	(find_script_from_otf_tag): New function.
+	(xlfd_parse_name): Set font->type and font->source.
+	(mfont__free_realized): Free chains rfonts.
+	(font_score): Renamed from mfont__score.
+	(Miso8859_1, Miso10646_1, Municode_bmp, Municode_full)
+	(Mapple_roman): New variables.
+	(mfont__init): Initilize new variables.  Initalize
+	default_encoding.encoding_name and
+	default_encoding.encoding_charset to Municode_full and
+	mcharset__unicode.  Use SAFE* macros for allocating filepath
+	buffer.
+	(mfont__fini): Free otf_script_list.
+	(mfont__id): New function.
+	(mfont__match_p): Check also capability member of MFont.
+	(mfont__merge): New funciton.
+	(mfont__set_spec_from_face): Set type and source members.
+	(mfont__set_spec_from_plist): Set capability and type members.
+	(mfont__select): Argument changed.
+	(mfont__available): New function.
+	(compare_font_score): New function.
+	(mfont__list): New function.
+	(mfont__open): Return a realized font.
+	(mfont__resize): Adjusted for the change of MFont.
+	(mfont__has_char): New function.
+	(mfont__encode_char): Argument changed.
+	(mfont__set_spec): Argument changed.
+	(free_font_capability): New function.
+	(mfont__get_capability): New function.
+	(MFontfile): New variable.
+	(mfont_get_prop): Adjusted for the change of MFont.
+	(mfont_put_prop): Likewise.
+	(mfont_set_selection_priority): Fix the way of setting
+	font_score_priority[].
+	(mfont_find): Use mfont__list instead of mfont__select.
+	(mfont_resize_ratio): Adjusted for the change of MFont.
+	(mfont_list): Use mfont__list.
+	(mfont_check): New function.
+
+	* fontset.h (mfont__realize_fontset): Prototype adjusted.
+	(mfont__lookup_fontset): Likewise.
+
+	* fontset.c (struct MFontset): Delete member font_spec_list.
+	(struct MRealizedFontset): Type of member spec changed.  New
+	member request.
+	(load_font_group): Arg spec_list deleted.
+	(load_fontset_contents): Adjusted for the change of fontset_def.
+	(free_fontset): Fix the way of freeing fontset elements.
+	(realize_fontset_elements): Argument changed.
+	(get_per_script): New function.
+	(free_realized_fontset_elements): Fix the way of feeing rfontset
+	elements.
+	(update_fontset_elements): Fix args to realize_fontset_elements.
+	(mfont__realize_fontset): New arg spec.
+	(try_font_list): New function.
+	(try_font_group): New arg request.  Use try_font_list.
+	(mfont__lookup_fontset): New arg ignore_fallback.  Fix arg to
+	try_font_group.
+	(mfontset): Adjusted for the change of MFontset.
+	(mfontset_copy): Likewise.  Don't share plists.
+	(mfontset_modify_entry): Adjusted for the change of MFontset.
+	(mfontset_lookup): Call get_per_script.
+	(mdebug_dump_fontset): Print also the address of fonts.
+
+	* input.c (shift_state): Don't reset ic_info->vars.
+	(take_action_list): Call MDEBUG_PRINT fore calling
+	take_action_list.
+
+	* internal-gui.h (MFontDriver): Don't typedef it here.
+
+	* m17n-X.c: Include <fontconfig/fcfreetype.h> if HAVE_XFT2.
+	(MXFont): This type deleted.
+	(MFontX): New type.
+	(struct _MFontX): New struct.
+	(SET_SIZE, HAVE_SIZE): Adjusted for the change of arg FONTX.
+	(MDisplayInfo): Member base_font_list deleted.
+	(DEFAULT_FONT): Definition changed.
+	(FALLBACK_FONT): This maclr deleted.
+	(free_display_info): Adjusted for the change of MDisplayInfo.
+	(free_device): Argument to mfont__free_realized changed.
+	(xfont_driver): Adjusted for the change of MFontDriver.
+	(xfont_registry_list): Use MFontX instead of MXFont.
+	(MRealizedFontX): Renamed from MXFontInfo.
+	(xfont_select): Return the font found first.
+	(close_xfont): Change MXFontInfo to MRealizedFontX.
+	(xfont_open): Return the realized font.
+	(xfont_find_metric): Get xfont from rfont->fontp.
+	(xfont_has_char): New function.
+	(xfont_encode_char): Adjusted for the argument change.
+	(xfont_render): Get xfont from rfont->fontp.
+	(xfont_list): Adjusted for the argument change.
+	(MRealizedFontXft): Renamed from MXftFontInfo.
+	(xft_driver): Ajusted for the change of MFontDriver.
+	(close_xft): Change MXtfFontInfo to MRealizedFontXft
+	(xft_open_font): Argument changed.
+	(xft_open): Argument changed.  Return the realized font.
+	(xft_find_metric): Get xft_font from rfont->fontp.
+	(xft_has_char, xft_encode_char): New functions.
+	(xft_render): Change MXftFontInfo to MRealizedFontXft.  Open a
+	font if not yet opened.
+	(device_open): Don't set frame->font.
+
+	* m17n-gd.c (gd_font_driver): Adjusted for the change of
+	MFontDriver.
+	(gd_font_open): New function.
+	(gd_render): Don't use the local variable ft_info.
+	(device_init): Adjusted for the change of gd_font_driver.
+
+	* textprop.c (mtext__prop_init): Initialize text_property_table.
+	Call M17N_OBJECT_ADD_ARRAY.
+	(mtext__prop_fini): Don't call mdebug__report_object.
+
+	* plist.c (mplist__init): Initialize plist_table.
+	(mplist__init): Call M17N_OBJECT_ADD_ARRAY.
+	(mplist__fini): Don't call mdebug__report_object.
+
+	* mtext.c (mtext__init): Call M17N_OBJECT_ADD_ARRAY.
+	(mtext__fini): Don't call mdebug__report_object.
+	(MTEXT_FORMAT_UTF_16): Correct type.
+	(mtext_data): New function.
+	(mtext_text): Fix calculation of limit and args to
+	find_char_backward.
+
+	* language.c: Include "plist.h".
+	(M_script_lang_list): New variable.
+	(mlang__init): Read languages and their information from m17n
+	database.
+	(mlanguage__list): New function.
+	(Miso639_1, Miso639_2): New variables.
+
+	* language.h (mlanguage__list): Extern it.
+
+	* database.c (get_database_stream): Use SAFE_* macros for
+	allocating and freeing path.
+	(mdatabase__init): Likewise.
+
+	* symbol.c (msymbol__fini): Don't free symbols here.
+	(msymbol__free_table): New function.
+	(msymbol_is_managing_key): New function.
+
+	* symbol.h (msymbol__free_table): Extern it.
+	(msymbol__list): Extern it.
+
+	* internal.h (MFATAL, USE_SAFE_ALLOCA, SAFE_ALLOCA, SAFE_FREE):
+	New macros.
+	(M17N_OBJECT_UNREF): Change "if ... else ..." structure.
+	(struct _M17NObjectArray): New member name and next.
+	(mdebug__add_object_array): Extern it.
+	(M17N_OBJECT_ADD_ARRAY): New macro.
+	(mdebug__report_object): Don't extern it.
+
+	* m17n-misc.h (enum MErrorCode): New element MERROR_FONT_X.
+
+	* m17n-gui.c (free_frame): Don't free frame->font.
+	(null_device_fini): Fix code for freeing
+	null_device.realized_font_list.
+	(m17n_fini_win): Free interface.
+	(mframe): Cast the return value of dlsym.  Set frame->font here.
+	(mframe_get_prop): Check frame->rface->rfont before accessing the
+	member font.
+
+	* m17n-gui.h (Mfontfile): Extern it.
+	(mfont_check): Extern it.
+	(mface_equal): Extern it.
+
+	* m17n-core.c: Include "symbol.h".
+	(report_header_printed): This variable deleted.
+	(object_array_root): New variable.
+	(report_object_array): New function.
+	(mdebug__report_object): This function deleted.
+	(mdebug__add_object_array): New function.
+	(m17n_init_core): Call mchartable_init () before mtext_init ().
+	(m17n_fini_core): Call report_object_array (if necessary) and
+	msymbol__free_atable at the end.
+
+	* m17n-core.h (msymbol_is_managing_key): Extern it.
+	(mtext_data): Extern it.
+	(MTEXT_FORMAT_UTF_16): Correct type.
+
+	* chartab.c (mchartable__init): Initalize chartable_table.count.
+	(mchartable__fini): Use N17N_OBJECT_ADD_ARRAY instead of
+	mdebug__report_object.
+
+2005-05-26  Kenichi Handa  <handa@m17n.org>
+
+	* m17n.h (Miso639_1, Miso639_2): Extern them.
+
+	* symbol.h (msymbol__list): Extern it.
+
+	* symbol.c (msymbol__list): New function.
+
 2005-05-19  Kenichi Handa  <handa@m17n.org>
 
 	* input-gui.c (minput__win_init): Don't change the value of
