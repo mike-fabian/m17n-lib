@@ -2666,6 +2666,7 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
   MPlist *plist, *pl;
   MFontList *font_list;
   int i;
+  MFont *work = NULL;
   
   if (language != Mnil)
     {
@@ -2673,10 +2674,14 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
       char *buf = alloca (MSYMBOL_NAMELEN (language) + 7);
 
       sprintf (buf, ":lang=%s", MSYMBOL_NAME (language));
+      if (! font)
+	font = work = mfont ();
       font->capability = msymbol (buf);
     }
 
   font_list = mfont__list (frame, font, font, 0);
+  if (work)
+    free (work);
   if (! font_list)
     return NULL;
   if (font_list->nfonts == 0)
