@@ -2089,7 +2089,7 @@ mfont ()
     は新しく作られたフォントへのポインタを返す。そうでなければ @c NULL を返す。  */
 
 MFont *
-mfont_parse_name (char *name, MSymbol format)
+mfont_parse_name (const char *name, MSymbol format)
 {
   MFont template, *font;
   
