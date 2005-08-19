@@ -149,7 +149,7 @@ extern MFont *mfont ();
 
 extern MFont *mfont_copy (MFont *font);
 
-extern MFont *mfont_parse_name (char *name, MSymbol format);
+extern MFont *mfont_parse_name (const char *name, MSymbol format);
 
 extern char *mfont_unparse_name (MFont *font, MSymbol format);
 
