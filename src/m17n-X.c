@@ -622,7 +622,6 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
 	  return rfont;
     }
 
-
   this = *font;
   this.size = size;
   /* This never fail to generate a valid fontname.  */
@@ -648,6 +647,9 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->font = font;
   rfont->driver = &xfont_driver;
   rfont->info = x_rfont;
+  rfont->ascent = xfont->ascent;
+  rfont->descent = xfont->descent;
+  rfont->max_advance = xfont->max_bounds.width;
   rfont->fontp = xfont;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
@@ -1068,6 +1070,9 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->font = font;
   rfont->driver = &xft_driver;
   rfont->info = rfont_xft;
+  rfont->ascent = ft_face->size->metrics.ascender >> 6;
+  rfont->descent = - ft_face->size->metrics.descender >> 6;
+  rfont->max_advance = ft_face->size->metrics.max_advance >> 6;
   rfont->fontp = xft_font;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
