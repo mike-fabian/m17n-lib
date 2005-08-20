@@ -1,3 +1,45 @@
+2005-08-20  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (mfont_from_name): Prototype adjusted.
+	(Mspacing, Mascent, Mdescent, Mmax_advance): Extern them.
+
+	* m17n-X.c (xfont_open): Set members ascent, descent, and
+	max_advance of rfont.
+	(xft_open): Likewise.
+
+	* font-ft.c (ft_open): Set members ascent, descent, and max_advance
+	of rfont.
+	(mfont__ft_parse_name): Add const to the arg name.
+
+	* font.c (xlfd_parse_name): Add const to the arg name.  Call
+	mfont__set_property instead of mfont_set_spec.  Set font->spacing.
+	(xlfd_unparse_name): Handle spacing.
+	(mfont__init): Initialize new variables.
+	(mfont__id): Handle spacing.
+	(mfont__merge): Likewise.
+	(mfont__set_spec): This function deleted.
+	(mfont__parse_name_into_font): Add const to the arg name.  Fix the
+	condition of calling mfont__ft_parse_name.
+	(Mspacing, Mascent, Mdescent, Mmax_advance): New variables.
+	(mfont_get_prop): Handle properties spacing, ascent, descent,
+	and max-advance.
+	(mfont_find): Return a realized font.
+	(mfont_from_name): Add const to the arg name.
+
+	* font.h (enum MFontProperty): New member MFONT_SPACING.
+	(enum MFontSpacing): New enum.
+	(MFont): New members spacing and max_advance.
+	(mfont__ft_parse_name): Prototype adjusted.
+	(mfont__set_spec): Extern deleted.
+	(mfont__parse_name_into_font): Prototype adjusted.
+
+2005-08-19  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (mfont_parse_name): Prototype adjusted.
+
+	* font.c (mfont_list): If FONT is null, use a temporary font.
+	(mfont_parse_name): Add const to the arg name.
+
 2005-08-18  Kenichi Handa  <handa@m17n.org>
 
 	* word-thai.c: Surround code by #ifdef and #endif to escape from
