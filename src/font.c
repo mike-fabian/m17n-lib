@@ -30,7 +30,7 @@
     key of a font property must be one of the following symbols:
 
     @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-    @c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mtype.
+    @c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
     When the key of a font property is @c Msize or @c Mresolution, its
     value is an integer.  Otherwise the value is a symbol.  
@@ -94,7 +94,7 @@
     SLANT                                       style
     SETWIDTH_NAME                               stretch
     ADD_STYLE_NAME                              adstyle
-    POINT_SIZE                                  size
+    PIXEL_SIZE                                  size
     RESOLUTION_Y                                resolution
     CHARSET_REGISTRY-CHARSET_ENCODING           registry
 @endverbatim
@@ -183,7 +183,7 @@
     ンボルのいずれかである。
 
     @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-    @c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mtype
+    @c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing
 
     フォントプロパティのキーが @c Msize あるいは @c Mresolution 
     の場合、値は整数値であり、キーがそれ以外の場合、値はシンボルである。
@@ -245,7 +245,7 @@
     SLANT                                       style
     SETWIDTH_NAME                               stretch
     ADD_STYLE_NAME                              adstyle
-    POINT_SIZE                                  size
+    PIXEL_SIZE                                  size
     RESOLUTION_Y                                resolution
     CHARSET_REGISTRY-CHARSET_ENCODING           registry
 @endverbatim
@@ -737,12 +737,11 @@ enum xlfd_field_idx
   };
 
 static int
-xlfd_parse_name (char *name, MFont *font)
+xlfd_parse_name (const char *name, MFont *font)
 {
   char *field[XLFD_FIELD_MAX];
   unsigned short resy, avgwidth;
   unsigned size;
-  MSymbol attrs[MFONT_PROPERTY_MAX];
   char copy[513];
   int i;
   char *p;
@@ -794,21 +793,28 @@ xlfd_parse_name (char *name, MFont *font)
   else
     size = atoi (field[XLFD_PIXEL]) * 10;
 
-  attrs[MFONT_FOUNDRY]
-    = field[XLFD_FOUNDRY] ? msymbol (field[XLFD_FOUNDRY]) : Mnil;
-  attrs[MFONT_FAMILY]
-    = field[XLFD_FAMILY] ? msymbol (field[XLFD_FAMILY]) : Mnil;
-  attrs[MFONT_WEIGHT]
-    = field[XLFD_WEIGHT] ? msymbol (field[XLFD_WEIGHT]) : Mnil;
-  attrs[MFONT_STYLE]
-    = field[XLFD_SLANT] ? msymbol (field[XLFD_SLANT]) : Mnil;
-  attrs[MFONT_STRETCH]
-    = field[XLFD_SWIDTH] ? msymbol (field[XLFD_SWIDTH]) : Mnil;
-  attrs[MFONT_ADSTYLE]
-    = field[XLFD_ADSTYLE] ? msymbol (field[XLFD_ADSTYLE]) : Mnil;
-  attrs[MFONT_REGISTRY]
-    = field[XLFD_REGISTRY] ? msymbol (field[XLFD_REGISTRY]) : Mnil;
-  mfont__set_spec (font, attrs, size, resy);
+  if (field[XLFD_FOUNDRY])
+    mfont__set_property (font, MFONT_FOUNDRY, msymbol (field[XLFD_FOUNDRY]));
+  if (field[XLFD_FAMILY])
+    mfont__set_property (font, MFONT_FAMILY, msymbol (field[XLFD_FAMILY]));
+  if (field[XLFD_WEIGHT])
+    mfont__set_property (font, MFONT_WEIGHT, msymbol (field[XLFD_WEIGHT]));
+  if (field[XLFD_SLANT])
+    mfont__set_property (font, MFONT_STYLE, msymbol (field[XLFD_SLANT]));
+  if (field[XLFD_SWIDTH])
+    mfont__set_property (font, MFONT_STRETCH, msymbol (field[XLFD_SWIDTH]));
+  if (field[XLFD_ADSTYLE])
+    mfont__set_property (font, MFONT_ADSTYLE, msymbol (field[XLFD_ADSTYLE]));
+  font->property[MFONT_RESY] = resy;
+  font->size = size;
+  if (field[XLFD_SPACING])
+    font->spacing
+      = ((field[XLFD_SPACING][0] == 'p' || field[XLFD_SPACING][0] == 'P')
+	 ? MFONT_SPACING_PROPORTIONAL
+	 : (field[XLFD_SPACING][0] == 'm' || field[XLFD_SPACING][0] == 'M')
+	 ? MFONT_SPACING_MONO : MFONT_SPACING_CHARCELL);
+  if (field[XLFD_REGISTRY])
+    mfont__set_property (font, MFONT_REGISTRY, msymbol (field[XLFD_REGISTRY]));
   font->type = MFONT_TYPE_SPEC;
   font->source = MFONT_SOURCE_X;
   return 0;
@@ -821,6 +827,7 @@ xlfd_unparse_name (MFont *font)
   char name[513];
   char *str[7];
   int len, i;
+  char spacing;
   unsigned short size, resy;
 
   prop[0] = (MSymbol) mfont_get_prop (font, Mfoundry);
@@ -843,10 +850,16 @@ xlfd_unparse_name (MFont *font)
 	  len++;
 	}
     }
+  spacing = (font->spacing == MFONT_SPACING_UNDECIDED ? '*'
+	     : font->spacing == MFONT_SPACING_PROPORTIONAL ? 'p'
+	     : font->spacing == MFONT_SPACING_MONO ? 'm'
+	     : 'c');
+
   if ((len
-       + 12			/* 12 dashes */
-       + 3			/* 3 asterisks */
+       + 13			/* 13 dashes */
+       + 2			/* 2 asterisks */
        + 30			/* 3 integers (each 10 digits) */
+       + 1			/* 1 spacing char */
        + 1)			/* '\0' terminal */
       > 513)
     return NULL;
@@ -858,9 +871,9 @@ xlfd_unparse_name (MFont *font)
   else
     size = size / 10 + 1;
 
-  sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-*-*-%s",
+  sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-%c-*-%s",
 	   str[0], str[1], str[2], str[3], str[4], str[5],
-	   size, resy, resy,  str[6]);
+	   size, resy, resy, spacing, str[6]);
   return strdup (name);
 }
 
@@ -956,8 +969,12 @@ mfont__init ()
   Mregistry = msymbol ("registry");
   mfont__property_table[MFONT_REGISTRY].property = Mregistry;
 
+  Mspacing = msymbol ("spacing");
   Msize = msymbol ("size");
   Mresolution = msymbol ("resolution");
+  Mascent = msymbol ("ascent");
+  Mdescent = msymbol ("descent");
+  Mmax_advance = msymbol ("max-advance");
   Mfontfile = msymbol ("fontfile");
 
   Mfontconfig = msymbol ("fontconfig");
@@ -1107,7 +1124,7 @@ mfont__id (MFont *font)
   int file_len = (font->file == Mnil ? 0 : MSYMBOL_NAMELEN (font->file));
   int capability_len  = (font->capability == Mnil ? 0
 			 : MSYMBOL_NAMELEN (font->capability));
-  int total_len = MFONT_PROPERTY_MAX * 5 + 7 + file_len + capability_len;
+  int total_len = MFONT_PROPERTY_MAX * 5 + 9 + file_len + capability_len;
   MSymbol id;
   USE_SAFE_ALLOCA;
 
@@ -1124,6 +1141,8 @@ mfont__id (MFont *font)
     }
   if (font->size)
     p += sprintf (p, "-%X", font->size);
+  if (font->spacing)
+    p += sprintf (p, "-%X", font->spacing);
   if (capability_len > 0)
     {
       *p++ = '-';
@@ -1176,6 +1195,12 @@ mfont__merge (MFont *dst, MFont *src, int error_on_conflict)
 	       && dst->property[i] != src->property[i])
 	return -1;
     }
+  if (! dst->spacing)
+    dst->spacing = src->spacing;
+  else if (error_on_conflict
+	   && src->spacing
+	   && dst->spacing != src->spacing)
+    return -1;
   if (! dst->size)
     dst->size = src->size;
   else if (error_on_conflict
@@ -1556,27 +1581,15 @@ mfont__set_property (MFont *font, enum MFontProperty key, MSymbol val)
   font->property[key] = numeric;
 }
 
-void
-mfont__set_spec (MFont *font, MSymbol *attrs,
-		 unsigned size, unsigned short resy)
-{
-  int i;
-
-  for (i = 0; i <= MFONT_REGISTRY; i++)
-    mfont__set_property (font, i, attrs[i]);
-  font->property[MFONT_RESY] = resy;
-  font->size = size;
-}
-
 int
-mfont__parse_name_into_font (char *name, MSymbol format, MFont *font)
+mfont__parse_name_into_font (const char *name, MSymbol format, MFont *font)
 {
   int result = -1;
 
   if (format == Mx || format == Mnil)
     result = xlfd_parse_name (name, font);
 #ifdef HAVE_FONTCONFIG
-  if (format == Mfontconfig || (! result && format == Mnil))
+  if (format == Mfontconfig || (result < 0 && format == Mnil))
     result = mfont__ft_parse_name (name, font);
 #endif /* HAVE_FONTCONFIG */
   return result;
@@ -1866,6 +1879,22 @@ MSymbol Mstretch;
 MSymbol Madstyle;
 
 /***en
+    @brief Key of font property specifying spacing.
+
+    The variable #Madstyle is a symbol of name <tt>"spacing"</tt> and
+    is used as a key of font property.  The property value must be a
+    symbol whose name specifies the spacing of a font (e.g "p" for
+    proportional, "m" for monospaced).  */ 
+/***ja
+    @brief spacing を指定するフォントプロパティのキー.
+    
+    変数 #Mspacing は <tt>"spacing"</tt> という名前を持つシンボルであり、
+    フォントプロパティのキーとして用いられる。値は、フォントの spacing
+    特性を示す名前 ("p", "m" 等)を持つシンボルである。  */
+
+MSymbol Mspacing;
+
+/***en
     @brief Key of font property specifying registry.
 
     The variable #Mregistry is a symbol of name <tt>"registry"</tt>
@@ -1930,6 +1959,35 @@ MSymbol Mfontfile;
     値は、フォントの解像度を dots per inch (dpi) 単位で示す整数値である。    */
 
 MSymbol Mresolution;
+
+/***en
+    @brief Key of font property specifying ascent.
+
+    The variable #Mascent is a symbol of name <tt>"ascent"</tt> and is
+    used as a key of font property.  The property value must be an
+    integer specifying a font ascent value by pixels.  */ 
+
+MSymbol Mascent;
+
+/***en
+    @brief Key of font property specifying descent.
+
+    The variable #Mdescent is a symbol of name <tt>"descent"</tt> and
+    is used as a key of font property.  The property value must be an
+    integer specifying a font's descent value by pixels.  */ 
+
+MSymbol Mdescent;
+
+/***en
+    @brief Key of font property specifying max advance width.
+
+    The variable #Mmax_advance is a symbol of name
+    <tt>"max-advance"</tt> and is used as a key of font property.  The
+    property value must be an integer specifying a font's max advance
+    value by pixels.  */ 
+
+MSymbol Mmax_advance;
+
 
 /***en
     @brief Symbol of name "fontconfig".
@@ -2179,11 +2237,11 @@ mfont_copy (MFont *font)
     font $FONT.  $KEY must be one of the following symbols:
 
 	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mtype.
+	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
     @return
     If $KEY is @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
-    Madstyle, @c Mregistry, or @c Mtype, this function returns the
+    Madstyle, @c Mregistry, or @c Mspacing, this function returns the
     corresponding value as a symbol.  If the font does not have $KEY
     property, it returns @c Mnil.
     If $KEY is @c Msize or @c Mresolution, this function returns the
@@ -2200,13 +2258,12 @@ mfont_copy (MFont *font)
     ばならない。
 
 	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mtype.
+	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
-    @return 
-    $KEY が @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
-    Madstyle, @c Mregistry, @c Mtype のいずれかであれば、相当する値をシ
-    ンボルとして返す。フォントがそのプロパティを持たない場合には @c
-    Mnil を返す。$KEY が @c Msize あるいは @c Mresolution の場合には、
+    @return $KEY が @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
+    Madstyle, @c Mregistry, @c Mspacing のいずれかであれば、相当する値
+    をシンボルとして返す。フォントがそのプロパティを持たない場合には
+    @c Mnil を返す。$KEY が @c Msize あるいは @c Mresolution の場合には、
     相当する値をは整数値として返す。フォントがそのプロパティを持たない
     場合には 0 を返す。$KEY がそれ以外のものであれば、@c NULL を返し、
     外部変数 #merror_code にエラーコードを設定する。  */
@@ -2214,6 +2271,11 @@ mfont_copy (MFont *font)
 void *
 mfont_get_prop (MFont *font, MSymbol key)
 {
+  MRealizedFont *rfont = NULL;
+
+  if (font->type == MFONT_TYPE_REALIZED)
+    rfont = (MRealizedFont *) font, font = rfont->font;
+
   if (key == Mfoundry)
     return (void *) FONT_PROPERTY (font, MFONT_FOUNDRY);
   if (key == Mfamily)
@@ -2240,6 +2302,19 @@ mfont_get_prop (MFont *font, MSymbol key)
     }
   if (key == Mfontfile)
     return (void *) font->file;
+  if (key == Mspacing)
+    return (font->spacing == MFONT_SPACING_UNDECIDED ? Mnil
+	    : msymbol (font->spacing == MFONT_SPACING_PROPORTIONAL ? "p"
+		       : font->spacing == MFONT_SPACING_MONO ? "m" : "c"));
+  if (rfont)
+    {
+      if (key == Mascent)
+	return (void *) rfont->ascent;
+      if (key == Mdescent)
+	return (void *) rfont->descent;
+      if (key == Mmax_advance)
+	return (void *) rfont->max_advance;
+    }
   MERROR (MERROR_FONT, NULL);
 }
 
@@ -2472,6 +2547,7 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int max_size)
   MFont spec_copy;
   MFont *best;
   MFontList *list;
+  MRealizedFont *rfont;
 
   MFONT_INIT (&spec_copy);
   spec_copy.property[MFONT_FAMILY] = spec->property[MFONT_FAMILY];
@@ -2488,7 +2564,10 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int max_size)
     *score = list->fonts[0].score;
   free (list->fonts);
   free (list);
-  return best;
+  rfont = mfont__open (frame, best, best);
+  if (! rfont)
+    return NULL;
+  return (MFont *) rfont;
 }
 
 /*=*/
@@ -2597,7 +2676,7 @@ mfont_name (MFont *font)
     これは関数は廃止予定である。 mfont_parse_name () を使用のこと。  */
 
 MFont *
-mfont_from_name (char *name)
+mfont_from_name (const char *name)
 {
   return mfont_parse_name (name, Mx);
 }
