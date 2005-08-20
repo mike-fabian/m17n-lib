@@ -155,7 +155,7 @@ extern char *mfont_unparse_name (MFont *font, MSymbol format);
 
 /* These two are obsolete (from 1.1.0).  */
 extern char *mfont_name (MFont *font);
-extern MFont *mfont_from_name (char *name);
+extern MFont *mfont_from_name (const char *name);
 
 extern MSymbol Mfoundry;
 extern MSymbol Mfamily;
@@ -163,9 +163,13 @@ extern MSymbol Mweight;
 extern MSymbol Mstyle;
 extern MSymbol Mstretch;
 extern MSymbol Madstyle;
+extern MSymbol Mspacing;
 extern MSymbol Mregistry;
 extern MSymbol Msize;
 extern MSymbol Mresolution;
+extern MSymbol Mascent;
+extern MSymbol Mdescent;
+extern MSymbol Mmax_advance;
 extern MSymbol Mfontfile;
 
 extern MSymbol Mfontconfig;
