@@ -1226,6 +1226,9 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->driver = &mfont__ft_driver;
   rfont->info = ft_rfont;
   rfont->fontp = ft_face;
+  rfont->ascent = ft_face->size->metrics.ascender >> 6;
+  rfont->descent = - ft_face->size->metrics.descender >> 6;
+  rfont->max_advance = ft_face->size->metrics.max_advance >> 6;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
   MDEBUG_PRINT ("ok\n");
@@ -1784,7 +1787,7 @@ mfont__ft_fini ()
 #ifdef HAVE_FONTCONFIG
 
 int
-mfont__ft_parse_name (char *name, MFont *font)
+mfont__ft_parse_name (const char *name, MFont *font)
 {
   FcPattern *pat = FcNameParse ((FcChar8 *) name);
   FcChar8 *str;
