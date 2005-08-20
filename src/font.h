@@ -35,9 +35,10 @@ enum MFontProperty
     MFONT_ADSTYLE,
     MFONT_REGISTRY,
     MFONT_RESY,
-    /* Actually this should not be used as an index to
+    /* The follwoings should not be used as an index to
        MFont->propperty.  */
     MFONT_SIZE,
+    MFONT_SPACING,
     /* anchor */
     MFONT_PROPERTY_MAX = MFONT_SIZE
   };
@@ -55,6 +56,14 @@ enum MFontSource
     MFONT_SOURCE_UNDECIDED = 0,
     MFONT_SOURCE_X = 1,
     MFONT_SOURCE_FT = 2
+  };
+
+enum MFontSpacing
+  {
+    MFONT_SPACING_UNDECIDED,
+    MFONT_SPACING_PROPORTIONAL,
+    MFONT_SPACING_MONO,
+    MFONT_SPACING_CHARCELL
   };
 
 typedef struct MFontEncoding MFontEncoding;
@@ -89,7 +98,7 @@ struct MFont
 
       For FONT-OPENED: The actual size of opened font.
 
-      <prperty>[MFONT_RESY] is the designed resolution of the font in
+      <property>[MFONT_RESY] is the designed resolution of the font in
       DPI, or zero.  Zero means that the font is scalable.
 
       For the time being, we mention only Y-resolution (resy) and
@@ -97,6 +106,7 @@ struct MFont
   unsigned short property[MFONT_PROPERTY_MAX];
   enum MFontType type : 2;
   enum MFontSource source : 2;
+  enum MFontSpacing spacing : 2;
   /* Size of the font in 1/10 pixels.  */
   unsigned size : 26;
   MSymbol file;
@@ -140,7 +150,7 @@ struct MRealizedFont
      non-NULL, it must be a pointer to a managed object.  */
   void *info;
 
-  short ascent, descent;
+  int ascent, descent, max_advance;
 
   /* Pointer to the font structure.  */
   void *fontp;
@@ -254,7 +264,7 @@ extern int mfont__ft_init ();
 
 extern void mfont__ft_fini ();
 
-extern int mfont__ft_parse_name (char *name, MFont *font);
+extern int mfont__ft_parse_name (const char *name, MFont *font);
 
 extern char *mfont__ft_unparse_name (MFont *font);
 
@@ -301,11 +311,7 @@ extern void mfont__set_property (MFont *font, enum MFontProperty key,
 extern int mfont__split_name (char *name, int *property_idx,
 			      unsigned short *point, unsigned short *resy);
 
-extern void mfont__set_spec (MFont *font,
-			     MSymbol attrs[MFONT_PROPERTY_MAX],
-			     unsigned size, unsigned short resy);
-
-extern int mfont__parse_name_into_font (char *name, MSymbol format,
+extern int mfont__parse_name_into_font (const char *name, MSymbol format,
 					MFont *font);
 
 extern MPlist *mfont__encoding_list (void);
