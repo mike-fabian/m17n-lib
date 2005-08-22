@@ -29,6 +29,7 @@ bin_PROGRAMS = m17n-conv m17n-view m17n-date m17n-dump m17n-edit
 
 common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
 common_ldflags_gui = ${common_ldflags} ${top_srcdir}/src/libm17n-gui.la
+AM_CPPFLAGS=@CONFIG_FLAGS@
 
 m17n_date_SOURCES = mdate.c
 m17n_date_LDADD = ${common_ldflags}
