@@ -107,8 +107,6 @@
 #include <m17n-misc.h>
 #include <m17n-X.h>
 
-#include <config.h>
-
 #ifdef HAVE_X11_XAW_COMMAND_H
 
 #include <X11/Xaw/Command.h>
