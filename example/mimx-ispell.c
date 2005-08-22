@@ -85,7 +85,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <config.h>
 #include <m17n-gui.h>
 
 #ifdef HAVE_ISPELL
