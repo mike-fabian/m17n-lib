@@ -1,3 +1,14 @@
+2005-08-22  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (MConverterStatus): Change the member buf to union.
+	(mconv_buffer_converter): Add const to the arg buf.
+	(mconv_decode_buffer, mconv_rebind_buffer): Likewise.
+	(mconv_decode): Adjusted for the change of MConverterStatus.
+	(mconv_encode_range): Likewise.
+
+	* m17n.h (mconv_buffer_converter): Prototype adjusted.
+	(mconv_decode_buffer, mconv_rebind_buffer): Likewise.
+
 2005-08-20  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (mfont_from_name): Prototype adjusted.
