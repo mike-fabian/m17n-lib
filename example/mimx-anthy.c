@@ -102,7 +102,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <config.h>
 #include <m17n.h>
 
 #ifdef HAVE_ANTHY

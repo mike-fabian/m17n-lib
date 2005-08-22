@@ -220,8 +220,6 @@
 #include <ctype.h>
 #include <libgen.h>
 
-#include "config.h"
-
 #if defined (HAVE_FREETYPE) && defined (HAVE_GD)
 #include <gd.h>
 
