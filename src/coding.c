@@ -155,7 +155,10 @@ typedef struct {
      Beginning of the byte sequence bound to this converter. */
   /**ja
      このコンバータに結び付けられたバイト列の先頭位置 */
-  unsigned char *buf;
+  union {
+    const unsigned char *in;
+    unsigned char *out;
+  } buf;
 
   /**en
      Size of buf. */
@@ -4081,7 +4084,7 @@ mconv_list_codings (MSymbol **symbols)
     mconv_stream_converter ()  */
 
 MConverter *
-mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
+mconv_buffer_converter (MSymbol name, const unsigned char *buf, int n)
 {
   MCodingSystem *coding;
   MConverter *converter;
@@ -4107,7 +4110,7 @@ mconv_buffer_converter (MSymbol name, unsigned char *buf, int n)
   internal->unread = mtext ();
   internal->work_mt = mtext ();
   mtext__enlarge (internal->work_mt, MAX_UTF8_CHAR_BYTES);
-  internal->buf = buf;
+  internal->buf.in = buf;
   internal->used = 0;
   internal->bufsize = n;
   internal->binding = BINDING_BUFFER;
@@ -4296,11 +4299,11 @@ mconv_free_converter (MConverter *converter)
     mconv_rebind_stream () */
 
 MConverter *
-mconv_rebind_buffer (MConverter *converter, unsigned char *buf, int n)
+mconv_rebind_buffer (MConverter *converter, const unsigned char *buf, int n)
 {
   MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
 
-  internal->buf = buf;
+  internal->buf.in = buf;
   internal->used = 0;
   internal->bufsize = n;
   internal->binding = BINDING_BUFFER;
@@ -4429,7 +4432,7 @@ mconv_decode (MConverter *converter, MText *mt)
 
   if (internal->binding == BINDING_BUFFER)
     {
-      (*internal->coding->decoder) (internal->buf + internal->used,
+      (*internal->coding->decoder) (internal->buf.in + internal->used,
 				    internal->bufsize - internal->used,
 				    mt, converter);
       internal->used += converter->nbytes;
@@ -4530,7 +4533,7 @@ mconv_decode (MConverter *converter, MText *mt)
     mconv_decode (), mconv_decode_stream ()  */
 
 MText *
-mconv_decode_buffer (MSymbol name, unsigned char *buf, int n)
+mconv_decode_buffer (MSymbol name, const unsigned char *buf, int n)
 {
   MConverter *converter = mconv_buffer_converter (name, buf, n);
   MText *mt;
@@ -4692,7 +4695,7 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
   if (internal->binding == BINDING_BUFFER)
     {
       (*internal->coding->encoder) (mt, from, to,
-				    internal->buf + internal->used,
+				    internal->buf.out + internal->used,
 				    internal->bufsize - internal->used,
 				    converter);
       internal->used += converter->nbytes;
