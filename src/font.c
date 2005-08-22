@@ -2236,19 +2236,23 @@ mfont_copy (MFont *font)
     The mfont_get_prop () function gets the value of $KEY property of
     font $FONT.  $KEY must be one of the following symbols:
 
-	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
+	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c Madstyle,
+	@c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
-    @return
-    If $KEY is @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
-    Madstyle, @c Mregistry, or @c Mspacing, this function returns the
-    corresponding value as a symbol.  If the font does not have $KEY
-    property, it returns @c Mnil.
-    If $KEY is @c Msize or @c Mresolution, this function returns the
-    corresponding value as an integer.  If the font does not have $KEY
-    property, it returns 0.
-    If $KEY is something else, it returns @c NULL and assigns an error
-    code to the external variable #merror_code.  */
+    If $FONT is a return value of mfont_find (), $KEY can also be one
+    of the following symbols:
+
+	@c Mascent, @c Mdescent, @c Mmax_advance.
+
+    @return If $KEY is @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+    @c Madstyle, @c Mregistry, or @c Mspacing, this function returns
+    the corresponding value as a symbol.  If the font does not have
+    $KEY property, it returns @c Mnil.  If $KEY is @c Msize, @c
+    Mresolution, @c Mascent, @c Mdescent, or @c Mmax_advance, this
+    function returns the corresponding value as an integer.  If the
+    font does not have $KEY property, it returns 0.  If $KEY is
+    something else, it returns @c NULL and assigns an error code to
+    the external variable #merror_code.  */
  
 /***ja
     @brief フォントのプロパティの値を得る.
