@@ -1,3 +1,17 @@
+2005-08-22  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c: Don't include config.h.
+
+	* medit.c: Likewise.
+
+	* mview.c: Likewise.
+
+	* mimx-anthy.c: Likewise.
+
+	* mimx-ispell.c: Likewise.
+
+	* Makefile.am (AM_CPPFLAGS): Set it to @CONFIG_FLAGS@.
+
 2005-08-18  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): Adjusted for the change of symbol's language
