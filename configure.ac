@@ -50,6 +50,7 @@ if test "x$HAVE_XAW" = "xyes"; then
   XAW_LD_FLAGS=-lXaw
   AC_DEFINE(HAVE_X11_XAW_COMMAND_H, 1,
 	    [Define to 1 if you have the Xaw header files.])
+  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_X11_XAW_COMMAND_H"
 fi
 
 AC_SUBST(XAW_LD_FLAGS)
@@ -175,6 +176,7 @@ if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
         AC_DEFINE(HAVE_FTBDF_H, 1,
 		  [Define to 1 if you have freetype/ftbdf.h.])
       fi
+      CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_FREETYPE"
     fi
   fi
 fi
@@ -249,6 +251,7 @@ if test "x$HAVE_GD" = "xyes"; then
 	    [Define to 1 or 2 if you have gd library and header file.])
   M17N_EXT_LIBS="$M17N_EXT_LIBS gdlib"
   GD_LD_FLAGS=-lgd
+  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_GD"
 fi
 LIBS="$save_LIBS"
 AC_SUBST(GD_LD_FLAGS)
@@ -285,10 +288,11 @@ if test "x$HAVE_ANTHY" = "xyes"; then
   if test "x$HAVE_ANTHY" = "xyes"; then
     AC_CHECK_HEADER(anthy/anthy.h, HAVE_ANTHY=yes, HAVE_ANTHY=no)
     if test "x$HAVE_ANTHY" = "xyes"; then
-    AC_DEFINE(HAVE_ANTHY, 1,
-	      [Define to 1 if you have Anthy library and header file])
-    M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
-    ANTHY_LD_FLAGS="-lanthy -lanthydic"
+      AC_DEFINE(HAVE_ANTHY, 1,
+		[Define to 1 if you have Anthy library and header file])
+      M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
+      ANTHY_LD_FLAGS="-lanthy -lanthydic"
+      CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_ANTHY"
     fi
   fi
 fi
@@ -299,6 +303,7 @@ AC_CHECK_PROG(HAVE_ISPELL, ispell, yes)
 if test "x$HAVE_ISPELL" = "xyes"; then
   AC_DEFINE(HAVE_ISPELL, 1, [Define if ispell is available.])
   M17N_EXT_LIBS="$M17N_EXT_LIBS ispell"
+  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_ISPELL"
 fi
 
 dnl Check for Thai word-segmentation library.
@@ -366,6 +371,8 @@ if test "x$HAVE_THAI_WORDSEG" = "xyes"; then
             [Define if you have some Thai word-segmentation library])
 fi
 AC_SUBST(THAI_WORDSEG_LD_FLAGS)
+
+AC_SUBST(CONFIG_FLAGS)
 
 dnl We can't include X_CFLAGS in AM_CPPFLAGS because the generated
 dnl Makefile put ${AM_CPPFLAGS} before ${CPPFLAGS} and that leads to
