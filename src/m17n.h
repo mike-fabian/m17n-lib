@@ -765,7 +765,8 @@ extern MSymbol mconv_resolve_coding (MSymbol symbol);
 
 extern int mconv_list_codings (MSymbol **symbols);
 
-extern MConverter *mconv_buffer_converter (MSymbol coding, unsigned char *buf,
+extern MConverter *mconv_buffer_converter (MSymbol coding,
+					   const unsigned char *buf,
 					   int n);
 
 extern MConverter *mconv_stream_converter (MSymbol coding, FILE *fp);
@@ -775,13 +776,13 @@ extern int mconv_reset_converter (MConverter *converter);
 extern void mconv_free_converter (MConverter *converter);
 
 extern MConverter *mconv_rebind_buffer (MConverter *converter,
-					unsigned char *buf, int n);
+					const unsigned char *buf, int n);
 
 extern MConverter *mconv_rebind_stream (MConverter *converter, FILE *fp);
 
 extern MText *mconv_decode (MConverter *converter, MText *mt);
 
-MText *mconv_decode_buffer (MSymbol name, unsigned char *buf, int n);
+MText *mconv_decode_buffer (MSymbol name, const unsigned char *buf, int n);
 
 MText *mconv_decode_stream (MSymbol name, FILE *fp);   
 
