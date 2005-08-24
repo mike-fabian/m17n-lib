@@ -828,7 +828,7 @@ xlfd_unparse_name (MFont *font)
   char *str[7];
   int len, i;
   char spacing;
-  unsigned short size, resy;
+  int size, resy;
 
   prop[0] = (MSymbol) mfont_get_prop (font, Mfoundry);
   prop[1] = (MSymbol) mfont_get_prop (font, Mfamily);
@@ -866,14 +866,24 @@ xlfd_unparse_name (MFont *font)
 
   resy = (int) mfont_get_prop (font, Mresolution);
   size = font->size;
-  if ((size % 10) < 5)
-    size /= 10;
+  if (size >= 0)
+    {
+      if ((size % 10) < 5)
+	size /= 10;
+      else
+	size = size / 10 + 1;
+    }
   else
-    size = size / 10 + 1;
+    size = - size;
 
-  sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-%c-*-%s",
-	   str[0], str[1], str[2], str[3], str[4], str[5],
-	   size, resy, resy, spacing, str[6]);
+  if (font->size >= 0)
+    sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-%c-*-%s",
+	     str[0], str[1], str[2], str[3], str[4], str[5],
+	     size, resy, resy, spacing, str[6]);
+  else
+    sprintf (name, "-%s-%s-%s-%s-%s-%s-*-%d-%d-%d-%c-*-%s",
+	     str[0], str[1], str[2], str[3], str[4], str[5],
+	     size, resy, resy, spacing, str[6]);
   return strdup (name);
 }
 
@@ -972,8 +982,6 @@ mfont__init ()
   Mspacing = msymbol ("spacing");
   Msize = msymbol ("size");
   Mresolution = msymbol ("resolution");
-  Mascent = msymbol ("ascent");
-  Mdescent = msymbol ("descent");
   Mmax_advance = msymbol ("max-advance");
   Mfontfile = msymbol ("fontfile");
 
@@ -1961,24 +1969,6 @@ MSymbol Mfontfile;
 MSymbol Mresolution;
 
 /***en
-    @brief Key of font property specifying ascent.
-
-    The variable #Mascent is a symbol of name <tt>"ascent"</tt> and is
-    used as a key of font property.  The property value must be an
-    integer specifying a font ascent value by pixels.  */ 
-
-MSymbol Mascent;
-
-/***en
-    @brief Key of font property specifying descent.
-
-    The variable #Mdescent is a symbol of name <tt>"descent"</tt> and
-    is used as a key of font property.  The property value must be an
-    integer specifying a font's descent value by pixels.  */ 
-
-MSymbol Mdescent;
-
-/***en
     @brief Key of font property specifying max advance width.
 
     The variable #Mmax_advance is a symbol of name
@@ -2242,13 +2232,13 @@ mfont_copy (MFont *font)
     If $FONT is a return value of mfont_find (), $KEY can also be one
     of the following symbols:
 
-	@c Mascent, @c Mdescent, @c Mmax_advance.
+	#Mfont_ascent, #Mfont_descent, #Mmax_advance.
 
     @return If $KEY is @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
     @c Madstyle, @c Mregistry, or @c Mspacing, this function returns
     the corresponding value as a symbol.  If the font does not have
     $KEY property, it returns @c Mnil.  If $KEY is @c Msize, @c
-    Mresolution, @c Mascent, @c Mdescent, or @c Mmax_advance, this
+    Mresolution, #Mfont_ascent, Mfont_descent, or #Mmax_advance, this
     function returns the corresponding value as an integer.  If the
     font does not have $KEY property, it returns 0.  If $KEY is
     something else, it returns @c NULL and assigns an error code to
@@ -2278,7 +2268,7 @@ mfont_get_prop (MFont *font, MSymbol key)
   MRealizedFont *rfont = NULL;
 
   if (font->type == MFONT_TYPE_REALIZED)
-    rfont = (MRealizedFont *) font, font = rfont->font;
+    rfont = (MRealizedFont *) font;
 
   if (key == Mfoundry)
     return (void *) FONT_PROPERTY (font, MFONT_FOUNDRY);
@@ -2312,9 +2302,9 @@ mfont_get_prop (MFont *font, MSymbol key)
 		       : font->spacing == MFONT_SPACING_MONO ? "m" : "c"));
   if (rfont)
     {
-      if (key == Mascent)
+      if (key == Mfont_ascent)
 	return (void *) rfont->ascent;
-      if (key == Mdescent)
+      if (key == Mfont_descent)
 	return (void *) rfont->descent;
       if (key == Mmax_advance)
 	return (void *) rfont->max_advance;
@@ -2367,7 +2357,7 @@ mfont_put_prop (MFont *font, MSymbol key, void *val)
     mfont__set_property (font, MFONT_REGISTRY, (MSymbol) val);
   else if (key == Msize)
     {
-      unsigned size = (unsigned) val;
+      int size = (int) val;
       font->size = size;
     }
   else if (key == Mresolution)
@@ -2552,7 +2542,16 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int max_size)
   MFont *best;
   MFontList *list;
   MRealizedFont *rfont;
+  MFont adjusted;
 
+  if (spec->size < 0)
+    {
+      double pt = - spec->size;
+
+      adjusted = *spec;
+      adjusted.size = pt * frame->dpi / 72.27 + 0.5;
+      spec = &adjusted;
+    }
   MFONT_INIT (&spec_copy);
   spec_copy.property[MFONT_FAMILY] = spec->property[MFONT_FAMILY];
   spec_copy.property[MFONT_REGISTRY] = spec->property[MFONT_REGISTRY];
@@ -2568,7 +2567,9 @@ mfont_find (MFrame *frame, MFont *spec, int *score, int max_size)
     *score = list->fonts[0].score;
   free (list->fonts);
   free (list);
-  rfont = mfont__open (frame, best, best);
+  spec_copy = *best;
+  mfont__merge (&spec_copy, spec, 0);
+  rfont = mfont__open (frame, best, spec);
   if (! rfont)
     return NULL;
   return (MFont *) rfont;
@@ -2749,22 +2750,25 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
   MPlist *plist, *pl;
   MFontList *font_list;
   int i;
-  MFont *work = NULL;
+  MFont spec = *font;
   
+  if (spec.size < 0)
+    {
+      double pt = - spec.size;
+
+      spec.size = pt * frame->dpi / 72.27 + 0.5;
+    }
+
   if (language != Mnil)
     {
       /* ":lang=XXX" */
       char *buf = alloca (MSYMBOL_NAMELEN (language) + 7);
 
       sprintf (buf, ":lang=%s", MSYMBOL_NAME (language));
-      if (! font)
-	font = work = mfont ();
-      font->capability = msymbol (buf);
+      spec.capability = msymbol (buf);
     }
 
-  font_list = mfont__list (frame, font, font, 0);
-  if (work)
-    free (work);
+  font_list = mfont__list (frame, &spec, &spec, 0);
   if (! font_list)
     return NULL;
   if (font_list->nfonts == 0)
@@ -2804,6 +2808,7 @@ mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
   MFont spec;
   MPlist *plist, *pl;
   int result = 0;
+  int orig_size;
 
   if (! fontset)
     fontset = frame->face->property[MFACE_FONTSET];
@@ -2830,6 +2835,13 @@ mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
       M17N_OBJECT_UNREF (plist);
       plist = mfontset_lookup (fontset, script, language, Mnil);
     }
+  orig_size = font->size;
+  if (orig_size < 0)
+    {
+      double pt = - orig_size;
+
+      font->size = pt * frame->dpi / 72.27 + 0.5;
+    }
   MPLIST_DO (pl, plist)
     {
       spec = *(MFont *) MPLIST_VAL (pl);	  
@@ -2840,6 +2852,7 @@ mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
 	  break;
 	}
     }
+  font->size = orig_size;
   M17N_OBJECT_UNREF (plist);
   return result;
 }
