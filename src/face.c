@@ -607,6 +607,7 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
   void **props;
   int i, j;
   MFaceHookFunc func;
+  MFont adjusted;
 
   if (num == 0 && frame->rface && ! font)
     return frame->rface;
@@ -624,7 +625,17 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	if (font->property[i])
 	  merged_face.property[i] = FONT_PROPERTY (font, i);
       if (font->size)
-	merged_face.property[MFACE_SIZE] = (void *) font->size;
+	{
+	  if (font->size < 0)
+	    {
+	      double pt = - font->size;
+
+	      adjusted = *font;
+	      adjusted.size = pt * frame->dpi / 72.27 + 0.5;
+	      font = &adjusted;
+	    }
+	  merged_face.property[MFACE_SIZE] = (void *) font->size;
+	}
     }
 
   if (! mplist_find_by_value (frame->face->frame_list, frame))
@@ -633,14 +644,22 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
     if (! mplist_find_by_value (faces[i]->frame_list, frame))
       mplist_push (faces[i]->frame_list, Mt, frame);
 
-  if (merged_face.property[MFACE_RATIO])
+  if ((int) merged_face.property[MFACE_SIZE] < 0
+      || (int) merged_face.property[MFACE_RATIO] != 100)
     {
-      int font_size = (int) merged_face.property[MFACE_SIZE];
+      double font_size = (int) merged_face.property[MFACE_SIZE];
+      int ifont_size;
 
-      font_size *= (int) merged_face.property[MFACE_RATIO];
-      font_size /= 100;
-      merged_face.property[MFACE_SIZE] = (void *) font_size;
-      merged_face.property[MFACE_RATIO] = 0;
+      if (font_size < 0)
+	font_size = - font_size * frame->dpi / 72.27;
+      if ((int) merged_face.property[MFACE_RATIO] != 100)
+	{
+	  font_size *= (int) merged_face.property[MFACE_RATIO];
+	  font_size /= 100;
+	  merged_face.property[MFACE_RATIO] = 0;
+	}
+      ifont_size = font_size + 0.5;
+      merged_face.property[MFACE_SIZE] = (void *) ifont_size;
     }
 
   merged_face.property[MFACE_FOUNDRY] = Mnil;
