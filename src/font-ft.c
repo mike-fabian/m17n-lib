@@ -135,7 +135,8 @@ static int all_fonts_scaned;
       (s1) = alloca (len), (size) = len;			\
     for (p1 = (s1), p2 = (s2); *p2; p1++, p2++)			\
       *p1 = (*p2 >= 'A' && *p2 <= 'Z' ? *p2 + 'a' - 'A' : *p2);	\
-    *p1 = *p2;							\
+    while (p1 > (s1) && p1[-1] == ' ') p1--;			\
+    *p1 = '\0';							\
   } while (0)
 
 
@@ -324,6 +325,11 @@ fc_get_pattern (MFont *font)
     {
       double size = font->size;
       FcPatternAddDouble (pat, FC_PIXEL_SIZE, size / 10);
+    }
+  else if (font->size < 0)
+    {
+      double size = - font->size;
+      FcPatternAddDouble (pat, FC_SIZE, size / 10);
     }
   return pat;
 }
@@ -1250,14 +1256,14 @@ ft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	{
 	  if (FT_IS_SCALABLE (ft_face))
 	    {
-	      unsigned unitsPerEm = ft_face->units_per_EM;
-	      int size = rfont->spec.size / 10;
+	      unsigned unitsPerEm10 = ft_face->units_per_EM * 10;
+	      int size = rfont->spec.size;
 
 	      g->lbearing = 0;
-	      g->rbearing = ft_face->max_advance_width * size / unitsPerEm;
+	      g->rbearing = ft_face->max_advance_width * size / unitsPerEm10;
 	      g->width = g->rbearing;
-	      g->ascent = ft_face->ascender * size / unitsPerEm;
-	      g->descent = (- ft_face->descender) * size / unitsPerEm;
+	      g->ascent = ft_face->ascender * size / unitsPerEm10;
+	      g->descent = (- ft_face->descender) * size / unitsPerEm10;
 	    }
 	  else
 	    {
@@ -1821,7 +1827,9 @@ mfont__ft_parse_name (const char *name, MFont *font)
 			 fc_decode_prop (val, fc_width_table,
 					 fc_width_table_size));
   if (FcPatternGetDouble (pat, FC_PIXEL_SIZE, 0, &size) == FcResultMatch)
-    font->size = size * 10;
+    font->size = size * 10 + 0.5;
+  else if (FcPatternGetDouble (pat, FC_SIZE, 0, &size) == FcResultMatch)
+    font->size = - (size * 10 + 0.5);
   if (FcPatternGetString (pat, FC_FILE, 0, &str) == FcResultMatch)
     {
       font->file = msymbol ((char *) str);
