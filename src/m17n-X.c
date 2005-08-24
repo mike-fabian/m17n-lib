@@ -156,6 +156,8 @@ typedef struct
 
   GC scratch_gc;
 
+  int resy;
+
 #ifdef HAVE_XFT2
   XftDraw *xft_draw;
 #endif
@@ -2101,7 +2103,8 @@ device_open (MFrame *frame, MPlist *param)
       device = (MWDevice *) mplist_value (plist);
       if (device->display_info == disp_info
 	  && device->depth == depth
-	  && device->cmap == cmap)
+	  && device->cmap == cmap
+	  && device->screen_num == screen_num)
 	break;
     }
 
@@ -2111,6 +2114,7 @@ device_open (MFrame *frame, MPlist *param)
     {
       unsigned long valuemask = GCForeground;
       XGCValues values;
+      double pixels, mm;
 
       M17N_OBJECT (device, free_device, MERROR_WIN);
       device->display_info = disp_info;
@@ -2121,6 +2125,9 @@ device_open (MFrame *frame, MPlist *param)
 					1, 1, depth);
       device->depth = depth;
       device->cmap = cmap;
+      pixels = DisplayHeight (display, screen_num);
+      mm = DisplayHeightMM (display, screen_num);
+      device->resy = (mm < 1) ? 100 : pixels * 25.4 / mm;
       device->realized_face_list = mplist ();
       device->realized_font_list = mplist ();
       mplist_add (device->realized_font_list, Mt, NULL);
@@ -2138,6 +2145,7 @@ device_open (MFrame *frame, MPlist *param)
 
   frame->device = device;
   frame->device_type = MDEVICE_SUPPORT_OUTPUT | MDEVICE_SUPPORT_INPUT;
+  frame->dpi = device->resy;
   frame->driver = &x_driver;
   frame->font_driver_list = mplist ();
 #ifdef HAVE_XFT2
