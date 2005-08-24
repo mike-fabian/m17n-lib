@@ -822,6 +822,9 @@ device_open (MFrame *frame, MPlist *param)
 
   frame->device = NULL;
   frame->device_type = MDEVICE_SUPPORT_OUTPUT;
+  frame->dpi = (int) mplist_get (param, Mresolution);
+  if (frame->dpi == 0)
+    frame->dpi = 100;
   frame->driver = &gd_driver;
   frame->font_driver_list = mplist ();
   mplist_add (frame->font_driver_list, Mfreetype, &gd_font_driver);
