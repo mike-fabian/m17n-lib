@@ -167,8 +167,6 @@ extern MSymbol Mspacing;
 extern MSymbol Mregistry;
 extern MSymbol Msize;
 extern MSymbol Mresolution;
-extern MSymbol Mascent;
-extern MSymbol Mdescent;
 extern MSymbol Mmax_advance;
 extern MSymbol Mfontfile;
 
@@ -756,8 +754,8 @@ typedef struct
       next_from because they must be the same as the members from and
       to respectively.  */
   /***ja 論理的な前後のグリフに対応する文字の範囲。メンバ prev_to と
-      next_from は、それぞれメンバ from とto 
-      と同じでなくてはならないため不要である。  */
+      next_from は、それぞれメンバ from と to と同じであるはずなので不
+      要である。  */
   int prev_from, next_to;
 
   /***en Character ranges corresponding to visually left and right
