@@ -631,8 +631,8 @@ m17n_status (void)
     zero.
 
     A property whose key is a managing key can have only a managed
-    object as its value.  Such functions as msymbol_put () and
-    mplist_put () pay special attention to such a property.
+    object as its value.  Some functions, for instance msymbol_put ()
+    and mplist_put (), pay special attention to such a property.
 
     In addition to the predefined managed object types, users can
     define their own managed object types.  See the documentation of
@@ -643,7 +643,7 @@ m17n_status (void)
 
     m17n オブジェクトのある型のものは、参照数によって管理されている。
     それらのオブジェクトは @e 管理下オブジェクト と呼ばれる。生成された時点での参照数は
-    0 に初期化されている。関数 m17n_object_ref () は管理下オブジェクトの参照数を
+    1 に初期化されている。関数 m17n_object_ref () は管理下オブジェクトの参照数を
     1 増やし、関数m17n_object_unref () は 1 減らす。参照数が
     0 になった管理下オブジェクトは自動的に解放される。
 
