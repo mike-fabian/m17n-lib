@@ -1,3 +1,44 @@
+2005-08-24  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.h (Mascent, Mdescent): Don't extern them.
+
+	* m17n-gui.c (null_device_open): Check Mresolution param and set
+	frame->dpi.
+
+	* m17n-gd.c (device_open): Check Mresolution param and set
+	frame->dpi.
+
+	* m17n-X.c (MWDevice): New member resy.
+	(xfont_open): Set ascent, descent, and max_advance members of
+	rfont.
+	(xft_open): Likewise.
+	(device_open): Compare also screen_num to find a device.  Set
+	device->resy and frame->dpi.
+
+	* internal-gui.h (MFrame): New member dpi.
+
+	* font.h (MRealizedFont): New member max_advance.
+
+	* font.c (xlfd_unparse_name): Handle the case of font->size < 0.
+	(mfont__init): Don't initialize Mascent, Mdescent.
+	(Mascent, Mdescent): Delete these variables.
+	(mfont_get_prop): Fix previous change.  Check Mfont_ascent and
+	Mfont_descent instead of Mascent and Mdescent.
+	(mfont_put_prop): Allow negative size.
+	(mfont_find): Handle the case of spec->size < 0.  Fix previous
+	change.
+	(mfont_list): Handle the case of spec->size < 0.
+	(mfont_check): Likewise.
+
+	* font-ft.c (STRDUP_LOWER): Ignore the tailing spaces.
+	(fc_get_pattern): Handle the case of font->size < 0.
+	(ft_open): Set ascent, descent, and max_advance members of rfont.
+	(ft_find_metric): Improve rounding.
+	(mfont__ft_parse_name): If FC_PIXEL_SIZE is not available, set
+	FC_SIZE.
+
+	* face.c (mface__realize): Handle the case of font->size < 0.
+
 2005-08-22  Kenichi Handa  <handa@m17n.org>
 
 	* coding.c (MConverterStatus): Change the member buf to union.
