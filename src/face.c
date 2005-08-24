@@ -645,14 +645,16 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
       mplist_push (faces[i]->frame_list, Mt, frame);
 
   if ((int) merged_face.property[MFACE_SIZE] < 0
-      || (int) merged_face.property[MFACE_RATIO] != 100)
+      || (merged_face.property[MFACE_RATIO]
+	  && (int) merged_face.property[MFACE_RATIO] != 100))
     {
       double font_size = (int) merged_face.property[MFACE_SIZE];
       int ifont_size;
 
       if (font_size < 0)
 	font_size = - font_size * frame->dpi / 72.27;
-      if ((int) merged_face.property[MFACE_RATIO] != 100)
+      if (merged_face.property[MFACE_RATIO]
+	  && (int) merged_face.property[MFACE_RATIO] != 100)
 	{
 	  font_size *= (int) merged_face.property[MFACE_RATIO];
 	  font_size /= 100;
