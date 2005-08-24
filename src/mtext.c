@@ -1160,7 +1160,7 @@ const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
 
     The mtext () function allocates a new M-text of length 0 and
     returns a pointer to it.  The allocated M-text will not be freed
-    unless the user explicitly does so with the m17n_object_free ()
+    unless the user explicitly does so with the m17n_object_unref ()
     function.  */
 
 /***ja
@@ -1168,13 +1168,13 @@ const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
 
     関数 mtext () は、長さ 0 の新しい M-text 
     を割り当て、それへのポインタを返す。割り当てられた M-text は、関数
-    m17n_object_free () によってユーザが明示的に行なわない限り、解放されない。
+    m17n_object_unref () によってユーザが明示的に行なわない限り、解放されない。
 
     @latexonly \IPAlabel{mtext} @endlatexonly  */
 
 /***
     @seealso
-    m17n_object_free ()  */
+    m17n_object_unref ()  */
 
 MText *
 mtext ()
