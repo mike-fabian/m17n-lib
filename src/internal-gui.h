@@ -72,6 +72,9 @@ struct MFrame
   /** Logical OR of enum MDeviceType.  */
   int device_type;
 
+  /** Resolution (dots per inch) of the device.  */
+  int dpi;
+
   /** Correction of functions to manipulate the device.  */
   MDeviceDriver *driver;
 
