@@ -1,3 +1,16 @@
+2005-08-25  Kenichi Handa  <handa@m17n.org>
+
+	* font.h (MFont): New member for_full_width.
+
+	* font.c (compare_font_score): Prefer a font of not
+	for_full_width.
+
+	* m17n-X.c (xfont_registry_list): Set font.for_full_width if the
+	registry charset of a font is one of CJK charsets.
+
+	* font-ft.c (fc_parse_pattern): Set font->for_full_width if a font
+	supports some of CJK.
+
 2005-08-24  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (Mascent, Mdescent): Don't extern them.
