@@ -1330,7 +1330,11 @@ mfont__available (MFrame *frame, MFont *font)
 static int
 compare_font_score (const void *e1, const void *e2)
 {
-  return (((MFontScore *) e1)->score > ((MFontScore *) e2)->score);
+  MFontScore *s1 = (MFontScore *) e1, *s2 = (MFontScore *) e2;
+
+  return (s1->font->for_full_width == s2->font->for_full_width
+	  ? s1->score > s2->score
+	  : s1->font->for_full_width);
 }
 
 void
