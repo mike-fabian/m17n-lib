@@ -343,6 +343,7 @@ fc_parse_pattern (FcPattern *pat, char *family, MFont *font)
   char *buf;
   int bufsize = 0;
   MSymbol sym;
+  FcLangSet *ls;
 
   MFONT_INIT (font);
   if (FcPatternGetString (pat, FC_FOUNDRY, 0, &str) == FcResultMatch)
@@ -372,6 +373,16 @@ fc_parse_pattern (FcPattern *pat, char *family, MFont *font)
       sym = fc_decode_prop (val, fc_width_table, fc_width_table_size);
       mfont__set_property (font, MFONT_STRETCH, sym);
     }
+  if (FcPatternGetLangSet (pat, FC_LANG, 0, &ls) == FcResultMatch)
+    {
+      if (FcLangSetHasLang (ls, (FcChar8 *) "ja") == FcLangEqual
+	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-cn") == FcLangEqual
+	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-hk") == FcLangEqual
+	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-tw") == FcLangEqual
+	  || FcLangSetHasLang (ls, (FcChar8 *) "ko") == FcLangEqual)
+	font->for_full_width = 1;
+    }
+
   mfont__set_property (font, MFONT_REGISTRY, Municode_bmp);
   font->type = MFONT_TYPE_SPEC;
   font->source = MFONT_SOURCE_FT;
@@ -556,7 +567,7 @@ ft_list_family (MSymbol family, int check_generic)
 	  pattern = FcPatternCreate ();
 	  FcPatternAddString (pattern, FC_FAMILY, (FcChar8 *) fam);
 	  os = FcObjectSetBuild (FC_FOUNDRY, FC_WEIGHT, FC_SLANT, FC_WIDTH,
-				 FC_PIXEL_SIZE, FC_FILE, NULL);
+				 FC_PIXEL_SIZE, FC_LANG, FC_FILE, NULL);
 	  fs = FcFontList (fc_config, pattern, os);
 	  p = pl = mplist ();
 	  for (i = 0; i < fs->nfont; i++)
