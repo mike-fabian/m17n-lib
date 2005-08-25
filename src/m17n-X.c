@@ -462,6 +462,7 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
   int nfonts;
   int i, j;
   MFont font;
+  int for_full_width;
 
   plist = mplist_get (font_list, registry);
   if (plist)
@@ -472,6 +473,14 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
   font_names = XListFonts (disp_info->display, pattern, 0x8000, &nfonts);
   if (nfonts == 0)
     return plist;
+  {
+    char *reg_name = msymbol_name (registry);
+
+    for_full_width = (strncmp (reg_name, "jis", 3) == 0
+		      || strncmp (reg_name, "gb", 2) == 0
+		      || strncmp (reg_name, "big5", 4) == 0
+		      || strncmp (reg_name, "ksc", 3) == 0);
+  }
   names = alloca (sizeof (char *) * nfonts);
   memcpy (names, font_names, sizeof (char *) * nfonts);
   qsort (names, nfonts, sizeof (char *), font_compare);
@@ -516,6 +525,7 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
 		sizes[nsizes++] = size;
 	    }
 
+	font.for_full_width = for_full_width;
 	font.type = MFONT_TYPE_OBJECT;
 	font.source = MFONT_SOURCE_X;
 	MSTRUCT_CALLOC (fontx, MERROR_WIN);
