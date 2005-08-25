@@ -107,9 +107,10 @@ struct MFont
   enum MFontType type : 2;
   enum MFontSource source : 2;
   enum MFontSpacing spacing : 2;
+  unsigned for_full_width : 1;
   /* Pixel size of the font in 1/10 pixels.  The negative value means
      a point size in 1/10 pt.  */
-  int size : 26;
+  int size : 25;
   MSymbol file;
   MSymbol capability;
   MFontEncoding *encoding;
