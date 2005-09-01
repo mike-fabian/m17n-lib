@@ -215,8 +215,7 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 
       if (last < from + wordcut_result.start[i])
 	{
-	  this = mtext_property (Mthai_wordseg, Mnil,
-				 MTEXTPROP_VOLATILE_WEAK | MTEXTPROP_NO_MERGE);
+	  this = mtext_property (Mthai_wordseg, Mnil, MTEXTPROP_VOLATILE_WEAK);
 	  mtext_attach_property (mt, last, from + wordcut_result.start[i],
 				 this);
 	  if (pos >= last && pos < from + wordcut_result.start[i])
@@ -241,55 +240,55 @@ wordseg_propertize (MText *mt, int pos, int from, int to, unsigned char *tis)
 int
 thai_wordseg (MText *mt, int pos, int *from, int *to)
 {
+  int len = mtext_nchars (mt);
   /* TIS620 code sequence.  */
   unsigned char *tis;
   MTextProperty *prop;
-  int in_word;
+  int beg, end;
+  int c;
 
-  if (pos >= mtext_nchars (mt))
-    {
-      *from = *to = pos;
-      return 0;
-    }
-
+  /* It is assured that there's a Thai character at POS.  */
   prop = mtext_get_property (mt, pos, Mthai_wordseg);
-
-  if (! prop)
+  if (prop)
     {
-      int beg, end;
-      int c;
+      beg = MTEXTPROP_START (prop);
+      if (beg > 0
+	  && ((c = mtext_ref_char (mt, beg - 1)) < THAI_BEG || c > THAI_END))
+	beg = -1;
+      end = MTEXTPROP_END (prop);
+      if (end < len
+	  && ((c = mtext_ref_char (mt, end)) < THAI_BEG || c > THAI_END))
+	end = -1;
+    }
+  else
+    {
+      int i;
 
-      /* Extra 1-byte is for 0 terminating.  */
-      tis = alloca ((*to - *from) + 1);
+      for (beg = pos; beg > 0; beg--)
+	if ((c = mtext_ref_char (mt, beg - 1)) < THAI_BEG || c > THAI_END)
+	  break;
+      for (end = pos + 1; end < len; end++)
+	if ((c = mtext_ref_char (mt, end)) < THAI_BEG || c > THAI_END)
+	  break;
 
-      for (beg = pos; beg > *from; beg--)
-	{
-	  if ((c = mtext_ref_char (mt, beg - 1)) < THAI_BEG || c > THAI_END)
-	    break;
-	  tis[beg - 1 - *from] = 0xA1 + (c - THAI_BEG);
-	}
-      for (end = pos; end < *to; end++)
-	{
-	  if ((c = mtext_ref_char (mt, end)) < THAI_BEG || c > THAI_END)
-	    break;
-	  tis[end - *from] = 0xA1 + (c - THAI_BEG);
-	}	    
-	  
-      if (pos == end)
-	{
-	  *from = *to = pos;
-	  return 0;
-	}
+      /* Extra 1-byte for 0 terminating.  */
+      tis = alloca ((end - beg) + 1);
 
-      /* Make it terminate by 0.  */
-      tis[end - *from] = 0;
-      prop = wordseg_propertize (mt, pos, beg, end, tis + (beg - *from));
+      for (i = beg; i < end; i++)
+	tis[i - beg] = 0xA1 + (mtext_ref_char (mt, i) - THAI_BEG);
+      tis[i - beg] = 0;
+      prop = wordseg_propertize (mt, pos, beg, end, tis);
+      i = MTEXTPROP_START (prop);
+      beg = (i > beg || i == 0) ? i : -1;
+      i = MTEXTPROP_END (prop);
+      end = (i < end || i == len) ? i : -1;
     }
 
-  *from = MTEXTPROP_START (prop);
-  *to = MTEXTPROP_END (prop);
-  in_word = MTEXTPROP_VAL (prop) == Mt;
-  return in_word;
+  if (from)
+    *from = beg;
+  if (to)
+    *to = end;
+  return (MTEXTPROP_VAL (prop) == Mt);
 }
 
 #endif	/* HAVE_THAI_WORDSEG */
@@ -306,7 +305,7 @@ mtext__word_thai_init ()
       if (init_wordseg_library () < 0)
 	return -1;
       wordseg_library_initialized = 1;
-      Mthai_wordseg = msymbol (" wordcut-wordseg");
+      Mthai_wordseg = msymbol ("  wordcut-wordseg");
     }
   mchartable_set_range (wordseg_func_table, THAI_BEG, THAI_END,
 			(void *) thai_wordseg);
