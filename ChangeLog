@@ -1,4 +1,4 @@
-2005-08-22  Kenichi Handa  <handa@m17n.org>
+2005-09-01  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac (CONFIG_FLAGS): Setup this variable and AC_SUBST it.
 
