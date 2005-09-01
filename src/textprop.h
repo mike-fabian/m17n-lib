@@ -66,7 +66,8 @@ extern void mtext__adjust_plist_for_delete (MText *, int, int);
 extern void mtext__adjust_plist_for_insert (MText *, int, int,
 					    struct MTextPlist *);
 
-extern void mtext__adjust_plist_for_change (MText *mt, int from, int to);
+extern void mtext__adjust_plist_for_change (MText *mt, int pos,
+					    int len1, int len2);
 
 extern void dump_textplist (struct MTextPlist *plist, int indent);
 
