@@ -2025,7 +2025,7 @@ mtext_del (MText *mt, int from, int to)
 /***ja
     @brief M-text を別の M-text に挿入する.
 
-    関数 mtext_ins () は M-text $MT1 の $POS の位置に 別の M-text $MT2 
+    関数 mtext_ins () は M-text $MT1 の $POS の位置に別の M-text $MT2 
     を挿入する。この結果 $MT1 の長さは $MT2 の長さ分だけ増える。挿入の際、$MT2
     のテキストプロパティはすべて継承される。$MT2 そのものは変更されない。
 
@@ -2035,10 +2035,10 @@ mtext_del (MText *mt, int from, int to)
 
 /***
     @errors
-    @c MERROR_RANGE
+    @c MERROR_RANGE , @c MERROR_MTEXT
 
     @seealso
-    mtext_del ()  */
+    mtext_del () , mtext_insert ()  */
 
 int
 mtext_ins (MText *mt1, int pos, MText *mt2)
@@ -2066,6 +2066,26 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
     @return If the operation was successful, mtext_insert () returns
     0.  Otherwise, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
+
+/***ja
+    @brief M-text の一部を別の M-text に挿入する.
+
+    関数 mtext_insert () は M-text $MT1 中の $POS の位置に、別の 
+    M-text $MT2 の $FROM （$FROM 自体も含む）から $TO （$TO 自体は含ま
+    ない）までの文字を挿入する。結果的に $MT1 は長さが ($TO - $FROM) 
+    だけ伸びる。挿入の際、 $MT2 中のテキストプロパティはすべて継承され
+    る。
+
+    @return
+    処理が成功すれば、mtext_insert () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
+
+/***
+    @errors
+    @c MERROR_MTEXT , @c MERROR_RANGE
+
+    @seealso
+    mtext_ins ()  */
 
 int
 mtext_insert (MText *mt1, int pos, MText *mt2, int from, int to)
@@ -2198,6 +2218,25 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     @return If the operation was successful, mtext_replace () returns
     0.  Otherwise, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
+
+/***ja
+    @brief M-text の一部を別の M-text の一部で置換する.
+
+    関数 mtext_replace () は、 M-text $MT1 の $FROM1 （$FROM1 自体も含
+    む）から $TO1 （$TO1 自体は含まない）までを、 M-text $MT2 の 
+    $FROM2 （$FROM2 自体も含む）から $TO2 （$TO2 自体は含まない）で置
+    き換える。新しく挿入された部分は、置き換える前のテキストプロパティ
+    すべてを継承する。
+
+    @return 処理が成功すれば、 mtext_replace () は 0 を返す。そうでな
+    ければ -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
+
+/***
+    @errors
+    @c MERROR_MTEXT , @c MERROR_RANGE
+
+    @seealso
+    mtext_insert ()  */
 
 int
 mtext_replace (MText *mt1, int from1, int to1,
