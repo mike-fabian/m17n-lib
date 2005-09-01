@@ -1,8 +1,14 @@
 * NEWS -- What's new in the m17n library.			-*- outline -*-
-Copyright (C) 2003, 2004
+Copyright (C) 2003, 2004, 2005
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
+
+
+* Changes in the m17n library 1.3.0
+
+** New fucntions mtext_insert () and and mtext_replace () for
+modifying M-text.
 
 
 * Changes in the m17n library 1.2.0
@@ -79,8 +85,9 @@ library and the GD library.
 
 * Copyright information
 
-Copyright (C) 2003, 2004 National Institute of Advanced Industrial
-  Science and Technology (AIST) Registration Number H15PRO112
+Copyright (C) 2003, 2004, 2005
+  National Institute of Advanced Industrial Science and Technology (AIST)
+  Registration Number H15PRO112
 
 This file is part of the m17n library.
 
