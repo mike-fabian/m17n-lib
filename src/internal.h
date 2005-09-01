@@ -424,11 +424,19 @@ extern void mdebug__unregister_object (M17NObjectArray *array, void *object);
 
 struct MTextPlist;
 
+enum MTextCoverage
+  {
+    MTEXT_COVERAGE_ASCII,
+    MTEXT_COVERAGE_UNICODE,
+    MTEXT_COVERAGE_FULL
+  };
+
 struct MText
 {
   M17NObject control;
 
-  enum MTextFormat format;
+  enum MTextFormat format : 16;
+  enum MTextCoverage coverage : 16;
 
   /**en Number of characters in the M-text */
   /**ja M-text 中の文字数 */
