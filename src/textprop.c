@@ -512,7 +512,7 @@ adjust_intervals (MInterval *head, MInterval *tail, int diff)
 
   if (diff < 0)
     {
-      /* Adjust end poistions of properties starting before HEAD.  */
+      /* Adjust end positions of properties starting before HEAD.  */
       for (i = 0; i < head->nprops; i++)
 	{
 	  prop = head->stack[i];
@@ -1021,20 +1021,19 @@ pop_all_properties (MTextPlist *plist, int from, int to)
 }
 
 
-/* Delete volatile text properties between FROM and TO.  If KEY is
-   Mnil, we are going to delete text, thus both strongly and weakly
-   volatile properties must be deleted.  Otherwise we are going to
-   modify a text property KEY, thus only strongly volatile properties
-   whose key is not KEY must be deleted.  */
+/* Delete volatile text properties between FROM and TO.  If DELETING
+   is nonzero, we are going to delete text, thus both strongly and
+   weakly volatile properties must be deleted.  Otherwise we are going
+   to modify a text property KEY, thus only strongly volatile
+   properties whose key is not KEY must be deleted.  */
 
 static void
-prepare_to_modify (MText *mt, int from, int to, MSymbol key)
+prepare_to_modify (MText *mt, int from, int to, MSymbol key, int deleting)
 {
   MTextPlist *plist = mt->plist, *prev = NULL;
   int mask_bits = MTEXTPROP_VOLATILE_STRONG;
-  int deleting = (key == Mnil) && (from < to);
 
-  if (key == Mnil)
+  if (deleting)
     mask_bits |= MTEXTPROP_VOLATILE_WEAK;
   while (plist)
     {
@@ -1259,7 +1258,7 @@ mtext__adjust_plist_for_delete (MText *mt, int pos, int len)
     }      
 
   to = pos + len;
-  prepare_to_modify (mt, pos, to, Mnil);
+  prepare_to_modify (mt, pos, to, Mnil, 1);
   for (plist = mt->plist; plist; plist = plist->next)
     {
       MInterval *interval = pop_all_properties (plist, pos, to);
@@ -1299,7 +1298,7 @@ mtext__adjust_plist_for_insert (MText *mt, int pos, int nchars,
       return;
     }
   if (pos > 0 && pos < mtext_nchars (mt))
-    prepare_to_modify (mt, pos, pos, Mnil);
+    prepare_to_modify (mt, pos, pos, Mnil, 0);
 
   for (pl_last = NULL, pl = mt->plist; pl; pl_last = pl, pl = pl->next)
     {
@@ -1428,16 +1427,49 @@ mtext__adjust_plist_for_insert (MText *mt, int pos, int nchars,
     }
 }
 
-void
-mtext__adjust_plist_for_change (MText *mt, int from, int to)
-{
-  MTextPlist *plist;
+/* len1 > 0 && len2 > 0 */
 
-  prepare_to_modify (mt, from, to, Mnil);
-  for (plist = mt->plist; plist; plist = plist->next)
+void
+mtext__adjust_plist_for_change (MText *mt, int pos, int len1, int len2)
+{
+  int pos2 = pos + len1;
+
+  prepare_to_modify (mt, pos, pos2, Mnil, 0);
+
+  if (len1 < len2)
     {
-      pop_all_properties (plist, from, to);
-      xassert (check_plist (plist, 0) == 0);
+      int diff = len2 - len1;
+      MTextPlist *plist;
+
+      for (plist = mt->plist; plist; plist = plist->next)
+	{
+	  MInterval *head = find_interval (plist, pos2);
+	  MInterval *tail = mt->plist->tail;
+	  MTextProperty *prop;
+	  int i;
+
+	  if (head->start == pos2)
+	    head = head->prev;
+	  while (tail != head)
+	    {
+	      for (i = 0; i < tail->nprops; i++)
+		{
+		  prop = tail->stack[i];
+		  if (prop->start == tail->start)
+		    prop->start += diff, prop->end += diff;
+		}
+	      tail->start += diff;
+	      tail->end += diff;
+	      tail = tail->prev;
+	    }
+	  for (i = 0; i < tail->nprops; i++)
+	    tail->stack[i]->end += diff;
+	  tail->end += diff;
+	}
+    }
+  else if (len1 > len2)
+    {
+      mtext__adjust_plist_for_delete (mt, pos + len2, len1 - len2);
     }
 }
 
@@ -1746,7 +1778,7 @@ mtext_put_prop (MText *mt, int from, int to, MSymbol key, void *val)
 
   M_CHECK_RANGE (mt, from, to, -1, 0);
 
-  prepare_to_modify (mt, from, to, key);
+  prepare_to_modify (mt, from, to, key, 0);
   plist = get_plist_create (mt, key, 1);
   interval = pop_all_properties (plist, from, to);
   prop = new_text_property (mt, from, to, key, val, 0);
@@ -1807,7 +1839,7 @@ mtext_put_prop_values (MText *mt, int from, int to,
 
   M_CHECK_RANGE (mt, from, to, -1, 0);
 
-  prepare_to_modify (mt, from, to, key);
+  prepare_to_modify (mt, from, to, key, 0);
   plist = get_plist_create (mt, key, 1);
   interval = pop_all_properties (plist, from, to);
   if (num > 0)
@@ -1905,7 +1937,7 @@ mtext_push_prop (MText *mt, int from, int to,
 
   M_CHECK_RANGE (mt, from, to, -1, 0);
 
-  prepare_to_modify (mt, from, to, key);
+  prepare_to_modify (mt, from, to, key, 0);
   plist = get_plist_create (mt, key, 1);
 
   /* Find an interval that covers the position FROM.  */
@@ -2070,7 +2102,7 @@ mtext_pop_prop (MText *mt, int from, int to, MSymbol key)
     /* No property to pop.  */
     return 0;
 
-  prepare_to_modify (mt, from, to, key);
+  prepare_to_modify (mt, from, to, key, 0);
 
   /* If the found interval starts before FROM and has value(s), divide
      it at FROM.  */
@@ -2514,7 +2546,7 @@ mtext_attach_property (MText *mt, int from, int to, MTextProperty *prop)
   M17N_OBJECT_REF (prop);
   if (prop->mt)
     mtext_detach_property (prop);
-  prepare_to_modify (mt, from, to, prop->key);
+  prepare_to_modify (mt, from, to, prop->key, 0);
   plist = get_plist_create (mt, prop->key, 1);
   xassert (check_plist (plist, 0) == 0);
   interval = pop_all_properties (plist, from, to);
@@ -2558,7 +2590,7 @@ mtext_detach_property (MTextProperty *prop)
 
   if (! prop->mt)
     return 0;
-  prepare_to_modify (prop->mt, start, end, prop->key);
+  prepare_to_modify (prop->mt, start, end, prop->key, 0);
   plist = get_plist_create (prop->mt, prop->key, 0);
   xassert (plist);
   detach_property (plist, prop, NULL);
@@ -2601,7 +2633,7 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
   M17N_OBJECT_REF (prop);
   if (prop->mt)
     mtext_detach_property (prop);
-  prepare_to_modify (mt, from, to, prop->key);
+  prepare_to_modify (mt, from, to, prop->key, 0);
   plist = get_plist_create (mt, prop->key, 1);
   prop->mt = mt;
   prop->start = from;

@@ -1,3 +1,25 @@
+2005-09-01  Kenichi Handa  <handa@m17n.org>
+
+	* textprop.h (mtext__adjust_plist_for_change): Prototype adjusted.
+
+	* m17n-core.h (mtext_insert, mtext_replace): Extern them.
+
+	* textprop.c (prepare_to_modify): New arg deleting.  Callers changed.
+	(mtext__adjust_plist_for_change): Argument changed.  Callers changed.
+
+	* internal.h (enum MTextCoverage): New enum.
+	(MText): New member coverage.
+
+	* mtext.c (FORMAT_COVERAGE): New macro.
+	(insert): Copy mt2->coverage.
+	(mtext__from_data): Initialize mt->coverage.
+	(mtext__adjust_format): Update mt->coverage.
+	(mtext): Initialize mt->coverage.
+	(mtext_set_char): Adjust args to mtext__adjust_plist_for_change.
+	Update mt->coverage if necessary.
+	(mtext_duplicate): Copy mt->coverage.
+	(mtext_insert, mtext_replace): New functions.
+
 2005-08-25  Kenichi Handa  <handa@m17n.org>
 
 	* font.h (MFont): New member for_full_width.
