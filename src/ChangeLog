@@ -1,8 +1,18 @@
 2005-09-01  Kenichi Handa  <handa@m17n.org>
 
+	* word-thai.c (wordseg_propertize): If the property value is nil,
+	don't make the property no-merge.
+	(thai_wordseg): Don't require *from and *to are set a priori.  Pay
+	attention to the case that they are NULL.
+	(mtext__word_thai_init): Make the name of Mthai_wordseg starts
+	with two spaces.
+
+	* character.c (mchar_get_prop_table): New function.
+
 	* textprop.h (mtext__adjust_plist_for_change): Prototype adjusted.
 
 	* m17n-core.h (mtext_insert, mtext_replace): Extern them.
+	(mchar_get_prop_table): Extern it.
 
 	* textprop.c (prepare_to_modify): New arg deleting.  Callers changed.
 	(mtext__adjust_plist_for_change): Argument changed.  Callers changed.
@@ -19,6 +29,10 @@
 	Update mt->coverage if necessary.
 	(mtext_duplicate): Copy mt->coverage.
 	(mtext_insert, mtext_replace): New functions.
+	(mtext_dup): Use mtext_duplicate.
+	(mtext__word_segment): Don't set *from and *to if a word
+	segmentation funcion is not found.
+	(mtext_ins_char): Fix typo.
 
 2005-08-25  Kenichi Handa  <handa@m17n.org>
 
