@@ -140,8 +140,8 @@ mchar__fini (void)
 
 /* External API */
 
-/*** @addtogroup m17nCharacter */
-/*** @{ */
+/*** @addtogroup m17nCharacter
+     @{ */
 /*=*/
 
 #ifdef FOR_DOXYGEN
@@ -160,16 +160,15 @@ mchar__fini (void)
 #endif /* FOR_DOXYGEN */
 
 /***en
-    @ingroup m17nCharacter
     @name Variables: Keys of character properties
 
     These symbols are used as keys of character properties.  */
 
 /***ja
-     @name 変数: 文字プロパティのキー
+    @ingroup m17nCharacter
+    @name 変数: 文字プロパティのキー
 
-     これらのシンボルは文字プロパティのキーとして使われる。*/
-/*=*/
+    これらのシンボルは文字プロパティのキーとして使われる。*/
 /*** @{ */
 
 /***en
@@ -501,6 +500,42 @@ mchar_put_prop (int c, MSymbol key, void *val)
       record->mdb = NULL;
     }
   return mchartable_set (record->table, c, val);
+}
+
+/*=*/
+
+/***en
+    @brief Get the char-table for a character property.
+
+    The mchar_get_prop_table () function returns a char-table that
+    contains the character property whose key is $KEY.  If $TYPE is
+    not null, this function store the type of the property in the
+    place pointed by $TYPE.  See mchar_define_property () for types of
+    character property.
+
+    @return
+    If $KEY is a valid character property key, return a char-table.
+    Otherwise retun NULL.  */
+
+
+MCharTable *
+mchar_get_prop_table (MSymbol key, MSymbol *type)
+{
+  MCharPropRecord *record;
+
+  record = mplist_get (char_prop_list, key);
+  if (! record)
+    return NULL;
+  if (record->mdb)
+    {
+      record->table = (*mdatabase__loader) (record->mdb);
+      if (! record->table)
+	MERROR (MERROR_DB, NULL);
+      record->mdb = NULL;
+    }
+  if (type)
+    *type = record->type;
+  return record->table;
 }
 
 /*** @} */
