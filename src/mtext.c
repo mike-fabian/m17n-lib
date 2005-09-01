@@ -155,6 +155,11 @@ static MSymbol M_charbag;
     (char_pos)--;							\
   } while (0)
 
+#define FORMAT_COVERAGE(fmt)					\
+  (fmt == MTEXT_FORMAT_UTF_8 ? MTEXT_COVERAGE_FULL		\
+   : fmt == MTEXT_FORMAT_US_ASCII ? MTEXT_COVERAGE_ASCII	\
+   : fmt >= MTEXT_FORMAT_UTF_32LE ? MTEXT_COVERAGE_FULL		\
+   : MTEXT_COVERAGE_UNICODE)
 
 /* Compoare sub-texts in MT1 (range FROM1 and TO1) and MT2 (range
    FROM2 to TO2). */
@@ -242,7 +247,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
   int unit_bytes;
 
   if (mt1->nchars == 0)
-    mt1->format = mt2->format;
+    mt1->format = mt2->format, mt1->coverage = mt2->coverage;
   else if (mt1->format != mt2->format)
     {
       /* Be sure to make mt1->format sufficient to contain all
@@ -256,7 +261,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
       else if (mt1->format == MTEXT_FORMAT_US_ASCII)
 	{
 	  if (mt2->format == MTEXT_FORMAT_UTF_8)
-	    mt1->format = MTEXT_FORMAT_UTF_8;
+	    mt1->format = MTEXT_FORMAT_UTF_8, mt1->coverage = mt2->coverage;
 	  else if (mt2->format == MTEXT_FORMAT_UTF_16
 		   || mt2->format == MTEXT_FORMAT_UTF_32)
 	    mtext__adjust_format (mt1, mt2->format);
@@ -905,6 +910,7 @@ mtext__from_data (const void *data, int nitems, enum MTextFormat format,
 
   mt = mtext ();
   mt->format = format;
+  mt->coverage = FORMAT_COVERAGE (format);
   mt->allocated = need_copy ? nbytes + unit_bytes : -1;
   mt->nchars = nchars;
   mt->nbytes = nitems;
@@ -995,6 +1001,7 @@ mtext__adjust_format (MText *mt, enum MTextFormat format)
 	  }
       }
   mt->format = format;
+  mt->coverage = FORMAT_COVERAGE (format);
 }
 
 
@@ -1182,7 +1189,8 @@ mtext ()
   MText *mt;
 
   M17N_OBJECT (mt, free_mtext, MERROR_MTEXT);
-  mt->format = MTEXT_FORMAT_UTF_8;
+  mt->format = MTEXT_FORMAT_US_ASCII;
+  mt->coverage = MTEXT_COVERAGE_ASCII;
   M17N_OBJECT_REGISTER (mtext_table, mt);
   return mt;
 }
@@ -1459,12 +1467,12 @@ mtext_set_char (MText *mt, int pos, int c)
   M_CHECK_POS (mt, pos, -1);
   M_CHECK_READONLY (mt, -1);
 
-  mtext__adjust_plist_for_change (mt, pos, pos + 1);
+  mtext__adjust_plist_for_change (mt, pos, 1, 1);
 
   if (mt->format <= MTEXT_FORMAT_UTF_8)
     {
       if (c >= 0x80)
-	mt->format = MTEXT_FORMAT_UTF_8;
+	mt->format = MTEXT_FORMAT_UTF_8, mt->coverage = MTEXT_COVERAGE_FULL;
     }
   else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
@@ -1844,10 +1852,10 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
     (exclusive) while inheriting all the text properties of $MT.  $MT
     itself is not modified.
 
-    @return
-    If the operation was successful, mtext_duplicate () returns a
-    pointer to the created M-text.  If an error is detected, it returns 0
-    and assigns an error code to the external variable #merror_code.  */
+    @return If the operation was successful, mtext_duplicate ()
+    returns a pointer to the created M-text.  If an error is detected,
+    it returns NULL and assigns an error code to the external variable
+    #merror_code.  */
 
 /***ja
     @brief 既存の M-text の一部から新しい M-text をつくる.
@@ -1873,13 +1881,12 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
 MText *
 mtext_duplicate (MText *mt, int from, int to)
 {
-  MText *new;
+  MText *new = mtext ();
 
-  M_CHECK_RANGE_X (mt, from, to, NULL);
-  new = mtext ();
+  M_CHECK_RANGE (mt, from, to, NULL, new);
   new->format = mt->format;
-  if (from < to)
-    insert (new, 0, mt, from, to);
+  new->coverage = mt->coverage;
+  insert (new, 0, mt, from, to);
   return new;
 }
 
@@ -2045,6 +2052,31 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
   return 0;
 }
 
+/*=*/
+
+/***en
+    @brief Insert sub-text of an M-text into another M-text.
+
+    The mtext_insert () function inserts sub-text of M-text $MT2
+    between $FROM (inclusive) and $TO (exclusive) into M-text $MT1, at
+    position $POS.  As a result, $MT1 is lengthen by ($TO - $FROM).
+    On insertion, all the text properties of the sub-text of $MT2 are
+    inherited.
+
+    @return If the operation was successful, mtext_insert () returns
+    0.  Otherwise, it returns -1 and assigns an error code to the
+    external variable #merror_code.  */
+
+int
+mtext_insert (MText *mt1, int pos, MText *mt2, int from, int to)
+{
+  M_CHECK_READONLY (mt1, -1);
+  M_CHECK_POS_X (mt1, pos, -1);
+  M_CHECK_RANGE (mt2, from, to, -1, 0);
+
+  insert (mt1, pos, mt2, from, to);
+  return 0;
+}
 
 /*=*/
 
@@ -2150,6 +2182,111 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     }
   mt->nchars += n;
   mt->nbytes += nunits * n;
+  return 0;
+}
+
+/*=*/
+
+/***en
+    @brief Replace sub-text of M-text with another.
+
+    The mtext_replace () function replaces sub-text of M-text $MT1
+    between $FROM1 (inclusive) and $TO1 (exclusinve) with the sub-text
+    of M-text $MT2 between $FROM2 (inclusive) and $TO2 (exclusinve).
+    The new sub-text inherits text properties of the old sub-text.
+
+    @return If the operation was successful, mtext_replace () returns
+    0.  Otherwise, it returns -1 and assigns an error code to the
+    external variable #merror_code.  */
+
+int
+mtext_replace (MText *mt1, int from1, int to1,
+	       MText *mt2, int from2, int to2)
+{
+  int len1, len2;
+  int from1_byte, from2_byte, old_bytes, new_bytes;
+  int unit_bytes, total_bytes;
+  unsigned char *p;
+  int free_mt2 = 0;
+
+  M_CHECK_READONLY (mt1, -1);
+  M_CHECK_RANGE_X (mt1, from1, to1, -1);
+  M_CHECK_RANGE_X (mt2, from2, to2, -1);
+
+  if (from1 == to1)
+    {
+      struct MTextPlist *saved = mt2->plist;
+
+      mt2->plist = NULL;
+      insert (mt1, from1, mt2, from2, to2);
+      mt2->plist = saved;
+      return 0;
+    }
+
+  if (from2 == to2)
+    {
+      return mtext_del (mt1, from1, to1);
+    }
+
+  if (mt1 == mt2)
+    {
+      mt2 = mtext_duplicate (mt2, from2, to2);
+      to2 -= from2;
+      from2 = 0;
+      free_mt2 = 1;
+    }
+
+  if (mt1->format != mt2->format
+      && mt1->format == MTEXT_FORMAT_US_ASCII)
+    mt1->format = MTEXT_FORMAT_UTF_8;
+  if (mt1->format != mt2->format
+      && mt1->coverage < mt2->coverage)
+    mtext__adjust_format (mt1, mt2->format);
+  if (mt1->format != mt2->format)
+    {
+      mt2 = mtext_duplicate (mt2, from2, to2);
+      mtext__adjust_format (mt2, mt1->format);
+      to2 -= from2;
+      from2 = 0;
+      free_mt2 = 1;
+    }
+
+  len1 = to1 - from1;
+  len2 = to2 - from2;
+  mtext__adjust_plist_for_change (mt1, from1, len1, len2);
+
+  unit_bytes = UNIT_BYTES (mt1->format);
+  from1_byte = POS_CHAR_TO_BYTE (mt1, from1) * unit_bytes;
+  from2_byte = POS_CHAR_TO_BYTE (mt2, from2) * unit_bytes;
+  old_bytes = POS_CHAR_TO_BYTE (mt1, to1) * unit_bytes - from1_byte;
+  new_bytes = POS_CHAR_TO_BYTE (mt2, to2) * unit_bytes - from2_byte;
+  total_bytes = mt1->nbytes * unit_bytes + (new_bytes - old_bytes);
+  if (total_bytes + unit_bytes > mt1->allocated)
+    {
+      mt1->allocated = total_bytes + unit_bytes;
+      MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+    }
+  p = mt1->data + from1_byte;
+  if (to1 < mt1->nchars
+      && old_bytes != new_bytes)
+    memmove (p + new_bytes, p + old_bytes,
+	     (mt1->nbytes + 1) * unit_bytes - (from1_byte + old_bytes));
+  memcpy (p, mt2->data + from2_byte, new_bytes);
+  mt1->nchars += len2 - len1;
+  mt1->nbytes += (new_bytes - old_bytes) / unit_bytes;
+  if (mt1->cache_char_pos >= to1)
+    {
+      mt1->cache_char_pos += len2 - len1;
+      mt1->cache_byte_pos += new_bytes - old_bytes;
+    }
+  else if (mt1->cache_char_pos > from1)
+    {
+      mt1->cache_char_pos = from1;
+      mt1->cache_byte_pos = from1_byte;
+    }
+
+  if (free_mt2)
+    M17N_OBJECT_UNREF (mt2);
   return 0;
 }
 
