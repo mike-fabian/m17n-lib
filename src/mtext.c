@@ -1126,6 +1126,15 @@ mtext__eol (MText *mt, int pos)
 
 typedef int (*MTextWordsegFunc) (MText *mt, int pos, int *from, int *to);
 
+/* Find word boundaries around POS of MT.  Set *FROM to the word
+   boundary position at or previous to POS, and update *TO to the word
+   boundary position after POS.
+
+   @return If word boundaries were found successfully, return 1 (if
+   the character at POS is a part of a word) or 0 (otherwise).  If the
+   operation was not successful, return -1 without setting *FROM and
+   *TO.  */
+
 int
 mtext__word_segment (MText *mt, int pos, int *from, int *to)
 {
@@ -1135,7 +1144,6 @@ mtext__word_segment (MText *mt, int pos, int *from, int *to)
 
   if (func)
     return (func) (mt, pos, from, to);
-  *from = *to = pos;
   return -1;
 }
 
@@ -1650,19 +1658,7 @@ mtext_cat_char (MText *mt, int c)
 MText *
 mtext_dup (MText *mt)
 {
-  MText *new = mtext ();
-  int unit_bytes = UNIT_BYTES (mt->format);
-
-  *new = *mt;
-  if (mt->nchars > 0)
-    {
-      new->allocated = (mt->nbytes + 1) * unit_bytes;
-      MTABLE_MALLOC (new->data, new->allocated, MERROR_MTEXT);
-      memcpy (new->data, mt->data, new->allocated);
-      if (mt->plist)
-	new->plist = mtext__copy_plist (mt->plist, 0, mt->nchars, new, 0);
-    }
-  return new;
+  return mtext_duplicate (mt, 0, mtext_nchars (mt));
 }
 
 /*=*/
@@ -2174,7 +2170,7 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
   if (mt->cache_char_pos > pos)
     {
       mt->cache_char_pos += n;
-      mt->cache_byte_pos += nunits + n;
+      mt->cache_byte_pos += nunits * n;
     }
   memmove (mt->data + (pos_unit + nunits * n) * unit_bytes,
 	   mt->data + pos_unit * unit_bytes,
