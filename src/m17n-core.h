@@ -464,7 +464,12 @@ extern int mtext_del (MText *mt, int from, int to);
 
 extern int mtext_ins (MText *mt1, int pos, MText *mt2);
 
+extern int mtext_insert (MText *mt1, int pos, MText *mt2, int from, int to);
+
 extern int mtext_ins_char (MText *mt, int pos, int c, int n);
+
+extern int mtext_replace (MText *mt1, int from1, int to1,
+			  MText *mt2, int from2, int to2);
 
 extern MText *mtext_cat_char (MText *mt, int c);
 
