@@ -1,6 +1,6 @@
 dnl configure.ac -- autoconf script for the m17n library.
 
-dnl Copyright (C) 2003, 2004
+dnl Copyright (C) 2003, 2004, 2005
 dnl   National Institute of Advanced Industrial Science and Technology (AIST)
 dnl   Registration Number H15PRO112
 
