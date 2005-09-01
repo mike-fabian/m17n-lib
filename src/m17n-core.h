@@ -301,6 +301,8 @@ extern int mchartable_map (MCharTable *table, void *ignore,
 
 extern void mchartable_range (MCharTable *table, int *from, int *to);
 
+extern MCharTable *mchar_get_prop_table (MSymbol key, MSymbol *type);
+
 /*
  *  (5) Handling M-text.
  *	"M" of M-text stands for:
