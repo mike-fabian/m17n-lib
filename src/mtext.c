@@ -93,9 +93,6 @@
 #include "character.h"
 #include "mtext.h"
 #include "plist.h"
-#ifdef HAVE_THAI_WORDSEG
-#include "word-thai.h"
-#endif
 
 static M17NObjectArray mtext_table;
 
@@ -690,18 +687,12 @@ case_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
 
 /* Internal API */
 
-MCharTable *wordseg_func_table;
-
 int
 mtext__init ()
 {
   M17N_OBJECT_ADD_ARRAY (mtext_table, "M-text");
   M_charbag = msymbol_as_managing_key ("  charbag");
   mtext_table.count = 0;
-  wordseg_func_table = mchartable (Mnil, NULL);
-#ifdef HAVE_THAI_WORDSEG
-  mtext__word_thai_init ();
-#endif
   return 0;
 }
 
@@ -709,11 +700,7 @@ mtext__init ()
 void
 mtext__fini (void)
 {
-#ifdef HAVE_THAI_WORDSEG
-  mtext__word_thai_fini ();
-#endif
-  M17N_OBJECT_UNREF (wordseg_func_table);
-  wordseg_func_table = NULL;
+  mtext__wseg_fini ();
 }
 
 
@@ -1123,30 +1110,6 @@ mtext__eol (MText *mt, int pos)
       return pos;
     }
 }
-
-typedef int (*MTextWordsegFunc) (MText *mt, int pos, int *from, int *to);
-
-/* Find word boundaries around POS of MT.  Set *FROM to the word
-   boundary position at or previous to POS, and update *TO to the word
-   boundary position after POS.
-
-   @return If word boundaries were found successfully, return 1 (if
-   the character at POS is a part of a word) or 0 (otherwise).  If the
-   operation was not successful, return -1 without setting *FROM and
-   *TO.  */
-
-int
-mtext__word_segment (MText *mt, int pos, int *from, int *to)
-{
-  int c = mtext_ref_char (mt, pos);
-  MTextWordsegFunc func
-    = (MTextWordsegFunc) mchartable_lookup (wordseg_func_table, c);
-
-  if (func)
-    return (func) (mt, pos, from, to);
-  return -1;
-}
-
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
