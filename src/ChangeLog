@@ -1,3 +1,8 @@
+2005-09-02  Kenichi Handa  <handa@m17n.org>
+
+	* textprop.c (mtext__adjust_plist_for_change): Pay attention for
+	the case that head is NULL.
+
 2005-09-01  Kenichi Handa  <handa@m17n.org>
 
 	* word-thai.c (wordseg_propertize): If the property value is nil,
