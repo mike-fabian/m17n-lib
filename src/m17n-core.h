@@ -511,6 +511,29 @@ extern int mtext_casecmp (MText *mt1, MText *mt2);
 
 extern int mtext_ncasecmp (MText *mt1, MText *mt2, int n);
 
+/***en
+    @brief Enumeration for specifying a set of line breaking option.
+
+    The enum #MTextLineBreakOption is to control the line breaking
+    algorithm of the function mtext_line_break () by specifying
+    logical-or of the members in the arg @e option.  */
+
+enum MTextLineBreakOption
+  {
+    /***en Specify the legacy support for space character as base for
+       combining marks.  See the section 8.3 of UAX#14. */
+    MTEXT_LBO_SP_CM = 1,
+    /***en Specify to use space characters for line breaking Korean
+	text.  */
+    MTEXT_LBO_KOREAN_SP = 2,
+    /***en Specify to treat characters of ambiguous line-breaking
+	class as of ideographic line-breaking class.  */
+    MTEXT_LBO_AI_AS_ID = 4,
+    MTEXT_LBO_MAX
+  };
+
+extern int mtext_line_break (MText *mt, int pos, int option, int *after);
+
 /*** @ingroup m17nPlist */
 extern MPlist *mplist_deserialize (MText *mt);
 
