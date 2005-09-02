@@ -691,6 +691,8 @@ typedef struct
 
 } MDrawControl;
 
+extern int mdraw_line_break_option;
+
 /*=*/
 
 /*** @ingroup m17nDraw */
