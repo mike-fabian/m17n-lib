@@ -1448,19 +1448,22 @@ mtext__adjust_plist_for_change (MText *mt, int pos, int len1, int len2)
 	  MTextProperty *prop;
 	  int i;
 
-	  if (head->start == pos2)
-	    head = head->prev;
-	  while (tail != head)
+	  if (head)
 	    {
-	      for (i = 0; i < tail->nprops; i++)
+	      if (head->start == pos2)
+		head = head->prev;
+	      while (tail != head)
 		{
-		  prop = tail->stack[i];
-		  if (prop->start == tail->start)
-		    prop->start += diff, prop->end += diff;
+		  for (i = 0; i < tail->nprops; i++)
+		    {
+		      prop = tail->stack[i];
+		      if (prop->start == tail->start)
+			prop->start += diff, prop->end += diff;
+		    }
+		  tail->start += diff;
+		  tail->end += diff;
+		  tail = tail->prev;
 		}
-	      tail->start += diff;
-	      tail->end += diff;
-	      tail = tail->prev;
 	    }
 	  for (i = 0; i < tail->nprops; i++)
 	    tail->stack[i]->end += diff;
