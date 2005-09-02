@@ -38,7 +38,7 @@ libm17n_core_la_SOURCES = \
 	mtext.h mtext.c \
 	symbol.h symbol.c \
 	textprop.h textprop.c \
-	word-thai.h word-thai.c
+	mtext-lbrk.c mtext-wseg.c
 
 libm17n_core_la_LIBADD = @XML2_LD_FLAGS@ @THAI_WORDSEG_LD_FLAGS@
 libm17n_core_la_LDFLAGS = -export-dynamic ${VINFO}
