@@ -1,5 +1,14 @@
 2005-09-02  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-gui.h (mdraw_line_break_option): Extern it.
+
+	* draw.c (truncate_gstring): Use find_glyph_in_gstring to find the
+	end of the first glyph.
+	(GET_LB_TYPE, find_break_backward, find_break_forward): Delete
+	them.
+	(mdraw_line_break_option): New variable.
+	(mdraw_default_line_break): Use mtext_line_break.
+
 	* mtext.h (wordseg_func_table): Don't extern it.
 	(mtext__wseg_fini): Extern it.
 
