@@ -1524,6 +1524,9 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
   return gstring;
 }
 
+static MGlyph *find_glyph_in_gstring (MGlyphString *gstring, int pos,
+				      int forwardp);
+
 /* Truncate the line width of GSTRING to GSTRING->width_limit.  */
 
 static void
@@ -1557,9 +1560,13 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   if (gstring->control.line_break)
     {
       pos = (*gstring->control.line_break) (mt, gstring->from + i,
-					    gstring->from, gstring->from + i, 0, 0);
+					    gstring->from, gstring->from + i,
+					    0, 0);
       if (pos <= gstring->from)
-	pos = gstring->from + 1;
+	{
+	  g = find_glyph_in_gstring (gstring, gstring->from, 1);
+	  pos = g->to;
+	}
       else if (pos >= gstring->to)
 	pos = gstring->to;
     }
@@ -1761,100 +1768,6 @@ find_glyph_in_gstring (MGlyphString *gstring, int pos, int forwardp)
 	  break;
     }
   return g;
-}
-
-#define GET_LB_TYPE(MT, POS, LB_TYPE)					\
-  do {									\
-    int c = mtext_ref_char ((MT), (POS));				\
-    (LB_TYPE) = ((c == ' ' || c == '\t' || c == '\n') ? M_kinsoku_bol	\
-		 : mchartable_lookup (linebreak_table, c));		\
-  } while (0)
-
-static int
-find_break_backward (MText *mt, int pos, int limit)
-{
-  MSymbol lb_type;
-
-  if (pos <= limit)
-    return limit;
-
-  GET_LB_TYPE (mt, pos, lb_type);
-  if (lb_type == M_kinsoku_bol)
-    return find_break_backward (mt, pos - 1, limit);
-  if (lb_type == Mnil)
-    {
-      while (pos > limit)
-	{
-	  GET_LB_TYPE (mt, pos - 1, lb_type);
-	  if (lb_type != Mnil)
-	    break;
-	  pos--;
-	}
-    }
-  else if (lb_type == M_break_at_word)
-    {
-      int beg = limit, end = mtext_nchars (mt);
-      int in_word = mtext__word_segment (mt, pos, &beg, &end);
-
-      if (in_word)
-	pos = beg;
-      else if (beg > limit)
-	{
-	  end = beg;
-	  beg = limit;
-	  mtext__word_segment (mt, beg - 1, &beg, &end);
-	  pos = beg;
-	}
-    }
-  while (pos > limit)
-    {
-      GET_LB_TYPE (mt, pos - 1, lb_type);
-      if (lb_type != M_kinsoku_eol)
-	return pos;
-      pos--;
-    }
-  return limit;
-}
-
-static int
-find_break_forward (MText *mt, int pos, int limit)
-{
-  MSymbol lb_type;
-
-  GET_LB_TYPE (mt, pos, lb_type);
-  if (lb_type == Mnil)
-    {
-      while (pos < limit)
-	{
-	  pos++;
-	  GET_LB_TYPE (mt, pos, lb_type);
-	}
-    }
-  else if (lb_type == M_break_at_word)
-    {
-      int beg = 0, end = mtext_nchars (mt);
-      int in_word = mtext__word_segment (mt, pos, &beg, &end);
-
-      if (! in_word)
-	pos = end;
-      else if (end < limit)
-	{
-	  beg = end;
-	  pos = end = mtext_nchars (mt);
-	  mtext__word_segment (mt, pos, &beg, &end);
-	  pos = end;
-	}
-    }
-  else if (lb_type == M_kinsoku_bol)
-    pos++;
-  while (pos < limit)
-    {
-      GET_LB_TYPE (mt, pos, lb_type);
-      if (lb_type != M_kinsoku_bol)
-	return pos;
-      pos++;
-    }
-  return limit;
 }
 
 
@@ -3000,23 +2913,33 @@ mdraw_text_items (MFrame *frame, MDrawWindow win, int x, int y,
 }
 
 /*=*/
+/***en
+    @brief Option of line breaking for drawing text.
+
+    The variable #mdraw_line_break_option specifies line breaking
+    options by logical-or of the members of #MTextLineBreakOption.  It
+    controls the line breaking algorithm of the function
+    mdraw_default_line_break ().  */
+    
+int mdraw_line_break_option;
+
+/*=*/
 /***en 
-      @brief   calculate a line breaking position.
+    @brief Calculate a line breaking position.
 
-      The function mdraw_default_line_break () calculates a line
-      breaking position based on the line number $LINE and the
-      coordinate $Y, when a line is too long to fit within the width
-      limit.  $POS is the position of the character next to the last
-      one that fits within the limit.  $FROM is the position of the
-      first character of the line, and $TO is the position of the last
-      character displayed on the line if there were not width limit.
-      $LINE and $Y are reset to 0 when a line is broken by a newline
-      character, and incremented each time when a long line is broken
-      because of the width limit.  
+    The function mdraw_default_line_break () calculates a line
+    breaking position based on the line number $LINE and the
+    coordinate $Y, when a line is too long to fit within the width
+    limit.  $POS is the position of the character next to the last one
+    that fits within the limit.  $FROM is the position of the first
+    character of the line, and $TO is the position of the last
+    character displayed on the line if there were not width limit.
+    $LINE and $Y are reset to 0 when a line is broken by a newline
+    character, and incremented each time when a long line is broken
+    because of the width limit.
 
-      @return 
-      This function returns a character position to break the
-      line.
+    @return This function returns a character position to break the
+    line.
 */
 
 /***ja 
@@ -3038,32 +2961,14 @@ int
 mdraw_default_line_break (MText *mt, int pos,
 			  int from, int to, int line, int y)
 {
-  int p;
+  int p, after;
 
-  if (! linebreak_table)
-    {
-      MDatabase *mdb = mdatabase_find (Mchar_table, Msymbol,
-				       msymbol ("linebreak"), Mnil);
-
-      if (mdb)
-	linebreak_table = mdatabase_load (mdb);
-      if (! linebreak_table)
-	linebreak_table = mchartable (Msymbol, Mnil);
-    }
-
-  if (pos > from)
-    {
-      p = find_break_backward (mt, pos, from);
-      if (p > from)
-	return p;
-    }
-  if (pos < to)
-    {
-      p = find_break_forward (mt, pos, to);
-      if (p < to)
-	return p;
-    }
-  return to;
+  p = mtext_line_break (mt, pos, mdraw_line_break_option, &after);
+  if (p < from)
+    p = from;
+  else if (p >= to)
+    p = to;
+  return p;
 }
 
 /*=*/
