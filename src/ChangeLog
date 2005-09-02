@@ -1,5 +1,27 @@
 2005-09-02  Kenichi Handa  <handa@m17n.org>
 
+	* mtext.h (wordseg_func_table): Don't extern it.
+	(mtext__wseg_fini): Extern it.
+
+	* mtext.c: Don't include word-thai.h.
+	(wordseg_func_table): Delete this variable.
+	(mtext__init): Don't initialize above.  Don't call
+	mtext__word_thai_init.
+	(mtext__fini): Don't free wordseg_func_table.  Call
+	mtext__wseg_fini instead fo mtext__word_thai_fini.
+	(MTextWordsegFunc): Don't typedef it.
+	(mtext__word_segment): Moved to mtext-wseg.c.
+
+	* m17n-core.h (enum MTextLineBreakOption): New enum.
+	(mtext_line_break): Extern it.
+
+	* mtext-wseg.c: New file.
+
+	* mtext-lbrk.c: New file.
+
+	* Makefile.am (libm17n_core_la_SOURCES): Delete word-thai.[ch],
+	add mtext-lbrk.c and mtext-wseg.c.
+
 	* textprop.c (mtext__adjust_plist_for_change): Pay attention for
 	the case that head is NULL.
 
