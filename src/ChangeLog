@@ -1,5 +1,10 @@
 2005-09-05  Kenichi Handa  <handa@m17n.org>
 
+	* plist.c (read_mtext_element): Handle \uXXXX notation.
+
+	* internal.h (MTABLE_MALLOC): Don't use a local variable.
+	(MTABLE_ALLOCA): Change the name of local variable.
+
 	* m17n-gd.c (device_open): Define it even if HAVE_GD nor
 	HAVE_FREETYPE are defined.
 
