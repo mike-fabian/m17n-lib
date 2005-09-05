@@ -206,35 +206,30 @@ read_hexadesimal (MStream *st)
 /** Read an M-text element from ST, and add it to LIST.  Return a list
     for the next element.  */
 
+#define READ_MTEXT_BUF_SIZE 256
+
 static MPlist *
 read_mtext_element (MPlist *plist, MStream *st, int skip)
 {
-  unsigned char buffer[1024];
-  int bufsize = 1024;
-  unsigned char *buf = buffer;
-  int c, i;
+  union {
+    int chars[READ_MTEXT_BUF_SIZE];
+    unsigned char bytes[sizeof (int) * READ_MTEXT_BUF_SIZE];
+  } buffer;
+  unsigned char *bytes = buffer.bytes;
+  int nbytes = sizeof (int) * READ_MTEXT_BUF_SIZE;
+  int *chars = NULL;
+  int nchars = 0;
+  int c, i, j;
 
   i = 0;
   while ((c = GETC (st)) != EOF && c != '"')
     {
-      if (i + MAX_UTF8_CHAR_BYTES >= bufsize)
-	{
-	  bufsize *= 2;
-	  if (buf == buffer)
-	    {
-	      MTABLE_MALLOC (buf, bufsize, MERROR_PLIST);
-	      memcpy (buf, buffer, i);
-	    }
-	  else
-	    MTABLE_REALLOC (buf, bufsize, MERROR_PLIST);
-	}
-
       if (c == '\\')
 	{
 	  c = GETC (st);
 	  if (c == EOF)
 	    break;
-	  if (c == 'x')
+	  if (c == 'x' || c == 'u')
 	    {
 	      int next_c;
 
@@ -248,15 +243,67 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 	}
 
       if (! skip)
-	buf[i++] = c;
+	{
+	  if (c >= 0x80 && ! chars)
+	    {
+	      chars = buffer.chars;
+	      for (j = i - 1; j >= 0; j--)
+		chars[j] = bytes[j];
+	      nchars = i;
+	      if (bytes != buffer.bytes)
+		free (bytes);
+	    }
+
+	  if (chars)
+	    {
+	      if (i + 1 >= nchars)
+		{
+		  nchars *= 2;
+		  if (chars == buffer.chars)
+		    {
+		      MTABLE_MALLOC (chars, nchars, MERROR_PLIST);
+		      memcpy (chars, buffer.chars, sizeof (int) * i);
+		    }
+		  else
+		    MTABLE_REALLOC (chars, nchars, MERROR_PLIST);
+		}
+	      chars[i++] = c;
+	    }
+	  else
+	    {
+	      if (i + MAX_UTF8_CHAR_BYTES >= nbytes)
+		{
+		  nbytes *= 2;
+		  if (bytes == buffer.bytes)
+		    {
+		      MTABLE_MALLOC (bytes, nbytes, MERROR_PLIST);
+		      memcpy (bytes, buffer.bytes, i);
+		    }
+		  else
+		    MTABLE_REALLOC (bytes, nbytes, MERROR_PLIST);
+		}
+	      bytes[i++] = c;
+	    }
+	}
     }
 
   if (! skip)
     {
-      MPLIST_SET_ADVANCE (plist, Mtext,
-			  mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 1));
-      if (buf != buffer)
-	free (buf);
+      MText *mt;
+
+      if (chars)
+	{
+	  mt = mtext__from_data (chars, i, MTEXT_FORMAT_UTF_32, 1);
+	  if (chars != buffer.chars)
+	    free (chars);
+	}	  
+      else
+	{
+	  mt = mtext__from_data (bytes, i, MTEXT_FORMAT_UTF_8, 1);
+	  if (bytes != buffer.bytes)
+	    free (bytes);
+	}
+      MPLIST_SET_ADVANCE (plist, Mtext, mt);
     }
   return plist;
 }
