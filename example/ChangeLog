@@ -1,5 +1,9 @@
 2005-09-05  Kenichi Handa  <handa@m17n.org>
 
+	* medit.c: Check HAVE_X11_XAW_COMMAND_H before including X11/*.h.
+
+	* mview.c: Check HAVE_X11_XAW_COMMAND_H before including X11/*.h.
+
 	* Makefile.am (X_LD_FLAGS): Use @X11_LD_FLAGS@ instead of
 	directory listing libraries.
 	(PURIFY, purify_medit, purify_mdate): Define them in maintainer
