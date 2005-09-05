@@ -26,6 +26,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(m17n-lib, 1.3.0, m17n-lib-bug@m17n.org)
 AM_INIT_AUTOMAKE(m17n-lib, 1.3.0)
 AM_CONFIG_HEADER(src/config.h)
+AM_MAINTAINER_MODE
 
 API_VERSION=1:0:1
 AC_SUBST(API_VERSION)
@@ -46,14 +47,6 @@ AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h locale.h stdlib.h \
 			  string.h strings.h sys/time.h unistd.h])
 AC_CHECK_HEADER(X11/Xaw/Command.h, HAVE_XAW=yes)
-if test "x$HAVE_XAW" = "xyes"; then
-  XAW_LD_FLAGS=-lXaw
-  AC_DEFINE(HAVE_X11_XAW_COMMAND_H, 1,
-	    [Define to 1 if you have the Xaw header files.])
-  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_X11_XAW_COMMAND_H"
-fi
-
-AC_SUBST(XAW_LD_FLAGS)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -101,11 +94,27 @@ dnl augmented.
 
 M17N_EXT_LIBS=
 
+if test "x$no_x" != "xyes"; then
+  AC_DEFINE(HAVE_X11, 1, [Define to 1 if you have X11.])
+  X11_LD_FLAGS="-lXt -lX11"
+  M17N_EXT_LIBS="$M17N_EXT_LIBS X11"
+
+  if test "x$HAVE_XAW" = "xyes"; then
+    AC_DEFINE(HAVE_X11_XAW_COMMAND_H, 1,
+	      [Define to 1 if you have the Xaw header files.])
+    XAW_LD_FLAGS="-lXaw -lXmu"
+    CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_X11_XAW_COMMAND_H"
+    M17N_EXT_LIBS="$M17N_EXT_LIBS Xaw"
+  fi
+fi
+AC_SUBST(X11_LD_FLAGS)
+AC_SUBST(XAW_LD_FLAGS)
+
 dnl Check for fribidi library.
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 AC_CHECK_PROG(HAVE_FRIBIDI_CONFIG, fribidi-config, yes)
-if test "$HAVE_FRIBIDI_CONFIG" = "xyes"; then
+if test "x$HAVE_FRIBIDI_CONFIG" = "xyes"; then
   CPPFLAGS="$CPPFLAGS `fribidi-config --cflags`"
   FRIBIDI_LD_FLAGS="`fribidi-config --libs`"
   LIBS="$LIBS $FRIBIDI_LD_FLAGS"
@@ -242,18 +251,22 @@ LIBS="$save_LIBS"
 AC_SUBST(FONTCONFIG_LD_FLAGS)
 
 dnl Check for gdlib usability.
-save_LIBS="$LIBS"
-AC_CHECK_LIB(gd, gdImageCreate, HAVE_GD=yes, HAVE_GD=no)
-AC_CHECK_HEADER(gd.h, , HAVE_GD=no)
-if test "x$HAVE_GD" = "xyes"; then
-  AC_CHECK_LIB(gd, gdImageCreateTrueColor, HAVE_GD=2, HAVE_GD=1)
-  AC_DEFINE_UNQUOTED(HAVE_GD, $HAVE_GD,
-	    [Define to 1 or 2 if you have gd library and header file.])
-  M17N_EXT_LIBS="$M17N_EXT_LIBS gdlib"
-  GD_LD_FLAGS=-lgd
-  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_GD"
+AC_ARG_WITH(gd, [  --with-gd               suport graphic device by GD library.])
+
+if test "x$with_gd" != "xno"; then
+  save_LIBS="$LIBS"
+  AC_CHECK_LIB(gd, gdImageCreate, HAVE_GD=yes, HAVE_GD=no)
+  AC_CHECK_HEADER(gd.h, , HAVE_GD=no)
+  if test "x$HAVE_GD" = "xyes"; then
+    AC_CHECK_LIB(gd, gdImageCreateTrueColor, HAVE_GD=2, HAVE_GD=1)
+    AC_DEFINE_UNQUOTED(HAVE_GD, $HAVE_GD,
+	      [Define to 1 or 2 if you have gd library and header file.])
+    M17N_EXT_LIBS="$M17N_EXT_LIBS gdlib"
+    GD_LD_FLAGS=-lgd
+    CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_GD"
+  fi
+  LIBS="$save_LIBS"
 fi
-LIBS="$save_LIBS"
 AC_SUBST(GD_LD_FLAGS)
 
 dnl Check for libxml2 usability.
