@@ -99,6 +99,8 @@
 */
 #ifndef FOR_DOXYGEN
 
+#ifdef HAVE_X11_XAW_COMMAND_H
+
 #include <stdio.h>
 
 #include <X11/Intrinsic.h>
@@ -108,8 +110,6 @@
 #include <m17n-gui.h>
 #include <m17n-misc.h>
 #include <m17n-X.h>
-
-#ifdef HAVE_X11_XAW_COMMAND_H
 
 #include <X11/Xaw/Form.h>
 #include <X11/Xaw/Command.h>
