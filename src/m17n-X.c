@@ -20,11 +20,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.  */
 
+#include "config.h"
+
+#ifdef HAVE_X11
+
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 /*** @addtogroup m17nInternal
      @{ */
-
-#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2505,6 +2507,12 @@ MInputDriver minput_xim_driver =
     xim_filter, xim_lookup, NULL };
 
 /*** @} */ 
+
+#else  /* not HAVE_X11 */
+
+int device_open () { return -1; }
+
+#endif	/* not HAVE_X11 */
 
 /*
   Local Variables:
