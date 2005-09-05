@@ -14,7 +14,7 @@ aclocal
 echo "Running autoheader..."
 autoheader
 echo "Running automake..."
-automake -a
+automake -a -c
 echo "Running autoconf..."
 autoconf
 echo "The remaining steps to install this library are:"
