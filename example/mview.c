@@ -99,9 +99,9 @@
 */
 #ifndef FOR_DOXYGEN
 
-#ifdef HAVE_X11_XAW_COMMAND_H
-
 #include <stdio.h>
+
+#ifdef HAVE_X11_XAW_COMMAND_H
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>

@@ -87,8 +87,6 @@
 
 #ifndef FOR_DOXYGEN
 
-#ifdef HAVE_X11_XAW_COMMAND_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -98,6 +96,8 @@
 #include <libgen.h>
 #include <locale.h>
 #include <dlfcn.h>
+
+#ifdef HAVE_X11_XAW_COMMAND_H
 
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
