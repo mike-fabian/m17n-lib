@@ -73,7 +73,7 @@ libm17n_gui_la_SOURCES = ${GUI_SOURCES}
 libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_srcdir}/src/libm17n.la
 libm17n_gui_la_LDFLAGS = -export-dynamic ${VINFO}
 
-X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} -lXt -lX11 ${X_EXTRA_LIBS}
+X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @X11_LD_FLAGS@ ${X_EXTRA_LIBS}
 
 libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
 libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_srcdir}/src/libm17n-gui.la
@@ -88,6 +88,16 @@ AM_CPPFLAGS = -DM17NDIR="\"@M17NDIR@\""
 
 include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
 
+SRC =	${libm17n_core_la_SOURCES} \
+	${libm17n_la_SOURCES} \
+	${libm17n_gui_la_SOURCES} \
+	${libm17n_X_la_SOURCES} \
+	${libm17n_gd_la_SOURCES}
+
+TAGS: ${SRC}
+	etags ${SRC}
+
+if MAINTAINER_MODE
 noinst_PROGRAMS = linkcore linkshell linkgui
 
 linkcore_SOURCES = linkcore.c
@@ -101,12 +111,4 @@ linkshell_LDFLAGS = -static
 linkgui_SOURCES = linkgui.c
 linkgui_LDADD = ${top_srcdir}/src/libm17n-gui.la
 linkgui_LDFLAGS = -static
-
-SRC =	${libm17n_core_la_SOURCES} \
-	${libm17n_la_SOURCES} \
-	${libm17n_gui_la_SOURCES} \
-	${libm17n_X_la_SOURCES} \
-	${libm17n_gd_la_SOURCES}
-
-TAGS: ${SRC}
-	etags ${SRC}
+endif
