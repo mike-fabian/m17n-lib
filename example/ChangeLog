@@ -1,3 +1,10 @@
+2005-09-05  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (X_LD_FLAGS): Use @X11_LD_FLAGS@ instead of
+	directory listing libraries.
+	(PURIFY, purify_medit, purify_mdate): Define them in maintainer
+	mode.
+
 2005-08-22  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c: Don't include config.h.
