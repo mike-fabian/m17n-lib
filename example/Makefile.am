@@ -37,7 +37,7 @@ m17n_date_LDADD = ${common_ldflags}
 m17n_conv_SOURCES = mconv.c
 m17n_conv_LDADD = ${common_ldflags}
 
-X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @XAW_LD_FLAGS@ -lXmu -lXt -lX11 ${X_EXTRA_LIBS}
+X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @XAW_LD_FLAGS@ @X11_LD_FLAGS@ ${X_EXTRA_LIBS}
 
 m17n_edit_SOURCES = medit.c
 m17n_edit_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui} -ldl
@@ -69,8 +69,9 @@ libmimx_anthy_la_SOURCES = mimx-anthy.c
 libmimx_anthy_la_LIBADD = ${common_ldflags} @ANTHY_LD_FLAGS@ 
 libmimx_anthy_la_LDFLAGS = -module ${VINFO}
 
-# Special targets to test the m17n library with Purify.  They are for
-# the maintainers only.
+if MAINTAINER_MODE
+
+# Special targets to test the m17n library with Purify.
 
 PURIFY=/usr/local/rational/releases/purify.sol.2002.05.00/purify
 
@@ -80,3 +81,4 @@ purify_medit: medit ../src/.libs/libm17n-core.so ../src/.libs/libm17n.so ../src/
 purify_mdate: mdate.o ../src/.libs/libm17n.so ../src/.libs/libm17n-X.so
 	${PURIFY} gcc -g mdate.o -lXaw -lXmu -L/usr/X11R6/lib -R/usr/X11R6/lib -lSM -lICE -lX11 -lXt -L../src/.libs -lm17n -lm17n-X -ldl
 
+endif
