@@ -1,3 +1,12 @@
+2005-09-05  Kenichi Handa  <handa@m17n.org>
+
+	* bootstrap.sh: Call automake with -a -c. 
+
+	* configure.ac: Add AM_MAINTAINER_MODE.
+	(X11_LD_FLAGS): New variable.
+	(--with-gd): New AC_ARG_WITH.
+	(HAVE_FRIBIDI_CONFIG): Fix typo for testing it.
+
 2005-09-01  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac (CONFIG_FLAGS): Setup this variable and AC_SUBST it.

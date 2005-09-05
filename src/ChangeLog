@@ -1,3 +1,14 @@
+2005-09-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gd.c (device_open): Define it even if HAVE_GD nor
+	HAVE_FREETYPE are defined.
+
+	* m17n-X.c: Check HAVE_X11.
+
+	* Makefile.am (X_LD_FLAGS): Use @X11_LD_FLAGS@ instead of
+	directory listing libraries.
+	(noinst_PROGRAMS): Define it only in maintainer mode.
+
 2005-09-02  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.h (mdraw_line_break_option): Extern it.
