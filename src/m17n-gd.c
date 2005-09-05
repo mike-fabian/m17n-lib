@@ -837,6 +837,10 @@ device_open (MFrame *frame, MPlist *param)
   return 0;
 }
 
+#else	/* not HAVE_GD nor HAVE_FREETYPE */
+
+int device_open () { return -1; }
+
 #endif	/* not HAVE_GD nor HAVE_FREETYPE */
 
 /*** @} */
