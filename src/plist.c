@@ -224,6 +224,8 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
   i = 0;
   while ((c = GETC (st)) != EOF && c != '"')
     {
+      int is_char = 0;
+
       if (c == '\\')
 	{
 	  c = GETC (st);
@@ -237,6 +239,8 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 	      next_c = GETC (st);
 	      if (next_c != ' ')
 		UNGETC (next_c, st);
+	      if (c >= 0x80)
+		is_char = 1;
 	    }
 	  else
 	    c = escape_mnemonic[c];
@@ -244,7 +248,7 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 
       if (! skip)
 	{
-	  if (c >= 0x80 && ! chars)
+	  if (is_char && ! chars)
 	    {
 	      chars = buffer.chars;
 	      for (j = i - 1; j >= 0; j--)
