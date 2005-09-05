@@ -253,7 +253,7 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 	      chars = buffer.chars;
 	      for (j = i - 1; j >= 0; j--)
 		chars[j] = bytes[j];
-	      nchars = i;
+	      nchars = READ_MTEXT_BUF_SIZE;
 	      if (bytes != buffer.bytes)
 		free (bytes);
 	    }
