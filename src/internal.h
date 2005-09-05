@@ -91,11 +91,10 @@ extern int mdebug_hook ();
     be one of enum MErrorCode.  If the allocation fails, the macro
     MEMORY_FULL () is called with argument ERR.  */
 
-#define MTABLE_MALLOC(p, size, err)		\
-  do {						\
-    int bytes = sizeof (*(p)) * (size);		\
-    if (! ((p) = (void *) malloc (bytes)))	\
-      MEMORY_FULL (err);			\
+#define MTABLE_MALLOC(p, size, err)				\
+  do {								\
+    if (! ((p) = (void *) malloc (sizeof (*(p)) * (size))))	\
+      MEMORY_FULL (err);					\
   } while (0)
 
 
@@ -131,10 +130,10 @@ extern int mdebug_hook ();
 
 #define MTABLE_ALLOCA(p, size, err)		\
   do {						\
-    int bytes = sizeof (*(p)) * (size);		\
-    if (! ((p) = (void *) alloca (bytes)))	\
+    int allocasize = sizeof (*(p)) * (size);	\
+    if (! ((p) = (void *) alloca (allocasize)))	\
       MEMORY_FULL (err);			\
-    memset ((p), 0, bytes);			\
+    memset ((p), 0, allocasize);		\
   } while (0)
 
 
