@@ -1,3 +1,15 @@
+2005-09-06  TAKAHASHI Naoto  <ntakahas@m17n.org>
+
+	* mtext.c (tricky_chars, *cased, *soft_dotted, *case_mapping)
+	(MCharTable *combining_class, Mlt, Mtr, Maz, gr03A3, lt0049,
+	(lt004A, lt012E, lt00CC, lt00CD, lt0128, tr0130, tr0049, tr0069):
+	New variables.
+	(init_case_conversion): New function.
+	(CASE_CONV_INIT, REPLACE, DELETE, LOOKUP): New macros.
+	(uppercase_precheck, lowercase_precheck, final_sigma)
+	(after_soft_dotted, more_above, before_dot, after_i)
+	(mtext_uppercase, mtext_titlecase, mtext_lowercase): New function.s
+
 2005-09-05  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* plist.c (read_mtext_element): Fix previous change.

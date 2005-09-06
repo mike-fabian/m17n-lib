@@ -611,6 +611,8 @@ free_mtext (void *object)
   free (object);
 }
 
+/** Case handler (case-folding comparison and case conversion) */
+
 /** Structure for an iterator used in case-fold comparison.  */
 
 struct casecmp_iterator {
@@ -682,6 +684,292 @@ case_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
       advance_it (&it2);
     }
   return (it2.pos == to2 ? (it1.pos < to1) : -1);
+}
+
+static MCharTable *tricky_chars, *cased, *soft_dotted, *case_mapping;
+static MCharTable *combining_class;
+
+/* Languages that require special handling in case-conversion.  */
+static MSymbol Mlt, Mtr, Maz;
+
+static MText *gr03A3;
+static MText *lt0049, *lt004A, *lt012E, *lt00CC, *lt00CD, *lt0128;
+static MText *tr0130, *tr0049, *tr0069;
+
+static int
+init_case_conversion ()
+{
+  Mlt = msymbol ("lt");
+  Mtr = msymbol ("tr");
+  Maz = msymbol ("az");
+
+  gr03A3 = mtext ();
+  mtext_cat_char (gr03A3, 0x03C2);
+
+  lt0049 = mtext ();
+  mtext_cat_char (lt0049, 0x0069);
+  mtext_cat_char (lt0049, 0x0307);
+
+  lt004A = mtext ();
+  mtext_cat_char (lt004A, 0x006A);
+  mtext_cat_char (lt004A, 0x0307);
+
+  lt012E = mtext ();
+  mtext_cat_char (lt012E, 0x012F);
+  mtext_cat_char (lt012E, 0x0307);
+
+  lt00CC = mtext ();
+  mtext_cat_char (lt00CC, 0x0069);
+  mtext_cat_char (lt00CC, 0x0307);
+  mtext_cat_char (lt00CC, 0x0300);
+
+  lt00CD = mtext ();
+  mtext_cat_char (lt00CD, 0x0069);
+  mtext_cat_char (lt00CD, 0x0307);
+  mtext_cat_char (lt00CD, 0x0301);
+
+  lt0128 = mtext ();
+  mtext_cat_char (lt0128, 0x0069);
+  mtext_cat_char (lt0128, 0x0307);
+  mtext_cat_char (lt0128, 0x0303);
+
+  tr0130 = mtext ();
+  mtext_cat_char (tr0130, 0x0069);
+
+  tr0049 = mtext ();
+  mtext_cat_char (tr0049, 0x0131);
+
+  tr0069 = mtext ();
+  mtext_cat_char (tr0069, 0x0130);
+
+  if ((cased = mchar_get_prop_table (msymbol ("cased"), NULL)))
+    return -1;
+  if ((soft_dotted = mchar_get_prop_table (msymbol ("soft-dotted"), NULL)))
+    return -1;
+  if ((case_mapping = mchar_get_prop_table (msymbol ("case-mapping"), NULL)))
+    return -1;
+  if ((combining_class = mchar_get_prop_table (Mcombining_class, NULL)))
+    return -1;
+
+  tricky_chars = mchartable (Mnil, 0);
+  mchartable_set (tricky_chars, 0x0049, (void *) 1);
+  mchartable_set (tricky_chars, 0x004A, (void *) 1);
+  mchartable_set (tricky_chars, 0x00CC, (void *) 1);
+  mchartable_set (tricky_chars, 0x00CD, (void *) 1);
+  mchartable_set (tricky_chars, 0x0128, (void *) 1);
+  mchartable_set (tricky_chars, 0x012E, (void *) 1);
+  mchartable_set (tricky_chars, 0x0130, (void *) 1);
+  mchartable_set (tricky_chars, 0x0307, (void *) 1);
+  mchartable_set (tricky_chars, 0x03A3, (void *) 1);
+  return 0;
+}
+
+#define CASE_CONV_INIT(ret)		\
+  do {					\
+    if (! tricky_chars			\
+	&& init_case_conversion () < 0)	\
+      MERROR (MERROR_MTEXT, ret);	\
+  } while (0)
+
+
+/* Replace the character at I of MT with VAR, increment I and LEN,
+   and set MODIFIED to 1.  */
+
+#define REPLACE(var)					\
+  do {							\
+    int varlen = mtext_nchars (var);			\
+							\
+    mtext_replace (mt, i, i + 1, var, 0, varlen);	\
+    i += varlen;					\
+    len += varlen - 1;					\
+    modified = 1;					\
+  } while (0)
+
+/* Delete the character at I of MT, decrement LEN,
+   and set MODIFIED to 1.  */
+
+#define DELETE()		\
+  do {				\
+    mtext_del (mt, i, i + 1);	\
+    len--;			\
+    modified = 1;		\
+  } while (0)
+
+#define LOOKUP()						\
+  do {								\
+    MPlist *pl = mchartable_lookup (case_mapping, c);		\
+								\
+    if (pl)							\
+      {								\
+	/* Lowercase is the 1st element. */			\
+	MText *lower = MPLIST_VAL ((MPlist *) MPLIST_VAL (pl));	\
+	int llen = mtext_nchars (lower);			\
+								\
+	if (mtext_ref_char (lower, 0) != c || llen > 1)		\
+	  {							\
+	    mtext_replace (mt, i, i + 1, lower, 0, llen);	\
+	    i += llen;						\
+	    len += llen - 1;					\
+	    modified = 1;					\
+	  }							\
+	else							\
+	  i++;							\
+      }								\
+    else							\
+      i++;							\
+  } while (0)
+
+
+int
+uppercase_precheck (MText *mt)
+{
+  int len = mtext_nchars (mt), i;
+
+  for (i = 0; i < len; i++)
+    if (mtext_ref_char (mt, i) == 0x0307 &&
+	(MSymbol) mtext_get_prop (mt, i, Mlanguage) == Mlt)
+      return 1;
+  return 0;
+}
+
+int
+lowercase_precheck (MText *mt)
+{
+  int len = mtext_len (mt), i;
+
+  for (i = 0; i < len; i++)
+    {
+      int c = mtext_ref_char (mt, i);
+
+      if ((int) mchartable_lookup (tricky_chars, c) == 1)
+      {
+	MSymbol lang;
+
+	if (c == 0x03A3)
+	  return 1;
+
+	lang = mtext_get_prop (mt, i, Mlanguage);
+
+	if (lang == Mlt &&
+	    (c == 0x0049 || c == 0x004A || c == 0x012E ||
+	     c == 0x00CC || c == 0x00CD || c == 0x0128))
+	  return 1;
+
+	if ((lang == Mtr || lang == Maz) &&
+	    (c == 0x0130 || c == 0x0307 || c == 0x0049))
+	  return 1;
+      }
+    }
+  return 0;
+}
+
+#define CASED 1
+#define CASE_IGNORABLE 2
+
+int
+final_sigma (MText *mt, int pos)
+{
+  int i, len = mtext_len (mt);
+  int c;
+
+  for (i = pos - 1; i >= 0; i--)
+    {
+      c = (int) mchartable_lookup (cased, mtext_ref_char (mt, i));
+      if (c == -1)
+	c = 0;
+      if (c & CASED)
+	break;
+      if (! (c & CASE_IGNORABLE))
+	return 0;
+    }
+
+  if (i == -1)
+    return 0;
+
+  for (i = pos + 1; i < len; i++)
+    {
+      c = (int) mchartable_lookup (cased, mtext_ref_char (mt, i));
+      if (c == -1)
+	c = 0;
+      if (c & CASED)
+	return 0;
+      if (! (c & CASE_IGNORABLE))
+	return 1;
+    }
+
+  return 1;
+}
+
+int
+after_soft_dotted (MText *mt, int i)
+{
+  int c, class;
+
+  for (i--; i >= 0; i--)
+    {
+      c = mtext_ref_char (mt, i);
+      if ((MSymbol) mchartable_lookup (soft_dotted, c) == Mt)
+	return 1;
+      class = (int) mchartable_lookup (combining_class, c);
+      if (class == 0 || class == 230)
+	return 0;
+    }
+
+  return 0;
+}
+
+int
+more_above (MText *mt, int i)
+{
+  int class, len = mtext_len (mt);
+
+  for (i++; i < len; i++)
+    {
+      class = (int) mchartable_lookup (combining_class,
+				       mtext_ref_char (mt, i));
+      if (class == 230)
+	return 1;
+      if (class == 0)
+	return 0;
+    }
+
+  return 0;
+}
+
+int
+before_dot (MText *mt, int i)
+{
+  int c, class, len = mtext_len (mt);
+
+  for (i++; i < len; i++)
+    {
+      c = mtext_ref_char (mt, i);
+      if (c == 0x0307)
+	return 1;
+      class = (int) mchartable_lookup (combining_class, c);
+      if (class == 230 || class == 0)
+	return 0;
+    }
+
+  return 0;
+}
+
+int
+after_i (MText *mt, int i)
+{
+  int c, class;
+
+  for (i--; i >= 0; i--)
+    {
+      c = mtext_ref_char (mt, i);
+      if (c == (int) 'I')
+	return 1;
+      class = (int) mchartable_lookup (combining_class, c);
+      if (class == 230 || class == 0)
+	return 0;
+    }
+
+  return 0;
 }
 
 
@@ -2950,6 +3238,265 @@ mtext_case_compare (MText *mt1, int from1, int to1,
     from2 = to2 = 0;
 
   return case_compare (mt1, from1, to1, mt2, from2, to2);
+}
+
+/*=*/
+
+/***en
+    @brief Uppercase an M-text.
+
+
+    The mtext_uppercase () function destructively converts each
+    character in M-text $MT to uppercase.  Adjacent characters in $MT
+    may affect the case conversion.  If the Mlanguage text property is
+    attached to $MT, it may also affect the conversion.  The length of
+    $MT may change.  Characters that cannot be converted to uppercase
+    is left unchanged.  All the text properties are inherited.
+
+    @return
+    If more than one character is converted, 1 is returned.
+    Otherwise, 0 is returned.
+*/
+
+/***ja
+    @brief M-text を大文字にする.
+
+    関数 mtext_uppercase () は M-text $MT 中の各文字を破壊的に大文字に変
+    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
+    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
+    与えうる。$MT の長さは変わることがある。大文字に変換できなかった文
+    字はそのまま残る。テキストプロパティはすべて継承される。
+
+    @return
+    1文字以上が変換された場合は1が返される。そうでない場合は0が返される。
+*/
+
+/***
+    @seealso mtext_lowercase (), mtext_titlecase ()
+*/
+
+int
+mtext_uppercase (MText *mt)
+{
+  int len = mtext_len (mt), i, j;
+  int c;
+  int modified = 0;
+  MText *orig;
+  MSymbol lang;
+
+  CASE_CONV_INIT (-1);
+
+  if (uppercase_precheck (mt))
+    orig = mtext_dup (mt);
+
+  /* i moves over mt, j moves over orig. */
+  for (i = 0, j = 0; i < len; j++)
+    {
+      c = mtext_ref_char (mt, i);
+      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
+
+      if (c == 0x0307 && lang == Mlt && after_soft_dotted (orig, j))
+	DELETE ();
+
+      else if (c == 0x0069 && (lang == Mtr || lang == Maz))
+	REPLACE (tr0069);
+	       
+      else
+	{
+	  MPlist *pl = (MPlist *) mchartable_lookup (case_mapping, c);
+
+	  if (pl)
+	    {
+	      MText *upper;
+	      int ulen;
+
+	      /* Uppercase is the 3rd element. */
+	      upper = (MText *) mplist_value (mplist_next (mplist_next (mplist_value (pl))));
+	      ulen = mtext_len (upper);
+
+	      if (mtext_ref_char (upper, 0) != c || ulen > 1)
+		{
+		  mtext_replace (mt, i, i + 1, upper, 0, ulen);
+		  modified = 1;
+		  i += ulen;
+		  len += ulen - 1;
+		}
+
+	      else
+		i++;
+	    }
+
+	  else						 /* pl == NULL */
+	    i++;
+	}
+    }
+
+  if (orig)
+    m17n_object_unref (orig);
+  return modified;
+}
+
+/*=*/
+
+/***en
+    @brief Titlecase an M-text.
+
+    The mtext_titlecase () function destructively converts the first
+    character in M-text $MT to titlecase.  The length of $MT may
+    change.  If the character cannot be converted to titlercase, it is
+    left unchanged.  All the text properties are inherited.
+
+    @return
+    If the character is converted, 1 is returned.  Otherwise, 0 is
+    returned.
+*/
+
+/***ja
+    @brief M-text をタイトルケースにする.
+
+    関数 mtext_titlecase () は M-text $MT の先頭の文字を破壊的にタイトル
+    ケースに変換する。$MT の長さは変わることがある。タイトルケースにに
+    変換できなかった場合はそのままで変わらない。テキストプロパティはす
+    べて継承される。
+
+    @return
+    文字が変換された場合は1が返される。そうでない場合は0が返される。
+*/
+
+/***
+    @seealso mtext_lowercase (), mtext_uppercase ()
+*/
+
+int
+mtext_titlecase (MText *mt)
+{
+  int c = mtext_ref_char (mt, 0);
+  MSymbol lang = mtext_get_prop (mt, 0, Mlanguage);
+  MPlist *pl;
+  int modified = 0;
+
+  CASE_CONV_INIT (-1);
+
+  if ((lang == Mtr || lang == Maz) && c == 0x0069)
+    {
+      mtext_replace (mt, 0, 1, tr0069, 0, 1);
+      modified = 1;
+    }
+
+  else if ((pl = mchartable_lookup (case_mapping, c)))
+    {
+      /* Titlecase is the 2nd element. */
+      MText *title = (MText *) mplist_value (mplist_next (mplist_value (pl)));
+      int tlen = mtext_len (title);
+
+      if (mtext_ref_char (title, 0) != c || tlen > 1)
+	{
+	  mtext_replace (mt, 0, 1, title, 0, tlen);
+	  modified = 1;
+	}
+    }
+
+  return modified;
+}
+
+/*=*/
+
+/***en
+    @brief Lowercase an M-text.
+
+    The mtext_lowercase () function destructively converts each
+    character in M-text $MT to lowercase.  Adjacent characters in $MT
+    may affect the case conversion.  If the Mlanguage text property is
+    attached to $MT, it may also affect the conversion.  The length of
+    $MT may change.  Characters that cannot be converted to lowercase
+    is left unchanged.  All the text properties are inherited.
+
+    @return
+    If more than one character is converted, 1 is returned.
+    Otherwise, 0 is returned.
+*/
+
+/***ja
+    @brief M-text を小文字にする.
+
+    関数 mtext_lowercase () は M-text $MT 中の各文字を破壊的に小文字に変
+    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
+    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
+    与えうる。$MT の長さは変わることがある。小文字に変換できなかった文
+    字はそのまま残る。テキストプロパティはすべて継承される。
+
+    @return
+    1文字以上が変換された場合は1が返される。そうでない場合は0が返される。
+*/
+
+/***
+    @seealso mtext_titlecase (), mtext_uppercase ()
+*/
+
+int
+mtext_lowercase (MText *mt)
+
+{
+  int len = mtext_len (mt), i, j;
+  int c;
+  int modified = 0;
+  MText *orig;
+  MSymbol lang;
+
+  CASE_CONV_INIT (-1);
+
+  if (lowercase_precheck (mt))
+    orig = mtext_dup (mt);
+
+  /* i moves over mt, j moves over orig. */
+  for (i = 0, j = 0; i < len; j++)
+    {
+      c = mtext_ref_char (mt, i);
+      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
+
+      if (c == 0x03A3 && final_sigma (orig, j))
+	REPLACE (gr03A3);
+
+      else if (lang == Mlt)
+	{
+	  if (c == 0x00CC)
+    	    REPLACE (lt00CC);
+	  else if (c == 0x00CD)
+	    REPLACE (lt00CD);
+	  else if (c == 0x0128)
+	    REPLACE (lt0128);
+	  else if (orig && more_above (orig, j))
+	    {
+	      if (c == 0x0049)
+		REPLACE (lt0049);
+	      else if (c == 0x004A)
+		REPLACE (lt004A);
+	      else if (c == 0x012E)
+		REPLACE (lt012E);
+	      else
+		LOOKUP ();
+	    }
+	  else
+	    LOOKUP ();
+	}
+
+      else if (lang == Mtr || lang == Maz)
+	{
+	  if (c == 0x0130)
+	    REPLACE (tr0130);
+	  else if (c == 0x0307 && after_i (orig, j))
+	    DELETE ();
+	  else if (c == 0x0049 && ! before_dot (orig, j))
+	    REPLACE (tr0049);
+	  else
+	    LOOKUP ();
+	}
+
+      else
+	LOOKUP ();
+    }
+
+  return modified;
 }
 
 /*** @} */
