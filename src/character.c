@@ -509,14 +509,25 @@ mchar_put_prop (int c, MSymbol key, void *val)
 
     The mchar_get_prop_table () function returns a char-table that
     contains the character property whose key is $KEY.  If $TYPE is
-    not null, this function store the type of the property in the
+    not NULL, this function stores the type of the property in the
     place pointed by $TYPE.  See mchar_define_property () for types of
     character property.
 
     @return
-    If $KEY is a valid character property key, return a char-table.
-    Otherwise retun NULL.  */
+    If $KEY is a valid character property key, this function returns a
+    char-table.  Otherwise NULL is retuned.  */
 
+/***ja
+    @brief 文字プロパティの文字テーブルを得る.
+
+    関数 mchar_get_prop_table () は、キーが $KEY である文字プロパティ
+    を含む文字テーブルを返す。もし $TYPE が NULL でなければ、 $TYPE で
+    指される場所にその文字のプロパティを格納する。文字プロパティの種類
+    に関しては mchar_define_property () を見よ。
+
+    @return
+    もし $KEY が正当な文字プロパティのキーであれば、文字テーブルが返さ
+    れる。そうでない場合は NULL が返される。  */
 
 MCharTable *
 mchar_get_prop_table (MSymbol key, MSymbol *type)
