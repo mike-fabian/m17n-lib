@@ -742,13 +742,13 @@ init_case_conversion ()
   tr0069 = mtext ();
   mtext_cat_char (tr0069, 0x0130);
 
-  if ((cased = mchar_get_prop_table (msymbol ("cased"), NULL)))
+  if (! (cased = mchar_get_prop_table (msymbol ("cased"), NULL)))
     return -1;
-  if ((soft_dotted = mchar_get_prop_table (msymbol ("soft-dotted"), NULL)))
+  if (! (soft_dotted = mchar_get_prop_table (msymbol ("soft-dotted"), NULL)))
     return -1;
-  if ((case_mapping = mchar_get_prop_table (msymbol ("case-mapping"), NULL)))
+  if (! (case_mapping = mchar_get_prop_table (msymbol ("case-mapping"), NULL)))
     return -1;
-  if ((combining_class = mchar_get_prop_table (Mcombining_class, NULL)))
+  if (! (combining_class = mchar_get_prop_table (Mcombining_class, NULL)))
     return -1;
 
   tricky_chars = mchartable (Mnil, 0);
@@ -833,13 +833,11 @@ uppercase_precheck (MText *mt)
 }
 
 int
-lowercase_precheck (MText *mt)
+lowercase_precheck (MText *mt, int from, int to)
 {
-  int len = mtext_len (mt), i;
-
-  for (i = 0; i < len; i++)
+  for (; from < to; from++)
     {
-      int c = mtext_ref_char (mt, i);
+      int c = mtext_ref_char (mt, from);
 
       if ((int) mchartable_lookup (tricky_chars, c) == 1)
       {
@@ -848,7 +846,7 @@ lowercase_precheck (MText *mt)
 	if (c == 0x03A3)
 	  return 1;
 
-	lang = mtext_get_prop (mt, i, Mlanguage);
+	lang = mtext_get_prop (mt, from, Mlanguage);
 
 	if (lang == Mlt &&
 	    (c == 0x0049 || c == 0x004A || c == 0x012E ||
@@ -1397,6 +1395,70 @@ mtext__eol (MText *mt, int pos)
 	p++, pos++;
       return pos;
     }
+}
+
+int
+mtext__lowercase (MText *mt, int from, int to)
+
+{
+  int i, j, len = to - from;
+  int c;
+  int modified = 0;
+  MText *orig;
+  MSymbol lang;
+
+  if (lowercase_precheck (mt, from, to))
+    orig = mtext_duplicate (mt, from, to);
+
+  /* i moves over mt, j moves over orig. */
+  for (i = from, j = 0; i < len; j++)
+    {
+      c = mtext_ref_char (mt, i);
+      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
+
+      if (c == 0x03A3 && final_sigma (orig, j))
+	REPLACE (gr03A3);
+
+      else if (lang == Mlt)
+	{
+	  if (c == 0x00CC)
+    	    REPLACE (lt00CC);
+	  else if (c == 0x00CD)
+	    REPLACE (lt00CD);
+	  else if (c == 0x0128)
+	    REPLACE (lt0128);
+	  else if (orig && more_above (orig, j))
+	    {
+	      if (c == 0x0049)
+		REPLACE (lt0049);
+	      else if (c == 0x004A)
+		REPLACE (lt004A);
+	      else if (c == 0x012E)
+		REPLACE (lt012E);
+	      else
+		LOOKUP ();
+	    }
+	  else
+	    LOOKUP ();
+	}
+
+      else if (lang == Mtr || lang == Maz)
+	{
+	  if (c == 0x0130)
+	    REPLACE (tr0130);
+	  else if (c == 0x0307 && after_i (orig, j))
+	    DELETE ();
+	  else if (c == 0x0049 && ! before_dot (orig, j))
+	    REPLACE (tr0049);
+	  else
+	    LOOKUP ();
+	}
+
+      else
+	LOOKUP ();
+    }
+
+  return modified;
 }
 
 /*** @} */
@@ -3295,10 +3357,10 @@ mtext_uppercase (MText *mt)
       c = mtext_ref_char (mt, i);
       lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
 
-      if (c == 0x0307 && lang == Mlt && after_soft_dotted (orig, j))
+      if (lang == Mlt && c == 0x0307 && after_soft_dotted (orig, j))
 	DELETE ();
 
-      else if (c == 0x0069 && (lang == Mtr || lang == Maz))
+      else if ((lang == Mtr || lang == Maz) && c == 0x0069)
 	REPLACE (tr0069);
 	       
       else
@@ -3342,9 +3404,10 @@ mtext_uppercase (MText *mt)
     @brief Titlecase an M-text.
 
     The mtext_titlecase () function destructively converts the first
-    character in M-text $MT to titlecase.  The length of $MT may
-    change.  If the character cannot be converted to titlercase, it is
-    left unchanged.  All the text properties are inherited.
+    character in M-text $MT to titlecase and the others to lowercase.
+    The length of $MT may change.  If the character cannot be
+    converted to titlercase, it is left unchanged.  All the text
+    properties are inherited.
 
     @return
     If the character is converted, 1 is returned.  Otherwise, 0 is
@@ -3354,10 +3417,10 @@ mtext_uppercase (MText *mt)
 /***ja
     @brief M-text をタイトルケースにする.
 
-    関数 mtext_titlecase () は M-text $MT の先頭の文字を破壊的にタイトル
-    ケースに変換する。$MT の長さは変わることがある。タイトルケースにに
-    変換できなかった場合はそのままで変わらない。テキストプロパティはす
-    べて継承される。
+    関数 mtext_titlecase () は M-text $MT の先頭の文字をタイトルケース
+    に、そしてそれ以降の文字を小文字に破壊的に変換する。$MT の長さは変
+    わることがある。タイトルケースにに変換できなかった場合はそのままで
+    変わらない。テキストプロパティはすべて継承される。
 
     @return
     文字が変換された場合は1が返される。そうでない場合は0が返される。
@@ -3370,12 +3433,21 @@ mtext_uppercase (MText *mt)
 int
 mtext_titlecase (MText *mt)
 {
-  int c = mtext_ref_char (mt, 0);
-  MSymbol lang = mtext_get_prop (mt, 0, Mlanguage);
+  int len;
+  int c;
+  MSymbol lang;
   MPlist *pl;
   int modified = 0;
 
   CASE_CONV_INIT (-1);
+
+  len = mtext_len (mt);
+
+  if (len == 0)
+    return 0;
+
+  c = mtext_ref_char (mt, 0);
+  lang = mtext_get_prop (mt, 0, Mlanguage);
 
   if ((lang == Mtr || lang == Maz) && c == 0x0069)
     {
@@ -3396,7 +3468,10 @@ mtext_titlecase (MText *mt)
 	}
     }
 
-  return modified;
+  if (len == 1)
+    return modified;
+  else
+    return modified | mtext__lowercase (mt, 1, len);
 }
 
 /*=*/
@@ -3437,66 +3512,9 @@ int
 mtext_lowercase (MText *mt)
 
 {
-  int len = mtext_len (mt), i, j;
-  int c;
-  int modified = 0;
-  MText *orig;
-  MSymbol lang;
-
   CASE_CONV_INIT (-1);
 
-  if (lowercase_precheck (mt))
-    orig = mtext_dup (mt);
-
-  /* i moves over mt, j moves over orig. */
-  for (i = 0, j = 0; i < len; j++)
-    {
-      c = mtext_ref_char (mt, i);
-      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
-
-      if (c == 0x03A3 && final_sigma (orig, j))
-	REPLACE (gr03A3);
-
-      else if (lang == Mlt)
-	{
-	  if (c == 0x00CC)
-    	    REPLACE (lt00CC);
-	  else if (c == 0x00CD)
-	    REPLACE (lt00CD);
-	  else if (c == 0x0128)
-	    REPLACE (lt0128);
-	  else if (orig && more_above (orig, j))
-	    {
-	      if (c == 0x0049)
-		REPLACE (lt0049);
-	      else if (c == 0x004A)
-		REPLACE (lt004A);
-	      else if (c == 0x012E)
-		REPLACE (lt012E);
-	      else
-		LOOKUP ();
-	    }
-	  else
-	    LOOKUP ();
-	}
-
-      else if (lang == Mtr || lang == Maz)
-	{
-	  if (c == 0x0130)
-	    REPLACE (tr0130);
-	  else if (c == 0x0307 && after_i (orig, j))
-	    DELETE ();
-	  else if (c == 0x0049 && ! before_dot (orig, j))
-	    REPLACE (tr0049);
-	  else
-	    LOOKUP ();
-	}
-
-      else
-	LOOKUP ();
-    }
-
-  return modified;
+  return mtext__lowercase (mt, 0, mtext_len (mt));
 }
 
 /*** @} */
