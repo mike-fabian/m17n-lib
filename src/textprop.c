@@ -1444,7 +1444,7 @@ mtext__adjust_plist_for_change (MText *mt, int pos, int len1, int len2)
       for (plist = mt->plist; plist; plist = plist->next)
 	{
 	  MInterval *head = find_interval (plist, pos2);
-	  MInterval *tail = mt->plist->tail;
+	  MInterval *tail = plist->tail;
 	  MTextProperty *prop;
 	  int i;
 
