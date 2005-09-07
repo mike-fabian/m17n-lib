@@ -112,6 +112,10 @@ mchar__init ()
   Mscript
     = mchar_define_property ("script", Msymbol);
 
+  mchar_define_property ("cased", Minteger);
+  mchar_define_property ("soft-dotted", Msymbol);
+  mchar_define_property ("case-mapping", Mplist);
+
   return 0;
 }
 
