@@ -771,90 +771,82 @@ init_case_conversion ()
       MERROR (MERROR_MTEXT, ret);	\
   } while (0)
 
-
-/* Replace the character at I of MT with VAR, increment I and LEN,
-   and set MODIFIED to 1.  */
+/* Replace the character at POS of MT with VAR and increment I and LEN.  */
 
 #define REPLACE(var)					\
   do {							\
-    int varlen = mtext_nchars (var);			\
+    int varlen = var->nchars;				\
 							\
-    mtext_replace (mt, i, i + 1, var, 0, varlen);	\
-    i += varlen;					\
-    len += varlen - 1;					\
-    modified = 1;					\
+    mtext_replace (mt, pos, pos + 1, var, 0, varlen);	\
+    pos += varlen;					\
+    end += varlen - 1;					\
   } while (0)
 
-/* Delete the character at I of MT, decrement LEN,
-   and set MODIFIED to 1.  */
+/* Delete the character at POS of MT and decrement LEN.  */
 
-#define DELETE()		\
-  do {				\
-    mtext_del (mt, i, i + 1);	\
-    len--;			\
-    modified = 1;		\
+#define DELETE				\
+  do {					\
+    mtext_del (mt, pos, pos + 1);	\
+    end--;				\
   } while (0)
 
-#define LOOKUP()						\
-  do {								\
-    MPlist *pl = mchartable_lookup (case_mapping, c);		\
-								\
-    if (pl)							\
-      {								\
-	/* Lowercase is the 1st element. */			\
-	MText *lower = MPLIST_VAL ((MPlist *) MPLIST_VAL (pl));	\
-	int llen = mtext_nchars (lower);			\
-								\
-	if (mtext_ref_char (lower, 0) != c || llen > 1)		\
-	  {							\
-	    mtext_replace (mt, i, i + 1, lower, 0, llen);	\
-	    i += llen;						\
-	    len += llen - 1;					\
-	    modified = 1;					\
-	  }							\
-	else							\
-	  i++;							\
-      }								\
-    else							\
-      i++;							\
+#define LOOKUP								\
+  do {									\
+    MPlist *pl = (MPlist *) mchartable_lookup (case_mapping, c);	\
+									\
+    if (pl)								\
+      {									\
+	/* Lowercase is the 1st element. */				\
+	MText *lower = MPLIST_VAL ((MPlist *) MPLIST_VAL (pl));		\
+	int llen = mtext_nchars (lower);				\
+									\
+	if (mtext_ref_char (lower, 0) != c || llen > 1)			\
+	  {								\
+	    mtext_replace (mt, pos, pos + 1, lower, 0, llen);		\
+	    pos += llen;						\
+	    end += llen - 1;						\
+	  }								\
+	else								\
+	  pos++;							\
+      }									\
+    else								\
+      pos++;								\
   } while (0)
 
 
 int
-uppercase_precheck (MText *mt)
+uppercase_precheck (MText *mt, int pos, int end)
 {
-  int len = mtext_nchars (mt), i;
-
-  for (i = 0; i < len; i++)
-    if (mtext_ref_char (mt, i) == 0x0307 &&
-	(MSymbol) mtext_get_prop (mt, i, Mlanguage) == Mlt)
+  for (; pos < end; pos++)
+    if (mtext_ref_char (mt, pos) == 0x0307 &&
+	(MSymbol) mtext_get_prop (mt, pos, Mlanguage) == Mlt)
       return 1;
   return 0;
 }
 
 int
-lowercase_precheck (MText *mt, int from, int to)
+lowercase_precheck (MText *mt, int pos, int end)
 {
-  for (; from < to; from++)
+  int c;
+  MSymbol lang;
+
+  for (; pos < end; pos++)
     {
-      int c = mtext_ref_char (mt, from);
+      c = mtext_ref_char (mt, pos);
 
       if ((int) mchartable_lookup (tricky_chars, c) == 1)
       {
-	MSymbol lang;
-
 	if (c == 0x03A3)
 	  return 1;
 
-	lang = mtext_get_prop (mt, from, Mlanguage);
+	lang = mtext_get_prop (mt, pos, Mlanguage);
 
 	if (lang == Mlt &&
-	    (c == 0x0049 || c == 0x004A || c == 0x012E ||
-	     c == 0x00CC || c == 0x00CD || c == 0x0128))
+	    (c == 0x0049 || c == 0x004A || c == 0x012E))
 	  return 1;
 
 	if ((lang == Mtr || lang == Maz) &&
-	    (c == 0x0130 || c == 0x0307 || c == 0x0049))
+	    (c == 0x0307 || c == 0x0049))
 	  return 1;
       }
     }
@@ -1398,25 +1390,22 @@ mtext__eol (MText *mt, int pos)
 }
 
 int
-mtext__lowercase (MText *mt, int from, int to)
-
+mtext__lowercase (MText *mt, int pos, int end)
 {
-  int i, j, len = to - from;
+  int opos = pos;
   int c;
-  int modified = 0;
-  MText *orig;
+  MText *orig = NULL;
   MSymbol lang;
 
-  if (lowercase_precheck (mt, from, to))
-    orig = mtext_duplicate (mt, from, to);
+  if (lowercase_precheck (mt, pos, end))
+    orig = mtext_dup (mt);
 
-  /* i moves over mt, j moves over orig. */
-  for (i = from, j = 0; i < len; j++)
+  for (; pos < end; opos++)
     {
-      c = mtext_ref_char (mt, i);
-      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
+      c = mtext_ref_char (mt, pos);
+      lang = (MSymbol) mtext_get_prop (mt, pos, Mlanguage);
 
-      if (c == 0x03A3 && final_sigma (orig, j))
+      if (c == 0x03A3 && final_sigma (orig, opos))
 	REPLACE (gr03A3);
 
       else if (lang == Mlt)
@@ -1427,7 +1416,7 @@ mtext__lowercase (MText *mt, int from, int to)
 	    REPLACE (lt00CD);
 	  else if (c == 0x0128)
 	    REPLACE (lt0128);
-	  else if (orig && more_above (orig, j))
+	  else if (orig && more_above (orig, opos))
 	    {
 	      if (c == 0x0049)
 		REPLACE (lt0049);
@@ -1436,29 +1425,142 @@ mtext__lowercase (MText *mt, int from, int to)
 	      else if (c == 0x012E)
 		REPLACE (lt012E);
 	      else
-		LOOKUP ();
+		LOOKUP;
 	    }
 	  else
-	    LOOKUP ();
+	    LOOKUP;
 	}
 
       else if (lang == Mtr || lang == Maz)
 	{
 	  if (c == 0x0130)
 	    REPLACE (tr0130);
-	  else if (c == 0x0307 && after_i (orig, j))
-	    DELETE ();
-	  else if (c == 0x0049 && ! before_dot (orig, j))
+	  else if (c == 0x0307 && after_i (orig, opos))
+	    DELETE;
+	  else if (c == 0x0049 && ! before_dot (orig, opos))
 	    REPLACE (tr0049);
 	  else
-	    LOOKUP ();
+	    LOOKUP;
 	}
 
       else
-	LOOKUP ();
+	LOOKUP;
     }
 
-  return modified;
+  if (orig)
+    m17n_object_unref (orig);
+
+  return end;
+}
+
+int
+mtext__titlecase (MText *mt, int pos, int end)
+{
+  int opos = pos;
+  int c;
+  MText *orig = NULL;
+  MSymbol lang;
+  MPlist *pl;
+
+  /* Precheck for titlecase is identical to that for uppercase. */
+  if (uppercase_precheck (mt, pos, end))
+    orig = mtext_dup (mt);
+
+  for (; pos < end; opos++)
+    {
+      c = mtext_ref_char (mt, pos);
+      lang = (MSymbol) mtext_get_prop (mt, pos, Mlanguage);
+
+      if ((lang == Mtr || lang == Maz) && c == 0x0069)
+	REPLACE (tr0069);
+
+      else if (lang == Mlt && c == 0x0307 && after_soft_dotted (orig, opos))
+	DELETE;
+
+      else if ((pl = (MPlist *) mchartable_lookup (case_mapping, c)))
+	{
+	  /* Titlecase is the 2nd element. */
+	  MText *title
+	    = (MText *) mplist_value (mplist_next (mplist_value (pl)));
+	  int tlen = mtext_len (title);
+
+	  if (mtext_ref_char (title, 0) != c || tlen > 1)
+	    {
+	      mtext_replace (mt, pos, pos + 1, title, 0, tlen);
+	      pos += tlen;
+	      end += tlen - 1;
+	    }
+
+	  else
+	    pos++;
+	}
+
+      else
+	pos++;
+    }
+
+  if (orig)
+    m17n_object_unref (orig);
+
+  return end;
+}
+
+int
+mtext__uppercase (MText *mt, int pos, int end)
+{
+  int opos = pos;
+  int c;
+  MText *orig = NULL;
+  MSymbol lang;
+  MPlist *pl;
+
+  CASE_CONV_INIT (-1);
+
+  if (uppercase_precheck (mt, 0, end))
+    orig = mtext_dup (mt);
+
+  for (; pos < end; opos++)
+    {
+      c = mtext_ref_char (mt, pos);
+      lang = (MSymbol) mtext_get_prop (mt, pos, Mlanguage);
+
+      if (lang == Mlt && c == 0x0307 && after_soft_dotted (orig, opos))
+	DELETE;
+
+      else if ((lang == Mtr || lang == Maz) && c == 0x0069)
+	REPLACE (tr0069);
+	       
+      else
+	{
+	  if (pl = (MPlist *) mchartable_lookup (case_mapping, c))
+	    {
+	      MText *upper;
+	      int ulen;
+
+	      /* Uppercase is the 3rd element. */
+	      upper = (MText *) mplist_value (mplist_next (mplist_next (mplist_value (pl))));
+	      ulen = mtext_len (upper);
+
+	      if (mtext_ref_char (upper, 0) != c || ulen > 1)
+		{
+		  mtext_replace (mt, pos, pos + 1, upper, 0, ulen);
+		  pos += ulen;
+		  end += ulen - 1;
+		}
+
+	      else
+		pos++;
+	    }
+
+	  else						 /* pl == NULL */
+	    pos++;
+	}
+    }
+
+  if (orig)
+    m17n_object_unref (orig);
+
+  return end;
 }
 
 /*** @} */
@@ -3305,178 +3407,6 @@ mtext_case_compare (MText *mt1, int from1, int to1,
 /*=*/
 
 /***en
-    @brief Uppercase an M-text.
-
-
-    The mtext_uppercase () function destructively converts each
-    character in M-text $MT to uppercase.  Adjacent characters in $MT
-    may affect the case conversion.  If the Mlanguage text property is
-    attached to $MT, it may also affect the conversion.  The length of
-    $MT may change.  Characters that cannot be converted to uppercase
-    is left unchanged.  All the text properties are inherited.
-
-    @return
-    If more than one character is converted, 1 is returned.
-    Otherwise, 0 is returned.
-*/
-
-/***ja
-    @brief M-text を大文字にする.
-
-    関数 mtext_uppercase () は M-text $MT 中の各文字を破壊的に大文字に変
-    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
-    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
-    与えうる。$MT の長さは変わることがある。大文字に変換できなかった文
-    字はそのまま残る。テキストプロパティはすべて継承される。
-
-    @return
-    1文字以上が変換された場合は1が返される。そうでない場合は0が返される。
-*/
-
-/***
-    @seealso mtext_lowercase (), mtext_titlecase ()
-*/
-
-int
-mtext_uppercase (MText *mt)
-{
-  int len = mtext_len (mt), i, j;
-  int c;
-  int modified = 0;
-  MText *orig;
-  MSymbol lang;
-
-  CASE_CONV_INIT (-1);
-
-  if (uppercase_precheck (mt))
-    orig = mtext_dup (mt);
-
-  /* i moves over mt, j moves over orig. */
-  for (i = 0, j = 0; i < len; j++)
-    {
-      c = mtext_ref_char (mt, i);
-      lang = (MSymbol) mtext_get_prop (mt, i, Mlanguage);
-
-      if (lang == Mlt && c == 0x0307 && after_soft_dotted (orig, j))
-	DELETE ();
-
-      else if ((lang == Mtr || lang == Maz) && c == 0x0069)
-	REPLACE (tr0069);
-	       
-      else
-	{
-	  MPlist *pl = (MPlist *) mchartable_lookup (case_mapping, c);
-
-	  if (pl)
-	    {
-	      MText *upper;
-	      int ulen;
-
-	      /* Uppercase is the 3rd element. */
-	      upper = (MText *) mplist_value (mplist_next (mplist_next (mplist_value (pl))));
-	      ulen = mtext_len (upper);
-
-	      if (mtext_ref_char (upper, 0) != c || ulen > 1)
-		{
-		  mtext_replace (mt, i, i + 1, upper, 0, ulen);
-		  modified = 1;
-		  i += ulen;
-		  len += ulen - 1;
-		}
-
-	      else
-		i++;
-	    }
-
-	  else						 /* pl == NULL */
-	    i++;
-	}
-    }
-
-  if (orig)
-    m17n_object_unref (orig);
-  return modified;
-}
-
-/*=*/
-
-/***en
-    @brief Titlecase an M-text.
-
-    The mtext_titlecase () function destructively converts the first
-    character in M-text $MT to titlecase and the others to lowercase.
-    The length of $MT may change.  If the character cannot be
-    converted to titlercase, it is left unchanged.  All the text
-    properties are inherited.
-
-    @return
-    If the character is converted, 1 is returned.  Otherwise, 0 is
-    returned.
-*/
-
-/***ja
-    @brief M-text をタイトルケースにする.
-
-    関数 mtext_titlecase () は M-text $MT の先頭の文字をタイトルケース
-    に、そしてそれ以降の文字を小文字に破壊的に変換する。$MT の長さは変
-    わることがある。タイトルケースにに変換できなかった場合はそのままで
-    変わらない。テキストプロパティはすべて継承される。
-
-    @return
-    文字が変換された場合は1が返される。そうでない場合は0が返される。
-*/
-
-/***
-    @seealso mtext_lowercase (), mtext_uppercase ()
-*/
-
-int
-mtext_titlecase (MText *mt)
-{
-  int len;
-  int c;
-  MSymbol lang;
-  MPlist *pl;
-  int modified = 0;
-
-  CASE_CONV_INIT (-1);
-
-  len = mtext_len (mt);
-
-  if (len == 0)
-    return 0;
-
-  c = mtext_ref_char (mt, 0);
-  lang = mtext_get_prop (mt, 0, Mlanguage);
-
-  if ((lang == Mtr || lang == Maz) && c == 0x0069)
-    {
-      mtext_replace (mt, 0, 1, tr0069, 0, 1);
-      modified = 1;
-    }
-
-  else if ((pl = mchartable_lookup (case_mapping, c)))
-    {
-      /* Titlecase is the 2nd element. */
-      MText *title = (MText *) mplist_value (mplist_next (mplist_value (pl)));
-      int tlen = mtext_len (title);
-
-      if (mtext_ref_char (title, 0) != c || tlen > 1)
-	{
-	  mtext_replace (mt, 0, 1, title, 0, tlen);
-	  modified = 1;
-	}
-    }
-
-  if (len == 1)
-    return modified;
-  else
-    return modified | mtext__lowercase (mt, 1, len);
-}
-
-/*=*/
-
-/***en
     @brief Lowercase an M-text.
 
     The mtext_lowercase () function destructively converts each
@@ -3487,8 +3417,7 @@ mtext_titlecase (MText *mt)
     is left unchanged.  All the text properties are inherited.
 
     @return
-    If more than one character is converted, 1 is returned.
-    Otherwise, 0 is returned.
+    This function returns the length of the updated $MT.
 */
 
 /***ja
@@ -3501,7 +3430,7 @@ mtext_titlecase (MText *mt)
     字はそのまま残る。テキストプロパティはすべて継承される。
 
     @return
-    1文字以上が変換された場合は1が返される。そうでない場合は0が返される。
+    この関数は更新後の $MT の長さを返す。
 */
 
 /***
@@ -3515,6 +3444,115 @@ mtext_lowercase (MText *mt)
   CASE_CONV_INIT (-1);
 
   return mtext__lowercase (mt, 0, mtext_len (mt));
+}
+
+/*=*/
+
+/***en
+    @brief Titlecase an M-text.
+
+    The mtext_titlecase () function destructively converts the first
+    character with the cased property in M-text $MT to titlecase and
+    the others to lowercase.  The length of $MT may change.  If the
+    character cannot be converted to titlercase, it is left unchanged.
+    All the text properties are inherited.
+
+    @return
+    This function returns the length of the updated $MT.
+*/
+
+/***ja
+    @brief M-text をタイトルケースにする.
+
+    関数 mtext_titlecase () は M-text $MT 中で cased プロパティを持つ
+    最初の文字をタイトルケースに、そしてそれ以降の文字を小文字に破壊的
+    に変換する。$MT の長さは変わることがある。タイトルケースにに変換で
+    きなかった場合はそのままで変わらない。テキストプロパティはすべて継
+    承される。
+
+    @return
+    この関数は更新後の $MT の長さを返す。
+*/
+
+/***
+    @seealso mtext_lowercase (), mtext_uppercase ()
+*/
+
+int
+mtext_titlecase (MText *mt)
+{
+  int len = mtext_len (mt), from, to;
+
+  CASE_CONV_INIT (-1);
+
+  /* Find 1st cased character. */
+  for (from = 0; from < len; from++)
+    {
+      int csd = (int) mchartable_lookup (cased, mtext_ref_char (mt, from));
+
+      if (csd > 0 && csd & CASED)
+	break;
+    }
+
+  if (from == len)
+    return len;
+
+  if (from == len - 1)
+    return (mtext__titlecase (mt, from, len));
+
+  /* Go through following combining characters. */
+  for (to = from + 1;
+       to < len &&
+	 mchartable_lookup (combining_class, mtext_ref_char (mt, to)) > 0;
+       to++);
+
+  /* Titlecase the region and prepare for next lowercase operation.
+     MT may be shortened or lengthened. */
+  from = mtext__titlecase (mt, from, to);
+
+  return (mtext__lowercase (mt, from, mtext_len (mt)));
+}
+
+/*=*/
+
+/***en
+    @brief Uppercase an M-text.
+
+
+    The mtext_uppercase () function destructively converts each
+    character in M-text $MT to uppercase.  Adjacent characters in $MT
+    may affect the case conversion.  If the Mlanguage text property is
+    attached to $MT, it may also affect the conversion.  The length of
+    $MT may change.  Characters that cannot be converted to uppercase
+    is left unchanged.  All the text properties are inherited.
+
+    @return
+    This function returns the length of the updated $MT.
+*/
+
+/***ja
+    @brief M-text を大文字にする.
+
+    関数 mtext_uppercase () は M-text $MT 中の各文字を破壊的に大文字に変
+    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
+    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
+    与えうる。$MT の長さは変わることがある。大文字に変換できなかった文
+    字はそのまま残る。テキストプロパティはすべて継承される。
+
+    @return
+    この関数は更新後の $MT の長さを返す。
+*/
+
+/***
+    @seealso mtext_lowercase (), mtext_titlecase ()
+*/
+
+int
+mtext_uppercase (MText *mt)
+{
+  CASE_CONV_INIT (-1);
+
+  return (mtext__uppercase (mt, 0, mtext_len (mt)));
 }
 
 /*** @} */
