@@ -1,3 +1,14 @@
+2005-09-09  TAKAHASHI Naoto  <ntakahas@m17n.org>
+
+	* mtext.c:
+	(mtext_lowercase, mtext_titlecase, mtext_uppercase): Change API.
+
+2005-09-07  TAKAHASHI Naoto  <ntakahas@m17n.org>
+	* character.c:
+	Add "cased", "soft-dotted", and "case-mapping" in mchar__init ().
+
+	* character.c: Add Japanese documentation for mchar_get_prop_table ().
+
 2005-09-06  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* mtext.c (tricky_chars, *cased, *soft_dotted, *case_mapping)
@@ -8,7 +19,7 @@
 	(CASE_CONV_INIT, REPLACE, DELETE, LOOKUP): New macros.
 	(uppercase_precheck, lowercase_precheck, final_sigma)
 	(after_soft_dotted, more_above, before_dot, after_i)
-	(mtext_uppercase, mtext_titlecase, mtext_lowercase): New function.s
+	(mtext_uppercase, mtext_titlecase, mtext_lowercase): New functions.
 
 2005-09-05  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
