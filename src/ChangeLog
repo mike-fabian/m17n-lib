@@ -1,5 +1,8 @@
 2005-09-12  Kenichi Handa  <handa@m17n.org>
 
+	* mtext.c (mtext__uppercase): Add proper open/close parens.
+	(mtext_titlecase): Add proper casting.
+
 	* input.c (parse_action_list): Handle the case that the arg is a
 	key sequence (MText or MPlist).
 	(take_action_list): Likewise.
@@ -13,14 +16,15 @@
 
 2005-09-09  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
-	* mtext.c:
-	(mtext_lowercase, mtext_titlecase, mtext_uppercase): Change API.
+	* mtext.c (mtext_lowercase, mtext_titlecase, mtext_uppercase):
+	Change API.
 
 2005-09-07  TAKAHASHI Naoto  <ntakahas@m17n.org>
-	* character.c:
-	Add "cased", "soft-dotted", and "case-mapping" in mchar__init ().
+	* character.c: Add "cased", "soft-dotted", and "case-mapping" in
+	mchar__init ().
 
-	* character.c: Add Japanese documentation for mchar_get_prop_table ().
+	* character.c: Add Japanese documentation for
+	mchar_get_prop_table ().
 
 2005-09-06  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
