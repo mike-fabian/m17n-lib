@@ -375,7 +375,22 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	    }
 	  else if (action_name == Mpushback)
 	    {
-	      if (! MPLIST_INTEGER_P (pl))
+	      if (MPLIST_MTEXT_P (pl))
+		{
+		  MText *mt = MPLIST_MTEXT (pl);
+
+		  if (mtext_nchars (mt) != mtext_nbytes (mt))
+		    MERROR (MERROR_IM, -1);		    
+		}
+	      else if (MPLIST_PLIST_P (pl))
+		{
+		  MPlist *p;
+
+		  MPLIST_DO (p, MPLIST_PLIST (pl))
+		    if (! MPLIST_SYMBOL_P (p))
+		      MERROR (MERROR_IM, -1);
+		}
+	      else if (! MPLIST_INTEGER_P (pl))
 		MERROR (MERROR_IM, -1);
 	    }
 	  else if (action_name == Mset || action_name == Madd
@@ -820,7 +835,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (! state)
     state = (MIMState *) MPLIST_VAL (im_info->states);
 
-  MDEBUG_PRINT1 ("\n[IM] state-shift (%s)", MSYMBOL_NAME (state->name));
+  MDEBUG_PRINT1 ("\n[IM] (shift %s)", MSYMBOL_NAME (state->name));
 
   /* Enter the new state.  */
   ic_info->state = state;
@@ -1214,14 +1229,51 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == Mpushback)
 	{
-	  int num = MPLIST_INTEGER (args);
+	  if (MPLIST_INTEGER_P (args))
+	    {
+	      int num = MPLIST_INTEGER (args);
 
-	  if (num > 0)
-	    ic_info->key_head -= num;
+	      if (num > 0)
+		ic_info->key_head -= num;
+	      else
+		ic_info->key_head = num;
+	      if (ic_info->key_head > ic_info->used)
+		ic_info->key_head = ic_info->used;
+	    }
+	  else if (MPLIST_MTEXT_P (args))
+	    {
+	      MText *mt = MPLIST_MTEXT (args);
+	      int i, len = mtext_nchars (mt);
+	      MSymbol key;
+
+	      ic_info->key_head--;
+	      for (i = 0; i < len; i++)
+		{
+		  key = one_char_symbol[MTEXT_DATA (mt)[i]];
+		  if (ic_info->key_head < ic_info->used)
+		    ic_info->keys[ic_info->key_head + i] = key;
+		  else
+		    MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
+		}
+	    }
 	  else
-	    ic_info->key_head = num;
-	  if (ic_info->key_head > ic_info->used)
-	    ic_info->key_head = ic_info->used;
+	    {
+	      MPlist *plist = MPLIST_PLIST (args), *pl;
+	      int i = 0;
+	      MSymbol key;
+
+	      ic_info->key_head--;
+
+	      MPLIST_DO (pl, plist)
+		{
+		  key = MPLIST_SYMBOL (pl);
+		  if (ic_info->key_head < ic_info->used)
+		    ic_info->keys[ic_info->key_head + i] = key;
+		  else
+		    MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
+		  i++;
+		}
+	    }
 	}
       else if (name == Mcall)
 	{
@@ -1420,7 +1472,10 @@ handle_key (MInputContext *ic)
 	{
 	  MDEBUG_PRINT (" map-actions:");
 	  if (take_action_list (ic, map->map_actions) < 0)
-	    return -1;
+	    {
+	      MDEBUG_PRINT ("\n");
+	      return -1;
+	    }
 	}
       else if (map->submaps)
 	{
@@ -1443,14 +1498,16 @@ handle_key (MInputContext *ic)
 	    {
 	      MDEBUG_PRINT (" branch-actions:");
 	      if (take_action_list (ic, map->branch_actions) < 0)
-		return -1;
+		{
+		  MDEBUG_PRINT ("\n");
+		  return -1;
+		}
 	    }
 	  /* If MAP is still not the root map, shift to the current
 	     state.  */
 	  if (ic_info->map != ic_info->state->map)
 	    shift_state (ic, ic_info->state->name);
 	}
-      MDEBUG_PRINT ("\n");
     }
   else
     {
@@ -1499,8 +1556,8 @@ handle_key (MInputContext *ic)
 	    shift_state (ic,
 			 ((MIMState *) MPLIST_VAL (im_info->states))->name);
 	}
-      MDEBUG_PRINT ("\n");
     }
+  MDEBUG_PRINT ("\n");
   return 0;
 }
 
@@ -1526,8 +1583,6 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   ic->candidate_list = NULL;
   ic->candidate_show = 0;
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 1;
-  if (ic_info->map && ic_info->map->map_actions)
-    take_action_list (ic, ic_info->map->map_actions);
 }
 
 static int
@@ -2496,6 +2551,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
   MInputMethod *im;
   MInputDriver *driver;
 
+  MDEBUG_PRINT2 ("[IM] opening (%s %s) ... ",
+	 msymbol_name (language), msymbol_name (name));
   if (language)
     driver = minput_driver;
   else
@@ -2512,9 +2569,11 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
   im->driver = *driver;
   if ((*im->driver.open_im) (im) < 0)
     {
+      MDEBUG_PRINT (" failed\n");
       free (im);
       return NULL;
     }
+  MDEBUG_PRINT (" ok\n");
   return im;
 }
 
@@ -2535,8 +2594,11 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 void
 minput_close_im (MInputMethod *im)
 {
+  MDEBUG_PRINT2 ("[IM] closing (%s %s) ... ",
+		 msymbol_name (im->name), msymbol_name (im->language));
   (*im->driver.close_im) (im);
   free (im);
+  MDEBUG_PRINT (" done\n");
 }
 
 /*=*/
@@ -2573,6 +2635,8 @@ minput_create_ic (MInputMethod *im, void *arg)
 {
   MInputContext *ic;
 
+  MDEBUG_PRINT2 ("[IM] creating context (%s %s) ... ",
+		 msymbol_name (im->name), msymbol_name (im->language));
   MSTRUCT_CALLOC (ic, MERROR_IM);
   ic->im = im;
   ic->arg = arg;
@@ -2584,6 +2648,7 @@ minput_create_ic (MInputMethod *im, void *arg)
   ic->plist = mplist ();
   if ((*im->driver.create_ic) (ic) < 0)
     {
+      MDEBUG_PRINT (" failed\n");
       M17N_OBJECT_UNREF (ic->preedit);
       M17N_OBJECT_UNREF (ic->produced);
       M17N_OBJECT_UNREF (ic->plist);
@@ -2598,6 +2663,7 @@ minput_create_ic (MInputMethod *im, void *arg)
       minput__callback (ic, Minput_status_draw);
     }
 
+  MDEBUG_PRINT (" ok\n");
   return ic;
 }
 
@@ -2624,6 +2690,8 @@ minput_create_ic (MInputMethod *im, void *arg)
 void
 minput_destroy_ic (MInputContext *ic)
 {
+  MDEBUG_PRINT2 ("[IM] destroying context (%s %s) ... ",
+		 msymbol_name (ic->im->name), msymbol_name (ic->im->language));
   if (ic->im->driver.callback_list)
     {
       minput__callback (ic, Minput_preedit_done);
@@ -2634,6 +2702,7 @@ minput_destroy_ic (MInputContext *ic)
   M17N_OBJECT_UNREF (ic->preedit);
   M17N_OBJECT_UNREF (ic->produced);
   M17N_OBJECT_UNREF (ic->plist);
+  MDEBUG_PRINT (" done\n");
   free (ic);
 }
 
