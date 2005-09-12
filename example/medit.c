@@ -391,12 +391,17 @@ redraw (int y0, int y1, int clear, int scroll_bar)
   info.metrics.height = line->y1 - y;
   info.metrics.y = - line->ascent;
   info.line_to = line->to;
-  while (from < nchars && y + info.metrics.height <= y0)
+  while (y + info.metrics.height <= y0)
     {
       y += info.metrics.height;
       from = info.line_to;
+      if (from >= nchars)
+	break;
       GLYPH_INFO (from, from, info);
     }
+  if (y + info.metrics.height <= y0)
+    return;
+
   y0 = y - info.metrics.y;
   to = from;
   while (to < nchars && y < y1)
