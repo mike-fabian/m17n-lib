@@ -1,3 +1,16 @@
+2005-09-12  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (parse_action_list): Handle the case that the arg is a
+	key sequence (MText or MPlist).
+	(take_action_list): Likewise.
+	(shift_state): Shorter debug message.
+	(handle_key): Terminate a debug message by "\n".
+	(reset_ic): Don't take initial actions here.
+	(minput_open_im): Print a debug message.
+	(minput_close_im): Likewise.
+	(minput_create_ic): Likewise.
+	(minput_destroy_ic): Likewise.
+
 2005-09-09  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* mtext.c:
