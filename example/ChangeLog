@@ -1,3 +1,8 @@
+2005-09-12  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (redraw): Don't redraw an area where not text is
+	displayed.
+
 2005-09-05  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c: Check HAVE_X11_XAW_COMMAND_H before including X11/*.h.
