@@ -1532,7 +1532,7 @@ mtext__uppercase (MText *mt, int pos, int end)
 	       
       else
 	{
-	  if (pl = (MPlist *) mchartable_lookup (case_mapping, c))
+	  if ((pl = (MPlist *) mchartable_lookup (case_mapping, c)) != NULL)
 	    {
 	      MText *upper;
 	      int ulen;
@@ -3502,8 +3502,9 @@ mtext_titlecase (MText *mt)
 
   /* Go through following combining characters. */
   for (to = from + 1;
-       to < len &&
-	 mchartable_lookup (combining_class, mtext_ref_char (mt, to)) > 0;
+       (to < len
+	&& ((int) mchartable_lookup (combining_class, mtext_ref_char (mt, to))
+	    > 0));
        to++);
 
   /* Titlecase the region and prepare for next lowercase operation.
