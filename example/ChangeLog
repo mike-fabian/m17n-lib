@@ -1,3 +1,11 @@
+2005-09-16  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (ButtonProc): Don't reset ic, instead send
+	Minput_focus_move event to the current input method.
+	(FocusInProc, FocusOutProc): New functions.
+	(actions): Add elements for FocusIn and FocusOut.
+	(main): Add  elements for FocusIn and FocusOut to trans2.
+
 2005-09-12  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (redraw): Don't redraw an area where not text is
