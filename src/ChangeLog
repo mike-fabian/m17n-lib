@@ -1,3 +1,15 @@
+2005-09-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n.h (Minput_focus_move, Minput_focus_in, Minput_focus_out):
+	Extern them.
+
+	* input.c (shift_state): Fix the condition of taking init actions.
+	(take_action_list): Fix handling of pushback action.
+	(handle_key): Don't change key while checking its alias.
+	(minput__init): Initialize new variables.
+	(Minput_focus_move, Minput_focus_in, Minput_focus_out): New
+	variables.
+
 2005-09-12  Kenichi Handa  <handa@m17n.org>
 
 	* mtext.c (mtext__uppercase): Add proper open/close parens.
