@@ -1252,12 +1252,12 @@ ButtonProc (Widget w, XEvent *event, String *str, Cardinal *num)
       redraw (sel_start.y0, sel_end.y1, 1, 0);
     }
   hide_cursor ();
-  if (current_input_context)
+  if (current_input_context
+      && minput_filter (current_input_context, Minput_focus_move, NULL) == 0)
     {
       MText *produced = mtext ();
 
-      minput_reset_ic (current_input_context);
-      minput_lookup (current_input_context, Mnil, NULL, produced);
+          minput_lookup (current_input_context, Mnil, NULL, produced);
       if (mtext_len (produced) > 0)
 	{
 	  insert_chars (produced);
@@ -1407,6 +1407,42 @@ ButtonMoveProc (Widget w, XEvent *event, String *str, Cardinal *num)
       redraw (sel_start.y0, sel_end.y1, 0, 0);
     }
   update_cursor (pos, 1);
+}
+
+void
+FocusInProc (Widget w, XEvent *event, String *str, Cardinal *num)
+{
+  if (current_input_context
+      && minput_filter (current_input_context, Minput_focus_out, NULL) == 0)
+    {
+      MText *produced = mtext ();
+
+      minput_lookup (current_input_context, Mnil, NULL, produced);
+      if (mtext_len (produced) > 0)
+	{
+	  hide_cursor ();
+	  insert_chars (produced);
+	}
+      m17n_object_unref (produced);
+    }
+}
+
+void
+FocusOutProc (Widget w, XEvent *event, String *str, Cardinal *num)
+{
+  if (current_input_context
+      && minput_filter (current_input_context, Minput_focus_out, NULL) == 0)
+    {
+      MText *produced = mtext ();
+
+      minput_lookup (current_input_context, Mnil, NULL, produced);
+      if (mtext_len (produced) > 0)
+	{
+	  hide_cursor ();
+	  insert_chars (produced);
+	}
+      m17n_object_unref (produced);
+    }
 }
 
 void
@@ -2457,7 +2493,9 @@ XtActionsRec actions[] = {
   {"ButtonRelease", ButtonReleaseProc},
   {"ButtonMotion", ButtonMoveProc},
   {"Button2Press", Button2Proc},
-  {"MenuHelp", MenuHelpProc}
+  {"MenuHelp", MenuHelpProc},
+  {"FocusIn", FocusInProc},
+  {"FocusOut", FocusOutProc}
 };
 
 
@@ -2507,7 +2545,9 @@ main (int argc, char **argv)
 		  <Btn2Down>: Button2Press()";
   /* Translation table for the top form widget.  */
   String trans2 = "<Key>: Key()\n\
-		   <KeyUp>: Key()";
+		   <KeyUp>: Key()\n\
+		   <FocusIn>: FocusIn()\n\
+		   <FocusOut>: FocusOut()";
   String pop_face_trans
     = "<EnterWindow>: MenuHelp(Pop face property) highlight()\n\
        <LeaveWindow>: MenuHelp() reset()\n\
