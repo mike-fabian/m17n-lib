@@ -1105,6 +1105,11 @@ extern MSymbol Minput_set_spot;
 extern MSymbol Minput_toggle;
 extern MSymbol Minput_reset;
 
+/** Symbols for special input key event.  */
+extern MSymbol Minput_focus_move;
+extern MSymbol Minput_focus_in;
+extern MSymbol Minput_focus_out;
+
 /***en
     @brief Structure of input method.
 
