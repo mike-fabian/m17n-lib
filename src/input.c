@@ -835,7 +835,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (! state)
     state = (MIMState *) MPLIST_VAL (im_info->states);
 
-  MDEBUG_PRINT1 ("\n[IM] (shift %s)", MSYMBOL_NAME (state->name));
+  MDEBUG_PRINT1 ("\n  [IM] (shift %s)", MSYMBOL_NAME (state->name));
 
   /* Enter the new state.  */
   ic_info->state = state;
@@ -879,8 +879,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (! ic->status)
     ic->status = im_info->title;
   ic->status_changed = 1;
-  if (ic_info->key_head == ic_info->used
-      && ic_info->map == ic_info->state->map
+  if (ic_info->map == ic_info->state->map
       && ic_info->map->map_actions)
     {
       MDEBUG_PRINT (" init-actions:");
@@ -1250,7 +1249,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      for (i = 0; i < len; i++)
 		{
 		  key = one_char_symbol[MTEXT_DATA (mt)[i]];
-		  if (ic_info->key_head < ic_info->used)
+		  if (ic_info->key_head + i < ic_info->used)
 		    ic_info->keys[ic_info->key_head + i] = key;
 		  else
 		    MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
@@ -1451,14 +1450,16 @@ handle_key (MInputContext *ic)
   MSymbol key = ic_info->keys[ic_info->key_head];
   int i;
 
-  MDEBUG_PRINT2 ("[IM] handle `%s' in state %s", 
+  MDEBUG_PRINT2 ("  [IM] handle `%s' in state %s", 
 		 MSYMBOL_NAME (key), MSYMBOL_NAME (ic_info->state->name));
 
   if (map->submaps)
     {
+      MSymbol alias;
+
       submap = mplist_get (map->submaps, key);
-      if (! submap && (key = msymbol_get (key, M_key_alias)) != Mnil)
-	submap = mplist_get (map->submaps, key);
+      if (! submap && (alias = msymbol_get (key, M_key_alias)) != Mnil)
+	submap = mplist_get (map->submaps, alias);
     }
 
   if (submap)
@@ -2253,6 +2254,9 @@ minput__init ()
   Minput_candidates_done = msymbol ("input-candidates-done");
   Minput_candidates_draw = msymbol ("input-candidates-draw");
   Minput_set_spot = msymbol ("input-set-spot");
+  Minput_focus_move = msymbol ("input-focus-move");
+  Minput_focus_in = msymbol ("input-focus-in");
+  Minput_focus_out = msymbol ("input-focus-out");
   Minput_toggle = msymbol ("input-toggle");
   Minput_reset = msymbol ("input-reset");
 
@@ -2428,9 +2432,13 @@ MSymbol Minput_candidates_start;
 MSymbol Minput_candidates_done;
 MSymbol Minput_candidates_draw;
 MSymbol Minput_set_spot;
+MSymbol Minput_focus_move;
+MSymbol Minput_focus_in;
+MSymbol Minput_focus_out;
 MSymbol Minput_toggle;
 MSymbol Minput_reset;
 /*** @} */
+
 /*=*/
 
 /***en
@@ -2551,7 +2559,7 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
   MInputMethod *im;
   MInputDriver *driver;
 
-  MDEBUG_PRINT2 ("[IM] opening (%s %s) ... ",
+  MDEBUG_PRINT2 ("  [IM] opening (%s %s) ... ",
 	 msymbol_name (language), msymbol_name (name));
   if (language)
     driver = minput_driver;
@@ -2594,7 +2602,7 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 void
 minput_close_im (MInputMethod *im)
 {
-  MDEBUG_PRINT2 ("[IM] closing (%s %s) ... ",
+  MDEBUG_PRINT2 ("  [IM] closing (%s %s) ... ",
 		 msymbol_name (im->name), msymbol_name (im->language));
   (*im->driver.close_im) (im);
   free (im);
@@ -2635,7 +2643,7 @@ minput_create_ic (MInputMethod *im, void *arg)
 {
   MInputContext *ic;
 
-  MDEBUG_PRINT2 ("[IM] creating context (%s %s) ... ",
+  MDEBUG_PRINT2 ("  [IM] creating context (%s %s) ... ",
 		 msymbol_name (im->name), msymbol_name (im->language));
   MSTRUCT_CALLOC (ic, MERROR_IM);
   ic->im = im;
@@ -2690,7 +2698,7 @@ minput_create_ic (MInputMethod *im, void *arg)
 void
 minput_destroy_ic (MInputContext *ic)
 {
-  MDEBUG_PRINT2 ("[IM] destroying context (%s %s) ... ",
+  MDEBUG_PRINT2 ("  [IM] destroying context (%s %s) ... ",
 		 msymbol_name (ic->im->name), msymbol_name (ic->im->language));
   if (ic->im->driver.callback_list)
     {
