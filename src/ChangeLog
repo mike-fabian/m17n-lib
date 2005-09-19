@@ -1,4 +1,55 @@
+2005-09-19  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (xlfd_unparse_name): New arg full_xlfd.
+	(mfont__encode_char): Use shortcut only for X core fonts.
+	(mfont_unparse_name): Call xlfd_unparse_name with full_xlfd arg 1.
+	(mfont_put_prop): Handle `language' property.
+	(mdebug_dump_font): Call xlfd_unparse_name with full_xlfd arg 0.
+	Print file can capability info too.
+
+	* m17n-core.c (mdebug__output): New variable.
+	(SET_DEBUG_FLAG): Unset mask if env_value is '0'.
+	(m17n_init_core): Handle MDEBUG_ALL and MDEBUG_OUTPUT_FILE.
+	(m17n_fini_core): Close mdebug__output if it's not stderr.
+
+	* m17n-X.c (MDisplayInfo): New member MULE_BASELINE_OFFSET.
+	(xfont_open): Handle baseline_offset.
+	(xfont_find_metric): Likewise.
+	(xfont_render): Likewise.
+	(xft_open): Likewise.
+	(xft_render): Likewise.
+
+	* internal.h (MDebugMaskBit): Add MDEBUG_ALL.
+	(mdebug__output): Extern it.
+	(MDEBUG_PRINT, MDEBUG_PRINT1, MDEBUG_PRINT2, MDEBUG_PRINT3)
+	(MDEBUG_PRINT4, MDEBUG_PRINT5): Print to medebug__output.
+	(MDEBUG_DUMP): New macro.
+	(MDEBUG_PRINT_TIME): Print to medebug__output.
+
+	* font.h (MRealizedFont): New member baseline_offset.
+
+	* font-ft.c (ft_get_charmaps): Check if the font support iso8859-1
+	characters.
+	(fc_weight_table): Add FC_WEIGHT_REGULAR.
+	(ft_list_family): Check alias.
+	(ft_list_language): If language is "en", don't try to the second
+	step.
+	(ft_default_list): New variable.
+	(ft_list_default): New function.
+	(ft_select): If family is not specified, try only the default
+	fonts.  Treat the weights normal and medium same.
+	(ft_open): Fix debug message.  If registry is not specified, try
+	unicode-bmp.  Handle _MULE_BASELINE_OFFSET property of BDF fonts.
+	(ft_find_metric): Likewise.
+	(ft_render): Likewise.
+	(ft_list): Fix debug message.  Accept the registring iso8859-1.
+	If family is not specified, try only the default fonts.
+
+	* face.c (mface__realize): Fix logic of opening a font.
+
 2005-09-16  Kenichi Handa  <handa@m17n.org>
+
+	* face.c (mface__realize): 
 
 	* m17n.h (Minput_focus_move, Minput_focus_in, Minput_focus_out):
 	Extern them.
