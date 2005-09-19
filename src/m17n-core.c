@@ -532,12 +532,11 @@ m17n_init_core (void)
   {
     char *env_value = getenv ("MDEBUG_OUTPUT_FILE");
 
+    mdebug__output = NULL;
     if (env_value)
-      {
-	mdebug__output = fopen (env_value, "a");
-	if (! mdebug__output)
-	  mdebug__output = stderr;
-      }
+      mdebug__output = fopen (env_value, "a");
+    if (! mdebug__output)
+      mdebug__output = stderr;
   }
 
   MDEBUG_PUSH_TIME ();
