@@ -104,6 +104,8 @@ typedef struct
   int alt_mask;
   int super_mask;
   int hyper_mask;
+
+  Atom MULE_BASELINE_OFFSET;
 } MDisplayInfo;
 
 /* Anchor of the chain of MDisplayInfo objects.  */
@@ -661,8 +663,16 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->font = font;
   rfont->driver = &xfont_driver;
   rfont->info = x_rfont;
-  rfont->ascent = xfont->ascent;
-  rfont->descent = xfont->descent;
+  {
+    MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
+    unsigned long value;
+
+    rfont->baseline_offset
+      = (XGetFontProperty (xfont, disp_info->MULE_BASELINE_OFFSET, &value)
+	 ? (int) value : 0);
+  }
+  rfont->ascent = xfont->ascent + rfont->baseline_offset;
+  rfont->descent = xfont->descent - rfont->baseline_offset;
   rfont->max_advance = xfont->max_bounds.width;
   rfont->fontp = xfont;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
@@ -741,6 +751,8 @@ xfont_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	      g->descent = xfont->descent;
 	    }
 	}
+      g->ascent += rfont->baseline_offset;
+      g->descent -= rfont->baseline_offset;
     }
 }
 
@@ -829,10 +841,12 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
   GC gc = ((GCInfo *) rface->info)->gc[reverse ? GC_INVERSE : GC_NORMAL];
   MGlyph *g;
   int i;
+  int baseline_offset;
 
   if (from == to)
     return;
 
+  baseline_offset = rface->rfont->baseline_offset;
   if (region)
     gc = set_region (rface->frame, gc, region);
   XSetFont (display, gc, ((XFontStruct *) rface->rfont->fontp)->fid);
@@ -875,7 +889,8 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
       else if (g->xoff != 0 || g->yoff != 0 || g->right_padding)
 	{
 	  XDrawString16 (display, (Window) win, gc,
-			 x + g->xoff, y + g->yoff, code + (g - from), 1);
+			 x + g->xoff, y + g->yoff - baseline_offset,
+			 code + (g - from), 1);
 	  x += g->width;
 	  g++;
 	}
@@ -888,8 +903,8 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 	       g < to && g->type == GLYPH_CHAR && g->xoff == 0 && g->yoff == 0;
 	       i++, g++)
 	      x += g->width;
-	  XDrawString16 (display, (Window) win, gc, orig_x, y,
-			 code + code_idx, i);
+	  XDrawString16 (display, (Window) win, gc,
+			 orig_x, y - baseline_offset, code + code_idx, i);
 	}
     }
 }
@@ -1043,6 +1058,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   FcBool anti_alias = FRAME_DEVICE (frame)->depth > 1 ? FcTrue : FcFalse;
   double size = font->size ? font->size : spec->size;
   XftFont *xft_font;
+  int ascent, descent, max_advance, baseline_offset;
 
   if (rfont)
     {
@@ -1064,6 +1080,10 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont = (mfont__ft_driver.open) (frame, font, spec, rfont);
   if (! rfont)
     return NULL;
+  ascent = rfont->ascent;
+  descent = rfont->descent;
+  max_advance = rfont->max_advance;
+  baseline_offset = rfont->baseline_offset;
   spec = &rfont->spec;
   ft_face = rfont->fontp;
   xft_font = xft_open_font (display, font->file, size / 10, anti_alias);
@@ -1084,9 +1104,10 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->font = font;
   rfont->driver = &xft_driver;
   rfont->info = rfont_xft;
-  rfont->ascent = ft_face->size->metrics.ascender >> 6;
-  rfont->descent = - ft_face->size->metrics.descender >> 6;
-  rfont->max_advance = ft_face->size->metrics.max_advance >> 6;
+  rfont->ascent = ascent;
+  rfont->descent = descent;
+  rfont->max_advance = max_advance;
+  rfont->baseline_offset = baseline_offset;
   rfont->fontp = xft_font;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
@@ -1222,6 +1243,7 @@ xft_render (MDrawWindow win, int x, int y,
   XftDrawChange (xft_draw, (Drawable) win);
   XftDrawSetClip (xft_draw, (Region) region);
       
+  y -= rfont->baseline_offset;
   glyphs = alloca (sizeof (FT_UInt) * (to - from));
   for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
     {
@@ -2106,6 +2128,8 @@ device_open (MFrame *frame, MPlist *param)
       disp_info->auto_display = auto_display;
       disp_info->font_list = mplist ();
       find_modifier_bits (disp_info);
+      disp_info->MULE_BASELINE_OFFSET
+	= XInternAtom (display, "_MULE_BASELINE_OFFSET", False);
       mplist_add (display_info_list, Mt, disp_info);
     }  
 
