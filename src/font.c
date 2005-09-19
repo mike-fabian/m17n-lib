@@ -821,7 +821,7 @@ xlfd_parse_name (const char *name, MFont *font)
 }
 
 static char *
-xlfd_unparse_name (MFont *font)
+xlfd_unparse_name (MFont *font, int full_xlfd)
 {
   MSymbol prop[7];
   char name[513];
@@ -876,14 +876,36 @@ xlfd_unparse_name (MFont *font)
   else
     size = - size;
 
-  if (font->size >= 0)
-    sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-%c-*-%s",
-	     str[0], str[1], str[2], str[3], str[4], str[5],
-	     size, resy, resy, spacing, str[6]);
+  if (full_xlfd)
+    {
+      if (font->size >= 0)
+	sprintf (name, "-%s-%s-%s-%s-%s-%s-%d-*-%d-%d-%c-*-%s",
+		 str[0], str[1], str[2], str[3], str[4], str[5],
+		 size, resy, resy, spacing, str[6]);
+      else
+	sprintf (name, "-%s-%s-%s-%s-%s-%s-*-%d-%d-%d-%c-*-%s",
+		 str[0], str[1], str[2], str[3], str[4], str[5],
+		 size, resy, resy, spacing, str[6]);
+    }
   else
-    sprintf (name, "-%s-%s-%s-%s-%s-%s-*-%d-%d-%d-%c-*-%s",
-	     str[0], str[1], str[2], str[3], str[4], str[5],
-	     size, resy, resy, spacing, str[6]);
+    {
+      char *p = name;
+
+      p += sprintf (p, "-%s", str[0]);
+      for (i = 1; i < 6; i++)
+	if (p[-1] != '*' || str[i][0] != '*')
+	  p += sprintf (p, "-%s", str[i]);
+      if (p[-1] != '*' || font->size > 0)
+	{
+	  if (font->size > 0)
+	    p += sprintf (p, "-%d", size);
+	  else
+	    p += sprintf (p, "-*");
+	}
+      if (p[-1] != '*' || str[6][0] != '*')
+	sprintf (p, "-%s", str[6]);
+    }
+
   return strdup (name);
 }
 
@@ -1534,7 +1556,7 @@ mfont__encode_char (MFrame *frame, MFont *font, MFont *spec, int c)
   encoding = (font->encoding ? font->encoding : find_encoding (font));
   if (! encoding->encoding_charset)
     return MCHAR_INVALID_CODE;
-  if (encoding->repertory_charset)
+  if (font->source == MFONT_SOURCE_X && encoding->repertory_charset)
     return (ENCODE_CHAR (encoding->repertory_charset, c));
   code = ENCODE_CHAR (encoding->encoding_charset, c);
   if (code == MCHAR_INVALID_CODE)
@@ -2190,7 +2212,7 @@ mfont_unparse_name (MFont *font, MSymbol format)
   char *name;
 
   if (format == Mx)
-    name = xlfd_unparse_name (font);
+    name = xlfd_unparse_name (font, 1);
 #ifdef HAVE_FONTCONFIG
   else if (format == Mfontconfig)
     name = mfont__ft_unparse_name (font);
@@ -2368,6 +2390,19 @@ mfont_put_prop (MFont *font, MSymbol key, void *val)
     {
       unsigned resy = (unsigned) val;
       font->property[MFONT_RESY] = resy;
+    }
+  else if (key == Mlanguage)
+    {
+      char *langname = MSYMBOL_NAME ((MSymbol) val);
+      int len = MSYMBOL_NAMELEN ((MSymbol) val);
+      
+      if (len <= 3)
+	{
+	  char buf[10];
+
+	  sprintf (buf, ":lang=%s", langname);
+	  font->capability = msymbol (buf);
+	}
     }
   else if (key == Mfontfile)
     {
@@ -2889,12 +2924,26 @@ mdebug_dump_font (MFont *font)
 {
   char *name;
   
-  name = mfont_unparse_name (font, Mx);
+  name = xlfd_unparse_name (font, 0);
   if (name)
     {
       fprintf (stderr, "%s", name);
       free (name);
     }
+  if (font->file != Mnil)
+    {
+      char *file = MSYMBOL_NAME (font->file);
+      char *lastslash = file, *p;
+
+      for (p = file; *p; p++)
+	if (*p == '/')
+	  lastslash = p;
+      if (name)
+	fprintf (stderr, ",");
+      fprintf (stderr, "%s", lastslash + 1);
+    }
+  if (font->capability != Mnil)
+    fprintf (stderr, "%s", MSYMBOL_NAME (font->capability));
   return font;
 }
 
