@@ -537,10 +537,12 @@ enum MDebugMaskBit
     MDEBUG_FONT_FLT =	0x0200,
     MDEBUG_FONT_OTF =	0x0400,
     MDEBUG_INPUT = 	0x0800,
+    MDEBUG_ALL =	0xFFFF,
     MDEBUG_MAX
   };
 
 extern int mdebug__flag;
+extern FILE *mdebug__output;
 extern void mdebug__push_time ();
 extern void mdebug__pop_time ();
 extern void mdebug__print_time ();
@@ -548,39 +550,49 @@ extern void mdebug__print_time ();
 #define MDEBUG_PRINT(msg)		\
   do {					\
     if (mdebug__flag & mdebug_mask)	\
-      fprintf (stderr, (msg));		\
+      fprintf (mdebug__output, (msg));	\
   } while (0)
 
-#define MDEBUG_PRINT1(fmt, arg)		\
-  do {					\
-    if (mdebug__flag & mdebug_mask)	\
-      fprintf (stderr, (fmt), (arg));	\
-  } while (0)
-
-#define MDEBUG_PRINT2(fmt, arg1, arg2)		\
+#define MDEBUG_PRINT1(fmt, arg)			\
   do {						\
     if (mdebug__flag & mdebug_mask)		\
-      fprintf (stderr, (fmt), (arg1), (arg2));	\
+      fprintf (mdebug__output, (fmt), (arg));	\
   } while (0)
 
-#define MDEBUG_PRINT3(fmt, arg1, arg2, arg3)		\
+#define MDEBUG_PRINT2(fmt, arg1, arg2)			\
   do {							\
     if (mdebug__flag & mdebug_mask)			\
-      fprintf (stderr, (fmt), (arg1), (arg2), (arg3));	\
+      fprintf (mdebug__output, (fmt), (arg1), (arg2));	\
   } while (0)
 
-#define MDEBUG_PRINT4(fmt, arg1, arg2, arg3, arg4)		\
+#define MDEBUG_PRINT3(fmt, arg1, arg2, arg3)			\
   do {								\
     if (mdebug__flag & mdebug_mask)				\
-      fprintf (stderr, (fmt), (arg1), (arg2), (arg3), (arg4));	\
+      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3));	\
   } while (0)
 
-#define MDEBUG_PRINT5(fmt, arg1, arg2, arg3, arg4, arg5)		\
+#define MDEBUG_PRINT4(fmt, arg1, arg2, arg3, arg4)			\
   do {									\
     if (mdebug__flag & mdebug_mask)					\
-      fprintf (stderr, (fmt), (arg1), (arg2), (arg3), (arg4), (arg5));	\
+      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4));	\
   } while (0)
 
+#define MDEBUG_PRINT5(fmt, arg1, arg2, arg3, arg4, arg5)		       \
+  do {									       \
+    if (mdebug__flag & mdebug_mask)					       \
+      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4), (arg5)); \
+  } while (0)
+
+
+#define MDEBUG_DUMP(prefix, postfix, call)		\
+  do {							\
+    if (mdebug__flag & mdebug_mask)			\
+      {							\
+	fprintf (mdebug__output, "%s", prefix);		\
+	call;						\
+	fprintf (mdebug__output, "%s", postfix);	\
+      }							\
+  } while (0)
 
 #define MDEBUG_PUSH_TIME()		\
   do {					\
@@ -596,15 +608,15 @@ extern void mdebug__print_time ();
   } while (0)
 
 
-#define MDEBUG_PRINT_TIME(tag, ARG_LIST)	\
-  do {						\
-    if (mdebug__flag & mdebug_mask)		\
-      {						\
-	fprintf (stderr, " [%s] ", tag);	\
-	mdebug__print_time ();			\
-	fprintf ARG_LIST;			\
-	fprintf (stderr, "\n");			\
-      }						\
+#define MDEBUG_PRINT_TIME(tag, ARG_LIST)		\
+  do {							\
+    if (mdebug__flag & mdebug_mask)			\
+      {							\
+	fprintf (mdebug__output, " [%s] ", tag);	\
+	mdebug__print_time ();				\
+	fprintf ARG_LIST;				\
+	fprintf (mdebug__output, "\n");			\
+      }							\
   } while (0)
 
 
