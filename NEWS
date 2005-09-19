@@ -10,6 +10,13 @@ See the end for copying conditions.
 ** New fucntions mtext_insert () and and mtext_replace () for
 modifying M-text.
 
+** New functions mtext_uppercase (), mtext_titlecase (),
+mtext_lowercase () implement "3.13 Default Case Operations" of The
+Unicode Standard 4.0.
+
+** New function mtext_line_break () implements the line breaking
+algorithm of The Unicode Standard 4.0 UAX#14.
+
 
 * Changes in the m17n library 1.2.0
 
