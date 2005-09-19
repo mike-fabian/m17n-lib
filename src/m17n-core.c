@@ -420,6 +420,7 @@ void *(*mdatabase__finder) (MSymbol tag1, MSymbol tag2,
 void *(*mdatabase__loader) (void *);
 
 int mdebug__flag;
+FILE *mdebug__output;
 
 void
 mdebug__push_time ()
@@ -453,8 +454,13 @@ mdebug__print_time ()
   do {						\
     char *env_value = getenv (env_name);	\
 						\
-    if (env_value && env_value[0] == '1')	\
-      mdebug__flag |= (mask);			\
+    if (env_value)				\
+      {						\
+	if (env_value[0] == '1')		\
+	  mdebug__flag |= (mask);		\
+	else if (env_value[0] == '0')		\
+	  mdebug__flag &= ~(mask);		\
+      }						\
   } while (0)
 
 
@@ -513,6 +519,7 @@ m17n_init_core (void)
   m17n_memory_full_handler = default_error_handler;
 
   mdebug__flag = 0;
+  SET_DEBUG_FLAG ("MDEBUG_ALL", MDEBUG_ALL);
   SET_DEBUG_FLAG ("MDEBUG_INIT", MDEBUG_INIT);
   SET_DEBUG_FLAG ("MDEBUG_FINI", MDEBUG_FINI);
   SET_DEBUG_FLAG ("MDEBUG_CHARSET", MDEBUG_CHARSET);
@@ -522,6 +529,16 @@ m17n_init_core (void)
   SET_DEBUG_FLAG ("MDEBUG_FONT_FLT", MDEBUG_FONT_FLT);
   SET_DEBUG_FLAG ("MDEBUG_FONT_OTF", MDEBUG_FONT_OTF);
   SET_DEBUG_FLAG ("MDEBUG_INPUT", MDEBUG_INPUT);
+  {
+    char *env_value = getenv ("MDEBUG_OUTPUT_FILE");
+
+    if (env_value)
+      {
+	mdebug__output = fopen (env_value, "a");
+	if (! mdebug__output)
+	  mdebug__output = stderr;
+      }
+  }
 
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
@@ -576,6 +593,8 @@ m17n_fini_core (void)
   if (mdebug__flag & MDEBUG_FINI)
     report_object_array ();
   msymbol__free_table ();
+  if (mdebug__output != stderr)
+    fclose (mdebug__output);
 }
 
 /*** @} */
