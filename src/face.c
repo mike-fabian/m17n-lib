@@ -692,14 +692,16 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
       mfont_put_prop (&spec, Mregistry, Miso8859_1);
       spec.source = MFONT_SOURCE_X;
       font = mfont__select (frame, &spec, 0);
-      if (! font)
+      if (font)
+	rfont = mfont__open (frame, font, &spec);
+      if (! rfont)
 	{
 	  mfont_put_prop (&spec, Mregistry, Municode_bmp);
 	  spec.source = MFONT_SOURCE_FT;
 	  font = mfont__select (frame, &spec, 0);
+	  if (font)
+	    rfont = mfont__open (frame, font, &spec);
 	}
-      if (font)
-	rfont = mfont__open (frame, font, &spec);
     }
   if (! rfont)
     rfont = mfont__lookup_fontset (rface->rfontset, NULL, &num,
