@@ -898,11 +898,11 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
       if (p[-1] != '*' || font->size > 0)
 	{
 	  if (font->size > 0)
-	    p += sprintf (p, "-%d", size);
+	    p += sprintf (p, "-%d-*", size);
 	  else
 	    p += sprintf (p, "-*");
 	}
-      if (p[-1] != '*' || str[6][0] != '*')
+      if (str[6][0] != '*')
 	sprintf (p, "-%s", str[6]);
     }
 
