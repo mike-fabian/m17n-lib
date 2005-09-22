@@ -724,6 +724,20 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	}
       else
 	rface->space_width = rfont->spec.size / 10;
+      if (rfont->average_width)
+	rface->average_width = rfont->average_width;
+      else
+	{
+	  work_gstring.glyphs[0].code
+	    = mfont__encode_char (frame, (MFont *) rfont, NULL, 'x');
+	  if (work_gstring.glyphs[0].code != MCHAR_INVALID_CODE)
+	    {
+	      mfont__get_metric (&work_gstring, 0, 1);
+	      rface->average_width = work_gstring.glyphs[0].width;
+	    }
+	  else
+	    rface->average_width = rface->space_width;
+	}
     }
   else
     {
@@ -857,6 +871,7 @@ mface__update_frame_face (MFrame *frame)
   frame->rface = NULL;
   frame->rface = mface__realize (frame, NULL, 0, 0, NULL);
   frame->space_width = frame->rface->space_width;
+  frame->average_width = frame->rface->average_width;
   frame->ascent = frame->rface->ascent;
   frame->descent = frame->rface->descent;
 }
