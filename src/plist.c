@@ -1153,6 +1153,34 @@ mplist_pop (MPlist *plist)
 
 /*=*/
 /***en
+    @brief Concatenate two plists.
+
+    The mplist_conc () function concatenate plist $TAIL at the end of
+    plist $PLIST.
+
+    @return If the operation was successful, this function return
+    $PLIST.  Otherwise it returns @c NULL.  */
+
+MPlist *
+mplist_conc (MPlist *plist, MPlist *tail)
+{
+  MPlist *pl;
+
+  MPLIST_DO (pl, plist);
+  MPLIST_KEY (pl) = MPLIST_KEY (tail);
+  MPLIST_VAL (pl) = MPLIST_VAL (tail);
+  MPLIST_NEXT (pl) = MPLIST_NEXT (tail);
+  if (! MPLIST_TAIL_P (tail))
+    {
+      tail = MPLIST_NEXT (tail);
+      M17N_OBJECT_REF (tail);
+    }
+  return plist;
+}
+
+
+/*=*/
+/***en
     @brief Find a property of a specific key in a property list.
 
     The mplist_find_by_key () function searches property list
