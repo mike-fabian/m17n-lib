@@ -40,6 +40,9 @@ typedef struct
   /** The current state.  */
   MIMState *state;
 
+  /** The previous state.  */
+  MIMState *prev_state;
+
   /** The current map.  */
   MIMMap *map;
 
