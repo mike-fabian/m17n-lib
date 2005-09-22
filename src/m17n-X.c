@@ -106,6 +106,7 @@ typedef struct
   int hyper_mask;
 
   Atom MULE_BASELINE_OFFSET;
+  Atom AVERAGE_WIDTH;
 } MDisplayInfo;
 
 /* Anchor of the chain of MDisplayInfo objects.  */
@@ -670,6 +671,9 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
     rfont->baseline_offset
       = (XGetFontProperty (xfont, disp_info->MULE_BASELINE_OFFSET, &value)
 	 ? (int) value : 0);
+    rfont->average_width
+      = (XGetFontProperty (xfont, disp_info->AVERAGE_WIDTH, &value)
+	 ? (int) value / 10 : 0);
   }
   rfont->ascent = xfont->ascent + rfont->baseline_offset;
   rfont->descent = xfont->descent - rfont->baseline_offset;
@@ -1058,7 +1062,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   FcBool anti_alias = FRAME_DEVICE (frame)->depth > 1 ? FcTrue : FcFalse;
   double size = font->size ? font->size : spec->size;
   XftFont *xft_font;
-  int ascent, descent, max_advance, baseline_offset;
+  int ascent, descent, max_advance, average_width, baseline_offset;
 
   if (rfont)
     {
@@ -1083,6 +1087,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   ascent = rfont->ascent;
   descent = rfont->descent;
   max_advance = rfont->max_advance;
+  average_width = rfont->average_width;
   baseline_offset = rfont->baseline_offset;
   spec = &rfont->spec;
   ft_face = rfont->fontp;
@@ -1107,6 +1112,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->ascent = ascent;
   rfont->descent = descent;
   rfont->max_advance = max_advance;
+  rfont->average_width = average_width;
   rfont->baseline_offset = baseline_offset;
   rfont->fontp = xft_font;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
@@ -2130,6 +2136,8 @@ device_open (MFrame *frame, MPlist *param)
       find_modifier_bits (disp_info);
       disp_info->MULE_BASELINE_OFFSET
 	= XInternAtom (display, "_MULE_BASELINE_OFFSET", False);
+      disp_info->AVERAGE_WIDTH
+	= XInternAtom (display, "AVERAGE_WIDTH", False);
       mplist_add (display_info_list, Mt, disp_info);
     }  
 
