@@ -108,6 +108,7 @@ struct MRealizedFace
 
   int ascent, descent;
   int space_width;
+  int average_width;
 
   /** Pointer to a window system dependent object.  */
   void *info;
