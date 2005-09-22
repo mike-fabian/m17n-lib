@@ -1366,7 +1366,10 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
       }
   }
 #endif
-
+  if (FT_IS_SCALABLE (ft_face))
+    rfont->average_width = 0;
+  else
+    rfont->average_width = ft_face->available_sizes->width;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
   MDEBUG_PRINT ("  ok\n");
