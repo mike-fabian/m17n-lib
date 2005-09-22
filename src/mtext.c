@@ -3606,7 +3606,10 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
       for (i = 0; i < mt->nchars; i++)
 	{
 	  int c = mtext_ref_char (mt, i);
-	  if (c >= ' ' && c < 127)
+
+	  if (c == '"' || c == '\\')
+	    fprintf (stderr, "\\%c", c);
+	  else if (c >= ' ' && c < 127)
 	    fprintf (stderr, "%c", c);
 	  else
 	    fprintf (stderr, "\\x%02X", c);
@@ -3626,7 +3629,9 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 	  int len;
 	  int c = STRING_CHAR_AND_BYTES (p, len);
 
-	  if (c >= ' ' && c < 127 && c != '\\' && c != '\"')
+	  if (c == '"' || c == '\\')
+	    fprintf (stderr, "\\%c", c);
+	  else if (c >= ' ' && c < 127)
 	    fputc (c, stderr);
 	  else
 	    fprintf (stderr, "\\x%X", c);
