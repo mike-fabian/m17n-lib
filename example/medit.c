@@ -666,53 +666,101 @@ static void MenuHelpProc (Widget, XEvent *, String *, Cardinal *);
 void
 select_input_method (idx)
 {
+  int previous_input_method = current_input_method;
+
   if (idx == current_input_method)
     return;
-  if (current_input_context)
+  if (current_input_method >= 0)
     {
       minput_destroy_ic (current_input_context);
       current_input_context = NULL;
       current_input_method = -1;
     }
-  if (idx >= 0)
+
+  if (idx >= 0
+      && input_method_table[idx].available >= 0)
     {
       InputMethodInfo *im = input_method_table + idx;
 
-      if (im->language == Mnil)
+      if (im->available == 0)
 	{
-	  MInputXIMArgIC arg_xic;
-	  Window win = XtWindow (TextWidget);
+	  if (im->language)
+	    im->im = minput_open_im (im->language, im->name, NULL);
+	  else
+	    {
+	      MInputXIMArgIM arg_xim;
 
-	  arg_xic.input_style = 0;
-	  arg_xic.client_win = arg_xic.focus_win = win;
-	  arg_xic.preedit_attrs =  arg_xic.status_attrs = NULL;
-	  current_input_context = minput_create_ic (im->im, &arg_xic);
+	      arg_xim.display = display;
+	      arg_xim.db = NULL;  
+	      arg_xim.res_name = arg_xim.res_class = NULL;
+	      arg_xim.locale = NULL;
+	      arg_xim.modifier_list = NULL;
+	      im->im = minput_open_im (Mnil, im->name, &arg_xim);
+	    }
+	  im->available = im->im ? 1 : -1;
 	}
-      else
+      if (im->im)
 	{
-	  MInputGUIArgIC arg_ic;
+	  if (im->language == Mnil)
+	    {
+	      MInputXIMArgIC arg_xic;
+	      Window win = XtWindow (TextWidget);
 
-	  arg_ic.frame = frame;
-	  arg_ic.client = (MDrawWindow) XtWindow (ShellWidget);
-	  arg_ic.focus = (MDrawWindow) XtWindow (TextWidget);
-	  current_input_context = minput_create_ic (im->im, &arg_ic);
-	}
+	      arg_xic.input_style = 0;
+	      arg_xic.client_win = arg_xic.focus_win = win;
+	      arg_xic.preedit_attrs =  arg_xic.status_attrs = NULL;
+	      current_input_context = minput_create_ic (im->im, &arg_xic);
+	    }
+	  else
+	    {
+	      MInputGUIArgIC arg_ic;
 
-      if (current_input_context)
-	{
-	  set_input_method_spot ();
-	  current_input_method = idx;
+	      arg_ic.frame = frame;
+	      arg_ic.client = (MDrawWindow) XtWindow (ShellWidget);
+	      arg_ic.focus = (MDrawWindow) XtWindow (TextWidget);
+	      current_input_context = minput_create_ic (im->im, &arg_ic);
+	    }
+
+	  if (current_input_context)
+	    {
+	      current_input_method = idx;
+	      set_input_method_spot ();
+	    }
+	  else
+	    {
+	      minput_close_im (im->im);
+	      im->im = NULL;
+	      im->available = -1;
+	      current_input_method = -1;
+	    }
 	}
     }
+  if (! auto_input_method)
+    {
+      XtSetArg (arg[0], XtNleftBitmap, None);
+      if (previous_input_method >= 0)
+	XtSetValues (InputMethodMenus[previous_input_method + 2], arg, 1);
+      else
+	XtSetValues (InputMethodMenus[0], arg, 1);
+      XtSetArg (arg[0], XtNleftBitmap, CheckPixmap);
+      if (current_input_method >= 0)
+	XtSetValues (InputMethodMenus[current_input_method + 2], arg, 1);
+      else
+	XtSetValues (InputMethodMenus[0], arg, 1);
+    }
+
   if (current_input_method >= 0)
     {
       char *label;
+
       XtSetArg (arg[0], XtNlabel, &label);
       XtGetValues (InputMethodMenus[current_input_method + 2], arg, 1);
       XtSetArg (arg[0], XtNlabel, label);
     }
   else
-    XtSetArg (arg[0], XtNlabel, "");
+    {
+      XtSetArg (arg[0], XtNlabel, "");
+    }
   XtSetValues (CurIMLang, arg, 1);
 }
 
@@ -831,24 +879,11 @@ show_cursor (XtPointer client_data)
 	      int i;
 
 	      for (i = 0; i < num_input_methods; i++)
-		if (input_method_table[i].language == sym)
+		if (input_method_table[i].language == sym
+		    && input_method_table[i].available >= 0)
 		  break;
-	      if (i < num_input_methods
-		  && input_method_table[i].available >= 0)
-		{
-		  if (! input_method_table[i].im)
-		    {
-		      input_method_table[i].im = 
-			minput_open_im (input_method_table[i].language,
-					input_method_table[i].name, NULL);
-		      if (! input_method_table[i].im)
-			input_method_table[i].available = -1;
-		    }
-		  if (input_method_table[i].im)
-		    select_input_method (i);
-		  else
-		    select_input_method (-1);
-		}
+	      if (i < num_input_methods)
+		select_input_method (i);
 	      else
 		select_input_method (-1);
 	    }
@@ -1196,18 +1231,12 @@ ExposeProc (Widget w, XEvent *event, String *str, Cardinal *num)
       update_cursor (0, 1);
       redraw (0, win_height, 0, 1);
       if (current_input_method >= 0)
-      {
-	int idx = current_input_method;
+	{
+	  int idx = current_input_method;
 
-	current_input_method = -1;
-	input_method_table[idx].im = 
-	  minput_open_im (input_method_table[idx].language,
-			    input_method_table[idx].name, NULL);
-	if (input_method_table[idx].im)
+	  current_input_method = -1;
 	  select_input_method (idx);
-	else
-	  input_method_table[idx].available = -1;
-      }
+	}
       show_cursor (NULL);
     }
   else
@@ -1413,7 +1442,7 @@ void
 FocusInProc (Widget w, XEvent *event, String *str, Cardinal *num)
 {
   if (current_input_context
-      && minput_filter (current_input_context, Minput_focus_out, NULL) == 0)
+      && minput_filter (current_input_context, Minput_focus_in, NULL) == 0)
     {
       MText *produced = mtext ();
 
@@ -1948,42 +1977,33 @@ InputMethodProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
   int idx = (int) client_data;
 
-  if (idx == -2 ? current_input_method < 0
+  if (idx == -2 ? (! auto_input_method && current_input_method < 0)
       : idx == -1 ? auto_input_method
       : idx == current_input_method)
     return;
 
-  XtSetArg (arg[0], XtNleftBitmap, None);
   if (auto_input_method)
     {
+      select_input_method (-1);
+      XtSetArg (arg[0], XtNleftBitmap, None);
       XtSetValues (InputMethodMenus[1], arg, 1);
       auto_input_method = 0;
     }
-  else if (current_input_method < 0)
-    XtSetValues (InputMethodMenus[0], arg, 1);
-  else
-    XtSetValues (InputMethodMenus[current_input_method + 2], arg, 1);
 
   if (idx == -1)
     {
+      select_input_method (-1);
+      XtSetArg (arg[0], XtNleftBitmap, None);
+      XtSetValues (InputMethodMenus[0], arg, 1);
+      XtSetArg (arg[0], XtNleftBitmap, CheckPixmap);
+      XtSetValues (InputMethodMenus[1], arg, 1);
       auto_input_method = 1;
       hide_cursor ();
     }
-  else if (input_method_table[idx].available >= 0)
+  else
     {
-      if (! input_method_table[idx].im)
-	{
-	  input_method_table[idx].im = 
-	    minput_open_im (input_method_table[idx].language,
-			    input_method_table[idx].name, NULL);
-	  if (! input_method_table[idx].im)
-	    input_method_table[idx].available = -1;
-	}
-      if (input_method_table[idx].im)
-	select_input_method (idx);
+      select_input_method (idx);
     }
-  XtSetArg (arg[0], XtNleftBitmap, CheckPixmap);
-  XtSetValues (InputMethodMenus[idx + 2], arg, 1);
 }
 
 MPlist *default_face_list;
@@ -2174,68 +2194,37 @@ compare_input_method (const void *elt1, const void *elt2)
 void
 setup_input_methods (int with_xim, char *initial_input_method)
 {
-  MInputMethod *im = NULL;
   MPlist *plist = mdatabase_list (msymbol ("input-method"), Mnil, Mnil, Mnil);
   MPlist *pl;
-  int i = 0;
-  char *lang_name = NULL, *method_name = NULL;
-
-  if (initial_input_method)
-    {
-      char *p = strchr (initial_input_method, '-');
-      if (p)
-	lang_name = initial_input_method, method_name = p + 1, *p = '\0';
-      else
-	method_name = initial_input_method;
-    }
+  int i;
 
   num_input_methods = plist ? mplist_length (plist) : 0;
-
   if (with_xim)
-    {
-      MInputXIMArgIM arg_xim;
-
-      arg_xim.display = display;
-      arg_xim.db = NULL;  
-      arg_xim.res_name = arg_xim.res_class = NULL;
-      arg_xim.locale = NULL;
-      arg_xim.modifier_list = NULL;
-      im = minput_open_im (Mnil, msymbol ("xim"), &arg_xim);
-      if (im)
-	num_input_methods++;
-    }
+    num_input_methods++;
   input_method_table = calloc (num_input_methods, sizeof (InputMethodInfo));
-  if (im)
-    {
-      input_method_table[i].available = 1;
-      input_method_table[i].language = Mnil;
-      input_method_table[i].name = im->name;
-      input_method_table[i].im = im;
-      i++;
-    }
 
+  i = 0;
   if (plist)
     {
-      for (pl = plist; mplist_key (pl) != Mnil; pl = mplist_next (pl))
+      for (pl = plist; mplist_key (pl) != Mnil; pl = mplist_next (pl), i++)
 	{
 	  MDatabase *mdb = mplist_value (pl);
 	  MSymbol *tag = mdatabase_tag (mdb);
 
-	  if (tag[1] != Mnil)
-	    {
-	      input_method_table[i].language = tag[1];
-	      input_method_table[i].name = tag[2];
-	      i++;
-	    }
+	  input_method_table[i].language = tag[1];
+	  input_method_table[i].name = tag[2];
 	}
-
       m17n_object_unref (plist);
     }
-  num_input_methods = i;
+  if (with_xim)
+    {
+      input_method_table[i].language = Mnil;
+      input_method_table[i].name = msymbol ("xim");
+      i++;
+    }
+
   qsort (input_method_table, num_input_methods, sizeof input_method_table[0],
 	 compare_input_method);
-  current_input_context = NULL;
-
   mplist_put (minput_driver->callback_list, Minput_status_start,
 	      (void *) input_status);
   mplist_put (minput_driver->callback_list, Minput_status_draw,
@@ -2243,16 +2232,28 @@ setup_input_methods (int with_xim, char *initial_input_method)
   mplist_put (minput_driver->callback_list, Minput_status_done,
 	      (void *) input_status);
 
-  if (method_name)
-    for (i = 0; i < num_input_methods; i++)
-      if (strcmp (method_name, msymbol_name (input_method_table[i].name)) == 0
-	  && (lang_name
-	      ? strcmp (lang_name, msymbol_name (input_method_table[i].language)) == 0
-	      : input_method_table[i].language == Mt))
-	{
-	  current_input_method = i;
-	  break;
-	}
+  current_input_context = NULL;
+  current_input_method = -1;
+
+  if (initial_input_method)
+    {
+      char *lang_name, *method_name;
+      char *p = strchr (initial_input_method, '-');
+
+      if (p && p[1])
+	lang_name = initial_input_method, *p = '\0', method_name = p + 1;
+      else
+	lang_name = "t", method_name = initial_input_method;
+
+      for (i = 0; i < num_input_methods; i++)
+	if ((strcmp (method_name, msymbol_name (input_method_table[i].name))
+	     == 0)
+	    && (strcmp (lang_name, msymbol_name (input_method_table[i].language)) == 0))
+	  {
+	    current_input_method = i;
+	    break;
+	  }
+    }
 }
 
 
