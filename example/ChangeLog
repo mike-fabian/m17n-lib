@@ -1,3 +1,14 @@
+2005-09-22  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (select_input_method): Open an input method if
+	necessary.  Handle left bitmap of input method menus here.
+	(show_cursor): Don't open an input method here.
+	(ExposeProc): Likewise.
+	(FocusInProc): Fix typo (Minput_focus_out -> Minput_focus_in).
+	(InputMethodProc): Don't handle left bitmap of input method menus
+	here.
+	(setup_input_methods): Don't open an input method here.
+
 2005-09-16  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (ButtonProc): Don't reset ic, instead send

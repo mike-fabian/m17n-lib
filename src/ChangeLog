@@ -1,3 +1,60 @@
+2005-09-22  Kenichi Handa  <handa@m17n.org>
+
+	* input.c: Include <sys/stat.h> and <unistd.h>.
+	(Minclude, Mcommit, Munhandle): New variables.
+	(minput__init): Initialize them.  Push only Mstate to
+	load_im_info_keys.   Add aliases C-lowercase for C-uppercase.
+	(parse_action_list): Allow integer arg for undo.  Handle Mcommit
+	and Munhandle.
+	(load_input_method): Handle "include" directive.  If no states are
+	loaded, return -1.
+	(shift_state): If state_name is Mt, shift back to the previous
+	state.  Call preedit_commit to commit preedit text.
+	(preedit_commit): New function.
+	(take_action_list): Improve debug printing.  Handle commit and
+	unhandle commands.
+	(handle_key): Check the return value of take_action_list.  Don't
+	take branch_actions just after changing to the root map.
+	(reset_ic): Reset all ic_info members.
+	(filter): When a key is not handled, just move ic_info->keys
+	instead fo calling reset_ic.
+	(load_im_info): If key is not Mstate, push Mmap to
+	load_im_info_keys.
+	(MDatabaseStatList): New type.
+	(imdir_stat_list): New variable.
+	(input_method_hook): Don't cancel the hook.  Check the
+	modification time of directories.
+	(minput__fini): Free imdir_stat_list;
+
+	* input.h (MInputContextInfo): New member prev_state.
+
+	* m17n-core.h (mplist_conc): Extern it.
+
+	* plist.c (mplist_conc): New function.
+
+	* mtext.c (mdebug_dump_mtext): Escape '"' and '\\' by '\\'.
+
+	* font.h (MRealizedFont): New member average_width.
+
+	* font-ft.c (ft_open): Set rface->average_width.
+
+	* font.c (xlfd_unparse_name): Print '*' before registry name.
+
+	* m17n-X.c (MDisplayInfo): New member AVERAGE_WIDTH.
+	(xfont_open): Set rfont->average_width.
+	(xft_open): Likewise.
+	(device_open): Initialize disp_info->AVERAGE_WIDTH.
+
+	* internal-gui.h (struct MFrame): New member average_width.
+
+	* m17n-gui.c (mframe): Fix setting of frame->rfont.
+	(mframe_get_prop): Return the average_width of a font.
+
+	* face.c (mface__realize): Set rface->average_width.
+	(mface__update_frame_face): Set frame->average_width.
+
+	* face.h (MRealizedFace): New member average_width.
+
 2005-09-19  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (xlfd_unparse_name): New arg full_xlfd.
