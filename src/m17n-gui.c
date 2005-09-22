@@ -683,8 +683,8 @@ mframe (MPlist *plist)
     if (MPLIST_KEY (pl) == Mface)
       mface_merge (frame->face, (MFace *) MPLIST_VAL (pl));
   mface__update_frame_face (frame);
-  frame->font = frame->rface->rfont ? frame->rface->rfont->font : NULL;
-
+  frame->font
+    = frame->rface->rfont ? (MFont *) frame->rface->rfont : NULL;
   if (plist_created)
     M17N_OBJECT_UNREF (plist);
   return frame;
@@ -778,9 +778,9 @@ mframe_get_prop (MFrame *frame, MSymbol key)
   if (key == Mface)
     return frame->face;
   if (key == Mfont)
-    return (frame->rface->rfont ? frame->rface->rfont->font : NULL);
+    return frame->font;
   if (key == Mfont_width)
-    return (void *) (frame->space_width);
+    return (void *) (frame->average_width);
   if (key == Mfont_ascent)
     return (void *) (frame->ascent);
   if (key == Mfont_descent)
