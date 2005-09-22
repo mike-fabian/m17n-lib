@@ -54,6 +54,8 @@ struct MFrame
       character of the default face.  */
   int space_width;
 
+  int average_width;
+
   /** The default ascent and descent of a line.  It is ascent and
       descent of ASCII font of the default face.  */
   int ascent, descent;
