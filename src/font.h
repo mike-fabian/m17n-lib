@@ -152,7 +152,7 @@ struct MRealizedFont
      non-NULL, it must be a pointer to a managed object.  */
   void *info;
 
-  int ascent, descent, max_advance, baseline_offset;
+  int ascent, descent, max_advance, average_width, baseline_offset;
 
   /* Pointer to the font structure.  */
   void *fontp;
