@@ -88,6 +88,8 @@
     So, the default behaviour is the same as specifying "cat >
     %s.png" as FILTER.
 
+    If FILTER is just "-", the PNG image is written to stdout.
+
     <li> -a
 
     Enable anti-alias drawing.
@@ -183,6 +185,8 @@
     標準入力として渡される。 FILTER が "%s" を含んでいれば、それは FILE 
     のベースネームに置き換えられる。このプログラムのデフォルトの振舞い
     と、FILTER に "cat > %s.png" を指定した場合の振舞は同一である。
+
+    もし FILTER が単に "-" であれば、 PNG 画像は stdout に出力される。
 
     <li> -a
 
@@ -388,14 +392,19 @@ dump_image (gdImagePtr image, char *filename, char *filter,
 
   if (filter)
     {
-      char *command = alloca (strlen (filename) + strlen (filter) + 1);
+      if (filter[0] == '-' && filter[1] == '\0')
+	fp = stdout;
+      else
+	{
+	  char *command = alloca (strlen (filename) + strlen (filter) + 1);
 
-      sprintf (command, filter, filename);
-      fp = popen (command, "w");
-      if (! fp)
-	FATAL_ERROR ("Can't run the command \"%s\"\n", command);
-      if (! quiet_mode)
-	printf ("Running \"%s\" ... ", command);
+	  sprintf (command, filter, filename);
+	  fp = popen (command, "w");
+	  if (! fp)
+	    FATAL_ERROR ("Can't run the command \"%s\"\n", command);
+	  if (! quiet_mode)
+	    printf ("Running \"%s\" ... ", command);
+	}
     }
   else
     {
@@ -411,7 +420,8 @@ dump_image (gdImagePtr image, char *filename, char *filter,
 
   /* Generate PNG.  */
   gdImagePng (image, fp);
-  fclose (fp);
+  if (fp != stderr)
+    fclose (fp);
   if (! quiet_mode)
     printf (" done (%dx%d)\n", image->sx, image->sy);
 }
