@@ -1,3 +1,8 @@
+2005-09-27  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (dump_image): If FILTER is "-", print the image to
+	stdout.
+
 2005-09-22  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (select_input_method): Open an input method if
