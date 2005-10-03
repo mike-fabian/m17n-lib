@@ -2650,7 +2650,8 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
       info->prev_from = g_tmp->pos;
     }
-  else if (info->line_from > 0)
+  else if (info->line_from > 0
+	   && gstring->from > 0)
     {
       /* The logically previous glyph is on the previous line.  */
       MGlyphString *gst = get_gstring (frame, mt, gstring->from - 1,
