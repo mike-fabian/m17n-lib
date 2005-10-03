@@ -673,6 +673,7 @@ main (int argc, char **argv)
   from = 0;
   page_index = 1;
   white = gdImageColorAllocate (image, 255, 255, 255);
+  gdImageColorTransparent (image, white);
   while (from < len)
     {
       int to;
