@@ -2846,7 +2846,7 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	    {
 	      glyphs->font = (MFont *) g->rface->rfont;
 	      glyphs->font_type
-		= (g->rface->rfont->font->type == MFONT_SOURCE_X ? Mx
+		= (glyphs->font->source == MFONT_SOURCE_X ? Mx
 		   : g->rface->rfont->driver == &mfont__ft_driver ? Mfreetype
 		   : Mxft);
 	      glyphs->fontp = g->rface->rfont->fontp;
