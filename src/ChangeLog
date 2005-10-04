@@ -1,3 +1,12 @@
+2005-10-04  Kenichi Handa  <handa@m17n.org>
+
+	* textprop.c (mtext_serialize): Be sure to make mt
+	MTEXT_FORMAT_UTF_8 and NULL terminated.
+
+	* m17n-gui.c (m17n_init_win): Initialize Mcolormap.
+
+	* draw.c (mdraw_glyph_list): Fix settting of glyphs->font->source.
+
 2005-09-22  Kenichi Handa  <handa@m17n.org>
 
 	* input.c: Include <sys/stat.h> and <unistd.h>.
