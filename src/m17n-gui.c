@@ -264,6 +264,7 @@ m17n_init_win (void)
   Mdrawable = msymbol ("drawable");
   Mdepth = msymbol ("depth");
   Mwidget = msymbol ("widget");
+  Mcolormap = msymbol ("colormap");
 
   MDEBUG_PUSH_TIME ();
   if (mfont__init () < 0)
