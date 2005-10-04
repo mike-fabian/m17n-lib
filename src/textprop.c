@@ -2855,6 +2855,11 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
   int n;
 
   M_CHECK_RANGE (mt, from, to, NULL, NULL);
+  if (mt->format != MTEXT_FORMAT_US_ASCII
+      && mt->format != MTEXT_FORMAT_UTF_8)
+    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+  if (MTEXT_DATA (mt)[mtext_nbytes (mt)] != 0)
+    MTEXT_DATA (mt)[mtext_nbytes (mt)] = 0;
   doc = xmlParseMemory (XML_TEMPLATE, strlen (XML_TEMPLATE) + 1);
   node = xmlDocGetRootElement (doc);
 
