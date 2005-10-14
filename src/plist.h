@@ -45,7 +45,6 @@ struct MPlist
 
 #define MPLIST_KEY(plist) ((plist)->key)
 #define MPLIST_VAL(plist) ((plist)->val)
-#define MPLIST_VAL_MANAGED_P(plist) ((plist)->control.flag)
 #define MPLIST_NEXT(plist) ((plist)->next)
 #define MPLIST_TAIL_P(plist) ((plist)->key == Mnil)
 
@@ -54,6 +53,11 @@ struct MPlist
 #define MPLIST_MTEXT_P(plist) (MPLIST_KEY (plist) == Mtext)
 #define MPLIST_INTEGER_P(plist) (MPLIST_KEY (plist) == Minteger)
 #define MPLIST_PLIST_P(plist) (MPLIST_KEY (plist) == Mplist)
+
+#define MPLIST_NESTED_P(plist)	\
+  (MPLIST_PLIST_P (plist) || (plist)->control.flag & 1)
+#define MPLIST_SET_NESTED_P(plist)	\
+  ((plist)->control.flag |= 1)
 
 #define MPLIST_SYMBOL(plist) ((MSymbol) MPLIST_VAL (plist))
 #define MPLIST_STRING(plist) ((char *) MPLIST_VAL (plist))
@@ -76,6 +80,13 @@ struct MPlist
    : MPLIST_TAIL_P ((plist)->next) ? 1		\
    : MPLIST_TAIL_P ((plist)->next->next) ? 2	\
    : mplist_length (plist))
+
+#define MPLIST_ADD_PLIST(PLIST, KEY, VAL) \
+  MPLIST_SET_NESTED_P (mplist_add ((PLIST), (KEY), (VAL)))
+#define MPLIST_PUSH_PLIST(PLIST, KEY, VAL) \
+  MPLIST_SET_NESTED_P (mplist_push ((PLIST), (KEY), (VAL)))
+#define MPLIST_PUT_PLIST(PLIST, KEY, VAL) \
+  MPLIST_SET_NESTED_P (mplist_put ((PLIST), (KEY), (VAL)))
 
 
 extern unsigned char hex_mnemonic[256];
