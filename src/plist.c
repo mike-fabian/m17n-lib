@@ -231,6 +231,8 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 	  c = GETC (st);
 	  if (c == EOF)
 	    break;
+	  if (c == '\n')
+	    continue;
 	  if (c == 'x' || c == 'u')
 	    {
 	      int next_c;
@@ -475,18 +477,31 @@ read_element (MPlist *plist, MStream *st, MPlist *keys)
       p = read_element (p, st, NULL);
       if (keys && p && MPLIST_SYMBOL_P (pl))
 	{
-	  MPlist *p0 = keys;
-	  MPLIST_FIND (p0, MPLIST_SYMBOL (pl));
-	  if (! MPLIST_TAIL_P (p0) && ! MPLIST_VAL (p0))
+	  if (MPLIST_TAIL_P (keys))
 	    {
-	      M17N_OBJECT_UNREF (pl);
+	      while ((p = read_element (p, st, NULL)));
+	      MPLIST_SET_ADVANCE (plist, Mplist, pl);
 	      return NULL;
 	    }
-	  while ((p = read_element (p, st, NULL)));
-	  if (! MPLIST_TAIL_P (p0))
-	    MPLIST_SET_ADVANCE (plist, Mplist, pl);
 	  else
-	    M17N_OBJECT_UNREF (pl);
+	    {
+	      MPlist *p0 = keys;
+
+	      MPLIST_FIND (p0, MPLIST_SYMBOL (pl));
+	      if (! MPLIST_TAIL_P (p0) && ! MPLIST_VAL (p0))
+		{
+		  M17N_OBJECT_UNREF (pl);
+		  return NULL;
+		}
+	      while ((p = read_element (p, st, NULL)));
+	      if (! MPLIST_TAIL_P (p0))
+		{
+		  MPLIST_SET_ADVANCE (plist, Mplist, pl);
+		  return NULL;
+		}
+	      else
+		M17N_OBJECT_UNREF (pl);
+	    }
 	}
       else
 	{
@@ -615,7 +630,7 @@ dump_plist_element (MPlist *plist, int indent)
     fprintf (stderr, "%x", MPLIST_INTEGER (plist));
   else if (key == Mstring) 
     fprintf (stderr, "\"%s\"", MPLIST_STRING (plist));
-  else if (key == Mplist)
+  else if (MPLIST_NESTED_P (plist))
     {
       fprintf (stderr, "\n%s", prefix);
       mdebug_dump_plist (MPLIST_PLIST (plist), indent);
@@ -1170,11 +1185,8 @@ mplist_conc (MPlist *plist, MPlist *tail)
   MPLIST_KEY (pl) = MPLIST_KEY (tail);
   MPLIST_VAL (pl) = MPLIST_VAL (tail);
   MPLIST_NEXT (pl) = MPLIST_NEXT (tail);
-  if (! MPLIST_TAIL_P (tail))
-    {
-      tail = MPLIST_NEXT (tail);
-      M17N_OBJECT_REF (tail);
-    }
+  M17N_OBJECT_REF (tail);
+
   return plist;
 }
 
@@ -1297,11 +1309,11 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
     }
   else
     {
+      if (val && key->managing_key)
+	M17N_OBJECT_REF (val);
       if (! MPLIST_TAIL_P (plist)
 	  && MPLIST_KEY (plist)->managing_key)
 	M17N_OBJECT_UNREF (MPLIST_VAL (plist));
-      if (val && key->managing_key)
-	M17N_OBJECT_REF (val);
       MPLIST_SET (plist, key, val);
     }
   return plist;
