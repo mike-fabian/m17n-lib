@@ -282,6 +282,11 @@ free_fontset (void *object)
   if (! plist)
     mdebug_hook ();
   mplist_pop (plist);
+  if (MPLIST_TAIL_P (fontset_list))
+    {
+      M17N_OBJECT_UNREF (fontset_list);
+      fontset_list = NULL;
+    }
   free (object);
 }
 
@@ -473,10 +478,8 @@ mfont__fontset_init ()
 void
 mfont__fontset_fini ()
 {
-  while (! MPLIST_TAIL_P (fontset_list))
-    free_fontset ((MFontset *) MPLIST_VAL (fontset_list));
-  M17N_OBJECT_UNREF (fontset_list);
-  fontset_list = NULL;
+  M17N_OBJECT_UNREF (default_fontset);
+  default_fontset = NULL;
 }
 
 
@@ -491,6 +494,7 @@ mfont__realize_fontset (MFrame *frame, MFontset *fontset,
   if (fontset->mdb)
     load_fontset_contents (fontset);
 
+  MFONT_INIT (&request);
   mfont__set_spec_from_face (&request, face);
   if (request.size <= 0)
     {
@@ -878,12 +882,17 @@ mfontset (char *name)
   MFontset *fontset;
 
   if (! name)
-    fontset = default_fontset;
+    {
+      fontset = default_fontset;
+      M17N_OBJECT_REF (fontset);
+    }
   else
     {
       sym = msymbol (name);
       fontset = mplist_get (fontset_list, sym);
-      if (! fontset)
+      if (fontset)
+	M17N_OBJECT_REF (fontset);
+      else
 	{
 	  M17N_OBJECT (fontset, free_fontset, MERROR_FONTSET);
 	  fontset->name = sym;
@@ -897,7 +906,6 @@ mfontset (char *name)
 	  mplist_put (fontset_list, sym, fontset);
 	}
     }
-  M17N_OBJECT_REF (fontset);
   return fontset;
 }
 
@@ -994,7 +1002,6 @@ mfontset_copy (MFontset *fontset, char *name)
     }				 
 
   mplist_put (fontset_list, sym, copy);
-  M17N_OBJECT_REF (copy);
   return copy;
 }
 
