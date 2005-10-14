@@ -1261,7 +1261,8 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
 		gend--;
 	    }
 	  if (g != gend)
-	    while (gend[-1].to == gend->to) gend++;
+	    while (gend->type != GLYPH_ANCHOR && gend[-1].to == gend->to)
+	      gend++;
 	}
     }
 
