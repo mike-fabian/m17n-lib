@@ -1,5 +1,5 @@
 /* medit.c -- simple multilingual editor.		-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -2736,7 +2736,7 @@ main (int argc, char **argv)
     MFont *dev_font = mfont ();
     MFont *thai_font = mfont ();
     MFont *tib_font = mfont ();
-    MFontset *fontset;
+    MFontset *fontset, *fontset_no_ctl;
     MSymbol unicode_bmp = msymbol ("unicode-bmp");
     MSymbol no_ctl = msymbol ("no-ctl");
 
@@ -2747,18 +2747,20 @@ main (int argc, char **argv)
     mfont_put_prop (tib_font, Mfamily, msymbol ("mtib"));
     mfont_put_prop (tib_font, Mregistry, unicode_bmp);
 
-    fontset = mfontset_copy (mfontset (fontset_name), "no-ctl");
-    mfontset_modify_entry (fontset, msymbol ("latin"), Mnil, Mnil,
+    fontset = mfontset (fontset_name);
+    fontset_no_ctl = mfontset_copy (fontset, "no-ctl");
+    m17n_object_unref (fontset);
+    mfontset_modify_entry (fontset_no_ctl, msymbol ("latin"), Mnil, Mnil,
 			   latin_font, Mnil, 0);
-    mfontset_modify_entry (fontset, msymbol ("devanagari"), Mnil, Mnil,
+    mfontset_modify_entry (fontset_no_ctl, msymbol ("devanagari"), Mnil, Mnil,
 			   dev_font, no_ctl, 0);
-    mfontset_modify_entry (fontset, msymbol ("thai"), Mnil, Mnil,
+    mfontset_modify_entry (fontset_no_ctl, msymbol ("thai"), Mnil, Mnil,
 			   thai_font, no_ctl, 0);
-    mfontset_modify_entry (fontset, msymbol ("tibetan"), Mnil, Mnil,
+    mfontset_modify_entry (fontset_no_ctl, msymbol ("tibetan"), Mnil, Mnil,
 			   tib_font, no_ctl, 0);
     face_no_ctl_fontset = mface ();
-    mface_put_prop (face_no_ctl_fontset, Mfontset, fontset);
-    m17n_object_unref (fontset);
+    mface_put_prop (face_no_ctl_fontset, Mfontset, fontset_no_ctl);
+    m17n_object_unref (fontset_no_ctl);
 
     free (dev_font);
     free (thai_font);
