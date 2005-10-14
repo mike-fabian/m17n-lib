@@ -1886,6 +1886,12 @@ mfont__ft_fini ()
 {
   MPlist *plist, *p;
 
+  if (ft_default_list)
+    {
+      M17N_OBJECT_UNREF (ft_default_list);
+      ft_default_list = NULL;
+    }
+
   if (ft_font_list)
     {
       MPLIST_DO (plist, ft_font_list)
@@ -1899,12 +1905,14 @@ mfont__ft_fini ()
 	  M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	}
       M17N_OBJECT_UNREF (ft_font_list);
+      ft_font_list = NULL;
 
       if (ft_language_list)
 	{
 	  MPLIST_DO (plist, ft_language_list)
 	    M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	  M17N_OBJECT_UNREF (ft_language_list);
+	  ft_language_list = NULL;
 	}
 
       if (ft_script_list)
@@ -1912,6 +1920,7 @@ mfont__ft_fini ()
 	  MPLIST_DO (plist, ft_script_list)
 	    M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	  M17N_OBJECT_UNREF (ft_script_list);
+	  ft_script_list = NULL;
 	}
 
       if (ft_capability_list)
@@ -1919,6 +1928,7 @@ mfont__ft_fini ()
 	  MPLIST_DO (plist, ft_capability_list)
 	    M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	  M17N_OBJECT_UNREF (ft_capability_list);
+	  ft_capability_list = NULL;
 	}
 
       if (ft_file_list)
@@ -1926,8 +1936,8 @@ mfont__ft_fini ()
 	  MPLIST_DO (plist, ft_file_list)
 	    M17N_OBJECT_UNREF (MPLIST_VAL (plist));
 	  M17N_OBJECT_UNREF (ft_file_list);
+	  ft_file_list = NULL;
 	}
-
     }
   FT_Done_FreeType (ft_library);
 #ifdef HAVE_FONTCONFIG
