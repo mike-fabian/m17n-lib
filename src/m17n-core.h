@@ -218,8 +218,6 @@ extern void *mplist_pop (MPlist *plist);
 
 extern MPlist *mplist_put (MPlist *plist, MSymbol key, void *val);
 
-extern MPlist *mplist_conc (MPlist *plist, MPlist *tail);
-
 extern void *mplist_get (MPlist *plist, MSymbol key);
 
 extern MPlist *mplist_find_by_key (MPlist *plist, MSymbol key);
