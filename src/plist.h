@@ -55,7 +55,7 @@ struct MPlist
 #define MPLIST_PLIST_P(plist) (MPLIST_KEY (plist) == Mplist)
 
 #define MPLIST_NESTED_P(plist)	\
-  (MPLIST_PLIST_P (plist) || (plist)->control.flag & 1)
+  (MPLIST_PLIST_P (plist) || ((plist)->control.flag & 1))
 #define MPLIST_SET_NESTED_P(plist)	\
   ((plist)->control.flag |= 1)
 
@@ -101,5 +101,9 @@ extern MPlist *mplist__from_alist (MPlist *plist);
 extern MPlist *mplist__from_string (unsigned char *str, int n);
 
 extern int mplist__serialize (MText *mt, MPlist *plist);
+
+extern MPlist *mplist__conc (MPlist *plist, MPlist *tail);
+
+extern void mplist__pop_unref (MPlist *plist);
 
 #endif  /* _M17N_PLIST_H_ */
