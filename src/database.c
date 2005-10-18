@@ -157,6 +157,12 @@ struct MDatabase
   void *extra_info;
 };
 
+typedef struct
+{
+  char *filename;
+  time_t time;
+} MDatabaseInfo;
+
 /** List of all data.  */
 struct MDatabaseList
 {
