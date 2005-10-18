@@ -1,3 +1,110 @@
+2005-10-18  Kenichi Handa  <handa@m17n.org>
+
+	* input.c: Include "charset.h".
+	(M_candidates, Mcandidates_group_size, Mcandidates_charset): New
+	variables.
+	(MIMState): New member (M17NObject control).
+	(lookup_nested_list, set_nested_list, parse_nested_list_value)
+	(get_nested_list, resolve_variable): New functions.
+	(integer_value): New arg (MPlist **value).  Set it to the plist
+	element containing the value.
+	(resolve_command): New function.
+	(load_translation): New arg (MPlist *map_actions).
+	(load_branch): New args language and name.  If `keylist' is a
+	symbol, resolved that as a command name.
+	(free_map): New arg top.  Free map->map_actions only if top is
+	nonzero.
+	(free_state): New function.
+	(load_state): New arg name.
+	(im_info_list): New variable.
+	(free_im_info, get_im_info_by_tags): New functions.
+	(load_im_info): Arg key changed to plist.  Handle `include'.
+	Return (MInputMethodInfo *).
+	(preedit_commit): Ref ic->candidate_list.
+	(get_select_charset, adjust_candidate_command): New functions.
+	(take_action_list): Handle `include'.  Adjust candidate action
+	properly.  Handle control variables `candidates-charset' and
+	`candidates-group-size'.
+	(open_im): Use get_im_info.
+	(create_ic): Get global variables.
+	(load_partial_im_info): New function.
+	(get_im_info): New function.
+	(check_command_keyseq, check_command_list, check_variable_list):
+	New functions.
+	(minput__init): Don't handle M_database_hook and Mdetail_text.
+	Initialize M_candidates, Mcandidates_group_size,
+	Mcandidates_charset.
+	(parse_variable_list, get_variable_list, parse_command_list)
+	(get_command_list): Delete them.
+	(MDatabaseStatList, imdir_stat_list, input_method_hook): Delete them.
+	(minput__fini): Simply unref command_list and variable_list.
+	(minput_get_description): Adjusted for the new form of description.
+	(minput_get_commands): Use get_nested_list.
+	(minput_assign_command_keys): Likewise.
+	(minput_get_variables, minput_set_variable): Likewise.
+
+	* input.h (MInputMethodInfo): New members im and maps.
+
+	* database.h (M_database_hook): Delete extern.
+	(MDatabaseHookFunc): Delete extern.
+	(mdatabase__check): Extern it.
+
+	* database.c: Include <glob.h>.
+	(MAX_TIME): New macro.
+	(Masterisk): New variable.
+	(get_database_stream): Argument changed to (MDatabaseInfo *).
+	Callers changed.
+	(get_dir_info): Renamed from duplicate_dirname.  Callers changed.
+	(find_database): New function.
+	(update_database_list): New function.
+	(mdatabase__init): Initialize Masterisk.  Setup mdb_list by
+	calling update_database_list.
+	(mdatabase__check): New function.
+	(mdatabase_find): Use update_database and find_database.  Don't
+	handle MDatabaseHookFunc.
+	(mdatabase_list): Call update_database at first.
+	(mdatabase_define): Adjusted for the change of mdb->extra_info.
+	(MDatabaseList): New type.
+
+	* plist.h (mplist_conv, mplist__pop_unref): Extern them.
+
+	* m17n.h (Mdetail_text): Delete extern.
+
+	* m17n-core.h (mplist_conc): Delete extern.
+
+	* plist.c (mplist__conc): Renamed from mplist_conc.  Don't ref
+	tail.
+	(mplist_conc): Renamed to mplist__conc.
+	(mplist__pop_unref): New function.
+
+2005-10-14  Kenichi Handa  <handa@m17n.org>
+
+	* plist.c (read_mtext_element): Ignore the sequence of '\\' and
+	newline.
+	(read_element): If keys is an empty plist, return any element
+	found first.
+	(dump_plist_element): Check if plist is nested.
+	(mplist_conc): Always ref tail.
+	(mplist_set): If key is a managing key, ref val in advance.
+
+	* plist.h (MPLIST_VAL_MANAGED_P): Delete this macro.
+	(MPLIST_NESTED_P, MPLIST_SET_NESTED_P): New macros.
+	(MPLIST_ADD_PLIST, MPLIST_PUSH_PLIST, MPLIST_PUT_PLIST): New
+	macros.
+
+	* fontset.c (free_fontset): Unref fontset_list if necessary.
+	(mfont__fontset_fini): Don't free fontset_list.  Unref
+	default_fontset.
+	(mfont__realize_fontset): Initialize request.
+	(mfontset): Ref default_fontset or fontset only if necessary.
+	(mfontset_copy): Don't ref copy.
+
+	* draw.c (render_glyphs): Check gend->type before checking
+	gend->to.
+
+	* font-ft.c (mfont__ft_fini): Unref ft_default_list.  Set all
+	unrefed plists to NULL.
+
 2005-10-04  Kenichi Handa  <handa@m17n.org>
 
 	* textprop.c (mtext_serialize): Be sure to make mt
