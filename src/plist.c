@@ -816,6 +816,55 @@ mplist__serialize (MText *mt, MPlist *plist)
   return 0;
 }
 
+/**en
+    @brief Concatenate two plists.
+
+    The mplist__conc () function concatenates plist $TAIL at the end of
+    plist $PLIST and return $PLIST.  If $TAIL is empty, return $PLIST
+    without modifying it.  */
+
+MPlist *
+mplist__conc (MPlist *plist, MPlist *tail)
+{
+  MPlist *pl;
+
+  if (MPLIST_TAIL_P (tail))
+    return plist;
+  MPLIST_DO (pl, plist);
+  MPLIST_KEY (pl) = MPLIST_KEY (tail);
+  MPLIST_VAL (pl) = MPLIST_VAL (tail);
+  if (MPLIST_KEY (pl)->managing_key)
+    M17N_OBJECT_REF (MPLIST_VAL (pl));
+  tail = MPLIST_NEXT (tail);
+  MPLIST_NEXT (pl) = tail;
+  M17N_OBJECT_REF (tail);
+  return plist;
+}
+
+/*=*/
+/**en
+    @brief Discard a property at the beginning of a property list.
+
+    The mplist__pop_unref () function removes a property at the
+    beginning of property list $PLIST, and if the property value is a
+    managed object, unref it.  As a result, the second key and value
+    of the original $PLIST become the first of those of the new
+    $PLIST.  */
+
+void
+mplist__pop_unref (MPlist *plist)
+{
+  MSymbol key;
+  void *val;
+
+  if (MPLIST_TAIL_P (plist))
+    return;
+  key = MPLIST_KEY (plist);
+  val = mplist_pop (plist);
+  if (key->managing_key)
+    M17N_OBJECT_UNREF (val);
+}
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
@@ -1165,31 +1214,6 @@ mplist_pop (MPlist *plist)
   M17N_OBJECT_UNREF (next);
   return val;
 }
-
-/*=*/
-/***en
-    @brief Concatenate two plists.
-
-    The mplist_conc () function concatenate plist $TAIL at the end of
-    plist $PLIST.
-
-    @return If the operation was successful, this function return
-    $PLIST.  Otherwise it returns @c NULL.  */
-
-MPlist *
-mplist_conc (MPlist *plist, MPlist *tail)
-{
-  MPlist *pl;
-
-  MPLIST_DO (pl, plist);
-  MPLIST_KEY (pl) = MPLIST_KEY (tail);
-  MPLIST_VAL (pl) = MPLIST_VAL (tail);
-  MPLIST_NEXT (pl) = MPLIST_NEXT (tail);
-  M17N_OBJECT_REF (tail);
-
-  return plist;
-}
-
 
 /*=*/
 /***en
