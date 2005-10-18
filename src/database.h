@@ -29,11 +29,8 @@
 
 extern MPlist *mdatabase__dir_list;
 
-extern MSymbol M_database_hook;
-
-typedef void (*MDatabaseHookFunc) (MSymbol tag0, MSymbol tag1,
-				   MSymbol tag2, MSymbol tag3);
-
 extern MPlist *mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys);
+
+extern int mdatabase__check (MDatabase *mdb);
 
 #endif /* not _M17N_DATABASE_H_ */
