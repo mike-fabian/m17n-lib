@@ -25,7 +25,9 @@
 
 typedef struct
 {
+  MInputMethod *im;
   MText *title;
+  MPlist *maps;
   MPlist *states;
   MPlist *macros;
   MPlist *externals;
