@@ -1343,8 +1343,6 @@ extern void minput_toggle (MInputContext *ic);
 
 extern void minput_reset_ic (MInputContext *ic);
 
-extern MSymbol Mdetail_text;
-
 extern MText *minput_get_description (MSymbol language, MSymbol name);
 
 extern MPlist *minput_get_commands (MSymbol language, MSymbol name);
