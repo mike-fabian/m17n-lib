@@ -2,6 +2,10 @@
 
 	* medit.c (main): Don't leave a fontset unfreed.
 
+2005-10-03  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (main): Make the image tranparent.
+
 2005-09-27  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c (dump_image): If FILTER is "-", print the image to
