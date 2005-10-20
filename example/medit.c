@@ -2211,8 +2211,13 @@ setup_input_methods (int with_xim, char *initial_input_method)
 	  MDatabase *mdb = mplist_value (pl);
 	  MSymbol *tag = mdatabase_tag (mdb);
 
-	  input_method_table[i].language = tag[1];
-	  input_method_table[i].name = tag[2];
+	  if (tag[2] == Mnil)
+	    i--, num_input_methods--;
+	  else
+	    {
+	      input_method_table[i].language = tag[1];
+	      input_method_table[i].name = tag[2];
+	    }
 	}
       m17n_object_unref (plist);
     }
