@@ -437,7 +437,8 @@ marker_code (MSymbol sym)
 	   && ((name[1] >= '0' && name[1] <= '9')
 	       || name[1] == '<' || name[1] == '>'
 	       || name[1] == '=' || name[1] == '+' || name[1] == '-'
-	       || name[1] == '[' || name[1] == ']')
+	       || name[1] == '[' || name[1] == ']'
+	       || name[1] == '@')
 	   && name[2] == '\0')
 	  ? name[1] : -1);
 }
@@ -485,6 +486,8 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value)
 	*value = val;
       return (MPLIST_INTEGER_P (val) ? MPLIST_INTEGER (val) : 0);
     }
+  if (code == '@')
+    return ic_info->key_head;
   if (code >= '0' && code <= '9')
     code -= '0';
   else if (code == '=')
@@ -607,8 +610,9 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	    {
 	      if (! MPLIST_TAIL_P (pl))
 		{
-		  if (! MPLIST_INTEGER_P (pl)
-		      || MPLIST_INTEGER (pl) <= 0)
+		  if (! MPLIST_SYMBOL_P (pl)
+		      && (! MPLIST_INTEGER_P (pl)
+			  || MPLIST_INTEGER (pl) <= 0))
 		    MERROR (MERROR_IM, -1);		    
 		}
 	    }
@@ -1974,19 +1978,17 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == Mundo)
 	{
-	  int intarg = MPLIST_TAIL_P (args) ? 2 : MPLIST_INTEGER (args);
-	  int unhandled = 0;
+	  int intarg = (MPLIST_TAIL_P (args)
+			? ic_info->used - 2 : integer_value (ic, args, NULL));
 
 	  mtext_reset (ic->preedit);
 	  mtext_reset (ic_info->preedit_saved);
 	  ic->cursor_pos = ic_info->state_pos = 0;
 	  ic_info->state_key_head = ic_info->key_head = 0;
-	  ic_info->used -= intarg;
-	  if (ic_info->used < 0)
-	    ic_info->used = 0, unhandled = 1;
+	  if (intarg < 0)
+	    intarg = 0;
+	  ic_info->used = intarg;
 	  shift_state (ic, Mnil);
-	  if (unhandled)
-	    return -1;
 	  break;
 	}
       else if (name == Mset || name == Madd || name == Msub
