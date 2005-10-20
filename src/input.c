@@ -612,7 +612,7 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		{
 		  if (! MPLIST_SYMBOL_P (pl)
 		      && (! MPLIST_INTEGER_P (pl)
-			  || MPLIST_INTEGER (pl) <= 0))
+			  || MPLIST_INTEGER (pl) == 0))
 		    MERROR (MERROR_IM, -1);		    
 		}
 	    }
@@ -1985,9 +1985,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  mtext_reset (ic_info->preedit_saved);
 	  ic->cursor_pos = ic_info->state_pos = 0;
 	  ic_info->state_key_head = ic_info->key_head = 0;
+
 	  if (intarg < 0)
-	    intarg = 0;
-	  ic_info->used = intarg;
+	    ic_info->used += intarg;
+	  else
+	    ic_info->used = intarg;
 	  shift_state (ic, Mnil);
 	  break;
 	}
