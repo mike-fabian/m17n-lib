@@ -1,3 +1,11 @@
+2005-10-20  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (marker_code): Accept '@@'.
+	(integer_value): Handle '@@'.
+	(parse_action_list): Accept a symbol argument.
+	(take_action_list): Resolve the symbol argument.  Handle the
+	integer argument.
+
 2005-10-18  Kenichi Handa  <handa@m17n.org>
 
 	* input.c: Include "charset.h".
