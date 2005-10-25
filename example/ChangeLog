@@ -1,3 +1,8 @@
+2005-10-20  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (setup_input_methods): Ignore an input method of name
+	nil.
+
 2005-10-14  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): Don't leave a fontset unfreed.
