@@ -812,11 +812,8 @@ load_branch (MPlist *plist, MPlist *maps, MIMMap *map,
       if (branch_actions)
 	M17N_OBJECT_REF (branch_actions);
     }
-  else
+  else if ((plist = (MPlist *) mplist_get (maps, map_name)))
     {
-      plist = (MPlist *) mplist_get (maps, map_name);
-      if (! plist || ! MPLIST_PLIST_P (plist))
-	MERROR (MERROR_IM, -1);
       MPLIST_DO (plist, plist)
 	{
 	  MPlist *keylist, *map_actions;
@@ -1196,10 +1193,9 @@ load_im_info (MSymbol language, MSymbol name, MPlist *plist)
 
   if (! states)
     goto err;
-  if (! title)
+  if (! title && name)
     im_info->title
-      = title = mtext_from_data (MSYMBOL_NAME (im_info->im->name),
-				 MSYMBOL_NAMELEN (im_info->im->name),
+      = title = mtext_from_data (MSYMBOL_NAME (name), MSYMBOL_NAMELEN (name),
 				 MTEXT_FORMAT_US_ASCII);
   return im_info;
 
@@ -1255,7 +1251,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
 
       if (state->title)
 	ic->status = state->title;
-      else if (! ic->status)
+      else
 	ic->status = im_info->title;
       ic->status_changed = 1;
       if (ic_info->map == ic_info->state->map
@@ -1475,19 +1471,18 @@ get_select_charset (MInputContextInfo * ic_info)
 }
 
 static MPlist *
-adjust_candidate_command (MInputContextInfo *ic_info, MPlist *args,
-			  MCharset *charset)
+adjust_candidates (MPlist *plist, MCharset *charset)
 {
-  MPlist *plist, *pl;
+  MPlist *pl;
 
-  /* args ::= ((MTEXT ...) ...) | ((PLIST ...) ...) */
-  plist = mplist_copy (MPLIST_PLIST (args));
+  /* plist ::= MTEXT ... | PLIST ... */
+  plist = mplist_copy (plist);
   if (MPLIST_MTEXT_P (plist))
     {
       pl = plist;
       while (! MPLIST_TAIL_P (pl))
 	{
-	  /* pl ::= (MTEXT ...) */
+	  /* pl ::= MTEXT ... */
 	  MText *mt = MPLIST_MTEXT (pl);
 	  int mt_copied = 0;
 	  int i, c;
@@ -1521,15 +1516,16 @@ adjust_candidate_command (MInputContextInfo *ic_info, MPlist *args,
       pl = plist;
       while (! MPLIST_TAIL_P (pl))
 	{
-	  /* pl ::= ((MTEXT ...) ...) */
+	  /* pl ::= (MTEXT ...) ... */
 	  MPlist *p = MPLIST_PLIST (pl);
-	  /* p ::= (MTEXT ...) */
-	  int pl_copied = 0;
+	  int p_copied = 0;
+	  /* p ::= MTEXT ... */
+	  MPlist *p0 = p;
 	  int n = 0;
 
-	  while (MPLIST_TAIL_P (p))
+	  while (! MPLIST_TAIL_P (p0))
 	    {
-	      MText *mt = MPLIST_MTEXT (p);
+	      MText *mt = MPLIST_MTEXT (p0);
 	      int i, c;
 
 	      for (i = mtext_nchars (mt) - 1; i >= 0; i--)
@@ -1538,26 +1534,32 @@ adjust_candidate_command (MInputContextInfo *ic_info, MPlist *args,
 		  if (ENCODE_CHAR (charset, c) == MCHAR_INVALID_CODE)
 		    break;
 		}
-	      if (i >= 0)
+	      if (i < 0)
 		{
-		  if (! pl_copied)
+		  p0 = MPLIST_NEXT (p0);
+		  n++;
+		}
+	      else
+		{
+		  if (! p_copied)
 		    {
-		      p = mplist_copy (MPLIST_PLIST (pl));
-		      mplist_set (pl, Mplist, pl);
+		      p = mplist_copy (p);
+		      mplist_set (pl, Mplist, p);
 		      M17N_OBJECT_UNREF (p);
-		      pl_copied = 1;
+		      p_copied = 1;
+		      p0 = p;
 		      while (n-- > 0)
-			p = MPLIST_NEXT (p);
+			p0 = MPLIST_NEXT (p0);
 		    }	  
-		  mplist_pop (p);
+		  mplist_pop (p0);
 		  M17N_OBJECT_UNREF (mt);
 		}
 	    }
-	  if (MPLIST_TAIL_P (p))
+	  if (! MPLIST_TAIL_P (p))
 	    pl = MPLIST_NEXT (pl);
 	  else
 	    {
-	      p = mplist_pop (pl);
+	      mplist_pop (pl);
 	      M17N_OBJECT_UNREF (p);
 	    }
 	}
@@ -1567,10 +1569,147 @@ adjust_candidate_command (MInputContextInfo *ic_info, MPlist *args,
       M17N_OBJECT_UNREF (plist);
       return NULL;
     }      
-  args = mplist ();
-  mplist_add (args, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-  return args;
+  return plist;
+}
+
+static MPlist *
+get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
+{
+  MCharset *charset = get_select_charset (ic_info);
+  MPlist *plist;
+  int column;
+  int i, len;
+
+  plist = resolve_variable (ic_info, Mcandidates_group_size);
+  column = MPLIST_INTEGER (plist);
+
+  plist = MPLIST_PLIST (args);
+  if (charset
+      && (! (plist = adjust_candidates (plist, charset))))
+    return NULL;
+
+  if (column > 0)
+    {
+      if (MPLIST_MTEXT_P (plist))
+	{
+	  MText *mt = MPLIST_MTEXT (plist);
+	  MPlist *next = MPLIST_NEXT (plist);
+
+	  if (MPLIST_TAIL_P (next))
+	    M17N_OBJECT_REF (mt);
+	  else
+	    {
+	      mt = mtext_dup (mt);
+	      while (! MPLIST_TAIL_P (next))
+		{
+		  mt = mtext_cat (mt, MPLIST_MTEXT (next));
+		  next = MPLIST_NEXT (next);
+		}
+	    }
+	  M17N_OBJECT_UNREF (plist);
+	  plist = mplist ();
+	  len = mtext_nchars (mt);
+	  if (len <= column)
+	    mplist_add (plist, Mtext, mt);
+	  else
+	    {
+	      for (i = 0; i < len; i += column)
+		{
+		  int to = (i + column < len ? i + column : len);
+		  MText *sub = mtext_copy (mtext (), 0, mt, i, to);
+						       
+		  mplist_add (plist, Mtext, sub);
+		  M17N_OBJECT_UNREF (sub);
+		}
+	    }
+	  M17N_OBJECT_UNREF (mt);
+	}
+      else		/* MPLIST_PLIST_P (plist) */
+	{
+	  MPlist *pl = MPLIST_PLIST (plist), *p;
+	  MPlist *next = MPLIST_NEXT (plist);
+	  int j;
+
+	  if (MPLIST_TAIL_P (next))
+	    M17N_OBJECT_REF (pl);
+	  else
+	    {
+	      pl = mplist_copy (pl);
+	      while (! MPLIST_TAIL_P (next))
+		{
+		  p = mplist_copy (MPLIST_PLIST (next));
+		  pl = mplist__conc (pl, p);
+		  M17N_OBJECT_UNREF (p);
+		  next = MPLIST_NEXT (next);
+		}
+	    }
+	  M17N_OBJECT_UNREF (plist);
+	  plist = mplist ();
+	  len = mplist_length (pl);
+	  if (len <= column)
+	    mplist_add (plist, Mplist, pl);
+	  else
+	    {
+	      MPlist *p0 = pl;
+
+	      for (i = 0; i < len; i += column)
+		{
+		  p = mplist ();
+		  mplist_add (plist, Mplist, p);
+		  M17N_OBJECT_UNREF (p);
+		  for (j = 0; j < column && i + j < len; j++)
+		    {
+		      p = mplist_add (p, Mtext, MPLIST_VAL (p0));
+		      p0 = MPLIST_NEXT (p0);
+		    }
+		}
+	    }
+	  M17N_OBJECT_UNREF (pl);
+	}
+    }
+
+  if (plist == MPLIST_PLIST (args))
+    M17N_OBJECT_REF (plist);
+  return plist;
+}
+
+
+static MPlist *
+regularize_action (MPlist *action_list)
+{
+  MPlist *action = NULL;
+  MSymbol name;
+  MPlist *args;
+
+  if (MPLIST_PLIST_P (action_list))
+    {
+      action = MPLIST_PLIST (action_list);
+      if (MPLIST_SYMBOL_P (action))
+	{
+	  name = MPLIST_SYMBOL (action);
+	  args = MPLIST_NEXT (action);
+	  if (name == Minsert
+	      && MPLIST_PLIST_P (args))
+	    mplist_set (action, Msymbol, M_candidates);
+	}
+      else if (MPLIST_MTEXT_P (action) || MPLIST_PLIST_P (action))
+	{
+	  action = mplist ();
+	  mplist_push (action, Mplist, MPLIST_VAL (action_list));
+	  mplist_push (action, Msymbol, M_candidates);
+	  mplist_set (action_list, Mplist, action);
+	  M17N_OBJECT_UNREF (action);
+	}
+    }
+  else if (MPLIST_MTEXT_P (action_list) || MPLIST_INTEGER_P (action_list))
+    {
+      action = mplist ();
+      mplist_push (action, MPLIST_KEY (action_list), MPLIST_VAL (action_list));
+      mplist_push (action, Msymbol, Minsert);
+      mplist_set (action_list, Mplist, action);
+      M17N_OBJECT_UNREF (action);
+    }
+  return action;
 }
 
 static int
@@ -1584,48 +1723,14 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
   MPLIST_DO (action_list, action_list)
     {
-      MPlist *action;
+      MPlist *action = regularize_action (action_list);
       MSymbol name;
       MPlist *args;
 
-      if (MPLIST_PLIST_P (action_list)
-	  && MPLIST_SYMBOL_P (MPLIST_PLIST (action_list)))
-	{
-	  action = MPLIST_PLIST (action_list);
-	  name = MPLIST_SYMBOL (action);
-	  args = MPLIST_NEXT (action);
-	  if (name == Minsert
-	      && MPLIST_PLIST_P (args))
-	    {
-	      name = M_candidates;
-	      mplist_set (action, Msymbol, name);
-	    }
-	}
-      else if (MPLIST_MTEXT_P (action_list)
-	       || MPLIST_INTEGER_P (action_list))
-	{
-	  action = mplist ();
-	  mplist_push (action, MPLIST_KEY (action_list),
-		       MPLIST_VAL (action_list));
-	  mplist_push (action, Msymbol, Minsert);
-	  mplist_set (action_list, Mplist, action);
-	  M17N_OBJECT_UNREF (action);
-	  name = Minsert;
-	  args = MPLIST_NEXT (action);
-	}
-      else
-	{
-	  /* (MPLIST_PLIST_P (action_list)
-	      && (MPLIST_MTEXT_P (MPLIST_PLIST (action_list))
-	          || MPLIST_PLIST_P (MPLIST_PLIST (action_list)))) */
-	  action = mplist ();
-	  mplist_push (action, Mplist, MPLIST_VAL (action_list));
-	  mplist_push (action, Msymbol, M_candidates);
-	  mplist_set (action_list, Mplist, action);
-	  M17N_OBJECT_UNREF (action);
-	  name = M_candidates;
-	  args = MPLIST_NEXT (action);
-	}
+      if (! action)
+	continue;
+      name = MPLIST_SYMBOL (action);
+      args = MPLIST_NEXT (action);
 
       MDEBUG_PRINT1 (" %s", MSYMBOL_NAME (name));
       if (name == Minsert)
@@ -1643,96 +1748,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == M_candidates)
 	{
-	  MCharset *charset = get_select_charset (ic_info);
-	  MPlist *plist = resolve_variable (ic_info, Mcandidates_group_size);
-	  int column = MPLIST_INTEGER (plist);
-	  MText *mt;
-	  int i, len;
+	  MPlist *plist = get_candidate_list (ic_info, args);
+	  int len;
 
-	  if (charset)
-	    {
-	      if (! (args = adjust_candidate_command (ic_info, args, charset)))
-		continue;
-	    }
-	  else
-	    /* Avoid freeing ARGS later.  */
-	    M17N_OBJECT_REF (args);
-
-	  plist = MPLIST_PLIST (args);
-	  if (column > 0)
-	    {
-	      MPlist *next = MPLIST_NEXT (plist);
-
-	      if (MPLIST_MTEXT_P (plist))
-		{
-		  MText *mt = MPLIST_MTEXT (plist);
-
-		  if (MPLIST_TAIL_P (next))
-		    M17N_OBJECT_REF (mt);
-		  else
-		    {
-		      mt = mtext_dup (mt);
-		      while (! MPLIST_TAIL_P (next))
-			{
-			  mt = mtext_cat (mt, MPLIST_MTEXT (next));
-			  next = MPLIST_NEXT (next);
-			}
-		    }
-		  len = mtext_nchars (mt);
-		  if (len > column)
-		    {
-		      plist = mplist ();
-		      for (i = 0; i < len; i += column)
-			{
-			  int to = (i + column < len ? i + column : len);
-			  MText *sub = mtext_copy (mtext (), 0, mt, i, to);
-						       
-			  mplist_add (plist, Mtext, sub);
-			  M17N_OBJECT_UNREF (sub);
-			}
-		    }
-		  M17N_OBJECT_UNREF (mt);
-		}
-	      else		/* MPLIST_PLIST_P (plist) */
-		{
-		  MPlist *pl = MPLIST_PLIST (plist), *p;
-		  int j;
-
-		  if (MPLIST_TAIL_P (next))
-		    M17N_OBJECT_REF (pl);
-		  else
-		    {
-		      pl = mplist_copy (pl);
-		      while (! MPLIST_TAIL_P (next))
-			{
-			  pl = mplist__conc (pl, MPLIST_PLIST (next));
-			  next = MPLIST_NEXT (next);
-			}
-		    }
-		  len = mplist_length (pl);
-		  if (len > column)
-		    {
-		      MPlist *p0 = pl;
-
-		      plist = mplist ();
-		      for (i = 0; i < len; i += column)
-			{
-			  p = mplist ();
-			  mplist_add (plist, Mplist, p);
-			  M17N_OBJECT_UNREF (p);
-			  for (j = 0; j < column && i + j < len; j++)
-			    {
-			      p = mplist_add (p, Mtext, MPLIST_VAL (p0));
-			      p0 = MPLIST_NEXT (p0);
-			    }
-			}
-		    }
-		  M17N_OBJECT_UNREF (pl);
-		}
-	    }
-
-	  if (plist == MPLIST_PLIST (args))
-	    M17N_OBJECT_REF (plist);
+	  if (! plist)
+	    continue;
 	  if (MPLIST_MTEXT_P (plist))
 	    {
 	      preedit_insert (ic, ic->cursor_pos, NULL,
@@ -1741,7 +1761,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    }
 	  else
 	    {
-	      mt = MPLIST_MTEXT (MPLIST_PLIST (plist));
+	      MText * mt = MPLIST_MTEXT (MPLIST_PLIST (plist));
+
 	      preedit_insert (ic, ic->cursor_pos, mt, 0);
 	      len = mtext_nchars (mt);
 	    }
@@ -1752,7 +1773,6 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_index, (void *) 0);
 	  M17N_OBJECT_UNREF (plist);
-	  M17N_OBJECT_UNREF (args);
 	}
       else if (name == Mselect)
 	{
@@ -2057,7 +2077,6 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       else if (name == Munhandle)
 	{
 	  preedit_commit (ic);
-	  ic_info->used = 0;
 	  return -1;
 	}
       else
@@ -2204,14 +2223,12 @@ handle_key (MInputContext *ic)
 	  if (ic_info->map != ic_info->state->map)
 	    {
 	      shift_state (ic, ic_info->state->name);
-#if 0
 	      /* If MAP has branch_actions, perform them.  */
 	      if (ic_info->map->branch_actions)
 		{
 		  MDEBUG_PRINT (" brank-actions:");
 		  take_action_list (ic, ic_info->map->branch_actions);
 		}
-#endif
 	    }
 	}
       else
