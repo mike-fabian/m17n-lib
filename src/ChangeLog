@@ -1,3 +1,19 @@
+2005-10-28  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (load_branch): Ignore an undefined map name.
+	(load_im_info): Set im_info->title from `name' only if it's not
+	Mnil.
+	(shift_state): Always update ic->status.
+	(adjust_candidates): Renamed from adjust_candidate_command.
+	Argument changed.  Caller changed.
+	(get_candidate_list, regularize_action): New functions.
+	(take_action_list): Use them.  On handling Munhandle, don't set
+	ic_info->used to 0.
+	(handle_key): If KEY is not handled by MAP, and MAP has
+	branch_actions, perform them.
+
+	* database.c (mdatabase__fini): Free dir_info->filename;
+
 2005-10-20  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (marker_code): Accept '@@'.
