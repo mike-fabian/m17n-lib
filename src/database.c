@@ -741,7 +741,12 @@ mdatabase__fini (void)
   MPlist *plist; 
 
   MPLIST_DO (plist, mdatabase__dir_list)
-    free (MPLIST_VAL (plist));
+    {
+      MDatabaseInfo *dir_info = MPLIST_VAL (plist);
+
+      free (dir_info->filename);
+      free (dir_info);
+    }
   M17N_OBJECT_UNREF (mdatabase__dir_list);
 
   for (i = 0; i < mdb_list.used; i++)
