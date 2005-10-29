@@ -1584,9 +1584,13 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
   column = MPLIST_INTEGER (plist);
 
   plist = MPLIST_PLIST (args);
-  if (charset
-      && (! (plist = adjust_candidates (plist, charset))))
-    return NULL;
+  if (charset)
+    {
+      if (! (plist = adjust_candidates (plist, charset)))
+	return NULL;
+    }
+  else
+    M17N_OBJECT_REF (plist);
 
   if (column > 0)
     {
@@ -1668,8 +1672,6 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 	}
     }
 
-  if (plist == MPLIST_PLIST (args))
-    M17N_OBJECT_REF (plist);
   return plist;
 }
 
