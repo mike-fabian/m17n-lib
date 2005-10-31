@@ -1,3 +1,15 @@
+2005-10-31  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (load_im_info): Fix adding of state.
+
+	* m17n-core.c (m17n_fini_core): Fix reporting of module
+	finalization.
+
+	* m17n.c (m17n_fini): Fix reporting of module finalization.
+
+	* m17n-gui.c (m17n_init_win): Fix reporting of module
+	finalization.
+
 2005-10-29  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (get_candidate_list): Fix the timing of referring plist.
