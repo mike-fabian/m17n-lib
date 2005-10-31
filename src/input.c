@@ -1181,7 +1181,7 @@ load_im_info (MSymbol language, MSymbol name, MPlist *plist)
 		{
 		  MIMState *state = MPLIST_VAL (pl);
 
-		  MPLIST_ADD_PLIST (states, MPLIST_KEY (pl), state);
+		  mplist_add (states, MPLIST_KEY (pl), state);
 		  M17N_OBJECT_REF (state);
 		}
 	    }
