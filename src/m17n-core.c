@@ -576,16 +576,16 @@ m17n_fini_core (void)
 
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
   mchartable__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
   mtext__prop_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
   mtext__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
   msymbol__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
   mplist__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
   MDEBUG_POP_TIME ();
