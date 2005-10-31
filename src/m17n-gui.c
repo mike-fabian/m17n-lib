@@ -324,16 +324,16 @@ m17n_fini_win (void)
     (*null_interface.fini) ();
 #endif	/* not HAVE_FREETYPE */
   M17N_OBJECT_UNREF (device_library_list);
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
   minput__win_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
   mdraw__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
   mface__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
   mfont__fontset_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
   mfont__fini ();
+  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
   mframe_default = NULL;
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
