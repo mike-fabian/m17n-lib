@@ -1246,7 +1246,8 @@ xft_render (MDrawWindow win, int x, int y,
 	}
     }
 
-  XftDrawChange (xft_draw, (Drawable) win);
+  if (XftDrawDrawable (xft_draw) != (Drawable) win)
+    XftDrawChange (xft_draw, (Drawable) win);
   XftDrawSetClip (xft_draw, (Region) region);
       
   y -= rfont->baseline_offset;
@@ -1716,6 +1717,12 @@ mwin__create_window (MFrame *frame, MDrawWindow parent)
 static void
 mwin__destroy_window (MFrame *frame, MDrawWindow win)
 {
+#ifdef HAVE_XFT2
+  XftDraw *xft_draw = FRAME_DEVICE (frame)->xft_draw;
+
+  if (XftDrawDrawable (xft_draw) == (Drawable) win)
+    XftDrawChange (xft_draw, FRAME_DEVICE (frame)->drawable);
+#endif	/* HAVE_XFT2 */
   XDestroyWindow (FRAME_DISPLAY (frame), (Window) win);
 }
 
