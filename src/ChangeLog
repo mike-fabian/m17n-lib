@@ -1,3 +1,27 @@
+2005-11-04  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (parse_nested_list_value): Fix handling of the global
+	definition.
+	(get_nested_list): Get global definitions by load_partial_im_info.
+	(preedit_commit): Set ic->candidates_changed to bitwise or of enum
+	MInputCandidatesChanged.
+	(take_action_list): Likewise.
+	(reset_ic): Likewise.
+	(create_ic): Don't pay special attention to
+	Mcandidates_group_size.
+	(load_partial_im_info): Call mdatabase_find with correct 4th arg.
+	(minput_set_variable): Get a definition of varible by
+	mplist_find_by_value, not mplist_get.
+
+	* m17n.h (enum MInputCandidatesChanged): New enum.
+
+2005-11-01  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xft_render): Check xft_draw's drawable before changing
+	it.
+	(mwin__destroy_window): If xft_draw's drawable is win, change it
+	to device->drawable before destroying win.
+
 2005-10-31  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (load_im_info): Fix adding of state.
