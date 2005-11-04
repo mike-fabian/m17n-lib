@@ -311,7 +311,7 @@ static MPlist *
 parse_nested_list_value (MPlist *plist, MPlist *global, MSymbol key,
 			 int (*check_func) (MPlist *))
 {
-  MPlist *val, *pl;
+  MPlist *val, *pl, *p, *p0;
 
   val = mplist ();
   if (! MPLIST_PLIST_P (plist))
@@ -329,38 +329,44 @@ parse_nested_list_value (MPlist *plist, MPlist *global, MSymbol key,
 
   MPLIST_DO (pl, MPLIST_NEXT (pl))
     {
-      MSymbol cmd;
-      MPlist *p;
+      MSymbol name;
+      MPlist *global_def;
 
       if (! MPLIST_PLIST_P (pl))
 	continue;
       p = MPLIST_PLIST (pl);
       if (! MPLIST_SYMBOL_P (p))
 	continue;
-      cmd = MPLIST_SYMBOL (p);
+      name = MPLIST_SYMBOL (p);
       p = MPLIST_NEXT (p);
-      if (! MPLIST_MTEXT_P (p))
+      if (MPLIST_TAIL_P (p))
 	{
-	  mplist_set (p, Msymbol, Mnil);
-	  if (global)
-	    {
-	      MPlist *p0 = mplist_find_by_value (global, cmd);
-	      MText *description;
-
-	      if (p0)
-		{
-		  p0 = MPLIST_NEXT (p0);
-		  if (MPLIST_MTEXT_P (p0))
-		    {
-		      description = MPLIST_MTEXT (p0);
-		      mplist_set (p, Mtext, description);
-		    }
-		}
-	    }
+	  if (! global)
+	    continue;
+	  global_def = mplist_find_by_value (global, name);
+	  if (! global_def)
+	    continue;
+	  global_def = MPLIST_PLIST (MPLIST_NEXT (global_def));
+	  mplist__conc (p, global_def);
+	  global = NULL;
 	}
-      if ((*check_func) (MPLIST_NEXT (p)) < 0)
+      p0 = MPLIST_NEXT (p);
+      if (MPLIST_TAIL_P (p0))
+	{
+	  if (! global)
+	    continue;
+	  global_def = mplist_find_by_value (global, name);
+	  if (! global_def)
+	    continue;
+	  global_def = MPLIST_PLIST (MPLIST_NEXT (global_def));
+	  global_def = MPLIST_NEXT (global_def);
+	  if (MPLIST_TAIL_P (global_def))
+	    continue;
+	  mplist__conc (p0, global_def);
+	}
+      if ((*check_func) (p0) < 0)
 	continue;
-      mplist_add (val, Msymbol, cmd);
+      mplist_add (val, Msymbol, name);
       mplist_add (val, Mplist, p);
     }
 
@@ -398,9 +404,8 @@ get_nested_list (MSymbol language, MSymbol name, MSymbol extra, MSymbol key)
 
   if (MPLIST_TAIL_P (total_list))
     {
-      MDatabase *mdb = mdatabase_find (Minput_method, Mt, Mnil, key);
-
-      if (mdb && (plist = mdatabase_load (mdb)))
+      plist = load_partial_im_info (Mt, Mnil, key, key);
+      if (plist)
 	global = parse_nested_list_value (plist, NULL, key, check_func);
       else
 	global = mplist ();
@@ -1377,7 +1382,12 @@ preedit_commit (MInputContext *ic)
       M17N_OBJECT_UNREF (ic->candidate_list);
       ic->candidate_list = NULL;
       ic->candidate_show = 0;
-      ic->candidates_changed = 1;
+      ic->candidates_changed = MINPUT_CANDIDATES_LIST_CHANGED;
+      if (ic->candidate_show)
+	{
+	  ic->candidate_show = 0;
+	  ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
+	}
     }
 
   memmove (ic_info->keys, ic_info->keys + ic_info->key_head,
@@ -2114,9 +2124,12 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       ic->candidate_to = mtext_property_end (prop);
     }
 
-  ic->candidates_changed |= (candidate_list != ic->candidate_list
-			     || candidate_index != ic->candidate_index
-			     || candidate_show != ic->candidate_show);
+  if (candidate_list != ic->candidate_list)
+    ic->candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
+  if (candidate_index != ic->candidate_index)
+    ic->candidates_changed |= MINPUT_CANDIDATES_INDEX_CHANGED;
+  if (candidate_show != ic->candidate_show)
+    ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;    
   return 0;
 }
 
@@ -2284,11 +2297,12 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   if (ic->candidate_show)
     {
       ic->candidate_show = 0;
+      ic->candidates_changed = MINPUT_CANDIDATES_SHOW_CHANGED;
       if (ic->candidate_list)
 	{
 	  M17N_OBJECT_UNREF (ic->candidate_list);
 	  ic->candidate_list = NULL;
-	  ic->candidates_changed = 1;
+	  ic->candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
 	}
     }
   mtext_reset (ic_info->preedit_saved);
@@ -2350,10 +2364,6 @@ create_ic (MInputContext *ic)
       mplist_push (ic_info->vars, MPLIST_KEY (pl), MPLIST_VAL (pl));
       mplist_push (ic_info->vars, Msymbol, var);
     }
-  plist = resolve_variable (ic_info, Mcandidates_group_size);
-  if (! MPLIST_INTEGER_P (plist))
-    mplist_set (plist, Minteger, (void *) 10);
-  plist = resolve_variable (ic_info, Mcandidates_charset);
 
   ic_info->preedit_saved = mtext ();
   if (im_info->externals)
@@ -2496,9 +2506,9 @@ load_partial_im_info (MSymbol language, MSymbol name,
   MDatabase *mdb;
   MPlist *plist;
 
-  if (language == Mnil || name == Mnil)
+  if (language == Mnil)
     MERROR (MERROR_IM, NULL);
-  mdb = mdatabase_find (Minput_method, language, name, Mnil);
+  mdb = mdatabase_find (Minput_method, language, name, extra);
   if (! mdb)
     MERROR (MERROR_IM, NULL);
 
@@ -3847,14 +3857,13 @@ minput_set_variable (MSymbol language, MSymbol name,
   MPlist *plist, *val_element, *range_element;
   MSymbol type;
 
-  if (language == Mnil || name == Mnil)
-    MERROR (MERROR_IM, -1);
   plist = get_nested_list (language, name, Mnil, M_variable);
   if (! plist)
     MERROR (MERROR_IM, -1);
-  plist = (MPlist *) mplist_get (plist, variable);
+  plist = mplist_find_by_value (plist, variable);
   if (! plist)
     MERROR (MERROR_IM, -1);
+  plist = MPLIST_PLIST (MPLIST_NEXT (plist));
   val_element = MPLIST_NEXT (plist);
   type = MPLIST_KEY (val_element);
   range_element = MPLIST_NEXT (val_element);
