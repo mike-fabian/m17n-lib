@@ -511,6 +511,12 @@ extern int mtext_casecmp (MText *mt1, MText *mt2);
 
 extern int mtext_ncasecmp (MText *mt1, MText *mt2, int n);
 
+extern int mtext_lowercase (MText *mt);
+
+extern int mtext_titlecase (MText *mt);
+
+extern int mtext_uppercase (MText *mt);
+
 /***en
     @brief Enumeration for specifying a set of line breaking option.
 
