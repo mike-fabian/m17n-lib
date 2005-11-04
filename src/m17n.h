@@ -1152,6 +1152,23 @@ struct MInputMethod
 /*=*/
 
 /***en
+    @brief Bit-masks to specify how candidates of input method is changed.  */
+
+/***ja
+    @brief 入力メソッドの入力候補がどう変更されたかを示すビットマスク.  */
+
+enum MInputCandidatesChanged
+  {
+    MINPUT_CANDIDATES_LIST_CHANGED = 1,
+    MINPUT_CANDIDATES_INDEX_CHANGED = 2,
+    MINPUT_CANDIDATES_SHOW_CHANGED = 4,
+    MINPUT_CANDIDATES_CHANGED_MAX
+  };
+
+
+/*=*/
+
+/***en
     @brief Structure of input context.
 
     The type @c MInputContext is the structure of input context
@@ -1297,11 +1314,14 @@ struct MInputContext
       1 に、それ以外の時 0 に設定する。  */
   int candidate_show;
 
-  /***en The function <im>->driver.filter () sets the value to 1 when
-      it changed any of the above members (<candidate_XXX>), and sets
-      the value to 0 otherwise.  */
-  /***ja 関数 <im>->driver.filter () は、上記のメンバ <candidate_XXX> 
-      の１つでも変更した際には、この値を 1 に設定する。そうでなければ 0 に設定する。 */
+  /***en The function <im>->driver.filter () sets the value to bitwise
+      OR of @c enum @c MInputCandidatesChanged when it changed any of
+      the above members (<candidate_XXX>), and sets the value to 0
+      otherwise.  */
+  /***ja 関数 <im>->driver.filter () は、上記のメンバ <candidate_XXX>
+      の１つでも変更した際には、この値を @c enum @c
+      MInputCandidatesChanged のビット単位での論理 OR に設定する。そう
+      でなければ 0 に設定する。 */
   int candidates_changed;
 
   /***en Plist that can be freely used by <im>->driver functions.
