@@ -1,3 +1,9 @@
+2005-11-07  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (surrounding_text_handler): New function.
+	(setup_input_methods): Add callback functions for surrounding text
+	handling.
+
 2005-10-20  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (setup_input_methods): Ignore an input method of name

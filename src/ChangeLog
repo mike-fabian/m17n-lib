@@ -1,3 +1,24 @@
+2005-11-07  Kenichi Handa  <handa@m17n.org>
+
+	* input.c: Include <stdlib.h>.
+	(get_surrounding_text, delete_surrounding_text)
+	(get_preceding_char, get_following_char): New functions.
+	(integer_value): New arg surrounding.  If it is nonzero, try to
+	get a surrounding character.  Callers changed.
+	(take_action_list): Check `value' before setting an element.
+	(destroy_ic): Unref ic_info->preceding_text and
+	ic_info->following_text.
+	(minput__init): Initialize Minput_get_surrounding_text and
+	Minput_delete_surrounding_text.
+	(Minput_get_surrounding_text, Minput_delete_surrounding_text): New
+	variables.
+
+	* m17n.h (Minput_get_surrounding_text, Minput_delete_surrounding_text):
+	Extern them.
+
+	* input.h (MInputContextInfo): New members preceding_text and
+	following_text.
+
 2005-11-04  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (parse_nested_list_value): Fix handling of the global
