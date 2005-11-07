@@ -2556,6 +2556,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
     }
   mtext_reset (ic->produced);
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 0;
+  M17N_OBJECT_UNREF (ic_info->preceding_text);
+  M17N_OBJECT_UNREF (ic_info->following_text);
   MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
   ic_info->key_unhandled = 0;
   do {
