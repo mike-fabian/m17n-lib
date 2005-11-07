@@ -2171,6 +2171,44 @@ input_status (MInputContext *ic, MSymbol command)
   XtSetValues (CurIMStatus, arg, 1);
 }
 
+void
+surrounding_text_handler (MInputContext *ic, MSymbol command)
+{
+  if (command == Minput_get_surrounding_text)
+    {
+      int len = (int) mplist_value (ic->plist);
+      int pos;
+      MText *surround = NULL;
+
+      if (len < 0)
+	{
+	  pos = cursor.from + len;
+	  if (pos < 0)
+	    pos = 0;
+	  surround = mtext_duplicate (mt, pos, cursor.from);
+	}
+      else if (len > 0)
+	{
+	  pos = cursor.from + len;
+	  if (pos > nchars)
+	    pos = nchars;
+	  surround = mtext_duplicate (mt, cursor.from, pos);
+	}
+      if (surround)
+	{
+	  mplist_set (ic->plist, Mtext, surround);
+	  m17n_object_unref (surround);
+	}
+    }
+  else if (command == Minput_delete_surrounding_text)
+    {
+      int len = (int) mplist_value (ic->plist);      
+
+      if (len != 0)
+	delete_char (len);
+    }
+}
+
 int
 compare_input_method (const void *elt1, const void *elt2)
 {
@@ -2236,6 +2274,10 @@ setup_input_methods (int with_xim, char *initial_input_method)
 	      (void *) input_status);
   mplist_put (minput_driver->callback_list, Minput_status_done,
 	      (void *) input_status);
+  mplist_put (minput_driver->callback_list, Minput_get_surrounding_text,
+	      (void *) surrounding_text_handler);
+  mplist_put (minput_driver->callback_list, Minput_delete_surrounding_text,
+	      (void *) surrounding_text_handler);
 
   current_input_context = NULL;
   current_input_method = -1;
