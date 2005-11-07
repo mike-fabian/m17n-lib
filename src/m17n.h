@@ -1104,6 +1104,8 @@ extern MSymbol Minput_candidates_done;
 extern MSymbol Minput_set_spot;
 extern MSymbol Minput_toggle;
 extern MSymbol Minput_reset;
+extern MSymbol Minput_get_surrounding_text;
+extern MSymbol Minput_delete_surrounding_text;
 
 /** Symbols for special input key event.  */
 extern MSymbol Minput_focus_move;
@@ -1325,15 +1327,16 @@ struct MInputContext
   int candidates_changed;
 
   /***en Plist that can be freely used by <im>->driver functions.
-      The driver of internal input method never use it.  The function
+      The driver of internal input method uses it to exchange extra
+      arguments and result for callback functions.  The function
       <im>->driver.create_ic () sets this to an empty plist, and the
       function <im>->driver.destroy_ic () frees it by using
       m17n_object_unref ().  */
   /***ja <im>->driver の関数群によって自由に使用できる plist。
-      内部入力メソッド用ドライバはこれを使用しない。関数 
-      <im>->driver.create_ic () はこの plist を空に設定する。関数
-      <im>->driver.destroy_ic () は m17n_object_unref () を用いてこの 
-      plist を解放する。  */
+      内部入力メソッド用ドライバはこれをコールバック関数との引数や返値
+      の受渡しに使用する。関数 <im>->driver.create_ic () はこの plist
+      を空に設定する。関数<im>->driver.destroy_ic () は
+      m17n_object_unref () を用いてこの plist を解放する。  */
   MPlist *plist;
 };
 
