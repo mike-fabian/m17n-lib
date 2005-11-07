@@ -137,6 +137,7 @@
      @{ */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -469,9 +470,109 @@ resolve_variable (MInputContextInfo *ic_info, MSymbol var)
   return (MPLIST_NEXT (p));
 }
 
+static MText *
+get_surrounding_text (MInputContext *ic, int len)
+{
+  MText *mt = NULL;
 
-int
-integer_value (MInputContext *ic, MPlist *arg, MPlist **value)
+  mplist_push (ic->plist, Minteger, (void *) len);
+  minput__callback (ic, Minput_get_surrounding_text);
+  if (MPLIST_MTEXT_P (ic->plist))
+    {
+      mt = MPLIST_MTEXT (ic->plist);
+      mplist_pop (ic->plist);
+    }
+  return mt;
+}
+
+static void
+delete_surrounding_text (MInputContext *ic, int pos)
+{
+  mplist_push (ic->plist, Minteger, (void *) pos);
+  minput__callback (ic, Minput_delete_surrounding_text);
+  mplist_pop (ic->plist);
+}
+
+static int
+get_preceding_char (MInputContext *ic, int pos)
+{
+  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  MText *mt;
+  int len;
+
+  if (ic_info->preceding_text)
+    {
+      len = mtext_nchars (ic_info->preceding_text);
+      if (pos <= len)
+	return mtext_ref_char (ic_info->preceding_text, len - pos);
+    }
+  mt = get_surrounding_text (ic, - pos);
+  if (! mt)
+    return -1;
+  len = mtext_nchars (mt);
+  if (ic_info->preceding_text)
+    {
+      if (mtext_nchars (ic_info->preceding_text) < len)
+	{
+	  M17N_OBJECT_UNREF (ic_info->preceding_text);
+	  ic_info->preceding_text = mt;
+	}
+    }
+  else
+    ic_info->preceding_text = mt;
+  if (pos > len)
+    return -1;
+  return mtext_ref_char (ic_info->preceding_text, len - pos);
+}
+
+static int
+get_following_char (MInputContext *ic, int pos)
+{
+  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  MText *mt;
+  int len;
+
+  if (ic_info->following_text)
+    {
+      len = mtext_nchars (ic_info->following_text);
+      if (pos <= len)
+	return mtext_ref_char (ic_info->following_text, pos - 1);
+    }
+  mt = get_surrounding_text (ic, pos);
+  if (! mt)
+    return -1;
+  len = mtext_nchars (mt);
+  if (ic_info->following_text)
+    {
+      if (mtext_nchars (ic_info->following_text) < len)
+	{
+	  M17N_OBJECT_UNREF (ic_info->following_text);
+	  ic_info->following_text = mt;
+	}
+    }
+  else
+    ic_info->following_text = mt;
+  if (pos > len)
+    return -1;
+  return mtext_ref_char (ic_info->following_text, pos - 1);
+}
+
+static int
+surrounding_pos (MSymbol sym)
+{
+  char *name;
+
+  if (sym == Mnil)
+    return 0;
+  name = MSYMBOL_NAME (sym);
+  if ((name[1] == '-' || name[1] == '+')
+      && name[2] >= '1' && name[2] <= '9')
+    return (name[1] == '-' ? - atoi (name + 2) : atoi (name + 2));
+  return 0;
+}
+
+static int
+integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int code;
@@ -482,6 +583,11 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value)
     *value = NULL;
   if (MPLIST_INTEGER_P (arg))
     return MPLIST_INTEGER (arg);
+  if (surrounding
+      && (surrounding = surrounding_pos (MPLIST_SYMBOL (arg))) != 0)
+    return (surrounding < 0
+	    ? get_preceding_char (ic, - surrounding)
+	    : get_following_char (ic, surrounding));
   code = marker_code (MPLIST_SYMBOL (arg));
   if (code < 0)
     {
@@ -1866,19 +1972,29 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       else if (name == Mdelete)
 	{
 	  int len = mtext_nchars (ic->preedit);
-	  int to = (MPLIST_SYMBOL_P (args)
+	  int pos;
+	  int to;
+
+	  if (MPLIST_SYMBOL_P (args)
+	      && (pos = surrounding_pos (MPLIST_SYMBOL (args))) != 0)
+	    {
+	      delete_surrounding_text (ic, pos);
+	    }
+	  else
+	    {
+	      to = (MPLIST_SYMBOL_P (args)
 		    ? new_index (ic, ic->cursor_pos, len, MPLIST_SYMBOL (args),
 				 ic->preedit)
 		    : MPLIST_INTEGER (args));
-
-	  if (to < 0)
-	    to = 0;
-	  else if (to > len)
-	    to = len;
-	  if (to < ic->cursor_pos)
-	    preedit_delete (ic, to, ic->cursor_pos);
-	  else if (to > ic->cursor_pos)
-	    preedit_delete (ic, ic->cursor_pos, to);
+	      if (to < 0)
+		to = 0;
+	      else if (to > len)
+		to = len;
+	      if (to < ic->cursor_pos)
+		preedit_delete (ic, to, ic->cursor_pos);
+	      else if (to > ic->cursor_pos)
+		preedit_delete (ic, ic->cursor_pos, to);
+	    }
 	}
       else if (name == Mmove)
 	{
@@ -2011,7 +2127,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       else if (name == Mundo)
 	{
 	  int intarg = (MPLIST_TAIL_P (args)
-			? ic_info->used - 2 : integer_value (ic, args, NULL));
+			? ic_info->used - 2
+			: integer_value (ic, args, NULL, 0));
 
 	  mtext_reset (ic->preedit);
 	  mtext_reset (ic_info->preedit_saved);
@@ -2033,9 +2150,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MPlist *value;
 	  char *op;
 
-	  val1 = integer_value (ic, args, &value);
+	  val1 = integer_value (ic, args, &value, 0);
 	  args = MPLIST_NEXT (args);
-	  val2 = integer_value (ic, args, NULL);
+	  val2 = integer_value (ic, args, NULL, 1);
 	  if (name == Mset)
 	    val1 = val2, op = "=";
 	  else if (name == Madd)
@@ -2046,8 +2163,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    val1 *= val2, op = "*=";
 	  else
 	    val1 /= val2, op = "/=";
-	  mplist_set (value, Minteger, (void *) val1);
 	  MDEBUG_PRINT3 ("(%s %s %d)", MSYMBOL_NAME (sym), op, val1);
+	  if (value)
+	    mplist_set (value, Minteger, (void *) val1);
 	}
       else if (name == Mequal || name == Mless || name == Mgreater)
 	{
@@ -2055,9 +2173,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MPlist *actions1, *actions2;
 	  int ret = 0;
 
-	  val1 = integer_value (ic, args, NULL);
+	  val1 = integer_value (ic, args, NULL, 1);
 	  args = MPLIST_NEXT (args);
-	  val2 = integer_value (ic, args, NULL);
+	  val2 = integer_value (ic, args, NULL, 1);
 	  args = MPLIST_NEXT (args);
 	  actions1 = MPLIST_PLIST (args);
 	  args = MPLIST_NEXT (args);
@@ -2412,6 +2530,8 @@ destroy_ic (MInputContext *ic)
   M17N_OBJECT_UNREF (ic_info->preedit_saved);
   M17N_OBJECT_UNREF (ic_info->markers);
   M17N_OBJECT_UNREF (ic_info->vars);
+  M17N_OBJECT_UNREF (ic_info->preceding_text);
+  M17N_OBJECT_UNREF (ic_info->following_text);
   free (ic->info);
 }
 
@@ -2770,6 +2890,8 @@ minput__init ()
   Minput_focus_out = msymbol ("input-focus-out");
   Minput_toggle = msymbol ("input-toggle");
   Minput_reset = msymbol ("input-reset");
+  Minput_get_surrounding_text = msymbol ("input-get-surrounding-text");
+  Minput_delete_surrounding_text = msymbol ("input-delete-surrounding-text");
 
   Mcandidate_list = msymbol_as_managing_key ("  candidate-list");
   Mcandidate_index = msymbol ("  candidate-index");
@@ -2920,7 +3042,32 @@ minput__char_to_key (int c)
 
     These are the predefined symbols that are used as the @c COMMAND
     argument of callback functions of an input method driver (see
-    #MInputDriver::callback_list ).  */ 
+    #MInputDriver::callback_list ).  
+
+    Most of them don't require extra argument nor return any value;
+    exceptions are these:
+
+    Minput_get_surrounding_text: When a callback function assigned for
+    this command is called, the first element of #MInputContext::plist
+    has key #Msymbol and the value specifies which portion of the
+    surrounding text should be retrieved.  If the value is positive,
+    it specifies the number of characters following the current cursor
+    position.  If the value is negative, the absolute value specifies
+    the number of characters preceding the current cursor position.
+    The callback function must set the key of this element to #Mtext
+    and the value to the retrived M-text (whose length may be shorter
+    than the requested number of characters if the available text is
+    not that long, or it may be longer if an application thinks it's
+    more efficient to return that length).
+
+    Minput_delete_surrounding_text: When a callback function assigned
+    for this command is called, the first element of
+    #MInputContext::plist has key #Msymbol and the value specifies
+    which portion of the surrounding text should be deleted in the
+    same way as the case of Minput_get_surrounding_text.  The callback
+    function must delete the specified text.  It should not alter
+    #MInputContext::plist.  */ 
+
 /***ja
     @name 変数： コールバックコマンド用定義済みシンボル.
 
@@ -2942,6 +3089,8 @@ MSymbol Minput_candidates_draw;
 MSymbol Minput_set_spot;
 MSymbol Minput_toggle;
 MSymbol Minput_reset;
+MSymbol Minput_get_surrounding_text;
+MSymbol Minput_delete_surrounding_text;
 /*** @} */
 
 /*=*/
