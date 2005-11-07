@@ -12,6 +12,8 @@
 	Minput_delete_surrounding_text.
 	(Minput_get_surrounding_text, Minput_delete_surrounding_text): New
 	variables.
+	(filter): Unref ic_info->preceding_text and
+	ic_info->following_text.
 
 	* m17n.h (Minput_get_surrounding_text, Minput_delete_surrounding_text):
 	Extern them.
