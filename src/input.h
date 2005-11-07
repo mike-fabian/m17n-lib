@@ -70,6 +70,8 @@ typedef struct
   /* List of variables. */
   MPlist *vars;
 
+  MText *preceding_text, *following_text;
+
   int key_unhandled;
 
   /** Used by minput_win_driver (input-win.c).  */
