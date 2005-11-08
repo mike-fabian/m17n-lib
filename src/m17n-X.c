@@ -1246,8 +1246,7 @@ xft_render (MDrawWindow win, int x, int y,
 	}
     }
 
-  if (XftDrawDrawable (xft_draw) != (Drawable) win)
-    XftDrawChange (xft_draw, (Drawable) win);
+  XftDrawChange (xft_draw, (Drawable) win);
   XftDrawSetClip (xft_draw, (Region) region);
       
   y -= rfont->baseline_offset;
