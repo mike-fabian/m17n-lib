@@ -1,3 +1,9 @@
+2005-11-08  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (delete_char): Fix the case of deleting the previous
+	multiple characters.
+	(surrounding_text_handler): Check number characters to delete.
+
 2005-11-07  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (surrounding_text_handler): New function.
