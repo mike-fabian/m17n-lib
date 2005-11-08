@@ -2201,14 +2201,14 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 
       if (len < 0)
 	{
-	  if (corsor.from + len < 0)
-	    len = - corsor.from;
+	  if (cursor.from + len < 0)
+	    len = - cursor.from;
 	  delete_char (len);
 	}
       else if (len > 0)
 	{
-	  if (corsor.from + len > nchars)
-	    len = nchars - corsor.from;
+	  if (cursor.from + len > nchars)
+	    len = nchars - cursor.from;
 	  delete_char (len);
 	}
     }
