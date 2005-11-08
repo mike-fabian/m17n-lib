@@ -950,6 +950,8 @@ delete_char (int n)
     from = cursor.from, to = from + n;
   else
     {
+      from = cursor.from + n;
+      to = cursor.from;
       if (cursor.from == cur.from)
 	{
 	  /* We are at the beginning of line.  */
@@ -963,13 +965,6 @@ delete_char (int n)
 	      reseat (info.line_from);
 	    }
 	  update_cursor (pos, 1);
-	  from = cursor.from;
-	  to = cursor.to;
-	}
-      else
-	{
-	  from = cursor.from - 1;
-	  to = cursor.from;
 	}
     }
 
@@ -2204,8 +2199,18 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
     {
       int len = (int) mplist_value (ic->plist);      
 
-      if (len != 0)
-	delete_char (len);
+      if (len < 0)
+	{
+	  if (corsor.from + len < 0)
+	    len = - corsor.from;
+	  delete_char (len);
+	}
+      else if (len > 0)
+	{
+	  if (corsor.from + len > nchars)
+	    len = nchars - corsor.from;
+	  delete_char (len);
+	}
     }
 }
 
