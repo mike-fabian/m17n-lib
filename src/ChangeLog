@@ -1,3 +1,7 @@
+2005-11-08  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xft_render): Cancel previous change.
+
 2005-11-07  Kenichi Handa  <handa@m17n.org>
 
 	* input.c: Include <stdlib.h>.
