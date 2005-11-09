@@ -1,3 +1,8 @@
+2005-11-09  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Update prev->rface->rfont if the
+	glyph prev is also supported by the current flt.
+
 2005-11-08  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (xft_render): Cancel previous change.
