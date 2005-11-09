@@ -440,7 +440,11 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 						   NULL, prev->c)
 			!= MCHAR_INVALID_CODE));
 		   start--, prev--)
-		prev->code = code;
+		if (prev->rface->rfont != this->rface->rfont)
+		  {
+		    prev->rface->rfont = this->rface->rfont;
+		    prev->code = code;
+		  }
 
 	      for (g++;
 		   (g->type == GLYPH_CHAR
