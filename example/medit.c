@@ -2204,6 +2204,7 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 	  if (cursor.from + len < 0)
 	    len = - cursor.from;
 	  mtext_del (mt, cursor.from + len, cursor.from);
+	  cursor.from += len;
 	}
       else if (len > 0)
 	{
