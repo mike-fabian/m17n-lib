@@ -246,6 +246,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   MRealizedFont *rfont;
   int size = gstring->control.fixed_width;
   int i;
+  int cursor_pos = gstring->control.cursor_pos;
 
   MLIST_RESET (gstring);
   gstring->from = from;
@@ -440,14 +441,19 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 						   NULL, prev->c)
 			!= MCHAR_INVALID_CODE));
 		   start--, prev--)
-		if (prev->rface->rfont != this->rface->rfont)
-		  {
-		    prev->rface->rfont = this->rface->rfont;
-		    prev->code = code;
-		  }
+		{
+		  if (prev->rface->rfont != this->rface->rfont)
+		    {
+		      prev->rface->rfont = this->rface->rfont;
+		      prev->code = code;
+		    }
+		  if (prev->pos == cursor_pos)
+		    break;
+		}
 
 	      for (g++;
 		   (g->type == GLYPH_CHAR
+		    && g->pos != cursor_pos
 		    && g->rface->layouter == this->rface->layouter
 		    && (g->rface->rfont == this->rface->rfont
 			|| (g->category == GLYPH_CATEGORY_FORMATTER
