@@ -1,8 +1,5 @@
 2005-11-11  Kenichi Handa  <handa@m17n.org>
 
-	* draw.c (compose_glyph_string): Check cursor_pos to decide on
-	which region to run FLT.
-
 	* input.c (delete_surrounding_text): Clear cache if necessary.
 
 2005-11-09  Kenichi Handa  <handa@m17n.org>
