@@ -508,6 +508,7 @@ update_cursor (int pos, int full)
 {
   MDrawMetric rect;
 
+  control.cursor_pos = pos;
   if (full)
     {
       /* CUR is inaccurate.  We can trust only TOP.  */
