@@ -1,3 +1,7 @@
+2005-11-11  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (delete_surrounding_text): Clear cache if necessary.
+
 2005-11-09  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Update prev->rface->rfont if the
