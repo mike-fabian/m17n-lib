@@ -1,12 +1,13 @@
 2005-11-11  Kenichi Handa  <handa@m17n.org>
 
-	* medit.c (update_cursor): Update control.cursor_pos.
+	* medit.c (surrounding_text_handler): Directly delete characters
+	instead of calling delete_char.
 
 2005-11-08  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (delete_char): Fix the case of deleting the previous
 	multiple characters.
-	(surrounding_text_handler): Check number characters to delete.
+	(surrounding_text_handler): Check number of characters to delete.
 
 2005-11-07  Kenichi Handa  <handa@m17n.org>
 
