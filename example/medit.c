@@ -508,7 +508,6 @@ update_cursor (int pos, int full)
 {
   MDrawMetric rect;
 
-  control.cursor_pos = pos;
   if (full)
     {
       /* CUR is inaccurate.  We can trust only TOP.  */
@@ -2204,13 +2203,13 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 	{
 	  if (cursor.from + len < 0)
 	    len = - cursor.from;
-	  delete_char (len);
+	  mtext_del (mt, cursor.from + len, cursor.from);
 	}
       else if (len > 0)
 	{
 	  if (cursor.from + len > nchars)
 	    len = nchars - cursor.from;
-	  delete_char (len);
+	  mtext_del (mt, cursor.from, cursor.from + len);
 	}
     }
 }
