@@ -649,22 +649,7 @@ find_encoding (MFont *font)
   return &default_encoding;
 }
 
-#ifndef HAVE_OTF
-static OTF_Tag
-OTF_tag (char *name)
-{
-  unsigned char *p = (unsigned char *) name;
-
-  if (! name)
-    return (OTF_Tag) 0;
-  return (OTF_Tag) ((p[0] << 24)
-		    | (! p[1] ? 0
-		       : ((p[1] << 16)
-			  | (! p[2] ? 0
-			     : (p[2] << 8) | p[3]))));
-}
-#endif /* not HAVE_OTF */
-
+#ifdef HAVE_OTF
 static MPlist *otf_script_list;
 
 static int
@@ -711,7 +696,7 @@ find_script_from_otf_tag (OTF_Tag tag)
   plist = mplist_find_by_value (otf_script_list, (void *) tag);
   return (plist ? MPLIST_KEY (plist) : Mnil);
 }
-
+#endif	/* HAVE_OTF */
 
 /* XLFD parser/generator */
 
@@ -1135,11 +1120,13 @@ mfont__fini ()
       M17N_OBJECT_UNREF (font_encoding_list);
       font_encoding_list = NULL;
     }
+#ifdef HAVE_OTF
   if (otf_script_list)
     {
       M17N_OBJECT_UNREF (otf_script_list);
       otf_script_list = NULL;
     }
+#endif	/* HAVE_OTF */
 
   for (i = 0; i <= MFONT_REGISTRY; i++)
     MLIST_FREE1 (&mfont__property_table[i], names);
@@ -1641,19 +1628,21 @@ static void
 free_font_capability (void *object)
 {
   MFontCapability *cap = object;
-  int i;
   
   if (cap->lang)
     free (cap->lang);
 #ifdef HAVE_OTF
   if (cap->script)
-    for (i = 0; i < MFONT_OTT_MAX; i++)
-      {
-	if (cap->features[i].str)
-	  free (cap->features[i].str);
-	if (cap->features[i].tags)
-	  free (cap->features[i].tags);
-      }
+    {
+      int i;
+      for (i = 0; i < MFONT_OTT_MAX; i++)
+	{
+	  if (cap->features[i].str)
+	    free (cap->features[i].str);
+	  if (cap->features[i].tags)
+	    free (cap->features[i].tags);
+	}
+    }
 #endif /* HAVE_OTF */
   free (cap);
 }
@@ -1663,7 +1652,6 @@ mfont__get_capability (MSymbol sym)
 {
   MFontCapability *cap = msymbol_get (sym, M_font_capability);
   char *str, *p, *endp;
-  int i;
 
   if (cap)
     return cap;
@@ -1681,6 +1669,8 @@ mfont__get_capability (MSymbol sym)
 #ifdef HAVE_OTF
       if (str[0] == 'o' && str[1] == 't' && str[2] == 'f' && str[3] == '=')
 	{
+	  int i;
+
 	  str += 4;
 	  for (i = 0, p = str; i < 4 && p < endp; i++, p++);
 	  if (i < 4)
