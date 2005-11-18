@@ -898,6 +898,7 @@ ft_list_script (MSymbol script)
   return (plist);
 }
 
+#ifdef HAVE_OTF
 static int
 ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
 {
@@ -930,6 +931,7 @@ ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
     return -1;
   return 0;
 }
+#endif	/* HAVE_OTF */
 
 static int
 ft_check_lang (MFontFT *ft_info, MFontCapability *cap)
@@ -1074,8 +1076,10 @@ ft_list_capability (MSymbol sym)
       if (pl)
 	MPLIST_DO (pl, pl)
 	  {
+#ifdef HAVE_OTF
 	    if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
 	      continue;
+#endif	/* HAVE_OTF */
 	    if (cap->lang && ft_check_lang (MPLIST_VAL (pl), cap) < 0)
 	      continue;
 	    if (! plist)
@@ -1220,8 +1224,14 @@ ft_select (MFrame *frame, MFont *font, int limited_size)
 
       for (pl = plist; ! MPLIST_TAIL_P (pl);)
 	{
-	  if ((cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
-	      || (cap->lang && ft_check_lang (MPLIST_VAL (pl), cap) < 0))
+#ifdef HAVE_OTF
+	  if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
+	    {
+	      mplist_pop (pl);
+	      continue;
+	    }
+#endif	/* HAVE_OTF */
+	  if (cap->lang && ft_check_lang (MPLIST_VAL (pl), cap) < 0)
 	    mplist_pop (pl);
 	  else
 	    pl = MPLIST_NEXT (pl);
