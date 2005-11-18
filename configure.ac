@@ -135,28 +135,34 @@ LIBS="$save_LIBS"
 AC_SUBST(FRIBIDI_LD_FLAGS)
 
 dnl Check for otflib usability.
-save_CPPFLAGS="$CPPFLAGS"
-save_LIBS="$LIBS"
-AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
-if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
-  CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
-  OTF_LD_FLAGS="`libotf-config --libs`  "
-  LIBS="$LIBS $OTF_LD_FLAGS"
-else
-  OTF_LD_FLAGS=-lotf
-fi
-AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
-AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
-CPPFLAGS="$save_CPPFLAGS"
-if test "x$HAVE_OTF" = "xyes"; then
-  AC_DEFINE(HAVE_OTF, 1, 
-	    [Define to 1 if you have OTF library and header file.])
-  M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
-else
+AC_ARG_WITH(libotf, 
+	    AC_HELP_STRING([--with-libotf],
+			   [with OpenType font suport (default is YES)]))
+
+if test "x$with_libotf" != "xno"; then
+  save_CPPFLAGS="$CPPFLAGS"
+  save_LIBS="$LIBS"
+  AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
+  if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
+    CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
+    OTF_LD_FLAGS="`libotf-config --libs`  "
+    LIBS="$LIBS $OTF_LD_FLAGS"
+  else
+    OTF_LD_FLAGS=-lotf
+  fi
+  AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
+  AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
   CPPFLAGS="$save_CPPFLAGS"
-  OTF_LD_FLAGS=
+  if test "x$HAVE_OTF" = "xyes"; then
+    AC_DEFINE(HAVE_OTF, 1, 
+	      [Define to 1 if you have OTF library and header file.])
+    M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
+  else
+    CPPFLAGS="$save_CPPFLAGS"
+    OTF_LD_FLAGS=
+  fi
+  LIBS="$save_LIBS"
 fi
-LIBS="$save_LIBS"
 AC_SUBST(OTF_LD_FLAGS)
 
 dnl Check for Freetype2 usability.
@@ -251,7 +257,9 @@ LIBS="$save_LIBS"
 AC_SUBST(FONTCONFIG_LD_FLAGS)
 
 dnl Check for gdlib usability.
-AC_ARG_WITH(gd, [  --with-gd               suport graphic device by GD library.])
+AC_ARG_WITH(gd, 
+	    AC_HELP_STRING([--with-gd],
+			   [suport graphic device by GD library (default is YES)]))
 
 if test "x$with_gd" != "xno"; then
   save_LIBS="$LIBS"
