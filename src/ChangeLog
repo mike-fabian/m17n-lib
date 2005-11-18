@@ -1,6 +1,16 @@
 2005-11-18  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (ft_check_otf, otf_script_list): Define only when
+	HAVE_OTF is defined.
+	(ft_list_capability): Call ft_check_otf only when HAVE_OTF is
+	defined.
+	(ft_select): Likewise.
+
 	* font.c (mfont_list): Fix for the case that FONT is NULL.
+	(OTF_tag): Delete it.
+	(load_otf_script_list): Define only when HAVE_OTF is defined.
+	(mfont__fini): Unref otf_script_list only when HAVE_OTF is
+	defined.
 
 	* draw.c (truncate_gstring): Be sure to truncate at
 	glapheme-cluster boundary.
