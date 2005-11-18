@@ -328,6 +328,13 @@ realize_fontset_elements (MFrame *frame, MRealizedFontset *realized)
     font_group = mplist_add (font_group, MPLIST_KEY (p), MPLIST_VAL (p));
 }
 
+
+/* Return a plist of fonts for SCRIPT in FONTSET.  The returned list
+   is acutally a plist of languages vs font groups (which is a plist).
+   If SCRIPT is nil, return a plist of fallback fonts.  If FONTSET
+   doesn't record any fonts for SCRIPT, generate a proper font spec
+   lists for X backend and FreeType backend.  */
+
 MPlist *
 get_per_script (MFontset *fontset, MSymbol script)
 {
@@ -625,6 +632,7 @@ try_font_group (MRealizedFontset *realized, MFont *request,
       font = MPLIST_VAL (plist);
       if (font->type == MFONT_TYPE_SPEC)
 	{
+	  /* We have not yet made this entry a MFontList.  */
 	  if (realized->spec)
 	    {
 	      MFont this = *font;
@@ -640,6 +648,8 @@ try_font_group (MRealizedFontset *realized, MFont *request,
 	    font_list = mfont__list (frame, font, request, size);
 	  if (! font_list)
 	    {
+	      /* As there's no font matching this spec, remove this
+		 element from the font group.  */
 	      mplist_pop (plist);
 	      continue;
 	    }
@@ -741,6 +751,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       if (! per_script)
 	{
 	  per_script = mplist_copy (get_per_script (realized->fontset, script));
+	  /* PER_SCRIPT ::= (LANGUAGE:(LAYOUTER:FONT-SPEC ...) ...) */
 	  MPLIST_DO (plist, per_script)
 	    MPLIST_VAL (plist) = mplist_copy (MPLIST_VAL (plist));
 	  mplist_add (realized->per_script, script, per_script);
