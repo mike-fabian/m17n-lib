@@ -1576,9 +1576,15 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
 	pos = gstring->to;
     }
   else if (i == 0)
-    pos++;
-  compose_glyph_string (frame, mt, gstring->from, pos, gstring);
-  layout_glyph_string (frame, gstring);
+    {
+      g = find_glyph_in_gstring (gstring, gstring->from, 1);
+      pos = g->to;
+    }
+  if (pos < gstring->to)
+    {
+      compose_glyph_string (frame, mt, gstring->from, pos, gstring);
+      layout_glyph_string (frame, gstring);
+    }
 }
 
 
