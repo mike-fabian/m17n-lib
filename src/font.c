@@ -2789,8 +2789,13 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
   MPlist *plist, *pl;
   MFontList *font_list;
   int i;
-  MFont spec = *font;
+  MFont spec;
   
+  if (font)
+    spec = *font;
+  else
+    MFONT_INIT (&spec);
+
   if (spec.size < 0)
     {
       double pt = - spec.size;
