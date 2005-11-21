@@ -1,3 +1,24 @@
+2005-11-21  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (fontset_table): New variable.
+	(free_fontset): Call M17N_OBJECT_UNREGISTER.
+	(mfont__fontset_init): Add fontset_table as an object array.
+	(mfont__realize_fontset): Ref FONTSET.
+	(mfont__free_realized_fontset): Unref REALIZED->fontset.
+	(mfontset): Call M17N_OBJECT_REGISTER.
+	(mfontset_copy): Likewise.
+
+	* input.c (handle_key): For debugging, print information about
+	alias key.
+	(filter): Add an alias for Meta and Alt modifiers.
+	(Mcond, Mplus, Mminus, Mstar, Mslush, Mand, Mor, Mnot): New
+	variables.
+	(minput__init): Initialize them.
+	(parse_expression): New function.
+	(resolve_expression): New function.
+	(parse_action_list): Handle expressions by parse_expression.
+	(take_action_list): Handle expressions by resolve_expression.
+
 2005-11-18  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_check_otf, otf_script_list): Define only when
