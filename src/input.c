@@ -334,7 +334,7 @@ parse_nested_list_value (MPlist *plist, MPlist *global, MSymbol key,
   MPLIST_DO (pl, MPLIST_NEXT (pl))
     {
       MSymbol name;
-      MPlist *global_def;
+      MPlist *global_def = NULL;
 
       if (! MPLIST_PLIST_P (pl))
 	continue;
@@ -352,12 +352,11 @@ parse_nested_list_value (MPlist *plist, MPlist *global, MSymbol key,
 	    continue;
 	  global_def = MPLIST_PLIST (MPLIST_NEXT (global_def));
 	  mplist__conc (p, global_def);
-	  global = NULL;
 	}
       p0 = MPLIST_NEXT (p);
       if (MPLIST_TAIL_P (p0))
 	{
-	  if (! global)
+	  if (! global || global_def)
 	    continue;
 	  global_def = mplist_find_by_value (global, name);
 	  if (! global_def)
@@ -871,16 +870,22 @@ resolve_command (MSymbol language, MSymbol name, MSymbol command)
 {
   MPlist *plist = get_nested_list (language, name, Mnil, M_command);
 
-  if (! plist
-      || ! (plist = mplist_get (plist, command)))
-    return NULL;
-  plist = MPLIST_NEXT (plist);
+  if (! plist)
+    MERROR (MERROR_IM, NULL);
+  MPLIST_DO (plist, plist)
+    {
+      if (MPLIST_SYMBOL (plist) == command)
+	break;
+      plist = MPLIST_NEXT (plist);
+    }
+  if (MPLIST_TAIL_P (plist))
+    MERROR (MERROR_IM, NULL);
+  plist = MPLIST_NEXT (plist);  
   if (! MPLIST_PLIST_P (plist))
-    return NULL;
+    MERROR (MERROR_IM, NULL);
+  plist = MPLIST_NEXT (MPLIST_PLIST (plist));
   return plist;
 }
-
-
 
 /* Load a translation into MAP from PLIST.
    PLIST has this form:
