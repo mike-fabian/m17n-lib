@@ -21,12 +21,12 @@
 
 VINFO = -version-info @API_VERSION@
 
-lib_LTLIBRARIES = \
-	libm17n-core.la \
-	libm17n.la \
-	libm17n-gui.la \
-	libm17n-X.la \
-	libm17n-gd.la
+BUILD_LIBS = libm17n-core.la libm17n.la
+if WITH_GUI
+BUILD_LIBS += libm17n-gui.la libm17n-X.la libm17n-gd.la
+endif
+
+lib_LTLIBRARIES = $(BUILD_LIBS)
 
 libm17n_core_la_SOURCES = \
 	character.h character.c \
