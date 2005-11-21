@@ -1068,7 +1068,8 @@ typedef struct MInputDriver
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, #Minput_toggle, #Minput_reset.
+      #Minput_set_spot, #Minput_toggle, #Minput_reset,
+      #Minput_get_surrounding_text, #Minput_delete_surrounding_text.
       Values are functions of type #MInputCallbackFunc.  */
   /***ja
       @brief コールバック関数のリスト.
@@ -1078,7 +1079,8 @@ typedef struct MInputDriver
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, #Minput_toggle, #Minput_reset。 
+      #Minput_set_spot, #Minput_toggle, #Minput_reset,
+      #Minput_get_surrounding_text, #Minput_delete_surrounding_text。
       値は#MInputCallbackFunc 型の関数。  */
   MPlist *callback_list;
 

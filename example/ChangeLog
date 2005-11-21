@@ -1,3 +1,8 @@
+2005-11-21  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (bin_PROGRAMS, lib_LTLIBRARIES): Define them
+	conditionally on WITH_GUI.
+
 2005-11-11  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (surrounding_text_handler): Directly delete characters

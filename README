@@ -72,6 +72,11 @@ This shell script is installed in /usr/local/bin:
 These sample programs are installed in /usr/local/bin too:
 	m17n-conv, m17n-date, m17n-view, m17n-dump, m17n-edit
 
+If you don't need GUI libraries (libm17n-gui.so and etc.), you can
+instruct the `configure' script not to build them as below:
+
+	% ./configure --without-gui
+
 This file under `example' sub-directory is a Japanese resource file
 for medit.  It is not installed but useful in Japanese locale.  Copy
 it to your home directory (or, for instance,

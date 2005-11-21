@@ -7,6 +7,30 @@ See the end for copying conditions.
 
 * Changes in the m17n library 1.3.0
 
+** The `configure' script accepts the argument "--without-gui" to
+suppress building GUI libraries.
+
+** The environment variable MDEBUG_OUTPUT_FILE can specify a file to
+output the debugging log messages.
+
+** The member `candidate_changed' of MInputContext carries more
+information; i.e. the list itself is changed, only an index is
+changed, etc.
+
+** The member `callback_list' of MInputDriver can have callback
+functions `input-get-surrounding-text' and
+`input-delete-surrounding-text'.
+
+** The minput_filter () function accepts special events
+`input-focus-move', `input-focus-in', and `input-focus-out'.
+
+** Three letter codes of ISO639-2 are also accepted as language
+symbols.
+
+** New functions minput_get_description (), minput_get_commands (),
+minput_assign_command_keys (), minput_get_variables (), and
+minput_set_variable() are introduced for handling input methods.
+
 ** New fucntions mtext_insert () and and mtext_replace () for
 modifying M-text.
 
@@ -15,7 +39,22 @@ mtext_lowercase () implement "3.13 Default Case Operations" of The
 Unicode Standard 4.0.
 
 ** New function mtext_line_break () implements the line breaking
-algorithm of The Unicode Standard 4.0 UAX#14.
+algorithm of The Unicode Standard 4.0 UAX#14.  The algorithm can be
+controlled by the variable mdraw_line_break_option.
+
+** New function msymbol_is_managing_key () checks if a symbol is a
+managing key or not.
+
+** New function mtext_data () exports various information about
+M-text.
+
+** Function mfont_get_prop () accept properties `fontfile',
+`font-acsent', `font-descent', and `max-advance'.
+
+** New function mfont_check () checks if a specific font can be used
+for a specific script and language.
+
+** New function mface_equal () checks if two faces are equal or not.
 
 
 * Changes in the m17n library 1.2.0
