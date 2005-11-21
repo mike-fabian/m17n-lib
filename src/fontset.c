@@ -74,6 +74,8 @@
 #include "font.h"
 #include "fontset.h"
 
+static M17NObjectArray fontset_table;
+
 struct MFontset
 {
   M17NObject control;
@@ -287,6 +289,7 @@ free_fontset (void *object)
       M17N_OBJECT_UNREF (fontset_list);
       fontset_list = NULL;
     }
+  M17N_OBJECT_UNREGISTER (fontset_table, fontset);
   free (object);
 }
 
@@ -462,6 +465,8 @@ update_fontset_elements (MRealizedFontset *realized)
 int
 mfont__fontset_init ()
 {
+  M17N_OBJECT_ADD_ARRAY (fontset_table, "Fontset");
+
   Mfontset = msymbol ("fontset");
   Mfontset->managing_key = 1;
   fontset_list = mplist ();
@@ -521,6 +526,7 @@ mfont__realize_fontset (MFrame *frame, MFontset *fontset,
 
   MSTRUCT_CALLOC (realized, MERROR_FONTSET);
   realized->fontset = fontset;
+  M17N_OBJECT_REF (fontset);
   realized->tick = fontset->tick;
   if (spec)
     {
@@ -539,6 +545,7 @@ void
 mfont__free_realized_fontset (MRealizedFontset *realized)
 {
   free_realized_fontset_elements (realized);
+  M17N_OBJECT_UNREF (realized->fontset);
   if (realized->spec)
     free (realized->spec);
   free (realized);
@@ -906,6 +913,7 @@ mfontset (char *name)
       else
 	{
 	  M17N_OBJECT (fontset, free_fontset, MERROR_FONTSET);
+	  M17N_OBJECT_REGISTER (fontset_table, fontset);
 	  fontset->name = sym;
 	  fontset->mdb = mdatabase_find (Mfontset, sym, Mnil, Mnil);
 	  if (! fontset->mdb)
@@ -963,6 +971,7 @@ mfontset_copy (MFontset *fontset, char *name)
   if (copy)
     return NULL;
   M17N_OBJECT (copy, free_fontset, MERROR_FONTSET);
+  M17N_OBJECT_REGISTER (fontset_table, copy);
   copy->name = sym;
 
   if (fontset->mdb)
