@@ -79,6 +79,15 @@ else
 fi
 AC_SUBST(M17NDIR)
 
+dnl Checks which levels of APIs should be compiled.
+
+AC_ARG_ENABLE(gui,
+	      AC_HELP_STRING([--with-gui],
+			     [with GUI level APIs (default is YES)]))
+
+AM_CONDITIONAL(WITH_GUI, test x$with_gui != xno)
+
+if test x$with_gui != xno; then
 
 dnl Checks if dlopen exists, and if it's in libc or libdl.
 
@@ -276,6 +285,8 @@ if test "x$with_gd" != "xno"; then
   LIBS="$save_LIBS"
 fi
 AC_SUBST(GD_LD_FLAGS)
+
+fi
 
 dnl Check for libxml2 usability.
 save_CPPFLAGS="$CPPFLAGS"
