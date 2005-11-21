@@ -171,6 +171,9 @@ static MSymbol Mtitle, Mmacro, Mmodule, Mstate, Minclude;
 static MSymbol Minsert, Mdelete, Mmark, Mmove, Mpushback, Mundo, Mcall, Mshift;
 static MSymbol Mselect, Mshow, Mhide, Mcommit, Munhandle;
 static MSymbol Mset, Madd, Msub, Mmul, Mdiv, Mequal, Mless, Mgreater;
+static MSymbol Mcond;
+static MSymbol Mplus, Mminus, Mstar, Mslush, Mand, Mor, Mnot;
+
 static MSymbol M_candidates;
 
 static MSymbol Mcandidate_list, Mcandidate_index;
@@ -620,6 +623,73 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
   return (code >= 0 && code < len ? mtext_ref_char (preedit, code) : -1);
 }
 
+static int
+parse_expression (MPlist *plist)
+{
+  MSymbol op;
+
+  if (MPLIST_INTEGER_P (plist) || MPLIST_SYMBOL_P (plist))
+    return 0;
+  if (! MPLIST_PLIST_P (plist))
+    return -1;
+  plist = MPLIST_PLIST (plist);
+  op = MPLIST_SYMBOL (plist);
+  if (op != Mplus && op != Mminus && op != Mstar && op != Mslush
+      && op != Mand && op != Mor && op != Mnot
+      && op != Mless && op != Mgreater && op != Mequal)
+    MERROR (MERROR_IM, -1);
+  MPLIST_DO (plist, MPLIST_NEXT (plist))
+    if (parse_expression (plist) < 0)
+      return -1;
+  return 0;
+}
+
+static int
+resolve_expression (MInputContext *ic, MPlist *plist)
+{
+  int val;
+  MSymbol op;
+  
+  if (MPLIST_INTEGER_P (plist))
+    return MPLIST_INTEGER (plist);
+  if (MPLIST_SYMBOL_P (plist))
+    return integer_value (ic, plist, NULL, 1);
+  if (! MPLIST_PLIST_P (plist))
+    return 0;
+  plist = MPLIST_PLIST (plist);
+  if (! MPLIST_SYMBOL_P (plist))
+    return val;
+  op = MPLIST_SYMBOL (plist);
+  plist = MPLIST_NEXT (plist);
+  val = resolve_expression (ic, plist);
+  if (op == Mplus)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val += resolve_expression (ic, plist);
+  else if (op == Mminus)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val -= resolve_expression (ic, plist);
+  else if (op == Mstar)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val *= resolve_expression (ic, plist);
+  else if (op == Mslush)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val /= resolve_expression (ic, plist);
+  else if (op == Mand)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val &= resolve_expression (ic, plist);
+  else if (op == Mor)
+    MPLIST_DO (plist, MPLIST_NEXT (plist))
+      val |= resolve_expression (ic, plist);
+  else if (op == Mnot)
+    val = ! val;
+  else if (op == Mless)
+    val = val < resolve_expression (ic, MPLIST_NEXT (plist));
+  else if (op == Mequal)
+    val = val == resolve_expression (ic, MPLIST_NEXT (plist));
+  else if (op == Mgreater)
+    val = val > resolve_expression (ic, MPLIST_NEXT (plist));
+  return val;
+}
 
 /* Parse PLIST as an action list.  PLIST should have this form:
       PLIST ::= ( (ACTION-NAME ACTION-ARG *) *).
@@ -712,9 +782,8 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		   || action_name == Mdelete
 		   || action_name == Mmove)
 	    {
-	      if (! MPLIST_SYMBOL_P (pl)
-		  && ! MPLIST_INTEGER_P (pl))
-		MERROR (MERROR_IM, -1);
+	      if (parse_expression (pl) < 0)
+		return -1;
 	    }
 	  else if (action_name == Mmark
 		   || action_name == Mcall
@@ -757,18 +826,17 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		   || action_name == Msub || action_name == Mmul
 		   || action_name == Mdiv)
 	    {
-	      if (! (MPLIST_SYMBOL_P (pl)
-		     && (MPLIST_INTEGER_P (MPLIST_NEXT (pl))
-			 || MPLIST_SYMBOL_P (MPLIST_NEXT (pl)))))
+	      if (! MPLIST_SYMBOL_P (pl))
 		MERROR (MERROR_IM, -1);
+	      if (parse_expression (MPLIST_NEXT (pl)) < 0)
+		return -1;
 	    }
 	  else if (action_name == Mequal || action_name == Mless
 		   || action_name == Mgreater)
 	    {
-	      if (! ((MPLIST_INTEGER_P (pl) || MPLIST_SYMBOL_P (pl))
-		     && (MPLIST_INTEGER_P (MPLIST_NEXT (pl))
-			 || MPLIST_SYMBOL_P (MPLIST_NEXT (pl)))))
-		MERROR (MERROR_IM, -1);
+	      if (parse_expression (pl) < 0
+		  || parse_expression (MPLIST_NEXT (pl)) < 0)
+		return -1;
 	      pl = MPLIST_NEXT (MPLIST_NEXT (pl));
 	      if (! MPLIST_PLIST_P (pl))
 		MERROR (MERROR_IM, -1);
@@ -782,6 +850,12 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	  else if (action_name == Mshow || action_name == Mhide
 		   || action_name == Mcommit || action_name == Munhandle)
 	    ;
+	  else if (action_name == Mcond)
+	    {
+	      MPLIST_DO (pl, pl)
+		if (! MPLIST_PLIST_P (pl))
+		  MERROR (MERROR_IM, -1);
+	    }
 	  else if (! macros || ! mplist_get (macros, action_name))
 	    MERROR (MERROR_IM, -1);
 	}
@@ -2158,7 +2232,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
 	  val1 = integer_value (ic, args, &value, 0);
 	  args = MPLIST_NEXT (args);
-	  val2 = integer_value (ic, args, NULL, 1);
+	  val2 = resolve_expression (ic, args);
 	  if (name == Mset)
 	    val1 = val2, op = "=";
 	  else if (name == Madd)
@@ -2179,9 +2253,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MPlist *actions1, *actions2;
 	  int ret = 0;
 
-	  val1 = integer_value (ic, args, NULL, 1);
+	  val1 = resolve_expression (ic, args);
 	  args = MPLIST_NEXT (args);
-	  val2 = integer_value (ic, args, NULL, 1);
+	  val2 = resolve_expression (ic, args);
 	  args = MPLIST_NEXT (args);
 	  actions1 = MPLIST_PLIST (args);
 	  args = MPLIST_NEXT (args);
@@ -2205,6 +2279,22 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    }
 	  if (ret < 0)
 	    return ret;
+	}
+      else if (name == Mcond)
+	{
+	  MPLIST_DO (args, args)
+	    {
+	      MPlist *cond;
+
+	      if (! MPLIST_PLIST (args))
+		continue;
+	      cond = MPLIST_PLIST (args);
+	      if (resolve_expression (ic, cond) != 0)
+		{
+		  take_action_list (ic, MPLIST_NEXT (cond));
+		  break;
+		}
+	    }
 	}
       else if (name == Mcommit)
 	{
@@ -2270,6 +2360,7 @@ handle_key (MInputContext *ic)
   MIMMap *map = ic_info->map;
   MIMMap *submap = NULL;
   MSymbol key = ic_info->keys[ic_info->key_head];
+  MSymbol alias = Mnil;
   int i;
 
   MDEBUG_PRINT2 ("  [IM] handle `%s' in state %s", 
@@ -2277,8 +2368,6 @@ handle_key (MInputContext *ic)
 
   if (map->submaps)
     {
-      MSymbol alias;
-
       submap = mplist_get (map->submaps, key);
       if (! submap && (alias = msymbol_get (key, M_key_alias)) != Mnil)
 	submap = mplist_get (map->submaps, alias);
@@ -2286,7 +2375,10 @@ handle_key (MInputContext *ic)
 
   if (submap)
     {
-      MDEBUG_PRINT (" submap-found");
+      if (alias == Mnil)
+	MDEBUG_PRINT (" submap-found");
+      else
+	MDEBUG_PRINT1 (" submap-found (by alias `%s')", MSYMBOL_NAME (alias));
       mtext_cpy (ic->preedit, ic_info->preedit_saved);
       ic->preedit_changed = 1;
       ic->cursor_pos = ic_info->state_pos;
@@ -2566,6 +2658,32 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   M17N_OBJECT_UNREF (ic_info->following_text);
   MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
   ic_info->key_unhandled = 0;
+
+  /* If KEY has Meta or Alt modifier, put M_key_alias property.  */
+  if (! msymbol_get (key, M_key_alias)
+      && (strchr (MSYMBOL_NAME (key), 'M')
+	  || strchr (MSYMBOL_NAME (key), 'A')))
+    {
+      char *name = MSYMBOL_NAME (key);
+      char *meta_or_alt;
+
+      while (name[0] && name[1] == '-'
+	     && (name[0] != 'M' && name[0] != 'A'))
+	name += 2;
+      if ((name[0] == 'M' || name[0] == 'A') && name[1] == '-')
+	{
+	  MSymbol alias;
+
+	  meta_or_alt = name;
+	  name = alloca (MSYMBOL_NAMELEN (key) + 1);
+	  memcpy (name, MSYMBOL_NAME (key), MSYMBOL_NAMELEN (key) + 1);
+	  name[meta_or_alt - MSYMBOL_NAME (key)]
+	    = *meta_or_alt == 'M' ? 'A' : 'M';
+	  alias = msymbol (name);
+	  msymbol_put (key, M_key_alias, alias);
+      }
+  }
+
   do {
     if (handle_key (ic) < 0)
       {
@@ -2879,6 +2997,14 @@ minput__init ()
   Mequal = msymbol ("=");
   Mless = msymbol ("<");
   Mgreater = msymbol (">");
+  Mcond = msymbol ("cond");
+  Mplus = msymbol ("+");
+  Mminus = msymbol ("-");
+  Mstar = msymbol ("*");
+  Mslush = msymbol ("/");
+  Mand = msymbol ("&");
+  Mor = msymbol ("|");
+  Mnot = msymbol ("!");
 
   Mcandidates_group_size = msymbol ("candidates-group-size");
   Mcandidates_charset = msymbol ("candidates-charset");
