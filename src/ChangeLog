@@ -1,5 +1,8 @@
 2005-11-21  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (lib_LTLIBRARIES): Define it conditionaly on
+	WITH_GUI.
+
 	* fontset.c (fontset_table): New variable.
 	(free_fontset): Call M17N_OBJECT_UNREGISTER.
 	(mfont__fontset_init): Add fontset_table as an object array.
@@ -18,6 +21,9 @@
 	(resolve_expression): New function.
 	(parse_action_list): Handle expressions by parse_expression.
 	(take_action_list): Handle expressions by resolve_expression.
+	(parse_nested_list_value): Fix previous change.
+	(resolve_command): Fix handling of the return value of
+	get_nested_list.
 
 2005-11-18  Kenichi Handa  <handa@m17n.org>
 

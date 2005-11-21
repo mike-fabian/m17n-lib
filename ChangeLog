@@ -1,3 +1,10 @@
+2005-11-21  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (pkgconfig_DATA): Define it conditionally on
+	WITH_GUI.
+
+	* configure.ac: Handle --with-gui/--without-gui arg.
+
 2005-11-18  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Add --with-libotf option.  Use AC_HELP_STRING.
