@@ -1,5 +1,10 @@
 2005-11-25  Kenichi Handa  <handa@m17n.org>
 
+	* font-flt.c (run_command): Print debug info for
+	left/rigth_padding
+
+	* draw.c (layout_glyphs): Fix handling of left/right_padding.
+
 	* face.c (mface__for_chars): Check rfont before accessing the
 	members.
 
