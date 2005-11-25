@@ -1251,12 +1251,16 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
       }
 
     case CMD_ID_LEFT_PADDING:
+      MDEBUG_PRINT2 ("\n [FLT] %*s[", depth, "");
       ctx->left_padding = 1;
       return from;
 
     case CMD_ID_RIGHT_PADDING:
       if (gstring->used > 0)
-	gstring->glyphs[gstring->used - 1].right_padding = 1;
+	{
+	  MDEBUG_PRINT2 ("\n [FLT] %*s]", depth, "");
+	  gstring->glyphs[gstring->used - 1].right_padding = 1;
+	}
       return from;
     }
 
