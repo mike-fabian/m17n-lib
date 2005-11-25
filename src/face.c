@@ -784,7 +784,7 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
   int i;
 
   rfont = from_g->rface->rfont;
-  if (script == Mlatin)
+  if (rfont && script == Mlatin)
     {
       for (i = 0; i < num; i++)
 	{
