@@ -605,7 +605,10 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
 	  if (base->left_padding && base->lbearing < 0)
 	    {
 	      base->xoff = - base->lbearing;
-	      base->width += base->xoff;
+	      if (base->rbearing < 0)
+		base->width = base->rbearing - base->lbearing;
+	      else
+		base->width += base->xoff;
 	      base->rbearing += base->xoff;
 	      base->lbearing = 0;
 	    }
@@ -613,9 +616,8 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
 	    {
 	      base->width = base->rbearing;
 	    }
-	  lbearing = (base->xoff + base->lbearing < 0
-		      ? base->xoff + base->lbearing : 0);
-	  rbearing = base->xoff + base->rbearing;
+	  lbearing = base->lbearing;
+	  rbearing = base->rbearing;
 	}
       else
 	{
