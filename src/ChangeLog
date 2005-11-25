@@ -1,3 +1,8 @@
+2005-11-25  Kenichi Handa  <handa@m17n.org>
+
+	* face.c (mface__for_chars): Check rfont before accessing the
+	members.
+
 2005-11-21  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (lib_LTLIBRARIES): Define it conditionaly on
