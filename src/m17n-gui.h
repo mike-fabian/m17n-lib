@@ -223,8 +223,8 @@ extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language,
 
 typedef struct MFontset MFontset;
 
-extern int mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
-			MSymbol script, MSymbol language);
+extern int mfont_check (MFrame *frame, MFontset *fontset,
+			MSymbol script, MSymbol language, MFont *font);
 
 /* end of font module */
 /*=*/
