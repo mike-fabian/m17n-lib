@@ -57,7 +57,7 @@ static MSymbol Mgeneric_family;
 /* Font properties; Mnormal is already defined in face.c.  */
 static MSymbol Mmedium, Mr, Mnull;
 
-static MSymbol M0_3, M3_1, M1_0;
+static MSymbol M0[5], M3_1, M1_0;
 
 static FT_Library ft_library;
 
@@ -175,9 +175,9 @@ ft_get_charmaps (FT_Face ft_face)
 
       if (ft_face->charmaps[i]->platform_id == 0)
 	{
-	  if (ft_face->charmaps[i]->encoding_id == 3)
-	    registry = M0_3, unicode_bmp = i;
-	  else if (ft_face->charmaps[i]->encoding_id == 4)
+	  if (ft_face->charmaps[i]->encoding_id <= 4)
+	    registry = M0[ft_face->charmaps[i]->encoding_id], unicode_bmp = i;
+	  if (ft_face->charmaps[i]->encoding_id == 4)
 	    unicode_bmp = unicode_full = i;
 	}
       else if (ft_face->charmaps[i]->platform_id == 3)
@@ -384,11 +384,9 @@ fc_parse_pattern (FcPattern *pat, char *family, MFont *font)
     }
   if (FcPatternGetLangSet (pat, FC_LANG, 0, &ls) == FcResultMatch)
     {
-      if (FcLangSetHasLang (ls, (FcChar8 *) "ja") == FcLangEqual
-	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-cn") == FcLangEqual
-	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-hk") == FcLangEqual
-	  || FcLangSetHasLang (ls, (FcChar8 *) "zh-tw") == FcLangEqual
-	  || FcLangSetHasLang (ls, (FcChar8 *) "ko") == FcLangEqual)
+      if (FcLangSetHasLang (ls, (FcChar8 *) "ja") != FcLangDifferentLang
+	  || FcLangSetHasLang (ls, (FcChar8 *) "zh") != FcLangDifferentLang
+	  || FcLangSetHasLang (ls, (FcChar8 *) "ko") != FcLangDifferentLang)
 	font->for_full_width = 1;
     }
 
@@ -771,6 +769,11 @@ ft_list_language (MSymbol language)
 	  for (i = mtext_nchars (mt) - 1; i >= 0; i--)
 	    if (! FcCharSetAddChar (cs, (FcChar32) mtext_ref_char (mt, i)))
 	      break;
+	  if (i < 0
+	      && (mt = mtext_get_prop (mt, 0, Mtext)))
+	    for (i = mtext_nchars (mt) - 1; i >= 0; i--)
+	      if (! FcCharSetAddChar (cs, (FcChar32) mtext_ref_char (mt, i)))
+		break;
 	  if (i < 0)
 	    {
 	      if (FcPatternAddCharSet (pattern, FC_CHARSET, cs))
@@ -829,8 +832,10 @@ ft_list_language (MSymbol language)
   
   if ((mt = msymbol_get (language, Mtext)))
     {
+      MText *extra = mtext_get_prop (mt, 0, Mtext);
       MPlist *pl, *p;
       int len = mtext_nchars (mt);
+      int extra_len = extra ? mtext_nchars (extra) : 0;
       int i;
 
       if (! ft_font_list)
@@ -846,12 +851,17 @@ ft_list_language (MSymbol language)
 	      if (FT_New_Face (ft_library, MSYMBOL_NAME (ft_info->font.file),
 			       0, &ft_face) != 0)
 		continue;
-	      for (i = 0; i < len; i++)
+	      for (i = len - 1; i >= 0; i--)
 		if (FT_Get_Char_Index (ft_face, 
 				       (FT_ULong) mtext_ref_char (mt, i)) == 0)
 		  break;
+	      if (i < 0 && extra_len > 0)
+		for (i = extra_len - 1; i >= 0; i--)
+		  if (FT_Get_Char_Index (ft_face, 
+					 (FT_ULong) mtext_ref_char (extra, i)) == 0)
+		    break;
 	      FT_Done_Face (ft_face);
-	      if (i < len)
+	      if (i >= 0)
 		continue;
 	      if (! plist)
 		plist = mplist ();
@@ -898,10 +908,10 @@ ft_list_script (MSymbol script)
   return (plist);
 }
 
-#ifdef HAVE_OTF
 static int
 ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
 {
+#ifdef HAVE_OTF
   if (ft_info->otf == invalid_otf)
     return -1;
   if (! ft_info->otf)
@@ -930,8 +940,10 @@ ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
 	   cap->features[MFONT_OTT_GPOS].nfeatures) != 1))
     return -1;
   return 0;
+#else	/* not HAVE_OTF */
+  return -1;
+#endif	/* not HAVE_OTF */
 }
-#endif	/* HAVE_OTF */
 
 static int
 ft_check_lang (MFontFT *ft_info, MFontCapability *cap)
@@ -975,7 +987,7 @@ ft_check_lang (MFontFT *ft_info, MFontCapability *cap)
 	ft_info->lang = mplist ();
       if (FcLangSetHasLang (ft_info->langset,
 			    (FcChar8 *) MSYMBOL_NAME (cap->lang[i]))
-	  == FcLangEqual)
+	  != FcLangDifferentLang)
 	{
 	  mplist_push (ft_info->lang, cap->lang[i], Mt);
 	  return 0;
@@ -992,6 +1004,12 @@ ft_check_lang (MFontFT *ft_info, MFontCapability *cap)
 	if (! FcCharSetAddChar (ft_info->charset,
 				(FcChar32) mtext_ref_char (mt, j)))
 	  break;
+      if (j < 0
+	  && (mt = mtext_get_prop (mt, 0, Mtext)))
+	for (j = mtext_nchars (mt) - 1; j >= 0; j--)
+	  if (! FcCharSetAddChar (ft_info->charset,
+				  (FcChar32) mtext_ref_char (mt, j)))
+	    break;
       mplist_push (ft_info->lang, cap->lang[i], (j < 0 ? Mt : Mnil));
       if (j < 0)
 	return 0;
@@ -1076,10 +1094,8 @@ ft_list_capability (MSymbol sym)
       if (pl)
 	MPLIST_DO (pl, pl)
 	  {
-#ifdef HAVE_OTF
 	    if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
 	      continue;
-#endif	/* HAVE_OTF */
 	    if (cap->lang && ft_check_lang (MPLIST_VAL (pl), cap) < 0)
 	      continue;
 	    if (! plist)
@@ -1224,13 +1240,11 @@ ft_select (MFrame *frame, MFont *font, int limited_size)
 
       for (pl = plist; ! MPLIST_TAIL_P (pl);)
 	{
-#ifdef HAVE_OTF
 	  if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
 	    {
 	      mplist_pop (pl);
 	      continue;
 	    }
-#endif	/* HAVE_OTF */
 	  if (cap->lang && ft_check_lang (MPLIST_VAL (pl), cap) < 0)
 	    mplist_pop (pl);
 	  else
@@ -1317,7 +1331,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
 		   &ft_face))
     {
       font->type = MFONT_TYPE_FAILURE;
-      MDEBUG_PRINT ("  no\n");
+      MDEBUG_PRINT ("  no (FT_New_Face)\n");
       return NULL;
     }
   if (charmap_list)
@@ -1331,7 +1345,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
     {
       FT_Done_Face (ft_face);
       M17N_OBJECT_UNREF (charmap_list);
-      MDEBUG_PRINT ("  no\n");
+      MDEBUG_PRINT1 ("  no (%s)\n", MSYMBOL_NAME (registry));
       return NULL;
     }
   charmap_index = (int) MPLIST_VAL (plist);
@@ -1342,7 +1356,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
       FT_Done_Face (ft_face);
       M17N_OBJECT_UNREF (charmap_list);
       font->type = MFONT_TYPE_FAILURE;
-      MDEBUG_PRINT ("  no\n");
+      MDEBUG_PRINT1 ("  no (size %d)\n", size);
       return NULL;
     }
 
@@ -1813,12 +1827,26 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
   return num;
 }
 
+static int 
+ft_check_capability (MRealizedFont *rfont, MSymbol capability)
+{
+  MFontFT *ft_info = (MFontFT *) rfont->font;
+  MFontCapability *cap = mfont__get_capability (capability);
+
+  if (cap->script_tag && ft_check_otf (ft_info, cap) < 0)
+    return -1;
+  if (cap->lang && ft_check_lang (ft_info, cap) < 0)
+    return -1;
+  return 0;
+}
+
+
 
 /* Internal API */
 
 MFontDriver mfont__ft_driver =
   { ft_select, ft_open, ft_find_metric, ft_has_char, ft_encode_char,
-    ft_render, ft_list };
+    ft_render, ft_list , ft_check_capability};
 
 int
 mfont__ft_init ()
@@ -1835,7 +1863,11 @@ mfont__ft_init ()
   Mr = msymbol ("r");
   Mnull = msymbol ("");
 
-  M0_3 = msymbol ("0-3");
+  M0[0] = msymbol ("0-0");
+  M0[1] = msymbol ("0-1");
+  M0[2] = msymbol ("0-2");
+  M0[3] = msymbol ("0-3");
+  M0[4] = msymbol ("0-4");
   M3_1 = msymbol ("3-1");
   M1_0 = msymbol ("1-0");
 
