@@ -2585,6 +2585,7 @@ main (int argc, char **argv)
 {
   Widget form, BodyWidget, w;
   char *fontset_name = NULL;
+  char *font_name = NULL;
   int fontsize = 0;
   char *initial_input_method = NULL;
   int col = 80, row = 32;
@@ -2616,6 +2617,7 @@ main (int argc, char **argv)
   int with_xim = 0;
   int i, j;
   char *filter = NULL;
+  MFont *font = NULL;
 
   setlocale (LC_ALL, "");
   /* Create the top shell.  */
@@ -2654,6 +2656,11 @@ main (int argc, char **argv)
 	{
 	  i++;
 	  fontset_name = strdup (argv[i]);
+	}
+      else if (! strcmp (argv[i], "--font"))
+	{
+	  i++;
+	  font_name = strdup (argv[i]);
 	}
       else if (! strcmp (argv[i], "--im"))
 	{
@@ -2747,6 +2754,22 @@ main (int argc, char **argv)
     font = (MFont *) mframe_get_prop (frame, Mfont);
     default_font_size = (int) mfont_get_prop (font, Msize);
   }
+
+  if (font_name)
+    {
+      font = mfont_parse_name (font_name, Mnil);
+      if (font)
+	{
+	  int score;
+	  MFont *obj;
+
+	  if (fontsize > 0 && ! mfont_get_prop (font, Msize))
+	    mfont_put_prop (font, Msize, (void *) fontsize);
+	  obj = mfont_find (frame, font, &score, 0);
+	  if (obj)
+	    mtext_put_prop (mt, 0, mtext_len (mt), Mfont, obj);
+	}
+    }
 
   font_width = (int) mframe_get_prop (frame, Mfont_width);
   font_ascent = (int) mframe_get_prop (frame, Mfont_ascent);
@@ -3183,6 +3206,8 @@ main (int argc, char **argv)
   m17n_object_unref (face_default);
   m17n_object_unref (default_face_list);
   m17n_object_unref (selection);
+  if (font)
+    free (font);
 
   XFreeGC (display, mono_gc);
   XFreeGC (display, mono_gc_inv);
@@ -3194,6 +3219,7 @@ main (int argc, char **argv)
 
   M17N_FINI ();
 
+  free (font_name);
   free (fontset_name);
   free (filename);
   free (input_method_table);
