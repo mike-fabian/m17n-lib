@@ -649,7 +649,22 @@ find_encoding (MFont *font)
   return &default_encoding;
 }
 
-#ifdef HAVE_OTF
+#ifndef HAVE_OTF
+static OTF_Tag
+OTF_tag (char *name)
+{
+  unsigned char *p = (unsigned char *) name;
+
+  if (! name)
+    return (OTF_Tag) 0;
+  return (OTF_Tag) ((p[0] << 24)
+		    | (! p[1] ? 0
+		       : ((p[1] << 16)
+			  | (! p[2] ? 0
+			     : (p[2] << 8) | p[3]))));
+}
+#endif	/* not HAVE_OTF */
+
 static MPlist *otf_script_list;
 
 static int
@@ -696,7 +711,6 @@ find_script_from_otf_tag (OTF_Tag tag)
   plist = mplist_find_by_value (otf_script_list, (void *) tag);
   return (plist ? MPLIST_KEY (plist) : Mnil);
 }
-#endif	/* HAVE_OTF */
 
 /* XLFD parser/generator */
 
@@ -1120,13 +1134,11 @@ mfont__fini ()
       M17N_OBJECT_UNREF (font_encoding_list);
       font_encoding_list = NULL;
     }
-#ifdef HAVE_OTF
   if (otf_script_list)
     {
       M17N_OBJECT_UNREF (otf_script_list);
       otf_script_list = NULL;
     }
-#endif	/* HAVE_OTF */
 
   for (i = 0; i <= MFONT_REGISTRY; i++)
     MLIST_FREE1 (&mfont__property_table[i], names);
@@ -1631,7 +1643,6 @@ free_font_capability (void *object)
   
   if (cap->lang)
     free (cap->lang);
-#ifdef HAVE_OTF
   if (cap->script)
     {
       int i;
@@ -1643,7 +1654,6 @@ free_font_capability (void *object)
 	    free (cap->features[i].tags);
 	}
     }
-#endif /* HAVE_OTF */
   free (cap);
 }
 
@@ -1666,7 +1676,6 @@ mfont__get_capability (MSymbol sym)
     {
       if (*str++ != ':')
 	continue;
-#ifdef HAVE_OTF
       if (str[0] == 'o' && str[1] == 't' && str[2] == 'f' && str[3] == '=')
 	{
 	  int i;
@@ -1748,10 +1757,8 @@ mfont__get_capability (MSymbol sym)
 		cap->features[i].tags[0] = 0;
 	      }
 	  str = p;
-	  continue;
 	}
-#endif /* HAVE_OTF */
-      if (str[0] == 'l' && str[1] == 'a' && str[2] == 'n' && str[3] == 'g'
+      else if (str[0] == 'l' && str[1] == 'a' && str[2] == 'n' && str[3] == 'g'
 	  && str[4] == '=')
 	{
 	  int count;
@@ -1791,6 +1798,13 @@ mfont__get_capability (MSymbol sym)
     }
   return cap;
 }
+
+int
+mfont__check_capability (MRealizedFont *rfont, MSymbol capability)
+{
+  return (rfont->driver->check_capability (rfont, capability));
+}
+
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
@@ -2830,65 +2844,25 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
     @brief Check the usability of a font.
 
     The function mfont_check () checkes if $FONT can be used for
-    $SCRIPT and RLANGUAGE in $FONTSET on $FRAME.
+    $SCRIPT and $LANGUAGE in $FONTSET on $FRAME.
 
     @return If the font is usable, return 1.  Otherwise return 0.
  */
 
 int
-mfont_check (MFrame *frame, MFontset *fontset, MFont *font,
-	     MSymbol script, MSymbol language)
+mfont_check (MFrame *frame, MFontset *fontset,
+	     MSymbol script, MSymbol language, MFont *font)
 {
-  MFont spec;
-  MPlist *plist, *pl;
-  int result = 0;
-  int orig_size;
+  MRealizedFont *rfont;
+  int best, score;
 
   if (! fontset)
     fontset = frame->face->property[MFACE_FONTSET];
-
-  plist = mfontset_lookup (fontset, script, Mt, Mnil);
-  if (script != Mnil)
-    {
-      if (language == Mnil)
-	{
-	  if (! mplist_find_by_key (plist, Mt))
-	    /* No fallback fonts.  */
-	    language = MPLIST_KEY (plist);
-	}
-      else if (! mplist_find_by_key (plist, language))
-	{
-	  /* Try fallback fonts. */
-	  if (mplist_find_by_key (plist, Mt))
-	    language = Mnil;
-	  else
-	    /* No fallback fonts.  */
-	    language = MPLIST_KEY (plist);
-	}
-
-      M17N_OBJECT_UNREF (plist);
-      plist = mfontset_lookup (fontset, script, language, Mnil);
-    }
-  orig_size = font->size;
-  if (orig_size < 0)
-    {
-      double pt = - orig_size;
-
-      font->size = pt * frame->dpi / 72.27 + 0.5;
-    }
-  MPLIST_DO (pl, plist)
-    {
-      spec = *(MFont *) MPLIST_VAL (pl);	  
-      if (mfont__merge (&spec, font, 1) >= 0
-	  && mfont__select (frame, &spec, 0))
-	{
-	  result = 1;
-	  break;
-	}
-    }
-  font->size = orig_size;
-  M17N_OBJECT_UNREF (plist);
-  return result;
+  rfont = mfontset__get_font (frame, fontset, script, language, font, &best);
+  if (! rfont || ! best)
+    return 0;
+  score = font_score (&rfont->spec, font);
+  return (score == 0 ? 2 : 1);
 }
 
 /*** @} */
