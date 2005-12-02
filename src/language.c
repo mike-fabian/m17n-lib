@@ -62,7 +62,7 @@ mlang__init ()
     {
       MPlist *p;
       MSymbol code3, code2, lang;
-      MText *native;
+      MText *native, *extra;
 
       if (! MPLIST_PLIST_P (pl))
 	continue;
@@ -82,7 +82,13 @@ mlang__init ()
       p = MPLIST_NEXT (p);      
       native = MPLIST_MTEXT_P (p) ? MPLIST_MTEXT (p) : NULL;
       if (native)
-	msymbol_put (code3, Mtext, native);
+	{
+	  msymbol_put (code3, Mtext, native);
+	  p = MPLIST_NEXT (p);
+	  extra = MPLIST_MTEXT_P (p) ? MPLIST_MTEXT (p) : NULL;
+	  if (extra)
+	    mtext_put_prop (native, 0, mtext_nchars (native), Mtext, extra);
+	}
       if (code2 != Mnil)
 	{
 	  msymbol_put (code3, Miso639_1, code2);
