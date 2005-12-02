@@ -845,6 +845,105 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
   return NULL;
 }
 
+MRealizedFont *
+get_font_from_group (MFrame *frame, MPlist *plist, MFont *font)
+{
+  MRealizedFont *rfont;
+
+  MPLIST_DO (plist, plist)
+    {
+      MFont spec = *(MFont *) MPLIST_VAL (plist);
+      if (mfont__merge (&spec, font, 1) < 0)
+	continue;
+      if (font->type == MFONT_TYPE_SPEC)
+	rfont = (MRealizedFont *) mfont_find (frame, &spec, NULL, 0);
+      else if (font->type == MFONT_TYPE_OBJECT)
+	rfont = mfont__open (frame, font, &spec);
+      else
+	rfont = (MRealizedFont *) font;
+      if (rfont
+	  && (spec.capability == Mnil
+	      || mfont__check_capability (rfont, spec.capability) == 0))
+	{
+	  rfont->layouter
+	    = MPLIST_KEY (plist) == Mt ? Mnil : MPLIST_KEY (plist);
+	  return rfont;
+	}
+    }
+  return NULL;
+}
+
+MRealizedFont *
+mfontset__get_font (MFrame *frame, MFontset *fontset,
+		    MSymbol script, MSymbol language, MFont *font,
+		    int *best)
+{
+  MPlist *per_script, *per_lang;
+  MRealizedFont *rfont;
+
+  if (best)
+    *best = 0;
+
+  if (script != Mnil)
+    {
+      per_script = get_per_script (fontset, script);
+      if (language == Mnil)
+	language = Mt;
+      if ((per_lang = mplist_get (per_script, language))
+	  && (rfont = get_font_from_group (frame, per_lang, font)))
+	{
+	  if (best)
+	    *best = 1;
+	  return rfont;
+	}
+      if (best)
+	*best = per_lang ? 0 : 1;
+      if (language == Mt)
+	{
+	  MPLIST_DO (per_script, per_script)
+	    if (MPLIST_KEY (per_script) != language
+		&& (rfont = get_font_from_group (frame,
+						 MPLIST_PLIST (per_script),
+						 font)))
+	      return rfont;
+	}
+      else
+	{
+	  if ((per_lang = mplist_get (per_script, Mt))
+	      && (rfont = get_font_from_group (frame, per_lang, font)))
+	    return rfont;
+	  if (best)
+	    *best = 0;
+	  MPLIST_DO (per_script, per_script)
+	    if (MPLIST_KEY (per_script) != language
+		&& MPLIST_KEY (per_script) != Mt
+		&& (rfont = get_font_from_group (frame,
+						 MPLIST_PLIST (per_script),
+						 font)))
+	      return rfont;
+	}
+    }
+
+  if (language != Mnil)
+    MPLIST_DO (per_script, fontset->per_script)
+      {
+	if ((per_lang = mplist_get (MPLIST_PLIST (per_script), language))
+	    && (rfont = get_font_from_group (frame, per_lang, font)))
+	  {
+	    if (best)
+	      *best = 1;
+	    return rfont;
+	  }
+      }
+
+  if (best)
+    *best = 0;
+  if ((rfont = get_font_from_group (frame, fontset->fallback, font)))
+    return rfont;
+  return NULL;
+}
+
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
