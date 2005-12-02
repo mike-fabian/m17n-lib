@@ -604,13 +604,18 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
   MRealizedFace *rface;
   MRealizedFont *rfont;
   MFace merged_face = *(frame->face);
-  void **props;
   int i, j;
   MFaceHookFunc func;
-  MFont adjusted;
+  MFont spec;
 
   if (num == 0 && frame->rface && ! font)
     return frame->rface;
+
+  if (! mplist_find_by_value (frame->face->frame_list, frame))
+    mplist_push (frame->face->frame_list, Mt, frame);
+  for (i = 0; i < num; i++)
+    if (! mplist_find_by_value (faces[i]->frame_list, frame))
+      mplist_push (faces[i]->frame_list, Mt, frame);
 
   for (i = 0; i < MFACE_PROPERTY_MAX; i++)
     for (j = num - 1; j >= 0; j--)
@@ -619,34 +624,24 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	  merged_face.property[i] = faces[j]->property[i];
 	  break;
 	}
+
   if (font)
     {
+      if (font->type != MFONT_TYPE_REALIZED)
+	font = mfont_copy (font);
       for (i = 0; i <= MFACE_ADSTYLE; i++)
 	if (font->property[i])
 	  merged_face.property[i] = FONT_PROPERTY (font, i);
       if (font->size)
 	{
 	  if (font->size < 0)
-	    {
-	      double pt = - font->size;
-
-	      adjusted = *font;
-	      adjusted.size = pt * frame->dpi / 72.27 + 0.5;
-	      font = &adjusted;
-	    }
+	    font->size = ((double) (- font->size)) * frame->dpi / 72.27 + 0.5;
 	  merged_face.property[MFACE_SIZE] = (void *) font->size;
+	  merged_face.property[MFACE_RATIO] = (void *) 0;
 	}
     }
 
-  if (! mplist_find_by_value (frame->face->frame_list, frame))
-    mplist_push (frame->face->frame_list, Mt, frame);
-  for (i = 0; i < num; i++)
-    if (! mplist_find_by_value (faces[i]->frame_list, frame))
-      mplist_push (faces[i]->frame_list, Mt, frame);
-
-  if ((int) merged_face.property[MFACE_SIZE] < 0
-      || (merged_face.property[MFACE_RATIO]
-	  && (int) merged_face.property[MFACE_RATIO] != 100))
+  if (! font || ! font->size)
     {
       double font_size = (int) merged_face.property[MFACE_SIZE];
       int ifont_size;
@@ -658,36 +653,53 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	{
 	  font_size *= (int) merged_face.property[MFACE_RATIO];
 	  font_size /= 100;
-	  merged_face.property[MFACE_RATIO] = 0;
 	}
       ifont_size = font_size + 0.5;
       merged_face.property[MFACE_SIZE] = (void *) ifont_size;
+      merged_face.property[MFACE_RATIO] = (void *) 0;
     }
 
   merged_face.property[MFACE_FOUNDRY] = Mnil;
   rface = find_realized_face (frame, &merged_face, font);
   if (rface)
-    return rface;
+    {
+      if (font && font->type != MFONT_TYPE_REALIZED)
+	free (font);
+      return rface;
+    }
 
   MSTRUCT_CALLOC (rface, MERROR_FACE);
   mplist_push (frame->realized_face_list, Mt, rface);
   rface->frame = frame;
   rface->face = merged_face;
+  rface->font = font;
+
   if (font)
     {
-      rface->font = mfont ();
-      *rface->font = *font;
+      if (font->type == MFONT_TYPE_SPEC)
+	rfont = (MRealizedFont *) mfont_find (frame, font, NULL, 0);
+      else if (font->type == MFONT_TYPE_OBJECT)
+	{
+	  MFONT_INIT (&spec);
+	  spec.size = (int) merged_face.property[MFONT_SIZE];
+	  if (font->property[MFONT_REGISTRY])
+	    spec.property[MFONT_REGISTRY] = font->property[MFONT_REGISTRY];
+	  else
+	    mfont_put_prop (&spec, Mregistry,
+			    (font->source == MFONT_SOURCE_X
+			     ? Miso8859_1 : Municode_bmp));
+	  rfont = mfont__open (frame, font, &spec);
+	}
+      else
+	rfont = (MRealizedFont *) font;
     }
-  props = merged_face.property;
-  rface->rfontset = mfont__realize_fontset (frame,
-					    (MFontset *) props[MFACE_FONTSET],
-					    &merged_face, font);
-  num = 0;
-  rfont = NULL;
-  if (! font)
+  else
     {
-      MFont spec;
+      MFontset *fontset = (MFontset *) merged_face.property[MFACE_FONTSET];
 
+      rface->rfontset = mfont__realize_fontset (frame, fontset, &merged_face,
+						font);
+      rfont = NULL;
       mfont__set_spec_from_face (&spec, &merged_face);
       mfont_put_prop (&spec, Mregistry, Miso8859_1);
       spec.source = MFONT_SOURCE_X;
@@ -702,10 +714,14 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	  if (font)
 	    rfont = mfont__open (frame, font, &spec);
 	}
+      if (! rfont)
+	{
+	  num = 0;
+	  rfont = mfont__lookup_fontset (rface->rfontset, NULL, &num,
+					 Mlatin, Mnil, Mnil, size, 0);
+	}
     }
-  if (! rfont)
-    rfont = mfont__lookup_fontset (rface->rfontset, NULL, &num,
-				   Mlatin, Mnil, Mnil, size, 0);
+
   if (rfont)
     {
       rface->rfont = rfont;
@@ -745,10 +761,10 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
       rface->space_width = frame->space_width;
     }
 
-  rface->hline = (MFaceHLineProp *) props[MFACE_HLINE];
+  rface->hline = (MFaceHLineProp *) merged_face.property[MFACE_HLINE];
   if (rface->hline && rface->hline->width == 0)
     rface->hline = NULL;
-  rface->box = (MFaceBoxProp *) props[MFACE_BOX];
+  rface->box = (MFaceBoxProp *) merged_face.property[MFACE_BOX];
   if (rface->box && rface->box->width == 0)
     rface->box = NULL;
   rface->ascii_rface = rface;
@@ -778,12 +794,58 @@ MGlyph *
 mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 		  MGlyph *from_g, MGlyph *to_g, int size)
 {
-  MRealizedFont *rfont;
+  MRealizedFont *rfont = from_g->rface->rfont;
   MSymbol layouter;
   int num = to_g - from_g;
   int i;
 
-  rfont = from_g->rface->rfont;
+  if (from_g->rface->font)
+    {
+      MRealizedFace *rface = from_g->rface, *new;
+
+      if (! rfont)
+	rfont = mfontset__get_font (rface->frame,
+				    rface->face.property[MFACE_FONTSET], 
+				    script, language,
+				    rface->font, NULL);
+      else if (script != Mlatin)
+	rfont = mfontset__get_font (rface->frame,
+				    rface->face.property[MFACE_FONTSET],
+				    script, language,
+				    (MFont *) rfont, NULL);
+      if (! rfont)
+	{
+	  for (; from_g < to_g && from_g->rface->font; from_g++)
+	    from_g->code = MCHAR_INVALID_CODE;
+	}
+      else
+	{
+	  if (rface->rfont == rfont && rfont->layouter == Mnil)
+	    new = rface;
+	  else
+	    {
+	      MSTRUCT_MALLOC (new, MERROR_FACE);
+	      mplist_push (rface->non_ascii_list, Mt, new);
+	      *new = *rface;
+	      new->rfont = rfont;
+	      new->layouter = rfont->layouter;
+	      new->non_ascii_list = NULL;
+	      new->ascent = rfont->ascent;
+	      new->descent = rfont->descent;
+	    } 
+	  for (; from_g < to_g && from_g->rface->font; from_g++)
+	    {
+	      from_g->rface = new;
+	      from_g->code
+		= (rfont->layouter
+		   ? mfont__flt_encode_char (rfont->layouter, from_g->c)
+		   : mfont__encode_char (rfont->frame, (MFont *) rfont, NULL,
+					 from_g->c));
+	    }
+	}
+      return from_g;
+    }
+
   if (rfont && script == Mlatin)
     {
       for (i = 0; i < num; i++)
@@ -794,8 +856,8 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	    break;
 	  from_g[i].code = code;
 	}
-      if (i == num)
-	return to_g;
+      if (i == num || from_g[i].rface->font)
+	return from_g + i;
     }
 
   rfont = mfont__lookup_fontset (from_g->rface->rfontset, from_g, &num,
