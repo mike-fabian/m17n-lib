@@ -1,3 +1,49 @@
+2005-12-02  Kenichi Handa  <handa@m17n.org>
+
+	* language.c (mlang__init): Handle extra chars.
+
+	* m17n-gui.h (mfont_check): Adjust prototype.
+
+	* m17n-X.c (xfont_driver): Specify xfont_check_capability.
+	(xfont_check_capability): New function.
+	(xft_driver): Specify xft_check_capability.
+	(xft_check_capability): New function.
+
+	* font-ft.c (M0_3): Delete it.
+	(M0): New variable.
+	(ft_get_charmaps): Refer to M0.
+	(fc_parse_pattern): Fix previous change.
+	(ft_list_language): Check also extra chars.
+	(ft_check_otf): Define it even if HAVE_OTF is undef.
+	(ft_check_lang): Check the result of FcLangSetHasLang against
+	FcLangDifferentLang.  Check also extra chars.
+	(ft_list_capability): Delete ifdef HAVE_OTF.
+	(ft_select): Likewise.
+	(ft_open): Improve debug information.
+	(ft_check_capability): New function.
+	(mfont__ft_driver): Specify ft_check_capability.
+	(mfont__ft_init): Initialize M0.
+
+	* fontset.c (get_font_from_group): New function.
+	(mfontset__get_font): New function.
+
+	* fontset.h (mfontset__get_font): Extern it.
+
+	* font.c (OTF_tag): Define it if HAVE_OTF is undef.
+	(mfont__fini): Delete ifdef HAVE_OTF.
+	(free_font_capability): Likewise.
+	(mfont__get_capability): Likewise.
+	(mfont__check_capability): New function.
+	(mfont_check): Change the order of arguments.  Use
+	mfontset__get_font.
+
+	* font.h (struct MFontDriver): New member check_capability.
+	(MFontCapability): Delete ifdef HAVE_OTF.
+	(mfont__check_capability): Extern it.
+
+	* face.c (mface__realize): Fix handling of FONT arg.
+	(mface__for_chars): Fix handling of explicitly specified font.
+
 2005-11-25  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (run_command): Print debug info for

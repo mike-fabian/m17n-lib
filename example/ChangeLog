@@ -1,3 +1,7 @@
+2005-12-02  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (main): Handle --font arg.
+
 2005-11-21  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (bin_PROGRAMS, lib_LTLIBRARIES): Define them
