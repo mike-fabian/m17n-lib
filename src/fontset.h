@@ -35,4 +35,9 @@ extern MRealizedFont *mfont__lookup_fontset (MRealizedFontset *realized,
 					     MSymbol charset, int size,
 					     int ignore_fallback);
 
+extern MRealizedFont *mfontset__get_font (MFrame *frame, MFontset *fontset,
+					  MSymbol script, MSymbol language,
+					  MFont *font, int *best);
+
+
 #endif /* _M17N_FONTSET_H_ */
