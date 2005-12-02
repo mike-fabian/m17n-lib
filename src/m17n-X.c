@@ -443,12 +443,12 @@ static unsigned xfont_encode_char (MFrame *, MFont *, MFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
 static int xfont_list (MFrame *, MPlist *, MFont *, int);
-
+static int xfont_check_capability (MRealizedFont *rfont, MSymbol capability);
 
 static MFontDriver xfont_driver =
   { xfont_select, xfont_open,
     xfont_find_metric, xfont_has_char, xfont_encode_char,
-    xfont_render, xfont_list };
+    xfont_render, xfont_list, xfont_check_capability };
 
 static int
 font_compare (const void *p1, const void *p2)
@@ -992,6 +992,13 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
   return num;
 }
 
+static int 
+xfont_check_capability (MRealizedFont *rfont, MSymbol capability)
+{
+  /* Currently X font driver doesn't support any capability.  */
+  return -1;
+}
+
 
 /* Xft Handler */
 
@@ -1017,10 +1024,13 @@ static unsigned xft_encode_char (MFrame *frame, MFont *font, MFont *spec,
 static void xft_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static void xft_render (MDrawWindow, int, int, MGlyphString *,
 			MGlyph *, MGlyph *, int, MDrawRegion);
+static int xft_check_capability (MRealizedFont *rfont, MSymbol capability);
 
 MFontDriver xft_driver =
   { NULL, xft_open,
-    xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL };
+    xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL,
+    xft_check_capability
+  };
 
 static void
 close_xft (void *object)
@@ -1268,6 +1278,18 @@ xft_render (MDrawWindow win, int x, int y,
     }
   if (nglyphs > 0)
     XftDrawGlyphs (xft_draw, xft_color, xft_font, last_x, y, glyphs, nglyphs);
+}
+
+static int
+xft_check_capability (MRealizedFont *rfont, MSymbol capability)
+{
+  MRealizedFontXft *rfont_xft = rfont->info;
+  int result;
+      
+  rfont->info = rfont_xft->info;
+  result = mfont__ft_driver.check_capability (rfont, capability);
+  rfont->info = rfont_xft;
+  return result;
 }
 
 #endif	/* HAVE_XFT2 */
