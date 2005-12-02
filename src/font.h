@@ -209,6 +209,9 @@ struct MFontDriver
       0 limits the number of listed fonts.  Return the number of fonts
       listed.  */
   int (*list) (MFrame *frame, MPlist *plist, MFont *font, int maxnum);
+
+  /** Check if RFONT support CAPABILITY.  */
+  int (*check_capability) (MRealizedFont *rfont, MSymbol capability);
 };
 
 /** Initialize the members of FONT.  */
@@ -250,14 +253,12 @@ typedef struct
   MSymbol *lang;
   MSymbol script;
   OTF_Tag script_tag;
-#ifdef HAVE_OTF
   OTF_Tag langsys_tag;
   struct {
     char *str;
     int nfeatures;
     OTF_Tag *tags;
   } features[MFONT_OTT_MAX];
-#endif
 } MFontCapability;
 
 extern MFontDriver mfont__ft_driver;
@@ -319,6 +320,8 @@ extern int mfont__parse_name_into_font (const char *name, MSymbol format,
 extern MPlist *mfont__encoding_list (void);
 
 extern MFontCapability *mfont__get_capability (MSymbol sym);
+
+extern int mfont__check_capability (MRealizedFont *rfont, MSymbol capability);
 
 extern unsigned mfont__flt_encode_char (MSymbol layouter_name, int c);
 
