@@ -726,6 +726,7 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
     {
       rface->rfont = rfont;
       rface->layouter = rfont->layouter;
+      rfont->layouter = Mnil;
       work_gstring.glyphs[0].rface = rface;
       work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
       mfont__get_metric (&work_gstring, 0, 1);
@@ -829,6 +830,7 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	      *new = *rface;
 	      new->rfont = rfont;
 	      new->layouter = rfont->layouter;
+	      rfont->layouter = Mnil;
 	      new->non_ascii_list = NULL;
 	      new->ascent = rfont->ascent;
 	      new->descent = rfont->descent;
@@ -837,8 +839,8 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	    {
 	      from_g->rface = new;
 	      from_g->code
-		= (rfont->layouter
-		   ? mfont__flt_encode_char (rfont->layouter, from_g->c)
+		= (new->layouter
+		   ? mfont__flt_encode_char (new->layouter, from_g->c)
 		   : mfont__encode_char (rfont->frame, (MFont *) rfont, NULL,
 					 from_g->c));
 	    }
@@ -863,7 +865,10 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
   rfont = mfont__lookup_fontset (from_g->rface->rfontset, from_g, &num,
 				 script, language, charset, size, 0);
   if (rfont)
-    layouter = rfont->layouter;
+    {
+      layouter = rfont->layouter;
+      rfont->layouter = Mnil;
+    }
   else
     {
       from_g->code = MCHAR_INVALID_CODE;
