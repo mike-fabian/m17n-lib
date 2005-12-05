@@ -95,26 +95,13 @@ free_string (int from, int to, void *str, void *arg)
 int
 mchar__init ()
 {
-  char_prop_list = mplist ();
-
-  Mname
-    = mchar_define_property ("name", Mstring);
-  Mcategory
-    = mchar_define_property ("category", Msymbol);
-  Mcombining_class
-    = mchar_define_property ("combining-class", Minteger);
-  Mbidi_category
-    = mchar_define_property ("bidirectional-category", Msymbol);
-  Msimple_case_folding
-    = mchar_define_property ("simple-case-folding", Minteger);
-  Mcomplicated_case_folding
-    = mchar_define_property ("complicated-case-folding", Mtext);
-  Mscript
-    = mchar_define_property ("script", Msymbol);
-
-  mchar_define_property ("cased", Minteger);
-  mchar_define_property ("soft-dotted", Msymbol);
-  mchar_define_property ("case-mapping", Mplist);
+  Mname = msymbol ("name");
+  Mcategory = msymbol ("category");
+  Mcombining_class = msymbol ("combining-class");
+  Mbidi_category = msymbol ("bidirectional-category");
+  Msimple_case_folding = msymbol ("simple-case-folding");
+  Mcomplicated_case_folding = msymbol ("complicated-case-folding");
+  Mscript = msymbol ("script");
 
   return 0;
 }
@@ -124,20 +111,60 @@ mchar__fini (void)
 {
   MPlist *p;
 
-  for (p = char_prop_list; mplist_key (p) != Mnil; p = mplist_next (p))
+  if (char_prop_list)
     {
-      MCharPropRecord *record = mplist_value (p);
-
-      if (record->table)
+      for (p = char_prop_list; mplist_key (p) != Mnil; p = mplist_next (p))
 	{
-	  if (record->type == Mstring)
-	    mchartable_map (record->table, NULL, free_string, NULL);
-	  M17N_OBJECT_UNREF (record->table);
+	  MCharPropRecord *record = mplist_value (p);
+
+	  if (record->table)
+	    {
+	      if (record->type == Mstring)
+		mchartable_map (record->table, NULL, free_string, NULL);
+	      M17N_OBJECT_UNREF (record->table);
+	    }
+	  free (record);
 	}
-      free (record);
+      M17N_OBJECT_UNREF (char_prop_list);
     }
-  M17N_OBJECT_UNREF (char_prop_list);
 }
+
+void
+mchar__define_prop (MSymbol key, MSymbol type, void *mdb)
+{
+  MCharPropRecord *record;
+
+  if (char_prop_list)
+    record = mplist_get (char_prop_list, key);
+  else
+    char_prop_list = mplist (), record = NULL;
+  if (record)
+    {
+      if (record->table)
+	M17N_OBJECT_UNREF (record->table);
+    }
+  else
+    {
+      MSTRUCT_CALLOC (record, MERROR_CHAR);
+      mplist_put (char_prop_list, key, record);
+    }
+
+  record->type = type;
+  record->mdb = mdb;
+  if (mdb)
+    {
+      record->table = NULL;
+    }
+  else
+    {
+      void *default_value = NULL;
+
+      if (type == Minteger)
+	default_value = (void *) -1;
+      record->table = mchartable (type, default_value);
+    }
+}
+
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
@@ -378,36 +405,13 @@ MSymbol
 mchar_define_property (const char *name, MSymbol type)
 {
   MSymbol key = msymbol (name);
-  MCharPropRecord *record;
+  void *mdb;
 
-  record = mplist_get (char_prop_list, key);
-  if (record)
-    {
-      if (record->table)
-	M17N_OBJECT_UNREF (record->table);
-    }
+  if (mdatabase__finder)
+    mdb = (*mdatabase__finder) (Mchar_table, type, key, Mnil);
   else
-    {
-      MSTRUCT_CALLOC (record, MERROR_CHAR);
-      mplist_put (char_prop_list, key, record);
-    }
-
-  record->type = type;
-  if (mdatabase__finder
-      && (record->mdb = (*mdatabase__finder) (Mchar_table, type, key, Mnil)))
-    {
-      record->table = NULL;
-    }
-  else
-    {
-      void *default_value = NULL;
-
-      record->mdb = NULL;
-      if (type == Minteger)
-	default_value = (void *) -1;
-      record->table = mchartable (type, default_value);
-    }
-
+    mdb = NULL;
+  mchar__define_prop (key, type, mdb);
   return key;
 }
 
