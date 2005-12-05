@@ -666,6 +666,16 @@ update_database_list ()
 			  ((MDatabaseInfo*) mdb2.extra_info)->filename
 			    = strdup (globbuf.gl_pathv[i]);
 			  MLIST_APPEND1 (&mdb_list, mdbs, mdb2, MERROR_DB);
+			  if (mdb2.tag[0] == Mchar_table
+			      && mdb2.tag[2] != Mnil
+			      && (mdb2.tag[1] == Mstring
+				  || mdb2.tag[1] == Mtext
+				  || mdb2.tag[1] == Msymbol
+				  || mdb2.tag[1] == Minteger
+				  || mdb2.tag[1] == Mplist))
+			    mchar__define_prop (mdb2.tag[2], mdb2.tag[1],
+						(mdb_list.mdbs
+						 + mdb_list.used - 1));
 			}
 		    }
 		  M17N_OBJECT_UNREF (p1);
@@ -686,6 +696,15 @@ update_database_list ()
 		MEMORY_FULL (MERROR_DB);
 	      ((MDatabaseInfo*) mdb.extra_info)->filename = strdup (path);
 	      MLIST_APPEND1 (&mdb_list, mdbs, mdb, MERROR_DB);
+	      if (mdb.tag[0] == Mchar_table
+		  && mdb.tag[2] != Mnil
+		  && (mdb.tag[1] == Mstring
+		      || mdb.tag[1] == Mtext
+		      || mdb.tag[1] == Msymbol
+		      || mdb.tag[1] == Minteger
+		      || mdb.tag[1] == Mplist))
+		mchar__define_prop (mdb.tag[2], mdb.tag[1], 
+				    mdb_list.mdbs + mdb_list.used - 1);
 	    }
 	}
       M17N_OBJECT_UNREF (pl);
