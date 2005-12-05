@@ -285,4 +285,6 @@
    || ((c) >= 'a' && (c) <= 'z')	\
    || ((c) >= '0' && (c) <= '9'))
 
+extern void mchar__define_prop (MSymbol key, MSymbol type, void *mdb);
+
 #endif /* not _M17N_CHARACTER_H_ */
