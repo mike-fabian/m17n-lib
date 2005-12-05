@@ -1,3 +1,22 @@
+2005-12-05  Kenichi Handa  <handa@m17n.org>
+
+	* face.c (mface__realize): Set rfont->layouter to Mnil.
+	(mface__for_chars): Fix handling of layouter.
+
+	* character.h (mchar__define_prop): Extern it.
+
+	* database.c (update_database_list): Call mchar__define_prop if
+	necessary.
+
+	* character.c (mchar__init): Don't call mchar_define_property.
+	Instead just initialize property keys.
+	(mchar__fini): Free char_prop_list only if it's not NULL.
+	(mchar__define_prop): New function.
+	(mchar_define_property): Call mchar__define_prop.
+
+	* m17n-core.c (m17n_fini_core): Call mtext__prop_fini at after
+	mplist__fini.
+
 2005-12-02  Kenichi Handa  <handa@m17n.org>
 
 	* language.c (mlang__init): Handle extra chars.
