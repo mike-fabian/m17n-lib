@@ -5,7 +5,7 @@ includedir=@includedir@
 version=@PACKAGE_VERSION@
 
 Name: m17n-shell
-Description: Shell API suport of the m17n library.
+Description: Shell API support of the m17n library.
 Version: ${version}
 Requires: m17n-core = ${version}
 Libs: -L${libdir} -lm17n-core -lm17n
