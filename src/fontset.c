@@ -775,6 +775,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 				      g, num, size)))
 	return rfont;
 
+      if (per_lang)
+	*num = 1;
       if (language == Mt)
 	{
 	  /* Try the above (3) */
@@ -793,6 +795,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 					  g, num, size)))
 	    return rfont;
 
+	  if (per_lang)
+	    *num = 1;
 	  /* Then try the above (3) */
 	  MPLIST_DO (plist, per_script)
 	    if (MPLIST_KEY (plist) != language
