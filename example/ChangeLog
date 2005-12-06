@@ -1,3 +1,11 @@
+2005-12-06  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (mt_modified): New variable.
+	(KeyProc): Update screen if input method modified a text.
+	(surrounding_text_handler): Set mt_modified to 1 if a text is
+	deleted.
+	(main): Fix handling of --font arg.
+
 2005-12-02  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (main): Handle --font arg.
