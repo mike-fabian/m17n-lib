@@ -173,6 +173,7 @@ Pixmap CheckPixmap;
 MFrame *frame;
 MText *mt;
 int nchars;			/* == mtext_len (mt) */
+int mt_modified;
 MDrawControl control, input_status_control;
 MTextProperty *selection;
 
@@ -257,7 +258,7 @@ struct LineInfo
 {
   int from;			/* BOL position of the line.  */
   int to;			/* BOL position of the next line.  */
-  int y0, y1;		 /* Top and bottom Y position of the line.  */
+  int y0, y1;			/* Top and bottom Y position of the line.  */
   int ascent;			/* Height of the top Y position.  */
 };
 
@@ -1561,14 +1562,25 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
   /* If set to 1, do not update target_x_position.  */
   int keep_target_x_position = 0;
   MText *produced;
-
-  if (current_input_context
-      && minput_filter (current_input_context, Mnil, event))
-    return;
-  if (event->type == KeyRelease)
-    return;
+  int y0, old_y1, new_y1;
 
   hide_cursor ();
+
+  mt_modified = 0;
+  y0 = cur.y0;
+  old_y1 = cur.y1;
+  if (current_input_context
+      && minput_filter (current_input_context, Mnil, event))
+    {
+      if (mt_modified)
+	{
+	  new_y1 = cur.y1;
+	  update_region (y0, old_y1, new_y1);
+	}
+      return;
+    }
+  if (event->type == KeyRelease)
+    return;
 
   produced = mtext ();
   ret = minput_lookup (current_input_context, Mnil, event, produced);
@@ -2204,14 +2216,19 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 	  if (cursor.from + len < 0)
 	    len = - cursor.from;
 	  mtext_del (mt, cursor.from + len, cursor.from);
-	  cursor.from += len;
+	  nchars += len;
+	  update_cursor (cursor.from + len, 1);
 	}
       else if (len > 0)
 	{
 	  if (cursor.from + len > nchars)
 	    len = nchars - cursor.from;
 	  mtext_del (mt, cursor.from, cursor.from + len);
+	  nchars -= len;
+	  update_cursor (cursor.from, 1);
 	}
+      if (len)
+	mt_modified = 1;
     }
 }
 
@@ -2725,18 +2742,32 @@ main (int argc, char **argv)
 
   {
     MPlist *plist = mplist ();
-    MFace *face;
     MFont *font;
 
     mplist_put (plist, msymbol ("widget"), ShellWidget);
-    if (fontset_name || fontsize > 0)
+    if (fontset_name || font_name || fontsize > 0)
       {
-	MFontset *fontset = mfontset (fontset_name);
-	
-	face = mface ();
-	mface_put_prop (face, Mfontset, fontset);
-	mface_put_prop (face, Msize, (void *) fontsize);
-	m17n_object_unref (fontset);
+	MFace *face;
+
+	if (font_name)
+	  {
+	    font = mfont_parse_name (font_name, Mnil);
+	    if (font)
+	      face = mface_from_font (font);
+	    else
+	      face = mface ();
+	  }
+	else
+	  face = mface ();
+	if (fontset_name)
+	  {
+	    MFontset *fontset = mfontset (fontset_name);
+
+	    mface_put_prop (face, Mfontset, fontset);
+	    m17n_object_unref (fontset);
+	  }
+	if (fontsize > 0)
+	  mface_put_prop (face, Msize, (void *) fontsize);
 	mplist_add (plist, Mface, face);
 	m17n_object_unref (face);
       }
@@ -2754,22 +2785,6 @@ main (int argc, char **argv)
     font = (MFont *) mframe_get_prop (frame, Mfont);
     default_font_size = (int) mfont_get_prop (font, Msize);
   }
-
-  if (font_name)
-    {
-      font = mfont_parse_name (font_name, Mnil);
-      if (font)
-	{
-	  int score;
-	  MFont *obj;
-
-	  if (fontsize > 0 && ! mfont_get_prop (font, Msize))
-	    mfont_put_prop (font, Msize, (void *) fontsize);
-	  obj = mfont_find (frame, font, &score, 0);
-	  if (obj)
-	    mtext_put_prop (mt, 0, mtext_len (mt), Mfont, obj);
-	}
-    }
 
   font_width = (int) mframe_get_prop (frame, Mfont_width);
   font_ascent = (int) mframe_get_prop (frame, Mfont_ascent);
