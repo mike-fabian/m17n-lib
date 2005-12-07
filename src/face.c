@@ -838,11 +838,22 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	  for (; from_g < to_g && from_g->rface->font; from_g++)
 	    {
 	      from_g->rface = new;
-	      from_g->code
-		= (new->layouter
-		   ? mfont__flt_encode_char (new->layouter, from_g->c)
-		   : mfont__encode_char (rfont->frame, (MFont *) rfont, NULL,
-					 from_g->c));
+	      if (new->layouter)
+		{
+		  from_g->code = mfont__flt_encode_char (new->layouter, 
+							 from_g->c);
+		  if (from_g->code == MCHAR_INVALID_CODE)
+		    {
+		      from_g->rface = rface;
+		      from_g->code = mfont__encode_char (rfont->frame, 
+							 (MFont *) rfont,
+							 NULL, from_g->c);
+		    }
+		}
+	      else
+		from_g->code = mfont__encode_char (rfont->frame, 
+						   (MFont *) rfont,
+						   NULL, from_g->c);
 	    }
 	}
       return from_g;
@@ -927,7 +938,7 @@ mface__free_realized (MRealizedFace *rface)
   MPLIST_DO (plist, rface->non_ascii_list)
     free (MPLIST_VAL (plist));
   M17N_OBJECT_UNREF (rface->non_ascii_list);
-  if (rface->font)
+  if (rface->font && rface->font->type != MFONT_TYPE_REALIZED)
     free (rface->font);
   free (rface);
 }
