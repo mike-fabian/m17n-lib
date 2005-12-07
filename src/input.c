@@ -2296,7 +2296,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      cond = MPLIST_PLIST (args);
 	      if (resolve_expression (ic, cond) != 0)
 		{
-		  take_action_list (ic, MPLIST_NEXT (cond));
+		  if (take_action_list (ic, MPLIST_NEXT (cond)) < 0)
+		    return -1;;
 		  break;
 		}
 	    }
@@ -2463,7 +2464,8 @@ handle_key (MInputContext *ic)
 	      if (ic_info->map->branch_actions)
 		{
 		  MDEBUG_PRINT (" brank-actions:");
-		  take_action_list (ic, ic_info->map->branch_actions);
+		  if (take_action_list (ic, ic_info->map->branch_actions) < 0)
+		    return -1;
 		}
 	    }
 	}
