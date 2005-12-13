@@ -292,8 +292,6 @@ extern void mfont__set_spec_from_face (MFont *spec, MFace *face);
 
 extern MSymbol mfont__set_spec_from_plist (MFont *spec, MPlist *plist);
 
-extern void mfont__resize (MFont *spec, MFont *request);
-
 extern int mfont__has_char (MFrame *frame, MFont *font, MFont *spec, int c);
 
 extern unsigned mfont__encode_char (MFrame *frame, MFont *font, MFont *spec,
