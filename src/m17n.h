@@ -1370,6 +1370,8 @@ extern void minput_reset_ic (MInputContext *ic);
 
 extern MText *minput_get_description (MSymbol language, MSymbol name);
 
+extern MPlist *minput_get_title_icon (MSymbol language, MSymbol name);
+
 extern MPlist *minput_get_commands (MSymbol language, MSymbol name);
 
 extern int minput_assign_command_keys (MSymbol language, MSymbol name,
