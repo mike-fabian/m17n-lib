@@ -1,3 +1,16 @@
+2005-12-13  Kenichi Handa  <handa@m17n.org>
+
+	* font.h (mfont__resize): Delete extern.
+
+	* font.c (mfont__list): Check resize ratio.
+	(mfont__resize): Delete it.
+	(mfont_resize_ratio): Include the code of mfont__resize.
+
+	* font-ft.c (ft_open): Check resize ratio.
+
+	* m17n-X.c (xfont_open): Check resize ratio.
+	(xft_open): Likewise.
+
 2005-12-07  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (take_action_list): If take_action_list return -1,
