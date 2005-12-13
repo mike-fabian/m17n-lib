@@ -1,5 +1,22 @@
 2005-12-13  Kenichi Handa  <handa@m17n.org>
 
+	* input.c (Mless_equal, Mgreater_equal): New variables.
+	(parse_expression, resolve_expression, parse_action_list)
+	(take_action_list): Handle the aboves.
+	(filter): Treat key S-X as X.
+	(minput__init): Initialize Mless_equal and Mgreater_equal.
+	(minput_get_title_icon): New function.
+
+	* m17n.h (minput_get_title_icon): Extern it.
+
+	* database.c (get_database_filename): Return a filename instead of
+	file pointer.
+	(load_database): Adjusted for the above change.
+	(mdatabase__load_for_keys): Likewise.
+	(mdatabase__find_file): New function.
+
+	* database.h (mdatabase__find_file): Extern it.
+
 	* font.h (mfont__resize): Delete extern.
 
 	* font.c (mfont__list): Check resize ratio.
