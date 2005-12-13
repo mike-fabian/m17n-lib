@@ -171,6 +171,7 @@ static MSymbol Mtitle, Mmacro, Mmodule, Mstate, Minclude;
 static MSymbol Minsert, Mdelete, Mmark, Mmove, Mpushback, Mundo, Mcall, Mshift;
 static MSymbol Mselect, Mshow, Mhide, Mcommit, Munhandle;
 static MSymbol Mset, Madd, Msub, Mmul, Mdiv, Mequal, Mless, Mgreater;
+static MSymbol Mless_equal, Mgreater_equal;
 static MSymbol Mcond;
 static MSymbol Mplus, Mminus, Mstar, Mslush, Mand, Mor, Mnot;
 
@@ -635,7 +636,8 @@ parse_expression (MPlist *plist)
   op = MPLIST_SYMBOL (plist);
   if (op != Mplus && op != Mminus && op != Mstar && op != Mslush
       && op != Mand && op != Mor && op != Mnot
-      && op != Mless && op != Mgreater && op != Mequal)
+      && op != Mless && op != Mgreater && op != Mequal
+      && op != Mless_equal && op != Mgreater_equal)
     MERROR (MERROR_IM, -1);
   MPLIST_DO (plist, MPLIST_NEXT (plist))
     if (parse_expression (plist) < 0)
@@ -687,6 +689,10 @@ resolve_expression (MInputContext *ic, MPlist *plist)
     val = val == resolve_expression (ic, MPLIST_NEXT (plist));
   else if (op == Mgreater)
     val = val > resolve_expression (ic, MPLIST_NEXT (plist));
+  else if (op == Mless_equal)
+    val = val <= resolve_expression (ic, MPLIST_NEXT (plist));
+  else if (op == Mgreater_equal)
+    val = val >= resolve_expression (ic, MPLIST_NEXT (plist));
   return val;
 }
 
@@ -831,7 +837,8 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		return -1;
 	    }
 	  else if (action_name == Mequal || action_name == Mless
-		   || action_name == Mgreater)
+		   || action_name == Mgreater || action_name == Mless_equal
+		   || action_name == Mgreater_equal)
 	    {
 	      if (parse_expression (pl) < 0
 		  || parse_expression (MPLIST_NEXT (pl)) < 0)
@@ -2075,6 +2082,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		to = 0;
 	      else if (to > len)
 		to = len;
+	      MDEBUG_PRINT1 ("(%d)", to - ic->cursor_pos);
 	      if (to < ic->cursor_pos)
 		preedit_delete (ic, to, ic->cursor_pos);
 	      else if (to > ic->cursor_pos)
@@ -2248,11 +2256,13 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    val1 *= val2, op = "*=";
 	  else
 	    val1 /= val2, op = "/=";
-	  MDEBUG_PRINT3 ("(%s %s %d)", MSYMBOL_NAME (sym), op, val1);
+	  MDEBUG_PRINT4 ("(%s %s 0x%X(%d))",
+			 MSYMBOL_NAME (sym), op, val1, val1);
 	  if (value)
 	    mplist_set (value, Minteger, (void *) val1);
 	}
-      else if (name == Mequal || name == Mless || name == Mgreater)
+      else if (name == Mequal || name == Mless || name == Mgreater
+	       || name == Mless_equal || name == Mgreater_equal)
 	{
 	  int val1, val2;
 	  MPlist *actions1, *actions2;
@@ -2271,7 +2281,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MDEBUG_PRINT3 ("(%d %s %d)? ", val1, MSYMBOL_NAME (name), val2);
 	  if (name == Mequal ? val1 == val2
 	      : name == Mless ? val1 < val2
-	      : val1 > val2)
+	      : name == Mgreater ? val1 > val2
+	      : name == Mless_equal ? val1 <= val2
+	      : val1 >= val2)
 	    {
 	      MDEBUG_PRINT ("ok");
 	      ret = take_action_list (ic, actions1);
@@ -2287,15 +2299,19 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == Mcond)
 	{
+	  int idx = 0;
+
 	  MPLIST_DO (args, args)
 	    {
 	      MPlist *cond;
 
+	      idx++;
 	      if (! MPLIST_PLIST (args))
 		continue;
 	      cond = MPLIST_PLIST (args);
 	      if (resolve_expression (ic, cond) != 0)
 		{
+		  MDEBUG_PRINT1 ("(%dth)", idx);
 		  if (take_action_list (ic, MPLIST_NEXT (cond)) < 0)
 		    return -1;;
 		  break;
@@ -2688,8 +2704,12 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	    = *meta_or_alt == 'M' ? 'A' : 'M';
 	  alias = msymbol (name);
 	  msymbol_put (key, M_key_alias, alias);
-      }
-  }
+	}
+    }
+  else if (MSYMBOL_NAME (key)[0] == 'S'
+	   && MSYMBOL_NAME (key)[1] == '-'
+	   && MSYMBOL_NAME (key)[2] >= 'A' && MSYMBOL_NAME (key)[2] <= 'Z')
+    msymbol_put (key, M_key_alias, one_char_symbol[(int)MSYMBOL_NAME (key)[2]]);
 
   do {
     if (handle_key (ic) < 0)
@@ -3004,6 +3024,8 @@ minput__init ()
   Mequal = msymbol ("=");
   Mless = msymbol ("<");
   Mgreater = msymbol (">");
+  Mless_equal = msymbol ("<=");
+  Mgreater_equal = msymbol (">=");
   Mcond = msymbol ("cond");
   Mplus = msymbol ("+");
   Mminus = msymbol ("-");
@@ -3432,7 +3454,6 @@ minput_close_im (MInputMethod *im)
     #Minput_status_draw in this order.
 
     @return
-
     If an input context is successfully created, minput_create_ic ()
     returns a pointer to it.  Otherwise it returns @c NULL.  */
 
@@ -3445,7 +3466,6 @@ minput_close_im (MInputMethod *im)
     に対応するコールバック関数をこの順に呼ぶ。
 
     @return
-
     入力コンテクストが生成された場合、minput_create_ic () 
     はその入力コンテクストへのポインタを返す。失敗した場合は @c NULL を返す。
       */
@@ -3718,6 +3738,8 @@ minput_toggle (MInputContext *ic)
   ic->active = ! ic->active;
 }
 
+/*=*/
+
 /***en
     @brief Reset an input context.
 
@@ -3744,6 +3766,69 @@ minput_reset_ic (MInputContext *ic)
   if (ic->im->driver.callback_list)
     minput__callback (ic, Minput_reset);
 }
+
+/*=*/
+
+/***en
+    @brief Get title and icon filename of an input method.
+
+    The minput_get_title_icon () function returns a plist containing a
+    title and icon filename (if any) of the input method specifies by
+    $LANGUAGE and $NAME.
+
+    The first element of the plist has key Mtext and the value is an
+    M-text of the title for identifying the input method.  The second
+    element (if any) has key M-text and the value is an M-text of the
+    icon image (absolute) filename for the same purpose.
+
+    @return
+    If there exists the specified input method and it defines an
+    title, a plist is retured.  Otherwise, NULL is returned.  A caller
+    must free the plist by m17n_object_unref ().
+*/
+
+MPlist *
+minput_get_title_icon (MSymbol language, MSymbol name)
+{
+  MPlist *plist = load_partial_im_info (language, name, Mnil, Mtitle);
+  MPlist *pl;
+  MText *mt = NULL;
+
+  if (! plist)
+    return NULL;
+  pl = MPLIST_PLIST (plist);
+  pl = MPLIST_NEXT (pl);
+  if (! MPLIST_MTEXT_P (pl))
+    {
+      M17N_OBJECT_UNREF (plist);
+      return NULL;
+    }
+  M17N_OBJECT_REF (pl);
+  M17N_OBJECT_UNREF (plist);
+  plist = pl;
+  pl = MPLIST_NEXT (pl);  
+  if (MPLIST_MTEXT_P (pl)
+      && mtext_nchars (MPLIST_MTEXT (pl)) > 0)
+    {
+      char *file;
+
+      mt = MPLIST_MTEXT (pl);
+      file = mdatabase__find_file ((char *) MTEXT_DATA (mt));
+      if (file)
+	{
+	  mt = mtext_from_data (file, strlen (file), MTEXT_FORMAT_UTF_8);
+	  mplist_set (pl, Mtext, mt);
+	  M17N_OBJECT_UNREF (mt);
+	}
+      else
+	mt = NULL;
+    }
+  if (! mt)
+    mplist_set (pl, Mnil, NULL);
+  return plist;
+}
+
+/*=*/
 
 /***en
     @brief Get description text of an input method.
