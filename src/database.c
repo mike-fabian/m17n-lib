@@ -432,17 +432,19 @@ gen_database_name (char *buf, MSymbol *tags)
   return buf;
 }
 
-static FILE *
-get_database_stream (MDatabaseInfo *db_info)
+static char *
+get_database_filename (MDatabaseInfo *db_info)
 {
-  FILE *fp = NULL;
+  char *filename = NULL;
   struct stat buf;
 
   if (db_info->filename[0] == '/')
     {
-      if (stat (db_info->filename, &buf) == 0
-	  && (fp = fopen (db_info->filename, "r")))
-	db_info->time = MAX_TIME (buf.st_mtime, buf.st_ctime);
+      if (stat (db_info->filename, &buf) == 0)
+	{
+	  filename = db_info->filename;
+	  db_info->time = MAX_TIME (buf.st_mtime, buf.st_ctime);
+	}
     }
   else
     {
@@ -459,27 +461,27 @@ get_database_stream (MDatabaseInfo *db_info)
 	  SAFE_ALLOCA (path, require);
 	  strcpy (path, dir_info->filename);
 	  strcat (path, db_info->filename);
-	  if (stat (path, &buf) == 0
-	      && (fp = fopen (path, "r")))
+	  if (stat (path, &buf) == 0)
 	    {
 	      free (db_info->filename);
-	      db_info->filename = strdup (path);
+	      filename = db_info->filename = strdup (path);
 	      db_info->time = MAX_TIME (buf.st_mtime, buf.st_ctime);
 	      break;
 	    }
 	}
       SAFE_FREE (path);
     }
-  return fp;
+  return filename;
 }
 
 static void *
 load_database (MSymbol *tags, void *extra_info)
 {
-  FILE *fp = get_database_stream ((MDatabaseInfo *) extra_info);
+  char *filename = get_database_filename ((MDatabaseInfo *) extra_info);
+  FILE *fp;
   void *value;
 
-  if (! fp)
+  if (! filename || ! (fp = fopen (filename, "r")))
     MERROR (MERROR_DB, NULL);
 
   if (tags[0] == Mchar_table)
@@ -790,6 +792,7 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
   FILE *fp;
   MPlist *plist;
   char buf[256];
+  char *filename;
 
   if (mdb->loader != load_database
       || mdb->tag[0] == Mchar_table
@@ -797,8 +800,8 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
     MERROR (MERROR_DB, NULL);
   MDEBUG_PRINT1 (" [DATABASE] loading <%s>.\n",
 		 gen_database_name (buf, mdb->tag));
-  fp = get_database_stream ((MDatabaseInfo *) mdb->extra_info);
-  if (! fp)
+  filename = get_database_filename ((MDatabaseInfo *) mdb->extra_info);
+  if (! filename || ! (fp = fopen (filename, "r")))
     MERROR (MERROR_DB, NULL);
   plist = mplist__from_file (fp, keys);
   fclose (fp);
@@ -819,6 +822,26 @@ mdatabase__check (MDatabase *mdb)
   return (db_info->time >= buf.st_ctime
 	  && db_info->time >= buf.st_mtime);
 }
+
+/* Find a file FILENAME in mdatabase__dir_list.  If the file exist,
+   return the absolute pathname.  If FILENAME is already absolute,
+   return a copy of it.  */
+
+char *
+mdatabase__find_file (char *filename)
+{
+  MDatabaseInfo db_info;
+
+  db_info.filename = strdup (filename);
+  db_info.time = 0;
+  if (! get_database_filename (&db_info))
+    {
+      free (db_info.filename);
+      return NULL;
+    }
+  return db_info.filename;
+}
+
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
