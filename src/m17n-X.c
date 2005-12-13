@@ -624,13 +624,25 @@ close_xfont (void *object)
 static MRealizedFont *
 xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
 {
-  int size = spec->size;
+  int size;
   MRealizedFontX *x_rfont;
   char *name;
   Display *display = FRAME_DISPLAY (frame);
   XFontStruct *xfont;
   int mdebug_mask = MDEBUG_FONT;
   MFont this;
+
+  if (font->size)
+    /* non-scalable font */
+    size = font->size;
+  else if (spec->size)
+    {
+      int ratio = mfont_resize_ratio (font);
+
+      size = ratio == 100 ? spec->size : spec->size * ratio / 100;
+    }
+  else
+    size = 120;
 
   if (rfont)
     {
@@ -1070,9 +1082,21 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   FT_Face ft_face;
   MRealizedFontXft *rfont_xft;
   FcBool anti_alias = FRAME_DEVICE (frame)->depth > 1 ? FcTrue : FcFalse;
-  double size = font->size ? font->size : spec->size;
+  int size;
   XftFont *xft_font;
   int ascent, descent, max_advance, average_width, baseline_offset;
+
+  if (font->size)
+    /* non-scalable font */
+    size = font->size;
+  else if (spec->size)
+    {
+      int ratio = mfont_resize_ratio (font);
+
+      size = ratio == 100 ? spec->size : spec->size * ratio / 100;
+    }
+  else
+    size = 120;
 
   if (rfont)
     {
@@ -1115,6 +1139,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   M17N_OBJECT_REF (rfont->info);
   MSTRUCT_CALLOC (rfont, MERROR_FONT_X);
   rfont->spec = *spec;
+  rfont->spec.size = size;
   rfont->frame = frame;
   rfont->font = font;
   rfont->driver = &xft_driver;
