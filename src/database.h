@@ -33,4 +33,6 @@ extern MPlist *mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys);
 
 extern int mdatabase__check (MDatabase *mdb);
 
+extern char *mdatabase__find_file (char *filename);
+
 #endif /* not _M17N_DATABASE_H_ */
