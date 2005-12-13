@@ -1422,15 +1422,29 @@ mfont__list (MFrame *frame, MFont *spec, MFont *request, int max_size)
   MTABLE_MALLOC (list->fonts, num, MERROR_FONT);
   for (i = 0; num > 0; num--, pl = MPLIST_NEXT (pl))
     {
-      MFont *font = MPLIST_VAL (pl);
+      MFont *font = MPLIST_VAL (pl), *adjusted = font;
 
       if (max_size == 0
 	  || font->size == 0
 	  || font->size < max_size)
 	{
 	  list->fonts[i].font = font;
-	  list->fonts[i].score
-	    = spec == request ? 0 : font_score (font, request);
+	  if (spec == request)
+	    list->fonts[i].score = 0;
+	  else
+	    {
+	      int resize_ratio;
+	      MFont resized;
+
+	      if (font->size > 0
+		  && (resize_ratio = mfont_resize_ratio (font)) != 100)
+		{
+		  resized = *font;
+		  resized.size = font->size * 100 / resize_ratio;
+		  adjusted = &resized;
+		}
+	      list->fonts[i].score = font_score (adjusted, request);
+	    }
 	  i++;
 	}
     }
@@ -1479,37 +1493,6 @@ mfont__open (MFrame *frame, MFont *font, MFont *spec)
     }
   return (driver->open) (frame, font, spec, rfont);
 }
-
-void
-mfont__resize (MFont *spec, MFont *request)
-{
-  MSymbol registry = FONT_PROPERTY (spec, MFONT_REGISTRY);
-  MFontResize *resize;
-  MPlist *plist;
-
-  if (! font_resize_list)
-    load_font_resize_table ();
-  if (! MPLIST_TAIL_P (font_resize_list))
-    while (1)
-      {
-	plist = font_resize_list;
-	while (registry ? (plist = mplist_find_by_key (plist, registry))
-	       : plist)
-	  {
-	    resize = (MFontResize *) MPLIST_VAL (plist);
-	    if (mfont__match_p (spec, &resize->spec, MFONT_ADSTYLE))
-	      {
-		request->size = request->size * resize->resize / 100;
-		return;
-	      }
-	    plist = MPLIST_NEXT (plist);
-	  }
-	if (registry == Mt)
-	  break;
-	registry = Mt;
-      }
-}
-
 
 int
 mfont__has_char (MFrame *frame, MFont *font, MFont *spec, int c)
@@ -2751,10 +2734,29 @@ mfont_from_name (const char *name)
 int
 mfont_resize_ratio (MFont *font)
 {
-  MFont request = *font;
+  MSymbol registry = FONT_PROPERTY (font, MFONT_REGISTRY);
+  MFontResize *resize;
+  MPlist *plist;
 
-  mfont__resize (font, &request);
-  return (font->size * 100 / request.size);
+  if (! font_resize_list)
+    load_font_resize_table ();
+  if (! MPLIST_TAIL_P (font_resize_list))
+    while (1)
+      {
+	plist = font_resize_list;
+	while (registry ? (plist = mplist_find_by_key (plist, registry))
+	       : plist)
+	  {
+	    resize = (MFontResize *) MPLIST_VAL (plist);
+	    if (mfont__match_p (font, &resize->spec, MFONT_ADSTYLE))
+	      return resize->resize;
+	    plist = MPLIST_NEXT (plist);
+	  }
+	if (registry == Mt)
+	  break;
+	registry = Mt;
+      }
+  return 100;
 }
 
 /*=*/
