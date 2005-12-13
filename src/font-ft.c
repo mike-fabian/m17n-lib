@@ -1311,7 +1311,19 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   FT_Face ft_face;
   MPlist *plist, *charmap_list = NULL;
   int charmap_index;
-  int size = font->size ? font->size : spec->size;
+  int size;
+
+  if (font->size)
+    /* non-scalable font */
+    size = font->size;
+  else if (spec->size)
+    {
+      int ratio = mfont_resize_ratio (font);
+
+      size = ratio == 100 ? spec->size : spec->size * ratio / 100;
+    }
+  else
+    size = 120;
 
   if (rfont)
     {
