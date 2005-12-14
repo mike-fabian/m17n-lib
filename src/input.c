@@ -3792,7 +3792,8 @@ minput_get_title_icon (MSymbol language, MSymbol name)
 {
   MPlist *plist = load_partial_im_info (language, name, Mnil, Mtitle);
   MPlist *pl;
-  MText *mt = NULL;
+  char *file = NULL;
+  MText *mt;
 
   if (! plist)
     return NULL;
@@ -3807,23 +3808,31 @@ minput_get_title_icon (MSymbol language, MSymbol name)
   M17N_OBJECT_UNREF (plist);
   plist = pl;
   pl = MPLIST_NEXT (pl);  
-  if (MPLIST_MTEXT_P (pl)
-      && mtext_nchars (MPLIST_MTEXT (pl)) > 0)
+  if (MPLIST_MTEXT_P (pl))
     {
-      char *file;
-
-      mt = MPLIST_MTEXT (pl);
-      file = mdatabase__find_file ((char *) MTEXT_DATA (mt));
-      if (file)
+      if (mtext_nchars (MPLIST_MTEXT (pl)) > 0)
 	{
-	  mt = mtext_from_data (file, strlen (file), MTEXT_FORMAT_UTF_8);
-	  mplist_set (pl, Mtext, mt);
-	  M17N_OBJECT_UNREF (mt);
+	  mt = MPLIST_MTEXT (pl);
+	  file = mdatabase__find_file ((char *) MTEXT_DATA (mt));
 	}
-      else
-	mt = NULL;
     }
-  if (! mt)
+  else if (language != Mnil && name != Mnil)
+
+    {
+      file = alloca (MSYMBOL_NAMELEN (language) + MSYMBOL_NAMELEN (name) + 12);
+      sprintf (file, "icon/%s-%s.png", (char *) MSYMBOL_NAME (language), 
+	       (char *) MSYMBOL_NAME (name));
+      file = mdatabase__find_file (file);
+    }
+
+  if (file)
+    {
+      mt = mtext__from_data (file, strlen (file), MTEXT_FORMAT_UTF_8, 1);
+      free (file);
+      mplist_set (pl, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+    }
+  else
     mplist_set (pl, Mnil, NULL);
   return plist;
 }
