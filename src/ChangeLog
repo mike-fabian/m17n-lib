@@ -1,3 +1,8 @@
+2005-12-14  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_get_title_icon): Check the default icon for the
+	input method.
+
 2005-12-13  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (Mless_equal, Mgreater_equal): New variables.
