@@ -26,7 +26,7 @@
 
     An input method is an object to enable inputting various
     characters.  An input method is identified by a pair of symbols,
-    LANGUAGE and NAME.  This pair decides a input method driver of the
+    LANGUAGE and NAME.  This pair decides an input method driver of the
     input method.  An input method driver is a set of functions for
     handling the input method.  There are two kinds of input methods;
     internal one and foreign one.
@@ -34,26 +34,26 @@
     <ul>
     <li> Internal Input Method
 
-    An internal input method has non @c Mnil LANGUAGE, and the body is
+    An internal input method has non @c Mnil LANGUAGE, and its body is
     defined in the m17n database by the tag <Minput_method, LANGUAGE,
     NAME>.  For this kind of input methods, the m17n library uses two
     predefined input method drivers, one for CUI use and the other for
-    GUI use.  Those driver utilize the input processing engine
+    GUI use.  Those drivers utilize the input processing engine
     provided by the m17n library itself.  The m17n database may
-    provides an input method that is not only for a specific language.
-    The database uses @c Mt as LANGUAGE of such an input method.
+    provide input methods that are not limited to a specific language.
+    The database uses @c Mt as LANGUAGE of those input methods.
 
     An internal input method accepts an input key which is a symbol
     associated with an input event.  As there is no way for the @c
     m17n @c library to know how input events are represented in an
-    application program, an application programmer have to convert an
+    application program, an application programmer has to convert an
     input event to an input key by himself.  See the documentation of
     the function minput_event_to_key () for the detail.
 
     <li> Foreign Input Method
 
-    A foreign input method has @c Mnil LANGUAGE, and the body is
-    defined in an external resources (e.g. XIM of X Window System).
+    A foreign input method has @c Mnil LANGUAGE, and its body is
+    defined in an external resource (e.g. XIM of X Window System).
     For this kind of input methods, the symbol NAME must have a
     property of key @c Minput_driver, and the value must be a pointer
     to an input method driver.  Therefore, by preparing a proper
@@ -3294,7 +3294,7 @@ MSymbol Minput_focus_move;
     pointer to this driver so that all internal input methods use it.
 
     Therefore, unless @c minput_driver is set differently, the driver
-    dependent arguments $ARG of the functions whose name begin with
+    dependent arguments $ARG of the functions whose name begins with
     "minput_" are all ignored.  */
 
 /***ja
@@ -3344,19 +3344,19 @@ MSymbol Minput_driver;
 /***en
     @brief Open an input method.
 
-    The minput_open_im () function opens an input method that matches
-    language $LANGUAGE and name $NAME, and returns a pointer to the
-    input method object newly allocated.
+    The minput_open_im () function opens an input method whose
+    language and name match $LANGUAGE and $NAME, and returns a pointer
+    to the input method object newly allocated.
 
-    This function at first decides an driver for the input method as
-    below.
+    This function at first decides a driver for the input method as
+    described below.
 
     If $LANGUAGE is not #Mnil, the driver pointed by the variable
     #minput_driver is used.
 
-    If $LANGUAGE is #Mnil and $NAME has #Minput_driver property, the
+    If $LANGUAGE is #Mnil and $NAME has the property #Minput_driver, the
     driver pointed to by the property value is used to open the input
-    method.  If $NAME has no such property, @c NULL is returned.
+    method.  If $NAME has no such a property, @c NULL is returned.
 
     Then, the member MInputDriver::open_im () of the driver is
     called.  
@@ -3623,7 +3623,7 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     @brief Look up a text produced in the input context.
 
     The minput_lookup () function looks up a text in the input context
-    $IC.  $KEY must be the same one provided to the previous call of
+    $IC.  $KEY must be identical to the one that was used in the previous call of
     minput_filter ().
 
     If a text was produced by the input method, it is concatenated
@@ -3633,8 +3633,8 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
 
     @return
     If $KEY was correctly handled by the input method, this function
-    returns 0.  Otherwise, returns -1, even in that case, some text
-    may be produced in $MT.  */
+    returns 0.  Otherwise, it returns -1, even though some text
+    might be produced in $MT.  */
 
 /***ja
     @brief 入力コンテクスト中のテキストを探す.
@@ -3664,20 +3664,20 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 /***en
     @brief Set the spot of the input context.
 
-    The minput_set_spot () function set the spot of input context $IC
+    The minput_set_spot () function sets the spot of input context $IC
     to coordinate ($X, $Y ) with the height specified by $ASCENT and $DESCENT .
-    The semantics of these values depend on the input method driver.
+    The semantics of these values depends on the input method driver.
 
     For instance, a driver designed to work in a CUI environment may
-    use $X and $Y as column and row numbers, and ignore $ASCENT and
+    use $X and $Y as the column- and row numbers, and may ignore $ASCENT and
     $DESCENT .  A driver designed to work in a window system may
-    interpret $X and $Y as pixel offsets relative to the origin of the
+    interpret $X and $Y as the pixel offsets relative to the origin of the
     client window, and may interpret $ASCENT and $DESCENT as the ascent- and
     descent pixels of the line at ($X . $Y ).
 
     $FONTSIZE specifies the fontsize of preedit text in 1/10 point.
 
-    $MT and $POS is the M-text and the character position at the spot.
+    $MT and $POS are the M-text and the character position at the spot.
     $MT may be @c NULL, in which case, the input method cannot get
     information about the text around the spot.  */
 
@@ -3745,7 +3745,7 @@ minput_toggle (MInputContext *ic)
 
     The minput_reset_ic () function resets input context $IC by
     calling a callback function corresponding to #Minput_reset.  It
-    resets the status of $IC to the one of just after created.  As the
+    resets the status of $IC to its initial one.  As the
     current preedit text is deleted without commitment, if necessary,
     call minput_filter () with the arg @r key #Mnil to force the input
     method to commit the preedit in advance.  */
@@ -3847,7 +3847,7 @@ minput_get_title_icon (MSymbol language, MSymbol name)
 
     @return
     If the specified input method has a description text, a pointer to
-    #MText is returned.  A caller have to free it by m17n_object_unref ().
+    #MText is returned.  The caller has to free it by m17n_object_unref ().
     If the input method does not have a description text, @c NULL is
     returned.  */
 /***ja
@@ -3891,11 +3891,11 @@ minput_get_description (MSymbol language, MSymbol name)
 
     There are two kinds of commands, global and local.  Global
     commands are used by multiple input methods for the same purpose,
-    and have global key assignments.  Local commands are used only in
+    and have global key assignments.  Local commands are used only by
     a specific input method, and have only local key assignments.
 
     Each input method may locally change key assignments for global
-    commands.  A global key assignment for a global command are
+    commands.  The global key assignment for a global command is
     effective only when the current input method does not have local
     key assignments for that command.
 
@@ -4091,8 +4091,8 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     If the type of the variable is integer, the following elements
     have the key #Minteger or #Mplist.  If it is #Minteger, the value
     is a valid integer value.  If it is #Mplist, the value is a plist
-    of two of elements.  Both of them have the key #Minteger, and
-    values are the minimum and maximum bounds of the valid value
+    of two elements.  Both of them have the key #Minteger, and
+    values are the minimum- and maximum bounds of the valid value
     range.
 
     If the type of the variable is symbol or M-text, the following
@@ -4110,7 +4110,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     @li name:txtvar, description:"value is an M-text",
          initial value:empty text, no value-range (i.e. any text)
 
-    Then, the returned plist has this form ('X:Y' means X is a key and Y is
+    Then, the returned plist has the following form ('X:Y' means X is a key and Y is
     a value, and '(...)' means a plist):
 
 @verbatim
