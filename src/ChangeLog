@@ -1,3 +1,8 @@
+2005-12-18  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_get_title_icon): If LANGUAGE is Mt, try also a
+	file name sans language.
+
 2005-12-16  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* input.c: Fix typo in comments.
