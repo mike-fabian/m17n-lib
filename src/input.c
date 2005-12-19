@@ -3819,10 +3819,17 @@ minput_get_title_icon (MSymbol language, MSymbol name)
   else if (language != Mnil && name != Mnil)
 
     {
-      file = alloca (MSYMBOL_NAMELEN (language) + MSYMBOL_NAMELEN (name) + 12);
-      sprintf (file, "icon/%s-%s.png", (char *) MSYMBOL_NAME (language), 
+      char *buf = alloca (MSYMBOL_NAMELEN (language) + MSYMBOL_NAMELEN (name)
+			  + 12);
+
+      sprintf (buf, "icons/%s-%s.png", (char *) MSYMBOL_NAME (language), 
 	       (char *) MSYMBOL_NAME (name));
-      file = mdatabase__find_file (file);
+      file = mdatabase__find_file (buf);
+      if (! file && language == Mt)
+	{
+	  sprintf (buf, "icons/%s.png", (char *) MSYMBOL_NAME (name));
+	  file = mdatabase__find_file (buf);
+	}
     }
 
   if (file)
