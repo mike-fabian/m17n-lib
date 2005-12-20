@@ -452,6 +452,8 @@ mchar_get_prop (int c, MSymbol key)
 {
   MCharPropRecord *record;
 
+  if (! char_prop_list)
+    return NULL;
   record = mplist_get (char_prop_list, key);
   if (! record)
     return NULL;
@@ -497,6 +499,8 @@ mchar_put_prop (int c, MSymbol key, void *val)
 {
   MCharPropRecord *record;
 
+  if (! char_prop_list)
+    MERROR (MERROR_CHAR, -1);
   record = mplist_get (char_prop_list, key);
   if (! record)
     return -1;
@@ -542,6 +546,8 @@ mchar_get_prop_table (MSymbol key, MSymbol *type)
 {
   MCharPropRecord *record;
 
+  if (! char_prop_list)
+    return NULL;
   record = mplist_get (char_prop_list, key);
   if (! record)
     return NULL;
