@@ -29,7 +29,8 @@ symbols.
 
 ** New functions minput_get_description (), minput_get_commands (),
 minput_assign_command_keys (), minput_get_variables (), and
-minput_set_variable() are introduced for handling input methods.
+minput_set_variable(), minput_get_title_icon() are introduced for
+handling input methods.
 
 ** New fucntions mtext_insert () and and mtext_replace () for
 modifying M-text.
