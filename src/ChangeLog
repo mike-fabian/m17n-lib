@@ -1,3 +1,8 @@
+2005-12-20  Kenichi Handa  <handa@m17n.org>
+
+	* character.c (mchar_get_prop): Check char_prop_list.
+	(mchar_put_prop, mchar_get_prop_table): Likewise.
+
 2005-12-18  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_get_title_icon): If LANGUAGE is Mt, try also a
