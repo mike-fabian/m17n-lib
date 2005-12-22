@@ -16,9 +16,9 @@ language.
 Run the script "bootstrap.sh" in this directory.  It is tested that
 the script run successfully with these versions of autotools.
 
-	libtool-1.4
-	automake-1.4p5
-	autoconf-2.52
+	libtool-1.5.6
+	automake-1.9.5
+	autoconf-2.59
 
 Then, proceed to the next step.
 
