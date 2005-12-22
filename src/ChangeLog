@@ -1,5 +1,9 @@
 2005-12-22  Kenichi Handa  <handa@m17n.org>
 
+	* Version 1.3.0 released.
+
+2005-12-22  Kenichi Handa  <handa@m17n.org>
+
 	* font-ft.c (ft_list): If the specified font has no property,
 	return all fonts.
 
