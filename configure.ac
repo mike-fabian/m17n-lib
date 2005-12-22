@@ -159,7 +159,9 @@ if test "x$with_libotf" != "xno"; then
   else
     OTF_LD_FLAGS=-lotf
   fi
-  AC_CHECK_LIB(otf, OTF_open, HAVE_OTF=yes, HAVE_OTF=no)
+  ## We check the availability of OTF_check_features
+  ## because we need libotf-0.9.4 or the later.
+  AC_CHECK_LIB(otf, OTF_check_features, HAVE_OTF=yes, HAVE_OTF=no)
   AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
   CPPFLAGS="$save_CPPFLAGS"
   if test "x$HAVE_OTF" = "xyes"; then
