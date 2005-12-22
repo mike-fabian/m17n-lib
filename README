@@ -78,7 +78,7 @@ instruct the `configure' script not to build them as below:
 	% ./configure --without-gui
 
 This file under `example' sub-directory is a Japanese resource file
-for medit.  It is not installed but useful in Japanese locale.  Copy
+for m17n-edit.  It is not installed but useful in Japanese locale.  Copy
 it to your home directory (or, for instance,
 /usr/X11R6/lib/X11/ja/app-defaults) and rename it to "M17NEdit" if you
 want to see labels in Japanese:
