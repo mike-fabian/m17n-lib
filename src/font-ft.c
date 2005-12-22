@@ -1737,10 +1737,6 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
 	  if (! capability_list || MPLIST_TAIL_P (capability_list))
 	    goto done;
 	}
-      else if (family == Mnil)
-	{
-	  capability_list = ft_list_default ();
-	}
     }
 
   if (! file_list && ! family_list && ! capability_list)
