@@ -1,3 +1,7 @@
+2005-12-22  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Check availability of OTF_check_features.
+
 2005-12-05  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-shell.pc.in (Description): Fix typo.
