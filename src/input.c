@@ -2390,7 +2390,7 @@ handle_key (MInputContext *ic)
   int i;
 
   MDEBUG_PRINT2 ("  [IM] handle `%s' in state %s", 
-		 MSYMBOL_NAME (key), MSYMBOL_NAME (ic_info->state->name));
+		 msymbol_name (key), MSYMBOL_NAME (ic_info->state->name));
 
   if (map->submaps)
     {
@@ -2687,33 +2687,36 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   ic_info->key_unhandled = 0;
 
   /* If KEY has Meta or Alt modifier, put M_key_alias property.  */
-  if (! msymbol_get (key, M_key_alias)
-      && (strchr (MSYMBOL_NAME (key), 'M')
-	  || strchr (MSYMBOL_NAME (key), 'A')))
+  if (key != Mnil)
     {
-      char *name = MSYMBOL_NAME (key);
-      char *meta_or_alt;
-
-      while (name[0] && name[1] == '-'
-	     && (name[0] != 'M' && name[0] != 'A'))
-	name += 2;
-      if ((name[0] == 'M' || name[0] == 'A') && name[1] == '-')
+      if (! msymbol_get (key, M_key_alias)
+	  && (strchr (MSYMBOL_NAME (key), 'M')
+	      || strchr (MSYMBOL_NAME (key), 'A')))
 	{
-	  MSymbol alias;
+	  char *name = MSYMBOL_NAME (key);
+	  char *meta_or_alt;
 
-	  meta_or_alt = name;
-	  name = alloca (MSYMBOL_NAMELEN (key) + 1);
-	  memcpy (name, MSYMBOL_NAME (key), MSYMBOL_NAMELEN (key) + 1);
-	  name[meta_or_alt - MSYMBOL_NAME (key)]
-	    = *meta_or_alt == 'M' ? 'A' : 'M';
-	  alias = msymbol (name);
-	  msymbol_put (key, M_key_alias, alias);
+	  while (name[0] && name[1] == '-'
+		 && (name[0] != 'M' && name[0] != 'A'))
+	    name += 2;
+	  if ((name[0] == 'M' || name[0] == 'A') && name[1] == '-')
+	    {
+	      MSymbol alias;
+
+	      meta_or_alt = name;
+	      name = alloca (MSYMBOL_NAMELEN (key) + 1);
+	      memcpy (name, MSYMBOL_NAME (key), MSYMBOL_NAMELEN (key) + 1);
+	      name[meta_or_alt - MSYMBOL_NAME (key)]
+		= *meta_or_alt == 'M' ? 'A' : 'M';
+	      alias = msymbol (name);
+	      msymbol_put (key, M_key_alias, alias);
+	    }
 	}
+      else if (MSYMBOL_NAME (key)[0] == 'S'
+	       && MSYMBOL_NAME (key)[1] == '-'
+	       && MSYMBOL_NAME (key)[2] >= 'A' && MSYMBOL_NAME (key)[2] <= 'Z')
+	msymbol_put (key, M_key_alias, one_char_symbol[(int)MSYMBOL_NAME (key)[2]]);
     }
-  else if (MSYMBOL_NAME (key)[0] == 'S'
-	   && MSYMBOL_NAME (key)[1] == '-'
-	   && MSYMBOL_NAME (key)[2] >= 'A' && MSYMBOL_NAME (key)[2] <= 'Z')
-    msymbol_put (key, M_key_alias, one_char_symbol[(int)MSYMBOL_NAME (key)[2]]);
 
   do {
     if (handle_key (ic) < 0)
