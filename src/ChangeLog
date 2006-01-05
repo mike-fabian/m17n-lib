@@ -1,5 +1,8 @@
 2006-01-05  Kenichi Handa  <handa@m17n.org>
 
+	* input-gui.c (win_filter): Try to convert arg to key only when
+	arg is not NULL.
+
 	* plist.c (read_integer_element): If '#' and '-' are followed by
 	non-integer-constituent, read them as a part of a symbol.
 	(read_symbol_element): New arg C.
@@ -13,6 +16,8 @@
 	(minput_get_description): If the input method has no description,
 	be sure to return NULL.
 	(minput_get_variables): Fix documentation.
+	(handle_key): Pay attention to the case that key is Mnil.
+	(filter): Likewise.
 
 2005-12-22  Kenichi Handa  <handa@m17n.org>
 
