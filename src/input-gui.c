@@ -158,10 +158,8 @@ win_filter (MInputContext *ic, MSymbol key, void *arg)
       || ! ic->active)
     return 0;
 
-  if (key == Mnil)
+  if (key == Mnil && arg)
     {
-      if (! arg)
-	return 0;
       key = minput_event_to_key (win_ic_info->frame, arg);
       if (key == Mnil)
 	return 1;
