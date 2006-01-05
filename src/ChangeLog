@@ -17,7 +17,7 @@
 	be sure to return NULL.
 	(minput_get_variables): Fix documentation.
 	(handle_key): Pay attention to the case that key is Mnil.
-	(filter): Likewise.
+	(filter): Likewise.  Fix handling of such symbol as S-A.
 
 2005-12-22  Kenichi Handa  <handa@m17n.org>
 
