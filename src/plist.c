@@ -32,7 +32,27 @@
 
     If the key of a property is a @e managing @e key, its @e value is
     a @e managed @e object.  A property list itself is a managed
-    objects.  */
+    objects.
+
+    If each key of a plist is one of #Msymbol, #Mtext, #Minteger, and
+    #Mplist, the plist is called as @e well-formed and represented by
+    the following notation in the documentation.
+
+@verbatim
+      PLIST ::= '(' ELEMENT * ')'
+
+      ELEMENT ::= INTEGER | SYMBOL | M-TEXT | PLIST
+
+      M-TEXT ::= '"' text data ... '"'
+@endverbatim
+
+    For instance, if a plist has four elements; integer -20, symbol of
+    name "sym", M-text of contents "abc", and plist of integer 10 and
+    symbol of name "another-symbol", it is represented as this:
+
+      (-20 sym "abc" (10 another-symbol))
+
+  */
 /***ja
     @addtogroup m17nPlist
 
@@ -338,6 +358,57 @@ read_character (MStream *st, int c)
 }
 
 
+/** Read a symbol element from ST, and add it to LIST.  Return a list
+    for the next element.  */
+
+static MPlist *
+read_symbol_element (MPlist *plist, MStream *st, int c, int skip)
+{
+  unsigned char buffer[1024];
+  int bufsize = 1024;
+  unsigned char *buf = buffer;
+  int i;
+
+  i = 0;
+  while (c != EOF
+	 && c > ' '
+	 && c != ')' && c != '(' && c != '"')
+    {
+      if (i >= bufsize)
+	{
+	  bufsize *= 2;
+	  if (buf == buffer)
+	    {
+	      MTABLE_MALLOC (buf, bufsize, MERROR_PLIST);
+	      memcpy (buf, buffer, i);
+	    }
+	  else
+	    MTABLE_REALLOC (buf, bufsize, MERROR_PLIST);
+	}
+      if (c == '\\')
+	{
+	  c = GETC (st);
+	  if (c == EOF)
+	    break;
+	  c = escape_mnemonic[c];
+	}
+      if (! skip)
+	buf[i++] = c;
+      c = GETC (st);
+    }
+
+  if (c > ' ')
+    UNGETC (c, st);
+  if (! skip)
+    {
+      buf[i] = 0;
+      MPLIST_SET_ADVANCE (plist, Msymbol, msymbol ((char *) buf));
+      if (buf != buffer)
+	free (buf);
+    }
+  return plist;
+}
+
 /** Read an integer element from ST, and add it to LIST.  Return a
     list for the next element.  It is assumed that we have already
     read the character C. */
@@ -347,13 +418,20 @@ read_integer_element (MPlist *plist, MStream *st, int c, int skip)
 {
   int num;
 
-  if (c == '0' || c == '#')
+  if (c == '#')
     {
       c = GETC (st);
-      if (c == 'x')
-	num = read_hexadesimal (st);
-      else
-	num = read_decimal (st, c);
+      if (c != 'x')
+	{
+	  UNGETC (c, st);
+	  return read_symbol_element (plist, st, '#', skip);
+	}
+      num = read_hexadesimal (st);
+    }
+  else if (c == '0')
+    {
+      c = GETC (st);
+      num = (c == 'x' ? read_hexadesimal (st) : read_decimal (st, c));
     }
   else if (c == '?')
     {
@@ -379,62 +457,20 @@ read_integer_element (MPlist *plist, MStream *st, int c, int skip)
 	}
     }
   else if (c == '-')
-    num = - read_decimal (st, GETC (st));
+    {
+      c = GETC (st);
+      if (c < '0' || c > '9')
+	{
+	  UNGETC (c, st);
+	  return read_symbol_element (plist, st, '-', skip);
+	}
+      num = - read_decimal (st, c);
+    }
   else
     num = read_decimal (st, c);
 
   if (! skip)
     MPLIST_SET_ADVANCE (plist, Minteger, (void *) num);
-  return plist;
-}
-
-/** Read a symbol element from ST, and add it to LIST.  Return a list
-    for the next element.  */
-
-static MPlist *
-read_symbol_element (MPlist *plist, MStream *st, int skip)
-{
-  unsigned char buffer[1024];
-  int bufsize = 1024;
-  unsigned char *buf = buffer;
-  int c, i;
-
-  i = 0;
-  while ((c = GETC (st)) != EOF
-	 && c > ' '
-	 && c != ')' && c != '(' && c != '"')
-    {
-      if (i >= bufsize)
-	{
-	  bufsize *= 2;
-	  if (buf == buffer)
-	    {
-	      MTABLE_MALLOC (buf, bufsize, MERROR_PLIST);
-	      memcpy (buf, buffer, i);
-	    }
-	  else
-	    MTABLE_REALLOC (buf, bufsize, MERROR_PLIST);
-	}
-      if (c == '\\')
-	{
-	  c = GETC (st);
-	  if (c == EOF)
-	    break;
-	  c = escape_mnemonic[c];
-	}
-      if (! skip)
-	buf[i++] = c;
-    }
-
-  if (c > ' ')
-    UNGETC (c, st);
-  if (! skip)
-    {
-      buf[i] = 0;
-      MPLIST_SET_ADVANCE (plist, Msymbol, msymbol ((char *) buf));
-      if (buf != buffer)
-	free (buf);
-    }
   return plist;
 }
 
@@ -517,8 +553,7 @@ read_element (MPlist *plist, MStream *st, MPlist *keys)
     return (read_integer_element (plist, st, c, keys ? 1 : 0));
   if (c == EOF || c == ')')
     return NULL;
-  UNGETC (c, st);
-  return (read_symbol_element (plist, st, keys ? 1 : 0));
+  return (read_symbol_element (plist, st, c, keys ? 1 : 0));
 }
 
 void
