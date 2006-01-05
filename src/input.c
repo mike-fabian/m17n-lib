@@ -2712,7 +2712,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	      msymbol_put (key, M_key_alias, alias);
 	    }
 	}
-      else if (MSYMBOL_NAME (key)[0] == 'S'
+      else if (MSYMBOL_NAMELEN (key) == 3
+	       && MSYMBOL_NAME (key)[0] == 'S'
 	       && MSYMBOL_NAME (key)[1] == '-'
 	       && MSYMBOL_NAME (key)[2] >= 'A' && MSYMBOL_NAME (key)[2] <= 'Z')
 	msymbol_put (key, M_key_alias, one_char_symbol[(int)MSYMBOL_NAME (key)[2]]);
