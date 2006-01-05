@@ -1055,6 +1055,7 @@ static int
 load_macros (MPlist *plist, MPlist *macros)
 {
   MSymbol name; 
+  MPlist *pl;
 
   if (! MPLIST_SYMBOL_P (plist))
     MERROR (MERROR_IM, -1);
@@ -1063,6 +1064,9 @@ load_macros (MPlist *plist, MPlist *macros)
   if (MPLIST_TAIL_P (plist)
       || parse_action_list (plist, macros) < 0)
     MERROR (MERROR_IM, -1);
+  pl = mplist_get (macros, name);
+  if (pl)
+    M17N_OBJECT_UNREF (pl);
   mplist_put (macros, name, plist);
   M17N_OBJECT_REF (plist);
   return 0;
@@ -2992,7 +2996,6 @@ minput__init ()
 	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
   char buf[6], buf2[256];
   int i;
-  MPlist *plist;
 
   Minput_method = msymbol ("input-method");
   Minput_driver = msymbol ("input-driver");
@@ -3068,7 +3071,8 @@ minput__init ()
   M_variable = msymbol ("variable");
 
   load_im_info_keys = mplist ();
-  plist = mplist_add (load_im_info_keys, Mstate, Mnil);
+  mplist_add (load_im_info_keys, Mstate, Mnil);
+  mplist_push (load_im_info_keys, Mmap, Mnil);
 
   buf[0] = 'C';
   buf[1] = '-';
@@ -3797,13 +3801,12 @@ minput_get_title_icon (MSymbol language, MSymbol name)
 
   if (! plist)
     return NULL;
+  if (MPLIST_TAIL_P (plist))
+    goto no_title;
   pl = MPLIST_PLIST (plist);
   pl = MPLIST_NEXT (pl);
   if (! MPLIST_MTEXT_P (pl))
-    {
-      M17N_OBJECT_UNREF (plist);
-      return NULL;
-    }
+    goto no_title;
   M17N_OBJECT_REF (pl);
   M17N_OBJECT_UNREF (plist);
   plist = pl;
@@ -3842,6 +3845,10 @@ minput_get_title_icon (MSymbol language, MSymbol name)
   else
     mplist_set (pl, Mnil, NULL);
   return plist;
+
+ no_title:
+  M17N_OBJECT_UNREF (plist);
+  return NULL;
 }
 
 /*=*/
@@ -3873,10 +3880,15 @@ minput_get_description (MSymbol language, MSymbol name)
 {
   MPlist *plist = load_partial_im_info (language, name, Mnil, M_description);
   MPlist *pl;
-  MText *mt;
+  MText *mt = NULL;
 
   if (! plist)
     return NULL;
+  if (MPLIST_TAIL_P (plist))
+    {
+      M17N_OBJECT_UNREF (plist);
+      return NULL;
+    }
   pl = MPLIST_PLIST (plist);
   pl = MPLIST_NEXT (pl);
   if (MPLIST_MTEXT_P (pl))
@@ -4075,36 +4087,26 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     The minput_get_variables () function returns a plist (#MPlist) of
     variables used to control the behavior of the input method
-    specified by $LANGUAGE and $NAME.  The key of an element of the
-    plist is a symbol representing a variable, and the value is a
-    plist of the form VAR-INFO (described below) that carries the
-    information about the variable.
+    specified by $LANGUAGE and $NAME.  The plist is @e well-formed
+    (#m17nPlist) of the following format:
 
-    The first element of VAR-INFO has the key #Mtext or #Msymbol.  If
-    the key is #Mtext, the value is an M-text describing the variable.
-    If the key is #Msymbol, that value is #Mnil which means the
-    variable has no description text.
+@verbatim
+    (VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
+     VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
+     ...)
+@endverbatim
 
-    The second element of VAR-INFO is for the value of the variable.
-    The key is #Minteger, #Msymbol, or #Mtext, and the value is an
-    integer, a symbol, or an M-text, respectively.  The variable is
-    set to this value when an input context is created for the input
-    method.
+    @c VARNAME is a symbol representing the variable name.
 
-    If there are no more elements, the variable can take any value
-    that matches with the above type.  Otherwise, the remaining
-    elements of VAR-INFO are to specify valid values of the variable.
+    @c DOC-MTEXT is an M-text describing the variable.
 
-    If the type of the variable is integer, the following elements
-    have the key #Minteger or #Mplist.  If it is #Minteger, the value
-    is a valid integer value.  If it is #Mplist, the value is a plist
-    of two elements.  Both of them have the key #Minteger, and
-    values are the minimum- and maximum bounds of the valid value
-    range.
+    @c DEFAULT-VALUE is the default value of the varible.  It is a
+    symbol, integer, or M-text.
 
-    If the type of the variable is symbol or M-text, the following
-    elements of the plist have the key #Msymbol or #Mtext,
-    respectively, and the value must be a valid one.
+    @c VALUEs (if any) specifies the possible values of the variable.
+    If @c DEFAULT-VALUE is an integer, @c VALUE may be a plist (@c FROM
+    @c TO), where @c FROM and @c TO specifies a range of possible
+    values.
 
     For instance, suppose an input method has the variables:
 
@@ -4117,23 +4119,12 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     @li name:txtvar, description:"value is an M-text",
          initial value:empty text, no value-range (i.e. any text)
 
-    Then, the returned plist has the following form ('X:Y' means X is a key and Y is
-    a value, and '(...)' means a plist):
+    Then, the returned plist is as follows.
 
 @verbatim
-    plist:(intvar:(mtext:"value is an integer"
-                   integer:0
-		   plist:(integer:0 integer:3)
-                   integer:10
-                   integer:20))
-           symvar:(mtext:"value is a symbol"
-                   symbol:nil
-                   symbol:a
-                   symbol:b
-                   symbol:c
-                   symbol:nil))
-           txtvar:(mtext:"value is an M-text"
-                   mtext:""))
+    (intvar ("value is an integer" 0 (0 3) 10 20)
+     symvar ("value is a symbol" nil a b c nil)
+     txtvar ("value is an M-text" ""))
 @endverbatim
 
     @return
@@ -4144,30 +4135,27 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 /***ja
     @brief 入力メソッドの変数リストを得る.
 
-    関数 minput_get_variables () は、$LANGUAGE と $NAME 
-    によって指定された入力メソッドの振る舞いを制御する変数のプロパティリスト 
-    (#MPlist) を返す。リストの各要素のキーは変数を表すシンボルである。
-    各要素の値は下記の VAR-INFO 
-    の形式のプロパティリストであり、各変数に関する情報を示している。
+    関数 minput_get_variables () は、$LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの振る舞いを制御する変数のプロパティリスト
+    (#MPlist) を返す。このリストは @e well-formed であり(#m17nPlist) 以
+    下の形式である。
 
-    VAR-INFO の第一要素のキーは #Mtext または #Msymbol である。キーが
-    #Mtext なら、値はその変数を説明する M-text である。キーが #Msymbol
-    なら値は #Mnil であり、この変数は説明テキストを持たないことになる。
+@verbatim
+    (VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
+     VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
+     ...)
+@endverbatim
 
-    VAR-INFO の第二要素は変数の値を示す。キーは #Minteger, #Msymbol,
-    #Mtext のいずれかであり、値はそれぞれ整数値、シンボル、M-text  である。
-    この入力メソッド用の入力コンテストが作られる時点では、変数はこの値に設定されている。
+    @c VARNAME は変数の名前を示すシンボルである。
 
-    VAR-INFO にそれ以外の要素が無ければ、変数は上記の型に合致する限りどのような値をとることもできる。
-    そうでなければ、VAR-INFO の残りの要素によって変数の有効な値が指定される。
+    @c DOC-MTEXT は変数を説明する M-text である。
 
-    変数の型が整数であれば、それ以降の要素は #Minteger か #Mplist 
-    をキーとして持つ。 #Minteger であれば、値は有効な値を示す整数値である。
-    #Mplist であれば、値は二つの要素を持つプロパティリストであり、各要素はキーとして
-    #Minteger を、値としてそれぞれ有効な値の上限値と下限値をとる。
+    @c DEFAULT-VALUE は変数のデフォルト値であり、シンボル、整数もしくは
+    M-text である。
 
-    変数の型がシンボルか M-text であれば、それ以降の要素はキーとしてそれぞれ
-    #Msymbol か #Mtext を持ち、値はその型に合致するものである。
+    @c VALUE は、もし指定されていれば変数の取り得る値を示す。もし
+    @c DEFAULT-VALUE が整数なら、 @c VALUE は (@c FROM @c TO) という形
+    のリストでも良い。この場合 @c FROM と @c TO は可能な値の範囲を示す。
 
     例として、ある入力メソッドが次のような変数を持つ場合を考えよう。
 
@@ -4180,27 +4168,16 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
     @li name:txtvar, 説明:"value is an M-text",
         初期値:empty text, 値の範囲なし(どんな M-text でも可)
 
-    この場合、返されるリストは以下のようになる。（'X:Y' という記法は X 
-    がキーで Y が値であることを、また '(...)' はプロパティリストを示す。）
+    この場合、返されるリストは以下のようになる。
 
 @verbatim
-    plist:(intvar:(mtext:"value is an integer"
-                   integer:0
-		   plist:(integer:0 integer:3)
-                   integer:10
-                   integer:20))
-           symvar:(mtext:"value is a symbol"
-                   symbol:nil
-                   symbol:a
-                   symbol:b
-                   symbol:c
-                   symbol:nil))
-           txtvar:(mtext:"value is an M-text"
-                   mtext:""))
+    (intvar ("value is an integer" 0 (0 3) 10 20)
+     symvar ("value is a symbol" nil a b c nil)
+     txtvar ("value is an M-text" ""))
 @endverbatim
 
     @return 
-    入力メソッドが何らかの変数を使用していれば #MPlist への変数を返す。
+    入力メソッドが何らかの変数を使用していれば #MPlist へのポインタを返す。
     返されるプロパティリストはライブラリによって管理されており、呼び出し側で変更したり解放したりしてはならない。
     入力メソッドが変数を一切使用してなければ、@c NULL を返す。  */
 
