@@ -1,3 +1,7 @@
+2006-01-05  Kenichi Handa  <handa@m17n.org>
+
+	* mdate.c (main): Call m17n-view; not mview.
+
 2005-12-22  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.3.0 released.
