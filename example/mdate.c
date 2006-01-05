@@ -222,7 +222,7 @@ main (int argc, char **argv)
 
   /* Show the generated M-text by another example program "mview".  */
   {
-    FILE *p = popen ("mview", "w");
+    FILE *p = popen ("m17n-view", "w");
 
     if (!p)
       FATAL_ERROR ("%s\n", "Can't run the program mview!");
