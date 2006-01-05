@@ -1,5 +1,11 @@
 2006-01-05  Kenichi Handa  <handa@m17n.org>
 
+	* HELLO.utf8: Fix Hindi and Oriya.
+
+	* HELLO.xml: Adjusted for the latest HELLO.utf8.
+
+	* HELLO.html: Adjusted for the latest HELLO.utf8.
+
 	* mdate.c (main): Call m17n-view; not mview.
 
 2005-12-22  Kenichi Handa  <handa@m17n.org>
