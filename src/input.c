@@ -1015,7 +1015,7 @@ load_branch (MPlist *plist, MPlist *maps, MIMMap *map,
       if (branch_actions)
 	M17N_OBJECT_REF (branch_actions);
     }
-  else if ((plist = (MPlist *) mplist_get (maps, map_name)))
+  else if (maps && (plist = (MPlist *) mplist_get (maps, map_name)))
     {
       MPLIST_DO (plist, plist)
 	{
