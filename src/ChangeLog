@@ -1,3 +1,12 @@
+2006-01-10  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (preedit_commit): For debugging, print only commiting
+	charactes.  Don't set ic->candidate_show to 0.
+	(handle_key): Don't run branch-actions just by shifting to the
+	current state.
+	(reset_ic): Reset state_key_head and key_head of ic_info to 0.
+	Reset vars and plist.
+
 2006-01-07  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (load_branch): Confirm that maps is not NULL.
