@@ -1563,13 +1563,13 @@ preedit_commit (MInputContext *ic)
 			     Mcandidate_index, NULL, 0);
       mtext_cat (ic->produced, ic->preedit);
       if ((mdebug__flag & mdebug_mask)
-	  && mtext_nchars (ic->produced) > 0)
+	  && mtext_nchars (ic->preedit) > 0)
 	{
 	  int i;
 
 	  MDEBUG_PRINT (" (produced");
-	  for (i = 0; i < mtext_nchars (ic->produced); i++)
-	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->produced, i));
+	  for (i = 0; i < mtext_nchars (ic->preedit); i++)
+	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->preedit, i));
 	  MDEBUG_PRINT (")");
 	}
       mtext_reset (ic->preedit);
@@ -1583,7 +1583,6 @@ preedit_commit (MInputContext *ic)
     {
       M17N_OBJECT_UNREF (ic->candidate_list);
       ic->candidate_list = NULL;
-      ic->candidate_show = 0;
       ic->candidates_changed = MINPUT_CANDIDATES_LIST_CHANGED;
       if (ic->candidate_show)
 	{
@@ -2478,16 +2477,7 @@ handle_key (MInputContext *ic)
 	  /* If MAP is still not the root map, shift to the current
 	     state. */
 	  if (ic_info->map != ic_info->state->map)
-	    {
-	      shift_state (ic, ic_info->state->name);
-	      /* If MAP has branch_actions, perform them.  */
-	      if (ic_info->map->branch_actions)
-		{
-		  MDEBUG_PRINT (" brank-actions:");
-		  if (take_action_list (ic, ic_info->map->branch_actions) < 0)
-		    return -1;
-		}
-	    }
+	    shift_state (ic, ic_info->state->name);
 	}
       else
 	{
@@ -2516,13 +2506,14 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   MText *status;
+  MPlist *plist;
 
   MDEBUG_PRINT ("\n  [IM] reset\n");
 
   ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
   ic_info->prev_state = NULL;
   ic_info->map = ic_info->state->map;
-  ic_info->state_key_head = ic_info->key_head;
+  ic_info->state_key_head = ic_info->key_head = 0;
   MLIST_RESET (ic_info);
   ic_info->key_unhandled = 0;
 
@@ -2530,24 +2521,44 @@ reset_ic (MInputContext *ic, MSymbol ignore)
     mtext_reset (ic->produced);
   if (mtext_nchars (ic->preedit) > 0)
     {
-      MPlist *plist;
-
       mtext_reset (ic->preedit);
-      MPLIST_DO (plist, ic_info->markers)
-	MPLIST_VAL (plist) = 0;
-      ic->preedit_changed = 1;
+      ic->preedit_changed = ic->cursor_pos_changed = 1;
+    }
+  MPLIST_DO (plist, ic_info->markers)
+    MPLIST_VAL (plist) = 0;
+
+  M17N_OBJECT_UNREF (ic_info->vars);
+  ic_info->vars = mplist ();
+  plist = get_nested_list (ic->im->language, ic->im->name, Mnil, M_variable);
+  MPLIST_DO (plist, plist)
+    {
+      MSymbol var = MPLIST_SYMBOL (plist);
+      MPlist *pl;
+
+      plist = MPLIST_NEXT (plist);
+      pl = MPLIST_PLIST (plist);
+      pl = MPLIST_NEXT (pl);	/* Skip description.  */
+      mplist_push (ic_info->vars, MPLIST_KEY (pl), MPLIST_VAL (pl));
+      mplist_push (ic_info->vars, Msymbol, var);
+    }
+
+  if (ic->candidate_list)
+    {
+      M17N_OBJECT_UNREF (ic->candidate_list);
+      ic->candidate_list = NULL;
+      ic->candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
     }
   if (ic->candidate_show)
     {
       ic->candidate_show = 0;
-      ic->candidates_changed = MINPUT_CANDIDATES_SHOW_CHANGED;
-      if (ic->candidate_list)
-	{
-	  M17N_OBJECT_UNREF (ic->candidate_list);
-	  ic->candidate_list = NULL;
-	  ic->candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
-	}
+      ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
     }
+  if (ic->candidate_index > 0)
+    {
+      ic->candidate_index = 0;
+      ic->candidates_changed |= MINPUT_CANDIDATES_INDEX_CHANGED;
+    }
+
   mtext_reset (ic_info->preedit_saved);
   ic_info->state_pos = ic->cursor_pos = 0;
 
@@ -2557,6 +2568,9 @@ reset_ic (MInputContext *ic, MSymbol ignore)
       ic->status = status;
       ic->status_changed = 1;
     }
+
+  M17N_OBJECT_UNREF (ic->plist);
+  ic->plist = mplist ();
 }
 
 static int
