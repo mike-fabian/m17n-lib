@@ -481,10 +481,8 @@ get_surrounding_text (MInputContext *ic, int len)
   mplist_push (ic->plist, Minteger, (void *) len);
   minput__callback (ic, Minput_get_surrounding_text);
   if (MPLIST_MTEXT_P (ic->plist))
-    {
-      mt = MPLIST_MTEXT (ic->plist);
-      mplist_pop (ic->plist);
-    }
+    mt = MPLIST_MTEXT (ic->plist);
+  mplist_pop (ic->plist);
   return mt;
 }
 
@@ -2568,9 +2566,6 @@ reset_ic (MInputContext *ic, MSymbol ignore)
       ic->status = status;
       ic->status_changed = 1;
     }
-
-  M17N_OBJECT_UNREF (ic->plist);
-  ic->plist = mplist ();
 }
 
 static int
