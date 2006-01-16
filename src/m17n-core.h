@@ -1,5 +1,5 @@
 /* m17n-core.h -- header file for the CORE API of the m17n library.
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005, 2006
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
