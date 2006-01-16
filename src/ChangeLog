@@ -1,3 +1,15 @@
+2006-01-16  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.3.1 released.
+
+2006-01-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gd.c (gd_render): Use gdImageColorResolveAlpha instead of
+	simulating anti-aliasing.
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Updated to 1.
+	(M17NLIB_VERSION_NAME): Updated to "1.3.1".
+
 2006-01-12  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (get_surrounding_text): Always pop ic->plist.
