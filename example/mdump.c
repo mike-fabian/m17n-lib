@@ -103,6 +103,15 @@
     Prefer a font specified for the language LANG.  LANG must be a
     2-letter code of ISO 630 (e.g. "en" for English).
 
+    <li> -fg FOREGROUND
+
+    Speicify the text color.
+
+    <li> -bg BACKGROUND
+
+    Speicify the background color.  If "transparent" is specified,
+    make the background transparent.
+
     <li> -r
 
     Specify that the orientation of the text is right-to-left.
@@ -200,6 +209,18 @@
 
     言語 LANG 用に指定されたフォントを優先的に使う。LANG は ISO 630 の
     ２文字コード（例：英語は "en" ）でなければならない。
+
+    <li> -fg FOREGROUND
+
+    テキストの色を指定する。
+
+    <li> -bg BACKGROUND
+
+    背景の色を指定する。もし "transparent" が指定されたら背景を透明にする。
+
+    <li> -r
+
+    Specify that the orientation of the text is right-to-left.
 
     <li> -q
 
@@ -302,6 +323,10 @@ help_exit (char *prog, int exit_code)
 	  "Prefer a font specified for the langauge LANG.\n");
   printf ("  %-13s %s", "-r", 
 	  "Specify that the orientation of the text is right-to-left.\n");
+  printf ("  %-13s %s", "-fg FOREGROUND",
+	  "Specify the text color.\n");
+  printf ("  %-13s %s", "-bg BACKGROUND",
+	  "Specify the background color (\"transparent\" for transparent)\n");
   printf ("  %-13s %s", "-q", "Quiet mode.  Don't print any messages.\n");
   printf ("  %-13s %s", "--version", "Print the version number.\n");
   printf ("  %-13s %s", "-h, --help", "Print this message.\n");
@@ -445,11 +470,13 @@ main (int argc, char **argv)
   int anti_alias = 0;
   char *family_name = NULL;
   char *lang_name = NULL;
+  char *fg_color = NULL, *bg_color = NULL;
+  int transparent = 0;
   int r2l = 0;
   int i;
   int page_index;
   gdImagePtr image;
-  int white;
+  int bg_rgb;
 
   MFrame *frame;
   MText *mt;
@@ -576,7 +603,28 @@ main (int argc, char **argv)
 	{
 	  fontset_name = argv[++i];
 	}
-
+      else if (! strcmp (argv[i], "-fg"))
+	{
+	  if (i + 1 == argc)
+	    {
+	      fprintf (stderr, "Foreground color not specified\n");
+	      help_exit (argv[0], 1);
+	    }
+	  fg_color = argv[++i];
+	}
+      else if (! strcmp (argv[i], "-bg"))
+	{
+	  if (i + 1 == argc)
+	    {
+	      fprintf (stderr, "Background color not specified\n");
+	      help_exit (argv[0], 1);
+	    }
+	  i++;
+	  if (! strcmp (argv[i], "transparent"))
+	    transparent = 1;
+	  else
+	    bg_color = argv[i];
+	}
       else
 	{
 	  fprintf (stderr, "Unknown or invalid option: %s\n", argv[i]);
@@ -624,7 +672,10 @@ main (int argc, char **argv)
 	  if (isupper (*p)) *p = tolower (*p);
 	mface_put_prop (face, Mfamily, msymbol (family_name));
       }
-
+    if (fg_color)
+      mface_put_prop (face, Mforeground, msymbol (fg_color));
+    if (bg_color)
+      mface_put_prop (face, Mbackground, msymbol (bg_color));
     p = mplist_add (plist, Mdevice, msymbol ("gd"));
     p = mplist_add (p, Mface, face);
     m17n_object_unref (face);
@@ -669,11 +720,40 @@ main (int argc, char **argv)
 	}
     }
 
-  image = gdImageCreate (paper_width, paper_height);
+  image = gdImageCreateTrueColor (paper_width, paper_height);
   from = 0;
   page_index = 1;
-  white = gdImageColorAllocate (image, 255, 255, 255);
-  gdImageColorTransparent (image, white);
+
+  if (transparent)
+    {
+      MFace *face = mframe_get_prop (frame, Mface);
+      MSymbol fg = mface_get_prop (face, Mforeground);
+      int rgb_value = 0;
+
+      if (fg)
+	rgb_value = (int) msymbol_get (fg, msymbol ("  rgb"));
+      if (rgb_value == 0xFFFFFF)
+	bg_rgb = gdImageColorAllocate (image, 0, 0, 0);
+      else
+	bg_rgb = gdImageColorAllocate (image, 255, 255, 255);
+      gdImageColorTransparent (image, bg_rgb);
+      gdImageAlphaBlending (image, 0);
+    }
+  else
+    {
+      MFace *face = mframe_get_prop (frame, Mface);
+      MSymbol bg = mface_get_prop (face, Mbackground);
+      if (bg)
+	{
+	  int rgb_value = (int) msymbol_get (bg, msymbol ("  rgb"));
+	  bg_rgb = gdImageColorAllocate (image, rgb_value >> 16, 
+					 (rgb_value >> 8) & 255, 
+					 rgb_value & 255);
+	}
+      else
+	bg_rgb = gdImageColorAllocate (image, 255, 255, 255);
+    }
+
   while (from < len)
     {
       int to;
@@ -685,7 +765,7 @@ main (int argc, char **argv)
 			    &control, &rect);
 
       gdImageFilledRectangle (image, 0, 0, paper_width - 1, paper_height - 1,
-			      white);
+			      bg_rgb);
       if (! r2l)
 	mdraw_text_with_control (frame, image,
 				 margin, margin - rect.y,
