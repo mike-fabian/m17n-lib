@@ -327,6 +327,9 @@ gd_render (MDrawWindow win, int x, int y,
 	      if (bmp[j] > 0)
 		{
 		  int pixel1 = pixel;
+#ifndef gdAlphaTransparent
+#define gdAlphaTransparent 127
+#endif
 		  int alpha = gdAlphaTransparent * (255 - bmp[j]) / 255;
 
 		  if (alpha > 0)
