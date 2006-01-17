@@ -720,7 +720,11 @@ main (int argc, char **argv)
 	}
     }
 
+#if HAVE_GD > 1
   image = gdImageCreateTrueColor (paper_width, paper_height);
+#else
+  image = gdImageCreate (paper_width, paper_height);
+#endif
   from = 0;
   page_index = 1;
 
@@ -737,7 +741,9 @@ main (int argc, char **argv)
       else
 	bg_rgb = gdImageColorAllocate (image, 255, 255, 255);
       gdImageColorTransparent (image, bg_rgb);
+#if HAVE_GD > 1
       gdImageAlphaBlending (image, 0);
+#endif
     }
   else
     {
