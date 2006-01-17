@@ -720,7 +720,11 @@ main (int argc, char **argv)
 	}
     }
 
+#if HAVE_GD > 1
   image = gdImageCreateTrueColor (paper_width, paper_height);
+#else
+  image = gdImageCreate (paper_width, paper_height);
+#endif
   from = 0;
   page_index = 1;
 
