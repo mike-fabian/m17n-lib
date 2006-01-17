@@ -327,10 +327,28 @@ gd_render (MDrawWindow win, int x, int y,
 	      if (bmp[j] > 0)
 		{
 		  int pixel1 = pixel;
+#if HAVE_GD > 1
 		  int alpha = gdAlphaTransparent * (255 - bmp[j]) / 255;
 
 		  if (alpha > 0)
 		    pixel1 = gdImageColorResolveAlpha (img, r, g, b, alpha);
+#else
+		  int f = bmp[j] >> 5;
+
+		  if (f < 7)
+		    {
+		      int r1, g1, b1, color1;
+
+		      pixel1 = gdImageGetPixel (img, xoff, yoff);
+		      r1 = gdImageRed (img, pixel1);
+		      g1 = gdImageGreen (img, pixel1);
+		      b1 = gdImageBlue (img, pixel1);
+		      color1 = ((((r * f + r1 * (7 - f)) / 7) << 16)
+				| (((g * f + g1 * (7 - f)) / 7) << 8)
+				| ((b * f + b1 * (7 - f)) / 7));
+		      pixel1 = RESOLVE_COLOR (img, color1);
+		    }
+#endif
 		  gdImageSetPixel (img, xoff, yoff, pixel1);
 		}
 	  }
