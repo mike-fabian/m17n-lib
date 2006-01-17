@@ -1,3 +1,7 @@
+2006-01-17  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (main): Use gdImageCreateTrueColor only if HAVE_GD > 1.
+
 2006-01-16  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.3.1 released.
