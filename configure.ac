@@ -282,7 +282,7 @@ if test "x$with_gd" != "xno"; then
 	      [Define to 1 or 2 if you have gd library and header file.])
     M17N_EXT_LIBS="$M17N_EXT_LIBS gdlib"
     GD_LD_FLAGS=-lgd
-    CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_GD"
+    CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_GD=$HAVE_GD"
   fi
   LIBS="$save_LIBS"
 fi
