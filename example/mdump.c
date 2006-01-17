@@ -741,7 +741,9 @@ main (int argc, char **argv)
       else
 	bg_rgb = gdImageColorAllocate (image, 255, 255, 255);
       gdImageColorTransparent (image, bg_rgb);
+#if HAVE_GD > 1
       gdImageAlphaBlending (image, 0);
+#endif
     }
   else
     {
