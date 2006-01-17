@@ -34,7 +34,7 @@ will find out the existence of them automatically.
 	libotf		-- http://www.m17n.org/libotf/
 	fontconfig	-- http://freedesktop.org/Software/fontconfig
 	xft		-- http://freedesktop.org/Software/Xft
-	gd		-- http://www.boutell.com/gd/http/gd-1.8.4.tar.gz
+	gd		-- http://www.boutell.com/gd/
 
 In addition, for finding a word boundary in Thai text, "configure"
 checks the existence of these libraries (libthai is preferred):
