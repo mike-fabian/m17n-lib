@@ -10,14 +10,15 @@
 <!ATTLIST property control CDATA #REQUIRED>
 ]>
 <mtext>
-<property key="language" value="ka" from="233" to="267" control="0"/>
-<property key="language" value="hy" from="204" to="233" control="0"/>
-<property key="language" value="el" from="174" to="204" control="0"/>
+<property key="language" value="el" from="174" to="183" control="0"/>
 <property key="language" value="ru" from="138" to="174" control="0"/>
 <property key="language" value="sk" from="106" to="138" control="0"/>
 <property key="language" value="de" from="64" to="106" control="0"/>
 <property key="language" value="fr" from="27" to="64" control="0"/>
 <property key="language" value="en" from="7" to="27" control="0"/>
+<property key="language" value="ka" from="233" to="267" control="0"/>
+<property key="language" value="hy" from="204" to="233" control="0"/>
+<property key="language" value="el" from="184" to="204" control="0"/>
 <property key="language" value="am" from="484" to="507" control="0"/>
 <property key="language" value="dv" from="436" to="484" control="0"/>
 <property key="language" value="fa" from="404" to="436" control="0"/>
@@ -50,7 +51,7 @@
   German (Deutsch)			Guten Tag, Grüß Gott
   Slovak (slovensky)		Dobrý deň
   Russian (русский)			Здравствуйте!
-  Greek (ελληνικά)			Γειά σας
+  Greek (ἑλληνικά)			Γειά σας
   Armenian (հայերեն)		Բարեւ։
   Georgian (ქართული)		გამარჯობათ!
 
