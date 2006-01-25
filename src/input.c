@@ -657,7 +657,7 @@ resolve_expression (MInputContext *ic, MPlist *plist)
     return 0;
   plist = MPLIST_PLIST (plist);
   if (! MPLIST_SYMBOL_P (plist))
-    return val;
+    return 0;
   op = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
   val = resolve_expression (ic, plist);
