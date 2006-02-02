@@ -1,3 +1,8 @@
+2006-02-02  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (include_HEADERS): Add m17n-gui.h and m17n-X.h only
+	if WITH_GUI is true.
+
 2006-01-25  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (resolve_expression): If the value of PLIST is a plist,
