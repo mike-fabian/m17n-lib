@@ -86,7 +86,10 @@ libm17n_gd_la_LDFLAGS = -module ${VINFO}
 AM_CPPFLAGS = -DM17NDIR="\"@M17NDIR@\""
 
 
-include_HEADERS = m17n-core.h m17n.h m17n-misc.h m17n-gui.h m17n-X.h
+include_HEADERS = m17n-core.h m17n.h m17n-misc.h
+if WITH_GUI
+include_HEADERS += m17n-gui.h m17n-X.h
+endif
 
 SRC =	${libm17n_core_la_SOURCES} \
 	${libm17n_la_SOURCES} \
