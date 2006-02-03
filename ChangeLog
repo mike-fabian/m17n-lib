@@ -1,3 +1,7 @@
+2006-02-03  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Version changed to 1.3.1.
+
 2006-01-17  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: If GD library is available, define HAVE_GD as 1 or
