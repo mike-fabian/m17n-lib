@@ -1,3 +1,7 @@
+2006-02-03  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gd.c (read_rgb_txt): Support HTML 4.0 color names.
+
 2006-02-02  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (include_HEADERS): Add m17n-gui.h and m17n-X.h only
