@@ -1,5 +1,8 @@
 2006-02-03  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c (layout_glyphs): Fix handling left_padding of
+	composition's base.
+
 	* m17n-gd.c (read_rgb_txt): Support HTML 4.0 color names.
 
 2006-02-02  Kenichi Handa  <handa@m17n.org>
