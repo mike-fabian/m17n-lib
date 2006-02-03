@@ -1,3 +1,13 @@
+2006-02-03  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c: Describe the supported color names.
+
+2006-01-19  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8: Fix greek.
+
+	* HELLO.xml: Fix greek.
+
 2006-01-17  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c (main): Use gdImageCreateTrueColor and
