@@ -744,6 +744,7 @@ xlfd_parse_name (const char *name, MFont *font)
   char copy[513];
   int i;
   char *p;
+  MSymbol sym;
 
   if (name[0] != '-')
     return -1;
@@ -793,9 +794,19 @@ xlfd_parse_name (const char *name, MFont *font)
     size = atoi (field[XLFD_PIXEL]) * 10;
 
   if (field[XLFD_FOUNDRY])
-    mfont__set_property (font, MFONT_FOUNDRY, msymbol (field[XLFD_FOUNDRY]));
+    {
+      sym = msymbol (field[XLFD_FOUNDRY]);
+      if (! sym)
+	sym = msymbol ("Nil");
+      mfont__set_property (font, MFONT_FOUNDRY, sym);
+    }
   if (field[XLFD_FAMILY])
-    mfont__set_property (font, MFONT_FAMILY, msymbol (field[XLFD_FAMILY]));
+    {
+      sym = msymbol (field[XLFD_FAMILY]);
+      if (! sym)
+	sym = msymbol ("Nil");
+      mfont__set_property (font, MFONT_FAMILY, sym);
+    }
   if (field[XLFD_WEIGHT])
     mfont__set_property (font, MFONT_WEIGHT, msymbol (field[XLFD_WEIGHT]));
   if (field[XLFD_SLANT])
@@ -2239,23 +2250,23 @@ mfont_copy (MFont *font)
     The mfont_get_prop () function gets the value of $KEY property of
     font $FONT.  $KEY must be one of the following symbols:
 
-	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c Madstyle,
-	@c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
+	@c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
     If $FONT is a return value of mfont_find (), $KEY can also be one
     of the following symbols:
 
 	#Mfont_ascent, #Mfont_descent, #Mmax_advance.
 
-    @return If $KEY is @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
-    @c Madstyle, @c Mregistry, or @c Mspacing, this function returns
-    the corresponding value as a symbol.  If the font does not have
-    $KEY property, it returns @c Mnil.  If $KEY is @c Msize, @c
-    Mresolution, #Mfont_ascent, Mfont_descent, or #Mmax_advance, this
-    function returns the corresponding value as an integer.  If the
-    font does not have $KEY property, it returns 0.  If $KEY is
-    something else, it returns @c NULL and assigns an error code to
-    the external variable #merror_code.  */
+    @return If $KEY is @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle,
+    @c Mstretch, @c Madstyle, @c Mregistry, or @c Mspacing, this
+    function returns the corresponding value as a symbol.  If the font
+    does not have $KEY property, it returns @c Mnil.  If $KEY is @c
+    Msize, @c Mresolution, #Mfont_ascent, Mfont_descent, or
+    #Mmax_advance, this function returns the corresponding value as an
+    integer.  If the font does not have $KEY property, it returns 0.
+    If $KEY is something else, it returns @c NULL and assigns an error
+    code to the external variable #merror_code.  */
  
 /***ja
     @brief フォントのプロパティの値を得る.
@@ -2264,16 +2275,16 @@ mfont_copy (MFont *font)
     $KEY であるものの値を返す。$KEY は以下のシンボルのいずれかでなけれ
     ばならない。
 
-	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
-    @return $KEY が @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch, @c
-    Madstyle, @c Mregistry, @c Mspacing のいずれかであれば、相当する値
-    をシンボルとして返す。フォントがそのプロパティを持たない場合には
-    @c Mnil を返す。$KEY が @c Msize あるいは @c Mresolution の場合には、
-    相当する値をは整数値として返す。フォントがそのプロパティを持たない
-    場合には 0 を返す。$KEY がそれ以外のものであれば、@c NULL を返し、
-    外部変数 #merror_code にエラーコードを設定する。  */
+    @return $KEY が @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c
+    Mstretch, @c Madstyle, @c Mregistry, @c Mspacing のいずれかであれば、
+    相当する値をシンボルとして返す。フォントがそのプロパティを持たない
+    場合には@c Mnil を返す。$KEY が @c Msize あるいは @c Mresolution の
+    場合には、相当する値をは整数値として返す。フォントがそのプロパティ
+    を持たない場合には 0 を返す。$KEY がそれ以外のものであれば、@c
+    NULL を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 void *
 mfont_get_prop (MFont *font, MSymbol key)
@@ -2334,22 +2345,26 @@ mfont_get_prop (MFont *font, MSymbol key)
     $KEY and value is $VAL to font $FONT.  $KEY must be one of the
     following symbols:
 
-	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
 
     If $KEY is @c Msize or @c Mresolution, $VAL must be an integer.
-    Otherwise, $VAL must be a symbol.  */
+    Otherwise, $VAL must be a symbol of a property value name.  But,
+    if the name is "nil", a symbol of name "Nil" must be
+    specified.  */
  /***ja
     @brief フォントのプロパティに値を設定する.
 
-    関数 mfont_put_prop () は、フォント $FONT のキーが$KEY 
-    であるプロパティの値を $VAL に設定する。$KEY は以下のシンボルのいずれかである。
+    関数 mfont_put_prop () は、フォント $FONT のキーが$KEY であるプロパ
+    ティの値を $VAL に設定する。$KEY は以下のシンボルのいずれかである。
 
-	@c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
+	@c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution.
 
-    $KEY が @c Msize か @c Mresolution であれば $VAL 
-    は整数値でなくてはらない。それ以外の場合、$VAL はシンボルでなくてはならない。*/
+    $KEY が @c Msize か @c Mresolution であれば $VAL は整数値でなくては
+    らない。それ以外の場合、$VAL はプロパティ値の名前のシンボルでなくて
+    はならない。ただしもしその名前が "nil" の場合は、名前が "Nil" のシ
+    ンボルでなくてはならない。*/
 
 int
 mfont_put_prop (MFont *font, MSymbol key, void *val)
