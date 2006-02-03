@@ -719,6 +719,12 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
 	      base[i].pos = begin;
 	      base[i].to = end;
 	    }
+	  if (base->left_padding && lbearing < 0)
+	    {
+	      base->xoff -= lbearing;
+	      base->width -= lbearing;
+	      lbearing = 0;
+	    }
 	}
 
       g_physical_ascent = MAX (g_physical_ascent, base->ascent);
