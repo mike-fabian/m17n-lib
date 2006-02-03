@@ -105,11 +105,13 @@
 
     <li> -fg FOREGROUND
 
-    Speicify the text color.
+    Speicify the text color.  The supported color names are those of
+    HTML 4.0 and "#RRGGBB" notation.
 
     <li> -bg BACKGROUND
 
-    Speicify the background color.  If "transparent" is specified,
+    Speicify the background color.  The supported color names are the
+    same as FOREGROUND, except that if "transparent" is specified,
     make the background transparent.
 
     <li> -r
@@ -212,11 +214,13 @@
 
     <li> -fg FOREGROUND
 
-    テキストの色を指定する。
+    テキストの色を指定する。HTML 4.0 の色の名前および "#RRGGBB" 記法を
+    サポート。
 
     <li> -bg BACKGROUND
 
-    背景の色を指定する。もし "transparent" が指定されたら背景を透明にする。
+    背景の色を指定する。サポートされている色の名前は FOREGROUND 同じ。
+    ただし、もし "transparent" が指定されたら背景を透明にする。
 
     <li> -r
 
@@ -324,7 +328,7 @@ help_exit (char *prog, int exit_code)
   printf ("  %-13s %s", "-r", 
 	  "Specify that the orientation of the text is right-to-left.\n");
   printf ("  %-13s %s", "-fg FOREGROUND",
-	  "Specify the text color.\n");
+	  "Specify the text color (HTML 4.0 color names or \"#RRGGBB\").\n");
   printf ("  %-13s %s", "-bg BACKGROUND",
 	  "Specify the background color (\"transparent\" for transparent)\n");
   printf ("  %-13s %s", "-q", "Quiet mode.  Don't print any messages.\n");
