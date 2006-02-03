@@ -67,9 +67,28 @@ static MSymbol M_rgb;
 static void
 read_rgb_txt ()
 {
-  FILE *fp = fopen ("/usr/lib/X11/rgb.txt", "r");
+  FILE *fp;
   int r, g, b;
 
+  /* At first, support HTML 4.0 color names. */
+  msymbol_put (msymbol ("black"), M_rgb, (void *) 0x000000);
+  msymbol_put (msymbol ("silver"), M_rgb, (void *) 0xC0C0C0);
+  msymbol_put (msymbol ("gray"), M_rgb, (void *) 0x808080);
+  msymbol_put (msymbol ("white"), M_rgb, (void *) 0xFFFFFF);
+  msymbol_put (msymbol ("maroon"), M_rgb, (void *) 0x800000);
+  msymbol_put (msymbol ("red"), M_rgb, (void *) 0xFF0000);
+  msymbol_put (msymbol ("purple"), M_rgb, (void *) 0x800080);
+  msymbol_put (msymbol ("fuchsia"), M_rgb, (void *) 0xFF00FF);
+  msymbol_put (msymbol ("green"), M_rgb, (void *) 0x008000);
+  msymbol_put (msymbol ("lime"), M_rgb, (void *) 0x00FF00);
+  msymbol_put (msymbol ("olive"), M_rgb, (void *) 0x808000);
+  msymbol_put (msymbol ("yellow"), M_rgb, (void *) 0xFFFF00);
+  msymbol_put (msymbol ("navy"), M_rgb, (void *) 0x000080);
+  msymbol_put (msymbol ("blue"), M_rgb, (void *) 0x0000FF);
+  msymbol_put (msymbol ("teal"), M_rgb, (void *) 0x008080);
+  msymbol_put (msymbol ("aqua"), M_rgb, (void *) 0x00FFFF);
+
+  fp = fopen ("/usr/lib/X11/rgb.txt", "r");
   if (! fp)
     fp = fopen ("/usr/X11R6/lib/X11/rgb.txt", "r");
   if (! fp)
