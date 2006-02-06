@@ -1,5 +1,5 @@
 /* mdump.c -- Dump text image				-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004, 2005
+   Copyright (C) 2003, 2004, 2005, 2006
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
