@@ -1,3 +1,7 @@
+2006-02-06  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.3.2 released.
+
 2006-02-03  Kenichi Handa  <handa@m17n.org>
 
 	* mdump.c: Describe the supported color names.
