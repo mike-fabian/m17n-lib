@@ -1,5 +1,5 @@
 /* draw.c -- drawing module.
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005, 2006
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 

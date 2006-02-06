@@ -1,5 +1,5 @@
 /* m17n-gd.c -- implementation of the GUI API on GD Library.
-   Copyright (C) 2004
+   Copyright (C) 2004, 2005, 2006
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
