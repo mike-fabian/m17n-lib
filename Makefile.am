@@ -27,7 +27,7 @@ SUBDIRS = src example
 bin_SCRIPTS = m17n-config
 
 EXTRA_DIST = \
-	m17n-core.pc.in m17n-shell.pc.in m17n-gui.pc.in
+	m17n-core.pc.in m17n-shell.pc.in m17n-gui.pc.in bootstrap.sh
 
 pkgconfigdir = ${libdir}/pkgconfig
 
