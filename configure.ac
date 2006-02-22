@@ -23,8 +23,8 @@ dnl 02111-1307, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(m17n-lib, 1.3.2, m17n-lib-bug@m17n.org)
-AM_INIT_AUTOMAKE(m17n-lib, 1.3.2)
+AC_INIT(m17n-lib, 1.3.3, m17n-lib-bug@m17n.org)
+AM_INIT_AUTOMAKE(m17n-lib, 1.3.3)
 AM_CONFIG_HEADER(src/config.h)
 AM_MAINTAINER_MODE
 
@@ -93,7 +93,7 @@ dnl Checks if dlopen exists, and if it's in libc or libdl.
 
 AC_SEARCH_LIBS(dlopen, dl,
 	       AC_DEFINE(HAVE_DLOPEN, 1,
-	       [Define to 1 if you have the funciton dlopen.]))
+	       [Define to 1 if you have the function dlopen.]))
 
 dnl Check several libraries without adding -lxxx to LIBS, without
 dnl defining HAVE_LIBXXX nor HAVE_XXX_H because they are used only by
