@@ -480,7 +480,7 @@ msymbol_as_managing_key (const char *name)
 /***en
     @brief Check if a symbol is a managing key.
 
-    The msymbol_is_managing_key () function checks if the sysmbol
+    The msymbol_is_managing_key () function checks if the symbol
     $SYMBOL is a managing key or not.
 
     @return Return 1 if the symbol is a managing key.  Otherwise,
