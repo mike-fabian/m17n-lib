@@ -2622,8 +2622,8 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     @brief Replace sub-text of M-text with another.
 
     The mtext_replace () function replaces sub-text of M-text $MT1
-    between $FROM1 (inclusive) and $TO1 (exclusinve) with the sub-text
-    of M-text $MT2 between $FROM2 (inclusive) and $TO2 (exclusinve).
+    between $FROM1 (inclusive) and $TO1 (exclusive) with the sub-text
+    of M-text $MT2 between $FROM2 (inclusive) and $TO2 (exclusive).
     The new sub-text inherits text properties of the old sub-text.
 
     @return If the operation was successful, mtext_replace () returns
@@ -3454,7 +3454,7 @@ mtext_lowercase (MText *mt)
     The mtext_titlecase () function destructively converts the first
     character with the cased property in M-text $MT to titlecase and
     the others to lowercase.  The length of $MT may change.  If the
-    character cannot be converted to titlercase, it is left unchanged.
+    character cannot be converted to titlecase, it is left unchanged.
     All the text properties are inherited.
 
     @return

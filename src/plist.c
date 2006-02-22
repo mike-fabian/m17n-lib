@@ -1441,7 +1441,7 @@ mplist_value (MPlist *plist)
 }
 
 /***en
-    @brief Generate a property list by deserializaing an M-text.
+    @brief Generate a property list by deserializing an M-text.
 
     The mplist_deserialize () function parses M-text $MT and returns a
     property list.

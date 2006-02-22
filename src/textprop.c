@@ -2934,7 +2934,7 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
     @brief Deserialize text properties in an M-text.
 
     The mtext_deserialize () function deserializes M-text $MT.  $MT
-    must be an XML having the followng DTD.
+    must be an XML having the following DTD.
 
 @verbatim
 <!DOCTYPE mtext [

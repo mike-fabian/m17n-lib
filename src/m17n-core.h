@@ -555,7 +555,7 @@ extern MPlist *mplist_deserialize (MText *mt);
 /***en
     @brief Flag bits to control text property.
 
-    The mtext_property () funciton accepts logical OR of these flag
+    The mtext_property () function accepts logical OR of these flag
     bits as an argument.  They control the behaviour of the created
     text property as described in the documentation of each flag
     bit.  */
