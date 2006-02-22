@@ -105,12 +105,12 @@
 
     <li> -fg FOREGROUND
 
-    Speicify the text color.  The supported color names are those of
+    Specify the text color.  The supported color names are those of
     HTML 4.0 and "#RRGGBB" notation.
 
     <li> -bg BACKGROUND
 
-    Speicify the background color.  The supported color names are the
+    Specify the background color.  The supported color names are the
     same as FOREGROUND, except that if "transparent" is specified,
     make the background transparent.
 

@@ -49,7 +49,7 @@
 
     This program is to demonstrate how to use the m17n GUI API.
     Although m17n-edit directly uses the GUI API, the API is mainly
-    for toolkit libraries or to implement XOM (X Outout Method), not
+    for toolkit libraries or to implement XOM (X Output Method), not
     for direct use from application programs.
 */
 /***ja
@@ -81,7 +81,7 @@
 
     このプログラムは m17n GUI API の使い方を示すものである。m17n-edit
     は直接 GUI API を使っているが、この API は主にツールキットライブラ
-    リやXOM (X Outout Method) の実装用であり、アプリケーションプログラ
+    リやXOM (X Output Method) の実装用であり、アプリケーションプログラ
     ムからの直接の利用を意図していない。
 */
 

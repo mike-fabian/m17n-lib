@@ -45,7 +45,7 @@
 
     <li> -s FONTSIZE
 
-    FONTSIZE is the fontsize in point.  If ommited, it defaults to the
+    FONTSIZE is the fontsize in point.  If omitted, it defaults to the
     size of the default font defined in X resource.
 
     <li> --version
@@ -230,7 +230,7 @@ help_exit (char *prog, int exit_code)
 	  "ENCODING is the encoding of FILE (defaults to UTF-8).\n");
   printf ("  %-13s %s", "-s FONTSIZE",
 	  "FONTSIZE is the fontsize in point.\n");
-  printf ("\t\tIf ommited, it defaults to the size\n");
+  printf ("\t\tIf omitted, it defaults to the size\n");
   printf ("\t\tof the default font defined in X resource.\n");
   printf ("  %-13s %s", "--version", "print version number\n");
   printf ("  %-13s %s", "-h, --help", "print this message\n");
