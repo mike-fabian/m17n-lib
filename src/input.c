@@ -2855,7 +2855,7 @@ get_im_info (MSymbol language, MSymbol name, MSymbol extra)
 /* List of all (global and local) commands. 
    (LANG:(IM-NAME:(COMMAND ...) ...) ...) ...
    COMMAND is CMD-NAME:(mtext:DESCRIPTION plist:KEYSEQ ...))
-   Global commands are storead as (t (t COMMAND ...))  */
+   Global commands are stored as (t (t COMMAND ...))  */
 
 /* Check if PLIST is a valid command key sequence.
    PLIST must be NULL or:
@@ -3235,7 +3235,7 @@ minput__char_to_key (int c)
     position.  If the value is negative, the absolute value specifies
     the number of characters preceding the current cursor position.
     The callback function must set the key of this element to #Mtext
-    and the value to the retrived M-text (whose length may be shorter
+    and the value to the retrieved M-text (whose length may be shorter
     than the requested number of characters if the available text is
     not that long, or it may be longer if an application thinks it's
     more efficient to return that length).
@@ -3800,7 +3800,7 @@ minput_reset_ic (MInputContext *ic)
 
     @return
     If there exists the specified input method and it defines an
-    title, a plist is retured.  Otherwise, NULL is returned.  A caller
+    title, a plist is returned.  Otherwise, NULL is returned.  A caller
     must free the plist by m17n_object_unref ().
 */
 
@@ -4113,7 +4113,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     @c DOC-MTEXT is an M-text describing the variable.
 
-    @c DEFAULT-VALUE is the default value of the varible.  It is a
+    @c DEFAULT-VALUE is the default value of the variable.  It is a
     symbol, integer, or M-text.
 
     @c VALUEs (if any) specifies the possible values of the variable.
