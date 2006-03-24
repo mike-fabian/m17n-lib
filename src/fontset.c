@@ -888,11 +888,12 @@ mfontset__get_font (MFrame *frame, MFontset *fontset,
   if (best)
     *best = 0;
 
+  if (language == Mnil)
+    language = Mt;
+
   if (script != Mnil)
     {
       per_script = get_per_script (fontset, script);
-      if (language == Mnil)
-	language = Mt;
       if ((per_lang = mplist_get (per_script, language))
 	  && (rfont = get_font_from_group (frame, per_lang, font)))
 	{
@@ -928,7 +929,7 @@ mfontset__get_font (MFrame *frame, MFontset *fontset,
 	}
     }
 
-  if (language != Mnil)
+  if (language != Mt)
     MPLIST_DO (per_script, fontset->per_script)
       {
 	if ((per_lang = mplist_get (MPLIST_PLIST (per_script), language))
