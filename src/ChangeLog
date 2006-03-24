@@ -1,3 +1,10 @@
+2006-03-24  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_open): Improve debug message.
+
+	* fontset.c (mfontset__get_font): Fix for the case that no font in
+	per_script list is available.
+
 2006-02-06  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.3.3 released.
