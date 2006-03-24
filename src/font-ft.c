@@ -1337,7 +1337,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
 	  return rfont;
     }
 
-  MDEBUG_DUMP (" [FONT-FT] opening ", "", mdebug_dump_font (spec));
+  MDEBUG_DUMP (" [FONT-FT] opening ", "", mdebug_dump_font (&ft_info->font));
 
   if (FT_New_Face (ft_library, MSYMBOL_NAME (ft_info->font.file), 0,
 		   &ft_face))
