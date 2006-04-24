@@ -39,7 +39,7 @@ will find out the existence of them automatically.
 In addition, for finding a word boundary in Thai text, "configure"
 checks the existence of these libraries (libthai is preferred):
 
-	libthai		-- http://
+	libthai		-- http://sourceforge.net/projects/libthai
 	wordcut		-- http://thaiwordseg.sourceforge.net/
 
 The sample program m17n-edit utilizes this Japanese inputting system.
