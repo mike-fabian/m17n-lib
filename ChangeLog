@@ -1,3 +1,7 @@
+2006-05-29  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-config.in: For for --libtool.
+
 2006-04-24  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* README: Insert libthai reference site.
