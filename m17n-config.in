@@ -19,9 +19,9 @@ if test $# -eq 0; then
 fi
 
 case $1 in
-CORE) LIBNAME="-lm17n-core"; shift;;
-GUI|X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; shift;;
-*) LIBNAME="-lm17n-core -lm17n";;
+CORE) LIBNAME="-lm17n-core"; LIBTOOLNAME="m17n-core"; shift;;
+GUI|X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; LIBTOOLNAME="m17n-gui"; shift;;
+*) LIBNAME="-lm17n-core -lm17n"; LIBTOOLNAME="m17n"; ;;
 esac
 
 case $1 in
@@ -41,7 +41,7 @@ case $1 in
   fi;;
 
 --libtool)
-  echo "@libdir@/lib${LIBNAME}.la"
+  echo "@libdir@/lib${LIBTOOLNAME}.la"
   ;;
 
 *)
