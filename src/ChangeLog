@@ -1,3 +1,7 @@
+2006-06-06  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (mfont__lookup_fontset): Don't set *num to 1 if it is 0.
+
 2006-03-24  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_open): Improve debug message.
