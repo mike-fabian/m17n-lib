@@ -443,12 +443,13 @@ static unsigned xfont_encode_char (MFrame *, MFont *, MFont *, unsigned);
 static void xfont_render (MDrawWindow, int, int, MGlyphString *,
 			  MGlyph *, MGlyph *, int, MDrawRegion);
 static int xfont_list (MFrame *, MPlist *, MFont *, int);
+static void xfont_list_family_names (MFrame *, MPlist *);
 static int xfont_check_capability (MRealizedFont *rfont, MSymbol capability);
 
 static MFontDriver xfont_driver =
   { xfont_select, xfont_open,
     xfont_find_metric, xfont_has_char, xfont_encode_char,
-    xfont_render, xfont_list, xfont_check_capability };
+    xfont_render, xfont_list, xfont_list_family_names, xfont_check_capability };
 
 static int
 font_compare (const void *p1, const void *p2)
@@ -1004,6 +1005,48 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
   return num;
 }
 
+static void
+xfont_list_family_names (MFrame *frame, MPlist *plist)
+{
+  MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
+  char **font_names, **names;
+  int i, nfonts;
+  MSymbol last_family = Mnil;
+
+  font_names = XListFonts (disp_info->display,
+			   "-*-*-*-*-*-*-*-*-*-*-*-*-*-*", 0x8000, &nfonts);
+  for (i = 0; i < nfonts; i++)
+    {
+      MSymbol family;
+      char *foundry, *fam;
+      MPlist *p;
+      
+      if (sscanf (font_names[i], "-%s-%s-", &foundry, &fam) < 2)
+	continue;
+      family = msymbol (fam);
+      if (family == last_family)
+	continue;
+      last_family = family;
+
+      MPLIST_DO (p, plist)
+	{
+	  MSymbol sym = MPLIST_SYMBOL (p);
+
+	  if (sym == family)
+	    break;
+	  if (strcmp (MSYMBOL_NAME (sym), fam) > 0)
+	    {
+	      mplist_push (p, Msymbol, family);
+	      break;
+	    }
+	}
+      if (MPLIST_TAIL_P (p))
+	mplist_push (p, Msymbol, family);
+    }
+  if (font_names)
+    XFreeFontNames (font_names);
+}
+
 static int 
 xfont_check_capability (MRealizedFont *rfont, MSymbol capability)
 {
@@ -1040,7 +1083,7 @@ static int xft_check_capability (MRealizedFont *rfont, MSymbol capability);
 
 MFontDriver xft_driver =
   { NULL, xft_open,
-    xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL,
+    xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL, NULL,
     xft_check_capability
   };
 
@@ -2031,6 +2074,7 @@ device_init ()
 #ifdef HAVE_XFT2
   xft_driver.select = mfont__ft_driver.select;
   xft_driver.list = mfont__ft_driver.list;
+  xft_driver.list_family_names = mfont__ft_driver.list_family_names;
 #endif
 
   Mxim = msymbol ("xim");
