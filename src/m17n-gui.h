@@ -211,7 +211,6 @@ extern int mfont_set_encoding (MFont *font,
 
 extern MFont *mfont_find (MFrame *frame, MFont *spec,
 			  int *score, int limited_size);
-
 extern MSymbol *mfont_selection_priority ();
 
 extern int mfont_set_selection_priority (MSymbol *keys);
@@ -220,6 +219,7 @@ extern int mfont_resize_ratio (MFont *font);
 
 extern MPlist *mfont_list (MFrame *frame, MFont *font, MSymbol language,
 			   int maxnum);
+extern MPlist *mfont_list_family_names (MFrame *frame);
 
 typedef struct MFontset MFontset;
 
