@@ -31,9 +31,10 @@ EXTRA_DIST = \
 
 pkgconfigdir = ${libdir}/pkgconfig
 
+BASICDATA = m17n-core.pc m17n-shell.pc
 if WITH_GUI
-PKGDATA = m17n-core.pc m17n-shell.pc m17n-gui.pc
+PKGDATA = $(BASICDATA) m17n-gui.pc
 else
-PKGDATA = m17n-core.pc m17n-shell.pc
+PKGDATA = $(BASICDATA)
 endif
 pkgconfig_DATA = $(PKGDATA)

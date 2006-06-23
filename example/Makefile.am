@@ -25,9 +25,11 @@
 ## Note: Source files have preifx "m" but executables have prefix
 ## "m17n-" to avoid confliction of program names.
 
-bin_PROGRAMS = m17n-conv
+BASICPROGS = m17n-conv
 if WITH_GUI
-bin_PROGRAMS += m17n-view m17n-date m17n-dump m17n-edit
+bin_PROGRAMS = $(BASICPROGS) m17n-view m17n-date m17n-dump m17n-edit
+else
+bin_PROGRAMS = $(BASICPROGS)
 endif
 
 common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
@@ -63,9 +65,11 @@ EXTRA_DIST = \
 
 VINFO = -version-info @API_VERSION@
 
-BUILD_LIBS = libmimx-anthy.la
+BASIC_BUILD_LIBS = libmimx-anthy.la
 if WITH_GUI
-BUILD_LIBS += libmimx-ispell.la 
+BUILD_LIBS = $(BASIC_BUILD_LIBS) libmimx-ispell.la 
+else
+BUILD_LIBS = $(BASIC_BUILD_LIBS)
 endif
 lib_LTLIBRARIES = $(BUILD_LIBS)
 
