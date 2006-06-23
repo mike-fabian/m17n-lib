@@ -336,6 +336,7 @@
 #include "symbol.h"
 #include "plist.h"
 #include "charset.h"
+#include "language.h"
 #include "internal-gui.h"
 #include "font.h"
 #include "face.h"
@@ -344,6 +345,8 @@
 MPlist *mfont__driver_list;
 
 static MSymbol M_font_capability, M_font_list, M_font_list_len;
+
+static MSymbol Motf;
 
 /** Indices to font properties sorted by their priority.  */
 static int font_score_priority[] =
@@ -665,53 +668,6 @@ OTF_tag (char *name)
 }
 #endif	/* not HAVE_OTF */
 
-static MPlist *otf_script_list;
-
-static int
-load_otf_script_list ()
-{
-  MDatabase *mdb;
-  MPlist *plist, *pl;
-
-  otf_script_list = mplist ();
-  mdb = mdatabase_find (msymbol ("standard"), Mscript, msymbol ("otf"), Mnil);
-  if (! mdb
-      || ! (plist = mdatabase_load (mdb)))
-    MERROR (MERROR_FONT, -1);
-  MPLIST_DO (pl, plist)
-    {
-      MPlist *p;
-      MSymbol script, otf_script;
-      OTF_Tag tag;
-
-      if (! MPLIST_PLIST_P (pl))
-	continue;
-      p = MPLIST_PLIST (pl);
-      if (! MPLIST_SYMBOL_P (p))
-	continue;
-      script = MPLIST_SYMBOL (p);
-      p = MPLIST_NEXT (p);
-      if (! MPLIST_SYMBOL_P (p))
-	continue;
-      otf_script = MPLIST_SYMBOL (p);
-      tag = OTF_tag (MSYMBOL_NAME (otf_script));
-      mplist_push (otf_script_list, script, (void *) tag);
-    }
-  M17N_OBJECT_UNREF (plist);
-  return 0;
-}
-
-static MSymbol
-find_script_from_otf_tag (OTF_Tag tag)
-{
-  MPlist *plist;
-
-  if (! otf_script_list)
-    load_otf_script_list ();
-  plist = mplist_find_by_value (otf_script_list, (void *) tag);
-  return (plist ? MPLIST_KEY (plist) : Mnil);
-}
-
 /* XLFD parser/generator */
 
 /** Indices to each field of split font name.  */
@@ -979,6 +935,82 @@ font_score (MFont *font, MFont *request)
   return score;
 }
 
+static MSymbol
+merge_capability (MSymbol capability, MSymbol key, MSymbol val, int overwrite)
+{
+  MFontCapability *cap = NULL;
+  char *lang = NULL, *script = NULL, *otf = NULL, *buf, *p;
+  int lang_len = 0, script_len = 0, otf_len = 0;
+
+  if (key == Mlanguage)
+    lang = MSYMBOL_NAME (val), lang_len = MSYMBOL_NAMELEN (val) + 6;
+  else if (key == Mscript)
+    script = MSYMBOL_NAME (val), script_len = MSYMBOL_NAMELEN (val) + 7;
+  else if (key == Motf)
+    otf = MSYMBOL_NAME (val), otf_len = MSYMBOL_NAMELEN (val) + 5;
+  else
+    return capability;
+
+  if (capability != Mnil)
+    {
+      cap = mfont__get_capability (capability);
+      if (! overwrite)
+	{
+	  if (cap->language)
+	    lang = NULL;
+	  if (cap->script)
+	    script = NULL;
+	  if (cap->script_tag)
+	    otf = NULL;
+	  if (! lang && !script && !otf)
+	    return capability;
+	}
+    }
+
+  if (! lang && cap && cap->language)
+    {
+      lang_len = MSYMBOL_NAMELEN (cap->language);
+      lang = MSYMBOL_NAME (cap->language);
+    }
+  if (! script && cap && cap->script != Mnil)
+    {
+      script_len = MSYMBOL_NAMELEN (cap->script);
+      script = MSYMBOL_NAME (cap->script);
+    }
+  if (! otf && cap && cap->script_tag)
+    {
+      int i;
+
+      otf_len = 4;			/* for script_tag */
+      if (cap->langsys_tag)
+	otf_len += 5;		/* for "/XXXX */
+      for (i = 0; i < MFONT_OTT_MAX; i++)
+	if (cap->features[i].str)
+	  otf_len += strlen (cap->features[i].str) + 1; /* for "[=+]..." */
+      otf = p = alloca (otf_len + 1);
+      OTF_tag_name (cap->script_tag, otf);
+      p += 4;
+      if (cap->langsys_tag)
+	{
+	  *p++ = '/';
+	  OTF_tag_name (cap->langsys_tag, p);
+	  p += 4;
+	}
+      if (cap->features[MFONT_OTT_GSUB].str)
+	p += sprintf (p, "=%s", cap->features[MFONT_OTT_GSUB].str);
+      if (cap->features[MFONT_OTT_GPOS].str)
+	p += sprintf (p, "=%s", cap->features[MFONT_OTT_GSUB].str);
+    }
+  buf = p = alloca (lang_len + script_len + otf_len + 1);
+  if (lang_len)
+    p += sprintf (p, ":lang=%s", lang);
+  if (script_len)
+    p += sprintf (p, ":script=%s", script);
+  if (otf_len)
+    p += sprintf (p, ":otf=%s", otf);
+  return msymbol (buf);
+}
+
 
 /* Internal API */
 
@@ -1028,6 +1060,8 @@ mfont__init ()
   Municode_bmp = msymbol ("unicode-bmp");
   Municode_full = msymbol ("unicode-full");
   Mapple_roman = msymbol ("apple-roman");
+
+  Motf = msymbol ("otf");
 
   /* The first entry of each mfont__property_table must be Mnil so
      that actual properties get positive numeric numbers.  */
@@ -1144,11 +1178,6 @@ mfont__fini ()
 	free (MPLIST_VAL (plist));
       M17N_OBJECT_UNREF (font_encoding_list);
       font_encoding_list = NULL;
-    }
-  if (otf_script_list)
-    {
-      M17N_OBJECT_UNREF (otf_script_list);
-      otf_script_list = NULL;
     }
 
   for (i = 0; i <= MFONT_REGISTRY; i++)
@@ -1635,9 +1664,7 @@ free_font_capability (void *object)
 {
   MFontCapability *cap = object;
   
-  if (cap->lang)
-    free (cap->lang);
-  if (cap->script)
+  if (cap->script_tag)
     {
       int i;
       for (i = 0; i < MFONT_OTT_MAX; i++)
@@ -1670,22 +1697,27 @@ mfont__get_capability (MSymbol sym)
     {
       if (*str++ != ':')
 	continue;
-      if (str[0] == 'o' && str[1] == 't' && str[2] == 'f' && str[3] == '=')
+      if (str[0] == 'o' && strncmp (str + 1, "tf=", 3) == 0)
 	{
+	  MSymbol sym;
 	  int i;
 
 	  str += 4;
 	  for (i = 0, p = str; i < 4 && p < endp; i++, p++);
 	  if (i < 4)
 	    break;
+	  sym = msymbol__with_len (str, 4);
+	  cap->script = mscript__from_otf_tag (sym);
+	  if (cap->script == Mnil)
+	    break;
 	  cap->script_tag = OTF_tag (str);
-	  cap->script = find_script_from_otf_tag (cap->script_tag);
 	  if (*p == '/')
 	    {
 	      for (i = 0, str = ++p; i < 4 && p < endp; i++, p++);
 	      if (i < 4)
 		{
 		  cap->script = Mnil;
+		  cap->script_tag = 0;
 		  break;
 		}
 	      cap->langsys_tag = OTF_tag (str);
@@ -1752,36 +1784,15 @@ mfont__get_capability (MSymbol sym)
 	      }
 	  str = p;
 	}
-      else if (str[0] == 'l' && str[1] == 'a' && str[2] == 'n' && str[3] == 'g'
-	  && str[4] == '=')
+      else if (str[0] == 'l' && strncmp (str + 1, "ang=", 4) == 0)
 	{
-	  int count;
-
 	  str += 5;
-	  for (p = str, count = 2; p < endp && *p != ':'; p++)
-	    if (*p == ',')
-	      count++;
-	  MTABLE_MALLOC (cap->lang, count, MERROR_FONT);
-	  for (p = str, count = 0; p < endp && *p != ':'; p++)
-	    if (*p == ',')
-	      {
-		MSymbol lang = msymbol__with_len (str, p - str), sym;
-
-		if (msymbol_get (lang, Miso639_2))
-		  cap->lang[count++] = lang;
-		else if ((sym = msymbol_get (lang, Miso639_1)) != Mnil)
-		  cap->lang[count++] = sym;
-		else if (msymbol_get (lang, Mlanguage))
-		  cap->lang[count++] = lang;
-		str = p + 1;
-	      }
+	  for (p = str; p < endp && *p != ':'; p++);
 	  if (str < p)
-	    cap->lang[count++] = msymbol__with_len (str, p - str);
-	  cap->lang[count] = Mnil;
+	    cap->language = msymbol__with_len (str, p - str);
 	  str = p;
 	}
-      else if (str[0] == 's' && str[1] == 'c' && str[2] == 'r' && str[3] == 'i'
-	       && str[4] == 'p' && str[5] == 't' && str[6] == '=')
+      else if (str[0] == 's' && strncmp (str + 1, "cript=", 6) == 0)
 	{
 	  str += 7;
 	  for (p = str; p < endp && *p != ':'; p++);
@@ -2393,18 +2404,10 @@ mfont_put_prop (MFont *font, MSymbol key, void *val)
       unsigned resy = (unsigned) val;
       font->property[MFONT_RESY] = resy;
     }
-  else if (key == Mlanguage)
+  else if (key == Mlanguage || key == Mscript || key == Motf)
     {
-      char *langname = MSYMBOL_NAME ((MSymbol) val);
-      int len = MSYMBOL_NAMELEN ((MSymbol) val);
-      
-      if (len <= 3)
-	{
-	  char buf[10];
-
-	  sprintf (buf, ":lang=%s", langname);
-	  font->capability = msymbol (buf);
-	}
+      font->capability = merge_capability (font->capability,
+					   key, (MSymbol) val, 1);
     }
   else if (key == Mfontfile)
     {
@@ -2785,6 +2788,10 @@ mfont_resize_ratio (MFont *font)
     ones that support $LANGUAGE.  $MAXNUM, if greater than 0, limits
     the number of fonts.
 
+    $LANGUAGE argument exists just for backward compatibility, and the
+    use is deprecated.  Use #Mlanguage font property instead.  If
+    $FONT already has #Mlanguage property, $LANGUAGE is ignored.
+
     @return
     This function returns a plist whose keys are family names and
     values are pointers to the object MFont.  The plist must be freed
@@ -2794,15 +2801,21 @@ mfont_resize_ratio (MFont *font)
 /***ja
     @brief フォントのリストを得る
 
-    関数 mfont_list () はフレーム $FRAME で利用可能なフォントのリストを返す。
-    $FONT が NULL でなければ、$FONT と合致する利用可能なフォントのリストを返す。
-    $LANGUAGE が @c Mnil でなければ、$LANGUAGE をサポートする利用可能なフォントのリストを返す。
-    $MAXNUM は、0 より大きい場合には、返すフォントの数の上限である。
+    関数 mfont_list () はフレーム $FRAME で利用可能なフォントのリストを
+    返す。$FONT が NULL でなければ、$FONT と合致する利用可能なフォント
+    のリストを返す。$LANGUAGE が @c Mnil でなければ、$LANGUAGE をサポー
+    トする利用可能なフォントのリストを返す。$MAXNUM は、0 より大きい場
+    合には、返すフォントの数の上限である。
+
+    ただし、引数 $LANGUAGE は旧版との整合性のためだけにあり、その使用は
+    勧められない。フォントの #Mlanguage プロパティを使うべきである。も
+    し $FONT がすでにこのプロパティを持っていたら、引数 $LANGUAGE は無
+
 
     @return 
-    この関数はキーがフォントファミリ名であり値が MFont オブジェクトへのポインタであるような
-    plist を返す。plist は m17n_object_unref () 
-    で解放する必要がある。フォントが見つからなければNULL を返す。  */
+    この関数はキーがフォントファミリ名であり値が MFont オブジェクトへの
+    ポインタであるようなplist を返す。plist は m17n_object_unref () で
+    解放する必要がある。フォントが見つからなければNULL を返す。  */
 
 MPlist *
 mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
@@ -2825,13 +2838,8 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
     }
 
   if (language != Mnil)
-    {
-      /* ":lang=XXX" */
-      char *buf = alloca (MSYMBOL_NAMELEN (language) + 7);
-
-      sprintf (buf, ":lang=%s", MSYMBOL_NAME (language));
-      spec.capability = msymbol (buf);
-    }
+    spec.capability = merge_capability (spec.capability, Mlanguage, language,
+					0);
 
   font_list = mfont__list (frame, &spec, &spec, 0);
   if (! font_list)
@@ -2851,6 +2859,33 @@ mfont_list (MFrame *frame, MFont *font, MSymbol language, int maxnum)
 	pl = mplist_add (pl, family, font_list->fonts[i].font);
     }
   free (font_list);
+  return plist;
+}
+
+/***en
+    @brief Get a list of font famiy names.
+
+    The mfont_list_family_names () functions returns a list of font
+    family names available on frame $FRAME.
+
+    @return
+
+    This function returns a plist whose keys are #Msymbol and values
+    are symbols representing font family names.  The elements are
+    sorted by alphabetical order.  The plist must be freed by
+    m17n_object_unref ().  If not font is found, it returns NULL.  */
+
+MPlist *
+mfont_list_family_names (MFrame *frame)
+{
+  MPlist *plist = mplist (), *p;
+
+  MPLIST_DO (p, frame->font_driver_list)
+    {
+      MFontDriver *driver = MPLIST_VAL (p);
+
+      (driver->list_family_names) (frame, plist);
+    }
   return plist;
 }
 
