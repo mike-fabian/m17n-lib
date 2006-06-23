@@ -1,3 +1,7 @@
+2006-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Add "--with-fontconfig" arg.
+
 2006-05-29  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-config.in: For for --libtool.
