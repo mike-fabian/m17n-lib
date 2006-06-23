@@ -1,4 +1,4 @@
-/* language.h -- header file for the language module.
+/* language.h -- header file for the language (and script) module.
    Copyright (C) 2003, 2004
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -23,6 +23,10 @@
 #ifndef _M17N_LANGUAGE_H_
 #define _M17N_LANGUAGE_H_
 
-extern MPlist *mlanguage__list (MSymbol script);
+extern MPlist *mscript__char_list (MSymbol script);
+
+extern MSymbol mscript__otf_tag (MSymbol script);
+
+extern MSymbol mscript__from_otf_tag (MSymbol otf_tag);
 
 #endif /* _M17N_LANGUAGE_H_ */
