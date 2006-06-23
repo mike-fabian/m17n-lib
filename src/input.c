@@ -3411,7 +3411,7 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
   MInputDriver *driver;
 
   MDEBUG_PRINT2 ("  [IM] opening (%s %s) ... ",
-	 msymbol_name (language), msymbol_name (name));
+		 msymbol_name (language), msymbol_name (name));
   if (language)
     driver = minput_driver;
   else
@@ -3800,8 +3800,8 @@ minput_reset_ic (MInputContext *ic)
 
     @return
     If there exists the specified input method and it defines an
-    title, a plist is returned.  Otherwise, NULL is returned.  A caller
-    must free the plist by m17n_object_unref ().
+    title, a plist is returned.  Otherwise, NULL is returned.  The
+    caller must free the plist by m17n_object_unref ().
 */
 
 MPlist *
@@ -4142,7 +4142,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     @return
     If the input method uses any variables, a pointer to #MPlist is
-    returned.  As the plist is kept in the library, a caller must not
+    returned.  As the plist is kept in the library, the caller must not
     modify nor free it.  If the input method does not use any
     variable, @c NULL is returned.  */
 /***ja

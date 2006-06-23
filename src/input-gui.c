@@ -547,7 +547,7 @@ minput__win_init ()
     plist = mplist_add (plist, Minput_reset, (void *) win_callback);
   }
 #if 0
-  /* This will make a caller of minput_method_open() pazzled.  */
+  /* This will make the caller of minput_method_open() pazzled.  */
   minput_driver = &minput_gui_driver;
 #endif
 
