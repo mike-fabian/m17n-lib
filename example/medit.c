@@ -865,8 +865,7 @@ show_cursor (XtPointer client_data)
       else
 	{
 	  XtSetArg (arg[0], XtNborderWidth, 1);
-	  XtSetArg (arg[1], XtNlabel,
-		    msymbol_name (msymbol_get (sym, Mlanguage)));
+	  XtSetArg (arg[1], XtNlabel, mlanguage_name (sym));
 	  XtSetValues (CurLangWidget, arg, 2);
 	}
       XtSetValues (CurLangWidget, arg, 2);
@@ -2247,8 +2246,8 @@ compare_input_method (const void *elt1, const void *elt2)
     return 1;
   if (im2->language == Mt)
     return -1;
-  lang1 = msymbol_get (im1->language, Mlanguage);
-  lang2 = msymbol_get (im2->language, Mlanguage);
+  lang1 = mlanguage_name (im1->language);
+  lang2 = mlanguage_name (im2->language);
   return strcmp (msymbol_name (lang1), msymbol_name (lang2));
 }
 
@@ -2963,7 +2962,7 @@ main (int argc, char **argv)
 
 	if (im->language != Mnil && im->language != Mt)
 	  {
-	    MSymbol sym = msymbol_get (im->language, Mlanguage);
+	    MSymbol sym = mlanguage_name (im->language);
 	    if (sym == Mnil)
 	      name1 = msymbol_name (im->language);
 	    else
@@ -3090,7 +3089,7 @@ main (int argc, char **argv)
 	    MSymbol fullname;
 
 	    if (sym != Mnil
-		&& ((fullname = msymbol_get (sym, Mlanguage)) != Mnil))
+		&& ((fullname = mlanguage_name (sym)) != Mnil))
 	      {
 		char *name = msymbol_name (fullname);
 		char c = name[0];
