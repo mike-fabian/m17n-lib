@@ -210,6 +210,9 @@ struct MFontDriver
       listed.  */
   int (*list) (MFrame *frame, MPlist *plist, MFont *font, int maxnum);
 
+  /** Push to PLIST font family names (symbol) available on FRAME.  */
+  void (*list_family_names) (MFrame *frame, MPlist *plist);
+
   /** Check if RFONT support CAPABILITY.  */
   int (*check_capability) (MRealizedFont *rfont, MSymbol capability);
 };
@@ -250,7 +253,7 @@ enum MFontOpenTypeTable
 typedef struct
 {
   M17NObject control;
-  MSymbol *lang;
+  MSymbol language;
   MSymbol script;
   OTF_Tag script_tag;
   OTF_Tag langsys_tag;
