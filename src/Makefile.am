@@ -21,9 +21,11 @@
 
 VINFO = -version-info @API_VERSION@
 
-BUILD_LIBS = libm17n-core.la libm17n.la
+BASIC_BUILD_LIBS = libm17n-core.la libm17n.la
 if WITH_GUI
-BUILD_LIBS += libm17n-gui.la libm17n-X.la libm17n-gd.la
+BUILD_LIBS = $(BASIC_BUILD_LIBS) libm17n-gui.la libm17n-X.la libm17n-gd.la
+else
+BUILD_LIBS = $(BASIC_BUILD_LIBS)
 endif
 
 lib_LTLIBRARIES = $(BUILD_LIBS)
