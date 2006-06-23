@@ -65,11 +65,11 @@ EXTRA_DIST = \
 
 VINFO = -version-info @API_VERSION@
 
-BASIC_BUILD_LIBS = libmimx-anthy.la
+BASICBUILDS = libmimx-anthy.la
 if WITH_GUI
-BUILD_LIBS = $(BASIC_BUILD_LIBS) libmimx-ispell.la 
+BUILD_LIBS = $(BASICBUILDS) libmimx-ispell.la 
 else
-BUILD_LIBS = $(BASIC_BUILD_LIBS)
+BUILD_LIBS = $(BASICBUILDS)
 endif
 lib_LTLIBRARIES = $(BUILD_LIBS)
 
