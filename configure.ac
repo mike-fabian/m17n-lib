@@ -244,27 +244,32 @@ LIBS="$save_LIBS"
 AC_SUBST(XFT2_LD_FLAGS)
 
 dnl Check for fontconfig usability.
-save_CPPFLAGS="$CPPFLAGS"
-save_LIBS="$LIBS"
-FONTCONFIG_LD_FLAGS=-lfontconfig
-if test "x$HAVE_PKG_CONFIG" = "xyes"; then
-  if pkg-config --exists fontconfig; then
-    CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
-    FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
-    LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
+AC_ARG_WITH(fontconfig,
+	    AC_HELP_STRING([--with-fontconfig],
+	                   [with FontConfig library (default is YES)]))
+if test "x$with_fontconfig" != "xno"; then
+  save_CPPFLAGS="$CPPFLAGS"
+  save_LIBS="$LIBS"
+  FONTCONFIG_LD_FLAGS=-lfontconfig
+  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
+    if pkg-config --exists fontconfig; then
+      CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
+      FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
+      LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
+    fi
   fi
-fi
-AC_CHECK_LIB(fontconfig, FcInit, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
-AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
-if test "x$HAVE_FONTCONFIG" = "xyes"; then
-  AC_DEFINE(HAVE_FONTCONFIG, 1,
+  AC_CHECK_LIB(fontconfig, FcInit, HAVE_FONTCONFIG=yes, HAVE_FONTCONFIG=no)
+  AC_CHECK_HEADER(fontconfig/fontconfig.h, , HAVE_FONTCONFIG=no)
+  if test "x$HAVE_FONTCONFIG" = "xyes"; then
+    AC_DEFINE(HAVE_FONTCONFIG, 1,
 	      [Define to 1 if you have fontconfig library and header file.])
-  M17N_EXT_LIBS="$M17N_EXT_LIBS fontconfig"
-else
-  FONTCONFIG_LD_FLAGS=
-  CPPFLAGS="$save_CPPFLAGS"
+    M17N_EXT_LIBS="$M17N_EXT_LIBS fontconfig"
+  else
+    FONTCONFIG_LD_FLAGS=
+    CPPFLAGS="$save_CPPFLAGS"
+  fi
+  LIBS="$save_LIBS"
 fi
-LIBS="$save_LIBS"
 AC_SUBST(FONTCONFIG_LD_FLAGS)
 
 dnl Check for gdlib usability.
