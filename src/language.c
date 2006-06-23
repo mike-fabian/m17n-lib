@@ -337,9 +337,9 @@ mlanguage_code (MSymbol language, int len)
   MSymbol code;
 
   if (! plist)
-    return NULL;
+    return Mnil;
   if (! MPLIST_SYMBOL_P (plist))
-    return NULL;
+    return Mnil;
   code = MPLIST_SYMBOL (plist);
   if (len == 3)
     return code;
