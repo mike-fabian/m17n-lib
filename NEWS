@@ -5,6 +5,18 @@ Copyright (C) 2003, 2004, 2005
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.3.3
+
+** New function mfont_list_family_names () return a list of available
+font family names.
+
+** New functions mlanguage_list (), mlanguage_code (), mlanguage_name (),
+and mlanguage_text () returns various language-related information.
+
+** New functions mscript_list () and mscript_language_list () returns
+various script-related information.
+
+
 * Changes in the m17n library 1.3.0
 
 ** The `configure' script accepts the argument "--without-gui" to

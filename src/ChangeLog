@@ -1,3 +1,85 @@
+2006-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (struct MFontFT): Delete member lang.
+	(free_ft_info): Don't unref member lang.  Destroy members langset
+	and charset.
+	(fc_parse_pattern): Last argument changed to MFontFT *.  Callers
+	changed.  Set members langset and charset.
+	(fc_init_font_list, fc_list_pattern, fc_build_charset): New
+	functions.
+	(ft_init_font_list, ft_has_char_list_p, ft_list_char_list): New
+	functions.
+	(ft_list_family) [HAVE_FONTCONFIG]: Include FC_CHARSET on objset.
+	(ft_list_family) [! HAVE_FONTCONFIG]: Call ft_init_font_list.
+	(ft_list_language) [HAVE_FONTCONFIG]: Check representative
+	characters at first.  If it fails, try listing by language names.
+	(ft_list_language) [! HAVE_FONTCONFIG]: Call ft_list_char_list.
+	(ft_check_language): Renamed from ft_check_lang.  Adjusted for the
+	change of MFontCapability.
+	(ft_list_capability): Likewise.  Try listing by languages, then by
+	scripts.  Check OTF at last.
+	(ft_check_script): New function.
+	(ft_select): Adjusted for the check of MFontCapability.
+	(ft_list_family_names): New function.
+	(ft_check_capability): If cap->script is not Mnil, call
+	ft_check_script.
+	(mfont__ft_driver): Initialize with ft_list_family_names.
+
+	* font.h (struct MFontDriver): New member list_fmaily_names.
+	(struct): Change member "MSymbol *lang" to "MSymbol language".
+
+	* font.c: Include "language.h".
+	(Motf): New variable.
+	(otf_script_list, load_otf_script_list): Delete it.
+	(find_script_from_otf_tag): Delete it.
+	(merge_capability): New function.
+	(mfont__init): Init Motf.
+	(mfont__fini): Don't unref otf_script_list.
+	(free_font_capability): Check cap->script_tag to determine if
+	OTF-related capability is set.
+	(mfont__get_capability): Call mscript__from_otf_tag.  Adjusted for
+	the change of type MFontCapability.
+	(mfont_put_prop): Call merge_capability for Mlanguage, Mscript,
+	and Motf properties.
+	(mfont_list): Call merge_capability for LANGUAGE arg.
+	(mfont_list_family_names): New function.
+
+	* input-gui.c: Typo in comments fixed.
+
+	* input.c: Typo in comments fixed.
+
+	* language.h (mlanguage__list): Delete it.
+	(mscript__char_list, mscript__otf_tag, mscript__from_otf_tag): New
+	functions.
+
+	* language.c: Include "mtext.h".
+	(M_script_lang_list): Delete it.
+	(language_list, script_list): New variables.
+	(load_lang_script_list, init_language_list, init_script_list): New
+	functions.
+	(mlang__init): Don't load language database here.
+	(mlang__fini): Unref language_list and script_list if not NULL.
+	(mlanguage__list): Delete it.
+	(mlanguage__info, mscript__info, mscript__char_list)
+	(mscript__otf_tag, mscript__from_otf_tag): New functions.
+	(mlanguage_list, mlanguage_code, mlanguage_name, mlanguage_text)
+	(mscript_list, mscript_language_list): New functions.
+
+	* m17n-gui.h (mfont_list_family_names): Extern it.
+
+	* m17n.h (mlanguage_list, mlanguage_code, mlanguage_name)
+	(mlanguage_text, mscript_list, mscript_language_list): Extern
+	them.
+
+2006-06-21  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (xfont_driver): Initialize with
+	xfont_list_family_names.
+	(xfont_list_family_names): New function.
+	(xft_driver): Initialize with NULL for list_family_names member.
+	(device_init): Set list_family_names member of xft_driver to that
+	of mfont__ft_driver.
+
 2006-06-06  Kenichi Handa  <handa@m17n.org>
 
 	* fontset.c (mfont__lookup_fontset): Don't set *num to 1 if it is 0.
