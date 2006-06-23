@@ -21,9 +21,11 @@
 
 VINFO = -version-info @API_VERSION@
 
-BUILD_LIBS = libm17n-core.la libm17n.la
+BASIC_BUILD_LIBS = libm17n-core.la libm17n.la
 if WITH_GUI
-BUILD_LIBS += libm17n-gui.la libm17n-X.la libm17n-gd.la
+BUILD_LIBS = $(BASIC_BUILD_LIBS) libm17n-gui.la libm17n-X.la libm17n-gd.la
+else
+BUILD_LIBS = $(BASIC_BUILD_LIBS)
 endif
 
 lib_LTLIBRARIES = $(BUILD_LIBS)
@@ -86,9 +88,12 @@ libm17n_gd_la_LDFLAGS = -module ${VINFO}
 AM_CPPFLAGS = -DM17NDIR="\"@M17NDIR@\""
 
 
-include_HEADERS = m17n-core.h m17n.h m17n-misc.h
+BASICHEADERS = m17n-core.h m17n.h m17n-misc.h
+
 if WITH_GUI
-include_HEADERS += m17n-gui.h m17n-X.h
+include_HEADERS = $(BASICHEADERS) m17n-gui.h m17n-X.h
+else
+include_HEADERS = $(BASICHEADERS)
 endif
 
 SRC =	${libm17n_core_la_SOURCES} \
