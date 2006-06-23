@@ -125,7 +125,7 @@ mlang__fini (void)
     The mlanguage_info () function returns a well-formed @e plist that
     contains information about $LANGUAGE.  $LANGUAGE is a symbol whose
     name is an ISO639-2 3-letter language code, an ISO639-1 2-letter
-    language codes, or an English name.
+    language codes, or an English word.
 
     The format of the plist is:
 
@@ -280,13 +280,27 @@ MSymbol Miso639_1, Miso639_2;
 /***en
     @brief List 3-letter language codes.
 
-    The mlanguage_list () funciton returns a well-formed plist
-    whose keys are #Msymbol and values are symbols whose names
-    are ISO639-2 3-letter language codes.
+    The mlanguage_list () funciton returns a well-formed plist whose
+    keys are #Msymbol and values are symbols whose names are ISO639-2
+    3-letter language codes.
 
     @return
     This function returns a plist.  The caller should free it by
     m17n_object_unref ().
+
+    @seealso
+    mscript_list ().  */
+
+/***ja
+    @brief 3文字言語コードをリストする.
+
+    関数 mlanguage_list () は、整形式 (well-formed) plist を返す。各キー
+    は #Msymbol であり、個々の値は ISO639-2 に定められた3文字言語コー
+    ドを名前とするシンボルである。
+
+    @return
+    この関数が返す plist は、呼び出し側が m17n_object_unref () を使っ
+    て解放する必要がある。
 
     @seealso
     mscript_list ().  */
@@ -313,19 +327,41 @@ mlanguage_list (void)
 /***en
     @brief Get a language code.
 
-    The mlanguage_code () function returns a symbol whose name is an
+    The mlanguage_code () function returns a symbol whose name is the
     ISO639 language code of $LANGUAGE. $LANGUAGE is a symbol whose
     name is an ISO639-2 3-letter language code, an ISO639-1 2-letter
-    language codes, or an English name.
+    language codes, or an English word.
 
-    $LEN specifies which type of language code to return.  If it is 3,
-    ISO639-2 3-letter language code is returned.  If it is 2, ISO639-1
-    2-letter language code (if available) or #Mnil is returned.  If it
-    is 0, 2-letter code (if available) or 3-letter code is returned.
+    $LEN specifies the type of the returned language code.  If it is
+    3, an ISO639-2 3-letter language code is returned.  If it is 2, an
+    ISO639-1 2-letter language code is returned when defined;
+    otherwise #Mnil is returned.  If it is 0, a 2-letter code is
+    returned when defined; otherwise a 3-letter code is returned.
 
     @return
     If the information is available, this function returns a non-#Mnil
     symbol.  Otherwise, it returns #Mnil.
+
+    @seealso
+    mlanguage_name (), mlanguage_text ().  */
+
+/***ja
+    @brief 言語コードを得る.
+
+    関数 mlanguage_code () は、$LANGUAGE に対応した ISO-639 言語コード
+    が名前であるようなシンボルを返す。$LANGUAGE はシンボルであり、その
+    名前は、ISO639-2 3文字言語コード、ISO639-1 2文字言語コード、英語名、
+    のいずれかである。
+
+    $LEN は返される言語コードの種類を決定する。$LEN が3の場合は 
+    ISO639-2 3文字言語コードが返される。2の場合は、もし定義されていれ
+    ば ISO639-1 2文字言語コードが、そうでなければ #Mnil が返される。0 
+    の場合は、もし定義されていれば2文字コードが、そうでなければ3文字コー
+    ドが返される。
+
+    @return
+    もし情報が得られれば、この関数は #Mnil 以外のシンボルを返す。そう
+    でなければ #Mnil を返す。
 
     @seealso
     mlanguage_name (), mlanguage_text ().  */
@@ -355,11 +391,27 @@ mlanguage_code (MSymbol language, int len)
     @brief Get an English language name.
 
     The mlanguage_name () function returns a symbol whose name is an
-    English name of $LANGUAGE.
+    English name of $LANGUAGE.  $LANGUAGE is a symbol whose name is an
+    ISO639-2 3-letter language code, an ISO639-1 2-letter language
+    codes, or an English word.
 
     @return
     If the information is available, this function returns a non-#Mnil
     symbol.  Otherwise, it returns #Mnil.
+
+    @seealso
+    mlanguage_code (), mlanguage_text ().  */
+
+/***ja
+    @brief 言語の英語名を得る.
+
+    関数 mlanguage_name () は、$LANGUAGE の英語名を名前とするようなシ
+    ンボルを返す。$LANGUAGE はシンボルであり、その名前は、ISO639-2 3文
+    字言語コード、ISO639-1 2文字言語コード、英語名、のいずれかである。
+
+    @return
+    求めている情報が得られるなら、この関数は #Mnil 以外のシンボルを返
+    す。そうでなければ #Mnil を返す。
 
     @seealso
     mlanguage_code (), mlanguage_text ().  */
@@ -383,17 +435,34 @@ mlanguage_name (MSymbol language)
 /*=*/
 
 /***en
-    @brief Return a language name written in the language.
+    @brief Return the language name written in that language.
 
-    The mlanguage_text () function returns by M-text a language name
-    of $LANGUAGE written $LANGUAGE.  If the representative characters
-    of the language is known, the first character of the returned
-    M-text has text-property #Mtext whose value is an M-text contains
-    the representative characters.
+    The mlanguage_text () function returns, in the form of M-text, the
+    language name of $LANGUAGE written in $LANGUAGE.  If the
+    representative characters of the language are known, the
+    characters of the returned M-text has a text property whose key is
+    #Mtext and whose value is an M-text that contains the
+    representative characters.
 
     @return
-    If the information available, this function returns an M-text that
-    should not modified nor freed.  Otherwise, it returns @c NULL.
+    If the information is available, this function returns an M-text
+    that should not be modified nor freed.  Otherwise, it returns @c
+    NULL.
+
+    @seealso
+    mlanguage_code (), mlanguage_name ().  */
+
+/***ja
+    @brief 与えられた言語自身で書かれた言語名を返す.
+
+    関数 mlanguage_text () は、言語 $LANGUAGE で書かれた $LANGUAGE の
+    名前を M-text の形式で返す。その言語の代表的な文字がわかっている場
+    合は、返される M-text の各文字に、キーが #Mtext で値がその代表的な
+    文字を含む M-text であるようなテキストプロパティが付加される。
+
+    @return
+    求める情報が得られた場合、この関数が返す M-text を変更したり解放し
+    たりしてはいけない。情報が得られなかった場合は @c NULL が返される。
 
     @seealso
     mlanguage_code (), mlanguage_name ().  */
@@ -433,8 +502,22 @@ mlanguage_text (MSymbol language)
     names.
 
     @return
-    This function returns plist.  The caller has to free it by
+    This function returns a plist.  The caller should free it by
     m17n_object_unref ().
+
+    @seealso
+    mscript_language_list (), mlanguage_list ().  */
+
+/***ja
+    @brief スクリプト名をリストする.
+
+    関数 mscript_list () は、整形式 (well-formed) plist を返す。各キー
+    は #Msymbol であり、個々の値はスクリプト名を名前とするシンボルであ
+    る。
+
+    @return
+    この関数が返す plist は、呼び出し側が m17n_object_unref () を使っ
+    て解放する必要がある。
 
     @seealso
     mscript_language_list (), mlanguage_list ().  */
@@ -461,18 +544,38 @@ mscript_list (void)
 /***en
     @brief List languages that use a specified script.
 
-    The mscript_language_list () function lists language names that
-    use $SCRIPT.
+    The mscript_language_list () function lists languages that use
+    $SCRIPT.  $SCRIPT is a symbol whose name is the lower-cased
+    version of a script name that appears in the Unicode Character
+    Database.
 
     @return
-    This function returns a well-formed @e plist whose keys are
-    #Msymbol and values are symbols representing language names
-    (ISO639-1 2-letter code (if defined) or ISO639-2 3-letter code).
-    The caller should not modify nor free it.  If the m17n library
-    doesn't know about $SCRIPT, it returns NULL.
+
+    This function returns a well-formed plist whose keys are #Msymbol
+    and values are symbols whose names are ISO639-1 2-letter codes (or
+    ISO639-2 3-letter codes, if the former is not available).  The
+    caller should not modify nor free it.  If the m17n library does
+    not know about $SCRIPT, it returns @ c NULL.
 
     @seealso
     mscript_list (), mlanguage_list ().  */
+
+/***ja
+    @brief 与えられたスクリプトを用いる言語をリストする.
+
+    関数 mscript_language_list () は、$SCRIPT を用いる言語をリストする。
+    $SCRIPT はシンボルで、その名前は Unicode Character Database に示さ
+    れているスクリプト名をすべて小文字にしたものである。
+
+    @return この関数は、整形式 (well-formed) plist を返す。各キーは 
+    #Msymbol であり、個々の値は ISO639-1 に定められた2文字言語コード
+    (定義されていない場合は ISO639-2 に定められた3文字言語コード) を名
+    前とするシンボルである。返される plist は変更したり解放したりして
+    はならない。$SCRIPT が未知の場合は @c NULL が返される。
+
+    @seealso
+    mscript_list (), mlanguage_list ().  */
+    
 
 MPlist *
 mscript_language_list (MSymbol script)
