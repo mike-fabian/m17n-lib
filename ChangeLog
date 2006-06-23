@@ -1,5 +1,7 @@
 2006-06-23  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (PKGDATA): Don't increment it conditionally.
+
 	* configure.ac: Add "--with-fontconfig" arg.
 
 2006-05-29  Kenichi Handa  <handa@m17n.org>

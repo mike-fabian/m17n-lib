@@ -1,5 +1,7 @@
 2006-06-23  Kenichi Handa  <handa@m17n.org>
 
+	* Makefile.am (BUILD_LIBS): Don't increment it conditionally.
+
 	* medit.c (show_cursor): Call mlanguage_name to get English name
 	of language.
 	(compare_input_method): Likewise.
