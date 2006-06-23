@@ -844,6 +844,18 @@ extern MSymbol Mterritory;
 extern MSymbol Mmodifier;
 extern MSymbol Mcodeset;
 
+extern MPlist *mlanguage_list (void);
+
+extern MSymbol mlanguage_code (MSymbol language, int len);
+
+extern MSymbol mlanguage_name (MSymbol language);
+
+extern MText *mlanguage_text (MSymbol language);
+
+extern MPlist *mscript_list (void);
+
+extern MPlist *mscript_language_list (MSymbol script);
+
 extern MLocale *mlocale_set (int category, const char *locale);
 
 extern MSymbol mlocale_get_prop (MLocale *locale, MSymbol key);
