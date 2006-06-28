@@ -795,6 +795,7 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
   int len, i;
   char spacing;
   int size, resy;
+  int all_nil = 1;
 
   prop[0] = (MSymbol) mfont_get_prop (font, Mfoundry);
   prop[1] = (MSymbol) mfont_get_prop (font, Mfamily);
@@ -809,6 +810,7 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
 	{
 	  str[i] = msymbol_name (prop[i]);
 	  len += strlen (str[i]);
+	  all_nil = 0;
 	}
       else
 	{
@@ -853,6 +855,8 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
 		 str[0], str[1], str[2], str[3], str[4], str[5],
 		 size, resy, resy, spacing, str[6]);
     }
+  else if (all_nil && size == 0)
+    sprintf (name, "*");
   else
     {
       char *p = name;
