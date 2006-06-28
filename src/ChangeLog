@@ -1,3 +1,8 @@
+2006-06-28  Kenichi Handa  <handa@m17n.org>
+
+	* plist.c (dump_string): Return number of printed characters.
+	(dump_plist_element): Print elements more compactly.
+
 2006-06-23  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (BUILD_LIBS): Don't increment it conditionally.
