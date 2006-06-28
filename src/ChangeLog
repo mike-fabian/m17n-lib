@@ -1,5 +1,10 @@
 2006-06-28  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c (MbidiNSM): New variable.
+	(visual_order) [! HAVE_FRIBIDI]: Clear levels at first.  Pay
+	attention to bidi type NSM.
+	(mdraw__init): Initialize MbibiNSM.
+
 	* language.c (mscript__char_list): Fix finding a char-list element.
 
 	* plist.c (dump_string): Return number of printed characters.
