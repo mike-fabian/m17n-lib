@@ -209,6 +209,8 @@ mscript__char_list (MSymbol name)
 
   if (plist			/* script name */
       && (plist = MPLIST_NEXT (plist)) /* language list */
+      && ! MPLIST_TAIL_P (plist)
+      && (plist = MPLIST_NEXT (plist)) /* char list */
       && MPLIST_PLIST_P (plist))
     return MPLIST_PLIST (plist);
   return NULL;
