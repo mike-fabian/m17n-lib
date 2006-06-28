@@ -1,5 +1,8 @@
 2006-06-28  Kenichi Handa  <handa@m17n.org>
 
+	* font.c (xlfd_unparse_name): Suppress the heading '-' if not
+	necessary.
+
 	* draw.c (MbidiNSM): New variable.
 	(visual_order) [! HAVE_FRIBIDI]: Clear levels at first.  Pay
 	attention to bidi type NSM.
