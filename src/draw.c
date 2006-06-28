@@ -97,6 +97,7 @@ static MSymbol MbidiRLE;
 static MSymbol MbidiRLO;
 static MSymbol MbidiBN;
 static MSymbol MbidiS;
+static MSymbol MbidiNSM;
 
 static void
 visual_order (MGlyphString *gstring)
@@ -116,6 +117,8 @@ visual_order (MGlyphString *gstring)
   int *logical = alloca (sizeof (int) * len);
   int *indices;
   char *levels = alloca (len);
+
+  memset (levels, 0, sizeof (int) * len);
 #endif /* not HAVE_FRIBIDI */
 
   for (g = MGLYPH (1), i = 0; g->type != GLYPH_ANCHOR; g++, i++)
@@ -136,6 +139,10 @@ visual_order (MGlyphString *gstring)
 	      levels[i] = 1;
 #endif	/* not HAVE_FRIBIDI */
 	    }
+#ifndef HAVE_FRIBIDI
+	  else if (bidi == MbidiNSM && i > 0 && levels[i - 1])
+	    levels[i] = 1;	    
+#endif	/* not HAVE_FRIBIDI */
 	}
       logical[i] = g->c;
     }
@@ -1875,6 +1882,7 @@ mdraw__init ()
   MbidiRLO = msymbol ("RLO");
   MbidiBN = msymbol ("BN");
   MbidiS = msymbol ("S");
+  MbidiNSM = msymbol ("NSM");
 #ifdef HAVE_FRIBIDI
   fribidi_set_mirroring (TRUE);
 #endif
