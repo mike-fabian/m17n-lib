@@ -614,7 +614,7 @@ write_element (MText *mt, MPlist *plist)
 
 /* Support functions for mdebug_dump_plist.  */
 
-static void
+static int
 dump_string (char *str)
 {
   char *p = str, *pend = p + strlen (p), *new, *p1;
@@ -642,7 +642,7 @@ dump_string (char *str)
       p++;
     }
   *p1 = '\0';
-  fprintf (stderr, "%s", new);
+  return fprintf (stderr, "%s", new);
 }
 
 static void
@@ -655,24 +655,25 @@ dump_plist_element (MPlist *plist, int indent)
   prefix[indent] = 0;
 
   key = MPLIST_KEY (plist);
-  fprintf (stderr, "(%s(#%d) ", msymbol_name (MPLIST_KEY (plist)),
-	   plist->control.ref_count);
   if (key == Msymbol)
     dump_string (msymbol_name (MPLIST_SYMBOL (plist)));
   else if (key == Mtext)
     mdebug_dump_mtext (MPLIST_MTEXT (plist), indent, 0);
   else if (key == Minteger)
-    fprintf (stderr, "%x", MPLIST_INTEGER (plist));
+    fprintf (stderr, "0x%x", MPLIST_INTEGER (plist));
   else if (key == Mstring) 
     fprintf (stderr, "\"%s\"", MPLIST_STRING (plist));
-  else if (MPLIST_NESTED_P (plist))
-    {
-      fprintf (stderr, "\n%s", prefix);
-      mdebug_dump_plist (MPLIST_PLIST (plist), indent);
-    }
+  else if (key == Mplist)
+    mdebug_dump_plist (MPLIST_PLIST (plist), indent);
   else
-    fprintf (stderr, "0x%X", (unsigned) MPLIST_VAL (plist));
-  fprintf (stderr, ")");
+    {
+      indent = dump_string (msymbol_name (MPLIST_SYMBOL (plist))) + 1;
+      fprintf (stderr, ":");
+      if (MPLIST_NESTED_P (plist))
+	mdebug_dump_plist (MPLIST_PLIST (plist), indent);
+      else
+	fprintf (stderr, "0x%X", (unsigned) MPLIST_VAL (plist));
+    }
 }
 
 
