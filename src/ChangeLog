@@ -1,5 +1,7 @@
 2006-06-28  Kenichi Handa  <handa@m17n.org>
 
+	* language.c (mscript__char_list): Fix finding a char-list element.
+
 	* plist.c (dump_string): Return number of printed characters.
 	(dump_plist_element): Print elements more compactly.
 
