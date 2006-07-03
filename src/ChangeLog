@@ -1,3 +1,10 @@
+2006-07-03  Kenichi Handa  <handa@m17n.org>
+
+	* input-gui.c (win_callback): If is ic->candidate_show zero, don't
+	push reverse property.
+
+	* plist.c (dump_plist_element): Fix previous change.
+
 2006-06-28  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (xlfd_unparse_name): Suppress the heading '-' if not
