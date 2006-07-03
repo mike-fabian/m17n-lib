@@ -667,7 +667,7 @@ dump_plist_element (MPlist *plist, int indent)
     mdebug_dump_plist (MPLIST_PLIST (plist), indent);
   else
     {
-      indent = dump_string (msymbol_name (MPLIST_SYMBOL (plist))) + 1;
+      indent = dump_string (msymbol_name (MPLIST_KEY (plist))) + 1;
       fprintf (stderr, ":");
       if (MPLIST_NESTED_P (plist))
 	mdebug_dump_plist (MPLIST_PLIST (plist), indent);
