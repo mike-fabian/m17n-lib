@@ -310,7 +310,7 @@ win_callback (MInputContext *ic, MSymbol command)
       if (ic->im->language != Mnil)
 	mtext_put_prop (ic->preedit, 0, mtext_nchars (ic->preedit), Mlanguage,
 			ic->im->language);
-      if (ic->candidate_list)
+      if (ic->candidate_list && ic->candidate_show)
 	mtext_push_prop (ic->preedit, ic->candidate_from, ic->candidate_to,
 			 Mface, mface_reverse_video);
       if (mtext_nchars (ic->produced) == 0)
