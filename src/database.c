@@ -27,9 +27,15 @@
     The m17n library dynamically acquires various kinds of information
     in need from data in the <i> m17n database</i>.  Application
     programs can also add/load their original data to/from the m17n
-    database.  The m17n database contains multiple heterogeneous data,
-    and each data is identified by four tags; TAG0, TAG1, TAG2, TAG3.
-    Each tag must be a symbol.
+    database by setting the variable #mdatabase_dir to an
+    application-specific directory and storing data in it.  Users can
+    overwrite those data by storing overwriting-data in the directory
+    "~/.m17n.d" or in a directory specified by the environment
+    variable "M17NDIR".
+
+    The m17n database contains multiple heterogeneous data, and each
+    data is identified by four tags; TAG0, TAG1, TAG2, TAG3.  Each tag
+    must be a symbol.
 
     TAG0 specifies the type of data stored in the database as below.
 
@@ -136,6 +142,38 @@
 #define MDB_DIR_LEN 8
 
 #define MAX_TIME(TIME1, TIME2) ((TIME1) >= (TIME2) ? (TIME1) : (TIME2))
+
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
+#define PATH_SEPARATOR '/'
+
+#define USE_GEN_PATH					\
+  char _path_static[PATH_MAX], *_path = _path_static;	\
+  int _path_len = PATH_MAX, _this_len
+
+#define GEN_PATH(DIR, FILE)						     \
+  (_this_len = strlen (DIR) + strlen (FILE) + 2,			     \
+   sprintf (((_this_len > _path_len)					     \
+	     ? (_path_len = _this_len, _path = alloca (_path_len)) : _path), \
+	    "%s%c%s", (DIR), PATH_SEPARATOR, (FILE)),			     \
+   _path)
+
+#define GEN_PATH_FROM_MT(DIR, MT)					\
+  (mtext_ref_char ((MT), 0) == PATH_SEPARATOR				\
+   ? (_this_len = mtext_nbytes (MT) + 1,				\
+      (_this_len > _path_len						\
+       ? (_path_len = _this_len, _path = alloca (_path_len))		\
+       : _path)[_this_len - 1] = '\0',					\
+      memcpy (_path, MTEXT_DATA (MT), mtext_nbytes (MT)))		\
+   : (_this_len = strlen (DIR) + mtext_nbytes (MT) + 2,			\
+      (_this_len > _path_len						\
+       ? (_path_len = _this_len, _path = alloca (_path_len))		\
+       : _path)[_this_len - 1] = '\0',					\
+      memcpy (_path + sprintf (_path, "%s%c", (DIR), PATH_SEPARATOR),	\
+	      MTEXT_DATA (MT), mtext_nbytes (MT)),			\
+      _path))
 
 static MSymbol Masterisk;
 
@@ -449,18 +487,13 @@ get_database_filename (MDatabaseInfo *db_info)
   else
     {
       MPlist *plist;
-      char *path;
-      int filelen = strlen (db_info->filename);
-      USE_SAFE_ALLOCA;
+      USE_GEN_PATH;
 
       MPLIST_DO (plist, mdatabase__dir_list)
 	{
 	  MDatabaseInfo *dir_info = MPLIST_VAL (plist);
-	  int require = strlen (dir_info->filename) + filelen + 1;
+	  char *path = GEN_PATH (dir_info->filename, db_info->filename);
 
-	  SAFE_ALLOCA (path, require);
-	  strcpy (path, dir_info->filename);
-	  strcat (path, db_info->filename);
 	  if (stat (path, &buf) == 0)
 	    {
 	      free (db_info->filename);
@@ -469,7 +502,6 @@ get_database_filename (MDatabaseInfo *db_info)
 	      break;
 	    }
 	}
-      SAFE_FREE (path);
     }
   return filename;
 }
@@ -515,14 +547,12 @@ get_dir_info (char *dirname)
     return NULL;
 
   MSTRUCT_MALLOC (dir_info, MERROR_DB);
-  len = strlen (dirname);
-  MTABLE_MALLOC (dir_info->filename, len + 2, MERROR_DB);
-  memcpy (dir_info->filename, dirname, len + 1);
-  if (dir_info->filename[len - 1] != '/')
-    {
-      dir_info->filename[len] = '/';
-      dir_info->filename[len + 1] = '\0';
-    }
+  len = strlen (dirname) + 1;
+  MTABLE_MALLOC (dir_info->filename, len, MERROR_DB);
+  memcpy (dir_info->filename, dirname, len);
+  /* Don't include the last '/' in filename.  */
+  if (dir_info->filename[len - 2] == PATH_SEPARATOR)
+      dir_info->filename[len - 2] = '\0';
   /* Set this to zero so that the first call of update_database_list
      surely checks this directory.  */
   dir_info->time = 0;
@@ -548,14 +578,31 @@ find_database (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 }
 
 static void
+register_database (MDatabase *mdb, char *path)
+{
+  if (find_database (mdb->tag[0], mdb->tag[1], mdb->tag[2], mdb->tag[3]))
+    return;
+  mdb->loader = load_database;
+  mdb->extra_info = calloc (1, sizeof (MDatabaseInfo));
+  if (! mdb->extra_info)
+    MEMORY_FULL (MERROR_DB);
+  ((MDatabaseInfo*) mdb->extra_info)->filename = strdup (path);
+  MLIST_APPEND1 (&mdb_list, mdbs, *mdb, MERROR_DB);
+  if (mdb->tag[0] == Mchar_table
+      && mdb->tag[2] != Mnil
+      && (mdb->tag[1] == Mstring || mdb->tag[1] == Mtext
+	  || mdb->tag[1] == Msymbol || mdb->tag[1] == Minteger
+	  || mdb->tag[1] == Mplist))
+    mchar__define_prop (mdb->tag[2], mdb->tag[1],
+			mdb_list.mdbs + mdb_list.used - 1);
+}
+
+static void
 update_database_list ()
 {
   MPlist *plist;
-  char *path;
-  USE_SAFE_ALLOCA;
-
-  /* Usually this avoids path to be reallocated.  */
-  SAFE_ALLOCA (path, 256);
+  char *path, *file;
+  USE_GEN_PATH;
 
   MPLIST_DO (plist, mdatabase__dir_list)
     {
@@ -564,6 +611,7 @@ update_database_list ()
       MPlist *pl, *p;
       int i, j, len;
       FILE *fp;
+      char *file;
 
       if (stat (dir_info->filename, &statbuf) < 0)
 	continue;
@@ -571,15 +619,7 @@ update_database_list ()
 	  && dir_info->time >= statbuf.st_mtime)
 	continue;
       dir_info->time = MAX_TIME (statbuf.st_ctime, statbuf.st_mtime);
-      len = strlen (dir_info->filename);
-#ifdef PATH_MAX
-      if (len + MDB_DIR_LEN >= PATH_MAX)
-	continue;
-#endif	/* PATH_MAX */
-      SAFE_ALLOCA (path, len + MDB_DIR_LEN + 1);
-      memcpy (path, dir_info->filename, len);
-      memcpy (path + len, MDB_DIR, MDB_DIR_LEN);
-      path[len + MDB_DIR_LEN] = '\0';
+      path = GEN_PATH (dir_info->filename, MDB_DIR);
       if (! (fp = fopen (path, "r")))
 	continue;
       pl = mplist__from_file (fp, NULL);
@@ -622,97 +662,66 @@ update_database_list ()
 	      && mdb.tag[0] != Mchar_table
 	      && mdb.tag[0] != Mcharset)
 	    {
-	      glob_t globbuf;
-	      MPlist *load_key;
+	      MPlist *dlist;
+	      MPlist *load_key = mplist ();
 
-	      SAFE_ALLOCA (path, len + nbytes + 1);
-	      memcpy (path, dir_info->filename, len);
-	      memcpy (path + len, mt->data, nbytes);
-	      path[len + nbytes] = '\0';
-
-	      if (glob (path, GLOB_NOSORT | GLOB_NOCHECK, NULL, &globbuf) != 0)
-		continue;
-	      load_key = mplist ();
-	      for (i = 0; i < globbuf.gl_pathc; i++)
+	      MPLIST_DO (dlist, mdatabase__dir_list)
 		{
-		  if (! (fp = fopen (globbuf.gl_pathv[i], "r")))
-		    continue;
-		  p1 = mplist__from_file (fp, load_key);
-		  fclose (fp);
-		  if (! p1)
-		    continue;
-		  if (MPLIST_PLIST_P (p1))
-		    {
-		      MPlist *p0;
-		      MDatabase mdb2;
+		  MDatabaseInfo *d_info = MPLIST_VAL (dlist);
+		  glob_t globbuf;
 
-		      for (j = 0, p0 = MPLIST_PLIST (p1);
-			   j < 4 && MPLIST_SYMBOL_P (p0);
-			   j++, p0 = MPLIST_NEXT (p0))
-			mdb2.tag[j] = MPLIST_SYMBOL (p0);
-		      for (; j < 4; j++)
-			mdb2.tag[j] = Mnil;
-		      for (j = 0; j < 4; j++)
-			if (mdb.tag[j] == Masterisk
-			    ? mdb2.tag[j] == Mnil
-			    : (mdb.tag[j] != Mnil && mdb.tag[j] != mdb2.tag[j]))
-			  break;
-		      if (j == 4
-			  && ! find_database (mdb2.tag[0], mdb2.tag[1],
-					      mdb2.tag[2], mdb2.tag[3]))
-			{
-			  mdb2.loader = load_database;
-			  mdb2.extra_info = calloc (1, sizeof (MDatabaseInfo));
-			  if (! mdb2.extra_info)
-			    MEMORY_FULL (MERROR_DB);
-			  ((MDatabaseInfo*) mdb2.extra_info)->filename
-			    = strdup (globbuf.gl_pathv[i]);
-			  MLIST_APPEND1 (&mdb_list, mdbs, mdb2, MERROR_DB);
-			  if (mdb2.tag[0] == Mchar_table
-			      && mdb2.tag[2] != Mnil
-			      && (mdb2.tag[1] == Mstring
-				  || mdb2.tag[1] == Mtext
-				  || mdb2.tag[1] == Msymbol
-				  || mdb2.tag[1] == Minteger
-				  || mdb2.tag[1] == Mplist))
-			    mchar__define_prop (mdb2.tag[2], mdb2.tag[1],
-						(mdb_list.mdbs
-						 + mdb_list.used - 1));
-			}
+		  path = GEN_PATH_FROM_MT (d_info->filename, mt);
+		  if (glob (path, GLOB_NOSORT | GLOB_NOCHECK, NULL, &globbuf))
+		    {
+		      if (path[0] == PATH_SEPARATOR)
+			break;
+		      continue;
 		    }
-		  M17N_OBJECT_UNREF (p1);
+		  for (i = 0; i < globbuf.gl_pathc; i++)
+		    {
+		      if (! (fp = fopen (globbuf.gl_pathv[i], "r")))
+			continue;
+		      p1 = mplist__from_file (fp, load_key);
+		      fclose (fp);
+		      if (! p1)
+			continue;
+		      if (MPLIST_PLIST_P (p1))
+			{
+			  MPlist *p0;
+			  MDatabase mdb2;
+
+			  for (j = 0, p0 = MPLIST_PLIST (p1);
+			       j < 4 && MPLIST_SYMBOL_P (p0);
+			       j++, p0 = MPLIST_NEXT (p0))
+			    mdb2.tag[j] = MPLIST_SYMBOL (p0);
+			  for (; j < 4; j++)
+			    mdb2.tag[j] = Mnil;
+			  for (j = 0; j < 4; j++)
+			    if (mdb.tag[j] == Masterisk
+				? mdb2.tag[j] == Mnil
+				: (mdb.tag[j] != Mnil
+				   && mdb.tag[j] != mdb2.tag[j]))
+			      break;
+			  if (j == 4)
+			    register_database (&mdb2, globbuf.gl_pathv[i]);
+			}
+		      M17N_OBJECT_UNREF (p1);
+		    }
+		  globfree (&globbuf);
+		  if (MTEXT_DATA (mt)[0] == PATH_SEPARATOR)
+		    break;
 		}
+
 	      M17N_OBJECT_UNREF (load_key);
-	      globfree (&globbuf);
 	    }
 	  else
 	    {
-	      if (find_database (mdb.tag[0], mdb.tag[1],
-				 mdb.tag[2], mdb.tag[3]))
-		continue;
-	      SAFE_ALLOCA (path, nbytes + 1);
-	      memcpy (path, mt->data, nbytes);
-	      path[nbytes] = '\0';
-	      mdb.extra_info = calloc (1, sizeof (MDatabaseInfo));
-	      if (! mdb.extra_info)
-		MEMORY_FULL (MERROR_DB);
-	      ((MDatabaseInfo*) mdb.extra_info)->filename = strdup (path);
-	      MLIST_APPEND1 (&mdb_list, mdbs, mdb, MERROR_DB);
-	      if (mdb.tag[0] == Mchar_table
-		  && mdb.tag[2] != Mnil
-		  && (mdb.tag[1] == Mstring
-		      || mdb.tag[1] == Mtext
-		      || mdb.tag[1] == Msymbol
-		      || mdb.tag[1] == Minteger
-		      || mdb.tag[1] == Mplist))
-		mchar__define_prop (mdb.tag[2], mdb.tag[1], 
-				    mdb_list.mdbs + mdb_list.used - 1);
+	      path = GEN_PATH_FROM_MT (dir_info->filename, mt);
+	      register_database (&mdb, path);
 	    }
 	}
       M17N_OBJECT_UNREF (pl);
     }
-
-  SAFE_FREE (path);
 }
 
 
@@ -744,6 +753,16 @@ mdatabase__init ()
      directory where a user specific MDB_DIR file exists.  */
   if ((dir_info = get_dir_info (getenv ("M17NDIR"))))
     mplist_push (mdatabase__dir_list, Mt, dir_info);
+  /* If M17NDIR is not set, check "~/.m17n.d".  */
+  else
+    {
+      char *home = getenv ("HOME");
+      USE_GEN_PATH;
+
+      if (home
+	  && (dir_info = get_dir_info (GEN_PATH (home, ".m17n.d"))))
+	mplist_push (mdatabase__dir_list, Mt, dir_info);
+    }
 
   MLIST_INIT1 (&mdb_list, mdbs, 256);
   update_database_list ();
