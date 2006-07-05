@@ -1,3 +1,15 @@
+2006-07-05  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (PATH_MAX): Define it if not yet defined.
+	(PATH_SEPARATOR, USE_GEN_PATH, GEN_PATH, GEN_PATH_FROM_MT): New
+	macros.
+	(get_database_filename): Use GEN_PATH.
+	(get_dir_info): Don't include the last '/' in directory name.
+	(register_database): New function.
+	(update_database_list): Use register_database.  Search all
+	directories in mdatabase__dir_list for wildcard databases.
+	(mdatabase__init): Check "~/.m17n.d".
+
 2006-07-03  Kenichi Handa  <handa@m17n.org>
 
 	* input-gui.c (win_callback): If is ic->candidate_show zero, don't
