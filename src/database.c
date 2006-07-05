@@ -24,14 +24,14 @@
     @addtogroup m17nDatabase
     @brief The m17n database and API for it.
 
-    The m17n library dynamically acquires various kinds of information
-    in need from data in the <i> m17n database</i>.  Application
+    The m17n library acquires various kinds of information
+    from data in the <i> m17n database</i> on demand.  Application
     programs can also add/load their original data to/from the m17n
     database by setting the variable #mdatabase_dir to an
     application-specific directory and storing data in it.  Users can
-    overwrite those data by storing overwriting-data in the directory
-    "~/.m17n.d" or in a directory specified by the environment
-    variable "M17NDIR".
+    overwrite those data by storing preferable data in the directory
+    specified by the environment variable "M17NDIR", or if it is not
+    set, in the directory "~/.m17n.d".
 
     The m17n database contains multiple heterogeneous data, and each
     data is identified by four tags; TAG0, TAG1, TAG2, TAG3.  Each tag
@@ -74,8 +74,15 @@
     @brief m17n データベースにとそれに関する API.
 
     m17n ライブラリは必要に応じて動的に @e m17n @e データベース 
-    から情報を取得する。また、アプリケーションプログラムも独自のデータを 
-    m17n データベースに追加し、それを動的に取得することができる。m17n 
+    から情報を取得する。またアプリケーションプログラムも、独自のデータを 
+    m17n データベースに追加し、それを動的に取得することができる。
+    アプリケーションプログラムが独自のデータを追加・取得するには、変数 
+    #mdatabase_dir にそのアプリケーション固有のディレクトリをセットし、
+    その中にデータを格納する。ユーザがそのデータをオーバーライトしたい
+    ときは、環境変数 "M17NDIR" で指定されるディレクトリ（指定されていな
+    いときは "~/.m17n.d" というディレクトリ）に別のデータを置く。
+
+    m17n 
     データベースには複数の多様なデータが含まれており、各データは
     TAG0, TAG1, TAG2, TAG3（すべてシンボル）の４つのタグによって識別される。
 
