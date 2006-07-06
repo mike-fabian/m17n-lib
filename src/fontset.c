@@ -749,10 +749,8 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       MFont request = realized->request;
 
       if (script != Mlatin)
-	/* These are not appropriate for non-Latin scripts.  */
-	request.property[MFONT_FOUNDRY]
-	  = request.property[MFONT_FAMILY]
-	  = request.property[MFONT_REGISTRY] = 0;
+	/* This is not appropriate for non-Latin scripts.  */
+	request.property[MFONT_REGISTRY] = 0;
 
       per_script = mplist_get (realized->per_script, script);
       if (! per_script)
