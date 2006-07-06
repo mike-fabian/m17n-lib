@@ -1,3 +1,8 @@
+2006-07-06  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (mfont__lookup_fontset): Don't ignore family and
+	foundry of face.
+
 2006-07-05  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* database.c: Update comments.
