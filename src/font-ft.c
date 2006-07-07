@@ -2231,7 +2231,7 @@ mfont__ft_unparse_name (MFont *font)
 
 #define DEVICE_DELTA(table, size)				\
   (((size) >= (table).StartSize && (size) <= (table).EndSize)	\
-   ? (table).DeltaValue[(size) >= (table).StartSize]		\
+   ? (table).DeltaValue[(size) - (table).StartSize]		\
    : 0)
 
 void
