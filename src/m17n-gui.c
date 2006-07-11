@@ -88,7 +88,7 @@ typedef struct
 {
   /** Name of the dynamic library (e.g. "libm17n-X.so").  */
   char *library;
-  /** Handle fo the dynamic library.  */
+  /** Handle of the dynamic library.  */
   void *handle;
   /** Function to call just after loading the library.  */
   int (*init) ();
@@ -321,7 +321,10 @@ m17n_fini_win (void)
     }
 #ifdef HAVE_FREETYPE
   if (null_interface.handle)
-    (*null_interface.fini) ();
+    {
+      (*null_interface.fini) ();
+      null_interface.handle = NULL;
+    }
 #endif	/* not HAVE_FREETYPE */
   M17N_OBJECT_UNREF (device_library_list);
   minput__win_fini ();
