@@ -1,3 +1,7 @@
+2006-07-11  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c (m17n_fini_win): Set null_interface.handle to NULL;
+
 2006-07-13  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (fc_build_charset): Return NULL if FcCharSet can't be
