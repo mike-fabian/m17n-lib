@@ -168,6 +168,7 @@ extern MSymbol Mregistry;
 extern MSymbol Msize;
 extern MSymbol Mresolution;
 extern MSymbol Mmax_advance;
+extern MSymbol Motf;
 extern MSymbol Mfontfile;
 
 extern MSymbol Mfontconfig;
