@@ -109,8 +109,6 @@ mlang__init ()
 void
 mlang__fini (void)
 {
-  MPlist *plist, *p;
-
   M17N_OBJECT_UNREF (language_list);
   language_list = NULL;
   M17N_OBJECT_UNREF (script_list);
