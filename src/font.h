@@ -255,6 +255,7 @@ typedef struct
   M17NObject control;
   MSymbol language;
   MSymbol script;
+  MSymbol otf;
   OTF_Tag script_tag;
   OTF_Tag langsys_tag;
   struct {
