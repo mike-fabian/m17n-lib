@@ -346,8 +346,6 @@ MPlist *mfont__driver_list;
 
 static MSymbol M_font_capability, M_font_list, M_font_list_len;
 
-static MSymbol Motf;
-
 /** Indices to font properties sorted by their priority.  */
 static int font_score_priority[] =
   { MFONT_SIZE,
@@ -1703,10 +1701,12 @@ mfont__get_capability (MSymbol sym)
 	continue;
       if (str[0] == 'o' && strncmp (str + 1, "tf=", 3) == 0)
 	{
+	  char *beg;
 	  MSymbol sym;
 	  int i;
 
 	  str += 4;
+	  beg = str;
 	  for (i = 0, p = str; i < 4 && p < endp; i++, p++);
 	  if (i < 4)
 	    break;
@@ -1786,6 +1786,7 @@ mfont__get_capability (MSymbol sym)
 		cap->features[i].tags = malloc (sizeof (OTF_Tag));
 		cap->features[i].tags[0] = 0;
 	      }
+	  cap->otf = msymbol__with_len (beg, p - beg);
 	  str = p;
 	}
       else if (str[0] == 'l' && strncmp (str + 1, "ang=", 4) == 0)
@@ -1975,6 +1976,14 @@ MSymbol Mregistry;
     */
 
 MSymbol Msize;
+
+/***en
+    @brief Key of font property specifying file name.
+
+    The variable #Mfontfile is a symbol of name <tt>"fontfile"</tt>
+    and is used as a key of font property.  The property value must be
+    a symbol whose name is a font file name.  */ 
+MSymbol Motf;
 
 /***en
     @brief Key of font property specifying file name.
@@ -2333,6 +2342,20 @@ mfont_get_prop (MFont *font, MSymbol key)
       int resy = font->property[MFONT_RESY];
       return (void *) resy;
     }
+  if (key == Mlanguage || key == Mscript || key == Motf)
+    {
+      MFontCapability *cap;
+
+      if (! font->capability)
+	return NULL;
+      cap = mfont__get_capability (font->capability);
+      if (key == Mlanguage)
+	return cap->language;
+      if (key == Mscript)
+	return cap->script;
+      return cap->otf;
+    }
+
   if (key == Mfontfile)
     return (void *) font->file;
   if (key == Mspacing)
