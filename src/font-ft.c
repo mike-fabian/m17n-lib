@@ -510,7 +510,7 @@ fc_build_charset (MPlist *char_list, MText *mt)
   FcCharSet *cs = FcCharSetCreate ();
 
   if (! cs)
-    return;
+    return NULL;
   if (char_list)
     {
       for (; ! MPLIST_TAIL_P (char_list); char_list = MPLIST_NEXT (char_list))
@@ -1109,7 +1109,6 @@ static int
 ft_check_script (MFontFT *ft_info, MSymbol script)
 {
   MPlist *char_list = mscript__char_list (script);
-  int i;
 
 #ifdef HAVE_FONTCONFIG
   if (! char_list || ! ft_info->charset)
@@ -1190,7 +1189,7 @@ static MPlist *
 ft_list_capability (MSymbol capability)
 {
   MFontCapability *cap;
-  MPlist *plist = NULL, *pl, *p;
+  MPlist *plist = NULL, *pl;
 
   if (! ft_capability_list)
     ft_capability_list = mplist ();
