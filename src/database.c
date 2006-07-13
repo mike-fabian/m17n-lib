@@ -608,7 +608,7 @@ static void
 update_database_list ()
 {
   MPlist *plist;
-  char *path, *file;
+  char *path;
   USE_GEN_PATH;
 
   MPLIST_DO (plist, mdatabase__dir_list)
@@ -616,9 +616,8 @@ update_database_list ()
       MDatabaseInfo *dir_info = MPLIST_VAL (plist);
       struct stat statbuf;
       MPlist *pl, *p;
-      int i, j, len;
+      int i, j;
       FILE *fp;
-      char *file;
 
       if (stat (dir_info->filename, &statbuf) < 0)
 	continue;
