@@ -1,3 +1,22 @@
+2006-07-13  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (fc_build_charset): Return NULL if FcCharSet can't be
+	created.
+	(ft_check_script): Delete unused var.
+	(ft_list_capability): Likewise.
+
+	* font.c (mfont__get_capability): Setup cap->otf.
+	(Motf): Make it global.
+	(mfont_get_prop): Accept Mlanguage, Mscript, and Motf as key arg.
+
+	* font.h (MFontCapability): New member otf.
+
+	* language.c (mlang__fini): Delete unused vars.
+
+	* m17n-gui.h (Motf): Extern it.
+
+	* database.c (update_database_list): Delete unused vars.
+
 2006-07-07  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (DEVICE_DELTA): Fix typo.
