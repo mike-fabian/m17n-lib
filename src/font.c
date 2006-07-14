@@ -1237,8 +1237,17 @@ int
 mfont__match_p (MFont *font, MFont *spec, int prop)
 {
   if (spec->capability != font->capability
-      && spec->capability != Mnil && font->capability != Mnil)
-    return 0;
+      && spec->capability != Mnil)
+    {
+      MRealizedFont *rfont;
+
+      if (font->type != MFONT_TYPE_REALIZED)
+	return (font->capability == Mnil);
+      rfont = (MRealizedFont *) font;
+      return (rfont->driver->check_capability
+	      && (rfont->driver->check_capability (rfont, spec->capability)
+		  >= 0));
+    }
   if (spec->file != font->file
       && spec->file != Mnil && font->file != Mnil)
     return 0;
@@ -2942,6 +2951,59 @@ mfont_check (MFrame *frame, MFontset *fontset,
     return 0;
   score = font_score (&rfont->spec, font);
   return (score == 0 ? 2 : 1);
+}
+
+int
+mfont_match_p (MFont *font, MFont *spec)
+{
+  return mfont__match_p (font, spec, MFONT_REGISTRY);
+}
+
+MFont *
+mfont_open (MFrame *frame, MFont *font)
+{
+  enum MFontType font_type = font->type;
+
+  if (font_type == MFONT_TYPE_SPEC)
+    return mfont_find (frame, font, NULL, 0);
+  if (font_type == MFONT_TYPE_OBJECT)
+    return (MFont *) mfont__open (frame, font, font);
+  if (font_type == MFONT_TYPE_REALIZED)
+    return font;
+  MERROR (MERROR_FONT, NULL);
+}
+
+MFont *
+mfont_encapsulate (MFrame *frame, MSymbol data_type, void *data)
+{
+  MPlist *p;
+
+  MPLIST_DO (p, frame->font_driver_list)
+    {
+      MFontDriver *driver = MPLIST_VAL (p);
+      MRealizedFont *rfont;
+
+      if (driver->encapsulate
+	  && (rfont = driver->encapsulate (frame, data_type, data)))
+	return (MFont *) rfont;
+    }
+
+  return NULL;
+}
+
+int
+mfont_close (MFont *font)
+{
+  enum MFontType font_type = font->type;
+  MRealizedFont *rfont;
+
+  if (font_type != MFONT_TYPE_REALIZED)
+    MERROR (MERROR_FONT, -1);
+  rfont = (MRealizedFont *) font;
+  if (rfont->encapsulating
+      && rfont->driver->close)
+    rfont->driver->close (rfont);
+  return 0;
 }
 
 /*** @} */
