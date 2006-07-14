@@ -1,3 +1,8 @@
+2006-07-14  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Version changed to 1.3.4.  Delete args to
+	AM_INIT_AUTOMAKE.
+
 2006-06-23  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (PKGDATA): Don't increment it conditionally.
