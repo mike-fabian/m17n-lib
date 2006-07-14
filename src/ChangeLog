@@ -1,3 +1,36 @@
+2006-07-14  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c: Use FT_BDF_H macro.  Include fontconfig/fcfreetype.h.
+	(MRealizedFontFT): New member face_encapsulated.
+	(free_ft_rfont): Pay attention to ft_rfont->face_encapsulated.
+	(ft_gen_font): New function.
+	(ft_add_font): Use ft_gen_font.
+	(ft_list_script): Store lists in ft_script_list.
+	(ft_check_otf): New arg ft_face.  Caller changed.
+	(ft_check_language): Likewise.
+	(ft_check_script): Likewise.
+	(ft_encapsulate, ft_close): New functions.
+	(mfont__ft_driver): Initialize members encapsulate and close.
+	(mfont__ft_drive_otf): Use OTF_open_ft_face if it is available.
+
+	* font.h (struct MRealizedFont): New member encapsulating.
+	(struct MFontDriver): New members encapsulate and close.
+
+	* font.c (mfont__match_p): If FONT is realized, check capability
+	by font drivers's check_capability method.
+	(mfont_match_p, mfont_open, mfont_encapsulate, mfont_close): New
+	functions.
+
+	* m17n-X.c (xfont_list_family_names): Delete unused var.  Fix
+	declarations of foundry and fam local vars.
+	(xft_driver): Make it static.
+
+	* m17n-gui.h (mfont_match_p, mfont_open, mfont_encapsulate)
+	(mfont_close): Extern them.
+
+	* m17n-gd.c (device_open): Don't specify foundry and family of the
+	default face.
+
 2006-07-11  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.c (m17n_fini_win): Set null_interface.handle to NULL;
