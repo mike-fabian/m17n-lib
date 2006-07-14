@@ -858,6 +858,8 @@ device_open (MFrame *frame, MPlist *param)
   frame->realized_face_list = realized_face_list;
   frame->realized_fontset_list = realized_fontset_list;
   face = mface_copy (mface__default);
+  mface_put_prop (face, Mfoundry, Mnil);
+  mface_put_prop (face, Mfamily, Mnil);
   mplist_push (param, Mface, face);
   M17N_OBJECT_UNREF (face);
   return 0;
