@@ -1009,7 +1009,7 @@ static void
 xfont_list_family_names (MFrame *frame, MPlist *plist)
 {
   MDisplayInfo *disp_info = FRAME_DEVICE (frame)->display_info;
-  char **font_names, **names;
+  char **font_names;
   int i, nfonts;
   MSymbol last_family = Mnil;
 
@@ -1018,10 +1018,10 @@ xfont_list_family_names (MFrame *frame, MPlist *plist)
   for (i = 0; i < nfonts; i++)
     {
       MSymbol family;
-      char *foundry, *fam;
+      char foundry[256], fam[256];
       MPlist *p;
       
-      if (sscanf (font_names[i], "-%s-%s-", &foundry, &fam) < 2)
+      if (sscanf (font_names[i], "-%s-%s-", foundry, fam) < 2)
 	continue;
       family = msymbol (fam);
       if (family == last_family)
@@ -1081,7 +1081,7 @@ static void xft_render (MDrawWindow, int, int, MGlyphString *,
 			MGlyph *, MGlyph *, int, MDrawRegion);
 static int xft_check_capability (MRealizedFont *rfont, MSymbol capability);
 
-MFontDriver xft_driver =
+static MFontDriver xft_driver =
   { NULL, xft_open,
     xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL, NULL,
     xft_check_capability
