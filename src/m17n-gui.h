@@ -227,6 +227,14 @@ typedef struct MFontset MFontset;
 extern int mfont_check (MFrame *frame, MFontset *fontset,
 			MSymbol script, MSymbol language, MFont *font);
 
+extern int mfont_match_p (MFont *font, MFont *spec);
+
+extern MFont *mfont_open (MFrame *frame, MFont *font);
+
+extern MFont *mfont_encapsulate (MFrame *frame, MSymbol data_type, void *data);
+
+extern int mfont_close (MFont *font);
+
 /* end of font module */
 /*=*/
 
