@@ -44,12 +44,14 @@
 #ifdef HAVE_FREETYPE
 
 #ifdef HAVE_FTBDF_H
-#include <freetype/ftbdf.h>
+#include FT_BDF_H
 #endif
 
 static int mdebug_mask = MDEBUG_FONT;
 
 #ifdef HAVE_FONTCONFIG
+#include <fontconfig/fcfreetype.h>
+
 static FcConfig *fc_config;
 static MSymbol Mgeneric_family;
 #endif	/* HAVE_FONTCONFIG */
@@ -83,6 +85,7 @@ typedef struct
   M17NObject control;
   FT_Face ft_face;
   MPlist *charmap_list;
+  int face_encapsulated;
 } MRealizedFontFT;
 
 typedef struct
@@ -146,8 +149,11 @@ free_ft_rfont (void *object)
 {
   MRealizedFontFT *ft_rfont = object;
 
-  M17N_OBJECT_UNREF (ft_rfont->charmap_list);
-  FT_Done_Face (ft_rfont->ft_face);
+  if (! ft_rfont->face_encapsulated)
+    {
+      M17N_OBJECT_UNREF (ft_rfont->charmap_list);
+      FT_Done_Face (ft_rfont->ft_face);
+    }
   free (ft_rfont);
 }
 
@@ -228,6 +234,74 @@ ft_get_charmaps (FT_Face ft_face)
     }
 
   return plist;
+}
+
+static MFontFT *
+ft_gen_font (FT_Face ft_face)
+{
+  MFontFT *ft_info;
+  MFont *font;
+  char *buf;
+  int bufsize = 0;
+  char *stylename;
+  MSymbol family;
+  int size;
+
+  if (FT_IS_SCALABLE (ft_face))
+    size = ft_face->size->metrics.y_ppem;
+  else if (ft_face->num_fixed_sizes == 0)
+    return NULL;
+  else
+    size = ft_face->available_sizes[0].height;
+
+  MSTRUCT_CALLOC (ft_info, MERROR_FONT_FT);
+  font = &ft_info->font;
+  STRDUP_LOWER (buf, bufsize, ft_face->family_name);
+  family = msymbol (buf);
+  mfont__set_property (font, MFONT_FAMILY, family);
+  mfont__set_property (font, MFONT_WEIGHT, Mmedium);
+  mfont__set_property (font, MFONT_STYLE, Mr);
+  mfont__set_property (font, MFONT_STRETCH, Mnormal);
+  mfont__set_property (font, MFONT_ADSTYLE, Mnull);
+  mfont__set_property (font, MFONT_REGISTRY, Municode_bmp);
+  font->size = size * 10;
+  font->type = MFONT_TYPE_OBJECT;
+  font->source = MFONT_SOURCE_FT;
+  font->file = NULL;
+
+  stylename = ft_face->style_name;
+  while (*stylename)
+    {
+      int i;
+
+      for (i = 0; i < ft_to_prop_size; i++)
+	if (! strncasecmp (ft_to_prop[i].ft_style, stylename,
+			   ft_to_prop[i].len))
+	  {
+	    mfont__set_property (font, ft_to_prop[i].prop,
+				 msymbol (ft_to_prop[i].val));
+	    stylename += ft_to_prop[i].len;
+	    break;
+	  }
+      if (i == ft_to_prop_size)
+	{
+	  char *p1 = stylename + 1;
+	  MSymbol sym;
+
+	  while (*p1 >= 'a' && *p1 <= 'z') p1++;
+	  sym = msymbol__with_len (stylename, p1 - stylename);
+	  for (i = MFONT_WEIGHT; i <= MFONT_STRETCH; i++)
+	    if (msymbol_get (sym, mfont__property_table[i].property))
+	      {
+		mfont__set_property (font, i, sym);
+		break;
+	      }
+	  stylename = p1;
+	}
+      while (*stylename && ! isalpha (*stylename))
+	stylename++;
+    }
+  return ft_info;
 }
 
 #ifdef HAVE_FONTCONFIG
@@ -560,71 +634,13 @@ ft_add_font (char *filename)
 
   if (FT_New_Face (ft_library, filename, 0, &ft_face) != 0)
     return NULL;
-  if (! FT_IS_SCALABLE (ft_face))
-    {
-      int reject;
-#ifdef HAVE_FTBDF_H
-      BDF_PropertyRec prop;
-
-      reject = FT_Get_BDF_Property (ft_face, "PIXEL_SIZE", &prop) == 0;
-      size = prop.u.integer * 10;
-#else  /* not HAVE_FTBDF_H */
-      reject = 1;
-#endif	/* not HAVE_FTBDF_H */
-      if (reject)
-	{
-	  FT_Done_Face (ft_face);
-	  return NULL;
-	}
-    }
-
-  MSTRUCT_CALLOC (ft_info, MERROR_FONT_FT);
-  font = &ft_info->font;
-  STRDUP_LOWER (buf, bufsize, ft_face->family_name);
-  family = msymbol (buf);
-  mfont__set_property (font, MFONT_FAMILY, family);
-  mfont__set_property (font, MFONT_WEIGHT, Mmedium);
-  mfont__set_property (font, MFONT_STYLE, Mr);
-  mfont__set_property (font, MFONT_STRETCH, Mnormal);
-  mfont__set_property (font, MFONT_ADSTYLE, Mnull);
-  mfont__set_property (font, MFONT_REGISTRY, Municode_bmp);
-  font->type = MFONT_TYPE_OBJECT;
-  font->source = MFONT_SOURCE_FT;
-  font->size = size;
-  font->file = msymbol (filename);
-
-  stylename = ft_face->style_name;
-  while (*stylename)
-    {
-      for (i = 0; i < ft_to_prop_size; i++)
-	if (! strncasecmp (ft_to_prop[i].ft_style, stylename,
-			   ft_to_prop[i].len))
-	  {
-	    mfont__set_property (font, ft_to_prop[i].prop,
-				 msymbol (ft_to_prop[i].val));
-	    stylename += ft_to_prop[i].len;
-	    break;
-	  }
-      if (i == ft_to_prop_size)
-	{
-	  char *p1 = stylename + 1;
-	  MSymbol sym;
-
-	  while (*p1 >= 'a' && *p1 <= 'z') p1++;
-	  sym = msymbol__with_len (stylename, p1 - stylename);
-	  for (i = MFONT_WEIGHT; i <= MFONT_STRETCH; i++)
-	    if (msymbol_get (sym, mfont__property_table[i].property))
-	      {
-		mfont__set_property (font, i, sym);
-		break;
-	      }
-	  stylename = p1;
-	}
-      while (*stylename && ! isalpha (*stylename))
-	stylename++;
-    }
-
+  ft_info = ft_gen_font (ft_face);
   FT_Done_Face (ft_face);
+  if (! ft_inf)
+    return NULL;
+
+  font = &ft_info->font;
+  font->file = msymbol (filename);
 
   plist = mplist_find_by_key (ft_font_list, family);
   if (plist)
@@ -1012,18 +1028,24 @@ ft_list_script (MSymbol script)
     plist = ft_list_char_list (char_list, NULL);
 #endif	/* not HAVE_FONTCONFIG */
 
+  mplist_push (ft_script_list, script, plist);
   return (plist);
 }
 
 static int
-ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
+ft_check_otf (MFontFT *ft_info, MFontCapability *cap, FT_Face ft_face)
 {
 #ifdef HAVE_OTF
   if (ft_info->otf == invalid_otf)
     return -1;
   if (! ft_info->otf)
     {
-      ft_info->otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
+#if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
+      if (ft_face)
+	ft_info->otf = OTF_open_ft_face (ft_face);
+      else
+#endif
+	ft_info->otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
       if (! ft_info->otf)
 	{
 	  ft_info->otf = invalid_otf;
@@ -1053,10 +1075,11 @@ ft_check_otf (MFontFT *ft_info, MFontCapability *cap)
 }
 
 static int
-ft_check_language (MFontFT *ft_info, MSymbol language)
+ft_check_language (MFontFT *ft_info, MSymbol language, FT_Face ft_face)
 {
   MText *mt;
   MText *extra;
+  int ft_face_allocaed = 0;
   int len, total_len;
   int i;
 
@@ -1066,19 +1089,20 @@ ft_check_language (MFontFT *ft_info, MSymbol language)
 			    (FcChar8 *) MSYMBOL_NAME (language))
 	  != FcLangDifferentLang))
     return 0;
-
-  if (! ft_info->charset)
-    return -1;
-#else  /* not HAVE_FONTCONFIG */
-  FT_Face ft_face;
-
-  if (FT_New_Face (ft_library, MSYMBOL_NAME (ft_info->font.file), 0, &ft_face))
-    return 0;
-#endif	/* not HAVE_FONTCONFIG */
+#endif	/* HAVE_FONTCONFIG */
 
   mt = mlanguage_text (language);
   if (! mt || mtext_nchars (mt) == 0)
     return -1;
+
+  if (! ft_face)
+    {
+      char *filename = MSYMBOL_NAME (ft_info->font.file);
+
+      if (FT_New_Face (ft_library, filename, 0, &ft_face))
+	return -1;
+      ft_face_allocaed = 1;
+    }
 
   len = mtext_nchars (mt);
   extra = mtext_get_prop (mt, 0, Mtext);
@@ -1090,47 +1114,56 @@ ft_check_language (MFontFT *ft_info, MSymbol language)
 	       : mtext_ref_char (extra, i - len));
 
 #ifdef HAVE_FONTCONFIG
-      if (FcCharSetHasChar (ft_info->charset, (FcChar32) c) == FcFalse)
+      if (ft_info->charset
+	  && FcCharSetHasChar (ft_info->charset, (FcChar32) c) == FcFalse)
 	break;
-#else  /* not HAVE_FONTCONFIG */
+#endif	/* HAVE_FONTCONFIG */
       if (FT_Get_Char_Index (ft_face, (FT_ULong) c) == 0)
 	break;
-#endif	/* not HAVE_FONTCONFIG */
     }
 
-#ifndef HAVE_FONTCONFIG
-  FT_Done_Face (ft_face);
-#endif	/* not HAVE_FONTCONFIG */
+  if (ft_face_allocaed)
+    FT_Done_Face (ft_face);
 
   return (i == total_len ? 0 : -1);
 }
 
 static int
-ft_check_script (MFontFT *ft_info, MSymbol script)
+ft_check_script (MFontFT *ft_info, MSymbol script, FT_Face ft_face)
 {
   MPlist *char_list = mscript__char_list (script);
 
+  if (! char_list)
+    return -1;
 #ifdef HAVE_FONTCONFIG
-  if (! char_list || ! ft_info->charset)
-    return -1;
-  MPLIST_DO (char_list, char_list)
-    if (FcCharSetHasChar (ft_info->charset,
-			  (FcChar32) MPLIST_INTEGER (char_list)) == FcFalse)
-      break;
+  if (ft_info->charset)
+    {
+      MPLIST_DO (char_list, char_list)
+	if (FcCharSetHasChar (ft_info->charset,
+			      (FcChar32) MPLIST_INTEGER (char_list)) == FcFalse)
+	  break;
+    }
+  else
+#endif	/* HAVE_FONTCONFIG */
+    {
+      int ft_face_allocaed = 0;
 
-#else  /* not HAVE_FONTCONFIG */
-  FT_Face ft_face;
+      if (! ft_face)
+	{
+	  char *filename = MSYMBOL_NAME (ft_info->font.file);
 
-  if (! char_list
-      || FT_New_Face (ft_library, MSYMBOL_NAME (ft_info->font.file), 0, 
-		      &ft_face))
-    return -1;
+	  if (FT_New_Face (ft_library, filename, 0, &ft_face))
+	    return -1;
+	  ft_face_allocaed = 1;
+	}
 
-  MPLIST_DO (char_list, char_list)
-    if (FT_Get_Char_Index (ft_face, (FT_ULong) MPLIST_INTEGER (char_list)) == 0)
-      break;
-  FT_Done_Face (ft_face);
-#endif	/* not HAVE_FONTCONFIG */
+      MPLIST_DO (char_list, char_list)
+	if (FT_Get_Char_Index (ft_face, (FT_ULong) MPLIST_INTEGER (char_list))
+	    == 0)
+	  break;
+      if (ft_face_allocaed)
+	FT_Done_Face (ft_face);
+    }
 
   return (MPLIST_TAIL_P (char_list) ? 0 : -1);
 }
@@ -1219,7 +1252,7 @@ ft_list_capability (MSymbol capability)
 	{
 	  for (pl = plist; ! MPLIST_TAIL_P (pl);)
 	    {
-	      if (ft_check_script (MPLIST_VAL (pl), cap->script) < 0)
+	      if (ft_check_script (MPLIST_VAL (pl), cap->script, NULL) < 0)
 		mplist_pop (pl);
 	      else
 		pl = MPLIST_NEXT (pl);
@@ -1230,7 +1263,7 @@ ft_list_capability (MSymbol capability)
 	{
 	  for (pl = plist; ! MPLIST_TAIL_P (pl);)
 	    {
-	      if (ft_check_otf (MPLIST_VAL (pl), cap) < 0)
+	      if (ft_check_otf (MPLIST_VAL (pl), cap, NULL) < 0)
 		mplist_pop (pl);
 	      else
 		pl = MPLIST_NEXT (pl);
@@ -1362,13 +1395,13 @@ ft_select (MFrame *frame, MFont *font, int limited_size)
 
       for (pl = plist; ! MPLIST_TAIL_P (pl);)
 	{
-	  if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap) < 0)
+	  if (cap->script_tag && ft_check_otf (MPLIST_VAL (pl), cap, NULL) < 0)
 	    {
 	      mplist_pop (pl);
 	      continue;
 	    }
 	  if (cap->language
-	      && ft_check_language (MPLIST_VAL (pl), cap->language) < 0)
+	      && ft_check_language (MPLIST_VAL (pl), cap->language, NULL) < 0)
 	    mplist_pop (pl);
 	  else
 	    pl = MPLIST_NEXT (pl);
@@ -2002,17 +2035,96 @@ static int
 ft_check_capability (MRealizedFont *rfont, MSymbol capability)
 {
   MFontFT *ft_info = (MFontFT *) rfont->font;
+  MRealizedFontFT *ft_rfont = rfont->info;
   MFontCapability *cap = mfont__get_capability (capability);
 
   if (cap->script != Mnil
-      && ft_check_script (ft_info, cap->script) < 0)
+      && ft_check_script (ft_info, cap->script, ft_rfont->ft_face) < 0)
     return -1;
   if (cap->language != Mnil
-      && ft_check_language (ft_info, cap->language) < 0)
+      && ft_check_language (ft_info, cap->language, ft_rfont->ft_face) < 0)
     return -1;
-  if (cap->script_tag && ft_check_otf (ft_info, cap) < 0)
+  if (cap->script_tag && ft_check_otf (ft_info, cap, ft_rfont->ft_face) < 0)
     return -1;
   return 0;
+}
+
+static MRealizedFont *
+ft_encapsulate (MFrame *frame, MSymbol data_type, void *data)
+{
+  MFontFT *ft_info;
+  MRealizedFont *rfont;
+  MRealizedFontFT *ft_rfont;
+  FT_Face ft_face;
+
+  if (data_type == Mfontconfig)
+    {
+#ifdef HAVE_FONTCONFIG
+      FcPattern *pattern = data;
+
+      if (FcPatternGetFTFace (pattern, FC_FT_FACE, 0, &ft_face)
+	  != FcResultMatch)
+	return NULL;
+      ft_info = fc_gen_font (pattern, NULL);
+#else  /* not HAVE_FONTCONFIG */
+      return NULL;
+#endif	/* not HAVE_FONTCONFIG */
+    }
+  else if (data_type == Mfreetype)
+    {
+      ft_face = data;
+      ft_info = ft_gen_font (ft_face);
+    }
+  else
+    return NULL;
+
+  M17N_OBJECT (ft_rfont, free_ft_rfont, MERROR_FONT_FT);
+  ft_rfont->ft_face = ft_face;
+  ft_rfont->face_encapsulated = 1;
+
+  MSTRUCT_CALLOC (rfont, MERROR_FONT_FT);
+  rfont->font = (MFont *) ft_info;
+  rfont->info = ft_rfont;
+  rfont->fontp = ft_face;
+  rfont->driver = &mfont__ft_driver;
+  rfont->spec = ft_info->font;
+  rfont->spec.type = MFONT_TYPE_REALIZED;
+  rfont->frame = frame;
+  rfont->ascent = ft_face->size->metrics.ascender >> 6;
+  rfont->descent = - ft_face->size->metrics.descender >> 6;
+  rfont->max_advance = ft_face->size->metrics.max_advance >> 6;
+  rfont->baseline_offset = 0;
+#ifdef HAVE_FTBDF_H
+  {
+    BDF_PropertyRec prop;
+
+    if (! FT_IS_SCALABLE (ft_face)
+	&& FT_Get_BDF_Property (ft_face, "_MULE_BASELINE_OFFSET", &prop) == 0)
+      {
+	rfont->baseline_offset = prop.u.integer;
+	rfont->ascent += prop.u.integer;
+	rfont->descent -= prop.u.integer;
+      }
+  }
+#endif	/* HAVE_FTBDF_H */
+  if (FT_IS_SCALABLE (ft_face))
+    rfont->average_width = 0;
+  else
+    rfont->average_width = ft_face->available_sizes->width;
+  rfont->next = MPLIST_VAL (frame->realized_font_list);
+  MPLIST_VAL (frame->realized_font_list) = rfont;
+
+  return rfont;
+}
+
+static void
+ft_close (MRealizedFont *rfont)
+{
+  if (! rfont->encapsulating)
+    return;
+  free (rfont->font);
+  M17N_OBJECT_UNREF (rfont->info);
+  free (rfont);
 }
 
 
@@ -2021,7 +2133,8 @@ ft_check_capability (MRealizedFont *rfont, MSymbol capability)
 
 MFontDriver mfont__ft_driver =
   { ft_select, ft_open, ft_find_metric, ft_has_char, ft_encode_char,
-    ft_render, ft_list, ft_list_family_names, ft_check_capability};
+    ft_render, ft_list, ft_list_family_names, ft_check_capability,
+    ft_encapsulate, ft_close };
 
 int
 mfont__ft_init ()
@@ -2286,7 +2399,13 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
   otf = ft_info->otf;
   if (! otf)
     {
+      MRealizedFontFT *ft_rfont = rfont->info;
+
+#if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
+      otf = OTF_open_ft_face (ft_rfont->ft_face);
+#else
       otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
+#endif
       if (! otf)
 	{
 	  ft_info->otf = invalid_otf;
