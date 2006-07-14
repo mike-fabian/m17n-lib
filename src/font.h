@@ -148,6 +148,9 @@ struct MRealizedFont
      carry the infomation.  */
   MSymbol layouter;
 
+  /* 1 iff the font is opend by encapsulating client-side font data.  */
+  int encapsulating;
+
   /* Extra information set by MRealizedFont::driver->open.  If
      non-NULL, it must be a pointer to a managed object.  */
   void *info;
@@ -215,6 +218,11 @@ struct MFontDriver
 
   /** Check if RFONT support CAPABILITY.  */
   int (*check_capability) (MRealizedFont *rfont, MSymbol capability);
+
+  /** Open a font by encapsulating DATA.  */
+  MRealizedFont *(*encapsulate) (MFrame *frame, MSymbol source, void *data);
+
+  void (*close) (MRealizedFont *rfont);
 };
 
 /** Initialize the members of FONT.  */
