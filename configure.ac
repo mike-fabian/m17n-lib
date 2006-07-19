@@ -153,34 +153,22 @@ AC_ARG_WITH(libotf,
 if test "x$with_libotf" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
-  if test "x$HAVE_PKG_CONFIG" = "xyes" ; then
-    if pkg-config --exists libotf; then
-      HAVE_OTF=yes
-      CPPFLAGS="$CPPFLAGS `pkg-config --cflags libotf`"
-      OTF_LD_FLAGS="`pkg-config --libs libotf`"
-    else
-      HAVE_OTF=no
-    fi
+  AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
+  if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
+    CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
+    OTF_LD_FLAGS="`libotf-config --libs`"
+    LIBS="$LIBS $OTF_LD_FLAGS"
   else
-    AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
-    if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
-      CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
-      OTF_LD_FLAGS="`libotf-config --libs`"
-      LIBS="$LIBS $OTF_LD_FLAGS"
-    else
-     OTF_LD_FLAGS=-lotf
-    fi
-    ## We check the availability of OTF_check_features
-    ## because we need libotf-0.9.4 or the later.
-    AC_CHECK_LIB(otf, OTF_check_features, HAVE_OTF=yes, HAVE_OTF=no)
-    AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
-    if test "x$HAVE_OTF" = "xyes"; then
-      AC_DEFINE(HAVE_OTF, 1, 
-	        [Define to 1 if you have OTF library and header file.])
-    fi
+    OTF_LD_FLAGS=-lotf
   fi
+  ## We check the availability of OTF_check_features
+  ## because we need libotf-0.9.4 or the later.
+  AC_CHECK_LIB(otf, OTF_check_features, HAVE_OTF=yes, HAVE_OTF=no)
+  AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
   if test "x$HAVE_OTF" = "xyes"; then
-      M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
+    AC_DEFINE(HAVE_OTF, 1, 
+	      [Define to 1 if you have OTF library and header file.])
+    M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
   else
     CPPFLAGS="$save_CPPFLAGS"
     OTF_LD_FLAGS=
