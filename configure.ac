@@ -154,7 +154,7 @@ if test "x$with_libotf" != "xno"; then
   AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
   if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
     CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
-    OTF_LD_FLAGS="`libotf-config --libs`  "
+    OTF_LD_FLAGS="`libotf-config --libs`"
     LIBS="$LIBS $OTF_LD_FLAGS"
   else
     OTF_LD_FLAGS=-lotf
@@ -163,7 +163,6 @@ if test "x$with_libotf" != "xno"; then
   ## because we need libotf-0.9.4 or the later.
   AC_CHECK_LIB(otf, OTF_check_features, HAVE_OTF=yes, HAVE_OTF=no)
   AC_CHECK_HEADER(otf.h,, HAVE_OTF=no)
-  CPPFLAGS="$save_CPPFLAGS"
   if test "x$HAVE_OTF" = "xyes"; then
     AC_DEFINE(HAVE_OTF, 1, 
 	      [Define to 1 if you have OTF library and header file.])
