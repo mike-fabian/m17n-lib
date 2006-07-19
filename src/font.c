@@ -664,6 +664,16 @@ OTF_tag (char *name)
 			  | (! p[2] ? 0
 			     : (p[2] << 8) | p[3]))));
 }
+
+void
+OTF_tag_name (OTF_Tag tag, char *name)
+{
+  name[0] = (char) (tag >> 24);
+  name[1] = (char) ((tag >> 16) & 0xFF);
+  name[2] = (char) ((tag >> 8) & 0xFF);
+  name[3] = (char) (tag & 0xFF);
+  name[4] = '\0';
+}
 #endif	/* not HAVE_OTF */
 
 /* XLFD parser/generator */
