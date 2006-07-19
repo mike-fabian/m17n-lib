@@ -971,6 +971,7 @@ mtext__init ()
   M17N_OBJECT_ADD_ARRAY (mtext_table, "M-text");
   M_charbag = msymbol_as_managing_key ("  charbag");
   mtext_table.count = 0;
+  Mlanguage = msymbol ("language");
   return 0;
 }
 
@@ -1583,6 +1584,12 @@ const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
 
 /*** @addtogroup m17nMtext */
 /*** @{ */
+/*=*/
+
+/***en The symbol whose name is "language".  */
+/***ja "language" という名前を持つシンボル.  */
+MSymbol Mlanguage;
+
 /*=*/
 
 /***en
