@@ -94,7 +94,6 @@ init_script_list (void)
 int
 mlang__init ()
 {
-  Mlanguage = msymbol ("language");
   msymbol_put (Mlanguage, Mtext_prop_serializer,
 	       (void *) msymbol__serializer);
   msymbol_put (Mlanguage, Mtext_prop_deserializer,
