@@ -1392,23 +1392,30 @@ find_overlapping_glyphs (MGlyphString *gstring, int *left, int *right,
 
 
 static int
-gstring_width (MGlyphString *gstring, int from, int to, int *rbearing)
+gstring_width (MGlyphString *gstring, int from, int to,
+	       int *lbearing, int *rbearing)
 {
   MGlyph *g;
   int width;
 
   if (from <= gstring->from && to >= gstring->to)
     {
+      if (lbearing)
+	*lbearing = gstring->lbearing;
       if (rbearing)
 	*rbearing = gstring->rbearing;
       return gstring->width;
     }
 
+  if (lbearing)
+    *lbearing = 0;
   if (rbearing)
     *rbearing = 0;
   for (g = MGLYPH (1), width = 0; g->type != GLYPH_ANCHOR; g++)
     if (g->pos >= from && g->pos < to)
       {
+	if (lbearing && width + g->lbearing < *lbearing)
+	  *lbearing = width + g->lbearing;
 	if (rbearing && width + g->rbearing > *rbearing)
 	  *rbearing = width + g->rbearing;
 	width += g->width;
@@ -1428,7 +1435,7 @@ render_glyph_string (MFrame *frame, MDrawWindow win, int x, int y,
   int to_x;
 
   if (control->orientation_reversed)
-    x -= gstring->indent + gstring_width (gstring, from, to, NULL);
+    x -= gstring->indent + gstring_width (gstring, from, to, NULL, NULL);
   else
     x += gstring->indent;
 
@@ -2245,7 +2252,7 @@ mdraw_text_extents (MFrame *frame,
 {
   MGlyphString *gstring;
   int y = 0;
-  int width, rbearing;
+  int width, lbearing, rbearing;
 
   ASSURE_CONTROL (control);
   M_CHECK_POS_X (mt, from, -1);
@@ -2257,52 +2264,49 @@ mdraw_text_extents (MFrame *frame,
   gstring = get_gstring (frame, mt, from, to, control);
   if (! gstring)
     MERROR (MERROR_DRAW, -1);
-  width = gstring_width (gstring, from, to, &rbearing);
+  width = gstring_width (gstring, from, to, &lbearing, &rbearing);
   if (overall_ink_return)
-    {
-      overall_ink_return->y = - gstring->physical_ascent;
-      overall_ink_return->x = gstring->lbearing;
-    }
+    overall_ink_return->y = - gstring->physical_ascent;
   if (overall_logical_return)
-    {
-      overall_logical_return->y = - gstring->ascent;
-      overall_logical_return->x = 0;
-    }
+    overall_logical_return->y = - gstring->ascent;
   if (overall_line_return)
-    {
-      overall_line_return->y = - gstring->line_ascent;
-      overall_line_return->x = gstring->lbearing;
-    }
+    overall_line_return->y = - gstring->line_ascent;
 
   for (from = gstring->to; from < to; from = gstring->to)
     {
-      int this_width, this_rbearing;
+      int this_width, this_lbearing, this_rbearing;
 
       y += gstring->line_descent;
       M17N_OBJECT_UNREF (gstring->top);
       gstring = get_gstring (frame, mt, from, to, control);
-      this_width = gstring_width (gstring, from, to, &this_rbearing);
+      this_width = gstring_width (gstring, from, to,
+				  &this_lbearing, &this_rbearing);
       y += gstring->line_ascent;
       if (width < this_width)
 	width = this_width;
       if (rbearing < this_rbearing)
 	rbearing = this_rbearing;
+      if (lbearing > this_lbearing)
+	lbearing = this_lbearing;
     }
   if (overall_ink_return)
     {
-      overall_ink_return->width = rbearing;
+      overall_ink_return->x = lbearing;
+      overall_ink_return->width = rbearing - lbearing;
       overall_ink_return->height
 	= y + gstring->physical_descent - overall_ink_return->y;
     }
   if (overall_logical_return)
     {
+      overall_ink_return->x = 0;
       overall_logical_return->width = width;
       overall_logical_return->height
 	= y + gstring->descent - overall_logical_return->y;
     }
   if (overall_line_return)
     {
-      overall_line_return->width = MAX (width, rbearing);
+      overall_ink_return->x = lbearing;
+      overall_line_return->width = MAX (width, rbearing - lbearing);
       overall_line_return->height
 	= y + gstring->line_descent - overall_line_return->y;
     }
