@@ -1,5 +1,9 @@
 2006-07-19  Kenichi Handa  <handa@m17n.org>
 
+	* draw.c (gstring_width): New arg lbearing.
+	(render_glyph_string): Adjusted for the change of gstring_width.
+	(mdraw_text_extents): Fix lbearing of ink and line metrics.
+
 	* m17n-core.h (Mlanguage): Extern it.
 
 	* m17n.h (Mlanguage): Extern deleted. 
