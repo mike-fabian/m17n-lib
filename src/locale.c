@@ -276,7 +276,6 @@ mlocale__init ()
 {
   M_locale = msymbol_as_managing_key ("  locale");
 
-  Mlanguage = msymbol ("language");
   Mterritory = msymbol ("territory");
   Mcodeset = msymbol ("codeset");
 
@@ -309,11 +308,6 @@ mlocale__fini ()
 /* External API */
 /*** @addtogroup m17nLocale */
 /*** @{ */
-
-/*=*/
-/***en The symbol whose name is "language".  */
-/***ja "language" という名前を持つシンボル.  */
-MSymbol Mlanguage;
 
 /*=*/
 /***en The symbol whose name is "territory".  */
