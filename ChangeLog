@@ -1,7 +1,7 @@
 2006-07-19  Kenichi Handa  <handa@m17n.org>
 
-	* configure.ac: Use pkg-config if available for checking libotf.
-	Include the result of `libotf-config --cflags` in CPPFLAGS.
+	* configure.ac: Include the result of `libotf-config --cflags` in
+	CPPFLAGS.
 
 2006-07-14  Kenichi Handa  <handa@m17n.org>
 
