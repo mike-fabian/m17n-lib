@@ -1,3 +1,19 @@
+2006-07-19  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (Mlanguage): Extern it.
+
+	* m17n.h (Mlanguage): Extern deleted. 
+
+	* mtext.c (mtext__init): Initialize Mlanguage.
+	(Mlanguage): Declaration moved from locale.c
+
+	* locale.c (mlocale__init): Don't initialize Mlanguage here.
+	(Mlanguage): Declaration moved to mtext.c.
+
+	* language.c (mlang__init): Don't initialize Mlanguage here.
+
+	* font.c (OTF_tag_name) [! HAVE_OTF]: New function.
+
 2006-07-14  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c: Use FT_BDF_H macro.  Include fontconfig/fcfreetype.h.
