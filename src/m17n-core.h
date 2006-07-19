@@ -440,6 +440,8 @@ extern MText *mtext_from_data (const void *data, int nitems,
 /*=*/
 /*** @} */
 
+extern MSymbol Mlanguage;
+
 /*
  *  (5-2) Functions to manipulate M-texts.  They correspond to string
  *   manipulating functions in libc.
