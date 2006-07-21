@@ -2298,14 +2298,14 @@ mdraw_text_extents (MFrame *frame,
     }
   if (overall_logical_return)
     {
-      overall_ink_return->x = 0;
+      overall_logical_return->x = 0;
       overall_logical_return->width = width;
       overall_logical_return->height
 	= y + gstring->descent - overall_logical_return->y;
     }
   if (overall_line_return)
     {
-      overall_ink_return->x = lbearing;
+      overall_line_return->x = lbearing;
       overall_line_return->width = MAX (width, rbearing - lbearing);
       overall_line_return->height
 	= y + gstring->line_descent - overall_line_return->y;
