@@ -1,3 +1,7 @@
+2006-07-21  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (mdraw_text_extents): Fix previous typo.
+
 2006-07-19  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (gstring_width): New arg lbearing.
