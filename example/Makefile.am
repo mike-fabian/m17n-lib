@@ -32,8 +32,8 @@ else
 bin_PROGRAMS = $(BASICPROGS)
 endif
 
-common_ldflags = ${top_srcdir}/src/libm17n-core.la ${top_srcdir}/src/libm17n.la
-common_ldflags_gui = ${common_ldflags} ${top_srcdir}/src/libm17n-gui.la
+common_ldflags = ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la
+common_ldflags_gui = ${common_ldflags} ${top_builddir}/src/libm17n-gui.la
 AM_CPPFLAGS=@CONFIG_FLAGS@
 
 m17n_date_SOURCES = mdate.c
