@@ -1,3 +1,19 @@
+2006-08-02  Theppitak Karoonboonyanan  <thep@linux.thai.net>  (tiny change)
+
+	* Makefile.am (libm17n_la_LIBADD, libm17n_gui_la_LIBADD)
+	(libm17n_X_la_LIBADD, libm17n_gd_la_LIBADD, linkcore_LDADD)
+	(linkshell_LDADD, linkgui_LDADD): Use ${top_builddir}.
+
+2006-08-02  Kenichi Handa  <handa@m17n.org>
+
+	* plist.c (mdebug_dump_plist): Fix the 2nd arg to dump_plist_element.
+
+	* mtext.c (mdebug_dump_mtext): If not fullp, dump just text. 
+
+	* font-ft.c (ft_encapsulate): Add code for debugging.
+	(mfont__ft_drive_otf): Be sure to encode character before getting
+	metrics.
+
 2006-07-21  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (mdraw_text_extents): Fix previous typo.

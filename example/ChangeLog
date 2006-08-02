@@ -1,3 +1,8 @@
+2006-08-02  Theppitak Karoonboonyanan  <thep@linux.thai.net>  (tiny change)
+
+	* Makefile.am (common_ldflags, common_ldflags_gui): Use
+	${top_builddir}.
+
 2006-07-19  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* HELLO.utf8, HELLO.html, HELLO.xml: Add final sukun to Arabic.
