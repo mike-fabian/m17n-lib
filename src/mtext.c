@@ -3596,20 +3596,11 @@ mtext_uppercase (MText *mt)
 MText *
 mdebug_dump_mtext (MText *mt, int indent, int fullp)
 {
-  char *prefix = (char *) alloca (indent + 1);
   int i;
-  unsigned char *p;
 
-  memset (prefix, 32, indent);
-  prefix[indent] = 0;
-
-  fprintf (stderr,
-	   "(mtext (size %d %d %d) (cache %d %d)",
-	   mt->nchars, mt->nbytes, mt->allocated,
-	   mt->cache_char_pos, mt->cache_byte_pos);
   if (! fullp)
     {
-      fprintf (stderr, " \"");
+      fprintf (stderr, "\"");
       for (i = 0; i < mt->nchars; i++)
 	{
 	  int c = mtext_ref_char (mt, i);
@@ -3622,9 +3613,22 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 	    fprintf (stderr, "\\x%02X", c);
 	}
       fprintf (stderr, "\"");
+      return mt;
     }
-  else if (mt->nchars > 0)
+
+  fprintf (stderr,
+	   "(mtext (size %d %d %d) (cache %d %d)",
+	   mt->nchars, mt->nbytes, mt->allocated,
+	   mt->cache_char_pos, mt->cache_byte_pos);
+
+  if (mt->nchars > 0)
     {
+      char *prefix = (char *) alloca (indent + 1);
+      unsigned char *p;
+
+      memset (prefix, 32, indent);
+      prefix[indent] = 0;
+
       fprintf (stderr, "\n%s (bytes \"", prefix);
       for (i = 0; i < mt->nbytes; i++)
 	fprintf (stderr, "\\x%02x", mt->data[i]);
