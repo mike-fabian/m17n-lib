@@ -1551,7 +1551,7 @@ mdebug_dump_plist (MPlist *plist, int indent)
 	first = 0;
       else
 	fprintf (stderr, "\n%s ", prefix);
-      dump_plist_element (pl, indent + 2);
+      dump_plist_element (pl, indent + 1);
     }
   fprintf (stderr, ")");
   return plist;
