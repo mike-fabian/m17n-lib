@@ -2082,6 +2082,8 @@ ft_encapsulate (MFrame *frame, MSymbol data_type, void *data)
   ft_rfont->ft_face = ft_face;
   ft_rfont->face_encapsulated = 1;
 
+  MDEBUG_DUMP (" [FONT-FT] encapsulating ", (char *) ft_face->family_name,);
+
   MSTRUCT_CALLOC (rfont, MERROR_FONT_FT);
   rfont->font = (MFont *) ft_info;
   rfont->info = ft_rfont;
@@ -2596,7 +2598,19 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
   return to;
 
  simple_copy:
-  ft_find_metric (rfont, gstring, from, to);
+  for (i = 0; i < len; i++)
+    {
+      MGlyph *g = MGLYPH (from + i);
+
+      if (! g->otf_encoded)
+	{
+	  g->code = rfont->driver->encode_char (gstring->frame, (MFont *) rfont,
+						NULL, g->code);
+	  g->otf_encoded = 1;
+	}
+    }
+
+  rfont->driver->find_metric (rfont, gstring, from, to);
   for (i = 0; i < len; i++)
     {
       MGlyph temp = gstring->glyphs[from + i];
