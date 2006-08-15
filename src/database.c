@@ -834,7 +834,8 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
 }
 
 
-/* Check if the database MDB should be reloaded or not.  */
+/* Check if the database MDB should be reloaded or not.  Return -1 if
+   the database became not reloadable.  */
 
 int
 mdatabase__check (MDatabase *mdb)
