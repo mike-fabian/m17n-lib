@@ -1,3 +1,7 @@
+2006-08-17  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (reset_ic): Use shift_state to setup the current state.
+
 2006-08-02  Theppitak Karoonboonyanan  <thep@linux.thai.net>  (tiny change)
 
 	* Makefile.am (libm17n_la_LIBADD, libm17n_gui_la_LIBADD)
