@@ -2508,7 +2508,6 @@ reset_ic (MInputContext *ic, MSymbol ignore)
 
   MDEBUG_PRINT ("\n  [IM] reset\n");
 
-  ic_info->map = ic_info->state->map;
   ic_info->state_key_head = ic_info->key_head = 0;
   MLIST_RESET (ic_info);
   ic_info->key_unhandled = 0;
