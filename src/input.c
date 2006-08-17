@@ -2559,7 +2559,7 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   ic_info->state_pos = ic->cursor_pos = 0;
 
   ic_info->state = ic_info->prev_state = NULL;
-  shift_state (((MIMState *) MPLIST_VAL (im_info->states))->name);
+  shift_state (ic, ((MIMState *) MPLIST_VAL (im_info->states))->name);
   status = ic_info->state->title ? ic_info->state->title : im_info->title;
   if (ic->status != status)
     {
