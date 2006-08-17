@@ -2508,8 +2508,6 @@ reset_ic (MInputContext *ic, MSymbol ignore)
 
   MDEBUG_PRINT ("\n  [IM] reset\n");
 
-  ic_info->state = (MIMState *) MPLIST_VAL (im_info->states);
-  ic_info->prev_state = NULL;
   ic_info->map = ic_info->state->map;
   ic_info->state_key_head = ic_info->key_head = 0;
   MLIST_RESET (ic_info);
@@ -2560,6 +2558,8 @@ reset_ic (MInputContext *ic, MSymbol ignore)
   mtext_reset (ic_info->preedit_saved);
   ic_info->state_pos = ic->cursor_pos = 0;
 
+  ic_info->state = ic_info->prev_state = NULL;
+  shift_state (((MIMState *) MPLIST_VAL (im_info->states))->name);
   status = ic_info->state->title ? ic_info->state->title : im_info->title;
   if (ic->status != status)
     {
