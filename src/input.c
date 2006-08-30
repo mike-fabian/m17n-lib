@@ -479,8 +479,8 @@ get_surrounding_text (MInputContext *ic, int len)
   MText *mt = NULL;
 
   mplist_push (ic->plist, Minteger, (void *) len);
-  minput__callback (ic, Minput_get_surrounding_text);
-  if (MPLIST_MTEXT_P (ic->plist))
+  if (minput__callback (ic, Minput_get_surrounding_text) >= 0
+      && MPLIST_MTEXT_P (ic->plist))
     mt = MPLIST_MTEXT (ic->plist);
   mplist_pop (ic->plist);
   return mt;
@@ -515,7 +515,7 @@ get_preceding_char (MInputContext *ic, int pos)
     }
   mt = get_surrounding_text (ic, - pos);
   if (! mt)
-    return -1;
+    return -2;
   len = mtext_nchars (mt);
   if (ic_info->preceding_text)
     {
@@ -547,7 +547,7 @@ get_following_char (MInputContext *ic, int pos)
     }
   mt = get_surrounding_text (ic, pos);
   if (! mt)
-    return -1;
+    return -2;
   len = mtext_nchars (mt);
   if (ic_info->following_text)
     {
@@ -3183,18 +3183,19 @@ minput__fini ()
   M17N_OBJECT_UNREF (load_im_info_keys);
 }
 
-void
+int
 minput__callback (MInputContext *ic, MSymbol command)
 {
-  if (ic->im->driver.callback_list)
-    {
-      MInputCallbackFunc func
-	= (MInputCallbackFunc) mplist_get (ic->im->driver.callback_list,
-					   command);
+  MInputCallbackFunc func;
 
-      if (func)
-	(func) (ic, command);
-    }
+  if (! ic->im->driver.callback_list)
+    return -1;
+  func = (MInputCallbackFunc) mplist_get (ic->im->driver.callback_list,
+					  command);
+  if (! func)
+    return -1;
+  (func) (ic, command);
+  return 0;
 }
 
 MSymbol
