@@ -75,6 +75,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "config.h"
 #include "m17n.h"
@@ -556,31 +557,53 @@ read_element (MPlist *plist, MStream *st, MPlist *keys)
   return (read_symbol_element (plist, st, c, keys ? 1 : 0));
 }
 
-void
-write_element (MText *mt, MPlist *plist)
+#define PUTC(MT, C)			\
+  do {					\
+    if (MT)				\
+      mtext_cat_char ((MT), (C));	\
+    else				\
+      putc ((C), stderr);		\
+  } while (0);
+
+#define PUTS(MT, STR)			\
+  do {					\
+    if (MT)				\
+      MTEXT_CAT_ASCII ((MT), (STR));	\
+    else				\
+      fputs ((STR), stderr);		\
+  } while (0)
+
+
+static void 
+write_symbol (MText *mt, MSymbol sym)
+{
+  if (sym == Mnil)
+    {
+      PUTS (mt, "nil");
+    }
+  else
+    {
+      char *name = MSYMBOL_NAME (sym);
+
+      if (isdigit (*name))
+	PUTC (mt, '\\');
+      while (*name)
+	{
+	  if (*name <= ' ' || *name == '\\' || *name == '"'
+	      || *name == '(' || *name == ')')
+	    PUTC (mt, '\\');
+	  PUTC (mt, *name); 
+	  name++;
+	}
+    }
+}
+
+static void
+write_element (MText *mt, MPlist *plist, int indent)
 {
   if (MPLIST_SYMBOL_P (plist))
     {
-      MSymbol sym = MPLIST_SYMBOL (plist);
-
-      if (sym == Mnil)
-	{
-	  MTEXT_CAT_ASCII (mt, "nil");
-	}
-      else
-	{
-	  char *name = MSYMBOL_NAME (sym);
-	  char *buf = alloca (MSYMBOL_NAMELEN (sym) * 2 + 1), *p = buf;
-
-	  while (*name)
-	    {
-	      if (*name <= ' ' || *name == '"' || *name == ')' || *name == ')')
-		*p++ = '\\';
-	      *p++ = *name++;
-	    }
-	  *p = '\0';
-	  MTEXT_CAT_ASCII (mt, buf);
-	}
+      write_symbol (mt, MPLIST_SYMBOL (plist));
     }
   else if (MPLIST_INTEGER_P (plist))
     {
@@ -588,91 +611,120 @@ write_element (MText *mt, MPlist *plist)
       char buf[128];
 
       sprintf (buf, "%d", num);
-      MTEXT_CAT_ASCII (mt, buf);
+      PUTS (mt, buf);
     }
   else if (MPLIST_PLIST_P (plist))
     {
       MPlist *pl;
+      int newline = 0;
 
       plist = MPLIST_PLIST (plist);
-      mtext_cat_char (mt, '(');
+      PUTC (mt, '(');
+      if (indent >= 0)
+	indent++;
       MPLIST_DO (pl, plist)
 	{
 	  if (pl != plist)
-	    mtext_cat_char (mt, ' ');
-	  write_element (mt, pl);
+	    {
+	      if (indent > 0 && (MPLIST_PLIST_P (pl) || MPLIST_MTEXT_P (pl)))
+		newline = 1;
+	      if (newline)
+		{
+		  int i;
+
+		  PUTC (mt, '\n');
+		  for (i = 1; i < indent; i++)
+		    PUTC (mt, ' ');
+		}
+	      PUTC (mt, ' ');
+	    }
+	  write_element (mt, pl, indent);
+	  if (indent >= 0)
+	    newline = (MPLIST_PLIST_P (pl) || MPLIST_MTEXT_P (pl));
 	}
-      mtext_cat_char (mt, ')');
+      PUTC (mt, ')');
     }
   else if (MPLIST_MTEXT_P (plist))
     {
-      mtext_cat_char (mt, '"');
-      /* Not yet implemnted */
-      mtext_cat_char (mt, '"');
+      MText *this_mt = MPLIST_MTEXT (plist);
+      int from = 0, to = mtext_nchars (this_mt);
+      int stop1 = 0, stop2 = 0;
+
+      if (! mt && this_mt->format > MTEXT_FORMAT_UTF_8)
+	{
+	  this_mt = mtext_dup (this_mt);
+	  mtext__adjust_format (this_mt, MTEXT_FORMAT_UTF_8);
+	}
+
+      PUTC (mt, '"');
+      while (1)
+	{
+	  int stop, escaped;
+
+	  if (from == stop1)
+	    {
+	      if ((stop1 = mtext_character (this_mt, from, to, '"')) < 0)
+		stop1 = to;
+	    }
+	  if (from == stop2)
+	    {
+	      if ((stop2 = mtext_character (this_mt, from, to, '\\')) < 0)
+		stop2 = to;
+	    }
+	  if (stop1 < stop2)
+	    stop = stop1++, escaped = '"';
+	  else
+	    stop = stop2++, escaped = '\\';
+	  if (mt)
+	    mtext_copy (mt, mtext_nchars (mt), this_mt, from, stop);
+	  else
+	    {
+	      unsigned char *data = MTEXT_DATA (this_mt);
+	      unsigned char *beg = data + mtext__char_to_byte (this_mt, from);
+	      unsigned char *end = data + mtext__char_to_byte (this_mt, stop);
+
+	      while (beg < end)
+		putc (*beg, stderr), beg++;
+	    }
+	  if (stop == to)
+	    break;
+	  PUTC (mt, '\\');
+	  PUTC (mt, escaped);
+	  from = stop + 1;
+	}
+      PUTC (mt, '"');
+      if (this_mt != MPLIST_MTEXT (plist))
+	M17N_OBJECT_UNREF (this_mt);
     }
-}
-
-/* Support functions for mdebug_dump_plist.  */
-
-static int
-dump_string (char *str)
-{
-  char *p = str, *pend = p + strlen (p), *new, *p1;
-
-  new = p1 = alloca ((pend - p) * 4 + 1);
-  while (p < pend)
+  else if (MPLIST_STRING_P (plist))
     {
-      if (*p < 0)
+      char *str = MPLIST_STRING (plist);
+
+      if (mt)
 	{
-	  sprintf (p1, "\\x%02X", (unsigned char) *p);
-	  p1 += 4;
-	}
-      else if (*p < ' ')
-	{
-	  *p1++ = '^';
-	  *p1++ = *p + '@';
-	}
-      else if (*p == ' ')
-	{
-	  *p1++ = '\\';
-	  *p1++ = ' ';
+	  MText *this_mt = mtext__from_data (str, strlen (str),
+					     MTEXT_FORMAT_UTF_8, 0);
+
+	  mtext_copy (mt, mtext_nchars (mt),
+		      this_mt, 0, mtext_nchars (this_mt));
+	  M17N_OBJECT_UNREF (this_mt);
 	}
       else
-	*p1++ = *p;
-      p++;
+	fprintf (stderr, "%s", str);
     }
-  *p1 = '\0';
-  return fprintf (stderr, "%s", new);
-}
-
-static void
-dump_plist_element (MPlist *plist, int indent)
-{
-  char *prefix = (char *) alloca (indent + 1);
-  MSymbol key;
-
-  memset (prefix, 32, indent);
-  prefix[indent] = 0;
-
-  key = MPLIST_KEY (plist);
-  if (key == Msymbol)
-    dump_string (msymbol_name (MPLIST_SYMBOL (plist)));
-  else if (key == Mtext)
-    mdebug_dump_mtext (MPLIST_MTEXT (plist), indent, 0);
-  else if (key == Minteger)
-    fprintf (stderr, "0x%x", MPLIST_INTEGER (plist));
-  else if (key == Mstring) 
-    fprintf (stderr, "\"%s\"", MPLIST_STRING (plist));
-  else if (key == Mplist)
-    mdebug_dump_plist (MPLIST_PLIST (plist), indent);
-  else
+  else 
     {
-      indent = dump_string (msymbol_name (MPLIST_KEY (plist))) + 1;
-      fprintf (stderr, ":");
+      write_symbol (mt, MPLIST_KEY (plist));
+      PUTC (mt, ':');
       if (MPLIST_NESTED_P (plist))
-	mdebug_dump_plist (MPLIST_PLIST (plist), indent);
+	write_element (mt, plist, indent + 1);
       else
-	fprintf (stderr, "0x%X", (unsigned) MPLIST_VAL (plist));
+	{
+	  char buf[128];
+
+	  sprintf (buf, ":%04X", (unsigned) MPLIST_VAL (plist));
+	  PUTS (mt, buf);
+	}
     }
 }
 
@@ -839,16 +891,19 @@ mplist__from_string (unsigned char *str, int n)
 }
 
 int
-mplist__serialize (MText *mt, MPlist *plist)
+mplist__serialize (MText *mt, MPlist *plist, int pretty)
 {
   MPlist *pl;
+  int separator = pretty ? '\n' : ' ';
 
   MPLIST_DO (pl, plist)
     {
       if (pl != plist)
-	mtext_cat_char (mt, ' ');
-      write_element (mt, pl);
+	mtext_cat_char (mt, separator);
+      write_element (mt, pl, pretty ? 0 : -1);
     }
+  if (pretty)
+    mtext_cat_char (mt, separator);
   return 0;
 }
 
@@ -899,6 +954,34 @@ mplist__pop_unref (MPlist *plist)
   val = mplist_pop (plist);
   if (key->managing_key)
     M17N_OBJECT_UNREF (val);
+}
+
+/**en
+    @brief Search for an element of an alist represented by a plist.
+
+    The mplist__assq () function treats $PLIST as an association list
+    (elements are plists (key is #Mplist) whose first element is a
+    symbol (key is #Msymbol)), and find an element whose first element
+    has key #Msymbol and value $KEY.
+
+    Non-plist elements of $PLIST are ignored.
+
+    @return
+    This function returns a found element or NULL if no element
+    matches with $KEY.  */
+
+MPlist *
+mplist__assq (MPlist *plist, MSymbol key)
+{
+  MPLIST_DO (plist, plist)
+    if (MPLIST_PLIST_P (plist))
+      {
+	MPlist *pl = MPLIST_PLIST (plist);
+
+	if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == key)
+	  return plist;
+      }
+  return NULL;
 }
 
 /*** @} */
@@ -981,7 +1064,7 @@ MSymbol Mtext;
     この関数は決して失敗しない。     */
 
 MPlist *
-mplist ()
+mplist (void)
 {
   MPlist *plist;
 
@@ -1539,7 +1622,6 @@ mdebug_dump_plist (MPlist *plist, int indent)
 {
   char *prefix = (char *) alloca (indent + 1);
   MPlist *pl;
-  int first = 1;
 
   memset (prefix, 32, indent);
   prefix[indent] = 0;
@@ -1547,11 +1629,9 @@ mdebug_dump_plist (MPlist *plist, int indent)
   fprintf (stderr, "(");
   MPLIST_DO (pl, plist)
     {
-      if (first)
-	first = 0;
-      else
+      if (pl != plist)
 	fprintf (stderr, "\n%s ", prefix);
-      dump_plist_element (pl, indent + 1);
+      write_element (NULL, pl, indent + 1);
     }
   fprintf (stderr, ")");
   return plist;
