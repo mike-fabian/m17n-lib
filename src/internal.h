@@ -66,6 +66,8 @@ extern int mdebug_hook ();
     exit (err);		\
   } while (0)
 
+#define MFAILP(cond) ((cond) ? 0 : mdebug_hook ())
+
 #define M_CHECK_CHAR(c, ret)		\
   if ((c) < 0 || (c) > MCHAR_MAX)	\
     MERROR (MERROR_CHAR, (ret));	\
@@ -547,42 +549,32 @@ extern void mdebug__push_time ();
 extern void mdebug__pop_time ();
 extern void mdebug__print_time ();
 
-#define MDEBUG_PRINT(msg)		\
+#define MDEBUG_PRINT0(FPRINTF)		\
   do {					\
     if (mdebug__flag & mdebug_mask)	\
-      fprintf (mdebug__output, (msg));	\
+      {					\
+	FPRINTF;			\
+	fflush (mdebug__output);	\
+      }					\
   } while (0)
 
-#define MDEBUG_PRINT1(fmt, arg)			\
-  do {						\
-    if (mdebug__flag & mdebug_mask)		\
-      fprintf (mdebug__output, (fmt), (arg));	\
-  } while (0)
+#define MDEBUG_PRINT(msg) \
+  MDEBUG_PRINT0 (fprintf (mdebug__output, "%s", (msg)))
 
-#define MDEBUG_PRINT2(fmt, arg1, arg2)			\
-  do {							\
-    if (mdebug__flag & mdebug_mask)			\
-      fprintf (mdebug__output, (fmt), (arg1), (arg2));	\
-  } while (0)
+#define MDEBUG_PRINT1(fmt, arg) \
+  MDEBUG_PRINT0 (fprintf (mdebug__output, (fmt), (arg)))
 
-#define MDEBUG_PRINT3(fmt, arg1, arg2, arg3)			\
-  do {								\
-    if (mdebug__flag & mdebug_mask)				\
-      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3));	\
-  } while (0)
+#define MDEBUG_PRINT2(fmt, arg1, arg2) \
+  MDEBUG_PRINT0 (fprintf (mdebug__output, (fmt), (arg1), (arg2)))
 
-#define MDEBUG_PRINT4(fmt, arg1, arg2, arg3, arg4)			\
-  do {									\
-    if (mdebug__flag & mdebug_mask)					\
-      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4));	\
-  } while (0)
+#define MDEBUG_PRINT3(fmt, arg1, arg2, arg3) \
+  MDEBUG_PRINT0 (fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3)))
 
-#define MDEBUG_PRINT5(fmt, arg1, arg2, arg3, arg4, arg5)		       \
-  do {									       \
-    if (mdebug__flag & mdebug_mask)					       \
-      fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4), (arg5)); \
-  } while (0)
+#define MDEBUG_PRINT4(fmt, arg1, arg2, arg3, arg4)	\
+  MDEBUG_PRINT0 (fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4)))
 
+#define MDEBUG_PRINT5(fmt, arg1, arg2, arg3, arg4, arg5)	\
+  MDEBUG_PRINT0 (fprintf (mdebug__output, (fmt), (arg1), (arg2), (arg3), (arg4), (arg5)))
 
 #define MDEBUG_DUMP(prefix, postfix, call)		\
   do {							\
@@ -591,6 +583,7 @@ extern void mdebug__print_time ();
 	fprintf (mdebug__output, "%s", prefix);		\
 	call;						\
 	fprintf (mdebug__output, "%s", postfix);	\
+	fflush (mdebug__output);			\
       }							\
   } while (0)
 
