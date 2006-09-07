@@ -1370,11 +1370,8 @@ extern int minput_filter (MInputContext *ic, MSymbol key, void *arg);
 
 extern int minput_lookup (MInputContext *ic, MSymbol key, void *arg,
 			  MText *mt);
-
-extern void minput_set_spot (MInputContext *ic, int x, int y,
-			     int ascent, int descent, int fontsize,
-			     MText *mt, int pos);
-
+extern void minput_set_spot (MInputContext *ic, int x, int y, int ascent,
+			     int descent, int fontsize, MText *mt, int pos);
 extern void minput_toggle (MInputContext *ic);
 
 extern void minput_reset_ic (MInputContext *ic);
@@ -1383,17 +1380,25 @@ extern MText *minput_get_description (MSymbol language, MSymbol name);
 
 extern MPlist *minput_get_title_icon (MSymbol language, MSymbol name);
 
+extern MPlist *minput_get_command (MSymbol language, MSymbol name,
+				   MSymbol command);
+extern int minput_config_command (MSymbol language, MSymbol name,
+				  MSymbol command, MPlist *keyseq);
+extern MPlist *minput_get_variable (MSymbol language, MSymbol name,
+				    MSymbol variable);
+extern int minput_config_variable (MSymbol language, MSymbol name,
+				   MSymbol variable, MPlist *value);
+extern int minput_save_config (void);
+
+/* obsolete functions */
 extern MPlist *minput_get_commands (MSymbol language, MSymbol name);
 
 extern int minput_assign_command_keys (MSymbol language, MSymbol name,
 				       MSymbol command, MPlist *keys);
-
 extern MPlist *minput_get_variables (MSymbol language, MSymbol name);
 
 extern int minput_set_variable (MSymbol language, MSymbol name,
 				MSymbol variable, void *value);
-
-
 /*=*/
 /***     @} */
 
