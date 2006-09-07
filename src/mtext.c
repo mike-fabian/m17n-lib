@@ -2023,7 +2023,7 @@ mtext_cat_char (MText *mt, int c)
   nunits = CHAR_UNITS (c, mt->format);
   if ((mt->nbytes + nunits + 1) * unit_bytes > mt->allocated)
     {
-      mt->allocated = (mt->nbytes + nunits + 1) * unit_bytes;
+      mt->allocated = (mt->nbytes + nunits * 16 + 1) * unit_bytes;
       MTABLE_REALLOC (mt->data, mt->allocated, MERROR_MTEXT);
     }
   
@@ -3607,7 +3607,7 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 
 	  if (c == '"' || c == '\\')
 	    fprintf (stderr, "\\%c", c);
-	  else if (c >= ' ' && c < 127)
+	  else if ((c >= ' ' && c < 127) || c == '\n')
 	    fprintf (stderr, "%c", c);
 	  else
 	    fprintf (stderr, "\\x%02X", c);
