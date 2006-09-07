@@ -688,7 +688,7 @@ MSymbol Mxim;
     and/or "S-" (Shift) in this order.
 
     For instance, if the keysym name is "a" and the event has Shift,
-    Meta, and Hyper modifiers, the resulting name is "H-M-A".
+    Meta, and Hyper modifiers, the resulting name is "M-H-A".
 
     At last, a symbol who has the name is returned.  */
 
@@ -716,7 +716,7 @@ MSymbol Mxim;
     (Control), "S-" (Shift) がこの順番で付く。
     
     たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper 
-    モディファイアを持てば、得られる名前は "H-M-A" である。
+    モディファイアを持てば、得られる名前は "M-H-A" である。
 
     最後にその名前を持つシンボルを返す。*/
 

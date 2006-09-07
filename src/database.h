@@ -27,12 +27,57 @@
 #define M17NDIR "/usr/local/share/m17n"
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
+#ifndef PATH_SEPARATOR
+#define PATH_SEPARATOR '/'
+#endif
+
+enum MDatabaseStatus
+  {
+    /* The database was defined automatically (from mdb.dir file(s)).*/
+    MDB_STATUS_AUTO,
+    /* The database was defined explicitely (by mdatabase_define ()). */
+    MDB_STATUS_EXPLICIT,
+    /* The databse is currently disabled. (usually because it is
+       deleted from mdb.dir file(s)).  */
+    MDB_STATUS_DISABLED
+  };
+
+typedef struct
+{
+  /* Name of the file containing the database.  */
+  char *filename;
+  /* Length of FILENAME.  */
+  int len;
+  /* Absolute path of filename.  */
+  char *absolute_filename;
+  /* The current status of the database.  */
+  enum MDatabaseStatus status;
+  /* When the database was loaded last.  0 if it has never been
+     loaded.  */
+  time_t time;
+  char *lock_file, *uniq_file;
+} MDatabaseInfo;
+
 extern MPlist *mdatabase__dir_list;
+
+extern void mdatabase__update (void);
 
 extern MPlist *mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys);
 
 extern int mdatabase__check (MDatabase *mdb);
 
 extern char *mdatabase__find_file (char *filename);
+
+extern char *mdatabase__file (MDatabase *mdb);
+
+extern int mdatabase__lock (MDatabase *mdb);
+
+extern int mdatabase__save (MDatabase *mdb, MPlist *data);
+
+extern int mdatabase__unlock (MDatabase *mdb);
 
 #endif /* not _M17N_DATABASE_H_ */
