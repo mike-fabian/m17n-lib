@@ -1961,7 +1961,7 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
   int len;
   char buf[512];
   KeySym keysym;
-  MSymbol key = Mnil;
+  MSymbol key;
 
   *modifiers = 0;
   if (event->xany.type != KeyPress
@@ -1971,26 +1971,17 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
   len = XLookupString ((XKeyEvent *) event, (char *) buf, 512, &keysym, NULL);
   if (len > 1)
     return Mnil;
-  if (len == 1)
+  if (keysym >= XK_Shift_L && keysym <= XK_Hyper_R)
+    return Mnil;
+  if (len == 1 && keysym >= XK_space && keysym <= XK_asciitilde)
     {
       int c = keysym;
 
-      if (c < XK_space || c > XK_asciitilde)
-	c = buf[0];
-      if ((c == ' ' || c == 127) && ((XKeyEvent *) event)->state & ShiftMask)
-	*modifiers |= MINPUT_KEY_SHIFT_MODIFIER;
-      if (((XKeyEvent *) event)->state & ControlMask)
-	{
-	  if (c >= 'a' && c <= 'z')
-	    c += 'A' - 'a';
-	  if (c >= ' ' && c < 127)
-	    *modifiers |= MINPUT_KEY_CONTROL_MODIFIER;
-	}
       key = minput__char_to_key (c);
+      if (c == ' ' && ((XKeyEvent *) event)->state & ShiftMask)
+	*modifiers |= MINPUT_KEY_SHIFT_MODIFIER;
     }
-  else if (keysym >= XK_Shift_L && keysym <= XK_Hyper_R)
-    return Mnil;
-  if (key == Mnil)
+  else
     {
       char *str = XKeysymToString (keysym);
 
@@ -1999,9 +1990,9 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
       key = msymbol (str);
       if (((XKeyEvent *) event)->state & ShiftMask)
 	*modifiers |= MINPUT_KEY_SHIFT_MODIFIER;
-      if (((XKeyEvent *) event)->state & ControlMask)
-	*modifiers |= MINPUT_KEY_CONTROL_MODIFIER;
     }
+  if (((XKeyEvent *) event)->state & ControlMask)
+    *modifiers |= MINPUT_KEY_CONTROL_MODIFIER;
   if (((XKeyEvent *) event)->state & disp_info->meta_mask)
     *modifiers |= MINPUT_KEY_META_MODIFIER;
   if (((XKeyEvent *) event)->state & disp_info->alt_mask)
