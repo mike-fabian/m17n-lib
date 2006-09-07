@@ -2887,7 +2887,7 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
       if (! serialized_plist)
 	continue;
       mtext_reset (work);
-      mplist__serialize (work, serialized_plist);
+      mplist__serialize (work, serialized_plist, 0);
       child = xmlNewChild (node, NULL, (xmlChar *) "property", NULL);
       xmlSetProp (child, (xmlChar *) "key",
 		  (xmlChar *) MSYMBOL_NAME (prop->key));
