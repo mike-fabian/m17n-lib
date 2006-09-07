@@ -91,33 +91,35 @@
     <ul> 
     <li> 内部入力メソッド
 
-    内部入力メソッドとは LANGUAGE が @c Mnil 以外のものであり、その本体はm17n データベースに
-    <Minput_method, LANGUAGE, NAME> 
-    というタグを付けて定義されている。
-    この種の入力メソッドに対して、m17n ライブラリでは
-    CUI 用と GUI 用それぞれの入力メソッドドライバをあらかじめ定義している。
-    これらのドライバは m17n ライブラリ自体の入力処理エンジンを利用する。
-    m17n データベースには、特定の言語専用でない入力メソッドを定義することもでき、
-    そのような入力メソッドの LANGUAGE は @c Mt である。
+    内部入力メソッドとは LANGUAGE が @c Mnil 以外のものであり、その本体
+    はm17n データベースに<Minput_method, LANGUAGE, NAME> というタグを付
+    けて定義されている。この種の入力メソッドに対して、m17n ライブラリで
+    はCUI 用と GUI 用それぞれの入力メソッドドライバをあらかじめ定義して
+    いる。これらのドライバは m17n ライブラリ自体の入力処理エンジンを利
+    用する。m17n データベースには、特定の言語専用でない入力メソッドを定
+    義することもでき、そのような入力メソッドの LANGUAGE は @c Mt である。
 
-    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入力キーを受け取る。
-    @c m17n @c ライブラリ は入力イベントがアプリケーションプログラムでどう表現されているかを知ることができないので、
-    入力イベントから入力キーへの変換はアプリケーションプログラマの責任で行わなくてはならない。
-    詳細については関数 minput_event_to_key () の説明を参照。
+    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入
+    力キーを受け取る。@c m17n @c ライブラリ は入力イベントがアプリケー
+    ションプログラムでどう表現されているかを知ることができないので、入
+    力イベントから入力キーへの変換はアプリケーションプログラマの責任で
+    行わなくてはならない。詳細については関数 minput_event_to_key () の
+    説明を参照。
 
     <li> 外部入力メソッド
 
-    外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外部のリソースとして定義される。
-    （たとえばX Window System のXIM など。) 
-    この種の入力メソッドでは、シンボル NAME は@c Minput_driver 
-    をキーとするプロパティを持ち、その値は入力メソッドドライバへのポインタである。
-    このことにより、適切なドライバを準備することによって、いかなる種類の入力メソッドも
-    @c m17n @c ライブラリ の枠組の中で扱う事ができる。
+    外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外
+    部のリソースとして定義される。（たとえばX Window System のXIM な
+    ど。) この種の入力メソッドでは、シンボル NAME は@c Minput_driver を
+    キーとするプロパティを持ち、その値は入力メソッドドライバへのポイン
+    タである。このことにより、適切なドライバを準備することによって、い
+    かなる種類の入力メソッドも@c m17n @c ライブラリ の枠組の中で扱う事
+    ができる。
 
-    利便性の観点から、m17n X ライブラリは XIM の OverTheSpot 
-    の入力スタイルを実現する入力メソッドドライバを提供し、またシンボル @c Mxim の 
-    @c Minput_driver プロパティの値としてそのドライバへのポインタを保持している。
-    詳細については m17n GUI API のドキュメントを参照のこと。
+    利便性の観点から、m17n X ライブラリは XIM の OverTheSpot の入力スタ
+    イルを実現する入力メソッドドライバを提供し、またシンボル @c Mxim の
+    @c Minput_driver プロパティの値としてそのドライバへのポインタを保持
+    している。詳細については m17n GUI API のドキュメントを参照のこと。
 
     </ul> 
 
@@ -143,6 +145,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "config.h"
 
@@ -162,6 +165,8 @@
 
 static int mdebug_mask = MDEBUG_INPUT;
 
+static int fully_initialized;
+
 static MSymbol Minput_method;
 
 /** Symbols to load an input method data.  */
@@ -173,7 +178,10 @@ static MSymbol Mselect, Mshow, Mhide, Mcommit, Munhandle;
 static MSymbol Mset, Madd, Msub, Mmul, Mdiv, Mequal, Mless, Mgreater;
 static MSymbol Mless_equal, Mgreater_equal;
 static MSymbol Mcond;
-static MSymbol Mplus, Mminus, Mstar, Mslush, Mand, Mor, Mnot;
+static MSymbol Mplus, Mminus, Mstar, Mslash, Mand, Mor, Mnot;
+
+/** Special action symbol.  */
+static MSymbol Mat_reload;
 
 static MSymbol M_candidates;
 
@@ -189,7 +197,7 @@ static MSymbol one_char_symbol[256];
 
 static MSymbol M_key_alias;
 
-static MSymbol M_description, M_command, M_variable;
+static MSymbol Mdescription, Mcommand, Mvariable, Mglobal, Mconfig;
 
 /** Structure to hold a map.  */
 
@@ -231,209 +239,232 @@ struct MIMState
   MIMMap *map;
 };
 
-/* Lookup keys KEY1,2,3 in the nested plist PLIST, and return the
-   value.  */
+#define CUSTOM_FILE "config.mic"
 
-static MPlist *
-lookup_nested_list (MPlist *plist, MSymbol key1, MSymbol key2, MSymbol key3)
+static MPlist *load_im_info_keys;
+
+/* List of input method information.  The format is:
+     (LANGUAGE NAME t:IM_INFO ... ... ...)  */
+static MPlist *im_info_list;
+
+/* Database for user's customization file.  */
+static MDatabase *im_custom_mdb;
+
+/* List of input method information loaded from im_custom_mdb.  The
+   format is the same as im_info_list.  */
+static MPlist *im_custom_list;
+
+/* List of input method information configured by
+   minput_config_command and minput_config_variable.  The format is
+   the same as im_info_list.  */
+static MPlist *im_config_list;
+
+/* Global input method information.  It points into the element of
+   im_info_list corresponding to LANGUAGE == `nil' and NAME ==
+   `global'.  */
+static MInputMethodInfo *global_info;
+
+static int update_global_info (void);
+static int update_custom_info (void);
+static MInputMethodInfo *get_im_info (MSymbol, MSymbol, MSymbol, MSymbol);
+
+
+void
+fully_initialize ()
 {
-  MSymbol key[3];
-  int i;
+  char *key_names[32]
+    = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	"BackSpace", "Tab", "Linefeed", "Clear", NULL, "Return", NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
+  char buf[6], buf2[32];
+  int i, j;
+  /* Maximum case: C-M-a, C-M-A, M-Return, C-A-a, C-A-A, A-Return.  */
+  MSymbol alias[7];
 
-  key[0] = key1, key[1] = key2, key[2] = key3;
-  for (i = 0; i < 3; i++)
+  M_key_alias = msymbol ("  key-alias");
+
+  buf[0] = 'C';
+  buf[1] = '-';
+  buf[3] = '\0';
+  for (i = 0, buf[2] = '@'; i < ' '; i++, buf[2]++)
     {
-      plist = mplist_find_by_value (plist, key[i]);
-      if (! plist)
-	return NULL;
-      plist = MPLIST_NEXT (plist);
-      plist = MPLIST_PLIST (plist);
+      one_char_symbol[i] = msymbol (buf);
+      if (key_names[i] || (buf[2] >= 'A' && buf[2] <= 'Z'))
+	{
+	  j = 0;
+	  alias[j++] = one_char_symbol[i];
+	  if (key_names[i])
+	    {
+	      /* Ex: `Escape' == `C-['  */
+	      alias[j++] = msymbol (key_names[i]);
+	    }
+	  if (buf[2] >= 'A' && buf[2] <= 'Z')
+	    {
+	      /* Ex: `C-a' == `C-A'  */
+	      buf[2] += 32;
+	      alias[j++] = msymbol (buf);
+	      buf[2] -= 32;
+	    }
+	  /* Establish cyclic alias chain.  */
+	  alias[j] = alias[0];
+	  while (--j >= 0)
+	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+	}
     }
-  return plist;
+  buf[0] = 'S';
+  for (i = buf[2] = ' '; i < 127; i++, buf[2]++)
+    {
+      one_char_symbol[i] = msymbol (buf + 2);
+      if (i >= 'A' && i <= 'Z')
+	{
+	  /* Ex: `A' == `S-A' == `S-a'.  */
+	  alias[0] = alias[3] = one_char_symbol[i];
+	  alias[1] = msymbol (buf);
+	  buf[2] += 32;
+	  alias[2] = msymbol (buf);
+	  buf[2] -= 32;
+	  for (j = 0; j < 3; j++)
+	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+	}
+    }
+  buf[0] = 'C';
+
+  alias[0] = alias[2] = one_char_symbol[127] = msymbol ("Delete");
+  alias[1] = msymbol ("C-?");
+  for (j = 0; j < 2; j++)
+    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+
+  buf[3] = '-';
+  buf[5] = '\0';
+  buf2[1] = '-';
+  for (i = 128, buf[4] = '@'; i < 160; i++, buf[4]++)
+    {
+      j = 0;
+      /* `C-M-a' == `C-A-a' */
+      buf[2] = 'M';
+      alias[j++] = one_char_symbol[i] = msymbol (buf);
+      buf[2] = 'A';
+      alias[j++] = msymbol (buf);
+      if (key_names[i - 128])
+	{
+	  /* Ex: `M-Escape' == `A-Escape' == `C-M-['.  */
+	  buf2[0] = 'M';
+	  strcpy (buf2 + 2, key_names[i - 128]);
+	  alias[j++] = msymbol (buf2);
+	  buf2[0] = 'A';
+	  alias[j++] = msymbol (buf2);
+	}
+      if (buf[4] >= 'A' && buf[4] <= 'Z')
+	{
+	  /* Ex: `C-M-a' == `C-M-A'.  */
+	  buf[4] += 32;
+	  buf[2] = 'M';
+	  alias[j++] = msymbol (buf);
+	  buf[2] = 'A';
+	  alias[j++] = msymbol (buf);
+	  buf[4] -= 32;
+	}
+      /* Establish cyclic alias chain.  */
+      alias[j] = alias[0];
+      while (--j >= 0)
+	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+    }
+  for (i = 160, buf[4] = ' '; i < 256; i++, buf[4]++)
+    {
+      buf[2] = 'M';
+      alias[0] = alias[2] = one_char_symbol[i] = msymbol (buf + 2);
+      buf[2] = 'A';
+      alias[1] = msymbol (buf + 2);
+      for (j = 0; j < 2; j++)
+	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+    }
+
+  alias[0] = alias[4] = one_char_symbol[255] = msymbol ("M-Delete");
+  alias[1] = msymbol ("A-Delete");
+  alias[2] = msymbol ("C-M-?");
+  alias[3] = msymbol ("C-A-?");
+  for (j = 0; j < 4; j++)
+    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+
+  Minput_method = msymbol ("input-method");
+  Mtitle = msymbol ("title");
+  Mmacro = msymbol ("macro");
+  Mmodule = msymbol ("module");
+  Mmap = msymbol ("map");
+  Mstate = msymbol ("state");
+  Minclude = msymbol ("include");
+  Minsert = msymbol ("insert");
+  M_candidates = msymbol ("  candidates");
+  Mdelete = msymbol ("delete");
+  Mmove = msymbol ("move");
+  Mmark = msymbol ("mark");
+  Mpushback = msymbol ("pushback");
+  Mundo = msymbol ("undo");
+  Mcall = msymbol ("call");
+  Mshift = msymbol ("shift");
+  Mselect = msymbol ("select");
+  Mshow = msymbol ("show");
+  Mhide = msymbol ("hide");
+  Mcommit = msymbol ("commit");
+  Munhandle = msymbol ("unhandle");
+  Mset = msymbol ("set");
+  Madd = msymbol ("add");
+  Msub = msymbol ("sub");
+  Mmul = msymbol ("mul");
+  Mdiv = msymbol ("div");
+  Mequal = msymbol ("=");
+  Mless = msymbol ("<");
+  Mgreater = msymbol (">");
+  Mless_equal = msymbol ("<=");
+  Mgreater_equal = msymbol (">=");
+  Mcond = msymbol ("cond");
+  Mplus = msymbol ("+");
+  Mminus = msymbol ("-");
+  Mstar = msymbol ("*");
+  Mslash = msymbol ("/");
+  Mand = msymbol ("&");
+  Mor = msymbol ("|");
+  Mnot = msymbol ("!");
+
+  Mat_reload = msymbol ("@reload");
+
+  Mcandidates_group_size = msymbol ("candidates-group-size");
+  Mcandidates_charset = msymbol ("candidates-charset");
+
+  Mcandidate_list = msymbol_as_managing_key ("  candidate-list");
+  Mcandidate_index = msymbol ("  candidate-index");
+
+  Minit = msymbol ("init");
+  Mfini = msymbol ("fini");
+
+  Mdescription = msymbol ("description");
+  Mcommand = msymbol ("command");
+  Mvariable = msymbol ("variable");
+  Mglobal = msymbol ("global");
+  Mconfig = msymbol ("config");
+
+  load_im_info_keys = mplist ();
+  mplist_add (load_im_info_keys, Mstate, Mnil);
+  mplist_push (load_im_info_keys, Mmap, Mnil);
+
+  im_info_list = mplist ();
+  im_config_list = im_custom_list = NULL;
+  im_custom_mdb = NULL;
+  update_custom_info ();
+  global_info = NULL;
+  update_global_info ();
+
+  fully_initialized = 1;
 }
 
-/* Set VAL for keys KEY1,2,3 in the nested plist PLIST.  */
+#define MINPUT__INIT()		\
+  do {				\
+    if (! fully_initialized)	\
+      fully_initialize ();	\
+  } while (0)
 
-static MPlist *
-set_nested_list (MPlist *plist, MSymbol key1, MSymbol key2, MSymbol key3,
-		 MPlist *val)
-{
-  MSymbol key[3];
-  int i;
-  MPlist *pl;
-
-  key[0] = key1, key[1] = key2, key[2] = key3;
-  for (i = 0; i < 3; i++)
-    {
-      pl = mplist_find_by_value (plist, key[i]);
-      if (pl)
-	{
-	  pl = MPLIST_NEXT (pl);
-	  plist = MPLIST_PLIST (pl);
-	}
-      else
-	{
-	  pl = mplist_add (plist, Msymbol, key[i]);
-	  plist = mplist ();
-	  pl = mplist_add (pl, Mplist, plist);
-	  M17N_OBJECT_UNREF (plist);
-	}
-    }
-  mplist_set (pl, Mplist, val);
-  M17N_OBJECT_UNREF (val);
-  return pl;
-}
-
-/* Parse PLIST as a value of nested list and return an adjusted list.
-
-   PLIST has this form;
-     (symbol:command
-      plist:(symbol:KEY
-	     [ mtext:DESCRIPTION | symbol:nil ]
-	     ;; The remaining elements are checked CHECK_FUNC.
-	     ...)
-      plist:(symbol:KEY
-	     [ mtext:DESCRIPTION | symbol:nil ]
-	     ;; The remaining elements are checked CHECK_FUNC.
-	     ...)
-      ...)
-
-   GLOBAL is a global list.  If a description text is missing, it is
-   extracted from GLOBAL.
-
-   The return value is a plist of this format:
-     (symbol:KEY
-      plist:([ mtext:DESCRIPTION | symbol:nil ]
-	     ...)
-      symbol:KEY
-      plist:([ mtext:DESCRIPTION | symbol:nil ]
-	     ...)
-      ...)
-
-   PLIST itself is unref-ed.  */
-
-static MPlist *
-parse_nested_list_value (MPlist *plist, MPlist *global, MSymbol key,
-			 int (*check_func) (MPlist *))
-{
-  MPlist *val, *pl, *p, *p0;
-
-  val = mplist ();
-  if (! MPLIST_PLIST_P (plist))
-    {
-      M17N_OBJECT_UNREF (plist);
-      return val;
-    }
-  pl = MPLIST_PLIST (plist);
-  if (! MPLIST_SYMBOL_P (pl)
-      || MPLIST_SYMBOL (pl) != key)
-    {
-      M17N_OBJECT_UNREF (plist);
-      return val;
-    }
-
-  MPLIST_DO (pl, MPLIST_NEXT (pl))
-    {
-      MSymbol name;
-      MPlist *global_def = NULL;
-
-      if (! MPLIST_PLIST_P (pl))
-	continue;
-      p = MPLIST_PLIST (pl);
-      if (! MPLIST_SYMBOL_P (p))
-	continue;
-      name = MPLIST_SYMBOL (p);
-      p = MPLIST_NEXT (p);
-      if (MPLIST_TAIL_P (p))
-	{
-	  if (! global)
-	    continue;
-	  global_def = mplist_find_by_value (global, name);
-	  if (! global_def)
-	    continue;
-	  global_def = MPLIST_PLIST (MPLIST_NEXT (global_def));
-	  mplist__conc (p, global_def);
-	}
-      p0 = MPLIST_NEXT (p);
-      if (MPLIST_TAIL_P (p0))
-	{
-	  if (! global || global_def)
-	    continue;
-	  global_def = mplist_find_by_value (global, name);
-	  if (! global_def)
-	    continue;
-	  global_def = MPLIST_PLIST (MPLIST_NEXT (global_def));
-	  global_def = MPLIST_NEXT (global_def);
-	  if (MPLIST_TAIL_P (global_def))
-	    continue;
-	  mplist__conc (p0, global_def);
-	}
-      if ((*check_func) (p0) < 0)
-	continue;
-      mplist_add (val, Msymbol, name);
-      mplist_add (val, Mplist, p);
-    }
-
-  M17N_OBJECT_UNREF (plist);
-  return val;
-}
-
-static MPlist *variable_list, *command_list;
-static int check_variable_list (MPlist *plist);
-static int check_command_list (MPlist *plist);
-static MPlist *load_partial_im_info (MSymbol language, MSymbol name,
-				     MSymbol extra, MSymbol key);
-
-static MPlist *
-get_nested_list (MSymbol language, MSymbol name, MSymbol extra, MSymbol key)
-{
-  MPlist *total_list;
-  int (*check_func) (MPlist *);
-  MPlist *plist, *global;
-
-  if (key == M_variable)
-    {
-      if (! variable_list)
-	variable_list = mplist ();
-      total_list = variable_list;
-      check_func = check_variable_list;
-    }
-  else
-    {
-      if (! command_list)
-	command_list = mplist ();
-      total_list = command_list;
-      check_func = check_command_list;
-    }
-
-  if (MPLIST_TAIL_P (total_list))
-    {
-      plist = load_partial_im_info (Mt, Mnil, key, key);
-      if (plist)
-	global = parse_nested_list_value (plist, NULL, key, check_func);
-      else
-	global = mplist ();
-      set_nested_list (total_list, Mt, Mnil, key, global);
-    }
-  else
-    global = lookup_nested_list (total_list, Mt, Mnil, key);
-
-  if (name == Mnil)
-    return global;
-
-  plist = lookup_nested_list (total_list, language, name, extra);
-  if (plist)
-    return plist;
-
-  plist = load_partial_im_info (language, name, extra, key);
-  if (plist)
-    plist = parse_nested_list_value (plist, global, key, check_func);
-  else
-    plist = mplist ();
-  set_nested_list (total_list, language, name, extra, plist);
-  return plist;
-}
-
+
 static int
 marker_code (MSymbol sym)
 {
@@ -456,21 +487,20 @@ marker_code (MSymbol sym)
 static MPlist *
 resolve_variable (MInputContextInfo *ic_info, MSymbol var)
 {
-  MPlist *p;
+  MPlist *plist = mplist__assq (ic_info->vars, var);
 
-  MPLIST_DO (p, ic_info->vars)
+  if (plist)
     {
-      if (MPLIST_SYMBOL (p) == var)
-	break;
-      p = MPLIST_NEXT (p);
+      plist = MPLIST_PLIST (plist);
+      return MPLIST_NEXT (plist);
     }
-  if (MPLIST_TAIL_P (p))
-    {
-      p = ic_info->vars;
-      mplist_push (p, Minteger, (void *) 0);
-      mplist_push (p, Msymbol, var);
-    }
-  return (MPLIST_NEXT (p));
+
+  plist = mplist ();
+  mplist_push (ic_info->vars, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
+  plist = mplist_add (plist, Msymbol, var);
+  plist = mplist_add (plist, Minteger, (void *) 0);
+  return plist;
 }
 
 static MText *
@@ -632,7 +662,7 @@ parse_expression (MPlist *plist)
     return -1;
   plist = MPLIST_PLIST (plist);
   op = MPLIST_SYMBOL (plist);
-  if (op != Mplus && op != Mminus && op != Mstar && op != Mslush
+  if (op != Mplus && op != Mminus && op != Mstar && op != Mslash
       && op != Mand && op != Mor && op != Mnot
       && op != Mless && op != Mgreater && op != Mequal
       && op != Mless_equal && op != Mgreater_equal)
@@ -670,7 +700,7 @@ resolve_expression (MInputContext *ic, MPlist *plist)
   else if (op == Mstar)
     MPLIST_DO (plist, MPLIST_NEXT (plist))
       val *= resolve_expression (ic, plist);
-  else if (op == Mslush)
+  else if (op == Mslash)
     MPLIST_DO (plist, MPLIST_NEXT (plist))
       val /= resolve_expression (ic, plist);
   else if (op == Mand)
@@ -863,7 +893,7 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	  else if (! macros || ! mplist_get (macros, action_name))
 	    MERROR (MERROR_IM, -1);
 	}
-      else
+      else if (! MPLIST_SYMBOL_P (plist))
 	MERROR (MERROR_IM, -1);
     }
 
@@ -871,24 +901,15 @@ parse_action_list (MPlist *plist, MPlist *macros)
 }
 
 static MPlist *
-resolve_command (MSymbol language, MSymbol name, MSymbol command)
+resolve_command (MPlist *cmds, MSymbol command)
 {
-  MPlist *plist = get_nested_list (language, name, Mnil, M_command);
+  MPlist *plist;
 
-  if (! plist)
-    MERROR (MERROR_IM, NULL);
-  MPLIST_DO (plist, plist)
-    {
-      if (MPLIST_SYMBOL (plist) == command)
-	break;
-      plist = MPLIST_NEXT (plist);
-    }
-  if (MPLIST_TAIL_P (plist))
-    MERROR (MERROR_IM, NULL);
-  plist = MPLIST_NEXT (plist);  
-  if (! MPLIST_PLIST_P (plist))
-    MERROR (MERROR_IM, NULL);
-  plist = MPLIST_NEXT (MPLIST_PLIST (plist));
+  if (! cmds || ! (plist = mplist__assq (cmds, command)))
+    return NULL;
+  plist = MPLIST_PLIST (plist);
+  plist = MPLIST_NEXT (plist);
+  plist = MPLIST_NEXT (plist);
   return plist;
 }
 
@@ -908,19 +929,22 @@ load_translation (MIMMap *map, MPlist *keylist, MPlist *map_actions,
       MText *mt = MPLIST_MTEXT (keylist);
 
       len = mtext_nchars (mt);
-      if (len == 0 || len != mtext_nbytes (mt))
-	MERROR (MERROR_IM, -1);
+      if (MFAILP (len > 0 && len == mtext_nbytes (mt)))
+	return -1;
       keyseq = (MSymbol *) alloca (sizeof (MSymbol) * len);
       for (i = 0; i < len; i++)
 	keyseq[i] = one_char_symbol[MTEXT_DATA (mt)[i]];
     }
-  else if (MPLIST_PLIST_P (keylist))
+  else
     {
-      MPlist *elt = MPLIST_PLIST (keylist);
+      MPlist *elt;
 	  
+      if (MFAILP (MPLIST_PLIST_P (keylist)))
+	return -1;
+      elt = MPLIST_PLIST (keylist);
       len = MPLIST_LENGTH (elt);
-      if (len == 0)
-	MERROR (MERROR_IM, -1);
+      if (MFAILP (len > 0))
+	return -1;
       keyseq = (MSymbol *) alloca (sizeof (int) * len);
       for (i = 0; i < len; i++, elt = MPLIST_NEXT (elt))
 	{
@@ -928,18 +952,18 @@ load_translation (MIMMap *map, MPlist *keylist, MPlist *map_actions,
 	    {
 	      int c = MPLIST_INTEGER (elt);
 
-	      if (c < 0 || c >= 0x100)
-		MERROR (MERROR_IM, -1);
+	      if (MFAILP (c >= 0 && c < 0x100))
+		return -1;
 	      keyseq[i] = one_char_symbol[c];
 	    }
-	  else if (MPLIST_SYMBOL_P (elt))
-	    keyseq[i] = MPLIST_SYMBOL (elt);
 	  else
-	    MERROR (MERROR_IM, -1);
+	    {
+	      if (MFAILP (MPLIST_SYMBOL_P (elt)))
+		return -1;
+	      keyseq[i] = MPLIST_SYMBOL (elt);
+	    }
 	}
     }
-  else
-    MERROR (MERROR_IM, -1);
 
   for (i = 0; i < len; i++)
     {
@@ -980,25 +1004,22 @@ load_translation (MIMMap *map, MPlist *keylist, MPlist *map_actions,
 }
 
 /* Load a branch from PLIST into MAP.  PLIST has this form:
-      PLIST ::= ( MAP-NAME BRANCH-ACTION * )
-   MAPS is a plist of raw maps.
-   STATE is the current state.  */
+      PLIST ::= ( MAP-NAME BRANCH-ACTION * )  */
 
 static int
-load_branch (MPlist *plist, MPlist *maps, MIMMap *map,
-	     MSymbol language, MSymbol name, MPlist *macros)
+load_branch (MInputMethodInfo *im_info, MPlist *plist, MIMMap *map)
 {
   MSymbol map_name;
   MPlist *branch_actions;
 
-  if (! MPLIST_SYMBOL_P (plist))
-    MERROR (MERROR_IM, -1);
+  if (MFAILP (MPLIST_SYMBOL_P (plist)))
+    return -1;
   map_name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
   if (MPLIST_TAIL_P (plist))
     branch_actions = NULL;
-  else if (parse_action_list (plist, macros) < 0)
-    MERROR (MERROR_IM, -1);
+  else if (MFAILP (parse_action_list (plist, im_info->macros) >= 0))
+    return -1;
   else
     branch_actions = plist;
   if (map_name == Mnil)
@@ -1013,7 +1034,8 @@ load_branch (MPlist *plist, MPlist *maps, MIMMap *map,
       if (branch_actions)
 	M17N_OBJECT_REF (branch_actions);
     }
-  else if (maps && (plist = (MPlist *) mplist_get (maps, map_name)))
+  else if (im_info->maps
+	   && (plist = (MPlist *) mplist_get (im_info->maps, map_name)))
     {
       MPLIST_DO (plist, plist)
 	{
@@ -1026,31 +1048,33 @@ load_branch (MPlist *plist, MPlist *maps, MIMMap *map,
 	  if (MPLIST_SYMBOL_P (keylist))
 	    {
 	      MSymbol command = MPLIST_SYMBOL (keylist);
-	      MPlist *pl = resolve_command (language, name, command);
+	      MPlist *pl;
 
-	      if (! pl)
-		return -1;
+	      if (MFAILP (command != Mat_reload))
+		continue;
+	      pl = resolve_command (im_info->configured_cmds, command);
+	      if (MFAILP (pl))
+		continue;
 	      MPLIST_DO (pl, pl)
-		if (load_translation (map, pl, map_actions, branch_actions,
-				      macros) < 0)
-		  MERROR (MERROR_IM, -1);
+		load_translation (map, pl, map_actions, branch_actions,
+				  im_info->macros);
 	    }
 	  else
-	    if (load_translation (map, keylist, map_actions, branch_actions,
-				  macros) < 0)
-	      MERROR (MERROR_IM, -1);
+	    load_translation (map, keylist, map_actions, branch_actions,
+			      im_info->macros);
 	}
     }
 
   return 0;
 }
 
-/* Load a macro from PLIST into MACROS.
+/* Load a macro from PLIST into IM_INFO->macros.
    PLIST has this from:
       PLIST ::= ( MACRO-NAME ACTION * )
-   MACROS is a plist of macro names vs action list.  */
+   IM_INFO->macros is a plist of macro names vs action list.  */
+
 static int
-load_macros (MPlist *plist, MPlist *macros)
+load_macros (MInputMethodInfo *im_info, MPlist *plist)
 {
   MSymbol name; 
   MPlist *pl;
@@ -1060,23 +1084,22 @@ load_macros (MPlist *plist, MPlist *macros)
   name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
   if (MPLIST_TAIL_P (plist)
-      || parse_action_list (plist, macros) < 0)
+      || parse_action_list (plist, im_info->macros) < 0)
     MERROR (MERROR_IM, -1);
-  pl = mplist_get (macros, name);
-  if (pl)
-    M17N_OBJECT_UNREF (pl);
-  mplist_put (macros, name, plist);
+  pl = mplist_get (im_info->macros, name);
+  M17N_OBJECT_UNREF (pl);
+  mplist_put (im_info->macros, name, plist);
   M17N_OBJECT_REF (plist);
   return 0;
 }
 
-/* Load an external module from PLIST into EXTERNALS.
+/* Load an external module from PLIST into IM_INFO->externals.
    PLIST has this form:
       PLIST ::= ( MODULE-NAME FUNCTION * )
-   EXTERNALS is a plist of MODULE-NAME vs (MIMExternalModule *).  */
+   IM_INFO->externals is a plist of MODULE-NAME vs (MIMExternalModule *).  */
 
 static int
-load_external_module (MPlist *plist, MPlist *externals)
+load_external_module (MInputMethodInfo *im_info, MPlist *plist)
 {
   void *handle;
   MSymbol module;
@@ -1094,10 +1117,10 @@ load_external_module (MPlist *plist, MPlist *externals)
   sprintf (module_file, "%s%s", MSYMBOL_NAME (module), DLOPEN_SHLIB_EXT);
 
   handle = dlopen (module_file, RTLD_NOW);
-  if (! handle)
+  if (MFAILP (handle))
     {
       fprintf (stderr, "%s\n", dlerror ());
-      MERROR (MERROR_IM, -1);
+      return -1;
     }
   func_list = mplist ();
   MPLIST_DO (plist, MPLIST_NEXT (plist))
@@ -1105,15 +1128,15 @@ load_external_module (MPlist *plist, MPlist *externals)
       if (! MPLIST_SYMBOL_P (plist))
 	MERROR_GOTO (MERROR_IM, err_label);
       func = dlsym (handle, MSYMBOL_NAME (MPLIST_SYMBOL (plist)));
-      if (! func)
-	MERROR_GOTO (MERROR_IM, err_label);
+      if (MFAILP (func))
+	goto err_label;
       mplist_add (func_list, MPLIST_SYMBOL (plist), func);
     }
 
   MSTRUCT_MALLOC (external, MERROR_IM);
   external->handle = handle;
   external->func_list = func_list;
-  mplist_add (externals, module, external);
+  mplist_add (im_info->externals, module, external);
   return 0;
 
  err_label:
@@ -1144,8 +1167,7 @@ free_state (void *object)
 {
   MIMState *state = object;
 
-  if (state->title)
-    M17N_OBJECT_UNREF (state->title);
+  M17N_OBJECT_UNREF (state->title);
   if (state->map)
     free_map (state->map, 1);
   free (state);
@@ -1155,17 +1177,15 @@ free_state (void *object)
     PLIST has this form:
       PLIST ::= ( STATE-NAME STATE-TITLE ? BRANCH * )
       BRANCH ::= ( MAP-NAME BRANCH-ACTION * )
-   MAPS is a plist of defined maps.
    Return the state object.  */
 
 static MIMState *
-load_state (MPlist *plist, MPlist *maps, MSymbol language, MSymbol name,
-	    MPlist *macros)
+load_state (MInputMethodInfo *im_info, MPlist *plist)
 {
   MIMState *state;
 
-  if (! MPLIST_SYMBOL_P (plist))
-    MERROR (MERROR_IM, NULL);
+  if (MFAILP (MPLIST_SYMBOL_P (plist)))
+    return NULL;
   M17N_OBJECT (state, free_state, MERROR_IM);
   state->name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
@@ -1173,29 +1193,62 @@ load_state (MPlist *plist, MPlist *maps, MSymbol language, MSymbol name,
     {
       state->title = MPLIST_MTEXT (plist);
       mtext_put_prop (state->title, 0, mtext_nchars (state->title),
-		      Mlanguage, language);
+		      Mlanguage, im_info->language);
       M17N_OBJECT_REF (state->title);
       plist = MPLIST_NEXT (plist);
     }
   MSTRUCT_CALLOC (state->map, MERROR_IM);
   MPLIST_DO (plist, plist)
-    if (! MPLIST_PLIST_P (plist)
-	|| load_branch (MPLIST_PLIST (plist), maps, state->map, language, name,
-			macros) < 0)
-      MERROR (MERROR_IM, NULL);
+    {
+      if (MFAILP (MPLIST_PLIST_P (plist)))
+	continue;
+      load_branch (im_info, MPLIST_PLIST (plist), state->map);
+    }
   return state;
 }
 
+/* Return a newly created IM_INFO for an input method specified by
+   LANUAGE, NAME, and EXTRA.  IM_INFO is stored in PLIST.  */
 
-static MPlist *im_info_list;
+static MInputMethodInfo *
+new_im_info (MDatabase *mdb, MSymbol language, MSymbol name, MSymbol extra,
+	     MPlist *plist)
+{
+  MInputMethodInfo *im_info;
+  MPlist *elt;
+
+  if (name == Mnil && extra == Mnil)
+    language = Mt, extra = Mglobal;
+  MSTRUCT_CALLOC (im_info, MERROR_IM);
+  im_info->mdb = mdb;
+  im_info->language = language;
+  im_info->name = name;
+  im_info->extra = extra;
+
+  elt = mplist ();
+  mplist_add (plist, Mplist, elt);
+  M17N_OBJECT_UNREF (elt);
+  elt = mplist_add (elt, Msymbol, language);
+  elt = mplist_add (elt, Msymbol, name);
+  elt = mplist_add (elt, Msymbol, extra);
+  mplist_add (elt, Mt, im_info);
+
+  return im_info;
+}
 
 static void
-free_im_info (MInputMethodInfo *im_info)
+fini_im_info (MInputMethodInfo *im_info)
 {
   MPlist *plist;
 
-  if (im_info->title)
-    M17N_OBJECT_UNREF (im_info->title);
+  M17N_OBJECT_UNREF (im_info->cmds);
+  M17N_OBJECT_UNREF (im_info->configured_cmds);
+  M17N_OBJECT_UNREF (im_info->bc_cmds);
+  M17N_OBJECT_UNREF (im_info->vars);
+  M17N_OBJECT_UNREF (im_info->configured_vars);
+  M17N_OBJECT_UNREF (im_info->bc_vars);
+  M17N_OBJECT_UNREF (im_info->description);
+  M17N_OBJECT_UNREF (im_info->title);
   if (im_info->states)
     {
       MPLIST_DO (plist, im_info->states)
@@ -1238,11 +1291,262 @@ free_im_info (MInputMethodInfo *im_info)
       M17N_OBJECT_UNREF (im_info->maps);
     }
 
+  im_info->tick = 0;
+}
+
+static void
+free_im_info (MInputMethodInfo *im_info)
+{
+  fini_im_info (im_info);
   free (im_info);
 }
 
-static MInputMethodInfo *get_im_info (MSymbol language, MSymbol name,
-				      MSymbol extra);
+static void
+free_im_list (MPlist *plist)
+{
+  MPlist *pl, *elt;
+
+  MPLIST_DO (pl, plist)
+    {
+      MInputMethodInfo *im_info;
+
+      elt = MPLIST_NEXT (MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (pl))));
+      im_info = MPLIST_VAL (elt);
+      free_im_info (im_info);
+    }
+  M17N_OBJECT_UNREF (plist);
+}
+
+static MInputMethodInfo *
+lookup_im_info (MPlist *plist, MSymbol language, MSymbol name, MSymbol extra)
+{
+  if (name == Mnil && extra == Mnil)
+    language = Mt, extra = Mglobal;
+  while ((plist = mplist__assq (plist, language)))
+    {
+      MPlist *elt = MPLIST_PLIST (plist);
+
+      plist = MPLIST_NEXT (plist);
+      elt = MPLIST_NEXT (elt);
+      if (MPLIST_SYMBOL (elt) != name)
+	continue;
+      elt = MPLIST_NEXT (elt);
+      if (MPLIST_SYMBOL (elt) != extra)
+	continue;
+      elt = MPLIST_NEXT (elt);
+      return MPLIST_VAL (elt);
+    }
+  return NULL;
+}
+
+static void load_im_info (MPlist *, MInputMethodInfo *);
+
+#define get_custom_info(im_info)				\
+  (im_custom_list						\
+   ? lookup_im_info (im_custom_list, (im_info)->language,	\
+		     (im_info)->name, (im_info)->extra)		\
+   : NULL)
+
+#define get_config_info(im_info)				\
+  (im_config_list						\
+   ? lookup_im_info (im_config_list, (im_info)->language,	\
+		     (im_info)->name, (im_info)->extra)		\
+   : NULL)
+
+static int
+update_custom_info (void)
+{
+  MPlist *plist, *pl;
+
+  if (im_custom_mdb)
+    {
+      if (mdatabase__check (im_custom_mdb) > 0)
+	return 1;
+    }
+  else
+    {
+      MDatabaseInfo *custom_dir_info;
+      char custom_path[PATH_MAX + 1];
+
+      custom_dir_info = MPLIST_VAL (mdatabase__dir_list);
+      if (! custom_dir_info->filename
+	  || custom_dir_info->len + strlen (CUSTOM_FILE) > PATH_MAX)
+	return -1;
+      strcpy (custom_path, custom_dir_info->filename);
+      strcat (custom_path, CUSTOM_FILE);
+      im_custom_mdb = mdatabase_define (Minput_method, Mt, Mnil, Mconfig,
+					NULL, custom_path);
+    }
+
+  if (im_custom_list)
+    {
+      free_im_list (im_custom_list);
+      im_custom_list = NULL;
+    }
+  plist = mdatabase_load (im_custom_mdb);
+  if (! plist)
+    return -1;
+  im_custom_list = mplist ();
+
+  MPLIST_DO (pl, plist)
+    {
+      MSymbol language, name, extra;
+      MInputMethodInfo *im_info;
+      MPlist *im_data, *p;
+
+      if (! MPLIST_PLIST_P (pl))
+	continue;
+      p = MPLIST_PLIST (pl);
+      im_data = MPLIST_NEXT (p);
+      if (! MPLIST_PLIST_P (p))
+	continue;
+      p = MPLIST_PLIST (p);
+      if (! MPLIST_SYMBOL_P (p)
+	  || MPLIST_SYMBOL (p) != Minput_method)
+	continue;
+      p = MPLIST_NEXT (p);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      language = MPLIST_SYMBOL (p);
+      p = MPLIST_NEXT (p);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      name = MPLIST_SYMBOL (p);
+      if (language == Mnil || name == Mnil)
+	continue;
+      p = MPLIST_NEXT (p);
+      if (MPLIST_TAIL_P (p))
+	extra = Mnil;
+      else if (MPLIST_SYMBOL_P (p))
+	extra = MPLIST_SYMBOL (p);
+      else
+	continue;
+      im_info = new_im_info (NULL, language, name, extra, im_custom_list);
+      load_im_info (im_data, im_info);
+    }
+  M17N_OBJECT_UNREF (plist);
+  return 0;
+}
+
+static int
+update_global_info (void)
+{
+  MPlist *plist;
+
+  if (global_info)
+    {
+      int ret = mdatabase__check (global_info->mdb);
+
+      if (ret)
+	return ret;
+      fini_im_info (global_info);
+    }
+  else
+    {
+      MDatabase *mdb = mdatabase_find (Minput_method, Mt, Mnil, Mglobal);
+
+      global_info = new_im_info (mdb, Mt, Mnil, Mglobal, im_info_list);
+    }
+  if (! global_info->mdb
+      || ! (plist = mdatabase_load (global_info->mdb)))
+    return -1;
+
+  load_im_info (plist, global_info);
+  M17N_OBJECT_UNREF (plist);
+  return 0;
+}
+
+
+/* Return an IM_INFO for the an method specified by LANGUAGE, NAME,
+   and EXTRA.  KEY, if not Mnil, tells which kind of information about
+   the input method is necessary, and the returned IM_INFO may contain
+   only that information.  */
+
+static MInputMethodInfo *
+get_im_info (MSymbol language, MSymbol name, MSymbol extra, MSymbol key)
+{
+  MPlist *plist;
+  MInputMethodInfo *im_info;
+  MDatabase *mdb;
+
+  if (name == Mnil && extra == Mnil)
+    language = Mt, extra = Mglobal;
+  im_info = lookup_im_info (im_info_list, language, name, extra);
+  if (im_info)
+    {
+      if (key == Mnil ? im_info->states != NULL
+	  : key == Mcommand ? im_info->cmds != NULL
+	  : key == Mvariable ? im_info->vars != NULL
+	  : key == Mtitle ? im_info->title != NULL
+	  : key == Mdescription ? im_info->description != NULL
+	  : 1)
+	/* IM_INFO already contains required information.  */
+	return im_info;
+      /* We have not yet loaded required information.  */
+    }
+  else
+    {
+      mdb = mdatabase_find (Minput_method, language, name, extra);
+      if (! mdb)
+	return NULL;
+      im_info = new_im_info (mdb, language, name, extra, im_info_list);
+    }
+
+  if (key == Mnil)
+    {
+      plist = mdatabase_load (im_info->mdb);
+    }
+  else
+    {
+      mplist_push (load_im_info_keys, key, Mt);
+      plist = mdatabase__load_for_keys (im_info->mdb, load_im_info_keys);
+      mplist_pop (load_im_info_keys);
+    }
+  im_info->tick = 0;
+  if (! plist)
+    MERROR (MERROR_IM, im_info);
+  update_global_info ();
+  load_im_info (plist, im_info);
+  M17N_OBJECT_UNREF (plist);
+  if (key == Mnil)
+    {
+      if (! im_info->cmds)
+	im_info->cmds = mplist ();
+      if (! im_info->vars)
+	im_info->vars = mplist ();
+    }
+  if (! im_info->title
+      && (key == Mnil || key == Mtitle))
+    im_info->title = (name == Mnil ? mtext ()
+		      : mtext_from_data (MSYMBOL_NAME (name),
+					 MSYMBOL_NAMELEN (name),
+					 MTEXT_FORMAT_US_ASCII));
+  return im_info;
+}
+
+/* Check if IM_INFO->mdb is updated or not.  If not updated, return 0.
+   If updated, but got unloadable, return -1.  Otherwise, update
+   contents of IM_INFO from the new database, and return 1.  */
+
+static int
+reload_im_info (MInputMethodInfo *im_info)
+{
+  int check;
+  MPlist *plist;
+
+  check = mdatabase__check (im_info->mdb);
+  if (check > 0)
+    return 0;
+  if (check < 0)
+    return -1;
+  plist = mdatabase_load (im_info->mdb);
+  if (! plist)
+    return -1;
+  fini_im_info (im_info);
+  load_im_info (plist, im_info);
+  M17N_OBJECT_UNREF (plist);
+  return 1;
+}
 
 static MInputMethodInfo *
 get_im_info_by_tags (MPlist *plist)
@@ -1257,156 +1561,519 @@ get_im_info_by_tags (MPlist *plist)
     return NULL;
   for (; i < 3; i++)
     tag[i] = Mnil;
-  return get_im_info (tag[0], tag[1], tag[2]);
+  return get_im_info (tag[0], tag[1], tag[2], Mnil);
 }
 
-/* Load an input method from PLIST into IM_INTO, and return it.  */
+/* Check KEYSEQ, and return 1 if it is valid as a key sequence, return
+   0 if not.  */
 
-static MInputMethodInfo *
-load_im_info (MSymbol language, MSymbol name, MPlist *plist)
+static int
+check_command_keyseq (MPlist *keyseq)
 {
-  MInputMethodInfo *im_info;
-  MText *title = NULL;
-  MPlist *maps = NULL;
-  MPlist *states = NULL;
-  MPlist *externals = NULL;
-  MPlist *macros = NULL;
-  MPlist *elt;
-
-  MSTRUCT_CALLOC (im_info, MERROR_IM);
-
-  while (MPLIST_PLIST_P (plist))
+  if (MPLIST_PLIST_P (keyseq))
     {
-      elt = MPLIST_PLIST (plist);
-      if (! MPLIST_SYMBOL_P (elt))
-	MERROR_GOTO (MERROR_IM, err);
-      if (MPLIST_SYMBOL (elt) == Mtitle)
-	{
-	  elt = MPLIST_NEXT (elt);
-	  if (! MPLIST_MTEXT_P (elt))
-	    MERROR_GOTO (MERROR_IM, err);
-	  im_info->title = title = MPLIST_MTEXT (elt);
-	  M17N_OBJECT_REF (title);
-	}
-      else if (MPLIST_SYMBOL (elt) == Mmap)
-	{
-	  MPlist *pl = mplist__from_alist (MPLIST_NEXT (elt));
+      MPlist *p = MPLIST_PLIST (keyseq);
 
-	  if (! pl)
-	    MERROR_GOTO (MERROR_IM, err);
-	  if (! maps)
-	    im_info->maps = maps = pl;
+      MPLIST_DO (p, p)
+	if (! MPLIST_SYMBOL_P (p) && ! MPLIST_INTEGER_P (p))
+	  return 0;
+      return 1;
+    }
+  if (MPLIST_MTEXT_P (keyseq))
+    {
+      MText *mt = MPLIST_MTEXT (keyseq);
+      int i;
+      
+      for (i = 0; i < mtext_nchars (mt); i++)
+	if (mtext_ref_char (mt, i) >= 256)
+	  return 0;
+      return 1;
+    }
+  return 0;
+}
+
+/* Load command defitions from PLIST into IM_INFO->cmds.
+
+   PLIST is well-formed and has this form;
+     (command (NAME [DESCRIPTION KEYSEQ ...]) ...)
+   NAME is a symbol.  DESCRIPTION is an M-text or `nil'.  KEYSEQ is an
+   M-text or a plist of symbols.
+
+   The returned list has the same form, but for each element...
+
+   (1) If DESCRIPTION and the rest are omitted, the element is not
+   stored in the returned list.
+
+   (2) If DESCRIPTION is nil, it is complemented by the corresponding
+   description in global_info->cmds (if any).  */
+
+static void
+load_commands (MInputMethodInfo *im_info, MPlist *plist)
+{
+  MPlist *global_cmds = ((im_info->mdb && im_info != global_info)
+			 ? global_info->cmds : NULL);
+  MPlist *tail;
+
+  im_info->cmds = tail = mplist ();
+
+  MPLIST_DO (plist, MPLIST_NEXT (plist))
+    {
+      /* PLIST ::= ((NAME DESC KEYSEQ ...) ...) */
+      MPlist *pl, *p, *global = NULL;
+      MSymbol name;
+
+      if (MFAILP (MPLIST_PLIST_P (plist)))
+	continue;
+      pl = MPLIST_PLIST (plist); /* PL ::= (NAME DESC KEYSEQ ...) */
+      if (MFAILP (MPLIST_SYMBOL_P (pl)))
+	continue;
+      name = MPLIST_SYMBOL (pl);
+      p = MPLIST_NEXT (pl);	/* P ::= (DESC KEYSEQ ...) */
+      if (global_cmds
+	  && (global = mplist__assq (global_cmds, name)))
+	{
+	  /* GLOBAL ::= ((NAME DESC ...) ...) */
+	  global = MPLIST_PLIST (global); /* (NAME DESC ...) */
+	  global = MPLIST_NEXT (global);  /* (DESC ...) */
+	}
+      if (! MPLIST_MTEXT_P (p))
+	{
+	  if (global && MPLIST_MTEXT (global))
+	    mplist_set (p, Mtext, MPLIST_MTEXT (global));
 	  else
-	    maps = mplist__conc (maps, pl);
+	    mplist_set (p, Msymbol, Mnil);
 	}
-      else if (MPLIST_SYMBOL (elt) == Mmacro)
-	{
-	  if (! macros)
-	    im_info->macros = macros = mplist ();
-	  MPLIST_DO (elt, MPLIST_NEXT (elt))
-	    {
-	      if (! MPLIST_PLIST_P (elt)
-		  || load_macros (MPLIST_PLIST (elt), macros) < 0)
-		MERROR_GOTO (MERROR_IM, err);
-	    }
-	}
-      else if (MPLIST_SYMBOL (elt) == Mmodule)
-	{
-	  if (! externals)
-	    im_info->externals = externals = mplist ();
-	  MPLIST_DO (elt, MPLIST_NEXT (elt))
-	    {
-	      if (! MPLIST_PLIST_P (elt)
-		  || load_external_module (MPLIST_PLIST (elt), externals) < 0)
-		MERROR_GOTO (MERROR_IM, err);
-	    }
-	}
-      else if (MPLIST_SYMBOL (elt) == Mstate)
-	{
-	  MPLIST_DO (elt, MPLIST_NEXT (elt))
-	    {
-	      MIMState *state;
+      p = MPLIST_NEXT (p);
+      MPLIST_DO (p, p)
+	if (MFAILP (check_command_keyseq (p)))
+	  break;
+      if (! MPLIST_TAIL_P (p))
+	continue;
+      tail = mplist_add (tail, Mplist, pl);
+    }
+}
 
-	      if (! MPLIST_PLIST_P (elt))
-		MERROR_GOTO (MERROR_IM, err);
-	      state = load_state (MPLIST_PLIST (elt), maps, language, name,
-				  macros);
-	      if (! state)
-		MERROR_GOTO (MERROR_IM, err);
-	      if (! states)
-		im_info->states = states = mplist ();
-	      mplist_put (states, state->name, state);
-	    }
-	}
-      else if (MPLIST_SYMBOL (elt) == Minclude)
+static void
+config_commands (MInputMethodInfo *im_info)
+{
+  MPlist *tail, *plist;
+  MInputMethodInfo *custom = NULL, *config = NULL;
+
+  M17N_OBJECT_UNREF (im_info->configured_cmds);
+
+  if (MPLIST_TAIL_P (im_info->cmds)
+      || ! im_info->mdb)
+    return;
+
+  im_info->configured_cmds = tail = mplist ();
+  if ((custom = get_custom_info (im_info)) && ! custom->cmds)
+    custom = NULL;
+  if ((config = get_config_info (im_info)) && ! config->cmds)
+    config = NULL;
+  MPLIST_DO (plist, im_info->cmds)
+    {
+      MPlist *pl = MPLIST_PLIST (plist), *p = NULL;
+      MSymbol name = MPLIST_SYMBOL (pl);
+
+      if (config)
+	p = mplist__assq (config->cmds, name);
+      if (! p && custom)
+	p = mplist__assq (custom->cmds, name);
+      if (p)
 	{
-	  /* elt ::= include (tag1 tag2 ...) key item ... */
-	  MSymbol key;
-	  MInputMethodInfo *temp;
-	  MPlist *pl, *p;
-
-	  elt = MPLIST_NEXT (elt);
-	  if (! MPLIST_PLIST_P (elt))
-	    MERROR_GOTO (MERROR_IM, err);
-	  temp = get_im_info_by_tags (MPLIST_PLIST (elt));
-	  if (! temp)
-	    MERROR_GOTO (MERROR_IM, err);
-	  elt = MPLIST_NEXT (elt);
-	  if (! MPLIST_SYMBOL_P (elt))
-	    MERROR_GOTO (MERROR_IM, err);
-	  key = MPLIST_SYMBOL (elt);
-	  elt = MPLIST_NEXT (elt);
-	  if (key == Mmap)
-	    {
-	      if (! maps)
-		im_info->maps = maps = mplist ();
-	      MPLIST_DO (pl, temp->maps)
-		{
-		  p = MPLIST_VAL (pl);
-		  MPLIST_ADD_PLIST (maps, MPLIST_KEY (pl), p);
-		  M17N_OBJECT_REF (p);
-		}
-	    }
-	  else if (key == Mmacro)
-	    {
-	      if (! macros)
-		im_info->macros = macros = mplist ();
-	      MPLIST_DO (pl, temp->macros)
-		{
-		  p = MPLIST_VAL (pl);
-		  MPLIST_ADD_PLIST (macros, MPLIST_KEY (pl), p);
-		  M17N_OBJECT_REF (p);
-		}
-	    }
-	  else if (key == Mstate)
-	    {
-	      if (! states)
-		im_info->states = states = mplist ();
-	      MPLIST_DO (pl, temp->states)
-		{
-		  MIMState *state = MPLIST_VAL (pl);
-
-		  mplist_add (states, MPLIST_KEY (pl), state);
-		  M17N_OBJECT_REF (state);
-		}
-	    }
+	  p = MPLIST_PLIST (p);
+	  p = MPLIST_NEXT (p);
+	  if (MPLIST_TAIL_P (p))
+	    p = NULL;
 	  else
-	    MERROR_GOTO (MERROR_IM, err);
+	    {
+	      p = MPLIST_NEXT (p);
+	      pl = mplist_copy (pl);
+	    }
 	}
-      plist = MPLIST_NEXT (plist);
+      tail = mplist_add (tail, Mplist, pl);
+      if (p)
+	{
+	  M17N_OBJECT_UNREF (pl);
+	  pl = MPLIST_NEXT (pl);
+	  pl = MPLIST_NEXT (pl);
+	  mplist_set (pl, Mnil, NULL);
+	  mplist__conc (pl, p);
+	}
+    }
+}
+
+/* Check VAL's value against VALID_VALUES, and return 1 if it is
+   valid, return 0 if not.  */
+
+static int
+check_variable_value (MPlist *val, MPlist *valid_values)
+{
+  MSymbol type = MPLIST_KEY (val);
+
+  if (type != Minteger && type != Mtext && type != Msymbol)
+    return 0;
+  if (MPLIST_TAIL_P (valid_values))
+    /* No restriction.  Any value is ok.  */
+    return 1;
+  if (type == Minteger)
+    {
+      int n = MPLIST_INTEGER (val);
+
+      MPLIST_DO (valid_values, valid_values)
+	{
+	  if (MPLIST_INTEGER_P (valid_values))
+	    {
+	      if (n == MPLIST_INTEGER (valid_values))
+		break;
+	    }
+	  else if (MPLIST_PLIST_P (valid_values))
+	    {
+	      MPlist *p = MPLIST_PLIST (valid_values);
+	      int min_bound, max_bound;
+
+	      if (! MPLIST_INTEGER_P (p))
+		MERROR (MERROR_IM, 0);
+	      min_bound = MPLIST_INTEGER (p);
+	      p = MPLIST_NEXT (p);
+	      if (! MPLIST_INTEGER_P (p))
+		MERROR (MERROR_IM, 0);
+	      max_bound = MPLIST_INTEGER (p);
+	      if (n >= min_bound && n <= max_bound)
+		break;
+	    }
+	}
+    }
+  else if (type == Msymbol)
+    {
+      MSymbol sym = MPLIST_SYMBOL (val);
+
+      MPLIST_DO (valid_values, valid_values)
+	{
+	  if (! MPLIST_SYMBOL_P (valid_values))
+	    MERROR (MERROR_IM, 0);
+	  if (sym == MPLIST_SYMBOL (valid_values))
+	    break;
+	}
+    }
+  else
+    {
+      MText *mt = MPLIST_MTEXT (val);
+
+      MPLIST_DO (valid_values, valid_values)
+	{
+	  if (! MPLIST_MTEXT_P (valid_values))
+	    MERROR (MERROR_IM, 0);
+	  if (mtext_cmp (mt, MPLIST_MTEXT (valid_values)) == 0)
+	    break;
+	}
     }
 
-  if (! states)
-    goto err;
-  if (! title && name)
-    im_info->title
-      = title = mtext_from_data (MSYMBOL_NAME (name), MSYMBOL_NAMELEN (name),
-				 MTEXT_FORMAT_US_ASCII);
-  return im_info;
+  return (MPLIST_TAIL_P (valid_values));
+}
 
- err:
-  free_im_info (im_info);
-  return NULL;
+/* Load variable defitions from PLIST into IM_INFO->vars.
+
+   PLIST is well-formed and has this form;
+     ((NAME [DESCRIPTION DEFAULT-VALUE VALID-VALUE ...])
+      ...)
+   NAME is a symbol.  DESCRIPTION is an M-text or `nil'.
+
+   The returned list has the same form, but for each element...
+
+   (1) If DESCRIPTION and the rest are omitted, the element is not
+   stored in the returned list.
+
+   (2) If DESCRIPTION is nil, it is complemented by the corresponding
+   description in global_info->vars (if any).  */
+
+static void
+load_variables (MInputMethodInfo *im_info, MPlist *plist)
+{
+  MPlist *global_vars = ((im_info->mdb && im_info != global_info)
+			 ? global_info->vars : NULL);
+  MPlist *tail;
+
+  im_info->vars = tail = mplist ();
+
+  MPLIST_DO (plist, MPLIST_NEXT (plist))
+    {
+      MPlist *pl, *p, *global = NULL;
+      MSymbol name;
+      MPlist *valid_values;
+
+      if (MFAILP (MPLIST_PLIST_P (plist)))
+	continue;
+      pl = MPLIST_PLIST (plist); /* PL ::= (NAME [DESC VALUE VALID ...]) */
+      if (MFAILP (MPLIST_SYMBOL_P (pl)))
+	continue;
+      name = MPLIST_SYMBOL (pl);
+      p = MPLIST_NEXT (pl);	/* P ::= ([DESC VALUE VALID ...]) */
+      if (global_vars
+	  && (global = mplist__assq (global_vars, name)))
+	{
+	  /* GLOBAL ::= ((NAME DESC ...) ...) */
+	  global = MPLIST_PLIST (global); /* GLOBAL ::= (NAME DESC ...) */
+	  global = MPLIST_NEXT (global);  /* GLOBAL ::= (DESC VALUE ...) */
+	}
+      if (! MPLIST_MTEXT_P (p))
+	{
+	  if (global && MPLIST_MTEXT_P (global))
+	    mplist_set (p, Mtext, MPLIST_MTEXT (global));
+	  else
+	    mplist_set (p, Msymbol, Mnil);
+	}
+      p = MPLIST_NEXT (p);	/* p ::= ([VALUE VALID ...]) */
+      if (MPLIST_TAIL_P (p))
+	{
+	  if (MFAILP (global))
+	    continue;
+	  global = MPLIST_NEXT (global);
+	  mplist__conc (p, global);
+	}
+      else
+	{
+	  if (MFAILP (MPLIST_INTEGER_P (p) || MPLIST_MTEXT_P (p)
+		      || MPLIST_SYMBOL_P (p)))
+	    continue;
+	  valid_values = MPLIST_NEXT (p);
+	  if (MPLIST_TAIL_P (valid_values)
+	      && global)
+	    {
+	      global = MPLIST_NEXT (global); /* GLOBAL ::= (VALUE VALID ...) */
+	      if (MFAILP (MPLIST_KEY (p) == MPLIST_KEY (global)))
+		continue;
+	      valid_values = MPLIST_NEXT (global);
+	      if (! MPLIST_TAIL_P (valid_values))
+		mplist__conc (p, valid_values);
+	    }
+	  if (MFAILP (check_variable_value (p, valid_values)))
+	    continue;
+	}
+      tail = mplist_add (tail, Mplist, pl);
+    }
+}
+
+/* Return a configured variable definition list based on
+   IM_INFO->vars.  If a variable in it doesn't contain a value, try to
+   get it from global_info->vars.  */
+
+static void
+config_variables (MInputMethodInfo *im_info)
+{
+  MPlist *tail, *plist;
+  MInputMethodInfo *custom = NULL, *config = NULL;
+
+  M17N_OBJECT_UNREF (im_info->configured_vars);
+
+  if (MPLIST_TAIL_P (im_info->vars)
+      || ! im_info->mdb)
+    return;
+
+  im_info->configured_vars = tail = mplist ();
+  if ((custom = get_custom_info (im_info)) && ! custom->vars)
+    custom = NULL;
+  if ((config = get_config_info (im_info)) && ! config->vars)
+    config = NULL;
+
+  MPLIST_DO (plist, im_info->vars)
+    {
+      MPlist *pl = MPLIST_PLIST (plist), *p = NULL;
+      MSymbol name = MPLIST_SYMBOL (pl);
+
+      if (config)
+	p = mplist__assq (config->vars, name);
+      if (! p && custom)
+	p = mplist__assq (custom->vars, name);
+      if (p)
+	{
+	  p = MPLIST_PLIST (p);
+	  p = MPLIST_NEXT (p);
+	  if (MPLIST_TAIL_P (p))
+	    p = NULL;
+	  else
+	    {
+	      p = MPLIST_NEXT (p);
+	      pl = mplist_copy (pl);
+	    }
+	}
+      tail = mplist_add (tail, Mplist, pl);
+      if (p)
+	{
+	  M17N_OBJECT_UNREF (pl);
+	  pl = MPLIST_NEXT (pl);
+	  pl = MPLIST_NEXT (pl);
+	  mplist_set (pl, MPLIST_KEY (p), MPLIST_VAL (p));
+	}
+    }
+}
+
+/* Load an input method (LANGUAGE NAME) from PLIST into IM_INFO.
+   CONFIG contains configulation information of the input method.  */
+
+static void
+load_im_info (MPlist *plist, MInputMethodInfo *im_info)
+{
+  MPlist *pl, *p;
+
+  if (! im_info->cmds && (pl = mplist__assq (plist, Mcommand)))
+    {
+      load_commands (im_info, MPLIST_PLIST (pl));
+      config_commands (im_info);
+      pl = mplist_pop (pl);
+      M17N_OBJECT_UNREF (pl);
+    }
+
+  if (! im_info->vars && (pl = mplist__assq (plist, Mvariable)))
+    {
+      load_variables (im_info, MPLIST_PLIST (pl));
+      config_variables (im_info);
+      pl = mplist_pop (pl);
+      M17N_OBJECT_UNREF (pl);
+    }
+
+  MPLIST_DO (plist, plist)
+    if (MPLIST_PLIST_P (plist))
+      {
+	MPlist *elt = MPLIST_PLIST (plist);
+	MSymbol key;
+
+	if (MFAILP (MPLIST_SYMBOL_P (elt)))
+	  continue;
+	key = MPLIST_SYMBOL (elt);
+	if (key == Mtitle)
+	  {
+	    if (im_info->title)
+	      continue;
+	    elt = MPLIST_NEXT (elt);
+	    if (MFAILP (MPLIST_MTEXT_P (elt)))
+	      continue;
+	    im_info->title = MPLIST_MTEXT (elt);
+	    M17N_OBJECT_REF (im_info->title);
+	  }
+	else if (key == Mmap)
+	  {
+	    pl = mplist__from_alist (MPLIST_NEXT (elt));
+	    if (MFAILP (pl))
+	      continue;
+	    if (! im_info->maps)
+	      im_info->maps = pl;
+	    else
+	      {
+		mplist__conc (im_info->maps, pl);
+		M17N_OBJECT_UNREF (pl);
+	      }
+	  }
+	else if (key == Mmacro)
+	  {
+	    if (! im_info->macros)
+	      im_info->macros = mplist ();
+	    MPLIST_DO (elt, MPLIST_NEXT (elt))
+	      {
+		if (MFAILP (MPLIST_PLIST_P (elt)))
+		  continue;
+		load_macros (im_info, MPLIST_PLIST (elt));
+	      }
+	  }
+	else if (key == Mmodule)
+	  {
+	    if (! im_info->externals)
+	      im_info->externals = mplist ();
+	    MPLIST_DO (elt, MPLIST_NEXT (elt))
+	      {
+		if (MFAILP (MPLIST_PLIST_P (elt)))
+		  continue;
+		load_external_module (im_info, MPLIST_PLIST (elt));
+	      }
+	  }
+	else if (key == Mstate)
+	  {
+	    MPLIST_DO (elt, MPLIST_NEXT (elt))
+	      {
+		MIMState *state;
+
+		if (MFAILP (MPLIST_PLIST_P (elt)))
+		  continue;
+		pl = MPLIST_PLIST (elt);
+		if (! im_info->states)
+		  im_info->states = mplist ();
+		state = load_state (im_info, MPLIST_PLIST (elt));
+		if (MFAILP (state))
+		  continue;
+		mplist_put (im_info->states, state->name, state);
+	      }
+	  }
+	else if (key == Minclude)
+	  {
+	    /* elt ::= include (tag1 tag2 ...) key item ... */
+	    MSymbol key;
+	    MInputMethodInfo *temp;
+
+	    elt = MPLIST_NEXT (elt);
+	    if (MFAILP (MPLIST_PLIST_P (elt)))
+	      continue;
+	    temp = get_im_info_by_tags (MPLIST_PLIST (elt));
+	    if (MFAILP (temp))
+	      continue;
+	    elt = MPLIST_NEXT (elt);
+	    if (MFAILP (MPLIST_SYMBOL_P (elt)))
+	      continue;
+	    key = MPLIST_SYMBOL (elt);
+	    elt = MPLIST_NEXT (elt);
+	    if (key == Mmap)
+	      {
+		if (! temp->maps || MPLIST_TAIL_P (temp->maps))
+		  continue;
+		if (! im_info->maps)
+		  im_info->maps = mplist ();
+		MPLIST_DO (pl, temp->maps)
+		  {
+		    p = MPLIST_VAL (pl);
+		    MPLIST_ADD_PLIST (im_info->maps, MPLIST_KEY (pl), p);
+		    M17N_OBJECT_REF (p);
+		  }
+	      }
+	    else if (key == Mmacro)
+	      {
+		if (! temp->macros || MPLIST_TAIL_P (temp->macros))
+		  continue;
+		if (! im_info->macros)
+		  im_info->macros = mplist ();
+		MPLIST_DO (pl, temp->macros)
+		  {
+		    p = MPLIST_VAL (pl);
+		    MPLIST_ADD_PLIST (im_info->macros, MPLIST_KEY (pl), p);
+		    M17N_OBJECT_REF (p);
+		  }
+	      }
+	    else if (key == Mstate)
+	      {
+		if (! temp->states || MPLIST_TAIL_P (temp->states))
+		  continue;
+		if (! im_info->states)
+		  im_info->states = mplist ();
+		MPLIST_DO (pl, temp->states)
+		  {
+		    MIMState *state = MPLIST_VAL (pl);
+
+		    mplist_add (im_info->states, MPLIST_KEY (pl), state);
+		    M17N_OBJECT_REF (state);
+		  }
+	      }
+	  }
+	else if (key == Mdescription)
+	  {
+	    if (im_info->description)
+	      continue;
+	    elt = MPLIST_NEXT (elt);
+	    if (MFAILP (MPLIST_MTEXT_P (elt)))
+	      continue;
+	    im_info->description = MPLIST_MTEXT (elt);
+	    M17N_OBJECT_REF (im_info->description);
+
+	  }
+      }
+  im_info->tick = time (NULL);
 }
 
 
@@ -1429,6 +2096,10 @@ shift_state (MInputContext *ic, MSymbol state_name)
 	return;
       state = ic_info->prev_state;
     }
+  else if (state_name == Mnil)
+    {
+      state = (MIMState *) MPLIST_VAL (im_info->states);
+    }
   else
     {
       state = (MIMState *) mplist_get (im_info->states, state_name);
@@ -1442,12 +2113,13 @@ shift_state (MInputContext *ic, MSymbol state_name)
   ic_info->state = state;
   ic_info->map = state->map;
   ic_info->state_key_head = ic_info->key_head;
-  if (state == (MIMState *) MPLIST_VAL (im_info->states))
+  if (state == (MIMState *) MPLIST_VAL (im_info->states)
+      && orig_state)
     /* We have shifted to the initial state.  */
     preedit_commit (ic);
   mtext_cpy (ic_info->preedit_saved, ic->preedit);
   ic_info->state_pos = ic->cursor_pos;
-  if (state != orig_state )
+  if (state != orig_state)
     {
       if (state == (MIMState *) MPLIST_VAL (im_info->states))
 	ic_info->prev_state = NULL;
@@ -1588,7 +2260,6 @@ preedit_commit (MInputContext *ic)
 	  ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
 	}
     }
-
   memmove (ic_info->keys, ic_info->keys + ic_info->key_head,
 	   sizeof (int) * (ic_info->used - ic_info->key_head));
   ic_info->used -= ic_info->key_head;
@@ -1886,11 +2557,25 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 
 
 static MPlist *
-regularize_action (MPlist *action_list)
+regularize_action (MPlist *action_list, MInputContextInfo *ic_info)
 {
   MPlist *action = NULL;
   MSymbol name;
   MPlist *args;
+
+  if (MPLIST_SYMBOL_P (action_list))
+    {
+      MSymbol var = MPLIST_SYMBOL (action_list);
+      MPlist *p;
+
+      MPLIST_DO (p, ic_info->vars)
+	if (MPLIST_SYMBOL (MPLIST_PLIST (p)) == var)
+	  break;
+      if (MPLIST_TAIL_P (p))
+	return NULL;
+      action = MPLIST_NEXT (MPLIST_PLIST (p));
+      mplist_set (action_list, MPLIST_KEY (action), MPLIST_VAL (action));
+    }
 
   if (MPLIST_PLIST_P (action_list))
     {
@@ -1923,6 +2608,10 @@ regularize_action (MPlist *action_list)
   return action;
 }
 
+/* Perform list of actions in ACTION_LIST for the current input
+   context IC.  If all actions are performed without error, return 0.
+   Otherwise, return -1.  */
+
 static int
 take_action_list (MInputContext *ic, MPlist *action_list)
 {
@@ -1934,7 +2623,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
   MPLIST_DO (action_list, action_list)
     {
-      MPlist *action = regularize_action (action_list);
+      MPlist *action = regularize_action (action_list, ic_info);
       MSymbol name;
       MPlist *args;
 
@@ -2342,12 +3031,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
     }
 
-  prop = NULL;
-  if (ic->candidate_list)
-    {
-      M17N_OBJECT_UNREF (ic->candidate_list);
-      ic->candidate_list = NULL;
-    }
+  M17N_OBJECT_UNREF (ic->candidate_list);
   if (ic->cursor_pos > 0
       && (prop = mtext_get_property (ic->preedit, ic->cursor_pos - 1,
 				     Mcandidate_list)))
@@ -2392,13 +3076,16 @@ handle_key (MInputContext *ic)
   if (map->submaps)
     {
       submap = mplist_get (map->submaps, key);
-      if (! submap && (alias = msymbol_get (key, M_key_alias)) != Mnil)
+      alias = key;
+      while (! submap
+	     && (alias = msymbol_get (alias, M_key_alias))
+	     && alias != key)
 	submap = mplist_get (map->submaps, alias);
     }
 
   if (submap)
     {
-      if (alias == Mnil)
+      if (! alias || alias == key)
 	MDEBUG_PRINT (" submap-found");
       else
 	MDEBUG_PRINT1 (" submap-found (by alias `%s')", MSYMBOL_NAME (alias));
@@ -2498,125 +3185,33 @@ handle_key (MInputContext *ic)
   return 0;
 }
 
-static void
-reset_ic (MInputContext *ic, MSymbol ignore)
-{
-  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
-  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
-  MText *status;
-  MPlist *plist;
-
-  MDEBUG_PRINT ("\n  [IM] reset\n");
-
-  ic_info->state_key_head = ic_info->key_head = 0;
-  MLIST_RESET (ic_info);
-  ic_info->key_unhandled = 0;
-
-  if (mtext_nchars (ic->produced) > 0)
-    mtext_reset (ic->produced);
-  if (mtext_nchars (ic->preedit) > 0)
-    {
-      mtext_reset (ic->preedit);
-      ic->preedit_changed = ic->cursor_pos_changed = 1;
-    }
-  MPLIST_DO (plist, ic_info->markers)
-    MPLIST_VAL (plist) = 0;
-
-  M17N_OBJECT_UNREF (ic_info->vars);
-  ic_info->vars = mplist ();
-  plist = get_nested_list (ic->im->language, ic->im->name, Mnil, M_variable);
-  MPLIST_DO (plist, plist)
-    {
-      MSymbol var = MPLIST_SYMBOL (plist);
-      MPlist *pl;
-
-      plist = MPLIST_NEXT (plist);
-      pl = MPLIST_PLIST (plist);
-      pl = MPLIST_NEXT (pl);	/* Skip description.  */
-      mplist_push (ic_info->vars, MPLIST_KEY (pl), MPLIST_VAL (pl));
-      mplist_push (ic_info->vars, Msymbol, var);
-    }
-
-  if (ic->candidate_list)
-    {
-      M17N_OBJECT_UNREF (ic->candidate_list);
-      ic->candidate_list = NULL;
-      ic->candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
-    }
-  if (ic->candidate_show)
-    {
-      ic->candidate_show = 0;
-      ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
-    }
-  if (ic->candidate_index > 0)
-    {
-      ic->candidate_index = 0;
-      ic->candidates_changed |= MINPUT_CANDIDATES_INDEX_CHANGED;
-    }
-
-  mtext_reset (ic_info->preedit_saved);
-  ic_info->state_pos = ic->cursor_pos = 0;
-
-  ic_info->state = ic_info->prev_state = NULL;
-  shift_state (ic, ((MIMState *) MPLIST_VAL (im_info->states))->name);
-  status = ic_info->state->title ? ic_info->state->title : im_info->title;
-  if (ic->status != status)
-    {
-      ic->status = status;
-      ic->status_changed = 1;
-    }
-}
-
-static int
-open_im (MInputMethod *im)
-{
-  MInputMethodInfo *im_info = get_im_info (im->language, im->name, Mnil);
-
-  if (! im_info)
-    MERROR (MERROR_IM, -1);
-  im->info = im_info;
-  im_info->im = im;
-  return 0;
-}
+/* Initialize IC->ic_info.  */
 
 static void
-close_im (MInputMethod *im)
+init_ic_info (MInputContext *ic)
 {
-  im->info = NULL;
-}
-
-static int
-create_ic (MInputContext *ic)
-{
-  MInputMethod *im = ic->im;
-  MInputMethodInfo *im_info = (MInputMethodInfo *) im->info;
-  MInputContextInfo *ic_info;
+  MInputMethodInfo *im_info = ic->im->info;
+  MInputContextInfo *ic_info = ic->info;
   MPlist *plist;
+  
+  MLIST_INIT1 (ic_info, keys, 8);;
 
-  if (ic->info)
-    ic_info = (MInputContextInfo *) ic->info;
-  else
-    {
-      MSTRUCT_CALLOC (ic_info, MERROR_IM);
-      ic->info = ic_info;
-    }
-  MLIST_INIT1 (ic_info, keys, 8);
   ic_info->markers = mplist ();
+
   ic_info->vars = mplist ();
-  plist = get_nested_list (im->language, im->name, Mnil, M_variable);
-  MPLIST_DO (plist, plist)
-    {
-      MSymbol var = MPLIST_SYMBOL (plist);
-      MPlist *pl;
+  if (im_info->configured_vars)
+    MPLIST_DO (plist, im_info->configured_vars)
+      {
+	MPlist *pl = MPLIST_PLIST (plist), *p = mplist ();
+	MSymbol name = MPLIST_SYMBOL (pl);
 
-      plist = MPLIST_NEXT (plist);
-      pl = MPLIST_PLIST (plist);
-      pl = MPLIST_NEXT (pl);	/* Skip description.  */
-      mplist_push (ic_info->vars, MPLIST_KEY (pl), MPLIST_VAL (pl));
-      mplist_push (ic_info->vars, Msymbol, var);
-    }
+	pl = MPLIST_NEXT (MPLIST_NEXT (pl));
+	mplist_push (ic_info->vars, Mplist, p);
+	M17N_OBJECT_UNREF (p);
+	mplist_add (p, Msymbol, name);
+	mplist_add (p, MPLIST_KEY (pl), MPLIST_VAL (pl));
+      }
 
-  ic_info->preedit_saved = mtext ();
   if (im_info->externals)
     {
       MPlist *func_args = mplist (), *plist;
@@ -2633,15 +3228,18 @@ create_ic (MInputContext *ic)
 	}
       M17N_OBJECT_UNREF (func_args);
     }
-  reset_ic (ic, Mnil);
-  return 0;
+
+  ic_info->preedit_saved = mtext ();
+  ic_info->tick = im_info->tick;
 }
 
+/* Finalize IC->ic_info.  */
+
 static void
-destroy_ic (MInputContext *ic)
+fini_ic_info (MInputContext *ic)
 {
-  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
-  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  MInputMethodInfo *im_info = ic->im->info;
+  MInputContextInfo *ic_info = ic->info;
 
   if (im_info->externals)
     {
@@ -2659,13 +3257,151 @@ destroy_ic (MInputContext *ic)
 	}
       M17N_OBJECT_UNREF (func_args);
     }
+
   MLIST_FREE1 (ic_info, keys);
   M17N_OBJECT_UNREF (ic_info->preedit_saved);
   M17N_OBJECT_UNREF (ic_info->markers);
   M17N_OBJECT_UNREF (ic_info->vars);
   M17N_OBJECT_UNREF (ic_info->preceding_text);
   M17N_OBJECT_UNREF (ic_info->following_text);
+
+  memset (ic_info, 0, sizeof (MInputContextInfo));
+}
+
+static void
+re_init_ic (MInputContext *ic, int reload)
+{
+  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
+  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  int status_changed, preedit_changed, cursor_pos_changed, candidates_changed;
+
+  status_changed = ic_info->state != (MIMState *) MPLIST_VAL (im_info->states);
+  preedit_changed = mtext_nchars (ic->preedit) > 0;
+  cursor_pos_changed = ic->cursor_pos > 0;
+  candidates_changed = 0;
+  if (ic->candidate_list)
+    {
+      candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
+      M17N_OBJECT_UNREF (ic->candidate_list);
+    }
+  if (ic->candidate_show)
+    {
+      candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
+      ic->candidate_show = 0;
+    }
+  if (ic->candidate_index > 0)
+    {
+      candidates_changed |= MINPUT_CANDIDATES_INDEX_CHANGED;
+      ic->candidate_index = 0;
+      ic->candidate_from = ic->candidate_to = 0;
+    }
+  if (mtext_nchars (ic->produced) > 0)
+    mtext_reset (ic->produced);
+  if (mtext_nchars (ic->preedit) > 0)
+    mtext_reset (ic->preedit);
+  ic->cursor_pos = 0;
+  M17N_OBJECT_UNREF (ic->plist);
+  ic->plist = mplist ();
+
+  fini_ic_info (ic);
+  if (reload)
+    reload_im_info (im_info);
+  init_ic_info (ic);
+  shift_state (ic, Mnil);
+  ic->status_changed = status_changed;
+  ic->preedit_changed = preedit_changed;
+  ic->cursor_pos_changed = cursor_pos_changed;
+  ic->candidates_changed = candidates_changed;
+}
+
+static void
+reset_ic (MInputContext *ic, MSymbol ignore)
+{
+  MDEBUG_PRINT ("\n  [IM] reset\n");
+  re_init_ic (ic, 0);
+}
+
+static int
+open_im (MInputMethod *im)
+{
+  MInputMethodInfo *im_info = get_im_info (im->language, im->name, Mnil, Mnil);
+
+  if (! im_info)
+    MERROR (MERROR_IM, -1);
+  im->info = im_info;
+
+  return 0;
+}
+
+static void
+close_im (MInputMethod *im)
+{
+  im->info = NULL;
+}
+
+static int
+create_ic (MInputContext *ic)
+{
+  MInputContextInfo *ic_info;
+
+  MSTRUCT_CALLOC (ic_info, MERROR_IM);
+  ic->info = ic_info;
+  init_ic_info (ic);
+  shift_state (ic, Mnil);
+  return 0;
+}
+
+static void
+destroy_ic (MInputContext *ic)
+{
+  fini_ic_info (ic);
   free (ic->info);
+}
+
+static int
+check_reload (MInputContext *ic, MSymbol key)
+{
+  MInputMethodInfo *im_info = ic->im->info;
+  MPlist *plist = resolve_command (im_info->configured_cmds, Mat_reload);
+
+  if (! plist)
+    {
+      plist = resolve_command (global_info->configured_cmds, Mat_reload);
+      if (! plist)
+	return 0;
+    }
+  MPLIST_DO (plist, plist)
+    {
+      MSymbol this_key, alias;
+
+      if (MPLIST_MTEXT_P (plist))
+	{
+	  MText *mt = MPLIST_MTEXT (plist);
+	  int c = mtext_ref_char (mt, 0);
+
+	  if (c >= 256)
+	    continue;
+	  this_key = one_char_symbol[c];
+	}
+      else
+	{
+	  MPlist *pl = MPLIST_PLIST (plist);
+      
+	  this_key = MPLIST_SYMBOL (pl);
+	}
+      alias = this_key;
+      while (alias != key 
+	     && (alias = msymbol_get (alias, M_key_alias))
+	     && alias != this_key);
+      if (alias == key)
+	break;
+    }
+  if (MPLIST_TAIL_P (plist))
+    return 0;
+
+  MDEBUG_PRINT ("\n  [IM] reload");
+  re_init_ic (ic, 1);
+  return 1;
 }
 
 
@@ -2682,6 +3418,9 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int i = 0;
 
+  if (check_reload (ic, key))
+    return 0;
+
   if (! ic_info->state)
     {
       ic_info->key_unhandled = 1;
@@ -2693,39 +3432,6 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   M17N_OBJECT_UNREF (ic_info->following_text);
   MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
   ic_info->key_unhandled = 0;
-
-  /* If KEY has Meta or Alt modifier, put M_key_alias property.  */
-  if (key != Mnil)
-    {
-      if (! msymbol_get (key, M_key_alias)
-	  && (strchr (MSYMBOL_NAME (key), 'M')
-	      || strchr (MSYMBOL_NAME (key), 'A')))
-	{
-	  char *name = MSYMBOL_NAME (key);
-	  char *meta_or_alt;
-
-	  while (name[0] && name[1] == '-'
-		 && (name[0] != 'M' && name[0] != 'A'))
-	    name += 2;
-	  if ((name[0] == 'M' || name[0] == 'A') && name[1] == '-')
-	    {
-	      MSymbol alias;
-
-	      meta_or_alt = name;
-	      name = alloca (MSYMBOL_NAMELEN (key) + 1);
-	      memcpy (name, MSYMBOL_NAME (key), MSYMBOL_NAMELEN (key) + 1);
-	      name[meta_or_alt - MSYMBOL_NAME (key)]
-		= *meta_or_alt == 'M' ? 'A' : 'M';
-	      alias = msymbol (name);
-	      msymbol_put (key, M_key_alias, alias);
-	    }
-	}
-      else if (MSYMBOL_NAMELEN (key) == 3
-	       && MSYMBOL_NAME (key)[0] == 'S'
-	       && MSYMBOL_NAME (key)[1] == '-'
-	       && MSYMBOL_NAME (key)[2] >= 'A' && MSYMBOL_NAME (key)[2] <= 'Z')
-	msymbol_put (key, M_key_alias, one_char_symbol[(int)MSYMBOL_NAME (key)[2]]);
-    }
 
   do {
     if (handle_key (ic) < 0)
@@ -2786,68 +3492,6 @@ lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
   return (((MInputContextInfo *) ic->info)->key_unhandled ? -1 : 0);
 }
 
-static MPlist *load_im_info_keys;
-
-static MPlist *
-load_partial_im_info (MSymbol language, MSymbol name,
-		      MSymbol extra, MSymbol key)
-{
-  MDatabase *mdb;
-  MPlist *plist;
-
-  if (language == Mnil)
-    MERROR (MERROR_IM, NULL);
-  mdb = mdatabase_find (Minput_method, language, name, extra);
-  if (! mdb)
-    MERROR (MERROR_IM, NULL);
-
-  mplist_push (load_im_info_keys, key, Mt);
-  plist = mdatabase__load_for_keys (mdb, load_im_info_keys);
-  mplist_pop (load_im_info_keys);
-  return plist;
-}
-
-
-static MInputMethodInfo *
-get_im_info (MSymbol language, MSymbol name, MSymbol extra)
-{
-  MDatabase *mdb;
-  MPlist *plist;
-  MInputMethodInfo *im_info = NULL;
-
-  if (language == Mnil)
-    MERROR (MERROR_IM, NULL);
-  mdb = mdatabase_find (Minput_method, language, name, extra);
-  if (! mdb)
-    MERROR (MERROR_IM, NULL);
-
-  if (! im_info_list)
-    im_info_list = mplist ();
-  else if ((plist = mplist_find_by_value (im_info_list, mdb)))
-    {
-      if (mdatabase__check (mdb))
-	{
-	  plist = MPLIST_NEXT (plist);
-	  im_info = MPLIST_VAL (plist);
-	  return im_info;
-	}
-      mplist_pop (plist);
-      free_im_info (MPLIST_VAL (plist));
-      mplist_pop (plist);
-    }
-
-  plist = mdatabase_load (mdb);
-  if (! plist)
-    MERROR (MERROR_IM, NULL);
-  im_info = load_im_info (language, name, plist);
-  M17N_OBJECT_UNREF (plist);
-  if (! im_info)
-    MERROR (MERROR_IM, NULL);
-  mplist_push (im_info_list, Mt, im_info);
-  mplist_push (im_info_list, Mt, mdb);
-  return im_info;
-}
-
 
 /* Input method command handler.  */
 
@@ -2856,89 +3500,9 @@ get_im_info (MSymbol language, MSymbol name, MSymbol extra)
    COMMAND is CMD-NAME:(mtext:DESCRIPTION plist:KEYSEQ ...))
    Global commands are stored as (t (t COMMAND ...))  */
 
-/* Check if PLIST is a valid command key sequence.
-   PLIST must be NULL or:
-   [ symbol:KEY | integer:KEY ] ...  */
-
-static int
-check_command_keyseq (MPlist *plist)
-{
-  if (! plist)
-    return 0;
-  MPLIST_DO (plist, plist)
-    {
-      if (MPLIST_SYMBOL_P (plist))
-	continue;
-      else if (MPLIST_INTEGER_P (plist))
-	{
-	  int n = MPLIST_INTEGER (plist);
-
-	  if (n < 0 || n > 9)
-	    return -1;
-	  MPLIST_KEY (plist) = Msymbol;
-	  MPLIST_VAL (plist) = one_char_symbol['0' + 9];
-	}
-      else
-	return -1;
-    }
-  return 0;
-}
-
-/* Check if PLIST has this form:
-     ([ plist:([ symbol:KEY | integer:KEY ]) | mtext:KEYSEQ ]
-      ...)
-   If the form of PLIST matches, return 0, otherwise return -1.  */
-
-static int
-check_command_list (MPlist *plist)
-{
-  MPLIST_DO (plist, plist)
-    {
-      if (MPLIST_PLIST_P (plist))
-	{
-	  MPlist *pl = MPLIST_PLIST (plist);
-
-	  MPLIST_DO (pl, pl)
-	    if (! MPLIST_SYMBOL_P (pl) && ! MPLIST_INTEGER_P (pl))
-	      return -1;
-	}
-      else if (! MPLIST_MTEXT_P (plist))
-	return -1;
-    }
-  return 0;
-}
-
-
 
 /* Input method variable handler.  */
 
-/* Check if PLIST has this form:
-     (TYPE:VAL   ;; TYPE ::= integer | mtext | symbol
-      VALID-VALUE
-      ...)
-   If the form of PLIST matches, return 0, otherwise return -1.  */
-
-static int
-check_variable_list (MPlist *plist)
-{
-  MSymbol type = MPLIST_KEY (plist);
-  MPlist *p; 
-
-  if (type != Minteger && type != Mtext && type != Msymbol)
-    return -1;
-  MPLIST_DO (plist, MPLIST_NEXT (plist))
-    {
-      if (type == Minteger && MPLIST_PLIST_P (plist))
-	{
-	  MPLIST_DO (p, MPLIST_PLIST (plist))
-	    if (! MPLIST_INTEGER_P (p))
-	      return -1;
-	}
-      else if (type != MPLIST_KEY (plist))
-	return -1;
-    }
-  return 0;
-}
 
 /* Support functions for mdebug_dump_im.  */
 
@@ -3001,57 +3565,7 @@ dump_im_state (MIMState *state, int indent)
 int
 minput__init ()
 {
-  char *key_names[32]
-    = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	"BackSpace", "Tab", "Linefeed", "Clear", NULL, "Return", NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
-  char buf[6], buf2[256];
-  int i;
-
-  Minput_method = msymbol ("input-method");
   Minput_driver = msymbol ("input-driver");
-  Mtitle = msymbol ("title");
-  Mmacro = msymbol ("macro");
-  Mmodule = msymbol ("module");
-  Mmap = msymbol ("map");
-  Mstate = msymbol ("state");
-  Minclude = msymbol ("include");
-  Minsert = msymbol ("insert");
-  M_candidates = msymbol ("  candidates");
-  Mdelete = msymbol ("delete");
-  Mmove = msymbol ("move");
-  Mmark = msymbol ("mark");
-  Mpushback = msymbol ("pushback");
-  Mundo = msymbol ("undo");
-  Mcall = msymbol ("call");
-  Mshift = msymbol ("shift");
-  Mselect = msymbol ("select");
-  Mshow = msymbol ("show");
-  Mhide = msymbol ("hide");
-  Mcommit = msymbol ("commit");
-  Munhandle = msymbol ("unhandle");
-  Mset = msymbol ("set");
-  Madd = msymbol ("add");
-  Msub = msymbol ("sub");
-  Mmul = msymbol ("mul");
-  Mdiv = msymbol ("div");
-  Mequal = msymbol ("=");
-  Mless = msymbol ("<");
-  Mgreater = msymbol (">");
-  Mless_equal = msymbol ("<=");
-  Mgreater_equal = msymbol (">=");
-  Mcond = msymbol ("cond");
-  Mplus = msymbol ("+");
-  Mminus = msymbol ("-");
-  Mstar = msymbol ("*");
-  Mslush = msymbol ("/");
-  Mand = msymbol ("&");
-  Mor = msymbol ("|");
-  Mnot = msymbol ("!");
-
-  Mcandidates_group_size = msymbol ("candidates-group-size");
-  Mcandidates_charset = msymbol ("candidates-charset");
 
   Minput_preedit_start = msymbol ("input-preedit-start");
   Minput_preedit_done = msymbol ("input-preedit-done");
@@ -3071,63 +3585,6 @@ minput__init ()
   Minput_get_surrounding_text = msymbol ("input-get-surrounding-text");
   Minput_delete_surrounding_text = msymbol ("input-delete-surrounding-text");
 
-  Mcandidate_list = msymbol_as_managing_key ("  candidate-list");
-  Mcandidate_index = msymbol ("  candidate-index");
-
-  Minit = msymbol ("init");
-  Mfini = msymbol ("fini");
-
-  M_key_alias = msymbol ("  key-alias");
-  M_description = msymbol ("description");
-  M_command = msymbol ("command");
-  M_variable = msymbol ("variable");
-
-  load_im_info_keys = mplist ();
-  mplist_add (load_im_info_keys, Mstate, Mnil);
-  mplist_push (load_im_info_keys, Mmap, Mnil);
-
-  buf[0] = 'C';
-  buf[1] = '-';
-  buf[3] = '\0';
-  for (i = 0, buf[2] = '@'; i < ' '; i++, buf[2]++)
-    {
-      MSymbol alias;
-
-      one_char_symbol[i] = msymbol (buf);
-      if (key_names[i])
-	{
-	  alias = msymbol (key_names[i]);
-	  msymbol_put (one_char_symbol[i], M_key_alias,  alias);
-	}
-      else
-	alias = one_char_symbol[i];
-      buf[2] += (i == 0) ? -32 : 32;
-      msymbol_put (alias, M_key_alias,  msymbol (buf));
-      buf[2] -= (i == 0) ? -32 : 32;
-    }
-  for (buf[2] = i; i < 127; i++, buf[2]++)
-    one_char_symbol[i] = msymbol (buf + 2);
-  one_char_symbol[i++] = msymbol ("Delete");
-  buf[2] = 'M';
-  buf[3] = '-';
-  buf[5] = '\0';
-  buf2[0] = 'M';
-  buf2[1] = '-';
-  for (buf[4] = '@'; i < 160; i++, buf[4]++)
-    {
-      one_char_symbol[i] = msymbol (buf);
-      if (key_names[i - 128])
-	{
-	  strcpy (buf2 + 2, key_names[i - 128]);
-	  msymbol_put (one_char_symbol[i], M_key_alias,  msymbol (buf2));
-	}
-    }
-  for (buf[4] = i - 128; i < 255; i++, buf[4]++)
-    one_char_symbol[i] = msymbol (buf + 2);
-  one_char_symbol[i] = msymbol ("M-Delete");
-
-  command_list = variable_list = NULL;
-
   minput_default_driver.open_im = open_im;
   minput_default_driver.close_im = close_im;
   minput_default_driver.create_ic = create_ic;
@@ -3138,49 +3595,27 @@ minput__init ()
   mplist_put (minput_default_driver.callback_list, Minput_reset,
 	      (void *) reset_ic);
   minput_driver = &minput_default_driver;
+
+  fully_initialized = 0;
   return 0;
 }
 
 void
 minput__fini ()
 {
-  if (command_list)
+  if (fully_initialized)
     {
-      M17N_OBJECT_UNREF (command_list);
-      command_list = NULL;
-    }
-  if (variable_list)
-    {
-      M17N_OBJECT_UNREF (variable_list);
-      variable_list = NULL;
-    }
-
-  if (minput_default_driver.callback_list)
-    {
-      M17N_OBJECT_UNREF (minput_default_driver.callback_list);
-      minput_default_driver.callback_list = NULL;
-    }
-  if (minput_driver->callback_list)
-    {
-      M17N_OBJECT_UNREF (minput_driver->callback_list);
-      minput_driver->callback_list = NULL;
+      free_im_list (im_info_list);
+      if (im_custom_list)
+	free_im_list (im_custom_list);
+      if (im_config_list)
+	free_im_list (im_config_list);
+      M17N_OBJECT_UNREF (load_im_info_keys);
     }
 
-  if (im_info_list)
-    {
-      while (! MPLIST_TAIL_P (im_info_list))
-	{
-	  /* Pop (t . mdb) */
-	  mplist_pop (im_info_list);
-	  free_im_info ((MInputMethodInfo *) MPLIST_VAL (im_info_list));
-	  /* Pop (t . im_info) */
-	  mplist_pop (im_info_list);
-	}
-      M17N_OBJECT_UNREF (im_info_list);
-      im_info_list = NULL;
-    }
- 
-  M17N_OBJECT_UNREF (load_im_info_keys);
+  M17N_OBJECT_UNREF (minput_default_driver.callback_list);
+  M17N_OBJECT_UNREF (minput_driver->callback_list);
+
 }
 
 int
@@ -3222,27 +3657,34 @@ minput__char_to_key (int c)
 
     These are the predefined symbols that are used as the @c COMMAND
     argument of callback functions of an input method driver (see
-    #MInputDriver::callback_list ).  
+    #MInputDriver::callback_list).  
 
     Most of them don't require extra argument nor return any value;
     exceptions are these:
 
     Minput_get_surrounding_text: When a callback function assigned for
     this command is called, the first element of #MInputContext::plist
-    has key #Msymbol and the value specifies which portion of the
+    has key #Minteger and the value specifies which portion of the
     surrounding text should be retrieved.  If the value is positive,
     it specifies the number of characters following the current cursor
     position.  If the value is negative, the absolute value specifies
     the number of characters preceding the current cursor position.
-    The callback function must set the key of this element to #Mtext
-    and the value to the retrieved M-text (whose length may be shorter
-    than the requested number of characters if the available text is
-    not that long, or it may be longer if an application thinks it's
-    more efficient to return that length).
+
+    If the surrounding text is currently supported, the callback
+    function must set the key of this element to #Mtext and the value
+    to the retrieved M-text.  The length of the M-text may be shorter
+    than the requested number of characters, if the available text is
+    not that long.  The length can be zero in the worst case.  Or, the
+    length may be longer if an application thinks it's more efficient
+    to return that length).
+
+    If the surrounding text is not currently supported, the callback
+    function should return without changing the first element of
+    #MInputContext::plist.
 
     Minput_delete_surrounding_text: When a callback function assigned
     for this command is called, the first element of
-    #MInputContext::plist has key #Msymbol and the value specifies
+    #MInputContext::plist has key #Minteger and the value specifies
     which portion of the surrounding text should be deleted in the
     same way as the case of Minput_get_surrounding_text.  The callback
     function must delete the specified text.  It should not alter
@@ -3409,6 +3851,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 {
   MInputMethod *im;
   MInputDriver *driver;
+
+  MINPUT__INIT ();
 
   MDEBUG_PRINT2 ("  [IM] opening (%s %s) ... ",
 		 msymbol_name (language), msymbol_name (name));
@@ -3770,13 +4214,13 @@ minput_toggle (MInputContext *ic)
 /***ja
     @brief 入力コンテクストをリセットする.
 
-    関数 minput_reset_ic () は #Minput_reset 
-    に対応するコールバック関数を呼ぶことによって入力コンテクスト $IC 
-    をリセットする。リセットとは、実際には入力メソッドを初期状態に移すことであり、したがって、もし現在入力中のテキストがあれば、それはコミットされる。
-    必要ならば、アプリケーションプログラムは minput_lookup () 
-    を読んでそのコミットされたテキストを取り出すことができ、その際、
-    minput_lookup () の引数 @c KEY と @c ARG 
-    は無視される。 */
+    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関数
+    を呼ぶことによって入力コンテクスト $IC をリセットする。リセットとは、
+    実際には入力メソッドを初期状態に移すことである。現在入力中のテキス
+    トはコミットされることなく削除されるので、アプリケーションプログラ
+    ムは、必要ならば予め minput_filter () を引数 @r key #Mnil で呼んで
+    強制的にプリエディットテキストをコミットさせること。  */
+
 void
 minput_reset_ic (MInputContext *ic)
 {
@@ -3790,50 +4234,36 @@ minput_reset_ic (MInputContext *ic)
     @brief Get title and icon filename of an input method.
 
     The minput_get_title_icon () function returns a plist containing a
-    title and icon filename (if any) of the input method specifies by
+    title and icon filename (if any) of an input method specified by
     $LANGUAGE and $NAME.
 
-    The first element of the plist has key Mtext and the value is an
+    The first element of the plist has key #Mtext and the value is an
     M-text of the title for identifying the input method.  The second
-    element (if any) has key M-text and the value is an M-text of the
+    element (if any) has key #Mtext and the value is an M-text of the
     icon image (absolute) filename for the same purpose.
 
     @return
-    If there exists the specified input method and it defines an
-    title, a plist is returned.  Otherwise, NULL is returned.  The
-    caller must free the plist by m17n_object_unref ().
-*/
+    If there exists a specified input method and it defines an title,
+    a plist is returned.  Otherwise, NULL is returned.  The caller
+    must free the plist by m17n_object_unref ().  */
 
 MPlist *
 minput_get_title_icon (MSymbol language, MSymbol name)
 {
-  MPlist *plist = load_partial_im_info (language, name, Mnil, Mtitle);
-  MPlist *pl;
+  MInputMethodInfo *im_info;
+  MPlist *plist;
   char *file = NULL;
   MText *mt;
 
-  if (! plist)
-    return NULL;
-  if (MPLIST_TAIL_P (plist))
-    goto no_title;
-  pl = MPLIST_PLIST (plist);
-  pl = MPLIST_NEXT (pl);
-  if (! MPLIST_MTEXT_P (pl))
-    goto no_title;
-  M17N_OBJECT_REF (pl);
-  M17N_OBJECT_UNREF (plist);
-  plist = pl;
-  pl = MPLIST_NEXT (pl);  
-  if (MPLIST_MTEXT_P (pl))
-    {
-      if (mtext_nchars (MPLIST_MTEXT (pl)) > 0)
-	{
-	  mt = MPLIST_MTEXT (pl);
-	  file = mdatabase__find_file ((char *) MTEXT_DATA (mt));
-	}
-    }
-  else if (language != Mnil && name != Mnil)
+  MINPUT__INIT ();
 
+  im_info = get_im_info (language, name, Mnil, Mtitle);
+  if (! im_info || !im_info->title)
+    return NULL;
+  mt = mtext_get_prop (im_info->title, 0, Mtext);
+  if (mt)
+    file = mdatabase__find_file ((char *) MTEXT_DATA (mt));
+  else
     {
       char *buf = alloca (MSYMBOL_NAMELEN (language) + MSYMBOL_NAMELEN (name)
 			  + 12);
@@ -3848,20 +4278,16 @@ minput_get_title_icon (MSymbol language, MSymbol name)
 	}
     }
 
+  plist = mplist ();
+  mplist_add (plist, Mtext, im_info->title);
   if (file)
     {
       mt = mtext__from_data (file, strlen (file), MTEXT_FORMAT_UTF_8, 1);
       free (file);
-      mplist_set (pl, Mtext, mt);
+      mplist_add (plist, Mtext, mt);
       M17N_OBJECT_UNREF (mt);
     }
-  else
-    mplist_set (pl, Mnil, NULL);
   return plist;
-
- no_title:
-  M17N_OBJECT_UNREF (plist);
-  return NULL;
 }
 
 /*=*/
@@ -3891,26 +4317,15 @@ minput_get_title_icon (MSymbol language, MSymbol name)
 MText *
 minput_get_description (MSymbol language, MSymbol name)
 {
-  MPlist *plist = load_partial_im_info (language, name, Mnil, M_description);
-  MPlist *pl;
-  MText *mt = NULL;
+  MInputMethodInfo *im_info;
 
-  if (! plist)
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mdescription);
+  if (! im_info || ! im_info->description)
     return NULL;
-  if (MPLIST_TAIL_P (plist))
-    {
-      M17N_OBJECT_UNREF (plist);
-      return NULL;
-    }
-  pl = MPLIST_PLIST (plist);
-  pl = MPLIST_NEXT (pl);
-  if (MPLIST_MTEXT_P (pl))
-    {
-      mt = MPLIST_MTEXT (pl);
-      M17N_OBJECT_REF (mt);
-    }
-  M17N_OBJECT_UNREF (plist);
-  return mt;
+  M17N_OBJECT_REF (im_info->description);
+  return im_info->description;
 }
 
 /***en
@@ -4005,13 +4420,33 @@ minput_get_description (MSymbol language, MSymbol name)
 MPlist *
 minput_get_commands (MSymbol language, MSymbol name)
 {
-  MPlist *plist = get_nested_list (language, name, Mnil, M_command);
+  MInputMethodInfo *im_info;
+  MPlist *cmds;
 
-  return (MPLIST_TAIL_P (plist) ? NULL : plist);
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mcommand);
+  if (! im_info || ! im_info->configured_vars)
+    return NULL;
+  M17N_OBJECT_UNREF (im_info->bc_cmds);
+  im_info->bc_cmds = mplist ();
+  MPLIST_DO (cmds, im_info->configured_cmds)
+    {
+      MPlist *plist = MPLIST_PLIST (cmds);
+      MPlist *elt = mplist ();
+
+      mplist_push (im_info->bc_cmds, Mplist, elt);
+      mplist_add (elt, MPLIST_SYMBOL (plist),
+		  mplist_copy (MPLIST_NEXT (plist)));
+      M17N_OBJECT_UNREF (elt);
+    }
+  return im_info->bc_cmds;
 }
 
 /***en
-    @brief Assign a key sequence to an input method command.
+    @brief Assign a key sequence to an input method command (obsolete).
+
+    This function is obsolete.  Use minput_config_command () instead.
 
     The minput_assign_command_keys () function assigns input key
     sequence $KEYSEQ to input method command $COMMAND for the input
@@ -4055,48 +4490,223 @@ int
 minput_assign_command_keys (MSymbol language, MSymbol name,
 			    MSymbol command, MPlist *keyseq)
 {
-  MPlist *plist, *pl, *p;
+  int ret;
 
-  if (check_command_keyseq (keyseq) < 0
-      || ! (plist = get_nested_list (language, name, Mnil, M_command)))
+  MINPUT__INIT ();
+
+  if (command == Mnil)
     MERROR (MERROR_IM, -1);
-  pl = mplist_get (plist, command);
-  if (pl)
+  if (keyseq)
     {
-      pl = MPLIST_NEXT (pl);
-      if (! keyseq)
-	while ((p = mplist_pop (pl)))
-	  M17N_OBJECT_UNREF (p);
-      else
+      MPlist *plist;
+
+      if  (! check_command_keyseq (keyseq))
+	MERROR (MERROR_IM, -1);
+      plist = mplist ();
+      mplist_add (plist, Mplist, keyseq);
+      keyseq = plist;
+    }  
+  else
+    keyseq = mplist ();
+  ret = minput_config_command (language, name, command, keyseq);
+  M17N_OBJECT_UNREF (keyseq);
+  return ret;
+}
+
+MPlist *
+minput_get_command (MSymbol language, MSymbol name, MSymbol command)
+{
+  MInputMethodInfo *im_info;
+
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mcommand);
+  if (! im_info || ! im_info->configured_cmds)
+    return NULL;
+  if (command == Mnil)
+    return im_info->configured_cmds;
+  return mplist__assq (im_info->configured_cmds, command);
+}
+
+#if EXAMPLE_CODE
+/* Return a description of the command COMMAND of the input method
+   specified by LANGUAGE and NAME.  */
+MText *
+get_im_command_help (MSymbol language, MSymbol name, MSymbol command)
+{
+  MPlist *cmd = minput_get_command (langauge, name, command);
+  MPlist *plist;
+
+  if (! cmds)
+    return NULL;
+  plist = mplist_value (cmds);	/* (NAME DESCRIPTION KEY-SEQ ...) */
+  plist = mplist_next (plist);	/* (DESCRIPTION KEY-SEQ ...) */
+  return (MText *) mplist_value (list);
+}
+#endif
+
+/***en
+    @brief Configure the key sequence of an input method command.
+
+    The minput_config_command () function assigns list of key
+    sequences $KEYSEQ-LIST to the command $COMMAND for the input
+    method specified by $LANGUAGE and $NAME.
+
+    If $KEYSEQ-LIST is a non-empty plist, it must be a list of key
+    sequences, and each key sequence must be a plist of key symbols.
+
+    If $KEYSEQ is an empty plist, the command become unusable.
+
+    If $KEYSEQ is NULL, all configulations of the command for the
+    input method are canceled, and the default key sequences become
+    effective.  In that case, if $COMMAND is #Mnil, configurations for
+    all commands of the input method are canceled.
+
+    If $NAME is #Mnil, this function configure the global key sequence
+    assignments, not that of a specific input method.
+
+    The configulation (or the cancelling) takes effect instantly for
+    the current session even for already opened input methods.  To
+    make the configulation take effect for the future session, it must
+    be saved in a per-user customization file by the function
+    minput_save_config ().
+
+    @return
+    If the operation was successful, this function returns 0,
+    otherwise returns -1.  The operation fails in these cases:
+
+    $KEYSEQ is not in a valid form.
+
+    $COMMAND is not available for the input method.
+
+    $LANGUAGE and $NAME don't specify an existing input method.
+
+    @seealso
+    minput_get_commands (), minput_save_config ().  */
+
+int
+minput_config_command (MSymbol language, MSymbol name, MSymbol command,
+		       MPlist *keyseq)
+{
+  MInputMethodInfo *im_info, *config;
+  MPlist *plist;
+
+  MINPUT__INIT ();
+
+  if (keyseq && ! check_command_keyseq (keyseq))
+    MERROR (MERROR_IM, -1);
+  im_info = get_im_info (language, name, Mnil, Mcommand);
+  if (! im_info)
+    MERROR (MERROR_IM, -1);
+  if (command == Mnil)
+    {
+      if (keyseq)
+	MERROR (MERROR_IM, -1);
+    }
+  else if (! im_info->cmds
+	   || ! mplist__assq (im_info->cmds, command))
+    MERROR (MERROR_IM, -1);
+
+  config = get_config_info (im_info);
+  if (! config)
+    {
+      if (! im_config_list)
+	im_config_list = mplist ();
+      config = new_im_info (NULL, language, name, Mnil, im_config_list);
+      config->cmds = mplist ();
+      config->vars = mplist ();
+    }
+
+  if (command == Mnil)
+    {
+      MInputMethodInfo *custom = get_custom_info (im_info);
+
+      mplist_set (config->cmds, Mnil, NULL);
+      if (custom && custom->cmds)
 	{
-	  keyseq = mplist_copy (keyseq);
-	  mplist_push (pl, Mplist, keyseq);
-	  M17N_OBJECT_UNREF (keyseq);
+	  MPLIST_DO (plist, custom->cmds)
+	    {
+	      command = MPLIST_SYMBOL (MPLIST_PLIST (plist));
+	      plist = mplist ();
+	      mplist_add (plist, Msymbol, command);
+	      mplist_push (config->cmds, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
+	    }
 	}
     }
   else
     {
-      if (name == Mnil)
-	MERROR (MERROR_IM, -1);
-      if (! keyseq)
-	return 0;
-      /* Get global commands.  */
-      pl = get_nested_list (Mnil, Mnil, Mnil, M_command);
-      pl = mplist_get (pl, command);
-      if (! pl)
-	MERROR (MERROR_IM, -1);
-      p = mplist ();
-      mplist_add (p, Mtext, mplist_value (pl));
-      keyseq = mplist_copy (keyseq);
-      mplist_add (p, Mplist, keyseq);
-      M17N_OBJECT_UNREF (keyseq);
-      mplist_push (plist, command, p);
+      plist = mplist__assq (config->cmds, command);
+      if (plist)
+	{
+	  plist = MPLIST_PLIST (plist); /* (NAME DESC KEY-SEQUENCE ...)  */
+	  plist = MPLIST_NEXT (plist);	/* (DESC ...) */
+	  mplist_set (plist, Mnil, NULL);
+	}
+      else
+	{
+	  plist = mplist ();
+	  mplist_push (config->cmds, Mplist, plist);
+	  M17N_OBJECT_UNREF (plist);
+	  plist = mplist_add (plist, Msymbol, command);
+	}
+      if (keyseq)
+	{
+	  MPlist *pl, *p;
+
+	  keyseq = mplist_copy (keyseq);
+	  MPLIST_DO (pl, keyseq)
+	    {
+	      p = mplist_copy (MPLIST_VAL (pl));
+	      mplist_set (pl, Mplist, p);
+	      M17N_OBJECT_UNREF (p);
+	    }
+	  plist = mplist_add (plist, Msymbol, Mnil);
+	  mplist__conc (plist, keyseq);
+	  M17N_OBJECT_UNREF (keyseq);
+	}
     }
+  config_commands (im_info);
+  im_info->tick = time (NULL);
   return 0;
 }
 
+#if EXAMPLE_CODE
+/* Add "C-x u" to the "start" command of Unicode input method.  */
+{
+  MSymbol start_command = msymbol ("start");
+  MSymbol unicode = msymbol ("unicode");
+  MPlist *cmd, *plist, *key_seq_list, *key_seq;
+
+  /* At first get the current key-sequence assignment.  */
+  cmd = mplist_get_command (Mt, unicode, start_command);
+  if (! cmd)
+    {
+      /* The input method doesn't have the command "start".  Here
+	 comes some error handling code.  */
+    }
+  /* Now CMD == ((start DESCRIPTION KEY-SEQUENCE ...) ...).  Extract
+     the part (KEY-SEQUENCE ...).  */
+  plist = mplist_next (mplist_next (mplist_value (cmd)));
+  /* Copy it because we should not modify it directly.  */
+  key_seq_list = mplist_copy (plist);
+  m17n_object_unref (cmds);
+  
+  key_seq = mplist ();
+  mplist_add (key_seq, Msymbol, msymbol ("C-x"));
+  mplist_add (key_seq, Msymbo, msymbol ("u"));
+  mplist_add (key_seq_list, Mplist, key_seq);
+  m17n_object_unref (key_seq);
+
+  minput_config_command (Mt, unicode, start_command, key_seq_list);
+  m17n_object_unref (key_seq_list);
+}
+#endif
+
 /***en
-    @brief Get a list of variables of an input method.
+    @brief Get a list of variables of an input method (obsolete).
+
+    This function is obsolete.  Use minput_get_variable () instead.
 
     The minput_get_variables () function returns a plist (#MPlist) of
     variables used to control the behavior of the input method
@@ -4197,9 +4807,29 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 MPlist *
 minput_get_variables (MSymbol language, MSymbol name)
 {
-  MPlist *plist = get_nested_list (language, name, Mnil, M_variable);
+  MInputMethodInfo *im_info;
+  MPlist *vars;
 
-  return (MPLIST_TAIL_P (plist) ? NULL : plist);
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mvariable);
+  if (! im_info || ! im_info->configured_vars)
+    return NULL;
+
+  M17N_OBJECT_UNREF (im_info->bc_vars);
+  im_info->bc_vars = mplist ();
+  MPLIST_DO (vars, im_info->configured_vars)
+    {
+      MPlist *plist = MPLIST_PLIST (vars);
+      MPlist *elt = mplist ();
+
+      mplist_push (im_info->bc_vars, Mplist, elt);
+      mplist_add (elt, Msymbol, MPLIST_SYMBOL (plist));
+      elt = MPLIST_NEXT (elt);
+      mplist_set (elt, Mplist, mplist_copy (MPLIST_NEXT (plist)));
+      M17N_OBJECT_UNREF (elt);
+    }
+  return im_info->bc_vars;
 }
 
 /***en
@@ -4235,68 +4865,314 @@ int
 minput_set_variable (MSymbol language, MSymbol name,
 		     MSymbol variable, void *value)
 {
-  MPlist *plist, *val_element, *range_element;
-  MSymbol type;
+  MPlist *plist, *pl;
+  MInputMethodInfo *im_info;
+  int ret;
 
-  plist = get_nested_list (language, name, Mnil, M_variable);
-  if (! plist)
+  MINPUT__INIT ();
+
+  if (variable == Mnil)
     MERROR (MERROR_IM, -1);
-  plist = mplist_find_by_value (plist, variable);
-  if (! plist)
-    MERROR (MERROR_IM, -1);
-  plist = MPLIST_PLIST (MPLIST_NEXT (plist));
-  val_element = MPLIST_NEXT (plist);
-  type = MPLIST_KEY (val_element);
-  range_element = MPLIST_NEXT (val_element);
-    
-  if (! MPLIST_TAIL_P (range_element))
+  plist = minput_get_variable (language, name, variable);
+  plist = MPLIST_PLIST (plist);
+  plist = MPLIST_NEXT (plist);
+  pl = mplist ();
+  mplist_add (pl, MPLIST_KEY (plist), value);
+  ret = minput_config_variable (language, name, variable, pl);
+  M17N_OBJECT_UNREF (pl);
+  if (ret == 0)
     {
-      if (type == Minteger)
-	{
-	  int val = (int) value, this_val;
-      
-	  MPLIST_DO (plist, range_element)
-	    {
-	      this_val = (int) MPLIST_VAL (plist);
-	      if (MPLIST_PLIST_P (plist))
-		{
-		  int min_bound, max_bound;
-		  MPlist *pl = MPLIST_PLIST (plist);
+      im_info = get_im_info (language, name, Mnil, Mvariable);
+      im_info->tick = 0;
+    }
+  return ret;
+}
 
-		  min_bound = (int) MPLIST_VAL (pl);
-		  pl = MPLIST_NEXT (pl);
-		  max_bound = (int) MPLIST_VAL (pl);
-		  if (val >= min_bound && val <= max_bound)
-		    break;
-		}
-	      else if (val == this_val)
-		break;
+MPlist *
+minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
+{
+  MInputMethodInfo *im_info;
+
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mvariable);
+  if (! im_info || ! im_info->configured_vars)
+    return NULL;
+  if (variable == Mnil)
+    return im_info->configured_vars;
+  return mplist__assq (im_info->configured_vars, variable);
+}
+
+/***en
+    @brief Configure the value of an input method variable.
+
+    The minput_config_variable () function assigns the value $VALUE to
+    the variable $VARIABLE of the input method specified by $LANGUAGE
+    and $NAME.
+
+    If $VALUE is not NULL, it must be a plist of one element whose key
+    is #Minteger, #Msymbol, or #Mtext, and the value is of the
+    corresponding type.
+
+    If $VALUE is NULL, configurations for the variable done in the
+    current session are canceled (except for what saved by
+    minput_save_config ()).  In that case, if $VARIABLE is #Mnil,
+    configurations for all variables are canceled.
+
+    If $NAME is #Mnil, this function configure the global value, not
+    that of a specific input method.
+
+    The configulation takes effect instantly for the current session
+    even for already opened input methods.  To make the configulation
+    take effect for the future session, it must be saved in a per-user
+    customization file by the function minput_save_config ().
+
+    @return If the operation was successful, this function returns 0,
+    otherwise returns -1.  The operation fails in these cases:
+
+    $VALUE is not in a valid form, or the type doesn't much the
+    definition.
+
+    $VARIABLE is not available for the input method.
+
+    $LANGUAGE and $NAME don't specify an existing input method.  
+
+    @seealso
+    minput_get_variables (), minput_save_config ().  */
+
+int
+minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
+			MPlist *value)
+{
+  MInputMethodInfo *im_info, *config;
+  MPlist *plist;
+
+  MINPUT__INIT ();
+
+  im_info = get_im_info (language, name, Mnil, Mvariable);
+  if (! im_info)
+    MERROR (MERROR_IM, -1);
+  if (variable == Mnil)
+    {
+      if (value)
+	MERROR (MERROR_IM, -1);
+    }
+  else if (! im_info->vars
+	   || ! mplist__assq (im_info->vars, variable))
+    MERROR (MERROR_IM, -1);
+
+  config = get_config_info (im_info);
+  if (! config)
+    {
+      if (! im_config_list)
+	im_config_list = mplist ();
+      config = new_im_info (NULL, language, name, Mnil, im_config_list);
+      config->cmds = mplist ();
+      config->vars = mplist ();
+    }
+
+  if (variable == Mnil)
+    {
+      MInputMethodInfo *custom = get_custom_info (im_info);
+
+      mplist_set (config->vars, Mnil, NULL);
+      if (custom && custom->cmds)
+	{
+	  MPLIST_DO (plist, custom->vars)
+	    {
+	      variable = MPLIST_SYMBOL (MPLIST_PLIST (plist));
+	      plist = mplist ();
+	      mplist_add (plist, Msymbol, variable);
+	      mplist_push (config->vars, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
 	    }
-	  if (MPLIST_TAIL_P (plist))
-	    MERROR (MERROR_IM, -1);
 	}
-      else if (type == Msymbol)
+    }
+  else
+    {
+      plist = mplist__assq (config->vars, variable);
+      if (plist)
 	{
-	  MPLIST_DO (plist, range_element)
-	    if (MPLIST_SYMBOL (plist) == (MSymbol) value)
-	      break;
-	  if (MPLIST_TAIL_P (plist))
-	    MERROR (MERROR_IM, -1);
+	  plist = MPLIST_PLIST (plist); /* (NAME DESC VALUE) */
+	  plist = MPLIST_NEXT (plist);	/* (DESC VALUE) */
+	  mplist_set (plist, Mnil ,NULL);
 	}
-      else			/* type == Mtext */
+      else
 	{
-	  MPLIST_DO (plist, range_element)
-	    if (mtext_cmp (MPLIST_MTEXT (plist), (MText *) value) == 0)
-	      break;
-	  if (MPLIST_TAIL_P (plist))
-	    MERROR (MERROR_IM, -1);
-	  M17N_OBJECT_REF (value);
+	  plist = mplist ();
+	  mplist_add (config->vars, Mplist, plist);
+	  M17N_OBJECT_UNREF (plist);
+	  plist = mplist_add (plist, Msymbol, variable);
+	}
+      if (value)
+	{
+	  plist = mplist_add (plist, Msymbol, Mnil);
+	  plist = MPLIST_NEXT (plist);
+	  mplist_set (plist, MPLIST_KEY (value), MPLIST_VAL (value));
+	}
+    }
+  config_variables (im_info);
+  im_info->tick = time (NULL);
+  return 0;
+}
+
+char *
+minput_config_file ()
+{
+  MINPUT__INIT ();
+  return mdatabase__file (im_custom_mdb);
+}
+
+int
+minput_save_config (void)
+{
+  MPlist *data, *tail, *plist, *p, *elt;
+  int ret;
+
+  MINPUT__INIT ();
+  ret = mdatabase__lock (im_custom_mdb);
+  if (ret <= 0)
+    return ret;
+  if (! im_config_list)
+    return 1;
+  update_custom_info ();
+  if (! im_custom_list)
+    im_custom_list = mplist ();
+  data = tail = mplist ();
+
+  MPLIST_DO (plist, im_config_list)
+    {
+      MPlist *pl = MPLIST_PLIST (plist);
+      MSymbol language, name, extra, command, variable;
+      MInputMethodInfo *custom, *config;
+
+      language = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      name = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      extra = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      config = MPLIST_VAL (pl);
+      custom = get_custom_info (config);
+      if (! custom)
+	custom = new_im_info (NULL, language, name, extra, im_custom_list);
+      if (config->cmds)
+	MPLIST_DO (pl, config->cmds)
+	  {
+	    elt = MPLIST_PLIST (pl);
+	    command = MPLIST_SYMBOL (elt);
+	    if (custom->cmds)
+	      p = mplist__assq (custom->cmds, command);
+	    else
+	      custom->cmds = mplist (), p = NULL;
+	    elt = MPLIST_NEXT (elt);
+	    if (MPLIST_TAIL_P (elt))
+	      {
+		if (p)
+		  mplist__pop_unref (p);
+	      }
+	    else
+	      {
+		elt = MPLIST_NEXT (elt);
+		if (p)
+		  {
+		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
+		    mplist_set (p, Mnil, NULL);
+		    mplist__conc (p, elt);
+		  }
+		else
+		  {
+		    p = MPLIST_PLIST (pl);
+		    mplist_add (custom->cmds, Mplist, p);
+		  }
+	      }
+	  }
+      if (config->vars)
+	MPLIST_DO (pl, config->vars)
+	  {
+	    elt = MPLIST_PLIST (pl);
+	    variable = MPLIST_SYMBOL (elt);
+	    if (custom->vars)
+	      p = mplist__assq (custom->vars, variable);
+	    else
+	      custom->vars = mplist (), p = NULL;
+	    elt = MPLIST_NEXT (elt);
+	    if (MPLIST_TAIL_P (elt))
+	      {
+		if (p)
+		  mplist__pop_unref (p);
+	      }
+	    else
+	      {
+		elt = MPLIST_NEXT (elt);
+		if (p)
+		  {
+		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
+		    mplist_set (p, Mnil, NULL);
+		    mplist__conc (p, elt);
+		  }
+		else
+		  {
+		    p = MPLIST_PLIST (pl);
+		    mplist_add (custom->vars, Mplist, p);
+		  }
+	      }
+	  }
+    }
+  M17N_OBJECT_UNREF (im_config_list);
+
+  MPLIST_DO (plist, im_custom_list)
+    {
+      MPlist *pl = MPLIST_PLIST (plist);
+      MSymbol language, name, extra;
+      MInputMethodInfo *custom;
+
+      language = MPLIST_SYMBOL (pl);
+      pl  = MPLIST_NEXT (pl);
+      name = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      extra = MPLIST_SYMBOL (pl);
+      pl = MPLIST_NEXT (pl);
+      custom = MPLIST_VAL (pl);
+      
+      elt = mplist ();
+      tail = mplist_add (tail, Mplist, elt);
+      M17N_OBJECT_UNREF (elt);
+      pl = mplist ();
+      elt = mplist_add (elt, Mplist, pl);
+      M17N_OBJECT_UNREF (pl);
+      pl = mplist_add (pl, Msymbol, Minput_method);
+      pl = mplist_add (pl, Msymbol, language);
+      pl = mplist_add (pl, Msymbol, name);
+      if (extra != Mnil)
+	pl = mplist_add (pl, Msymbol, extra);
+      if (custom->cmds && ! MPLIST_TAIL_P (custom->cmds))
+	{
+	  pl = mplist ();
+	  elt = mplist_add (elt, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	  pl = mplist_add (pl, Msymbol, Mcommand);
+	  MPLIST_DO (p, custom->cmds)
+	    pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
+	}
+      if (custom->vars && ! MPLIST_TAIL_P (custom->vars))
+	{
+	  pl = mplist ();
+	  elt = mplist_add (elt, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	  pl = mplist_add (pl, Msymbol, Mvariable);
+	  MPLIST_DO (p, custom->vars)
+	    pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
 	}
     }
 
-  mplist_set (val_element, type, value);
-  return 0;
+  mplist_push (data, Msymbol, msymbol (";;-*-lisp-*-"));
+  ret = mdatabase__save (im_custom_mdb, data);
+  M17N_OBJECT_UNREF (data);
+  mdatabase__unlock (im_custom_mdb);
+  return (ret < 0 ? -1 : 1);
 }
+
 
 /*** @} */
 /*=*/
