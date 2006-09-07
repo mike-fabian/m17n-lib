@@ -631,6 +631,8 @@ register_database (MSymbol tags[4], void *(*loader) (MSymbol *, void *),
 	}
       if (db_info->filename[0] == PATH_SEPARATOR)
 	db_info->absolute_filename = db_info->filename;
+      else
+	db_info->absolute_filename = NULL;
     }
 
   if (mdb->tag[0] == Mchar_table
