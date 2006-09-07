@@ -366,6 +366,7 @@
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -534,7 +535,12 @@ m17n_init_core (void)
 
     mdebug__output = NULL;
     if (env_value)
-      mdebug__output = fopen (env_value, "a");
+      {
+	if (strcmp (env_value, "stdout"))
+	  mdebug__output = stdout;
+	else
+	  mdebug__output = fopen (env_value, "a");
+      }
     if (! mdebug__output)
       mdebug__output = stderr;
   }
