@@ -23,15 +23,22 @@
 #ifndef _M17N_INPUT_H_
 #define _M17N_INPUT_H_
 
-typedef struct
+typedef struct _MInputMethodInfo MInputMethodInfo;
+
+struct _MInputMethodInfo
 {
-  MInputMethod *im;
+  MDatabase *mdb;
+  MSymbol language, name, extra;
+  MPlist *cmds, *configured_cmds, *bc_cmds;
+  MPlist *vars, *configured_vars, *bc_vars;
+  MText *description;
   MText *title;
   MPlist *maps;
   MPlist *states;
   MPlist *macros;
   MPlist *externals;
-} MInputMethodInfo;
+  unsigned long tick;
+};
 
 typedef struct MIMState MIMState;
 
@@ -67,7 +74,7 @@ typedef struct
   /** List of markers.  */
   MPlist *markers;
 
-  /* List of variables. */
+  /** List of variables. */
   MPlist *vars;
 
   MText *preceding_text, *following_text;
@@ -76,6 +83,8 @@ typedef struct
 
   /** Used by minput_win_driver (input-win.c).  */
   void *win_info;
+
+  unsigned long tick;
 } MInputContextInfo;
 
 #define MINPUT_KEY_SHIFT_MODIFIER	(1 << 0)
