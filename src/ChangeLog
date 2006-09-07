@@ -1,3 +1,82 @@
+2006-09-07  Kenichi Handa  <handa@m17n.org>
+
+	* textprop.c (mtext_serialize): Call mplist__serialize with the
+	arg pretty 0.
+
+	* plist.h (mplist__serialize): Prototype adjusted.
+	(mplist__assq): Extern it.
+
+	* plist.c: Include <ctype.h>
+	(PUTC, PUTS): New macros.
+	(write_symbol): New function.
+	(write_element): New arg indent.
+	(dump_string, dump_plist_element): Delete them.
+	(mplist__from_string): New arg pretty.
+	(mplist__assq): New function.
+	(mdebug_dump_plist): Use write_element.
+
+	* mtext.c (mtext_cat_char): Allocate more memory.
+	(mdebug_dump_mtext): Don't escal a newline character.
+
+	* m17n.h (minput_get_command, minput_get_variable)
+	(minput_config_command, minput_config_variable)
+	(minput_save_config): Extern them.
+
+	* m17n-core.c: Include <string.h>.
+	(m17n_init_core): If the env. var. MDEBUG_OUTPUT_FILE is "stdout",
+	use the stream stdout instead of a file of that name.
+
+	* m17n-X.c (mwin__parse_event): Fix handling of Shift and Control
+	modifiers.
+
+	* internal.h (MFAILP, MDEBUG_PRINT0): New macros.
+	(MDEBUG_PRINT, MDEBUG_PRINT1, MDEBUG_PRINT2, MDEBUG_PRINT3)
+	(MDEBUG_PRINT4, MDEBUG_PRINT5): Use MDEBUG_PRINT0.
+	(MDEBUG_DUMP): Flush the stream.
+
+	* input.h (struct _MInputMethodInfo): Delete member im.  New
+	members mdb, language, name, extra, cmds, configured_cmds,
+	bc_cmds, vars, configured_vars, bc_vars, description, and tick.
+	(MInputContextInfo): New member tick.
+
+	* input.c: Big change to improve user-side input method
+	customization.  Here, list just public API changes.
+	(minput_get_commands, minput_get_variables)
+	(minput_assign_command_keys, minput_set_variable): Label them
+	obsolete.
+	(minput_get_command, minput_get_variable)
+	(minput_config_command, minput_config_variable)
+	(minput_save_config): New functions.
+	
+	* database.h (PATH_MAX): Define it if not yet defined.
+	(PATH_SEPARATOR): Likewise.
+	(enum MDatabaseStatus): New enum.
+	(struct MDatabaseInfo): Moved from database.c.  New members status,
+	time, lock_file, and uniq_file.
+	(mdatabase__update, mdatabase__file, mdatabase__lock, mdatabase__save)
+	(mdatabase__unlock): Extern them.
+
+	* database.c: Include <time.h>.
+	(MDB_DIR_LEN): Don't include the terminating '\0' in the length.
+	(GEN_PATH): Args changed.  Callers changed.
+	(struct MDatabaseInfo): Moved to database.h.
+	(struct MDatabase, mdb_list): Deleted.
+	(mdatabase__list): New var.
+	(get_database_filename): Deleted.  Callers changed to use
+	get_database_file.
+	(find_file, get_database_file): New files.
+	(get_dir_info): Initialize new members of MDatabaseInfo.
+	(find_database): Arg chagnded.  Callers changed.
+	(free_db_info, register_database, register_databases_in_files):
+	New functions.
+	(update_database_list): Deleted.
+	(mdatabase__init): Initialize mdatabase__list instead of mdb_list.
+	(mdatabase__fini): Finalize mdatabase__list instead of mdb_list.
+	(mdatabase__update): New function.
+	(mdatabase__check): Return value changed.
+	(mdatabase__file, mdatabase__lock, mdatabase__save)
+	(mdatabase__unlock): New functions.
+
 2006-08-30  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* input.c (get_surrounding_text): Return -2 when surrounding text
