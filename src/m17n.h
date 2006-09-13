@@ -1125,6 +1125,11 @@ extern MSymbol Minput_focus_move;
 extern MSymbol Minput_focus_in;
 extern MSymbol Minput_focus_out;
 
+/** Symbols describing input method command/variable.  */
+extern MSymbol Minherited;
+extern MSymbol Mcustomized;
+extern MSymbol Mconfigured;
+
 /***en
     @brief Structure of input method.
 
@@ -1388,6 +1393,8 @@ extern MPlist *minput_get_variable (MSymbol language, MSymbol name,
 				    MSymbol variable);
 extern int minput_config_variable (MSymbol language, MSymbol name,
 				   MSymbol variable, MPlist *value);
+extern char *minput_config_file (void);
+
 extern int minput_save_config (void);
 
 /* obsolete functions */
