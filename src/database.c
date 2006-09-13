@@ -1103,7 +1103,10 @@ mdatabase__unlock (MDatabase *mdb)
   free (db_info->lock_file);
   db_info->lock_file = NULL;
   if (db_info->uniq_file)
-    free (db_info->uniq_file);
+    {
+      unlink (db_info->uniq_file);
+      free (db_info->uniq_file);
+    }
   return 0;
 }
 
