@@ -80,7 +80,7 @@
 static MSymbol M_glyph_string;
 
 /* Special scripts */
-static MSymbol Minherited, Mcommon;
+static MSymbol Mcommon;
 /* Special categories */
 static MSymbol McatCc, McatCf;
 
@@ -1877,7 +1877,6 @@ mdraw__init ()
   memset (&scratch_gstring, 0, sizeof (scratch_gstring));
   MLIST_INIT1 (&scratch_gstring, glyphs, 3);
 
-  Minherited = msymbol ("inherited");
   Mcommon = msymbol ("common");
 
   McatCc = msymbol ("Cc");
