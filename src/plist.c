@@ -722,7 +722,7 @@ write_element (MText *mt, MPlist *plist, int indent)
 	{
 	  char buf[128];
 
-	  sprintf (buf, ":%04X", (unsigned) MPLIST_VAL (plist));
+	  sprintf (buf, "%04X", (unsigned) MPLIST_VAL (plist));
 	  PUTS (mt, buf);
 	}
     }
