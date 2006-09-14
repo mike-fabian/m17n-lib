@@ -3825,8 +3825,8 @@ minput__char_to_key (int c)
     to the retrieved M-text.  The length of the M-text may be shorter
     than the requested number of characters, if the available text is
     not that long.  The length can be zero in the worst case.  Or, the
-    length may be longer if an application thinks it's more efficient
-    to return that length).
+    length may be longer if an application thinks it is more efficient
+    to return that length.
 
     If the surrounding text is not currently supported, the callback
     function should return without changing the first element of
@@ -3839,13 +3839,37 @@ minput__char_to_key (int c)
     same way as the case of Minput_get_surrounding_text.  The callback
     function must delete the specified text.  It should not alter
     #MInputContext::plist.  */ 
-
 /***ja
     @name 変数： コールバックコマンド用定義済みシンボル.
 
     入力メソッドドライバのコールバック関数において @c COMMAND 
     引数として用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
-      */ 
+
+    ほとんどは追加の引数を必要としないし値を返さないが、以下は例外である。
+
+    Minput_get_surrounding_text: このコマンドに割り当てられたコールバッ
+    ク関数が呼ばれた際には、 #MInputContext::plist の第一要素はキーとし
+    て#Minteger をとり、その値はサラウンディングテキストのうちどの部分
+    を取って来るかを指定する。値が正であれば、現在のカーソル位置に続く
+    値の個数分の文字を取る。負であれば、カーソル位置に先行する値の絶対
+    値分の文字を取る。
+
+    サラウンディングテキストがサポートされていれば、コールバック関数は
+    この要素のキーを #Mtext に、値を取り込んだM-text に設定しなくてはな
+    らない。もしテキストの長さが充分でなければ、この M-text の長さは要
+    求されている文字数より短くて良い。最悪の場合 0 でもよいし、アプリケー
+    ション側で必要で効率的だと思えば長くても良い。
+
+    サラウンディングテキストがサポートされていなければ、コールバック関
+    数は #MInputContext::plist の第一要素を変化させることなく返さなくて
+    はならない。
+
+    Minput_delete_surrounding_text: このコマンドに割り当てられたコール
+    バック関数が呼ばれた際には、#MInputContext::plist の第一要素は、キー
+    として#Minteger をとり、値は削除するべきサラウンディングテキストを
+    Minput_get_surrounding_text と同様のやり方で指定する。コールバック
+    関数は指定されたテキストを削除しなければならない。また
+    #MInputContext::plist を変えてはならない。  */ 
 /*** @{ */ 
 /*=*/
 
@@ -3872,6 +3896,10 @@ MSymbol Minput_delete_surrounding_text;
 
     These are the predefined symbols that are used as the @c KEY
     argument of minput_filter ().  */ 
+/***ja
+    @name 変数: 特別な入力イベント用定義済みシンボル.
+
+    minput_filter () の @c KEY 引数として用いられる定義済みシンボル。  */ 
 
 /*** @{ */ 
 /*=*/
@@ -3889,6 +3917,11 @@ MSymbol Minput_focus_move;
     These are the predefined symbols describing status of input method
     command and variable, and are used in a return value of
     minput_get_command () and minput_get_variable ().  */
+/***ja
+    @name 変数: 入力メソッド情報用定義済みシンボル.
+
+    入力メソッドのコマンドや変数の状態を表し、minput_get_command () と
+    minput_get_variable () の戻り値として用いられる定義済みシンボル。  */
 /*** @{ */ 
 /*=*/
 MSymbol Minherited;
@@ -3919,7 +3952,6 @@ MSymbol Mconfigured;
     Therefore, unless @c minput_driver is set differently, the driver
     dependent arguments $ARG of the functions whose name begins with
     "minput_" are all ignored.  */
-
 /***ja
     @brief 内部入力メソッド用デフォルトドライバ.
 
@@ -3986,7 +4018,6 @@ MSymbol Minput_driver;
 
     $ARG is set in the member @c arg of the structure MInputMethod so
     that the driver can refer to it.  */
-
 /***ja
     @brief 入力メソッドをオープンする.
 
@@ -4410,6 +4441,21 @@ minput_reset_ic (MInputContext *ic)
     If there exists a specified input method and it defines an title,
     a plist is returned.  Otherwise, NULL is returned.  The caller
     must free the plist by m17n_object_unref ().  */
+/***ja
+    @brief 入力メソッドのタイトルとアイコン用ファイル名を得る.
+
+    関数 minput_get_title_icon () は、 $LANGUAGE と $NAME で指定される
+    入力メソッドのタイトルと（あれば）アイコン用ファイルを含む plist を
+    返す。
+
+    plist の第一要素は、#Mtext をキーに持ち、値は入力メソッドを識別する
+    タイトルを表す M-text である。第二要素があれば、キーは #Mtext であ
+    り、値は識別用アイコン画像の絶対ファイルネームを表す M-text である。
+
+    @return
+    指定の入力メソッドが存在し、タイトルが定義されていれば
+     plist を返す。そうでなければ NULL を返す。呼出側は
+     関数 m17n_object_unref () を用いて plist を解放しなくてはならない。  */
 
 MPlist *
 minput_get_title_icon (MSymbol language, MSymbol name)
@@ -5390,6 +5436,9 @@ minput_save_config (void)
 
 /***en
     @name Obsolete functions
+*/
+/***ja
+    @name Obsolete な関数
 */
 /*** @{ */
 
