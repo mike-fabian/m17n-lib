@@ -1,3 +1,41 @@
+2006-09-14  Kenichi Handa  <handa@m17n.org>
+
+	* database.c: Include <libgen.h>.
+	(mdatabase__lock): Make a directory if necessary.
+
+	* input.c (resolve_command): Adjusted for the format change of
+	configured_cmds member.
+	(load_commands, load_variables): Fix for errornous data handling.
+	(config_command, config_variable): New function.
+	(config_all_commands, config_all_variables): Renamed from
+	config_commands and config_variables.  Utilize the above function.
+	(check_variable_value): Argument changed.  Callers changed.
+	(load_im_info): Call config_all_commands and config_all_variables.
+	(init_ic_info): Adjusted for the format change of configured_vars
+	member.
+	(minput__init): Initialize Mcustomized, Mconfigured, and
+	Minherited.
+	(Mcustomized, Mconfigured, Minherited): New variables.
+	(minput_get_command): Be sure to return NULL if an input method
+	use no local command.
+	(minput_get_variable): Be sure to return NULL if an input method
+	use no local variable.
+	(minput_config_command, minput_config_variable)
+	(minput_save_config): Adjusted for the format change of
+	configured_cmds and configured_vars members.
+	
+	* plist.c (write_element): Delete superfluous ':'.
+
+2006-09-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n.h (Minherited, Mcustomized, Mconfigured): Extern them.
+	(minput_config_file): Extern it.
+
+	* draw.c (Minherited): Declaration moved to input.c.
+	(mdraw__init): Don't initialize Minherited here.
+
+	* database.c (mdatabase__unlock): Be sure to unlink uniq file.
+
 2006-09-07  Kenichi Handa  <handa@m17n.org>
 
 	* textprop.c (mtext_serialize): Call mplist__serialize with the
