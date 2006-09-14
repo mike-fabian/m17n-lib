@@ -5241,7 +5241,7 @@ minput_config_file ()
 /***en
     @brief Save configurations in per-user configuration file.
 
-    The minput_save_config () functions saves the configurations done
+    The minput_save_config () function saves the configurations done
     so far in the current session into the per-user configuration
     file.
 
