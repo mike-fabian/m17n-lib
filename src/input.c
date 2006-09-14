@@ -204,7 +204,7 @@ static MSymbol Mdescription, Mcommand, Mvariable, Mglobal, Mconfig;
 struct MIMMap
 {
   /** List of actions to take when we reach the map.  In a root map,
-      the actions are executed only when there's no more key.  */
+      the actions are executed only when there is no more key.  */
   MPlist *map_actions;
 
   /** List of deeper maps.  If NULL, this is a terminal map.  */
@@ -521,8 +521,7 @@ delete_surrounding_text (MInputContext *ic, int pos)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
-  mplist_push (ic->plist, Minteger, (void *) pos);
-  minput__callback (ic, Minput_delete_surrounding_text);
+  mplist_push (ic->plist  minput__callback (ic, Minput_delete_surrounding_text);
   mplist_pop (ic->plist);
   if (pos < 0)
     M17N_OBJECT_UNREF (ic_info->preceding_text);
@@ -3810,7 +3809,7 @@ minput__char_to_key (int c)
     argument of callback functions of an input method driver (see
     #MInputDriver::callback_list).  
 
-    Most of them don't require extra argument nor return any value;
+    Most of them do not require extra argument nor return any value;
     exceptions are these:
 
     Minput_get_surrounding_text: When a callback function assigned for
@@ -4499,20 +4498,20 @@ minput_get_description (MSymbol language, MSymbol name)
     @brief Get information about input method command(s).
 
     The minput_get_command () function returns information about
-    $COMMAND of the input method specified by $LANGUAGE and $NAME.  An
-    input method command is a pseudo key event to which one or more
-    actual input key sequences are assigned.
+    the command $COMMAND of the input method specified by $LANGUAGE and
+    $NAME.  An input method command is a pseudo key event to which one
+    or more actual input key sequences are assigned.
 
     There are two kinds of commands, global and local.  A global
     command has a global definition, and the description and the key
     assignment may be inherited by a local command.  Each input method
-    defines a local command which has local key assignment.  It may
-    also declares a local command that inherits definition of a
+    defines a local command which has a local key assignment.  It may
+    also declare a local command that inherits the definition of a
     global command of the same name.
 
-    If $LANGUAGE is #Mt and $NAME is #Mnil, information about a global
-    command is returned.  Othewise information about a local command
-    is returned.
+    If $LANGUAGE is #Mt and $NAME is #Mnil, this function returns
+    information about a global command.  Otherwise information about a
+    local command is returned.
 
     If $COMMAND is #Mnil, information about all commands is returned.
 
@@ -4521,12 +4520,12 @@ minput_get_description (MSymbol language, MSymbol name)
 @verbatim
   ((NAME DESCRIPTION STATUS [KEYSEQ ...]) ...)
 @endverbatim
-    NAME is a symbol representing the command name.
+    @c NAME is a symbol representing the command name.
 
-    DESCRIPTION is an M-text describing the command, or #Mnil if the
+    @c DESCRIPTION is an M-text describing the command, or #Mnil if the
     command has no description.
 
-    STATUS is a symbol representing how the key assignment is decided.
+    @c STATUS is a symbol representing how the key assignment is decided.
     The value is #Mnil (the default key assignment), #Mcustomized (the
     key assignment is customized by per-user configuration file), or
     #Mconfigured (the key assignment is set by the call of
@@ -4534,7 +4533,7 @@ minput_get_description (MSymbol language, MSymbol name)
     be #Minherited (the key assignment is inherited from the
     corresponding global command).
 
-    KEYSEQ is a plist of one or more symbols representing a key
+    @c KEYSEQ is a plist of one or more symbols representing a key
     sequence assigned to the command.  If there's no KEYSEQ, the
     command is currently disabled (i.e. no key sequence can trigger
     actions of the command).
@@ -4548,8 +4547,61 @@ minput_get_description (MSymbol language, MSymbol name)
     plist is returned.  As the plist is kept in the library, the
     caller must not modify nor free it.
 
-    Otherwide (the specified input method or the specified command
-    doesn't exist), @c NULL is returned.  */
+    Otherwise (the specified input method or the specified command
+    does not exist), @c NULL is returned.  */
+/***ja
+    @brief 入力メソッドのコマンドに関する情報を得る.
+
+    関数 minput_get_command () は、$LANGUAGE と $NAME で指定される入力
+    メソッドのコマンド $COMMAND に関する情報を返す。入力メソッドのコマ
+    ンドとは、疑似キーイベントであり、１つ以上の実際の入力キーシークエ
+    ンスが割り当てられる。
+
+    コマンドには、グローバルとローカルの２種類がある。グローバルなコマンド
+    はグローバルに定義され、ローカルなコマンドはその説明とキー割り当て
+    を継承することができる。各入力メソッドはローカルなキー割当を持つロー
+    カルなコマンドを定義する。また同名のグローバルなコマンドの定義を継
+    承するローカルなコマンドを宣言することもできる。
+
+    $LANGUAGE が #Mt で $NAME が #Mnil の場合は、この関数はグローバルコ
+    マンドに関する情報を返す。そうでなければローカルコマンドに関するも
+    のを返す。
+
+    $COMMAND が #Mnil の場合は、すべてのコマンドに関する情報を返す。
+
+    戻り値は以下の形式の @e well-formed plist (#m17nPlist) である。
+
+@verbatim
+  ((NAME DESCRIPTION STATUS [KEYSEQ ...]) ...)
+@endverbatim
+    @c NAME はコマンド名を示すシンボルである。
+
+    @c DESCRIPTION はコマンドを説明する M-text であるか、説明が無い場合に
+    は #Mnil である。
+
+    @c STATUS はキー割り当てがどのように定められるかをあらわすシンボルであ
+    り、その値は #Mnil （デフォルトの割り当て）, #Mcustomized （ユーザ
+    毎の設定ファイルによってカスタマイズされた割り当て）, #Mconfigured
+    （minput_config_command ()を呼ぶことによって設定される割り当て）の
+    いずれかである。ローカルコマンドの場合には、#Minherited （対応する
+    グローバルコマンドからの継承による割り当て）でもよい。
+
+    @c KEYSEQ は１つ以上のシンボルからなる plist であり、各シンボルはコマ
+    ンドに割り当てられているキーシークエンスを表す。KEYSEQ が無い場合は、
+    そのコマンドは現状で使用不能である。（すなわちコマンドの動作を起
+    動できるキーシークエンスが無い。）
+
+    $COMMAND が #Mnil でなければ、返される plist の最初の要素は、
+    $COMMAND に関する情報を含む。
+
+    @return
+
+    求められた情報が見つかれば、空でない plist へのポインタを返す。リス
+    トはライブラリが管理しているので、呼出側が変更したり解放したりする
+    ことはできない。
+
+    そうでなければ、すなわち指定の入力メソッドやコマンドが存在しなければ
+    @c NULL を返す。  */
 
 #if EXAMPLE_CODE
 MText *
@@ -4592,7 +4644,7 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
 /***en
     @brief Configure the key sequence of an input method command.
 
-    The minput_config_command () function assigns list of key
+    The minput_config_command () function assigns a list of key
     sequences $KEYSEQLIST to the command $COMMAND of the input method
     specified by $LANGUAGE and $NAME.
 
@@ -4601,18 +4653,19 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
 
     If $KEYSEQLIST is an empty plist, the command becomes unusable.
 
-    If $KEYSEQLIST is NULL, a configuration of the command for the
+    If $KEYSEQLIST is NULL, the configuration of the command for the
     input method is canceled, and the default key sequences become
-    effective.  In that case, if $COMMAND is #Mnil, configurations for
+    effective.  In such case, if $COMMAND is #Mnil, configurations for
     all commands of the input method are canceled.
 
-    If $NAME is #Mnil, this function configure the key assignment of a
+    If $NAME is #Mnil, this function configures the key assignment of a
     global command, not that of a specific input method.
 
     The configuration takes effect for input methods opened or
-    re-opened later in the current session.  To make the configuration
-    take effect for the future session, it must be saved in a per-user
-    configuration file by the function minput_save_config ().
+    re-opened later in the current session.  In order to make the
+    configuration take effect for the future session, it must be saved
+    in a per-user configuration file by the function
+    minput_save_config ().
 
     @return
 
@@ -4621,7 +4674,44 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
     <ul>
     <li>$KEYSEQLIST is not in a valid form.
     <li>$COMMAND is not available for the input method.
-    <li>$LANGUAGE and $NAME don't specify an existing input method.
+    <li>$LANGUAGE and $NAME do not specify an existing input method.
+    </ul>
+
+    @seealso
+    minput_get_commands (), minput_save_config ().
+*/
+/***ja
+    @brief 入力メソッドのコマンドのキーシークエンスを設定する.
+
+    関数 minput_config_command () はキーシークエンスのリスト
+    $KEYSEQLIST を、$LANGUAGE と $NAME によって指定される入力メソッドの
+    コマンド $COMMAND に割り当てる。
+
+    $KEYSEQLIST が空リストでなければ、キーシークエンスのリストであり、
+    各キーシークエンスはシンボルの plist である。
+
+    $KEYSEQLIST が空の plist ならば、コマンドは使用できなくなる。
+
+    $KEYSEQLIST が NULL であれば、指定の入力メソッドのコマンドの設定は
+    キャンセルされ、デフォルトのキーシークエンスが有効になる。この場合、
+    $COMMAND が #Mnil ならば指定の入力メソッドの全てのコマンドの設定が
+    キャンセルされる。
+
+    $NAME が #Mnil ならば、この関数は個々の入力メソッドではなくグローバ
+    ルなコマンドのキー割り当てを設定する。
+
+    これらの設定は、現行のセッション中で入力メソッドがオープン（または
+    再オープン）された時点で有効になる。将来のセッション中でも有効にす
+    るためには、関数 minput_save_config () を用いてユーザ毎の設定ファイ
+    ルに保存しなくてはならない。
+
+    @return
+
+    この関数は、処理が成功すれば 0 を、失敗すれば -1 を返す。失敗とは以下の場合である。
+    <ul>
+    <li>$KEYSEQLIST が有効な形式でない。
+    <li>$COMMAND が指定の入力メソッドで利用できない。
+    <li>$LANGUAGE と $NAME で指定される入力メソッドが存在しない。
     </ul>
 
     @seealso
@@ -4639,7 +4729,7 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
   cmd = mplist_get_command (Mt, unicode, start_command);
   if (! cmd)
     {
-      /* The input method doesn't have the command "start".  Here */
+      /* The input method does not have the command "start".  Here */
       /* should come some error handling code.  */
     }
   /* Now CMD == ((start DESCRIPTION KEY-SEQUENCE ...) ...).  Extract */
@@ -4756,18 +4846,18 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     @brief Get information about input method variable(s).
 
     The minput_get_variable () function returns information about
-    $VARIABLE of the input method specified by $LANGUAGE and $NAME.
+    the variable $VARIABLE of the input method specified by $LANGUAGE and $NAME.
     An input method variable controls behavior of an input method.
 
     There are two kinds of variables, global and local.  A global
-    variable has a global definitin, and the description and the value
+    variable has a global definition, and the description and the value
     may be inherited by a local variable.  Each input method defines a
-    local variable which has local value.  It may also declares a
+    local variable which has local value.  It may also declare a
     local variable that inherits definition of a global variable of
     the same name.
 
     If $LANGUAGE is #Mt and $NAME is #Mnil, information about a global
-    variable is returned.  Othewise information about a local variable
+    variable is returned.  Otherwise information about a local variable
     is returned.
 
     If $VARIABLE is #Mnil, information about all variables is
@@ -4778,34 +4868,34 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 @verbatim
   ((NAME DESCRIPTION STATUS VALUE [VALID-VALUE ...]) ...)
 @endverbatim
-    NAME is a symbol representing the variable name.
+    @c NAME is a symbol representing the variable name.
 
-    DESCRIPTION is an M-text describing the variable, or #Mnil if the
+    @c DESCRIPTION is an M-text describing the variable, or #Mnil if the
     variable has no description.
 
-    STATUS is a symbol representing how the value is decided.  The
+    @c STATUS is a symbol representing how the value is decided.  The
     value is #Mnil (the default value), #Mcustomized (the value is
     customized by per-user configuration file), or #Mconfigured (the
-    value is set byq the call of minput_config_command ()).  For a
+    value is set by the call of minput_config_variable ()).  For a
     local variable only, it may also be #Minherited (the value is
     inherited from the corresponding global variable).
 
-    VALUE is the initial value of the variable.  If the key of this
+    @c VALUE is the initial value of the variable.  If the key of this
     element is #Mt, the variable has no initial value.  Otherwise, the
     key is #Minteger, #Msymbol, or #Mtext and the value is of the
     corresponding type.
 
-    VALID-VALUEs (if any) specify which values the variable can have.
-    They have the same type (i.e. having the same key) as VALUE except
-    for the case that VALUE is an integer.  In that case, VALID-VALUE
+    @c VALID-VALUEs (if any) specify which values the variable can have.
+    They have the same type (i.e. having the same key) as @c VALUE except
+    for the case that VALUE is an integer.  In that case, @c VALID-VALUE
     may be a plist of two integers specifying the range of possible
     values.
 
-    If there no VALID-VALUE, the variable can have any value as long
-    as the type is the same as VALUE.
+    If there no @c VALID-VALUE, the variable can have any value as long
+    as the type is the same as @c VALUE.
 
-    If $VALIABLE is not #Mnil, the first element of the returned plist
-    contains the information about $VALIABLE.
+    If $VARIABLE is not #Mnil, the first element of the returned plist
+    contains the information about $VARIABLE.
 
     @return
 
@@ -4813,8 +4903,66 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     plist is returned.  As the plist is kept in the library, the
     caller must not modify nor free it.
 
-    Otherwide (the specified input method or the specified variable
-    doesn't exist), @c NULL is returned.  */
+    Otherwise (the specified input method or the specified variable
+    does not exist), @c NULL is returned.  */
+/***ja
+    @brief 入力メソッドの変数に関する情報を得る.
+
+    関数 minput_get_variable () は、$LANGUAGE と $NAME で指定される入力
+    メソッドの変数 $VARIABLE に関する情報を返す。入力メソッドの変数とは、
+    入力メソッドの振舞を制御するものである。
+
+    変数には、グローバルとローカルの２種類がある。グローバルな変数はグ
+    ローバルに定義され、ローカルな変数はその説明と値を継承することがで
+    きる。各入力メソッドはローカルな値を持つローカルな変数を定義する。
+    また同名のグローバルな変数の定義を継承するローカルな変数を宣言する
+    こともできる。
+
+    $LANGUAGE が #Mt で $NAME が #Mnil の場合は、この関数はグローバル変
+    数に関する情報を返す。そうでなければローカル変数に関するものを返す。
+
+    $VARIABLE が #Mnil の場合は、すべてのコマンドに関する情報を返す。
+
+    戻り値は以下の形式の @e well-formed plist (#m17nPlist) である。
+@verbatim
+  ((NAME DESCRIPTION STATUS VALUE [VALID-VALUE ...]) ...)
+@endverbatim
+
+    @c NAME は変数の名前を示すシンボルである。
+
+    @c DESCRIPTION は変数を説明する M-text であるか、説明が無い場合には
+    #Mnil である。
+
+    @c STATUS は値がどのように定められるかをあらわすシンボルであり、
+    @c STATUS の値は #Mnil （デフォルトの値）, #Mcustomized （ユーザ毎の設
+    定ファイルによってカスタマイズされた値）, #Mconfigured
+    （minput_config_variable ()を呼ぶことによって設定される値）のいずれ
+    かである。ローカル変数の場合には、#Minherited （対応するグローバル
+    変数から継承した値）でもよい。
+
+    @c VALUE は変数の初期値である。この要素のキーが#Mt であれば初期値を持
+    たない。そうでなければ、キーは #Minteger, #Msymbol, #Mtext のいずれ
+    かであり、値はそれぞれ対応する型のものである。
+
+    @c VALID-VALUE はもしあれば、変数の取り得る値を指定する。これは @c VALUE
+    と同じ型(すなわち同じキーを持つ) であるが、例外として @c VALUE が
+    integer の場合は @c VALID-VALUE は可能な値の範囲を示す二つの整数から
+    なる plist となることができる。
+
+    @c VALID-VALUE がなければ、変数は @c VALUE と同じ型である限りいかなる値も
+    とることができる。
+
+    $VARIABLE が #Mnil でなければ、返される plist の最初の要素は
+    $VARIABLE に関する情報を含む。
+
+    @return
+
+    求められた情報が見つかれば、空でない plist へのポインタを返す。リス
+    トはライブラリが管理しているので、呼出側が変更したり解放したりする
+    ことはできない。
+
+    そうでなければ、すなわち指定の入力メソッドや変数が存在しなければ
+    @c NULL を返す。 */
 
 MPlist *
 minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
@@ -4862,15 +5010,47 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     If the operation was successful, this function returns 0,
     otherwise returns -1.  The operation fails in these cases:
     <ul>
-    <li>$VALUE is not in a valid form, the type doesn't much the
+    <li>$VALUE is not in a valid form, the type does not match the
     definition, or the value is our of range.
     <li>$VARIABLE is not available for the input method.
-    <li>$LANGUAGE and $NAME don't specify an existing input method.  
+    <li>$LANGUAGE and $NAME do not specify an existing input method.  
     </ul>
 
     @seealso
     minput_get_variable (), minput_save_config ().  */
+/***ja
+    @brief 入力メソッドの変数の値を設定する.
 
+    関数 minput_config_variable () は値 $VALUE を、$LANGUAGE と $NAME
+    によって指定される入力メソッドの変数 $VARIABLE に割り当てる。
+
+    $VALUE が NULLでなければ、１要素の plist であり、そのキーは
+    #Minteger, #Msymbol, #Mtext のいずれか、値は対応する型のものである。
+
+    $VALUE が NULL であれば、指定の入力メソッドの変数の設定はキャンセル
+    され、変数はデフォルト値に初期化される。この場合、$VARIABLE が
+    #Mnil ならば指定の入力メソッドの全ての変数の設定がキャンセルされる。
+
+    $NAME が #Mnil ならば、この関数は個々の入力メソッドではなくグローバ
+    ルな変数の値を設定する。
+
+    これらの設定は、現行のセッション中で入力メソッドがオープン（または
+    再オープン）された時点で有効になる。将来のセッション中でも有効にす
+    るためには、関数 minput_save_config () を用いてユーザ毎の設定ファイ
+    ルに保存しなくてはならない。
+
+    @return
+
+    この関数は、処理が成功すれば 0 を、失敗すれば -1 を返す。失敗とは以下の場合である。
+    <ul>
+    <li>$VALUEが有効な形式でない。型が定義に合わない、または値が範囲外である。
+    <li>$VARIABLE が指定の入力メソッドで利用できない。
+    <li>$LANGUAGE と $NAME で指定される入力メソッドが存在しない。
+    </ul>
+
+    @seealso
+    minput_get_commands (), minput_save_config ().
+*/
 int
 minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
 			MPlist *value)
@@ -4966,11 +5146,11 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
     
     The minput_config_file () function returns the absolute path name
     of per-user configuration file into which minput_save_config ()
-    save configurations.  It is usually "config.mic" under the
-    directory ".m17n.d" of user's home directory.  It is not assured
+    save configurations.  It is usually @c "config.mic" under the
+    directory @c ".m17n.d" of user's home directory.  It is not assured
     that the file of the returned name exists nor is
     readable/writable.  If minput_save_config () fails and returns -1,
-    an application program would like to check the file, make it
+    an application program might check the file, make it
     writable (if possible), and try minput_save_config () again.
 
     @return
@@ -4979,7 +5159,27 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
     library, the caller must not modify nor free it.
 
     @seealso
-    minput_config_file ()
+    minput_save_config ()
+*/
+/***ja
+    @brief ユーザ毎の設定ファイルの名前を得る.
+    
+    関数 minput_config_file () は、関数 minput_save_config () が設定を
+    保存するユーザ毎の設定ファイルへの絶対パス名を返す。通常は、ユーザ
+    のホームディレクトリの下のディレクトリ @c ".m17n.d" にある@c
+    "config.mic" となる。返された名前のファイルが存在するか、読み書きで
+    きるかは保証されない。関数minput_save_config () が失敗して -1 を返
+    した場合には、アプリケーションプログラムはファイルの存在を確認し、
+    （できれば）書き込み可能にし再度minput_save_config () を試すことが
+    できる。
+
+    @return
+
+    この関数は文字列を返す。文字列はライブラリが管理しているので、呼出
+    側が修正したり解放したりすることはできない。
+
+    @seealso
+    minput_save_config ()
 */
 
 char *
@@ -5004,10 +5204,26 @@ minput_config_file ()
     If the operation was successful, 1 is returned.  If the per-user
     configuration file is currently locked, 0 is returned.  In that
     case, the caller may wait for a while and try again.  If the
-    customization file is not writable, -1 is returned.  In that case,
+    configuration file is not writable, -1 is returned.  In that case,
     the caller may check the name of the file by calling
     minput_config_file (), make it writable if possible, and try
     again.
+
+    @seealso
+    minput_config_file ()  */
+/***ja
+    @brief 設定をユーザ毎の設定ファイルに保存する.
+
+    関数 minput_save_config () は現行のセッションでこれまでに行った設定
+    をユーザ毎の設定ファイルに保存する。
+
+    @return
+
+    成功すれば 1 を返す。ユーザ毎の設定ファイルがロックされていれば 0
+    を返す。この場合、呼出側はしばらく待って再試行できる。設定ファイル
+    が書き込み不可の場合、-1 を返す。この場合、minput_config_file () を
+    呼んでファイル名をチェックし、できれば書き込み可能にし、再試行でき
+    る。
 
     @seealso
     minput_config_file ()  */
