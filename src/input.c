@@ -5770,6 +5770,7 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
   return ret;
 }
 
+/*** @} */ 
 /*** @} */
 /*=*/
 /*** @addtogroup m17nDebug */
@@ -5822,7 +5823,6 @@ mdebug_dump_im (MInputMethod *im, int indent)
   return im;
 }
 
-/*** @} */ 
 /*** @} */ 
 
 /*
