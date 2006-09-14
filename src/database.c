@@ -134,6 +134,7 @@
 #include <limits.h>
 #include <glob.h>
 #include <time.h>
+#include <libgen.h>
 
 #include "m17n.h"
 #include "m17n-misc.h"
@@ -1030,10 +1031,20 @@ mdatabase__lock (MDatabase *mdb)
   fp = fopen (db_info->uniq_file, "w");
   if (! fp)
     {
-      free (db_info->uniq_file);
-      free (db_info->lock_file);
-      db_info->lock_file = NULL;
-      return -1;
+      char *str = strdup (db_info->uniq_file);
+      char *dir = dirname (str);
+      
+      if (stat (dir, &buf) == 0
+	  || mkdir (dir, 0777) < 0
+	  || ! (fp = fopen (db_info->uniq_file, "w")))
+	{
+	  free (db_info->uniq_file);
+	  free (db_info->lock_file);
+	  db_info->lock_file = NULL;
+	  free (str);
+	  return -1;
+	}
+      free (str);
     }
   fclose (fp);
   if (link (db_info->uniq_file, db_info->lock_file) < 0
