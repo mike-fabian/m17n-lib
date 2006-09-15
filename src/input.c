@@ -521,7 +521,8 @@ delete_surrounding_text (MInputContext *ic, int pos)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
-  mplist_push (ic->plist  minput__callback (ic, Minput_delete_surrounding_text);
+  mplist_push (ic->plist, Minteger, (void *) pos);
+  minput__callback (ic, Minput_delete_surrounding_text);
   mplist_pop (ic->plist);
   if (pos < 0)
     M17N_OBJECT_UNREF (ic_info->preceding_text);
