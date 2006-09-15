@@ -1535,9 +1535,9 @@ reload_im_info (MInputMethodInfo *im_info)
   int check;
   MPlist *plist;
 
+  update_custom_info ();
+  update_global_info ();
   check = mdatabase__check (im_info->mdb);
-  if (check > 0)
-    return 0;
   if (check < 0)
     return -1;
   plist = mdatabase_load (im_info->mdb);
@@ -3348,7 +3348,7 @@ init_ic_info (MInputContext *ic)
 	MPlist *pl = MPLIST_PLIST (plist);
 	MSymbol name = MPLIST_SYMBOL (pl);
 
-	pl = MPLIST_NEXT (MPLIST_NEXT (pl));
+	pl = MPLIST_NEXT (MPLIST_NEXT (MPLIST_NEXT (pl)));
 	if (MPLIST_KEY (pl) != Mt)
 	  {
 	    MPlist *p = mplist ();
