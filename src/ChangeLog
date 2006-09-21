@@ -1,3 +1,21 @@
+2006-09-21  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (M_gettext): New variable.
+	(fully_initialize): Initialize M_gettext.
+	(check_description): New function.
+	(load_commands): Call check_description.
+	(config_all_commands): Be sure to unref pl.
+	(load_variables): Call check_description.
+	(config_all_variables): Be sure to unref pl.
+	(load_im_info): Call check_description.
+
+	* internal.h [ENABLE_NLS]: Include <libintl.h> and define _.
+
+	* m17n-core.c (m17n_init_core) [ENABLE_NLS]: Call bindtextdoman
+	and bind_textdomain_codeset.
+
+	* Makefile.am (AM_CPPFLAGS): Add -DGETTEXTDIR=...
+
 2006-09-15  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (reload_im_info): Update custom and global info.
