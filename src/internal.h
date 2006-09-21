@@ -35,6 +35,13 @@ extern int m17n__gui_initialized;
 
 extern int mdebug_hook ();
 
+#if ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("m17n-lib", String)
+#else
+#define _(String) (String)
+#endif
+
 /** Return with code RET while setting merror_code to ERR.  */
 
 #define MERROR(err, ret)	\
