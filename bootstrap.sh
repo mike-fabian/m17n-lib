@@ -6,13 +6,13 @@
 # See the end for copying conditions.
 
 echo "Cleaning up old files..."
-rm -rf INSTALL aclocal.m4 autom4te.cache config.guess. config.sub install-sh ltmain.sh missing mkinstalldirs libtool
-echo "Running libtoolize..."
-libtoolize --automake
+rm -rf INSTALL aclocal.m4 autom4te.cache config.guess. config.sub install-sh ltmain.sh missing libtool
 echo "Running aclocal..."
-aclocal
+aclocal -I m4
 echo "Running autoheader..."
 autoheader
+echo "Running libtoolize..."
+libtoolize --automake
 echo "Running automake..."
 automake -a -c
 echo "Running autoconf..."
