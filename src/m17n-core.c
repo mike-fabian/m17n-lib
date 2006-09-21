@@ -565,6 +565,15 @@ m17n_init_core (void)
   mdatabase__finder = NULL;
   mdatabase__loader = NULL;
 
+#if ENABLE_NLS
+  bindtextdomain ("m17n-lib", GETTEXTDIR);
+  bindtextdomain ("m17n-db", GETTEXTDIR);
+  bindtextdomain ("m17n-contrib", GETTEXTDIR);
+  bind_textdomain_codeset ("m17n-lib", "UTF-8");
+  bind_textdomain_codeset ("m17n-db", "UTF-8");
+  bind_textdomain_codeset ("m17n-contrib", "UTF-8");
+#endif
+
  err:
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the core modules."));
