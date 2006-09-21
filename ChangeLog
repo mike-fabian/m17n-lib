@@ -1,3 +1,12 @@
+2006-09-21  Kenichi Handa  <handa@m17n.org>
+
+	* mkinstalldirs: New file.
+
+	* bootstrap.sh: Don't delete mkinstalldirs.  Change order of
+	calling auto tools.
+
+	* ABOUT-NLS: New file.
+
 2006-09-21  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* Makefile.am (SUBDIRS): Add intl.
