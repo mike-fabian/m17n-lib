@@ -199,6 +199,8 @@ static MSymbol M_key_alias;
 
 static MSymbol Mdescription, Mcommand, Mvariable, Mglobal, Mconfig;
 
+static MSymbol M_gettext;
+
 /** Structure to hold a map.  */
 
 struct MIMMap
@@ -443,6 +445,7 @@ fully_initialize ()
   Mvariable = msymbol ("variable");
   Mglobal = msymbol ("global");
   Mconfig = msymbol ("config");
+  M_gettext = msymbol ("_");
 
   load_im_info_keys = mplist ();
   mplist_add (load_im_info_keys, Mstate, Mnil);
@@ -1565,6 +1568,49 @@ get_im_info_by_tags (MPlist *plist)
   return get_im_info (tag[0], tag[1], tag[2], Mnil);
 }
 
+
+static int
+check_description (MPlist *plist)
+{
+  MText *mt;
+
+  if (MPLIST_MTEXT_P (plist))
+    return 1;
+  if (MPLIST_PLIST_P (plist))
+    {
+      MPlist *pl = MPLIST_PLIST (plist);
+
+      if (MFAILP (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == M_gettext))
+	return 0;
+      pl =MPLIST_NEXT (pl);
+      if (MFAILP (MPLIST_MTEXT_P (pl)))
+	return 0;
+      mt = MPLIST_MTEXT (pl);
+      M17N_OBJECT_REF (mt);
+#if ENABLE_NLS
+      {
+	char *translated = dgettext ("m17n-db", (char *) MTEXT_DATA (mt));
+
+	if (translated == (char *) MTEXT_DATA (mt))
+	  translated = dgettext ("m17n-contrib", (char *) MTEXT_DATA (mt));
+	if (translated != (char *) MTEXT_DATA (mt))
+	  {
+	    M17N_OBJECT_UNREF (mt);
+	    mt = mtext__from_data (translated, strlen (translated),
+				   MTEXT_FORMAT_UTF_8, 0);
+	  }
+      }
+#endif
+      mplist_set (plist, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+      return 1;
+    }
+  if (MFAILP (MPLIST_SYMBOL_P (plist) && MPLIST_SYMBOL (plist) == Mnil))
+    return 0;
+  return 1;
+}
+
+
 /* Check KEYSEQ, and return 1 if it is valid as a key sequence, return
    0 if not.  */
 
@@ -1633,8 +1679,7 @@ load_commands (MInputMethodInfo *im_info, MPlist *plist)
 	}
       else
 	{
-	  if (! MPLIST_MTEXT_P (p)
-	      && (! MPLIST_SYMBOL_P (p) || MPLIST_SYMBOL (p) != Mnil))
+	  if (! check_description (p))
 	    mplist_set (p, Msymbol, Mnil);
 	  p = MPLIST_NEXT (p);
 	  while (! MPLIST_TAIL_P (p))
@@ -1655,19 +1700,15 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
 {
   MPlist *global = NULL, *custom = NULL, *config = NULL;
   MSymbol name;
-  MText *description = NULL;
   MSymbol status;
-  MPlist *keyseq;
+  MPlist *description = NULL, *keyseq;
 
   name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
-  if (MPLIST_MTEXT_P (plist))
-    description = MPLIST_MTEXT (plist);
+  if (MPLIST_MTEXT_P (plist) || MPLIST_PLIST_P (plist))
+    description = plist;
   else if (global_cmds && ((global = mplist__assq (global_cmds, name))))
-    {
-      global = MPLIST_NEXT (MPLIST_PLIST (global));
-      description = MPLIST_MTEXT_P (global) ? MPLIST_MTEXT (global) : NULL;
-    }
+    description = global = MPLIST_NEXT (MPLIST_PLIST (global));
   if (MPLIST_TAIL_P (plist))
     {
       if (! global
@@ -1712,7 +1753,7 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
   plist = mplist ();
   mplist_add (plist, Msymbol, name);
   if (description)
-    mplist_add (plist, Mtext, description);
+    mplist_add (plist, MPLIST_KEY (description), MPLIST_VAL (description));
   else
     mplist_add (plist, Msymbol, Mnil);
   mplist_add (plist, Msymbol, status);
@@ -1743,7 +1784,10 @@ config_all_commands (MInputMethodInfo *im_info)
       MPlist *pl = config_command (MPLIST_PLIST (plist),
 				   global_cmds, custom_cmds, config_cmds);
       if (pl)
-	tail = mplist_add (tail, Mplist, pl);
+	{
+	  tail = mplist_add (tail, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	}
     }
 }
 
@@ -1865,7 +1909,7 @@ load_variables (MInputMethodInfo *im_info, MPlist *plist)
 	    mplist_add (p, Msymbol, Mnil);
 	  else
 	    {
-	      if (MFAILP (MPLIST_MTEXT_P (p)))
+	      if (! check_description (p))
 		mplist_set (p, Msymbol, Mnil);
 	      p = MPLIST_NEXT (p);
 	      if (MFAILP (! MPLIST_TAIL_P (p)
@@ -1891,9 +1935,7 @@ load_variables (MInputMethodInfo *im_info, MPlist *plist)
 	  p = MPLIST_NEXT (pl);	/* P ::= (DESC VALUE VALID ...) */
 	  if (! MPLIST_TAIL_P (p))
 	    {
-	      if (MFAILP (MPLIST_MTEXT_P (p)
-			  || (MPLIST_SYMBOL_P (p)
-			      && MPLIST_SYMBOL (p) == Mnil)))
+	      if (! check_description (p))
 		mplist_set (p, Msymbol, Mnil);
 	      p = MPLIST_NEXT (p); /* P ::= (VALUE VALID ...) */
 	      if (MFAILP (! MPLIST_TAIL_P (p)))
@@ -1930,9 +1972,8 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
 {
   MPlist *global = NULL, *custom = NULL, *config = NULL;
   MSymbol name = MPLIST_SYMBOL (plist);
-  MText *description = NULL;
   MSymbol status;
-  MPlist *value, *valids;
+  MPlist *description = NULL, *value, *valids;
 
   if (global_vars)
     {
@@ -1942,10 +1983,10 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
     }
 
   plist = MPLIST_NEXT (plist);
-  if (MPLIST_MTEXT_P (plist))
-    description = MPLIST_MTEXT (plist);
-  else if (global && MPLIST_MTEXT (global))
-    description = MPLIST_MTEXT (global);
+  if (MPLIST_MTEXT_P (plist) || MPLIST_PLIST_P (plist))
+    description = plist;
+  else if (global)
+    description = global;
   if (global)
     global = MPLIST_NEXT (global); /* (VALUE VALIDS ...) */
 
@@ -2007,7 +2048,7 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
   plist = mplist ();
   mplist_add (plist, Msymbol, name);
   if (description)
-    mplist_add (plist, Mtext, description);
+    mplist_add (plist, MPLIST_KEY (description), MPLIST_VAL (description));
   else
     mplist_add (plist, Msymbol, Mnil);
   mplist_add (plist, Msymbol, status);
@@ -2047,7 +2088,10 @@ config_all_variables (MInputMethodInfo *im_info)
       MPlist *pl = config_variable (MPLIST_PLIST (plist),
 				    global_vars, custom_vars, config_vars);
       if (pl)
-      tail = mplist_add (tail, Mplist, pl);
+	{
+	  tail = mplist_add (tail, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	}
     }
 }
 
@@ -2209,11 +2253,10 @@ load_im_info (MPlist *plist, MInputMethodInfo *im_info)
 	    if (im_info->description)
 	      continue;
 	    elt = MPLIST_NEXT (elt);
-	    if (MFAILP (MPLIST_MTEXT_P (elt)))
+	    if (! check_description (elt))
 	      continue;
 	    im_info->description = MPLIST_MTEXT (elt);
 	    M17N_OBJECT_REF (im_info->description);
-
 	  }
       }
   im_info->tick = time (NULL);
