@@ -31,6 +31,10 @@ AM_MAINTAINER_MODE
 API_VERSION=1:0:1
 AC_SUBST(API_VERSION)
 
+AM_GNU_GETTEXT
+GETTEXTDIR="$datadir/locale"
+AC_SUBST(GETTEXTDIR)
+
 dnl Checks for programs for compiling.
 AC_PROG_CC
 AC_LIBTOOL_DLOPEN
@@ -431,7 +435,7 @@ esac
 AC_DEFINE_UNQUOTED(DLOPEN_SHLIB_EXT, "$SHLIB_EXT",
 		   [Define to loadable module extention])
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([Makefile po/Makefile.in intl/Makefile
                  src/Makefile
                  example/Makefile
 		 m17n-config
