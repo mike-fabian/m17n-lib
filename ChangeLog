@@ -1,3 +1,20 @@
+2006-09-21  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (SUBDIRS): Add intl.
+	* configure.ac (AC_CONFIG_FILES): Add intl/Makefile.
+
+2006-09-17  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (SUBDIRS): Add po.
+	(ACLOCAL_AMFLAGS): New variable.
+	(EXTRA_DIST): Add config.rpath, mkinstalldirs, m4/ChangeLog.
+	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
+
+2006-09-17  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Add AM_GNU_GETTEXT.
+	(GETTEXTDIR): New variable.  AC_SUBST it.
+
 2006-07-19  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Include the result of `libotf-config --cflags` in
