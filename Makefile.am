@@ -22,11 +22,11 @@
 
 ## Process this file with Automake to create Makefile.in
 
-SUBDIRS = src example
+SUBDIRS = intl po src example
 
 bin_SCRIPTS = m17n-config
 
-EXTRA_DIST = \
+EXTRA_DIST = m4/ChangeLog config.rpath mkinstalldirs \
 	m17n-core.pc.in m17n-shell.pc.in m17n-gui.pc.in bootstrap.sh
 
 pkgconfigdir = ${libdir}/pkgconfig
@@ -38,3 +38,5 @@ else
 PKGDATA = $(BASICDATA)
 endif
 pkgconfig_DATA = $(PKGDATA)
+
+ACLOCAL_AMFLAGS = -I m4
