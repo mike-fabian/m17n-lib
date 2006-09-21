@@ -85,7 +85,7 @@ libm17n_gd_la_SOURCES = m17n-gd.c
 libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ ${top_builddir}/src/libm17n-gui.la
 libm17n_gd_la_LDFLAGS = -module ${VINFO}
 
-AM_CPPFLAGS = -DM17NDIR="\"@M17NDIR@\""
+AM_CPPFLAGS = -DM17NDIR=\"@M17NDIR@\" -DGETTEXTDIR=\"@GETTEXTDIR@\"
 
 
 BASICHEADERS = m17n-core.h m17n.h m17n-misc.h
