@@ -4697,8 +4697,8 @@ minput_get_description (MSymbol language, MSymbol name)
 MText *
 get_im_command_description (MSymbol language, MSymbol name, MSymbol command)
 {
-  /* Return a description of the command COMMAND of the input method */
-  /* specified by LANGUAGE and NAME.  */
+  /* Return a description of the command COMMAND of the input method
+     specified by LANGUAGE and NAME.  */
   MPlist *cmd = minput_get_command (langauge, name, command);
   MPlist *plist;
 
@@ -4819,11 +4819,11 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
   cmd = mplist_get_command (Mt, unicode, start_command);
   if (! cmd)
     {
-      /* The input method does not have the command "start".  Here */
-      /* should come some error handling code.  */
+      /* The input method does not have the command "start".  Here
+	 should come some error handling code.  */
     }
-  /* Now CMD == ((start DESCRIPTION KEY-SEQUENCE ...) ...).  Extract */
-  /* the part (KEY-SEQUENCE ...).  */
+  /* Now CMD == ((start DESCRIPTION KEY-SEQUENCE ...) ...).  Extract
+     the part (KEY-SEQUENCE ...).  */
   plist = mplist_next (mplist_next (mplist_value (cmd)));
   /* Copy it because we should not modify it directly.  */
   key_seq_list = mplist_copy (plist);
@@ -4831,7 +4831,7 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
   
   key_seq = mplist ();
   mplist_add (key_seq, Msymbol, msymbol ("C-x"));
-  mplist_add (key_seq, Msymbo, msymbol ("u"));
+  mplist_add (key_seq, Msymbol, msymbol ("u"));
   mplist_add (key_seq_list, Mplist, key_seq);
   m17n_object_unref (key_seq);
 
