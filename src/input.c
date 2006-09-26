@@ -4572,10 +4572,16 @@ MText *
 minput_get_description (MSymbol language, MSymbol name)
 {
   MInputMethodInfo *im_info;
+  MSymbol extra;
 
   MINPUT__INIT ();
 
-  im_info = get_im_info (language, name, Mnil, Mdescription);
+  if (name != Mnil)
+    extra = Mnil;
+  else
+    extra = language, language = Mt;
+
+  im_info = get_im_info (language, name, extra, Mdescription);
   if (! im_info || ! im_info->description)
     return NULL;
   M17N_OBJECT_REF (im_info->description);
