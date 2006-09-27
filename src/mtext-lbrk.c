@@ -163,6 +163,21 @@ static MCharTable *lbc_table;
 /*** @{ */
 /*=*/
 
+/***en
+    @brief Find a linebreak postion of an M-text.
+
+    The mtext_line_break () function checks if position $POS is a
+    proper linebreak position of an M-text $MT according to the
+    algorithm of The Unicode Standard 4.0 UAX#14.  It so, it returns
+    $POS.  Otherwise, it returns a proper linebreak position before
+    $POS.
+
+    If $OPTION is nonzero, it controls the algorithm by logical-or of
+    the members of #MTextLineBreakOption.
+
+    If $AFTER is not NULL, a proper linebreak position after $POS is
+    stored there.  */
+
 int
 mtext_line_break (MText *mt, int pos, int option, int *after)
 {
