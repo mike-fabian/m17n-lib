@@ -1,3 +1,10 @@
+2006-09-27  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (mfont_match_p, mfont_open, mfont_encapsulate)
+	(mfont_close): Add comments.
+
+	* mtext-lbrk.c (mtext_line_break): Add comment.
+
 2006-09-26  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_get_description): Handle description about
