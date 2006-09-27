@@ -2941,7 +2941,7 @@ mfont_list_family_names (MFrame *frame)
 /***en
     @brief Check the usability of a font.
 
-    The function mfont_check () checkes if $FONT can be used for
+    The mfont_check () function checkes if $FONT can be used for
     $SCRIPT and $LANGUAGE in $FONTSET on $FRAME.
 
     @return If the font is usable, return 1.  Otherwise return 0.
@@ -2963,11 +2963,37 @@ mfont_check (MFrame *frame, MFontset *fontset,
   return (score == 0 ? 2 : 1);
 }
 
+/*=*/
+
+/***en
+    @brief Check is a font matches with a font spec.
+
+    The mfont_match_p () function checks if $FONT matches with the
+    font-spec $SPEC.
+
+    @return 
+    If the font matches, 1 is returned.  Otherwise 0 is returned.  */
+
 int
 mfont_match_p (MFont *font, MFont *spec)
 {
   return mfont__match_p (font, spec, MFONT_REGISTRY);
 }
+
+/*=*/
+/***en
+    @brief Open a font.
+
+    The mfont_open () function opens $FONT on $FRAME, and returns a
+    realized font.
+
+    @return
+    If the font was successfully opened, a realized font is returned.
+    Otherwize NULL is returned.
+
+    @seealso
+    mfont_close ().  */
+
 
 MFont *
 mfont_open (MFrame *frame, MFont *font)
@@ -2982,6 +3008,23 @@ mfont_open (MFrame *frame, MFont *font)
     return font;
   MERROR (MERROR_FONT, NULL);
 }
+
+/*=*/
+/***en
+    @brief Encapusulate a font.
+
+    The mfont_encapsulate () functions realizes a font by
+    encapusulating data $DATA or type $DATA_TYPE on #FRAME.  Currently
+    $DATA_TAPE is #Mfontconfig or #Mfreetype, and $DATA points to an
+    object of FcPattern or FT_Face respectively.
+
+    @return
+    If the operation was successful, a realized font is returned.
+    Otherwise NULL is return.
+
+    @seealso
+    mfont_close ().  */
+
 
 MFont *
 mfont_encapsulate (MFrame *frame, MSymbol data_type, void *data)
@@ -3000,6 +3043,21 @@ mfont_encapsulate (MFrame *frame, MSymbol data_type, void *data)
 
   return NULL;
 }
+
+/*=*/
+/***en
+    @brief Close a font.
+
+    The mfont_close () function close a realized font $FONT.  $FONT
+    must be opened previously by mfont_open () or mfont_encapsulate
+    ().
+
+    @return
+    If the operation was successful, 0 is returned.  Otherwise, -1 is
+    returned.
+
+    @seealso
+    mfont_open (), mfont_encapsulate ().  */
 
 int
 mfont_close (MFont *font)
