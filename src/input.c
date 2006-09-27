@@ -4041,6 +4041,16 @@ MSymbol Minput_driver;
 /*=*/
 
 /***en
+    @name Functions
+*/
+/***ja
+    @name ´Ø¿ô
+*/
+/*** @{ */
+
+/*=*/
+
+/***en
     @brief Open an input method.
 
     The minput_open_im () function opens an input method whose
@@ -5483,7 +5493,8 @@ minput_save_config (void)
 }
 
 /*=*/
-
+/*** @} */
+/*=*/
 /***en
     @name Obsolete functions
 */
