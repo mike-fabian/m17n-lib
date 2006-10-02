@@ -844,7 +844,14 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
   size = font->size;
   if (size >= 0)
     {
-      if ((size % 10) < 5)
+      if (font->multiple_sizes)
+	{
+	  for (size = 0; size < 24; size++)
+	    if (font->size & (1 << size))
+	      break;
+	  size += 6;
+	}
+      else if ((size % 10) < 5)
 	size /= 10;
       else
 	size = size / 10 + 1;
@@ -904,7 +911,21 @@ font_score (MFont *font, MFont *request)
 	{
 	  if (font->size && request->size)
 	    {
-	      val = font->size - request->size;
+	      if (font->multiple_sizes)
+		{
+		  int j, closest = 23;
+
+		  for (j = 23; j >= 0; j--)
+		    if (font->size & (1 << j))
+		      {
+			closest = j;
+			if (request->size >= (j + 6) * 10)
+			  break;
+		      }
+		  val = request->size - (closest + 6) * 10;
+		}
+	      else
+		val = font->size - request->size;
 	      if (val)
 		{
 		  if (val < 0)
@@ -1321,6 +1342,7 @@ mfont__set_spec_from_face (MFont *spec, MFace *face)
     mfont__set_property (spec, i, face->property[i]);
   spec->property[MFONT_REGISTRY] = 0;
   spec->property[MFONT_RESY] = 0;
+  spec->multiple_sizes = 0;
   spec->size = (int) (face->property[MFACE_SIZE]);
   spec->type = MFONT_TYPE_SPEC;
   spec->source = MFONT_SOURCE_UNDECIDED;
