@@ -59,26 +59,6 @@
 #include "fontset.h"
 #include "face.h"
 
-typedef struct _MFontX MFontX;
-
-struct _MFontX 
-{
-  /* Record a font of the smallest pixel size.  */
-  MFont core;
-  /* Nth bit tells the existence of a font of size N + 5.  So this is
-     for 5..36 pixel size fonts.  Usually this covers all sizes.  */
-  unsigned int size5_36;
-  /* Fonts of (size < 5 || size > 36) are listed here (except for a
-     scalable whose size is 0).  */
-  MFontX *next;
-};
-
-/* S must satisfy the condition (S >= 5 && S < 36).  */
-
-#define SET_SIZE(FONTX, S) ((FONTX)->size5_36 |= (1 << ((S) - 5)))
-
-#define HAVE_SIZE(FONTX, S) ((FONTX)->size5_36 & (1 << ((S) - 5)))
-
 typedef struct
 {
   /* Common header for the m17n object.  */
@@ -92,7 +72,7 @@ typedef struct
 
   /** List of available X-core fonts on the display.  Keys are
       registries and values are plists whose keys are families and
-      values are pointers to MFontX.  */
+      values are pointers to MFont.  */
   MPlist *font_list;
 
   /** Nonzero means that <font_list> already contains all available
@@ -211,15 +191,7 @@ free_display_info (void *object)
   MPLIST_DO (plist, disp_info->font_list)
     {
       MPLIST_DO (pl, MPLIST_VAL (plist))
-	{
-	  MFontX *fontx, *next;
-
-	  for (fontx = MPLIST_VAL (pl); fontx; fontx = next)
-	    {
-	      next = fontx->next;
-	      free (fontx);
-	    }
-	}
+	free (MPLIST_VAL (pl));
       M17N_OBJECT_UNREF (MPLIST_VAL (plist));
     }
   M17N_OBJECT_UNREF (disp_info->font_list);
@@ -473,7 +445,7 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
   plist = mplist_get (font_list, registry);
   if (plist)
     return plist;
-  plist = mplist ();
+  p = plist = mplist ();
   mplist_add (font_list, registry, plist);
   sprintf (pattern, "-*-*-*-*-*-*-*-*-*-*-*-*-%s", msymbol_name (registry));
   font_names = XListFonts (disp_info->display, pattern, 0x8000, &nfonts);
@@ -491,24 +463,20 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
   memcpy (names, font_names, sizeof (char *) * nfonts);
   qsort (names, nfonts, sizeof (char *), font_compare);
   MFONT_INIT (&font);
-  for (i = 0, p = NULL; i < nfonts; i++)
+  for (i = 0; i < nfonts; i++)
     if (mfont__parse_name_into_font (names[i], Mx, &font) == 0
-	&& (font.size >= 50 || font.property[MFONT_RESY] == 0))
+	&& (font.size > 0 || font.property[MFONT_RESY] == 0))
       {
 	MSymbol family = FONT_PROPERTY (&font, MFONT_FAMILY);
-	MFontX *fontx, *fontx2;
+	MFont *fontx;
 	unsigned sizes[256];
 	int nsizes = 0;
-	int size, smallest;
+	int limit;
+	int size, normal_size;
 	char *base_end;
 	int base_len;
 	int fields;
 	
-	if (p && MPLIST_KEY (p) != family)
-	  p = mplist_find_by_key (plist, family);
-	if (! p)
-	  p = mplist_push (plist, family, NULL);
-
 	/* Calculate how many bytes to compare to detect fonts of the
 	   same base name.  */
 	for (base_end = names[i], fields = 0; *base_end; base_end++)
@@ -517,44 +485,44 @@ xfont_registry_list (MFrame *frame, MSymbol registry)
 	    break;
 	base_len = base_end - names[i] + 1;
 
-	size = smallest = font.size / 10;
+	size = font.size / 10;
 	sizes[nsizes++] = size;
-	for (j = i + 1; j < nfonts && ! strncmp (names[i], names[j], base_len);
+	normal_size = (size >= 6 && size <= 29);
+	limit = (i + 256 < nfonts ? i + 256 : nfonts);
+	for (j = i + 1; j < limit && ! memcmp (names[i], names[j], base_len);
 	     i = j++)
 	  if (mfont__parse_name_into_font (names[j], Mx, &font) == 0
-	      && (font.size >= 50 || font.property[MFONT_RESY] == 0))
+	      && (font.size > 0 || font.property[MFONT_RESY] == 0))
 	    {
 	      size = font.size / 10;
-	      if (size < smallest)
-		smallest = size;
-	      if (nsizes < 256)
-		sizes[nsizes++] = size;
+	      sizes[nsizes++] = size;
+	      normal_size |= (size >= 6 && size <= 29);
 	    }
 
 	font.for_full_width = for_full_width;
 	font.type = MFONT_TYPE_OBJECT;
 	font.source = MFONT_SOURCE_X;
-	MSTRUCT_CALLOC (fontx, MERROR_WIN);
-	fontx->core = font;
-	fontx->core.size = smallest * 10;
-	fontx->next = MPLIST_VAL (p);
-	MPLIST_VAL (p) = fontx;
-	if (smallest > 0)
-	  for (j = 0; j < nsizes; j++)
+	if (normal_size)
+	  {
+	    MSTRUCT_CALLOC (fontx, MERROR_WIN);
+	    *fontx = font;
+	    fontx->multiple_sizes = 1;
+	    fontx->size = 0;
+	    for (j = 0; j < nsizes; j++)
+	      if (sizes[j] >= 6 && sizes[j] <= 29)
+		fontx->size |= 1 << (sizes[j] - 6);
+	    p = mplist_add (p, family, fontx);
+	  }
+	for (j = 0; j < nsizes; j++)
+	  if (sizes[j] < 6 || sizes[j] > 29)
 	    {
-	      if (sizes[j] <= 36)
-		{
-		  if (sizes[j] != smallest)
-		    SET_SIZE (fontx, sizes[j]);
-		}
-	      else
-		{
-		  MSTRUCT_CALLOC (fontx2, MERROR_WIN);
-		  fontx2->core = font;
-		  fontx2->core.size = sizes[j] * 10;
-		  fontx2->next = MPLIST_VAL (p);
-		  MPLIST_VAL (p) = fontx2;
-		}
+	      MSTRUCT_CALLOC (fontx, MERROR_WIN);
+	      *fontx = font;
+	      fontx->multiple_sizes = 0;
+	      fontx->size = sizes[j] * 10;
+	      if (sizes[j] == 0)
+		fontx->property[MFONT_RESY] = 0;
+	      p = mplist_add (p, family, fontx);
 	    }
       }
   XFreeFontNames (font_names);
@@ -633,17 +601,40 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   int mdebug_mask = MDEBUG_FONT;
   MFont this;
 
-  if (font->size)
-    /* non-scalable font */
-    size = font->size;
-  else if (spec->size)
+  size = spec->size;
+  if (size)
     {
       int ratio = mfont_resize_ratio (font);
 
-      size = ratio == 100 ? spec->size : spec->size * ratio / 100;
+      if (ratio != 100)
+	size = size * ratio / 100;
     }
   else
     size = 120;
+
+  if (font->size)
+    {
+      /* non-scalable font */
+      if (font->multiple_sizes)
+	{
+	  int i;
+
+	  if (size < 60)
+	    size = 60;
+	  else if (size > 290)
+	    size = 290;
+	  for (i = size / 10 - 6; i >= 0; i--)
+	    if (font->size & (1 << i))
+	      break;
+	  if (i == 0)
+	    for (i = size / 10 - 5; i < 24; i++)
+	      if (font->size & (1 << i))
+		break;
+	  size = (i + 6) * 10;
+	}
+      else
+	size = font->size;
+    }
 
   if (rfont)
     {
@@ -653,6 +644,7 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
     }
 
   this = *font;
+  this.multiple_sizes = 0;
   this.size = size;
   /* This never fail to generate a valid fontname.  */
   name = mfont_unparse_name (&this, Mx);
@@ -794,11 +786,9 @@ xfont_encode_char (MFrame *frame, MFont *font, MFont *spec, unsigned code)
     rfont = (MRealizedFont *) font;
   else if (font->type == MFONT_TYPE_OBJECT)
     {
-      int size = spec->size;
-
       for (rfont = MPLIST_VAL (frame->realized_font_list); rfont;
 	   rfont = rfont->next)
-	if (rfont->font == font && rfont->spec.size == size)
+	if (rfont->font == font)
 	  break;
       if (! rfont)
 	{
@@ -947,60 +937,35 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
     xfont_registry_list (frame, registry);
 
   MPLIST_DO (pl, disp_info->font_list)
-    {
-      if (registry != Mnil && registry != MPLIST_KEY (pl))
-	continue;
-      MPLIST_DO (p, MPLIST_VAL (pl))
-	{
-	  MFontX *fontx;
+    if (registry == Mnil || registry == MPLIST_KEY (pl))
+      {
+	MPLIST_DO (p, MPLIST_VAL (pl))
+	  if (family == Mnil || family == MPLIST_KEY (p))
+	    {
+	      MFont *fontx = MPLIST_VAL (p);
 
-	  if (family != Mnil && family != MPLIST_KEY (p))
-	    continue;
-	  for (fontx = MPLIST_VAL (p); fontx; fontx = fontx->next)
-	    if (! font
-		|| (mfont__match_p (&fontx->core, font, MFONT_REGISTRY)))
-	      {
-		if (fontx->core.size == size
-		    || fontx->core.size == 0)
-		  {
-		    mplist_push (plist, MPLIST_KEY (p), fontx);
-		    num++;
-		  }
-		else if (size == 0
-			 || (size <= 360 && HAVE_SIZE (fontx, (size / 10))))
-		  {
-		    unsigned size5_36 = fontx->size5_36;
-		    MFontX *fontx2;
-		    int i;
-
-		    fontx->size5_36 = 0;
-		    for (i = fontx->core.size / 10; i <= 36; i++)
-		      if (size5_36 & (1 << (i - 5)))
+	      if (! font || (mfont__match_p (fontx, font, MFONT_REGISTRY)))
+		{
+		  if (fontx->size != 0 && size)
+		    {
+		      if (fontx->multiple_sizes)
 			{
-			  MSTRUCT_CALLOC (fontx2, MERROR_WIN);
-			  fontx2->core = fontx->core;
-			  fontx2->core.size = i * 10;
-			  fontx2->next = fontx->next;
-			  fontx->next = fontx2;
-			  fontx = fontx2;
-			  if ((size == 0 || size == fontx->core.size)
-			      && (maxnum == 0 || num < maxnum))
-			    {
-			      mplist_push (plist, MPLIST_KEY (p), fontx);
-			      num++;
-			    }
+			  if (size < 60 || size > 290
+			      || ! (fontx->size & (1 << (size / 10 - 6))))
+			    continue;
 			}
-		  }
-		if (maxnum > 0 && maxnum == num)
-		  break;
-	      }
-	  if (maxnum > 0 && maxnum == num)
-	    break;
-	}
-      if (maxnum > 0 && maxnum == num)
-	break;
-    }
+		      else if (fontx->size != size)
+			continue;
+		    }
+		  mplist_push (plist, MPLIST_KEY (p), fontx);
+		  num++;
+		  if (maxnum > 0 && maxnum == num)
+		    goto done;
+		}
+	    }
+      }
 
+ done:
   MDEBUG_PRINT1 (" %d found\n", num);
   return num;
 }
@@ -1062,10 +1027,10 @@ xfont_check_capability (MRealizedFont *rfont, MSymbol capability)
 typedef struct
 {
   M17NObject control;
+  FT_Face ft_face;		/* This must be the 2nd member. */
   Display *display;
   XftFont *font_aa;
   XftFont *font_no_aa;
-  FT_Face ft_face;
   /* Pointer to MRealizedFontFT */
   void *info;
 } MRealizedFontXft;
