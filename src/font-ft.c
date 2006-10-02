@@ -83,7 +83,7 @@ typedef struct
 typedef struct
 {
   M17NObject control;
-  FT_Face ft_face;
+  FT_Face ft_face;		/* This must be the 2nd member. */
   MPlist *charmap_list;
   int face_encapsulated;
 } MRealizedFontFT;
