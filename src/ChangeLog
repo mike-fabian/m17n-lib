@@ -1,3 +1,24 @@
+2006-10-02  Kenichi Handa  <handa@m17n.org>
+
+	* font.h (struct MFont): New member `multiple_sizes'.  Bit-size of
+	`size' changed to 24.
+
+	* font.c (xlfd_unparse_name): Adjusted for the change of
+	MFont->size.
+	(font_score): Likewise.
+	(mfont__set_spec_from_face): Set spec->multiple_sizes to 0.
+
+	* m17n-X.c (MFontX, _MFontX): Deleted.
+	(SET_SIZE, HAVE_SIZE): Deleted.
+	(free_display_info): Adjusted for the change of
+	disp_info->font_list format.
+	(xfont_registry_list): Likewise.
+	(xfont_open): Likewise.
+	(xfont_list): Likewise.
+	(xfont_encode_char): Ignore size to find a realized font.
+	(MRealizedFontXft): Change the order of members to make it
+	compatible with MRealizedFontFT.
+
 2006-09-27  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (mfont_match_p, mfont_open, mfont_encapsulate)
