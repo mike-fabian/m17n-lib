@@ -2505,7 +2505,8 @@ create_menu_button (Widget top, Widget parent, Widget left, char *button_name,
   XtSetArg (arg[3], XtNhighlightThickness, 1);
   XtSetArg (arg[4], XtNleft, XawChainLeft);
   XtSetArg (arg[5], XtNright, XawChainLeft);
-  i = 6;
+  XtSetArg (arg[6], XtNinternational, True);
+  i = 7;
   if (left)
     XtSetArg (arg[i], XtNfromHoriz, left), i++;
   button = XtCreateManagedWidget (button_name, menuButtonWidgetClass, parent,
