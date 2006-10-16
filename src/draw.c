@@ -1112,6 +1112,7 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
     }
 
   *from_idx = *to_idx = 0;
+  *to_x = x;
   while (g->type != GLYPH_ANCHOR)
     {
       if (g->pos >= from && g->pos < to)
@@ -1434,6 +1435,8 @@ render_glyph_string (MFrame *frame, MDrawWindow win, int x, int y,
   int from_idx, to_idx;
   int to_x;
 
+  if (from == to)
+    return;
   if (control->orientation_reversed)
     x -= gstring->indent + gstring_width (gstring, from, to, NULL, NULL);
   else
