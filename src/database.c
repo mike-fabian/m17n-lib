@@ -804,11 +804,13 @@ mdatabase__update (void)
 	      p2 = MPLIST_PLIST (p1);
 	      MPLIST_DO (p2, MPLIST_NEXT (p2))
 		{
+		  MDatabase *mdb;
 		  MDatabaseInfo *db_info;
 
 		  p3 = MPLIST_PLIST (p2);
 		  p3 = MPLIST_NEXT (p3);
-		  db_info = MPLIST_VAL (p3);
+		  mdb = MPLIST_VAL (p3);
+		  db_info = mdb->extra_info;
 		  if (db_info->status == MDB_STATUS_AUTO)
 		    db_info->status = MDB_STATUS_DISABLED;
 		}
