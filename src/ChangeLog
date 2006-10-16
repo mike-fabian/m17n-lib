@@ -1,3 +1,7 @@
+2006-10-16  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (mdatabase__update): Fix the way to get db_info.
+
 2006-10-02  Kenichi Handa  <handa@m17n.org>
 
 	* font.h (struct MFont): New member `multiple_sizes'.  Bit-size of
