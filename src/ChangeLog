@@ -1,3 +1,25 @@
+2006-10-18  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (delete_surrounding_text): Be sure to set members
+	preceding_text and following_text to NULL.
+	(shift_state): Save variable values in ic_info->vars_saved.
+	(preedit_commit): Don't print debug information here.  Don't
+	change ic_info->keys here.
+	(get_candidate_list): Don't ref plist.
+	(take_action_list): Don't unref return value of
+	get_candidate_list.  For undo, reset ic->produced and recover
+	ic_info->vars.  Be sure to set ic->candidate_list to NULL after
+	unref it.
+	(init_ic_info): Set ic_info->vars_saved.
+	(fini_ic_info): Unref ic_info->vars_saved.
+	(re_init_ic): Be sure to set ic->candidate_list to NULL after
+	unref it.
+	(filter): Be sure to set members preceding_text and following_text
+	to NULL.  Print debug information about produced text.  Delete
+	processed keys from ic_info->keys.
+
+	* input.h (MInputContextInfo): New member vars_saved.
+
 2006-10-16  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (mdatabase__update): Fix the way to get db_info.
