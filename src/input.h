@@ -77,6 +77,8 @@ typedef struct
   /** List of variables. */
   MPlist *vars;
 
+  MPlist *vars_saved;
+
   MText *preceding_text, *following_text;
 
   int key_unhandled;
