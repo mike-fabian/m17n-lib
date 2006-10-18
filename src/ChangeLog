@@ -1,5 +1,14 @@
 2006-10-18  Kenichi Handa  <handa@m17n.org>
 
+	* database.c (get_dir_info): Return NULL if the directory name is
+	too long.
+	(register_databases_in_files): Call register_database with
+	MDB_STATUS_AUTO.
+	(mdatabase__update): Fix logic.  Call register_database with
+	MDB_STATUS_AUTO.
+	(mdatabase_define): Call register_database with
+	MDB_STATUS_EXPLICIT.
+
 	* input.c (delete_surrounding_text): Be sure to set members
 	preceding_text and following_text to NULL.
 	(shift_state): Save variable values in ic_info->vars_saved.

@@ -522,16 +522,22 @@ get_dir_info (char *dirname)
   if (dirname)
     {
       int len = strlen (dirname);
-      MTABLE_MALLOC (dir_info->filename, len + 2, MERROR_DB);
-      memcpy (dir_info->filename, dirname, len + 1);
-      /* Append PATH_SEPARATOR if DIRNAME doesn't end with it.  */
-      if (dir_info->filename[len - 1] != PATH_SEPARATOR)
+
+      if (len + MDB_DIR_LEN < PATH_MAX)
 	{
-	  dir_info->filename[len] = PATH_SEPARATOR;
-	  dir_info->filename[++len] = '\0';
+	  MTABLE_MALLOC (dir_info->filename, len + 2, MERROR_DB);
+	  memcpy (dir_info->filename, dirname, len + 1);
+	  /* Append PATH_SEPARATOR if DIRNAME doesn't end with it.  */
+	  if (dir_info->filename[len - 1] != PATH_SEPARATOR)
+	    {
+	      dir_info->filename[len] = PATH_SEPARATOR;
+	      dir_info->filename[++len] = '\0';
+	    }
+	  dir_info->len = len;
+	  dir_info->status = MDB_STATUS_AUTO;
 	}
-      dir_info->len = len;
-      dir_info->status = MDB_STATUS_AUTO;
+      else
+	dir_info->status = MDB_STATUS_DISABLED;	
     }
   else
     dir_info->status = MDB_STATUS_DISABLED;
@@ -676,7 +682,8 @@ register_databases_in_files (MSymbol tags[4], glob_t *globbuf)
 		: (tags[j] != Mnil && tags[j] != tags2[j]))
 	      break;
 	  if (j == 4)
-	    register_database (tags2, load_database, globbuf->gl_pathv[i], 1);
+	    register_database (tags2, load_database, globbuf->gl_pathv[i],
+			       MDB_STATUS_AUTO);
 	}
       M17N_OBJECT_UNREF (plist);
     }
@@ -789,6 +796,35 @@ mdatabase__update (void)
   char path[PATH_MAX + 1];
   MDatabaseInfo *dir_info;
   struct stat statbuf;
+  int rescan = 0;
+
+  /* Update elements of mdatabase__dir_list.  */
+  MPLIST_DO (plist, mdatabase__dir_list)
+    {
+      dir_info = MPLIST_VAL (plist);
+      if (dir_info->filename)
+	{
+	  enum MDatabaseStatus status;
+
+	  if (stat (dir_info->filename, &statbuf) == 0
+	      && (statbuf.st_mode & S_IFDIR))
+	    status = ((dir_info->time >= statbuf.st_mtime)
+		      ? MDB_STATUS_EXPLICIT : MDB_STATUS_AUTO);
+	  else
+	    status = MDB_STATUS_DISABLED;
+
+	  if (dir_info->status != status)
+	    {
+	      dir_info->status = status;
+	      rescan = 1;
+	    }
+	  else if (dir_info->status == MDB_STATUS_AUTO)
+	    rescan = 1;
+	}
+    }
+
+  if (! rescan)
+    return;
 
   /* At first, mark all databases defined automatically from mdb.dir
      file(s) as "disabled".  */
@@ -818,16 +854,6 @@ mdatabase__update (void)
 	}
     }
 
-  /* Update elements of mdatabase__dir_list.  */
-  MPLIST_DO (plist, mdatabase__dir_list)
-    {
-      dir_info = MPLIST_VAL (plist);
-      dir_info->status = ((dir_info->filename
-			   && stat (dir_info->filename, &statbuf) == 0
-			   && (statbuf.st_mode & S_IFDIR))
-			  ? MDB_STATUS_AUTO : MDB_STATUS_DISABLED);
-    }
-
   MPLIST_DO (plist, mdatabase__dir_list)
     {
       MDatabaseInfo *dir_info = MPLIST_VAL (plist);
@@ -841,8 +867,6 @@ mdatabase__update (void)
 		      MDB_DIR, MDB_DIR_LEN))
 	continue;
       if (stat (path, &statbuf) < 0)
-	continue;
-      if (dir_info->time >= statbuf.st_mtime)
 	continue;
       dir_info->time = statbuf.st_mtime;
       if (! (fp = fopen (path, "r")))
@@ -910,7 +934,7 @@ mdatabase__update (void)
 	    }
 	  else
 	    {
-	      register_database (tags, load_database, path, 1);
+	      register_database (tags, load_database, path, MDB_STATUS_AUTO);
 	    }
 	}
       M17N_OBJECT_UNREF (pl);
@@ -1300,7 +1324,7 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
   tags[0] = tag0, tags[1] = tag1, tags[2] = tag2, tags[3] = tag3;
   if (! loader)
     loader = load_database;
-  mdb = register_database (tags, loader, extra_info, 0);
+  mdb = register_database (tags, loader, extra_info, MDB_STATUS_EXPLICIT);
   return mdb;
 }
 

@@ -1281,7 +1281,7 @@ ButtonProc (Widget w, XEvent *event, String *str, Cardinal *num)
     {
       MText *produced = mtext ();
 
-          minput_lookup (current_input_context, Mnil, NULL, produced);
+      minput_lookup (current_input_context, Mnil, NULL, produced);
       if (mtext_len (produced) > 0)
 	{
 	  insert_chars (produced);
