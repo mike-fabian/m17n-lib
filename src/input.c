@@ -528,9 +528,15 @@ delete_surrounding_text (MInputContext *ic, int pos)
   minput__callback (ic, Minput_delete_surrounding_text);
   mplist_pop (ic->plist);
   if (pos < 0)
-    M17N_OBJECT_UNREF (ic_info->preceding_text);
+    {
+      M17N_OBJECT_UNREF (ic_info->preceding_text);
+      ic_info->preceding_text = NULL;
+    }
   else if (pos > 0)
-    M17N_OBJECT_UNREF (ic_info->following_text);
+    {
+      M17N_OBJECT_UNREF (ic_info->following_text);
+      ic_info->following_text = NULL;
+    }
 }
 
 static int
@@ -2308,7 +2314,12 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (state != orig_state)
     {
       if (state == (MIMState *) MPLIST_VAL (im_info->states))
-	ic_info->prev_state = NULL;
+	{
+	  /* Shifted to the initial state.  */
+	  ic_info->prev_state = NULL;
+	  M17N_OBJECT_UNREF (ic_info->vars_saved);
+	  ic_info->vars_saved = mplist_copy (ic_info->vars);
+	}
       else
 	ic_info->prev_state = orig_state;
 
@@ -2418,16 +2429,6 @@ preedit_commit (MInputContext *ic)
       mtext_put_prop_values (ic->preedit, 0, mtext_nchars (ic->preedit),
 			     Mcandidate_index, NULL, 0);
       mtext_cat (ic->produced, ic->preedit);
-      if ((mdebug__flag & mdebug_mask)
-	  && mtext_nchars (ic->preedit) > 0)
-	{
-	  int i;
-
-	  MDEBUG_PRINT (" (produced");
-	  for (i = 0; i < mtext_nchars (ic->preedit); i++)
-	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->preedit, i));
-	  MDEBUG_PRINT (")");
-	}
       mtext_reset (ic->preedit);
       mtext_reset (ic_info->preedit_saved);
       MPLIST_DO (p, ic_info->markers)
@@ -2446,10 +2447,6 @@ preedit_commit (MInputContext *ic)
 	  ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;
 	}
     }
-  memmove (ic_info->keys, ic_info->keys + ic_info->key_head,
-	   sizeof (int) * (ic_info->used - ic_info->key_head));
-  ic_info->used -= ic_info->key_head;
-  ic_info->state_key_head = ic_info->key_head = 0;
 }
 
 static int
@@ -2651,14 +2648,9 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 
   plist = MPLIST_PLIST (args);
   if (charset)
-    {
-      if (! (plist = adjust_candidates (plist, charset)))
-	return NULL;
-    }
-  else
-    M17N_OBJECT_REF (plist);
+    plist = adjust_candidates (plist, charset);
 
-  if (column > 0)
+  if (plist && column > 0)
     {
       if (MPLIST_MTEXT_P (plist))
 	{
@@ -2858,7 +2850,6 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_index, (void *) 0);
-	  M17N_OBJECT_UNREF (plist);
 	}
       else if (name == Mselect)
 	{
@@ -3101,14 +3092,24 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
 	  mtext_reset (ic->preedit);
 	  mtext_reset (ic_info->preedit_saved);
+	  mtext_reset (ic->produced);
+	  M17N_OBJECT_UNREF (ic_info->vars);
+	  ic_info->vars = mplist_copy (ic_info->vars_saved);
 	  ic->cursor_pos = ic_info->state_pos = 0;
 	  ic_info->state_key_head = ic_info->key_head = 0;
 
+	  shift_state (ic, Mnil);
 	  if (intarg < 0)
-	    ic_info->used += intarg;
+	    {
+	      if (MPLIST_TAIL_P (args))
+		{
+		  ic_info->used = 0;
+		  return -1;
+		}
+	      ic_info->used += intarg;
+	    }
 	  else
 	    ic_info->used = intarg;
-	  shift_state (ic, Mnil);
 	  break;
 	}
       else if (name == Mset || name == Madd || name == Msub
@@ -3217,7 +3218,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
     }
 
-  M17N_OBJECT_UNREF (ic->candidate_list);
+  if (ic->candidate_list)
+    {
+      M17N_OBJECT_UNREF (ic->candidate_list);
+      ic->candidate_list = NULL;
+    }
   if (ic->cursor_pos > 0
       && (prop = mtext_get_property (ic->preedit, ic->cursor_pos - 1,
 				     Mcandidate_list)))
@@ -3402,6 +3407,7 @@ init_ic_info (MInputContext *ic)
 	    mplist_add (p, MPLIST_KEY (pl), MPLIST_VAL (pl));
 	  }
       }
+  ic_info->vars_saved = mplist_copy (ic_info->vars);
 
   if (im_info->externals)
     {
@@ -3453,6 +3459,7 @@ fini_ic_info (MInputContext *ic)
   M17N_OBJECT_UNREF (ic_info->preedit_saved);
   M17N_OBJECT_UNREF (ic_info->markers);
   M17N_OBJECT_UNREF (ic_info->vars);
+  M17N_OBJECT_UNREF (ic_info->vars_saved);
   M17N_OBJECT_UNREF (ic_info->preceding_text);
   M17N_OBJECT_UNREF (ic_info->following_text);
 
@@ -3474,6 +3481,7 @@ re_init_ic (MInputContext *ic, int reload)
     {
       candidates_changed |= MINPUT_CANDIDATES_LIST_CHANGED;
       M17N_OBJECT_UNREF (ic->candidate_list);
+      ic->candidate_list = NULL;
     }
   if (ic->candidate_show)
     {
@@ -3621,6 +3629,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 0;
   M17N_OBJECT_UNREF (ic_info->preceding_text);
   M17N_OBJECT_UNREF (ic_info->following_text);
+  ic_info->preceding_text = ic_info->following_text = NULL;
   MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
   ic_info->key_unhandled = 0;
 
@@ -3633,6 +3642,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	    memmove (ic_info->keys, ic_info->keys + 1,
 		     sizeof (int) * (ic_info->used - 1));
 	    ic_info->used--;
+	    if (ic_info->state_key_head > 0)
+	      ic_info->state_key_head--;	      
 	  }
 	/* This forces returning 1.  */
 	ic_info->key_unhandled = 1;
@@ -3650,17 +3661,38 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 
   /* If the current map is the root of the initial state, we should
      produce any preedit text in ic->produced.  */
-  if (ic_info->map == ((MIMState *) MPLIST_VAL (im_info->states))->map
-      && mtext_nchars (ic->preedit) > 0)
-    shift_state (ic, ((MIMState *) MPLIST_VAL (im_info->states))->name);
+  if (ic_info->map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
+    preedit_commit (ic);
 
   if (mtext_nchars (ic->produced) > 0)
     {
       MSymbol lang = msymbol_get (ic->im->language, Mlanguage);
 
+      if (mdebug__flag & mdebug_mask)
+	{
+	  MDEBUG_PRINT (" (produced");
+	  for (i = 0; i < mtext_nchars (ic->produced); i++)
+	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->produced, i));
+	  MDEBUG_PRINT (")");
+	}
+
       if (lang != Mnil)
 	mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
 			Mlanguage, ic->im->language);
+      if (ic_info->state_key_head > 0)
+	{
+	  memmove (ic_info->keys, ic_info->keys + ic_info->state_key_head,
+		   sizeof (int) * (ic_info->used - ic_info->state_key_head));
+	  ic_info->used -= ic_info->state_key_head;
+	  ic_info->key_head -= ic_info->state_key_head;
+	  ic_info->state_key_head = 0;
+	}
+    }
+
+  if (ic_info->key_unhandled)
+    {
+      ic_info->used = 0;
+      ic_info->key_head = ic_info->state_key_head = 0;
     }
 
   return (! ic_info->key_unhandled && mtext_nchars (ic->produced) == 0);
