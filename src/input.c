@@ -1935,7 +1935,7 @@ load_variables (MInputMethodInfo *im_info, MPlist *plist)
 	      /* P ::= ((NAME DESC ...) ...) */
 	      p = MPLIST_PLIST (p); /* P ::= (NAME DESC ...) */
 	      global = MPLIST_NEXT (p); /* P ::= (DESC VALUE ...) */
-	      global = MPLIST_NEXT (p); /* P ::= (VALUE ...) */
+	      global = MPLIST_NEXT (global); /* P ::= (VALUE ...) */
 	    }
 
 	  p = MPLIST_NEXT (pl);	/* P ::= (DESC VALUE VALID ...) */
