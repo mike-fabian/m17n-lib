@@ -1,3 +1,12 @@
+2006-10-19  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (load_variables): Fix setting of `global'.
+
+2006-10-16  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (draw_background): Be sure to set *to_x.
+	(render_glyph_string): If from == to, just return.
+
 2006-10-18  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (get_dir_info): Return NULL if the directory name is
