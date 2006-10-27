@@ -2184,7 +2184,7 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
     {
       int len = (int) mplist_value (ic->plist);
       int pos;
-      MText *surround = NULL;
+      MText *surround;
 
       if (len < 0)
 	{
@@ -2200,11 +2200,10 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 	    pos = nchars;
 	  surround = mtext_duplicate (mt, cursor.from, pos);
 	}
-      if (surround)
-	{
-	  mplist_set (ic->plist, Mtext, surround);
-	  m17n_object_unref (surround);
-	}
+      else
+	surround = mtext ();
+      mplist_set (ic->plist, Mtext, surround);
+      m17n_object_unref (surround);
     }
   else if (command == Minput_delete_surrounding_text)
     {
