@@ -2953,7 +2953,6 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  if (MPLIST_SYMBOL_P (args)
 	      && (pos = surrounding_pos (MPLIST_SYMBOL (args))) != 0)
 	    {
-	      delete_surrounding_text (ic, pos);
 	      to = ic->cursor_pos + pos;
 	      if (to < 0)
 		{
