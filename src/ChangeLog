@@ -4,6 +4,8 @@
 	(surrounding_pos): Check if name[0] == '@'.
 	(integer_value): Fix for the change semantics of `@-N' and `@+N'.
 	(take_action_list): Likewise.
+	(get_preceding_char): If POS is zero, always call
+	get_surrounding_text.
 
 2006-10-19  Kenichi Handa  <handa@m17n.org>
 
