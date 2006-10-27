@@ -2954,6 +2954,17 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      && (pos = surrounding_pos (MPLIST_SYMBOL (args))) != 0)
 	    {
 	      delete_surrounding_text (ic, pos);
+	      to = ic->cursor_pos + pos;
+	      if (to < 0)
+		{
+		  delete_surrounding_text (ic, to);
+		  to = 0;
+		}
+	      else if (to > len)
+		{
+		  delete_surrounding_text (ic, to - len);
+		  to = len;
+		}
 	    }
 	  else
 	    {
@@ -2965,12 +2976,12 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		to = 0;
 	      else if (to > len)
 		to = len;
-	      MDEBUG_PRINT1 ("(%d)", to - ic->cursor_pos);
-	      if (to < ic->cursor_pos)
-		preedit_delete (ic, to, ic->cursor_pos);
-	      else if (to > ic->cursor_pos)
-		preedit_delete (ic, ic->cursor_pos, to);
 	    }
+	  MDEBUG_PRINT1 ("(%d)", to - ic->cursor_pos);
+	  if (to < ic->cursor_pos)
+	    preedit_delete (ic, to, ic->cursor_pos);
+	  else if (to > ic->cursor_pos)
+	    preedit_delete (ic, ic->cursor_pos, to);
 	}
       else if (name == Mmove)
 	{
