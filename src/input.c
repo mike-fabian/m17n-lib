@@ -547,7 +547,7 @@ get_preceding_char (MInputContext *ic, int pos)
   MText *mt;
   int len;
 
-  if (ic_info->preceding_text)
+  if (pos && ic_info->preceding_text)
     {
       len = mtext_nchars (ic_info->preceding_text);
       if (pos <= len)
