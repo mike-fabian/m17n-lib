@@ -469,21 +469,22 @@ fully_initialize ()
 
 
 static int
-marker_code (MSymbol sym)
+marker_code (MSymbol sym, int surrounding)
 {
   char *name;
 
   if (sym == Mnil)
     return -1;
   name = MSYMBOL_NAME (sym);
-  return ((name[0] == '@'
-	   && ((name[1] >= '0' && name[1] <= '9')
-	       || name[1] == '<' || name[1] == '>'
-	       || name[1] == '=' || name[1] == '+' || name[1] == '-'
-	       || name[1] == '[' || name[1] == ']'
-	       || name[1] == '@')
-	   && name[2] == '\0')
-	  ? name[1] : -1);
+  return (name[0] != '@' ? -1
+	  : (((name[1] >= '0' && name[1] <= '9')
+	      || name[1] == '<' || name[1] == '>' || name[1] == '='
+	      || name[1] == '[' || name[1] == ']'
+	      || name[1] == '@')
+	     && name[2] == '\0') ? name[1]
+	  : (name[1] != '+' && name[1] != '-') ? -1
+	  : (name[2] == '\0' || surrounding) ? name[1]
+	  : -1);
 }
 
 
@@ -611,7 +612,8 @@ surrounding_pos (MSymbol sym)
   if (sym == Mnil)
     return 0;
   name = MSYMBOL_NAME (sym);
-  if ((name[1] == '-' || name[1] == '+')
+  if (name[0] == '@'
+      && (name[1] == '-' || name[1] == '+')
       && name[2] >= '1' && name[2] <= '9')
     return (name[1] == '-' ? - atoi (name + 2) : atoi (name + 2));
   return 0;
@@ -621,7 +623,7 @@ static int
 integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
-  int code;
+  int code, pos;
   MText *preedit = ic->preedit;
   int len = mtext_nchars (preedit);
 
@@ -629,12 +631,8 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
     *value = NULL;
   if (MPLIST_INTEGER_P (arg))
     return MPLIST_INTEGER (arg);
-  if (surrounding
-      && (surrounding = surrounding_pos (MPLIST_SYMBOL (arg))) != 0)
-    return (surrounding < 0
-	    ? get_preceding_char (ic, - surrounding)
-	    : get_following_char (ic, surrounding));
-  code = marker_code (MPLIST_SYMBOL (arg));
+
+  code = marker_code (MPLIST_SYMBOL (arg), surrounding);
   if (code < 0)
     {
       MPlist *val = resolve_variable (ic_info, MPLIST_SYMBOL (arg));
@@ -645,19 +643,37 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
     }
   if (code == '@')
     return ic_info->key_head;
-  if (code >= '0' && code <= '9')
-    code -= '0';
+  if ((code == '-' || code == '+'))
+    {
+      char *name = MSYMBOL_NAME (MPLIST_SYMBOL (arg));
+
+      if (name[2])
+	{
+	  pos = atoi (name + 1);
+	  if (pos == 0)
+	    return get_preceding_char (ic, 0);
+	  pos = ic->cursor_pos + pos;
+	  if (pos < 0)
+	    return get_preceding_char (ic, - pos);
+	  if (pos >= len)
+	    return get_following_char (ic, pos - len + 1);
+	}
+      else
+	pos = ic->cursor_pos + (code == '+' ? 1 : -1);
+    }
+  else if (code >= '0' && code <= '9')
+    pos = code - '0';
   else if (code == '=')
-    code = ic->cursor_pos;
-  else if (code == '-' || code == '[')
-    code = ic->cursor_pos - 1;
-  else if (code == '+' || code == ']')
-    code = ic->cursor_pos + 1;
+    pos = ic->cursor_pos;
+  else if (code == '[')
+    pos = ic->cursor_pos - 1;
+  else if (code == ']')
+    pos = ic->cursor_pos + 1;
   else if (code == '<')
-    code = 0;
+    pos = 0;
   else if (code == '>')
-    code = len;
-  return (code >= 0 && code < len ? mtext_ref_char (preedit, code) : -1);
+    pos = len - 1;
+  return (pos >= 0 && pos < len ? mtext_ref_char (preedit, pos) : -1);
 }
 
 static int
@@ -2452,7 +2468,7 @@ preedit_commit (MInputContext *ic)
 static int
 new_index (MInputContext *ic, int current, int limit, MSymbol sym, MText *mt)
 {
-  int code = marker_code (sym);
+  int code = marker_code (sym, 0);
 
   if (mt && (code == '[' || code == ']'))
     {
@@ -2864,7 +2880,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    continue;
 	  if (MPLIST_SYMBOL_P (args))
 	    {
-	      code = marker_code (MPLIST_SYMBOL (args));
+	      code = marker_code (MPLIST_SYMBOL (args), 0);
 	      if (code < 0)
 		continue;
 	    }
@@ -2977,7 +2993,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == Mmark)
 	{
-	  int code = marker_code (MPLIST_SYMBOL (args));
+	  int code = marker_code (MPLIST_SYMBOL (args), 0);
 
 	  if (code < 0)
 	    mplist_put (ic_info->markers, MPLIST_SYMBOL (args),
@@ -3062,7 +3078,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
 	      if (MPLIST_KEY (args) == Msymbol
 		  && MPLIST_KEY (args) != Mnil
-		  && (code = marker_code (MPLIST_SYMBOL (args))) >= 0)
+		  && (code = marker_code (MPLIST_SYMBOL (args), 0)) >= 0)
 		{
 		  code = new_index (ic, ic->cursor_pos, 
 				    mtext_nchars (ic->preedit),
