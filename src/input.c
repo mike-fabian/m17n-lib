@@ -2420,7 +2420,7 @@ preedit_delete (MInputContext *ic, int from, int to)
       if (MPLIST_INTEGER (markers) > to)
 	MPLIST_VAL (markers)
 	  = (void *) (MPLIST_INTEGER (markers) - (to - from));
-      else if (MPLIST_INTEGER (markers) > from);
+      else if (MPLIST_INTEGER (markers) > from)
 	MPLIST_VAL (markers) = (void *) from;
     }
   if (ic->cursor_pos >= to)
@@ -2873,31 +2873,41 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  int code, idx, gindex;
 	  int pos = ic->cursor_pos;
 	  MPlist *group;
+	  int idx_decided = 0;
 
 	  if (pos == 0
 	      || ! (prop = mtext_get_property (ic->preedit, pos - 1,
 					       Mcandidate_list)))
 	    continue;
+	  idx = (int) mtext_get_prop (ic->preedit, pos - 1, Mcandidate_index);
+	  group = find_candidates_group (mtext_property_value (prop), idx,
+					 &start, &end, &gindex);
 	  if (MPLIST_SYMBOL_P (args))
 	    {
 	      code = marker_code (MPLIST_SYMBOL (args), 0);
 	      if (code < 0)
-		continue;
+		{
+		  args = resolve_variable (ic_info, MPLIST_SYMBOL (args));
+		  if (! MPLIST_INTEGER_P (args))
+		    continue;
+		  idx = start + MPLIST_INTEGER (args);
+		  if (idx < start || idx >= end)
+		    continue;
+		  idx_decided = 1;
+		}		  
 	    }
 	  else
 	    code = -1;
-	  idx = (int) mtext_get_prop (ic->preedit, pos - 1, Mcandidate_index);
-	  group = find_candidates_group (mtext_property_value (prop), idx,
-					 &start, &end, &gindex);
 
 	  if (code != '[' && code != ']')
 	    {
-	      idx = (start
-		     + (code >= 0
-			? new_index (NULL, ic->candidate_index - start,
-				     end - start - 1, MPLIST_SYMBOL (args),
-				     NULL)
-			: MPLIST_INTEGER (args)));
+	      if (! idx_decided)
+		idx = (start
+		       + (code >= 0
+			  ? new_index (NULL, ic->candidate_index - start,
+				       end - start - 1, MPLIST_SYMBOL (args),
+				       NULL)
+			  : MPLIST_INTEGER (args)));
 	      if (idx < 0)
 		{
 		  find_candidates_group (mtext_property_value (prop), -1,
@@ -2939,6 +2949,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      idx += ingroup_index;
 	    }
 	  update_candidate (ic, prop, idx);
+	  MDEBUG_PRINT1 ("(%d)", idx);
 	}
       else if (name == Mshow)
 	ic->candidate_show = 1;
@@ -3000,25 +3011,42 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      ic->cursor_pos = pos;
 	      ic->preedit_changed = 1;
 	    }
+	  MDEBUG_PRINT1 ("(%d)", ic->cursor_pos);
 	}
       else if (name == Mmark)
 	{
 	  int code = marker_code (MPLIST_SYMBOL (args), 0);
 
 	  if (code < 0)
-	    mplist_put (ic_info->markers, MPLIST_SYMBOL (args),
-			(void *) ic->cursor_pos);
+	    {
+	      mplist_put (ic_info->markers, MPLIST_SYMBOL (args),
+			  (void *) ic->cursor_pos);
+	      MDEBUG_PRINT1 ("(%d)", ic->cursor_pos);
+	    }
 	}
       else if (name == Mpushback)
 	{
-	  if (MPLIST_INTEGER_P (args))
+	  if (MPLIST_INTEGER_P (args) || MPLIST_SYMBOL_P (args))
 	    {
-	      int num = MPLIST_INTEGER (args);
+	      int num;
+
+	      if (MPLIST_SYMBOL_P (args))
+		{
+		  args = resolve_variable (ic_info, MPLIST_SYMBOL (args));
+		  if (MPLIST_INTEGER_P (args))
+		    num = MPLIST_INTEGER (args);
+		  else
+		    num = 0;
+		}
+	      else
+		num = MPLIST_INTEGER (args);
 
 	      if (num > 0)
 		ic_info->key_head -= num;
+	      else if (num == 0)
+		ic_info->key_head = 0;
 	      else
-		ic_info->key_head = num;
+		ic_info->key_head = - num;
 	      if (ic_info->key_head > ic_info->used)
 		ic_info->key_head = ic_info->used;
 	    }
