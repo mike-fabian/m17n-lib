@@ -434,7 +434,7 @@ gen_database_name (char *buf, MSymbol *tags)
   strcpy (buf, msymbol_name (tags[0]));
   for (i = 1; i < 4; i++)
     {
-      strcat (buf, ", ");
+      strcat (buf, ",");
       strcat (buf, msymbol_name (tags[i]));
     }
   return buf;
@@ -492,9 +492,20 @@ load_database (MSymbol *tags, void *extra_info)
   void *value;
   char *filename = get_database_file (db_info, NULL);
   FILE *fp;
+  int mdebug_mask = MDEBUG_DATABASE;
+  char buf[256];
 
+  MDEBUG_PRINT1 (" [DB] <%s>", gen_database_name (buf, tags));
   if (! filename || ! (fp = fopen (filename, "r")))
-    MERROR (MERROR_DB, NULL);
+    {
+      if (filename)
+	MDEBUG_PRINT1 (" open fail: %s\n", filename);
+      else
+	MDEBUG_PRINT1 (" not found: %s\n", db_info->filename);
+      MERROR (MERROR_DB, NULL);
+    }
+
+  MDEBUG_PRINT1 (" from %s\n", filename);
 
   if (tags[0] == Mchar_table)
     value = load_chartable (fp, tags[1]);
@@ -652,7 +663,7 @@ register_database (MSymbol tags[4], void *(*loader) (MSymbol *, void *),
 }
 
 static void
-register_databases_in_files (MSymbol tags[4], glob_t *globbuf)
+register_databases_in_files (MSymbol tags[4], glob_t *globbuf, int headlen)
 {
   int i, j;
   MPlist *load_key = mplist ();
@@ -682,7 +693,8 @@ register_databases_in_files (MSymbol tags[4], glob_t *globbuf)
 		: (tags[j] != Mnil && tags[j] != tags2[j]))
 	      break;
 	  if (j == 4)
-	    register_database (tags2, load_database, globbuf->gl_pathv[i],
+	    register_database (tags2, load_database,
+			       globbuf->gl_pathv[i] + headlen,
 			       MDB_STATUS_AUTO);
 	}
       M17N_OBJECT_UNREF (plist);
@@ -913,7 +925,7 @@ mdatabase__update (void)
 		{
 		  if (glob (path, GLOB_NOSORT, NULL, &globbuf))
 		    continue;
-		  register_databases_in_files (tags, &globbuf);
+		  register_databases_in_files (tags, &globbuf, 0);
 		  globfree (&globbuf);
 		}
 	      else
@@ -928,7 +940,7 @@ mdatabase__update (void)
 		      continue;
 		    if (glob (path, GLOB_NOSORT, NULL, &globbuf))
 		      continue;
-		    register_databases_in_files (tags, &globbuf);
+		    register_databases_in_files (tags, &globbuf, d_info->len);
 		    globfree (&globbuf);
 		  }
 	    }
@@ -955,7 +967,7 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
       || mdb->tag[0] == Mchar_table
       || mdb->tag[0] == Mcharset)
     MERROR (MERROR_DB, NULL);
-  MDEBUG_PRINT1 (" [DATABASE] loading <%s>.\n",
+  MDEBUG_PRINT1 (" [DB]  <%s>.\n",
 		 gen_database_name (name, mdb->tag));
   db_info = mdb->extra_info;
   filename = get_database_file (db_info, NULL);
@@ -1385,11 +1397,6 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 void *
 mdatabase_load (MDatabase *mdb)
 {
-  int mdebug_mask = MDEBUG_DATABASE;
-  char buf[256];
-
-  MDEBUG_PRINT1 (" [DATABASE] loading <%s>.\n",
-		 gen_database_name (buf, mdb->tag));
   return (*mdb->loader) (mdb->tag, mdb->extra_info);
 }
 
