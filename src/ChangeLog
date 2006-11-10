@@ -1,5 +1,7 @@
 2006-11-10  Kenichi Handa  <handa@m17n.org>
 
+	* input.h (MInputContextInfo): New member commit_key_head.
+
 	* input.c (preedit_commit): Update ic_info->commit_key_head.
 	(take_action_list): Reset ic_info->commit_key_head on Mundo.
 	(filter): When committed, shift keys by ic_info->commit_key_head.
