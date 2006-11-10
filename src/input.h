@@ -65,6 +65,9 @@ typedef struct
   /** Index of the key not yet handled.  */
   int key_head;
 
+  /** Index of the key at the time of committing.  */
+  int commit_key_head;
+
   /** Saved M-text when entered in the current state.  */
   MText *preedit_saved;
 
