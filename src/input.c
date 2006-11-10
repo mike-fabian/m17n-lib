@@ -2451,6 +2451,7 @@ preedit_commit (MInputContext *ic)
 	MPLIST_VAL (p) = 0;
       ic->cursor_pos = ic_info->state_pos = 0;
       ic->preedit_changed = 1;
+      ic_info->commit_key_head = ic_info->key_head;
     }
   if (ic->candidate_list)
     {
@@ -3150,7 +3151,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  M17N_OBJECT_UNREF (ic_info->vars);
 	  ic_info->vars = mplist_copy (ic_info->vars_saved);
 	  ic->cursor_pos = ic_info->state_pos = 0;
-	  ic_info->state_key_head = ic_info->key_head = 0;
+	  ic_info->state_key_head = ic_info->key_head
+	    = ic_info->commit_key_head = 0;
 
 	  shift_state (ic, Mnil);
 	  if (intarg < 0)
@@ -3697,7 +3699,9 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 		     sizeof (int) * (ic_info->used - 1));
 	    ic_info->used--;
 	    if (ic_info->state_key_head > 0)
-	      ic_info->state_key_head--;	      
+	      ic_info->state_key_head--;
+	    if (ic_info->commit_key_head > 0)
+	      ic_info->commit_key_head--;	      
 	  }
 	/* This forces returning 1.  */
 	ic_info->key_unhandled = 1;
@@ -3733,20 +3737,22 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       if (lang != Mnil)
 	mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
 			Mlanguage, ic->im->language);
-      if (ic_info->state_key_head > 0)
+      if (ic_info->commit_key_head > 0)
 	{
-	  memmove (ic_info->keys, ic_info->keys + ic_info->state_key_head,
-		   sizeof (int) * (ic_info->used - ic_info->state_key_head));
-	  ic_info->used -= ic_info->state_key_head;
-	  ic_info->key_head -= ic_info->state_key_head;
-	  ic_info->state_key_head = 0;
+	  memmove (ic_info->keys, ic_info->keys + ic_info->commit_key_head,
+		   sizeof (int) * (ic_info->used - ic_info->commit_key_head));
+	  ic_info->used -= ic_info->commit_key_head;
+	  ic_info->key_head -= ic_info->commit_key_head;
+	  ic_info->state_key_head -= ic_info->commit_key_head;
+	  ic_info->commit_key_head = 0;
 	}
     }
 
   if (ic_info->key_unhandled)
     {
       ic_info->used = 0;
-      ic_info->key_head = ic_info->state_key_head = 0;
+      ic_info->key_head = ic_info->state_key_head
+	= ic_info->commit_key_head = 0;
     }
 
   return (! ic_info->key_unhandled && mtext_nchars (ic->produced) == 0);
