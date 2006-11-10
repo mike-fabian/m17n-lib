@@ -1,3 +1,9 @@
+2006-11-10  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (preedit_commit): Update ic_info->commit_key_head.
+	(take_action_list): Reset ic_info->commit_key_head on Mundo.
+	(filter): When committed, shift keys by ic_info->commit_key_head.
+
 2006-10-27  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (marker_code): New arg surrounding.  Callers changed.
