@@ -855,8 +855,7 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	      if (! MPLIST_TAIL_P (pl))
 		{
 		  if (! MPLIST_SYMBOL_P (pl)
-		      && (! MPLIST_INTEGER_P (pl)
-			  || MPLIST_INTEGER (pl) == 0))
+		      && ! MPLIST_INTEGER_P (pl))
 		    MERROR (MERROR_IM, -1);		    
 		}
 	    }
@@ -2388,22 +2387,53 @@ find_candidates_group (MPlist *plist, int index,
   return NULL;
 }
 
+/* Adjust markers for the change of preedit text.
+   If FROM == TO, the change is insertion of INS chars.
+   If FROM < TO and INS == 0, the change is deletion of the range.
+   If FROM < TO and INS > 0, the change is replacement.  */
+
 static void
-preedit_insert (MInputContext *ic, int pos, MText *mt, int c)
+adjust_markers (MInputContext *ic, int from, int to, int ins)
 {
   MInputContextInfo *ic_info = ((MInputContext *) ic)->info;
   MPlist *markers;
+
+  if (from == to)
+    {
+      MPLIST_DO (markers, ic_info->markers)
+	if (MPLIST_INTEGER (markers) > from)
+	  MPLIST_VAL (markers) = (void *) (MPLIST_INTEGER (markers) + ins);
+      if (ic->cursor_pos >= from)
+	ic->cursor_pos += ins;
+    }
+  else
+    {
+      MPLIST_DO (markers, ic_info->markers)
+	{
+	  if (MPLIST_INTEGER (markers) >= to)
+	    MPLIST_VAL (markers)
+	      = (void *) (MPLIST_INTEGER (markers) + ins - (to - from));
+	  else if (MPLIST_INTEGER (markers) > from)
+	    MPLIST_VAL (markers) = (void *) from;
+	}
+      if (ic->cursor_pos >= to)
+	ic->cursor_pos += ins - (to - from);
+      else if (ic->cursor_pos > from)
+	ic->cursor_pos = from;
+    }
+}
+
+
+static void
+preedit_insert (MInputContext *ic, int pos, MText *mt, int c)
+{
   int nchars = mt ? mtext_nchars (mt) : 1;
 
   if (mt)
     mtext_ins (ic->preedit, pos, mt);
   else
     mtext_ins_char (ic->preedit, pos, c, 1);
-  MPLIST_DO (markers, ic_info->markers)
-    if (MPLIST_INTEGER (markers) > pos)
-      MPLIST_VAL (markers) = (void *) (MPLIST_INTEGER (markers) + nchars);
-  if (ic->cursor_pos >= pos)
-    ic->cursor_pos += nchars;
+  adjust_markers (ic, pos, pos, nchars);
   ic->preedit_changed = 1;
 }
 
@@ -2411,24 +2441,31 @@ preedit_insert (MInputContext *ic, int pos, MText *mt, int c)
 static void
 preedit_delete (MInputContext *ic, int from, int to)
 {
-  MInputContextInfo *ic_info = ((MInputContext *) ic)->info;
-  MPlist *markers;
-
   mtext_del (ic->preedit, from, to);
-  MPLIST_DO (markers, ic_info->markers)
-    {
-      if (MPLIST_INTEGER (markers) > to)
-	MPLIST_VAL (markers)
-	  = (void *) (MPLIST_INTEGER (markers) - (to - from));
-      else if (MPLIST_INTEGER (markers) > from)
-	MPLIST_VAL (markers) = (void *) from;
-    }
-  if (ic->cursor_pos >= to)
-    ic->cursor_pos -= to - from;
-  else if (ic->cursor_pos > from)
-    ic->cursor_pos = from;
+  adjust_markers (ic, from, to, 0);
   ic->preedit_changed = 1;
 }
+
+static void
+preedit_replace (MInputContext *ic, int from, int to, MText *mt, int c)
+{
+  int ins;
+
+  mtext_del (ic->preedit, from, to);
+  if (mt)
+    {
+      mtext_ins (ic->preedit, from, mt);
+      ins = mtext_nchars (mt);
+    }
+  else
+    {
+      mtext_ins_char (ic->preedit, from, c, 1);
+      ins = 1;
+    }
+  adjust_markers (ic, from, to, ins);
+  ic->preedit_changed = 1;
+}
+
 
 static void
 preedit_commit (MInputContext *ic)
@@ -2513,11 +2550,10 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
   int ingroup_index = idx - start;
   MText *mt;
 
-  preedit_delete (ic, from, to);
   if (MPLIST_MTEXT_P (group))
     {
       mt = MPLIST_MTEXT (group);
-      preedit_insert (ic, from, NULL, mtext_ref_char (mt, ingroup_index));
+      preedit_replace (ic, from, to, NULL, mtext_ref_char (mt, ingroup_index));
       to = from + 1;
     }
   else
@@ -2528,7 +2564,7 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
       for (i = 0, plist = MPLIST_PLIST (group); i < ingroup_index;
 	   i++, plist = MPLIST_NEXT (plist));
       mt = MPLIST_MTEXT (plist);
-      preedit_insert (ic, from, mt, 0);
+      preedit_replace (ic, from, to, mt, 0);
       to = from + mtext_nchars (mt);
     }
   mtext_put_prop (ic->preedit, from, to, Mcandidate_list, candidate_list);
@@ -3737,17 +3773,16 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       if (lang != Mnil)
 	mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
 			Mlanguage, ic->im->language);
-      if (ic_info->commit_key_head > 0)
-	{
-	  memmove (ic_info->keys, ic_info->keys + ic_info->commit_key_head,
-		   sizeof (int) * (ic_info->used - ic_info->commit_key_head));
-	  ic_info->used -= ic_info->commit_key_head;
-	  ic_info->key_head -= ic_info->commit_key_head;
-	  ic_info->state_key_head -= ic_info->commit_key_head;
-	  ic_info->commit_key_head = 0;
-	}
     }
-
+  if (ic_info->commit_key_head > 0)
+    {
+      memmove (ic_info->keys, ic_info->keys + ic_info->commit_key_head,
+	       sizeof (int) * (ic_info->used - ic_info->commit_key_head));
+      ic_info->used -= ic_info->commit_key_head;
+      ic_info->key_head -= ic_info->commit_key_head;
+      ic_info->state_key_head -= ic_info->commit_key_head;
+      ic_info->commit_key_head = 0;
+    }
   if (ic_info->key_unhandled)
     {
       ic_info->used = 0;
