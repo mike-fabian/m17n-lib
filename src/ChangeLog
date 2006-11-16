@@ -1,3 +1,14 @@
+2006-11-16  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (parse_action_list): Allow (undo 0).
+	(adjust_markers): New function.
+	(preedit_insert, preedit_delete): Call adjust_markers.
+	(preedit_replace): New function.
+	(update_candidate): Call preedit_replace instead of preedit_insert
+	and preedit_delete.
+	(filter): When ic_info->commit_key_head is nonzero, shift input
+	event keys even if there's no committed text.
+
 2006-11-10  Kenichi Handa  <handa@m17n.org>
 
 	* input.h (MInputContextInfo): New member commit_key_head.
