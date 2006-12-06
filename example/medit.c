@@ -120,7 +120,7 @@
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/MenuButton.h>
 
-#define VERSION "1.2.0"
+#define VERSION "1.3.4"
 
 /* Global variables.  */
 
