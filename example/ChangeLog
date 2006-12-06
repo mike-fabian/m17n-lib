@@ -2,8 +2,6 @@
 
 	* Version 1.3.4 released.
 
-	* mview.c (VERSION): Changed to 1.3.4.
-
 	* mdump.c (PROGRAM_VERSION): Changed to 1.3.4.
 
 	* mdate.c (VERSION): Changed to 1.3.4.

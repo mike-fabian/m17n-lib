@@ -115,7 +115,7 @@
 #include <X11/Xaw/Command.h>
 #include <X11/Xaw/Viewport.h>
 
-#define VERSION "1.2.0"
+#define VERSION "1.3.4"
 
 /* Global m17n variables.  */
 MFrame *frame;
