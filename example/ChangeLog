@@ -2,6 +2,16 @@
 
 	* Version 1.3.4 released.
 
+	* mview.c (VERSION): Changed to 1.3.4.
+
+	* mdump.c (PROGRAM_VERSION): Changed to 1.3.4.
+
+	* mdate.c (VERSION): Changed to 1.3.4.
+
+	* medit.c (VERSION): Changed to 1.3.4.
+
+	* mconv.c (VERSION): Changed to 1.3.4.
+
 2006-10-27  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (surrounding_text_handler): Be sure to set surround text
