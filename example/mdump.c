@@ -255,7 +255,7 @@
 #include <m17n-gui.h>
 #include <m17n-misc.h>
 
-#define PROGRAM_VERSION "1.1"
+#define PROGRAM_VERSION "1.3.4"
 
 /* Enumuration of the supported paper types.  */
 enum paper_type
