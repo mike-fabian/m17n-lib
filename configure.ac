@@ -18,8 +18,8 @@ dnl Lesser General Public License for more details.
 
 dnl You should have received a copy of the GNU Lesser General Public
 dnl License along with the m17n library; if not, write to the Free
-dnl Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-dnl 02111-1307, USA.
+dnl Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
