@@ -13,3 +13,7 @@ Makefile
 .deps
 .libs
 *.pc
+INSTALL
+depcomp
+install-sh
+missing
