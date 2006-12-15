@@ -636,7 +636,7 @@ ft_add_font (char *filename)
     return NULL;
   ft_info = ft_gen_font (ft_face);
   FT_Done_Face (ft_face);
-  if (! ft_inf)
+  if (! ft_info)
     return NULL;
 
   font = &ft_info->font;
