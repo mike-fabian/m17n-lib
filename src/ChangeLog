@@ -48,6 +48,18 @@
 	(take_action_list): Reset ic_info->commit_key_head on Mundo.
 	(filter): When committed, shift keys by ic_info->commit_key_head.
 
+2006-10-30  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (preedit_delete): Fix typo.
+	(take_action_list): Print more debugging information.  Allow
+	variable in arg of 'select' and `pushback'.
+
+	* database.c (gen_database_name): Don't put extra space.
+	(load_database): Print debugging information.
+	(register_databases_in_files): New arg headlen.  Callers changed.
+	(mdatabase__load_for_keys): Shorten debugging information.
+	(mdatabase_load): Don't print debugging information here.
+
 2006-10-27  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (marker_code): New arg surrounding.  Callers changed.
