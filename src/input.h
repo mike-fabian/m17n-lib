@@ -99,7 +99,6 @@ typedef struct
 #define MINPUT_KEY_SUPER_MODIFIER	(1 << 4)
 #define MINPUT_KEY_HYPER_MODIFIER	(1 << 5)
 
-extern int minput__callback (MInputContext *ic, MSymbol command);
 extern MSymbol minput__char_to_key (int c);
 
 #endif /* not _M17N_INPUT_H_ */
