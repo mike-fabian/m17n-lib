@@ -513,7 +513,7 @@ get_surrounding_text (MInputContext *ic, int len)
   MText *mt = NULL;
 
   mplist_push (ic->plist, Minteger, (void *) len);
-  if (minput__callback (ic, Minput_get_surrounding_text) >= 0
+  if (minput_callback (ic, Minput_get_surrounding_text) >= 0
       && MPLIST_MTEXT_P (ic->plist))
     mt = MPLIST_MTEXT (ic->plist);
   mplist_pop (ic->plist);
@@ -526,7 +526,7 @@ delete_surrounding_text (MInputContext *ic, int pos)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
   mplist_push (ic->plist, Minteger, (void *) pos);
-  minput__callback (ic, Minput_delete_surrounding_text);
+  minput_callback (ic, Minput_delete_surrounding_text);
   mplist_pop (ic->plist);
   if (pos < 0)
     {
@@ -2494,6 +2494,8 @@ preedit_commit (MInputContext *ic)
     {
       M17N_OBJECT_UNREF (ic->candidate_list);
       ic->candidate_list = NULL;
+      ic->candidate_index = 0;
+      ic->candidate_from = ic->candidate_to = 0;
       ic->candidates_changed = MINPUT_CANDIDATES_LIST_CHANGED;
       if (ic->candidate_show)
 	{
@@ -2840,7 +2842,7 @@ regularize_action (MPlist *action_list, MInputContextInfo *ic_info)
 }
 
 /* Perform list of actions in ACTION_LIST for the current input
-   context IC.  If all actions are performed without error, return 0.
+   context IC.  If unhandle action was not performed, return 0.
    Otherwise, return -1.  */
 
 static int
@@ -3939,21 +3941,6 @@ minput__fini ()
 
 }
 
-int
-minput__callback (MInputContext *ic, MSymbol command)
-{
-  MInputCallbackFunc func;
-
-  if (! ic->im->driver.callback_list)
-    return -1;
-  func = (MInputCallbackFunc) mplist_get (ic->im->driver.callback_list,
-					  command);
-  if (! func)
-    return -1;
-  (func) (ic, command);
-  return 0;
-}
-
 MSymbol
 minput__char_to_key (int c)
 {
@@ -3990,6 +3977,8 @@ minput__char_to_key (int c)
     it specifies the number of characters following the current cursor
     position.  If the value is negative, the absolute value specifies
     the number of characters preceding the current cursor position.
+    If the value is zero, it means that the caller just wants to know
+    if the surrounding text is currently supported or not.
 
     If the surrounding text is currently supported, the callback
     function must set the key of this element to #Mtext and the value
@@ -4023,7 +4012,8 @@ minput__char_to_key (int c)
     て#Minteger をとり、その値はサラウンディングテキストのうちどの部分
     を取って来るかを指定する。値が正であれば、現在のカーソル位置に続く
     値の個数分の文字を取る。負であれば、カーソル位置に先行する値の絶対
-    値分の文字を取る。
+    値分の文字を取る。現在サラウンドテキストがサポートされているかどう
+    かを知りたいだけであれば、この値はゼロでも良い。
 
     サラウンディングテキストがサポートされていれば、コールバック関数は
     この要素のキーを #Mtext に、値を取り込んだM-text に設定しなくてはな
@@ -4032,8 +4022,7 @@ minput__char_to_key (int c)
     ション側で必要で効率的だと思えば長くても良い。
 
     サラウンディングテキストがサポートされていなければ、コールバック関
-    数は #MInputContext::plist の第一要素を変化させることなく返さなくて
-    はならない。
+    数は #MInputContext::plist の第一要素を変更してはならない。
 
     Minput_delete_surrounding_text: このコマンドに割り当てられたコール
     バック関数が呼ばれた際には、#MInputContext::plist の第一要素は、キー
@@ -4335,9 +4324,9 @@ minput_create_ic (MInputMethod *im, void *arg)
 
   if (im->driver.callback_list)
     {
-      minput__callback (ic, Minput_preedit_start);
-      minput__callback (ic, Minput_status_start);
-      minput__callback (ic, Minput_status_draw);
+      minput_callback (ic, Minput_preedit_start);
+      minput_callback (ic, Minput_status_start);
+      minput_callback (ic, Minput_status_draw);
     }
 
   MDEBUG_PRINT (" ok\n");
@@ -4371,9 +4360,9 @@ minput_destroy_ic (MInputContext *ic)
 		 msymbol_name (ic->im->name), msymbol_name (ic->im->language));
   if (ic->im->driver.callback_list)
     {
-      minput__callback (ic, Minput_preedit_done);
-      minput__callback (ic, Minput_status_done);
-      minput__callback (ic, Minput_candidates_done);
+      minput_callback (ic, Minput_preedit_done);
+      minput_callback (ic, Minput_status_done);
+      minput_callback (ic, Minput_candidates_done);
     }
   (*ic->im->driver.destroy_ic) (ic);
   M17N_OBJECT_UNREF (ic->preedit);
@@ -4439,16 +4428,20 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
   if (! ic
       || ! ic->active)
     return 0;
+  if (ic->im->driver.callback_list
+      && mtext_nchars (ic->preedit) > 0)
+    minput_callback (ic, Minput_preedit_draw);
+
   ret = (*ic->im->driver.filter) (ic, key, arg);
 
   if (ic->im->driver.callback_list)
     {
       if (ic->preedit_changed)
-	minput__callback (ic, Minput_preedit_draw);
+	minput_callback (ic, Minput_preedit_draw);
       if (ic->status_changed)
-	minput__callback (ic, Minput_status_draw);
+	minput_callback (ic, Minput_status_draw);
       if (ic->candidates_changed)
-	minput__callback (ic, Minput_candidates_draw);
+	minput_callback (ic, Minput_candidates_draw);
     }
 
   return ret;
@@ -4551,7 +4544,7 @@ minput_set_spot (MInputContext *ic, int x, int y,
   ic->spot.mt = mt;
   ic->spot.pos = pos;
   if (ic->im->driver.callback_list)
-    minput__callback (ic, Minput_set_spot);
+    minput_callback (ic, Minput_set_spot);
 }
 /*=*/
 
@@ -4571,7 +4564,7 @@ void
 minput_toggle (MInputContext *ic)
 {
   if (ic->im->driver.callback_list)
-    minput__callback (ic, Minput_toggle);
+    minput_callback (ic, Minput_toggle);
   ic->active = ! ic->active;
 }
 
@@ -4601,7 +4594,7 @@ void
 minput_reset_ic (MInputContext *ic)
 {
   if (ic->im->driver.callback_list)
-    minput__callback (ic, Minput_reset);
+    minput_callback (ic, Minput_reset);
 }
 
 /*=*/
@@ -6005,6 +5998,35 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
   ret = minput_config_command (language, name, command, keyseq);
   M17N_OBJECT_UNREF (keyseq);
   return ret;
+}
+
+/*=*/
+
+/***en
+    @brief Call a callback function
+
+    The minput_callback () functions calls a callback function
+    $COMMAND assigned for the input context $IC.  The caller must set
+    specific elements in $IC->plist if the callback function requires.
+
+    @return
+    If there exists a specified callback function, 0 is returned.
+    Otherwise -1 is returned.  By side effects, $IC->plist may be
+    modified.  */
+
+int
+minput_callback (MInputContext *ic, MSymbol command)
+{
+  MInputCallbackFunc func;
+
+  if (! ic->im->driver.callback_list)
+    return -1;
+  func = (MInputCallbackFunc) mplist_get (ic->im->driver.callback_list,
+					  command);
+  if (! func)
+    return -1;
+  (func) (ic, command);
+  return 0;
 }
 
 /*** @} */ 
