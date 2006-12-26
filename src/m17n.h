@@ -1397,6 +1397,8 @@ extern char *minput_config_file (void);
 
 extern int minput_save_config (void);
 
+extern int minput_callback (MInputContext *ic, MSymbol command);
+
 /* obsolete functions */
 extern MPlist *minput_get_commands (MSymbol language, MSymbol name);
 
