@@ -419,23 +419,23 @@ win_callback (MInputContext *ic, MSymbol command)
     }
   else if (command == Minput_set_spot)
     {
-      minput__callback (ic, Minput_preedit_draw);
-      minput__callback (ic, Minput_status_draw);
-      minput__callback (ic, Minput_candidates_draw);
+      minput_callback (ic, Minput_preedit_draw);
+      minput_callback (ic, Minput_status_draw);
+      minput_callback (ic, Minput_candidates_draw);
     }
   else if (command == Minput_toggle)
     {
       if (ic->active)
 	{
-	  minput__callback (ic, Minput_preedit_done);
-	  minput__callback (ic, Minput_status_done);
-	  minput__callback (ic, Minput_candidates_done);
+	  minput_callback (ic, Minput_preedit_done);
+	  minput_callback (ic, Minput_status_done);
+	  minput_callback (ic, Minput_candidates_done);
 	}
       else
 	{
-	  minput__callback (ic, Minput_preedit_start);
-	  minput__callback (ic, Minput_status_start);
-	  minput__callback (ic, Minput_candidates_start);
+	  minput_callback (ic, Minput_preedit_start);
+	  minput_callback (ic, Minput_status_start);
+	  minput_callback (ic, Minput_candidates_start);
 	}
     }
   else if (command == Minput_preedit_start)
@@ -497,11 +497,11 @@ win_callback (MInputContext *ic, MSymbol command)
 	  ic->info = win_ic_info;
 	}
       if (ic->preedit_changed)
-	minput__callback (ic, Minput_preedit_draw);
+	minput_callback (ic, Minput_preedit_draw);
       if (ic->status_changed)
-	minput__callback (ic, Minput_status_draw);
+	minput_callback (ic, Minput_status_draw);
       if (ic->candidates_changed)
-	minput__callback (ic, Minput_candidates_draw);
+	minput_callback (ic, Minput_candidates_draw);
     }
 }
 
