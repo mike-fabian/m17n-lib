@@ -1,3 +1,7 @@
+2007-01-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gd.c (gd_render): Delete superfluous line.
+
 2006-12-26  Kenichi Handa  <handa@m17n.org>
 
 	* m17n.h (minput_callback): Extern it.

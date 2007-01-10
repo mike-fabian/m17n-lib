@@ -299,8 +299,6 @@ gd_render (MDrawWindow win, int x, int y,
   int color, pixel;
   int r, g, b;
   
-  pixel = RESOLVE_COLOR (img, color);
-
   if (from == to)
     return;
 
