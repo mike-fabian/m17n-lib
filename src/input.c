@@ -3423,47 +3423,40 @@ handle_key (MInputContext *ic)
     {
       /* MAP can not handle KEY.  */
 
-      /* If MAP is the root map of the initial state, it means that
-	 the current input method can not handle KEY.  */
-      if (map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
+      /* Perform branch actions if any.  */
+      if (map->branch_actions)
 	{
-	  MDEBUG_PRINT (" unhandled\n");
-	  return -1;
+	  MDEBUG_PRINT (" branch-actions:");
+	  if (take_action_list (ic, map->branch_actions) < 0)
+	    {
+	      MDEBUG_PRINT ("\n");
+	      return -1;
+	    }
 	}
 
-      if (map != ic_info->state->map)
+      if (map == ic_info->map)
 	{
-	  /* If MAP is not the root map... */
-	  /* If MAP has branch actions, perform them.  */
-	  if (map->branch_actions)
+	  /* The above branch actions didn't change the state.  */
+
+	  /* If MAP is the root map of the initial state, it means
+	     that the current input method can not handle KEY.  */
+	  if (map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
 	    {
-	      MDEBUG_PRINT (" branch-actions:");
-	      if (take_action_list (ic, map->branch_actions) < 0)
-		{
-		  MDEBUG_PRINT ("\n");
-		  return -1;
-		}
+	      MDEBUG_PRINT (" unhandled\n");
+	      return -1;
 	    }
-	  /* If MAP is still not the root map, shift to the current
-	     state. */
-	  if (ic_info->map != ic_info->state->map)
-	    shift_state (ic, ic_info->state->name);
-	}
-      else
-	{
-	  /* MAP is the root map, perform branch actions (if any) or
-	     shift to the initial state.  */
-	  if (map->branch_actions)
+
+	  if (map != ic_info->state->map)
 	    {
-	      MDEBUG_PRINT (" branch-actions:");
-	      if (take_action_list (ic, map->branch_actions) < 0)
-		{
-		  MDEBUG_PRINT ("\n");
-		  return -1;
-		}
+	      /* MAP is not the root map.  Shift to the root map of the
+		 current state. */
+	      shift_state (ic, ic_info->state->name);
 	    }
 	  else
-	    shift_state (ic, Mnil);
+	    {
+	      /* MAP is the root map.  Shift to the initial state.  */
+	      shift_state (ic, Mnil);
+	    }
 	}
     }
   MDEBUG_PRINT ("\n");
