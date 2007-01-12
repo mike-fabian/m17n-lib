@@ -1,3 +1,8 @@
+2007-01-12  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (handle_key): Handle a branch action of the initial
+	state correctly.
+
 2007-01-10  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gd.c (gd_render): Delete superfluous line.
