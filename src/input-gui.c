@@ -683,9 +683,9 @@ MSymbol Mxim;
     the byte is bitwise anded by 0x1F and the Control modifier is
     cleared.
 
-    If $EVENT still has modifiers, the name is preceded by "H-"
-    (Hyper), "s-" (Super), "A-" (Alt), "M-" (Meta), "C-" (Control),
-    and/or "S-" (Shift) in this order.
+    If $EVENT still has modifiers, the name is preceded by "S-"
+    (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), "s-" (Super),
+    and/or "H-" (Hyper) in this order.
 
     For instance, if the keysym name is "a" and the event has Shift,
     Meta, and Hyper modifiers, the resulting name is "M-H-A".
@@ -712,8 +712,8 @@ MSymbol Mxim;
     0x1F とをビット単位で and 演算し、Control モディファイアは取り除かれる。
 
     それでも $EVENT にまだモディファイアがあれば、名前の前にそれぞれ
-    "H-" (Hyper), "s-" (Super), "A-" (Alt), "M-" (Meta), "C-"
-    (Control), "S-" (Shift) がこの順番で付く。
+    "S-" (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), "s-"
+    (Super), "H-" (Hyper)がこの順番で付く。
     
     たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper 
     モディファイアを持てば、得られる名前は "M-H-A" である。
