@@ -1,3 +1,10 @@
+2007-01-26  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (mdatabase__update): Check mdatabase__dir_list from
+	the tail.
+
+	* font-ft.c (STRDUP_LOWER): Don't ignore the tailing spaces.
+
 2007-01-12  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (handle_key): Handle a branch action of the initial
