@@ -866,9 +866,13 @@ mdatabase__update (void)
 	}
     }
 
-  MPLIST_DO (plist, mdatabase__dir_list)
+  plist = mplist (); 
+  MPLIST_DO (p0, mdatabase__dir_list)
+    mplist_push (plist, MPLIST_KEY (p0), MPLIST_VAL (p0));
+
+  while (! MPLIST_TAIL_P (plist))
     {
-      MDatabaseInfo *dir_info = MPLIST_VAL (plist);
+      MDatabaseInfo *dir_info = mplist_pop (plist);
       MPlist *pl, *p;
       int i;
       FILE *fp;
