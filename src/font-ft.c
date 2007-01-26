@@ -137,7 +137,6 @@ static int all_fonts_scaned;
       (s1) = alloca (len), (size) = len;			\
     for (p1 = (s1), p2 = (s2); *p2; p1++, p2++)			\
       *p1 = (*p2 >= 'A' && *p2 <= 'Z' ? *p2 + 'a' - 'A' : *p2);	\
-    while (p1 > (s1) && p1[-1] == ' ') p1--;			\
     *p1 = '\0';							\
   } while (0)
 
