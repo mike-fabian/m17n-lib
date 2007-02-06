@@ -552,6 +552,8 @@ get_preceding_char (MInputContext *ic, int pos)
       len = mtext_nchars (ic_info->preceding_text);
       if (pos <= len)
 	return mtext_ref_char (ic_info->preceding_text, len - pos);
+      if (ic->produced && mtext_len (ic->produced) >= pos - len)
+	return mtext_ref_char (ic->produced, len + mtext_len (ic->produced) - pos);
     }
   mt = get_surrounding_text (ic, - pos);
   if (! mt)
