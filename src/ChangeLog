@@ -1,3 +1,7 @@
+2007-02-06  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (get_preceding_char): Fix previous change.
+
 2007-01-26  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (mdatabase__update): Check mdatabase__dir_list from
