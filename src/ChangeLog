@@ -1,6 +1,6 @@
 2007-02-06  Kenichi Handa  <handa@m17n.org>
 
-	* input.c (get_preceding_char): Fix previous change.
+	* input.c (integer_value): Check also ic->produced for @-N.
 
 2007-01-26  Kenichi Handa  <handa@m17n.org>
 
