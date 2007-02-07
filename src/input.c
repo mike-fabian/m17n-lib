@@ -552,8 +552,6 @@ get_preceding_char (MInputContext *ic, int pos)
       len = mtext_nchars (ic_info->preceding_text);
       if (pos <= len)
 	return mtext_ref_char (ic_info->preceding_text, len - pos);
-      if (ic->produced && mtext_len (ic->produced) >= pos - len)
-	return mtext_ref_char (ic->produced, len + mtext_len (ic->produced) - pos);
     }
   mt = get_surrounding_text (ic, - pos);
   if (! mt)
@@ -656,7 +654,12 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 	    return get_preceding_char (ic, 0);
 	  pos = ic->cursor_pos + pos;
 	  if (pos < 0)
-	    return get_preceding_char (ic, - pos);
+	    {
+	      if (ic->produced && mtext_len (ic->produced) + pos >= 0)
+		return mtext_ref_char (ic->produced,
+				       mtext_len (ic->produced) + pos);
+	      return get_preceding_char (ic, - pos);
+	    }
 	  if (pos >= len)
 	    return get_following_char (ic, pos - len + 1);
 	}
@@ -2484,6 +2487,16 @@ preedit_commit (MInputContext *ic)
       mtext_put_prop_values (ic->preedit, 0, mtext_nchars (ic->preedit),
 			     Mcandidate_index, NULL, 0);
       mtext_cat (ic->produced, ic->preedit);
+      if (mdebug__flag & mdebug_mask)
+	{
+	  int i;
+
+	  MDEBUG_PRINT (" (commit");
+	  for (i = 0; i < mtext_nchars (ic->preedit); i++)
+	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->preedit, i));
+	  MDEBUG_PRINT (")");
+	}
+
       mtext_reset (ic->preedit);
       mtext_reset (ic_info->preedit_saved);
       MPLIST_DO (p, ic_info->markers)
