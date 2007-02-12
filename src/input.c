@@ -564,6 +564,8 @@ get_preceding_char (MInputContext *ic, int pos)
 	  M17N_OBJECT_UNREF (ic_info->preceding_text);
 	  ic_info->preceding_text = mt;
 	}
+      else
+	M17N_OBJECT_UNREF (mt);
     }
   else
     ic_info->preceding_text = mt;
@@ -596,6 +598,8 @@ get_following_char (MInputContext *ic, int pos)
 	  M17N_OBJECT_UNREF (ic_info->following_text);
 	  ic_info->following_text = mt;
 	}
+      else
+	M17N_OBJECT_UNREF (mt);
     }
   else
     ic_info->following_text = mt;
@@ -819,7 +823,7 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		}
 	      else if (MPLIST_PLIST_P (pl))
 		{
-		  MPLIST_DO (pl, pl)
+		  MPLIST_DO (pl, MPLIST_PLIST (pl))
 		    {
 		      if (MPLIST_PLIST_P (pl))
 			{
@@ -2756,47 +2760,42 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 	    }
 	  M17N_OBJECT_UNREF (mt);
 	}
-      else		/* MPLIST_PLIST_P (plist) */
+      else if (! MPLIST_TAIL_P (plist))
 	{
-	  MPlist *pl = MPLIST_PLIST (plist), *p;
-	  MPlist *next = MPLIST_NEXT (plist);
-	  int j;
+	  MPlist *tail = plist;
+	  MPlist *new = mplist ();
+	  MPlist *this = mplist ();
+	  int count = 0;
 
-	  if (MPLIST_TAIL_P (next))
-	    M17N_OBJECT_REF (pl);
-	  else
+	  MPLIST_DO (tail, tail)
 	    {
-	      pl = mplist_copy (pl);
-	      while (! MPLIST_TAIL_P (next))
-		{
-		  p = mplist_copy (MPLIST_PLIST (next));
-		  pl = mplist__conc (pl, p);
-		  M17N_OBJECT_UNREF (p);
-		  next = MPLIST_NEXT (next);
-		}
-	    }
-	  M17N_OBJECT_UNREF (plist);
-	  plist = mplist ();
-	  len = mplist_length (pl);
-	  if (len <= column)
-	    mplist_add (plist, Mplist, pl);
-	  else
-	    {
-	      MPlist *p0 = pl;
+	      MPlist *p = MPLIST_PLIST (tail);
 
-	      for (i = 0; i < len; i += column)
+	      MPLIST_DO (p, p)
 		{
-		  p = mplist ();
-		  mplist_add (plist, Mplist, p);
-		  M17N_OBJECT_UNREF (p);
-		  for (j = 0; j < column && i + j < len; j++)
+		  MText *mt = MPLIST_MTEXT (p);
+
+		  if (count == column)
 		    {
-		      p = mplist_add (p, Mtext, MPLIST_VAL (p0));
-		      p0 = MPLIST_NEXT (p0);
+		      mplist_add (new, Mplist, this);
+		      M17N_OBJECT_UNREF (this);
+		      this = mplist ();
+		      count = 0;
 		    }
+		  mplist_add (this, Mtext, mt);
+		  count++;
 		}
 	    }
-	  M17N_OBJECT_UNREF (pl);
+	  mplist_add (new, Mplist, this);
+	  M17N_OBJECT_UNREF (this);
+	  mplist_set (plist, Mnil, NULL);
+	  MPLIST_DO (tail, new)
+	    {
+	      MPlist *elt = MPLIST_PLIST (tail);
+
+	      mplist_add (plist, Mplist, elt);
+	    }
+	  M17N_OBJECT_UNREF (new);
 	}
     }
 
@@ -2899,7 +2898,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MPlist *plist = get_candidate_list (ic_info, args);
 	  int len;
 
-	  if (! plist)
+	  if (! plist || (MPLIST_PLIST_P (plist) && MPLIST_TAIL_P (plist)))
 	    continue;
 	  if (MPLIST_MTEXT_P (plist))
 	    {
@@ -2907,6 +2906,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 			      mtext_ref_char (MPLIST_MTEXT (plist), 0));
 	      len = 1;
 	    }
+	  else if (MPLIST_TAIL_P (MPLIST_PLIST (plist)))
+	    continue;
 	  else
 	    {
 	      MText * mt = MPLIST_MTEXT (MPLIST_PLIST (plist));
