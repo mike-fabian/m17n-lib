@@ -1,3 +1,12 @@
+2007-02-12  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (get_preceding_char): Unref mt if necessary.
+	(get_following_char): Likewise.
+	(parse_action_list): Fix handling of `insert' action as
+	candidates.
+	(get_candidate_list): Fix for handling (("CANDIDATE1" ...)).
+	(take_action_list): Check invalid candidate list.
+
 2007-02-06  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (integer_value): Check also ic->produced for @-N.
