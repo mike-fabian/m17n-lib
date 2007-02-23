@@ -1,3 +1,12 @@
+2007-02-23  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (Mpop): New variable.
+	(fully_initialize): Initialize Mpop.
+	(parse_action_list): Handle Mpop.
+	(take_action_list): Likewise.
+	(handle_key): When a key is unhandled, shift to the initial state
+	only if the current state has no branch action.
+
 2007-02-12  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (get_preceding_char): Unref mt if necessary.
