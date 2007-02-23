@@ -174,7 +174,7 @@ static MSymbol Mtitle, Mmacro, Mmodule, Mstate, Minclude;
 
 /** Symbols for actions.  */
 static MSymbol Minsert, Mdelete, Mmark, Mmove, Mpushback, Mundo, Mcall, Mshift;
-static MSymbol Mselect, Mshow, Mhide, Mcommit, Munhandle;
+static MSymbol Mselect, Mshow, Mhide, Mcommit, Munhandle, Mpop;
 static MSymbol Mset, Madd, Msub, Mmul, Mdiv, Mequal, Mless, Mgreater;
 static MSymbol Mless_equal, Mgreater_equal;
 static MSymbol Mcond;
@@ -402,6 +402,7 @@ fully_initialize ()
   Mmove = msymbol ("move");
   Mmark = msymbol ("mark");
   Mpushback = msymbol ("pushback");
+  Mpop = msymbol ("pop");
   Mundo = msymbol ("undo");
   Mcall = msymbol ("call");
   Mshift = msymbol ("shift");
@@ -915,7 +916,8 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		MERROR (MERROR_IM, -1);
 	    }
 	  else if (action_name == Mshow || action_name == Mhide
-		   || action_name == Mcommit || action_name == Munhandle)
+		   || action_name == Mcommit || action_name == Munhandle
+		   || action_name == Mpop)
 	    ;
 	  else if (action_name == Mcond)
 	    {
@@ -3140,6 +3142,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		}
 	    }
 	}
+      else if (name == Mpop)
+	{
+	  if (ic_info->key_head < ic_info->used)
+	    MLIST_DELETE1 (ic_info, keys, ic_info->key_head, 1);
+	}
       else if (name == Mcall)
 	{
 	  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
@@ -3454,9 +3461,11 @@ handle_key (MInputContext *ic)
 	{
 	  /* The above branch actions didn't change the state.  */
 
-	  /* If MAP is the root map of the initial state, it means
-	     that the current input method can not handle KEY.  */
-	  if (map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
+	  /* If MAP is the root map of the initial state, and there
+	     still exist an unhandled key, it means that the current
+	     input method can not handle it.  */
+	  if (map == ((MIMState *) MPLIST_VAL (im_info->states))->map
+	      && ic_info->key_head < ic_info->used)
 	    {
 	      MDEBUG_PRINT (" unhandled\n");
 	      return -1;
@@ -3468,9 +3477,10 @@ handle_key (MInputContext *ic)
 		 current state. */
 	      shift_state (ic, ic_info->state->name);
 	    }
-	  else
+	  else if (! map->branch_actions)
 	    {
-	      /* MAP is the root map.  Shift to the initial state.  */
+	      /* MAP is the root map without any default branch
+		 actions.  Shift to the initial state.  */
 	      shift_state (ic, Mnil);
 	    }
 	}
