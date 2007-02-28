@@ -135,8 +135,8 @@ typedef struct
   unsigned right_padding : 1;
   unsigned otf_encoded : 1;
   unsigned bidi_level : 6;
-  enum glyph_category category : 2;
-  enum glyph_type type : 3;
+  unsigned category : 2;
+  unsigned type : 3;
   int combining_code;
 } MGlyph;
 
