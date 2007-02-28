@@ -1,3 +1,28 @@
+2007-02-28  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (get_dir_info): Set dir_info->status to
+	MDB_STATUS_OUTDATED.
+	(check_version): New function.
+	(register_database): Don't call find_database.
+	(register_databases_in_files): Don't register a database of
+	invalid version.
+	(mdatabase__update): Likewise.  Avoid unnecessary scanning.
+
+	* database.h (enum MDatabaseStatus): New membes MDB_STATUS_UPDATED
+	and MDB_STATUS_OUTDATED.
+
+	* font.h (struct MFont): Types of members type, source, and
+	spacing changed to unsigned.
+
+	* internal-gui.h (struct): Types of members category and type
+	changed to unsigned.
+
+	* internal.h (struct MText): Types of members format and coverage
+	changed to unsigned.
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Changed to 5.
+	(M17NLIB_VERSION_NAME): Changed to "1.3.5".
+
 2007-02-23  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (Mpop): New variable.
