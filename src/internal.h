@@ -443,8 +443,8 @@ struct MText
 {
   M17NObject control;
 
-  enum MTextFormat format : 16;
-  enum MTextCoverage coverage : 16;
+  unsigned format : 16;
+  unsigned coverage : 16;
 
   /**en Number of characters in the M-text */
   /**ja M-text 中の文字数 */
