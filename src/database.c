@@ -545,7 +545,7 @@ get_dir_info (char *dirname)
 	      dir_info->filename[++len] = '\0';
 	    }
 	  dir_info->len = len;
-	  dir_info->status = MDB_STATUS_AUTO;
+	  dir_info->status = MDB_STATUS_OUTDATED;
 	}
       else
 	dir_info->status = MDB_STATUS_DISABLED;	
@@ -584,23 +584,66 @@ free_db_info (MDatabaseInfo *db_info)
   free (db_info);
 }
 
+static int
+check_version (MText *version)
+{
+  char *verstr = (char *) MTEXT_DATA (version);
+  char *endp = verstr + mtext_nbytes (version);
+  int ver[3];
+  int i;
+
+  ver[0] = ver[1] = ver[2] = 0;
+  for (i = 0; verstr < endp; verstr++)
+    {
+      if (*verstr == '.')
+	{
+	  i++;
+	  if (i == 3)
+	    break;
+	  continue;
+	}
+      if (! isdigit (*verstr))
+	break;
+      ver[i] = ver[i] * 10 + (*verstr - '0');
+    }
+  return (ver[0] < M17NLIB_MAJOR_VERSION
+	  || (ver[0] == M17NLIB_MAJOR_VERSION
+	      && (ver[1] < M17NLIB_MINOR_VERSION
+		  || (ver[1] == M17NLIB_MINOR_VERSION
+		      && ver[2] <= M17NLIB_PATCH_LEVEL))));
+}
+
 static MDatabase *
-register_database (MSymbol tags[4], void *(*loader) (MSymbol *, void *),
+register_database (MSymbol tags[4],
+		   void *(*loader) (MSymbol *, void *),
 		   void *extra_info, enum MDatabaseStatus status)
 {
-  MDatabase *mdb = find_database (tags);
-  MDatabaseInfo *db_info = NULL;
+  MDatabase *mdb;
+  MDatabaseInfo *db_info;
+  int i;
+  MPlist *plist;
 
-  if (mdb)
+  if (! mdatabase__list)
+    mdatabase__list = mplist ();
+
+  for (i = 0, plist = mdatabase__list; i < 4; i++)
     {
-      if (loader == load_database)
-	db_info = mdb->extra_info;
+      MPlist *pl = mplist__assq (plist, tags[i]);
+
+      if (pl)
+	pl = MPLIST_PLIST (pl);
+      else
+	{
+	  pl = mplist ();
+	  mplist_add (pl, Msymbol, tags[i]);
+	  mplist_push (plist, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	}
+      plist = MPLIST_NEXT (pl);
     }
-  else
-    {
-      int i;
-      MPlist *plist;
 
+  if (MPLIST_TAIL_P (plist))
+    {
       MSTRUCT_MALLOC (mdb, MERROR_DB);
       for (i = 0; i < 4; i++)
 	mdb->tag[i] = tags[i];
@@ -611,25 +654,19 @@ register_database (MSymbol tags[4], void *(*loader) (MSymbol *, void *),
 	  mdb->extra_info = db_info;
 	}
       else
-	mdb->extra_info = extra_info;
-      if (! mdatabase__list)
-	mdatabase__list = mplist ();
-      for (i = 0, plist = mdatabase__list; i < 4; i++)
 	{
-	  MPlist *pl = mplist__assq (plist, tags[i]);
-
-	  if (pl)
-	    pl = MPLIST_PLIST (pl);
-	  else
-	    {
-	      pl = mplist ();
-	      mplist_add (pl, Msymbol, tags[i]);
-	      mplist_push (plist, Mplist, pl);
-	      M17N_OBJECT_UNREF (pl);
-	    }
-	  plist = MPLIST_NEXT (pl);
+	  db_info = NULL;
+	  mdb->extra_info = extra_info;
 	}
       mplist_push (plist, Mt, mdb);
+    }
+  else
+    {
+      mdb = MPLIST_VAL (plist);
+      if (loader == load_database)
+	db_info = mdb->extra_info;
+      else
+	db_info = NULL;
     }
 
   if (db_info)
@@ -693,9 +730,16 @@ register_databases_in_files (MSymbol tags[4], glob_t *globbuf, int headlen)
 		: (tags[j] != Mnil && tags[j] != tags2[j]))
 	      break;
 	  if (j == 4)
-	    register_database (tags2, load_database,
-			       globbuf->gl_pathv[i] + headlen,
-			       MDB_STATUS_AUTO);
+	    {
+	      MText *version = NULL;
+
+	      MPLIST_DO (pl, pl)
+		version = MPLIST_MTEXT_P (pl) ? MPLIST_MTEXT (pl) : NULL;
+	      if (! version || check_version (version))
+		register_database (tags2, load_database,
+				   globbuf->gl_pathv[i] + headlen,
+				   MDB_STATUS_AUTO);
+	    }
 	}
       M17N_OBJECT_UNREF (plist);
     }
@@ -816,22 +860,33 @@ mdatabase__update (void)
       dir_info = MPLIST_VAL (plist);
       if (dir_info->filename)
 	{
-	  enum MDatabaseStatus status;
-
 	  if (stat (dir_info->filename, &statbuf) == 0
 	      && (statbuf.st_mode & S_IFDIR))
-	    status = ((dir_info->time >= statbuf.st_mtime)
-		      ? MDB_STATUS_EXPLICIT : MDB_STATUS_AUTO);
-	  else
-	    status = MDB_STATUS_DISABLED;
-
-	  if (dir_info->status != status)
 	    {
-	      dir_info->status = status;
-	      rescan = 1;
+	      if (dir_info->time < statbuf.st_mtime)
+		{
+		  rescan = 1;
+		  dir_info->time = statbuf.st_mtime;
+		}
+	      if (GEN_PATH (path, dir_info->filename, dir_info->len,
+			    MDB_DIR, MDB_DIR_LEN)
+		  && stat (path, &statbuf) >= 0
+		  && dir_info->time < statbuf.st_mtime)
+		{
+		  rescan = 1;
+		  dir_info->time = statbuf.st_mtime;
+		}
+	      dir_info->status = MDB_STATUS_UPDATED;
 	    }
-	  else if (dir_info->status == MDB_STATUS_AUTO)
-	    rescan = 1;
+	  else
+	    {
+	      if (dir_info->status != MDB_STATUS_DISABLED)
+		{
+		  rescan = 1;
+		  dir_info->time = 0;
+		  dir_info->status = MDB_STATUS_DISABLED;
+		}
+	    }
 	}
     }
 
@@ -882,9 +937,6 @@ mdatabase__update (void)
       if (! GEN_PATH (path, dir_info->filename, dir_info->len,
 		      MDB_DIR, MDB_DIR_LEN))
 	continue;
-      if (stat (path, &statbuf) < 0)
-	continue;
-      dir_info->time = statbuf.st_mtime;
       if (! (fp = fopen (path, "r")))
 	continue;
       pl = mplist__from_file (fp, NULL);
@@ -911,8 +963,6 @@ mdatabase__update (void)
 	  for (; i < 4; i++)
 	    tags[i] = Mnil;
 	  mt = MPLIST_MTEXT (p1);
-	  if (mt->format >= MTEXT_FORMAT_UTF_16LE)
-	    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
 	  nbytes = mtext_nbytes (mt);
 	  if (nbytes > PATH_MAX)
 	    continue;
@@ -950,7 +1000,12 @@ mdatabase__update (void)
 	    }
 	  else
 	    {
-	      register_database (tags, load_database, path, MDB_STATUS_AUTO);
+	      MText *version = NULL;
+
+	      MPLIST_DO (p1, p1)
+		version = MPLIST_MTEXT_P (pl) ? MPLIST_MTEXT (pl) : NULL;
+	      if (! version || check_version (version))
+		register_database (tags, load_database, path, MDB_STATUS_AUTO);
 	    }
 	}
       M17N_OBJECT_UNREF (pl);
