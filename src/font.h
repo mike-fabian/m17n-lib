@@ -104,9 +104,9 @@ struct MFont
       For the time being, we mention only Y-resolution (resy) and
       assume that resx is always equal to resy.  */
   unsigned short property[MFONT_PROPERTY_MAX];
-  enum MFontType type : 2;
-  enum MFontSource source : 2;
-  enum MFontSpacing spacing : 2;
+  unsigned type : 2;
+  unsigned source : 2;
+  unsigned spacing : 2;
   unsigned for_full_width : 1;
   /* For FONT-OBJ, 1 means `size' is a logical or of bit masks for
      available pixel sizes (Nth bit corresponds to (6 + N) pixels), 0
