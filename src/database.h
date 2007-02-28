@@ -43,7 +43,9 @@ enum MDatabaseStatus
     MDB_STATUS_EXPLICIT,
     /* The databse is currently disabled. (usually because it is
        deleted from mdb.dir file(s)).  */
-    MDB_STATUS_DISABLED
+    MDB_STATUS_DISABLED,
+    MDB_STATUS_UPDATED,
+    MDB_STATUS_OUTDATED
   };
 
 typedef struct
