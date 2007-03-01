@@ -1,3 +1,12 @@
+2007-03-01  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (reload_im_info): Setup cmds, vars, and title of
+	im_info.
+	(check_variable_value): Fix the return value.
+
+	* database.c (mdatabase__check): If necessary, update database and
+	find a new file.
+
 2007-02-28  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (get_dir_info): Set dir_info->status to
