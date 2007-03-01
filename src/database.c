@@ -1058,6 +1058,17 @@ mdatabase__check (MDatabase *mdb)
     return -1;
   if (db_info->time < buf.st_mtime)
     return 0;
+  if (db_info->status == MDB_STATUS_AUTO
+      && db_info->filename != db_info->absolute_filename)
+    {
+      MDatabase *new;
+      
+      mdatabase__update ();
+      new = find_database (mdb->tag);
+      if (new != mdb)
+	return 0;
+    }
+
   return 1;
 }
 
