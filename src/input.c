@@ -1581,6 +1581,19 @@ reload_im_info (MInputMethodInfo *im_info)
   fini_im_info (im_info);
   load_im_info (plist, im_info);
   M17N_OBJECT_UNREF (plist);
+  if (! im_info->cmds)
+    im_info->cmds = mplist ();
+  if (! im_info->vars)
+    im_info->vars = mplist ();
+  if (! im_info->title)
+    {
+      MSymbol name = im_info->name;
+
+      im_info->title = (name == Mnil ? mtext ()
+			: mtext_from_data (MSYMBOL_NAME (name),
+					   MSYMBOL_NAMELEN (name),
+					   MTEXT_FORMAT_US_ASCII));
+    }
   return 1;
 }
 
@@ -1898,7 +1911,7 @@ check_variable_value (MPlist *val, MPlist *global)
 	}
     }
 
-  return (MPLIST_TAIL_P (valids));
+  return (! MPLIST_TAIL_P (valids));
 }
 
 /* Load variable defitions from PLIST into IM_INFO->vars.
