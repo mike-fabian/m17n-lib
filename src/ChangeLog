@@ -1,3 +1,8 @@
+2007-03-15  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_config_variable): Check custom->vars (not
+	custom->cmds).
+
 2007-03-01  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (reload_im_info): Setup cmds, vars, and title of
