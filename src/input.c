@@ -5356,7 +5356,7 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
       MInputMethodInfo *custom = get_custom_info (im_info);
 
       mplist_set (config->vars, Mnil, NULL);
-      if (custom && custom->cmds)
+      if (custom && custom->vars)
 	{
 	  MPLIST_DO (plist, custom->vars)
 	    {
