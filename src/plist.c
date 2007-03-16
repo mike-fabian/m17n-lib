@@ -1295,7 +1295,7 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
 
     The mplist_pop () function removes a property at the beginning of
     property list $PLIST.  As a result, the second key and value of
-    the original $PLIST become the first of those of the new $PLIST.
+    the $PLIST become the first ones.
 
     @return
     If the operation was successful, this function return the value of
@@ -1303,9 +1303,8 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
 /***ja
     @brief プロパティリストの先頭からプロパティを削除する.
 
-    関数 mplist_pop () はプロパティリスト $PLIST 
-    の先頭のプロパティを削除する。結果として、元の $PLIST の2番目のキーと値が、新しい 
-    $PLIST の先頭のキーと値になる。
+    関数 mplist_pop () はプロパティリスト $PLIST の先頭のプロパティを削
+    除する。結果として、元の2番目のキーと値が先頭のキーと値になる。
 
     @return 
     処理に成功すれば、この関数は削除されたプロパティの値を返す。そうでなければ
