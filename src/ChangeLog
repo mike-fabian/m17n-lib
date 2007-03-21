@@ -2,10 +2,9 @@
 
 	* input.c (update_custom_info): Fix for the case "name == Mnil &&
 	extra != Mnil".
-	(reload_im_info): Fix for the case that no title is specified.
 	(config_command): Fix for the case that configuration is
 	cancelled.
-	(check_variable_value): Fix return value.
+	(config_variable): Likewise.
 	(minput_config_command): If keyseqlist is an empty list, cancel
 	the customization.
 	(minput_config_variable) If value is an empty list, cancel the
