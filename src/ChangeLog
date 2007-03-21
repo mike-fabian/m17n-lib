@@ -1,3 +1,18 @@
+2007-03-21  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (update_custom_info): Fix for the case "name == Mnil &&
+	extra != Mnil".
+	(reload_im_info): Fix for the case that no title is specified.
+	(config_command): Fix for the case that configuration is
+	cancelled.
+	(check_variable_value): Fix return value.
+	(minput_config_command): If keyseqlist is an empty list, cancel
+	the customization.
+	(minput_config_variable) If value is an empty list, cancel the
+	customization.
+	(minput_save_config): Handle cancellation of config and customize
+	correctly.
+
 2007-03-15  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_config_variable): Check custom->vars (not
@@ -46,6 +61,7 @@
 	(handle_key): When a key is unhandled, shift to the initial state
 	only if the current state has no branch action.
 
+>>>>>>> 1.284
 2007-02-12  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (get_preceding_char): Unref mt if necessary.
