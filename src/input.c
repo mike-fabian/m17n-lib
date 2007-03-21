@@ -1448,14 +1448,12 @@ update_custom_info (void)
       if (! MPLIST_SYMBOL_P (p))
 	continue;
       name = MPLIST_SYMBOL (p);
-      if (language == Mnil || name == Mnil)
-	continue;
       p = MPLIST_NEXT (p);
       if (MPLIST_TAIL_P (p))
 	extra = Mnil;
       else if (MPLIST_SYMBOL_P (p))
 	extra = MPLIST_SYMBOL (p);
-      else
+      if (language == Mnil || (name == Mnil && extra == Mnil))
 	continue;
       im_info = new_im_info (NULL, language, name, extra, im_custom_list);
       load_im_info (im_data, im_info);
@@ -1746,52 +1744,49 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
   MPlist *global = NULL, *custom = NULL, *config = NULL;
   MSymbol name;
   MSymbol status;
-  MPlist *description = NULL, *keyseq;
+  MPlist *description, *keyseq;
+
+  if (global_cmds && (global = mplist__assq (global_cmds, name)))
+    global = MPLIST_NEXT (MPLIST_PLIST (global));  
 
   name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
   if (MPLIST_MTEXT_P (plist) || MPLIST_PLIST_P (plist))
-    description = plist;
-  else if (global_cmds && ((global = mplist__assq (global_cmds, name))))
-    description = global = MPLIST_NEXT (MPLIST_PLIST (global));
-  if (MPLIST_TAIL_P (plist))
     {
-      if (! global
-	  && global_cmds && ((global = mplist__assq (global_cmds, name))))
-	global = MPLIST_NEXT (MPLIST_PLIST (global));
-      if (global)
-	{
-	  keyseq = MPLIST_NEXT (global);
-	  status = Minherited;
-	}
-      else
-	{
-	  keyseq = plist;
-	  status = Mnil;
-	}
+      description = plist;
+      plist = MPLIST_NEXT (plist);
     }
   else
     {
-      keyseq = MPLIST_NEXT (plist);
+      description = global;
+      if (! MPLIST_TAIL_P (plist))
+	plist = MPLIST_NEXT (plist);
+    }
+  if (MPLIST_TAIL_P (plist) && global)
+    {
+      keyseq = MPLIST_NEXT (global);
+      status = Minherited;
+    }
+  else
+    {
+      keyseq = plist;
       status = Mnil;
     }
 
   if (config_cmds && (config = mplist__assq (config_cmds, name)))
     {
+      status = Mconfigured;
       config = MPLIST_NEXT (MPLIST_PLIST (config));
       if (! MPLIST_TAIL_P (config))
-	{
-	  keyseq = MPLIST_NEXT (config);
-	  status = Mconfigured;
-	}
+	keyseq = MPLIST_NEXT (config);
     }
   else if (custom_cmds && (custom = mplist__assq (custom_cmds, name)))
     {
       custom = MPLIST_NEXT (MPLIST_PLIST (custom));
       if (! MPLIST_TAIL_P (custom))
 	{
-	  keyseq = MPLIST_NEXT (custom);
 	  status = Mcustomized;
+	  keyseq = MPLIST_NEXT (custom);
 	}
     }
   
@@ -2069,13 +2064,13 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
 
   if (config_vars && (config = mplist__assq (config_vars, name)))
     {
+      status = Mconfigured;
       config = MPLIST_NEXT (MPLIST_PLIST (config));
       if (! MPLIST_TAIL_P (config))
 	{
 	  value = MPLIST_NEXT (config);
 	  if (MFAILP (check_variable_value (value, global ? global : plist)))
 	    value = NULL;
-	  status = Mconfigured;
 	}
     }
   else if (custom_vars && (custom = mplist__assq (custom_vars, name)))
@@ -4909,7 +4904,8 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
     If $KEYSEQLIST is a non-empty plist, it must be a list of key
     sequences, and each key sequence must be a plist of symbols.
 
-    If $KEYSEQLIST is an empty plist, the command becomes unusable.
+    If $KEYSEQLIST is an empty plist, the default key sequences of the
+    command for the input method is assigned to $COMMAND.
 
     If $KEYSEQLIST is NULL, the configuration of the command for the
     input method is canceled, and the default key sequences become
@@ -5017,23 +5013,19 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 
   MINPUT__INIT ();
 
-  if (keyseqlist)
-    {
-      if (command == Mnil)
-	MERROR (MERROR_IM, -1);
-      MPLIST_DO (plist, keyseqlist)
-	if (! MPLIST_PLIST_P (plist)
-	    || ! check_command_keyseq (plist))
-	  MERROR (MERROR_IM, -1);
-    }
-
   im_info = get_im_info (language, name, Mnil, Mcommand);
   if (! im_info)
     MERROR (MERROR_IM, -1);
-  if (command != Mnil
-      && (! im_info->cmds
-	  || ! mplist__assq (im_info->cmds, command)))
+  if (command == Mnil ? (keyseqlist && ! MPLIST_TAIL_P (keyseqlist))
+      : (! im_info->cmds
+	 || ! mplist__assq (im_info->configured_cmds, command)))
     MERROR (MERROR_IM, -1);
+  if (keyseqlist && ! MPLIST_TAIL_P (keyseqlist))
+    {
+      MPLIST_DO (plist, keyseqlist)
+	if (! check_command_keyseq (plist))
+	  MERROR (MERROR_IM, -1);
+    }
 
   config = get_config_info (im_info);
   if (! config)
@@ -5045,13 +5037,29 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
       config->vars = mplist ();
     }
 
+  if (! keyseqlist && MPLIST_TAIL_P (config->cmds))
+    /* Nothing to do.  */
+    return 0;
+
   if (command == Mnil)
     {
-      MInputMethodInfo *custom = get_custom_info (im_info);
-
-      mplist_set (config->cmds, Mnil, NULL);
-      if (custom && custom->cmds)
+      if (! keyseqlist)
 	{
+	  /* Cancal the configuration. */
+	  if (MPLIST_TAIL_P (config->cmds))
+	    return 0;
+	  mplist_set (config->cmds, Mnil, NULL);
+	}
+      else
+	{
+	  /* Cancal the customization. */
+	  MInputMethodInfo *custom = get_custom_info (im_info);
+
+	  if (MPLIST_TAIL_P (config->cmds)
+	      && (! custom || ! custom->cmds || MPLIST_TAIL_P (custom->cmds)))
+	    /* Nothing to do.  */
+	    return 0;
+	  mplist_set (config->cmds, Mnil, NULL);
 	  MPLIST_DO (plist, custom->cmds)
 	    {
 	      command = MPLIST_SYMBOL (MPLIST_PLIST (plist));
@@ -5065,26 +5073,55 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
   else
     {
       plist = mplist__assq (config->cmds, command);
-      if (plist)
+      if (! keyseqlist)
 	{
-	  plist = MPLIST_PLIST (plist); /* (NAME [nil KEY-SEQUENCE ...])  */
-	  plist = MPLIST_NEXT (plist);	/* ([nil ...]) */
-	  if (! MPLIST_TAIL_P (plist))
-	    mplist_set (plist, Mnil, NULL); /* () */
+	  /* Cancel the configuration.  */
+	  if (! plist)
+	    return 0;
+	  mplist__pop_unref (plist);
+	}
+      else if (MPLIST_TAIL_P (keyseqlist))
+	{
+	  /* Cancel the customization.  */
+	  MInputMethodInfo *custom = get_custom_info (im_info);
+	  int no_custom = (! custom || ! custom->cmds
+			   || ! mplist__assq (custom->cmds, command));
+	  if (! plist)
+	    {
+	      if (no_custom)
+		return 0;
+	      plist = mplist ();
+	      mplist_add (config->cmds, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
+	      plist = mplist_add (plist, Msymbol, command);
+	    }
+	  else
+	    {
+	      plist = MPLIST_PLIST (plist); /* (NAME nil KEYSEQ ...) */
+	      plist = MPLIST_NEXT (plist);
+	      if (MPLIST_TAIL_P (plist))
+		return 0;
+	      mplist_set (plist, Mnil, NULL);
+	    }
 	}
       else
 	{
-	  plist = mplist ();
-	  mplist_add (config->cmds, Mplist, plist);
-	  M17N_OBJECT_UNREF (plist);
-	  plist = mplist_add (plist, Msymbol, command);
-	  plist = MPLIST_NEXT (plist);
-	}
-      if (keyseqlist)
-	{
 	  MPlist *pl;
 
-	  plist = mplist_add (plist, Msymbol, Mnil);
+	  if (plist)
+	    {
+	      plist = MPLIST_NEXT (MPLIST_PLIST (plist));
+	      if (! MPLIST_TAIL_P (plist))
+		mplist_set (plist, Mnil, NULL);
+	    }
+	  else
+	    {
+	      plist = mplist ();
+	      mplist_add (config->cmds, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
+	      plist = mplist_add (plist, Msymbol, command);
+	      plist = MPLIST_NEXT (plist);
+	    }
 	  MPLIST_DO (keyseqlist, keyseqlist)
 	    {
 	      pl = mplist_copy (MPLIST_VAL (keyseqlist));
@@ -5247,13 +5284,19 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     $NAME.
 
     If $VALUE is not NULL, it must be a plist of one element whose key
-    is #Minteger, #Msymbol, or #Mtext, and the value is of the
-    corresponding type.
+    is #Minteger, #Msymbol, or #Mtext, or an empty plist.  In the
+    former case, the value must be of the corresponding type, and it
+    is assinged to $VARIABLE.  In the latter case, the default value
+    for the input method is assigned to $VARIABLE.
 
     If $VALUE is NULL, a configuration for the variable for the input
-    method is canceled, and the variable is initialized to the default
-    value.  In that case, if $VARIABLE is #Mnil, configurations for
-    all variables of the input method are canceled.
+    method is canceled, and the variable is initialized to the
+    original value (it may be what saved in per-user configuration
+    file, or the default value of the input method).
+
+    If $VALUE is an empty plist or NULL, $VARIABLE can be #Mnil.  In
+    that case, it is applied to all the variables of the input method
+    are canceled.
 
     If $NAME is #Mnil, this function configure the value of global
     variable, not that of a specific input method.
@@ -5321,16 +5364,12 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
   im_info = get_im_info (language, name, Mnil, Mvariable);
   if (! im_info)
     MERROR (MERROR_IM, -1);
-  if (variable == Mnil)
-    {
-      if (value)
-	MERROR (MERROR_IM, -1);
-    }
-  else if (! im_info->vars
-	   || ! (plist = mplist__assq (im_info->configured_vars, variable)))
+  if (variable == Mnil ? (value && ! MPLIST_TAIL_P (value))
+      : (! im_info->vars
+	 || ! (plist = mplist__assq (im_info->configured_vars, variable))))
     MERROR (MERROR_IM, -1);
 
-  if (variable != Mnil && value)
+  if (value && ! MPLIST_TAIL_P (value))
     {
       plist = MPLIST_PLIST (plist);
       plist = MPLIST_NEXT (plist); /* (DESC STATUS VALUE VALIDS ...) */
@@ -5351,13 +5390,29 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
       config->vars = mplist ();
     }
 
+  if (! value && MPLIST_TAIL_P (config->vars))
+    /* Nothing to do.  */
+    return 0;
+
   if (variable == Mnil)
     {
-      MInputMethodInfo *custom = get_custom_info (im_info);
-
-      mplist_set (config->vars, Mnil, NULL);
-      if (custom && custom->vars)
+      if (! value)
 	{
+	  /* Cancel the configuration.  */
+	  if (MPLIST_TAIL_P (config->vars))
+	    return 0;
+	  mplist_set (config->vars, Mnil, NULL);
+	}
+      else
+	{
+	  /* Cancel the customization.  */
+	  MInputMethodInfo *custom = get_custom_info (im_info);
+
+	  if (MPLIST_TAIL_P (config->vars)
+	      && (! custom || ! custom->vars || MPLIST_TAIL_P (custom->vars)))
+	    /* Nothing to do.  */
+	    return 0;
+	  mplist_set (config->vars, Mnil, NULL);
 	  MPLIST_DO (plist, custom->vars)
 	    {
 	      variable = MPLIST_SYMBOL (MPLIST_PLIST (plist));
@@ -5371,24 +5426,53 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
   else
     {
       plist = mplist__assq (config->vars, variable);
-      if (plist)
+      if (! value)
 	{
-	  plist = MPLIST_PLIST (plist); /* (NAME nil VALUE) */
-	  plist = MPLIST_NEXT (plist);	/* ([nil VALUE]) */
-	  if (! MPLIST_TAIL_P (plist))
-	    mplist_set (plist, Mnil ,NULL); /* () */
+	  /* Cancel the configuration.  */
+	  if (! plist)
+	    return 0;
+	  mplist__pop_unref (plist);
+	}
+      else if (MPLIST_TAIL_P (value))
+	{
+	  /* Cancel the customization.  */
+	  MInputMethodInfo *custom = get_custom_info (im_info);
+	  int no_custom = (! custom || ! custom->vars
+			   || ! mplist__assq (custom->vars, variable));
+	  if (! plist)
+	    {
+	      if (no_custom)
+		return 0;
+	      plist = mplist ();
+	      mplist_add (config->vars, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
+	      plist = mplist_add (plist, Msymbol, variable);
+	    }
+	  else
+	    {
+	      plist = MPLIST_PLIST (plist); /* (NAME nil VALUE) */
+	      plist = MPLIST_NEXT (plist);	/* ([nil VALUE]) */
+	      if (! MPLIST_TAIL_P (plist))
+		return 0;
+	      mplist_set (plist, Mnil ,NULL);
+	    }
 	}
       else
 	{
-	  plist = mplist ();
-	  mplist_add (config->vars, Mplist, plist);
-	  M17N_OBJECT_UNREF (plist);
-	  plist = mplist_add (plist, Msymbol, variable);
-	  plist = MPLIST_NEXT (plist);
-	}
-      if (value)
-	{
-	  plist = mplist_add (plist, Msymbol, Mnil);
+	  if (plist)
+	    {
+	      plist = MPLIST_NEXT (MPLIST_PLIST (plist));
+	      if (! MPLIST_TAIL_P (plist))
+		mplist_set (plist, Mnil, NULL);
+	    }
+	  else
+	    {
+	      plist = mplist ();
+	      mplist_add (config->vars, Mplist, plist);
+	      M17N_OBJECT_UNREF (plist);
+	      plist = mplist_add (plist, Msymbol, variable);
+	      plist = MPLIST_NEXT (plist);
+	    }
 	  mplist_add (plist, MPLIST_KEY (value), MPLIST_VAL (value));
 	}
     }
@@ -5501,8 +5585,8 @@ minput_save_config (void)
   update_custom_info ();
   if (! im_custom_list)
     im_custom_list = mplist ();
-  data = tail = mplist ();
 
+  /* At first, reflect configuration in customization.  */
   MPLIST_DO (plist, im_config_list)
     {
       MPlist *pl = MPLIST_PLIST (plist);
@@ -5532,7 +5616,11 @@ minput_save_config (void)
 	    if (MPLIST_TAIL_P (elt))
 	      {
 		if (p)
-		  mplist__pop_unref (p);
+		  {
+		    /* Make customization ignored.  */
+		    p = MPLIST_NEXT (MPLIST_PLIST (p));
+		    mplist_set (p, Mnil, NULL);
+		  }
 	      }
 	    else
 	      {
@@ -5584,6 +5672,8 @@ minput_save_config (void)
     }
   M17N_OBJECT_UNREF (im_config_list);
 
+  /* Next, reflect customization to the actual plist to be written.  */
+  data = tail = mplist ();
   MPLIST_DO (plist, im_custom_list)
     {
       MPlist *pl = MPLIST_PLIST (plist);
@@ -5597,6 +5687,9 @@ minput_save_config (void)
       extra = MPLIST_SYMBOL (pl);
       pl = MPLIST_NEXT (pl);
       custom = MPLIST_VAL (pl);
+      if ((! custom->cmds || MPLIST_TAIL_P (custom->cmds))
+	  && (! custom->vars || MPLIST_TAIL_P (custom->vars)))
+	continue;
       im_info = lookup_im_info (im_info_list, language, name, extra);
       if (im_info)
 	{
@@ -5606,34 +5699,54 @@ minput_save_config (void)
 	    config_all_variables (im_info);
 	}
       
-      elt = mplist ();
-      tail = mplist_add (tail, Mplist, elt);
-      M17N_OBJECT_UNREF (elt);
-      pl = mplist ();
-      elt = mplist_add (elt, Mplist, pl);
-      M17N_OBJECT_UNREF (pl);
-      pl = mplist_add (pl, Msymbol, Minput_method);
-      pl = mplist_add (pl, Msymbol, language);
-      pl = mplist_add (pl, Msymbol, name);
-      if (extra != Mnil)
-	pl = mplist_add (pl, Msymbol, extra);
+      elt = NULL;
       if (custom->cmds && ! MPLIST_TAIL_P (custom->cmds))
 	{
-	  pl = mplist ();
-	  elt = mplist_add (elt, Mplist, pl);
-	  M17N_OBJECT_UNREF (pl);
-	  pl = mplist_add (pl, Msymbol, Mcommand);
 	  MPLIST_DO (p, custom->cmds)
-	    pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
+	    if (! MPLIST_TAIL_P (MPLIST_NEXT (MPLIST_PLIST (p))))
+	      break;
+	  if (! MPLIST_TAIL_P (p))
+	    {
+	      elt = mplist ();
+	      pl = mplist ();
+	      mplist_add (elt, Mplist, pl);
+	      M17N_OBJECT_UNREF (pl);
+	      pl = mplist_add (pl, Msymbol, Mcommand);
+	      MPLIST_DO (p, custom->cmds)
+		if (! MPLIST_TAIL_P (MPLIST_NEXT (MPLIST_PLIST (p))))
+		  pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
+	    }
 	}
       if (custom->vars && ! MPLIST_TAIL_P (custom->vars))
 	{
-	  pl = mplist ();
-	  elt = mplist_add (elt, Mplist, pl);
-	  M17N_OBJECT_UNREF (pl);
-	  pl = mplist_add (pl, Msymbol, Mvariable);
 	  MPLIST_DO (p, custom->vars)
-	    pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
+	    if (! MPLIST_TAIL_P (MPLIST_NEXT (MPLIST_PLIST (p))))
+	      break;
+	  if (! MPLIST_TAIL_P (p))
+	    {
+	      if (! elt)
+		elt = mplist ();
+	      pl = mplist ();
+	      mplist_add (elt, Mplist, pl);
+	      M17N_OBJECT_UNREF (pl);
+	      pl = mplist_add (pl, Msymbol, Mvariable);
+	      MPLIST_DO (p, custom->vars)
+		if (! MPLIST_TAIL_P (MPLIST_NEXT (MPLIST_PLIST (p))))
+		  pl = mplist_add (pl, Mplist, MPLIST_PLIST (p));
+	    }
+	}
+      if (elt)
+	{
+	  pl = mplist ();
+	  mplist_push (elt, Mplist, pl);
+	  M17N_OBJECT_UNREF (pl);
+	  pl = mplist_add (pl, Msymbol, Minput_method);
+	  pl = mplist_add (pl, Msymbol, language);
+	  pl = mplist_add (pl, Msymbol, name);
+	  if (extra != Mnil)
+	    pl = mplist_add (pl, Msymbol, extra);
+	  tail = mplist_add (tail, Mplist, elt);
+	  M17N_OBJECT_UNREF (elt);
 	}
     }
 
