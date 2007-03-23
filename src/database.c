@@ -1010,6 +1010,7 @@ mdatabase__update (void)
 	}
       M17N_OBJECT_UNREF (pl);
     }
+  M17N_OBJECT_UNREF (plist);
 }
 
 MPlist *
