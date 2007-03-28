@@ -2752,7 +2752,8 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 		  next = MPLIST_NEXT (next);
 		}
 	    }
-	  M17N_OBJECT_UNREF (plist);
+	  if (charset)
+	    M17N_OBJECT_UNREF (plist);
 	  plist = mplist ();
 	  len = mtext_nchars (mt);
 	  if (len <= column)
