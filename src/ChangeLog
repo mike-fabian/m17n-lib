@@ -1,3 +1,52 @@
+2007-03-29  Kenichi Handa  <handa@m17n.org>
+
+	* face.h (enum MFaceProperty): Delete MFACE_HOOK_FUNC.
+	(struct MFace): New member hook.
+
+	* face.c (serialize_face): Adjusted for the change of MFace.
+	(deserialize_face): Likewise.
+	(mface__init): Likewise.  Use msymbol_put_func.
+	(mface__realize): Adjusted for the change of MFace.  Avoid
+	compiler warning.
+	(mface_get_prop): Adjusted for the change of MFace.
+	(mface_put_prop): Likewise.
+	(mface_get_hook): New function.
+	(mface_put_hook): New function.
+	(mface_update): Adjusted for the change of MFace.
+
+	* input-gui.c (win_callback): Use mplsit_get_func.
+	(minput__win_init): Use mplsit_put_func.
+
+	* input.c (take_action_list): Use mplist_get_func.
+	(init_ic_info): Likewise.
+	(fini_ic_info): Likewise.
+	(minput_callback): Likewise.
+	(minput__init): Use mplist_put_func.
+
+	* language.c (mlang__init): Use msymbol_put_func.
+
+	* m17n-core.h (M17NFunc): New function type.
+	(M17N_FUNC): New macro.
+	(msymbol_put_func, msymbol_get_func): Extern them.
+	(mplist_put_func, mplist_get_func): Extern them.
+	
+	* m17n-gui.h (mface_get_hook, mface_put_hook): Extern them.
+
+	* m17n-gui.c (mframe): Add a proper casting.
+
+	* plist.h (struct MPlist): Make the member val a union.
+	(MPLIST_VAL): Adjusted for the above change.
+	(MPLIST_FUNC): New macro.
+	(MPLIST_VAL_FUNC_P, MPLIST_SET_VAL_FUNC_P): New macros.
+
+	* plist.c (mplist_put_func, mplist_get_func): New functions.
+
+	* symbol.c (msymbol__fini): Use MPLIST_VAL.
+	(msymbol_put_func, msymbol_get_func): New functions.
+
+	* textprop.c (mtext_serialize): Use msymbol_get_func.
+	(mtext_deserialize): Likewise.
+
 2007-03-28  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (get_candidate_list): Avoid unnecessary unref.
