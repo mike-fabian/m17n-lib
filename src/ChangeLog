@@ -1,5 +1,7 @@
 2007-03-29  Kenichi Handa  <handa@m17n.org>
 
+	These changes are to avoid unsafe casting of a function pointer.
+
 	* face.h (enum MFaceProperty): Delete MFACE_HOOK_FUNC.
 	(struct MFace): New member hook.
 
