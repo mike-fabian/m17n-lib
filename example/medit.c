@@ -2289,16 +2289,16 @@ setup_input_methods (int with_xim, char *initial_input_method)
 
   qsort (input_method_table, num_input_methods, sizeof input_method_table[0],
 	 compare_input_method);
-  mplist_put (minput_driver->callback_list, Minput_status_start,
-	      (void *) input_status);
-  mplist_put (minput_driver->callback_list, Minput_status_draw,
-	      (void *) input_status);
-  mplist_put (minput_driver->callback_list, Minput_status_done,
-	      (void *) input_status);
-  mplist_put (minput_driver->callback_list, Minput_get_surrounding_text,
-	      (void *) surrounding_text_handler);
-  mplist_put (minput_driver->callback_list, Minput_delete_surrounding_text,
-	      (void *) surrounding_text_handler);
+  mplist_put_func (minput_driver->callback_list, Minput_status_start,
+		   M17N_FUNC (input_status));
+  mplist_put_func (minput_driver->callback_list, Minput_status_draw,
+		   M17N_FUNC (input_status));
+  mplist_put_func (minput_driver->callback_list, Minput_status_done,
+		   M17N_FUNC (input_status));
+  mplist_put_func (minput_driver->callback_list, Minput_get_surrounding_text,
+		   M17N_FUNC (surrounding_text_handler));
+  mplist_put_func (minput_driver->callback_list, Minput_delete_surrounding_text,
+		   M17N_FUNC (surrounding_text_handler));
 
   current_input_context = NULL;
   current_input_method = -1;
