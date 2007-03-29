@@ -1227,6 +1227,7 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 
   MPLIST_KEY (plist) = (key);
   MPLIST_FUNC (plist) = func;
+  MPLIST_SET_VAL_FUNC_P (plist);
   if (! plist->next)
     MPLIST_NEW ((plist)->next);
   return plist;
