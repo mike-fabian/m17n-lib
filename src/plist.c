@@ -1166,10 +1166,10 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
 /***en
     @brief Get the value of a property in a property list.
 
-    The mplist_get () function searches property list $PLIST
-    from the beginning for a property whose key is $KEY.  If such a
-    property is found, a pointer to its value is returned as the type
-    of <tt>(void *)</tt>.  If not found, @c NULL is returned.
+    The mplist_get () function searches property list $PLIST from the
+    beginning for a property whose key is $KEY.  If such a property is
+    found, its value is returned as the type of <tt>(void *)</tt>.  If
+    not found, @c NULL is returned.
 
     When @c NULL is returned, there are two possibilities: one is the
     case where no property is found (see above); the other is the case
@@ -1179,8 +1179,8 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
 /***ja
     @brief プロパティリスト中のプロパティの値を得る.
 
-    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、キーが
-    $KEY であるプロパティを見つける。見つかれば、その値へのポインタを
+    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、キー
+    が $KEY であるプロパティを見つける。見つかれば、その値を
     <tt>(void *)</tt> 型で返す。見つからなければ @c NULL を返す。
 
     @c NULL が返った際には二つの可能性がある: 
@@ -1197,6 +1197,55 @@ mplist_get (MPlist *plist, MSymbol key)
 {
   MPLIST_FIND (plist, key);
   return (MPLIST_TAIL_P (plist) ? NULL : MPLIST_VAL (plist));
+}
+
+/*=*/
+
+/***en
+    @brief Set the value (function pointer) of a property in a property list.
+
+    The mplist_put_func () function is like mplist_put () but for
+    settting function pointer $FUNC in property list $PLIST for key
+    $KEY.  */
+
+/***
+    @seealso
+    mplist_put (), M17N_FUNC ()  */
+
+MPlist *
+mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
+{
+  if (key == Mnil)
+    MERROR (MERROR_PLIST, NULL);
+  do {
+    MPLIST_FIND (plist, key);
+  } while (! MPLIST_TAIL_P (plist) && ! MPLIST_VAL_FUNC_P (plist));
+
+  MPLIST_KEY (plist) = (key);
+  MPLIST_FUNC (plist) = func;
+  if (! plist->next)
+    MPLIST_NEW ((plist)->next);
+  return plist;
+}
+
+/*=*/
+
+/***en
+    @brief Get the value (function pointer) of a property in a property list.
+
+    The mplist_get_func () funciont is like mplist_get () but for
+    getting a function pointer from property list $PLIST by key $KEY.  */
+
+/***
+    @seealso
+    mplist_get () */
+M17NFunc
+mplist_get_func (MPlist *plist, MSymbol key)
+{
+  do {
+    MPLIST_FIND (plist, key);
+  } while (! MPLIST_TAIL_P (plist) && ! MPLIST_VAL_FUNC_P (plist));
+  return (MPLIST_TAIL_P (plist) ? NULL : MPLIST_FUNC (plist));
 }
 
 /*=*/
