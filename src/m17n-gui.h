@@ -410,21 +410,21 @@ typedef struct
 /***en
     @brief Type of hook function of face.
 
-    The type #MFaceHookFunc is to specify the #Mhook property of a
-    face.  The value of the property must be function of this
-    type.  */
+    #MFaceHookFunc is a type of a hook function of a face.  */
 /***ja
     @brief フェースのフック関数の型宣言.
 
-    #MFaceHookFunc はフェースの #Mhook プロパティを指定する型である。
-    このプロパティの値は、この型の関数でなくてはならない。
-      */
+    #MFaceHookFunc はフェースのフック関数の型である。*/
 typedef void (*MFaceHookFunc) (MFace *face, void *arg, void *info);
 /*=*/
 
 extern void *mface_get_prop (MFace *face, MSymbol key);
 
 extern int mface_put_prop (MFace *face, MSymbol key, void *val);
+
+extern MFaceHookFunc mface_get_hook (MFace *face);
+
+extern int mface_put_hook (MFace *face, MFaceHookFunc func);
 
 extern void mface_update (MFrame *frame, MFace *face);
 
