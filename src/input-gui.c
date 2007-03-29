@@ -487,8 +487,8 @@ win_callback (MInputContext *ic, MSymbol command)
 
       if (minput_default_driver.callback_list
 	  && (func = ((MInputCallbackFunc)
-		      mplist_get (minput_default_driver.callback_list,
-				  Minput_reset))))
+		      mplist_get_func (minput_default_driver.callback_list,
+				       Minput_reset))))
 	{
 	  MInputContextInfo *ic_info
 	    = (MInputContextInfo *) win_ic_info->ic_info;
@@ -533,18 +533,18 @@ minput__win_init ()
     MPlist *plist = mplist ();
 
     minput_gui_driver.callback_list = plist;
-    plist = mplist_add (plist, Minput_preedit_start, (void *) win_callback);
-    plist = mplist_add (plist, Minput_preedit_draw, (void *) win_callback);
-    plist = mplist_add (plist, Minput_preedit_done, (void *) win_callback);
-    plist = mplist_add (plist, Minput_status_start, (void *) win_callback);
-    plist = mplist_add (plist, Minput_status_draw, (void *) win_callback);
-    plist = mplist_add (plist, Minput_status_done, (void *) win_callback);
-    plist = mplist_add (plist, Minput_candidates_start, (void *) win_callback);
-    plist = mplist_add (plist, Minput_candidates_draw, (void *) win_callback);
-    plist = mplist_add (plist, Minput_candidates_done, (void *) win_callback);
-    plist = mplist_add (plist, Minput_set_spot, (void *) win_callback);
-    plist = mplist_add (plist, Minput_toggle, (void *) win_callback);
-    plist = mplist_add (plist, Minput_reset, (void *) win_callback);
+    mplist_put_func (plist, Minput_preedit_start, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_preedit_draw, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_preedit_done, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_status_start, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_status_draw, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_status_done, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_candidates_start, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_candidates_draw, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_candidates_done, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_set_spot, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_toggle, M17N_FUNC (win_callback));
+    mplist_put_func (plist, Minput_reset, M17N_FUNC (win_callback));
   }
 #if 0
   /* This will make the caller of minput_method_open() pazzled.  */
