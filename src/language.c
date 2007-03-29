@@ -94,10 +94,10 @@ init_script_list (void)
 int
 mlang__init ()
 {
-  msymbol_put (Mlanguage, Mtext_prop_serializer,
-	       (void *) msymbol__serializer);
-  msymbol_put (Mlanguage, Mtext_prop_deserializer,
-	       (void *) msymbol__deserializer);
+  msymbol_put_func (Mlanguage, Mtext_prop_serializer,
+		    M17N_FUNC (msymbol__serializer));
+  msymbol_put_func (Mlanguage, Mtext_prop_deserializer,
+		    M17N_FUNC (msymbol__deserializer));
   Miso639_2 = msymbol ("iso639-2");
   Miso639_1 = msymbol ("iso639-1");
 
