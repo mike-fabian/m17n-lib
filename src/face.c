@@ -243,7 +243,7 @@ serialize_face (void *val)
     MSymbol *key;
     MSymbol *type;
     MPlist *(*func) (MPlist *plist, void *val);
-  } serializer[MFACE_PROPERTY_MAX]
+  } serializer[MFACE_RATIO + 1]
       = { { &Mfoundry,		&Msymbol },
 	  { &Mfamily,		&Msymbol },
 	  { &Mweight,		&Msymbol },
@@ -257,11 +257,9 @@ serialize_face (void *val)
 	  { &Mhline,		NULL },
 	  { &Mbox,		NULL },
 	  { &Mvideomode, 	&Msymbol },
-	  { NULL,		NULL}, /* MFACE_HOOK_FUNC */
-	  { NULL,		NULL}, /* MFACE_HOOK_ARG */
 	  { &Mratio,		&Minteger } };
   
-  for (i = 0; i < MFACE_PROPERTY_MAX; i++)
+  for (i = 0; i <= MFACE_RATIO; i++)
     if (face->property[i] && serializer[i].key)
       {
 	pl = mplist_add (pl, Msymbol, *serializer[i].key);
@@ -363,7 +361,7 @@ deserialize_face (MPlist *plist)
       plist = MPLIST_NEXT (plist);
       if (MPLIST_TAIL_P (plist))
 	break;
-      if (index < 0 || index >= MFACE_PROPERTY_MAX)
+      if (index < 0 || index > MFACE_RATIO)
 	continue;
       if (key == Mfoundry || key == Mfamily || key == Mweight || key == Mstyle
 	  || key == Mstretch || key == Madstyle
@@ -419,8 +417,10 @@ mface__init ()
 
   M17N_OBJECT_ADD_ARRAY (face_table, "Face");
   Mface = msymbol_as_managing_key ("face");
-  msymbol_put (Mface, Mtext_prop_serializer, (void *) serialize_face);
-  msymbol_put (Mface, Mtext_prop_deserializer, (void *) deserialize_face);
+  msymbol_put_func (Mface, Mtext_prop_serializer,
+		    M17N_FUNC (serialize_face));
+  msymbol_put_func (Mface, Mtext_prop_deserializer,
+		    M17N_FUNC (deserialize_face));
 
   Mforeground = msymbol ("foreground");
   Mbackground = msymbol ("background");
@@ -442,7 +442,7 @@ mface__init ()
       MSymbol *key;
       /* Index (enum face_property) of the face property. */
       int index;
-    } mface_prop_data[MFACE_PROPERTY_MAX] =
+    } mface_prop_data[MFACE_HOOK_ARG + 1] =
 	{ { &Mfoundry,		MFACE_FOUNDRY },
 	  { &Mfamily,		MFACE_FAMILY },
 	  { &Mweight,		MFACE_WEIGHT },
@@ -456,10 +456,8 @@ mface__init ()
 	  { &Mhline,		MFACE_HLINE },
 	  { &Mbox,		MFACE_BOX },
 	  { &Mvideomode, 	MFACE_VIDEOMODE },
-	  { &Mhook_func,	MFACE_HOOK_FUNC },
-	  { &Mhook_arg,		MFACE_HOOK_ARG },
 	  { &Mratio,		MFACE_RATIO },
-	};
+	  { &Mhook_arg,		MFACE_HOOK_ARG } };
 
     for (i = 0; i < MFACE_PROPERTY_MAX; i++)
       /* We add one to distinguish it from no-property.  */
@@ -488,7 +486,7 @@ mface__init ()
   mface__default->property[MFACE_HLINE] = hline;
   mface__default->property[MFACE_BOX] = box;
   mface__default->property[MFACE_VIDEOMODE] = Mnormal;
-  mface__default->property[MFACE_HOOK_FUNC] = (void *) noop_hook;
+  mface__default->hook = noop_hook;
 
   mface_normal_video = mface ();
   mface_normal_video->property[MFACE_VIDEOMODE] = (void *) Mnormal;
@@ -634,9 +632,12 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	  merged_face.property[i] = FONT_PROPERTY (font, i);
       if (font->size)
 	{
+	  int font_size;
+
 	  if (font->size < 0)
 	    font->size = ((double) (- font->size)) * frame->dpi / 72.27 + 0.5;
-	  merged_face.property[MFACE_SIZE] = (void *) font->size;
+	  font_size = font->size;
+	  merged_face.property[MFACE_SIZE] = (void *) font_size;
 	  merged_face.property[MFACE_RATIO] = (void *) 0;
 	}
     }
@@ -771,7 +772,7 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
   rface->ascii_rface = rface;
   (*frame->driver->realize_face) (rface);
 
-  func = (MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC];
+  func = rface->face.hook;
   if (func && func != noop_hook)
     (func) (&(rface->face), rface->info, rface->face.property[MFACE_HOOK_ARG]);
 
@@ -1820,7 +1821,7 @@ mface_from_font (MFont *font)
 
         #Mforeground, #Mbackground, #Mvideomode, #Mhline, #Mbox,
         #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle,
-        #Msize, #Mfontset, #Mratio, #Mhook_func, #Mhook_arg
+        #Msize, #Mfontset, #Mratio, #Mhook_arg
 
     @return 
     戻り値の型は $KEY に依存する。上記のキーの説明を参照すること。
@@ -1829,7 +1830,7 @@ mface_from_font (MFont *font)
 
 /***
     @seealso
-    mface_put_prop ()
+    mface_put_prop (), mface_put_hook ()
 
     @errors
     @c MERROR_FACE  */
@@ -1840,8 +1841,27 @@ mface_get_prop (MFace *face, MSymbol key)
   int index = (int) msymbol_get (key, M_face_prop_index) - 1;
 
   if (index < 0)
-    MERROR (MERROR_FACE, NULL);
+    {
+      if (key == Mhook_func)
+	/* This unsafe code is for backward compatiblity.  */
+	return *(void **) &face->hook;
+      MERROR (MERROR_FACE, NULL);
+    }
   return face->property[index];
+}
+
+/*=*/
+
+/***en
+    @brief Get the hook function of a face.
+
+    The mface_get_hook () function returns a hook function of face
+    $FACE.  */
+
+MFaceHookFunc
+mface_get_hook (MFace *face)
+{
+  return face->hook;
 }
 
 /*=*/
@@ -1901,22 +1921,32 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
   int index = (int) msymbol_get (key, M_face_prop_index) - 1;
   MPlist *plist;
 
-  if (index < 0)
-    MERROR (MERROR_FACE, -1);
-  if (key == Mfontset)
+  if (key == Mhook_func)
     {
-      if (face->property[index])
-	M17N_OBJECT_UNREF (face->property[index]);
-      M17N_OBJECT_REF (val);
+      /* This unsafe code is for backward compatiblity.  */
+      if (*(void **) &face->hook == val)
+	return 0;
+      *(void **) &face->hook = val;
     }
-  else if (key == Mhline)
-    val = get_hline_create (val);
-  else if (key == Mbox)
-    val = get_box_create (val);
+  else
+    {
+      if (index < 0)
+	MERROR (MERROR_FACE, -1);
+      if (key == Mfontset)
+	{
+	  if (face->property[index])
+	    M17N_OBJECT_UNREF (face->property[index]);
+	  M17N_OBJECT_REF (val);
+	}
+      else if (key == Mhline)
+	val = get_hline_create (val);
+      else if (key == Mbox)
+	val = get_box_create (val);
 
-  if (face->property[index] == val)
-    return 0;
-  face->property[index] = val;
+      if (face->property[index] == val)
+	return 0;
+      face->property[index] = val;
+    }
 
   MPLIST_DO (plist, face->frame_list)
     {
@@ -1927,6 +1957,34 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
 	mface__update_frame_face (frame);
     }
 
+  return 0;
+}
+
+/*=*/
+
+/***en
+    @brief Set a hook function to a face.
+
+    The mface_set_hook () function sets the hook function of face
+    $FACE to $FUNC.  */
+
+int
+mface_put_hook (MFace *face, MFaceHookFunc func)
+{
+  if (face->hook != func)
+    {
+      MPlist *plist;
+      face->hook = func;
+
+      MPLIST_DO (plist, face->frame_list)
+	{
+	  MFrame *frame = MPLIST_VAL (plist);
+
+	  frame->tick++;
+	  if (face == frame->face)
+	    mface__update_frame_face (frame);
+	}
+    }
   return 0;
 }
 
@@ -1947,7 +2005,7 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
 void
 mface_update (MFrame *frame, MFace *face)
 {
-  MFaceHookFunc func = (MFaceHookFunc) face->property[MFACE_HOOK_FUNC];
+  MFaceHookFunc func = face->hook;
   MPlist *rface_list;
   MRealizedFace *rface;
 
@@ -1956,7 +2014,7 @@ mface_update (MFrame *frame, MFace *face)
       MPLIST_DO (rface_list, frame->realized_face_list)
 	{
 	  rface = MPLIST_VAL (rface_list);
-	  if ((MFaceHookFunc) rface->face.property[MFACE_HOOK_FUNC] == func)
+	  if (rface->face.hook == func)
 	    (func) (&(rface->face), rface->face.property[MFACE_HOOK_ARG],
 		    rface->info);
 	}
