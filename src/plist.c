@@ -1217,9 +1217,13 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 {
   if (key == Mnil)
     MERROR (MERROR_PLIST, NULL);
-  do {
-    MPLIST_FIND (plist, key);
-  } while (! MPLIST_TAIL_P (plist) && ! MPLIST_VAL_FUNC_P (plist));
+  while (1)
+    {
+      MPLIST_FIND (plist, key);
+      if (MPLIST_TAIL_P (plist) || MPLIST_VAL_FUNC_P (plist))
+	break;
+      plist = MPLIST_NEXT (plist);
+    };
 
   MPLIST_KEY (plist) = (key);
   MPLIST_FUNC (plist) = func;
@@ -1242,9 +1246,13 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 M17NFunc
 mplist_get_func (MPlist *plist, MSymbol key)
 {
-  do {
-    MPLIST_FIND (plist, key);
-  } while (! MPLIST_TAIL_P (plist) && ! MPLIST_VAL_FUNC_P (plist));
+  while (1)
+    {
+      MPLIST_FIND (plist, key);
+      if (MPLIST_TAIL_P (plist) || MPLIST_VAL_FUNC_P (plist))
+	break;
+      plist = MPLIST_NEXT (plist);
+    };
   return (MPLIST_TAIL_P (plist) ? NULL : MPLIST_FUNC (plist));
 }
 
