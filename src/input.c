@@ -3174,8 +3174,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		= (MIMExternalModule *) mplist_get (im_info->externals,
 						    module);
 	      if (external)
-		func = (MIMExternalFunc) mplist_get (external->func_list,
-						     func_name);
+		func = ((MIMExternalFunc)
+			mplist_get_func (external->func_list, func_name));
 	    }
 	  if (! func)
 	    continue;
@@ -3540,7 +3540,7 @@ init_ic_info (MInputContext *ic)
 	{
 	  MIMExternalModule *external = MPLIST_VAL (plist);
 	  MIMExternalFunc func
-	    = (MIMExternalFunc) mplist_get (external->func_list, Minit);
+	    = (MIMExternalFunc) mplist_get_func (external->func_list, Minit);
 
 	  if (func)
 	    (func) (func_args);
@@ -3569,7 +3569,7 @@ fini_ic_info (MInputContext *ic)
 	{
 	  MIMExternalModule *external = MPLIST_VAL (plist);
 	  MIMExternalFunc func
-	    = (MIMExternalFunc) mplist_get (external->func_list, Mfini);
+	    = (MIMExternalFunc) mplist_get_func (external->func_list, Mfini);
 
 	  if (func)
 	    (func) (func_args);
@@ -3943,8 +3943,8 @@ minput__init ()
   minput_default_driver.filter = filter;
   minput_default_driver.lookup = lookup;
   minput_default_driver.callback_list = mplist ();
-  mplist_put (minput_default_driver.callback_list, Minput_reset,
-	      (void *) reset_ic);
+  mplist_put_func (minput_default_driver.callback_list, Minput_reset,
+		   M17N_FUNC (reset_ic));
   minput_driver = &minput_default_driver;
 
   fully_initialized = 0;
@@ -6167,8 +6167,8 @@ minput_callback (MInputContext *ic, MSymbol command)
 
   if (! ic->im->driver.callback_list)
     return -1;
-  func = (MInputCallbackFunc) mplist_get (ic->im->driver.callback_list,
-					  command);
+  func = ((MInputCallbackFunc)
+	  mplist_get_func (ic->im->driver.callback_list, command));
   if (! func)
     return -1;
   (func) (ic, command);
