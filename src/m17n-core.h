@@ -122,6 +122,30 @@ extern int m17n_object_ref (void *object);
 /* Decrement the reference count of managed object OBJECT.  */
 extern int m17n_object_unref (void *object);
 
+/*** @ingroup m17nCore */
+/***en
+    @brief Generic function type.
+
+    #M17NFunc is a generic function type for setting a function
+    pointer as a value of #MSymbol property or #MPlist.  */
+
+/***
+    @seealso
+    msymbol_put_func (), msymbol_get_func (),
+    mplist_put_func (), mplist_get_func ().  */
+
+typedef void (*M17NFunc) (void);
+
+/*=*/
+
+/*** @ingroup m17nCore */
+/***en
+    @brief Wrapper for a generic function type.
+
+    The macro M17N_FUNC () is to cast a function to type #M17NFunc.  */
+
+#define M17N_FUNC(func) ((M17NFunc) (func))
+
 /*=*/
 
 /* (C2) Symbol handling */
@@ -177,6 +201,10 @@ extern int msymbol_put (MSymbol symbol, MSymbol key, void *val);
 /*** Return KEY property value of SYMBOL.  */
 extern void *msymbol_get (MSymbol symbol, MSymbol key);
 
+extern int msymbol_put_func (MSymbol symbol, MSymbol key, M17NFunc func);
+
+extern M17NFunc msymbol_get_func (MSymbol symbol, MSymbol key);
+
 /* 
  *  (2-1) Property List
  */
@@ -219,6 +247,10 @@ extern void *mplist_pop (MPlist *plist);
 extern MPlist *mplist_put (MPlist *plist, MSymbol key, void *val);
 
 extern void *mplist_get (MPlist *plist, MSymbol key);
+
+extern MPlist *mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func);
+
+extern M17NFunc mplist_get_func (MPlist *plist, MSymbol key);
 
 extern MPlist *mplist_find_by_key (MPlist *plist, MSymbol key);
 
