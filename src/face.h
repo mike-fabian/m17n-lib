@@ -46,13 +46,11 @@ enum MFaceProperty
     MFACE_BOX,
     MFACE_VIDEOMODE,
 
-    /** Extention by applications.  */
-    MFACE_HOOK_FUNC,
-    MFACE_HOOK_ARG,
-
     /* In a realized face, this is ignored because it is already
        reflected in MFACE_SIZE.  */
     MFACE_RATIO,
+
+    MFACE_HOOK_ARG,
 
     MFACE_PROPERTY_MAX
   };
@@ -63,6 +61,8 @@ struct MFace
 
   /** Properties of the face.  */
   void *property[MFACE_PROPERTY_MAX];
+
+  MFaceHookFunc hook;
 
   /** List of frames affected by the face modification.  */
   MPlist *frame_list;
