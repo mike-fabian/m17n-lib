@@ -2868,7 +2868,8 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
     {
       MSymbol key = MPLIST_VAL (pl);
 
-      func = (MTextPropSerializeFunc) msymbol_get (key, Mtext_prop_serializer);
+      func = ((MTextPropSerializeFunc)
+	      msymbol_get_func (key, Mtext_prop_serializer));
       if (func)
 	extract_text_properties (mt, from, to, key, plist);
     }
@@ -2881,8 +2882,8 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
       MPlist *serialized_plist;
       xmlNodePtr child;
 
-      func = (MTextPropSerializeFunc) msymbol_get (prop->key,
-						   Mtext_prop_serializer);
+      func = ((MTextPropSerializeFunc)
+	      msymbol_get_func (prop->key, Mtext_prop_serializer));
       serialized_plist = (func) (prop->val);
       if (! serialized_plist)
 	continue;
@@ -3063,7 +3064,7 @@ mtext_deserialize (MText *mt)
 
 	key = msymbol ((char *) key_str);
 	func = ((MTextPropDeserializeFunc)
-		msymbol_get (key, Mtext_prop_deserializer));
+		msymbol_get_func (key, Mtext_prop_deserializer));
 	if (! func)
 	  continue;
 	plist = mplist__from_string (val_str, strlen ((char *) val_str));
