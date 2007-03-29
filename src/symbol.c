@@ -155,7 +155,7 @@ msymbol__fini ()
       if (! MPLIST_TAIL_P (&sym->plist))
 	{
 	  if (sym->plist.key->managing_key)
-	    M17N_OBJECT_UNREF (sym->plist.val);
+	    M17N_OBJECT_UNREF (MPLIST_VAL (&sym->plist));
 	  M17N_OBJECT_UNREF (sym->plist.next);
 	  sym->plist.key = Mnil;
 	}
@@ -658,6 +658,45 @@ msymbol_get (MSymbol symbol, MSymbol key)
   plist = &symbol->plist;
   MPLIST_FIND (plist, key);
   return (MPLIST_TAIL_P (plist) ? NULL : MPLIST_VAL (plist));
+}
+
+/*=*/
+/***en
+    @brief Set the value (function pointer) of a symbol property.
+
+    The msymbol_put_func () function is like msymbol_put () but for
+    setting function pointer $FUNC as a property value of $SYMBOL for
+    key $KEY.  */
+
+/***
+    @seealso msymbol_put (), M17N_FUNC ()  */
+int
+msymbol_put_func (MSymbol symbol, MSymbol key, M17NFunc func)
+{
+  if (symbol == Mnil || key == Mnil)
+    MERROR (MERROR_SYMBOL, -1);
+  mplist_put_func (&symbol->plist, key, func);
+  return 0;
+}
+
+/*=*/
+
+/***en
+    @brief Get the value (function pointer) of a symbol property.
+
+    The msymbol_get_func () function is like msymbol_get () but for
+    getting a function pointer form the property of symbol $SYMBOL.  */
+
+/***
+    @seealso
+    msymbol_get ()  */
+
+M17NFunc
+msymbol_get_func (MSymbol symbol, MSymbol key)
+{
+  if (symbol == Mnil || key == Mnil)
+    return NULL;
+  return mplist_get_func (&symbol->plist, key);
 }
 
 /*** @} */
