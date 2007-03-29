@@ -35,7 +35,10 @@ struct MPlist
   MSymbol key;
 
   /**en Value of the first element of the plist.  */
-  void *val;
+  union {
+    void *pointer;
+    M17NFunc func;
+  } val;
 
   /**en Plist for the next element. */
   MPlist *next;
@@ -44,7 +47,8 @@ struct MPlist
 /** Macros to access each member of PLIST.  */
 
 #define MPLIST_KEY(plist) ((plist)->key)
-#define MPLIST_VAL(plist) ((plist)->val)
+#define MPLIST_VAL(plist) ((plist)->val.pointer)
+#define MPLIST_FUNC(plist) ((plist)->val.func)
 #define MPLIST_NEXT(plist) ((plist)->next)
 #define MPLIST_TAIL_P(plist) ((plist)->key == Mnil)
 
@@ -58,6 +62,11 @@ struct MPlist
   (MPLIST_PLIST_P (plist) || ((plist)->control.flag & 1))
 #define MPLIST_SET_NESTED_P(plist)	\
   ((plist)->control.flag |= 1)
+
+#define MPLIST_VAL_FUNC_P(plist)	\
+  ((plist)->control.flag & 2)
+#define MPLIST_SET_VAL_FUNC_P(plist)	\
+  ((plist)->control.flag |= 2)
 
 #define MPLIST_SYMBOL(plist) ((MSymbol) MPLIST_VAL (plist))
 #define MPLIST_STRING(plist) ((char *) MPLIST_VAL (plist))
