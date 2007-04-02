@@ -1855,7 +1855,7 @@ mface_get_prop (MFace *face, MSymbol key)
 /***en
     @brief Get the hook function of a face.
 
-    The mface_get_hook () function returns a hook function of face
+    The mface_get_hook () function returns the hook function of face
     $FACE.  */
 
 MFaceHookFunc

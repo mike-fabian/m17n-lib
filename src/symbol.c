@@ -664,8 +664,8 @@ msymbol_get (MSymbol symbol, MSymbol key)
 /***en
     @brief Set the value (function pointer) of a symbol property.
 
-    The msymbol_put_func () function is like msymbol_put () but for
-    setting function pointer $FUNC as a property value of $SYMBOL for
+    The msymbol_put_func () function is similar to msymbol_put () but for
+    setting function pointer $FUNC as the property value of $SYMBOL for
     key $KEY.  */
 
 /***
@@ -684,7 +684,7 @@ msymbol_put_func (MSymbol symbol, MSymbol key, M17NFunc func)
 /***en
     @brief Get the value (function pointer) of a symbol property.
 
-    The msymbol_get_func () function is like msymbol_get () but for
+    The msymbol_get_func () function is similar to msymbol_get () but for
     getting a function pointer form the property of symbol $SYMBOL.  */
 
 /***

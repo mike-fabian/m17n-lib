@@ -1204,8 +1204,8 @@ mplist_get (MPlist *plist, MSymbol key)
 /***en
     @brief Set the value (function pointer) of a property in a property list.
 
-    The mplist_put_func () function is like mplist_put () but for
-    settting function pointer $FUNC in property list $PLIST for key
+    The mplist_put_func () function is similar to mplist_put () but for
+    setting function pointer $FUNC in property list $PLIST for key
     $KEY.  */
 
 /***
@@ -1238,7 +1238,7 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 /***en
     @brief Get the value (function pointer) of a property in a property list.
 
-    The mplist_get_func () funciont is like mplist_get () but for
+    The mplist_get_func () function is similar to mplist_get () but for
     getting a function pointer from property list $PLIST by key $KEY.  */
 
 /***
