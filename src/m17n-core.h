@@ -142,7 +142,7 @@ typedef void (*M17NFunc) (void);
 /***en
     @brief Wrapper for a generic function type.
 
-    The macro M17N_FUNC () is used to cast a function to the type #M17NFunc.  */
+    The macro M17N_FUNC () casts a function to the type #M17NFunc.  */
 
 #define M17N_FUNC(func) ((M17NFunc) (func))
 
