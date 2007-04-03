@@ -1208,6 +1208,14 @@ mplist_get (MPlist *plist, MSymbol key)
     setting function pointer $FUNC in property list $PLIST for key
     $KEY.  */
 
+/***ja
+    @brief プロパティリスト中のプロパティに関数ポインタである値を設定する.
+
+    関数 mplist_put_func () は関数 mplist_put () 同様、プロパティリスト $PLIST
+    中でキーが $KEY であるプロパティに値を設定する。但しその値は関数ポインタ
+    $FUNC である。 */
+
+
 /***
     @seealso
     mplist_put (), M17N_FUNC ()  */
@@ -1240,6 +1248,14 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 
     The mplist_get_func () function is similar to mplist_get () but for
     getting a function pointer from property list $PLIST by key $KEY.  */
+
+/***ja
+    @brief プロパティリストからプロパティの関数ポインタである値を得る.
+
+    関数 mplist_get_func () は関数 mplist_get () と同様に、プロパティリ
+    スト $PLIST 中でキーが $KEY であるプロパティの値、但し関数ポインタ、
+    を得る。 */
+
 
 /***
     @seealso
