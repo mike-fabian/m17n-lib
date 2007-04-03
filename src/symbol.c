@@ -668,6 +668,13 @@ msymbol_get (MSymbol symbol, MSymbol key)
     setting function pointer $FUNC as the property value of $SYMBOL for
     key $KEY.  */
 
+/***ja
+    @brief シンボルプロパティの値(関数ポインタ)を設定する.
+
+    関数 msymbol_put_func () は、関数 msymbol_put () と同様に、シンボル
+    $SYMBOL のキーが $KEY であるシンボルプロパティの値を設定する。但し
+    その値は関数ポインタ $FUNC である。 */
+
 /***
     @seealso msymbol_put (), M17N_FUNC ()  */
 int
@@ -686,6 +693,13 @@ msymbol_put_func (MSymbol symbol, MSymbol key, M17NFunc func)
 
     The msymbol_get_func () function is similar to msymbol_get () but for
     getting a function pointer form the property of symbol $SYMBOL.  */
+
+/***ja
+    @brief シンボルプロパティの値 (関数ポインタ) を得る.
+
+    関数 msymbol_get_func () は、関数 msymbol_get () と同様に、シンボル
+    $SYMBOL が持つシンボルプロパティのうち、キーが $KEY であるものを得る。但し
+    その値は関数ポインタをである。    */
 
 /***
     @seealso

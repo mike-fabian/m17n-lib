@@ -129,6 +129,13 @@ extern int m17n_object_unref (void *object);
     #M17NFunc is a generic function type for setting a function
     pointer as a value of #MSymbol property or #MPlist.  */
 
+/***en
+    @brief 汎関数型.
+
+    #M17NFunc は汎関数型であり、関数ポインタを #MSymbol プロパティや
+    #MPlist の値として設定する際用いる。  */
+
+
 /***
     @seealso
     msymbol_put_func (), msymbol_get_func (),
@@ -143,6 +150,12 @@ typedef void (*M17NFunc) (void);
     @brief Wrapper for a generic function type.
 
     The macro M17N_FUNC () casts a function to the type #M17NFunc.  */
+
+/***ja
+    @brief 汎関数型へのラッパ.
+
+    マクロ M17N_FUNC () は関数を #M17NFunc 型へキャストする。  */
+
 
 #define M17N_FUNC(func) ((M17NFunc) (func))
 

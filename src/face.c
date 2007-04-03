@@ -1858,6 +1858,11 @@ mface_get_prop (MFace *face, MSymbol key)
     The mface_get_hook () function returns the hook function of face
     $FACE.  */
 
+/***ja
+    @brief フェースのフック関数を得る.
+
+    関数 mface_get_hook () はフェース $FACE のフック関数を返す。 */
+
 MFaceHookFunc
 mface_get_hook (MFace *face)
 {
@@ -1967,6 +1972,12 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
 
     The mface_set_hook () function sets the hook function of face
     $FACE to $FUNC.  */
+
+/***ja
+    @brief フェースのフック関数を設定する.
+
+    関数 mface_set_hook () は、フェース $FACE のフック関数を$FUNC に設
+    定する。  */
 
 int
 mface_put_hook (MFace *face, MFaceHookFunc func)
