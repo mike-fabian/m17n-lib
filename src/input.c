@@ -4868,8 +4868,8 @@ get_im_command_description (MSymbol language, MSymbol name, MSymbol command)
 
   if (! cmds)
     return NULL;
-  plist = mplist_value (cmds);	/* (NAME DESCRIPTION KEY-SEQ ...) */
-  plist = mplist_next (plist);	/* (DESCRIPTION KEY-SEQ ...) */
+  plist = mplist_value (cmds);	/* (NAME DESCRIPTION STATUS KEY-SEQ ...) */
+  plist = mplist_next (plist);	/* (DESCRIPTION STATUS KEY-SEQ ...) */
   return  (mplist_key (plist) == Mtext
 	   ? (MText *) mplist_value (plist)
 	   : NULL);
@@ -4981,18 +4981,17 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
   MPlist *cmd, *plist, *key_seq_list, *key_seq;
 
   /* At first get the current key-sequence assignment.  */
-  cmd = mplist_get_command (Mt, unicode, start_command);
+  cmd = minput_get_command (Mt, unicode, start_command);
   if (! cmd)
     {
       /* The input method does not have the command "start".  Here
 	 should come some error handling code.  */
     }
-  /* Now CMD == ((start DESCRIPTION KEY-SEQUENCE ...) ...).  Extract
-     the part (KEY-SEQUENCE ...).  */
-  plist = mplist_next (mplist_next (mplist_value (cmd)));
+  /* Now CMD == ((start DESCRIPTION STATUS KEY-SEQUENCE ...) ...).
+     Extract the part (KEY-SEQUENCE ...).  */
+  plist = mplist_next (mplist_next (mplist_next (mplist_value (cmd))));
   /* Copy it because we should not modify it directly.  */
   key_seq_list = mplist_copy (plist);
-  m17n_object_unref (cmds);
   
   key_seq = mplist ();
   mplist_add (key_seq, Msymbol, msymbol ("C-x"));
