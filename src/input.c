@@ -1778,7 +1778,7 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
       status = Mconfigured;
       config = MPLIST_NEXT (MPLIST_PLIST (config));
       if (! MPLIST_TAIL_P (config))
-	keyseq = MPLIST_NEXT (config);
+	keyseq = config;
     }
   else if (custom_cmds && (custom = mplist__assq (custom_cmds, name)))
     {
@@ -1786,7 +1786,7 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
       if (! MPLIST_TAIL_P (custom))
 	{
 	  status = Mcustomized;
-	  keyseq = MPLIST_NEXT (custom);
+	  keyseq = custom;
 	}
     }
   
@@ -2068,7 +2068,7 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
       config = MPLIST_NEXT (MPLIST_PLIST (config));
       if (! MPLIST_TAIL_P (config))
 	{
-	  value = MPLIST_NEXT (config);
+	  value = config;
 	  if (MFAILP (check_variable_value (value, global ? global : plist)))
 	    value = NULL;
 	}
@@ -2078,7 +2078,7 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
       custom = MPLIST_NEXT (MPLIST_PLIST (custom));
       if (! MPLIST_TAIL_P (custom))
 	{
-	  value = MPLIST_NEXT (custom);
+	  value = custom;
 	  if (MFAILP (check_variable_value (value, global ? global : plist)))
 	    value = NULL;
 	  status = Mcustomized;
