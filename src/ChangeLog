@@ -1,3 +1,7 @@
+2007-04-05  Kenichi Handa  <handa@m17n.org>
+
+	* plist.c (mplist_get_func): Fix for backward compatiblity.
+
 2007-04-04  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_get_command, minput_config_command): Fix example
