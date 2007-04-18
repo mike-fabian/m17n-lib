@@ -5289,7 +5289,7 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     whose key is #Minteger, #Msymbol, or #Mtext, and the value is of
     the corresponding type.  That value is assigned to the variable.
 
-    If $VALUE is an empty plist, and configuration and customization
+    If $VALUE is an empty plist, any configuration and customization
     of the variable are canceled, and the default value is assigned to
     the variable.
 
