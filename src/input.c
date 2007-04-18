@@ -4781,7 +4781,7 @@ minput_get_description (MSymbol language, MSymbol name)
 
     @c STATUS is a symbol representing how the key assignment is decided.
     The value is #Mnil (the default key assignment), #Mcustomized (the
-    key assignment is customized by per-user configuration file), or
+    key assignment is customized by per-user customization file), or
     #Mconfigured (the key assignment is set by the call of
     minput_config_command ()).  For a local command only, it may also
     be #Minherited (the key assignment is inherited from the
@@ -4905,13 +4905,16 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
     If $KEYSEQLIST is a non-empty plist, it must be a list of key
     sequences, and each key sequence must be a plist of symbols.
 
-    If $KEYSEQLIST is an empty plist, the default key sequences of the
-    command for the input method is assigned to $COMMAND.
+    If $KEYSEQLIST is an empty plist, any configuration and
+    customization of the command are cancelled, and default key
+    sequences become effective.
 
-    If $KEYSEQLIST is NULL, the configuration of the command for the
-    input method is canceled, and the default key sequences become
-    effective.  In such case, if $COMMAND is #Mnil, configurations for
-    all commands of the input method are canceled.
+    If $KEYSEQLIST is NULL, the configuration of the command is
+    canceled, and the original key sequences (what saved in per-user
+    customization file, or the default one) become effective.
+
+    In the latter two cases, $COMMAND can be #Mnil to make all the
+    commands of the input method the target of the operation.
 
     If $NAME is #Mnil, this function configures the key assignment of a
     global command, not that of a specific input method.
@@ -4919,11 +4922,10 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
     The configuration takes effect for input methods opened or
     re-opened later in the current session.  In order to make the
     configuration take effect for the future session, it must be saved
-    in a per-user configuration file by the function
+    in a per-user customization file by the function
     minput_save_config ().
 
     @return
-
     If the operation was successful, this function returns 0,
     otherwise returns -1.  The operation fails in these cases:
     <ul>
@@ -5170,7 +5172,7 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 
     @c STATUS is a symbol representing how the value is decided.  The
     value is #Mnil (the default value), #Mcustomized (the value is
-    customized by per-user configuration file), or #Mconfigured (the
+    customized by per-user customization file), or #Mconfigured (the
     value is set by the call of minput_config_variable ()).  For a
     local variable only, it may also be #Minherited (the value is
     inherited from the corresponding global variable).
@@ -5283,28 +5285,28 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     variable $VARIABLE of the input method specified by $LANGUAGE and
     $NAME.
 
-    If $VALUE is not NULL, it must be a plist of one element whose key
-    is #Minteger, #Msymbol, or #Mtext, or an empty plist.  In the
-    former case, the value must be of the corresponding type, and it
-    is assinged to $VARIABLE.  In the latter case, the default value
-    for the input method is assigned to $VARIABLE.
+    If $VALUE is a non-empty pist, it must be a plist of one element
+    whose key is #Minteger, #Msymbol, or #Mtext, and the value is of
+    the corresponding type.  That value is assigned to the variable.
 
-    If $VALUE is NULL, a configuration for the variable for the input
-    method is canceled, and the variable is initialized to the
-    original value (it may be what saved in per-user configuration
-    file, or the default value of the input method).
+    If $VALUE is an empty plist, and configuration and customization
+    of the variable are canceled, and the default value is assigned to
+    the variable.
 
-    If $VALUE is an empty plist or NULL, $VARIABLE can be #Mnil.  In
-    that case, it is applied to all the variables of the input method
-    are canceled.
+    If $VALUE is NULL, the configuration of the variable is canceled,
+    and the original value (what saved in per-user customization file,
+    or the default value) is assigned to the variable.
 
-    If $NAME is #Mnil, this function configure the value of global
+    In the latter two cases, $VARIABLE can be #Mnil to make all the
+    variables of the input method the target of the operation.
+
+    If $NAME is #Mnil, this function configures the value of global
     variable, not that of a specific input method.
 
     The configuration takes effect for input methods opened or
     re-opened later in the current session.  To make the configuration
     take effect for the future session, it must be saved in a per-user
-    configuration file by the function minput_save_config ().
+    customization file by the function minput_save_config ().
 
     @return
 
@@ -5484,10 +5486,10 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
 /*=*/
 
 /***en
-    @brief Get the name of per-user configuration file.
+    @brief Get the name of per-user customization file.
     
     The minput_config_file () function returns the absolute path name
-    of per-user configuration file into which minput_save_config ()
+    of per-user customization file into which minput_save_config ()
     save configurations.  It is usually @c "config.mic" under the
     directory @c ".m17n.d" of user's home directory.  It is not assured
     that the file of the returned name exists nor is
@@ -5535,16 +5537,16 @@ minput_config_file ()
 /*=*/
 
 /***en
-    @brief Save configurations in per-user configuration file.
+    @brief Save configurations in per-user customization file.
 
     The minput_save_config () function saves the configurations done
-    so far in the current session into the per-user configuration
+    so far in the current session into the per-user customization
     file.
 
     @return
 
     If the operation was successful, 1 is returned.  If the per-user
-    configuration file is currently locked, 0 is returned.  In that
+    customization file is currently locked, 0 is returned.  In that
     case, the caller may wait for a while and try again.  If the
     configuration file is not writable, -1 is returned.  In that case,
     the caller may check the name of the file by calling
