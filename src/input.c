@@ -5285,7 +5285,7 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     variable $VARIABLE of the input method specified by $LANGUAGE and
     $NAME.
 
-    If $VALUE is a non-empty pist, it must be a plist of one element
+    If $VALUE is a non-empty plist, it must be a plist of one element
     whose key is #Minteger, #Msymbol, or #Mtext, and the value is of
     the corresponding type.  That value is assigned to the variable.
 
