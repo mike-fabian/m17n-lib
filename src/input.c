@@ -5103,7 +5103,7 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 	    }
 	  else
 	    {
-	      if (no_cutom)
+	      if (no_custom)
 		mplist__pop_unref (plist);
 	      else
 		{
@@ -5150,7 +5150,7 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     @brief Get information about input method variable(s).
 
     The minput_get_variable () function returns information about
-    the variable $VARIABLE of the input method specified by $LANGUAGE and $NAME.
+    variable $VARIABLE of the input method specified by $LANGUAGE and $NAME.
     An input method variable controls behavior of an input method.
 
     There are two kinds of variables, global and local.  A global
