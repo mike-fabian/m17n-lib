@@ -5103,11 +5103,14 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 	    }
 	  else
 	    {
-	      plist = MPLIST_PLIST (plist); /* (NAME nil KEYSEQ ...) */
-	      plist = MPLIST_NEXT (plist);
-	      if (MPLIST_TAIL_P (plist))
-		return 0;
-	      mplist_set (plist, Mnil, NULL);
+	      if (no_cutom)
+		mplist__pop_unref (plist);
+	      else
+		{
+		  plist = MPLIST_PLIST (plist); /* (NAME nil KEYSEQ ...) */
+		  plist = MPLIST_NEXT (plist);
+		  mplist_set (plist, Mnil, NULL);
+		}
 	    }
 	}
       else
