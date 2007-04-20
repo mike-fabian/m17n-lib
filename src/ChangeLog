@@ -5,6 +5,8 @@
 	(minput_config_command): Fix for the case of setting back to
 	default.
 	(minput_config_variable): Likewise.
+	(minput_save_config): Include nil as documentation of customized
+	command/variable.
 
 2007-04-05  Kenichi Handa  <handa@m17n.org>
 
