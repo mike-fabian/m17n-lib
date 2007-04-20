@@ -5634,26 +5634,24 @@ minput_save_config (void)
 	    if (MPLIST_TAIL_P (elt))
 	      {
 		if (p)
-		  {
-		    /* Make customization ignored.  */
-		    p = MPLIST_NEXT (MPLIST_PLIST (p));
-		    mplist_set (p, Mnil, NULL);
-		  }
+		  mplist__pop_unref (p);
 	      }
 	    else
 	      {
-		elt = MPLIST_NEXT (elt);
 		if (p)
 		  {
 		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
 		    mplist_set (p, Mnil, NULL);
-		    mplist__conc (p, elt);
 		  }
 		else
 		  {
-		    p = MPLIST_PLIST (pl);
+		    p = mplist ();
 		    mplist_add (custom->cmds, Mplist, p);
+		    mplist_add (p, Msymbol, command);
+		    p = mplist_add (p, Msymbol, Mnil);
+		    p = MPLIST_NEXT (p);
 		  }
+		mplist__conc (p, elt);
 	      }
 	  }
       if (config->vars)
@@ -5673,18 +5671,20 @@ minput_save_config (void)
 	      }
 	    else
 	      {
-		elt = MPLIST_NEXT (elt);
 		if (p)
 		  {
 		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
 		    mplist_set (p, Mnil, NULL);
-		    mplist__conc (p, elt);
 		  }
 		else
 		  {
-		    p = MPLIST_PLIST (pl);
+		    p = mplist ();
 		    mplist_add (custom->vars, Mplist, p);
+		    mplist_add (p, Msymbol, variable);
+		    p = mplist_add (p, Msymbol, Mnil);
+		    p = MPLIST_NEXT (p);
 		  }
+		mplist__conc (p, elt);
 	      }
 	  }
     }
