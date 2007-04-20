@@ -1782,7 +1782,7 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
     }
   else if (custom_cmds && (custom = mplist__assq (custom_cmds, name)))
     {
-      custom = MPLIST_NEXT (MPLIST_PLIST (custom));
+      custom = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
       if (! MPLIST_TAIL_P (custom))
 	{
 	  status = Mcustomized;
@@ -2075,7 +2075,7 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
     }
   else if (custom_vars && (custom = mplist__assq (custom_vars, name)))
     {
-      custom = MPLIST_NEXT (MPLIST_PLIST (custom));
+      custom = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
       if (! MPLIST_TAIL_P (custom))
 	{
 	  value = custom;
@@ -5465,11 +5465,14 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
 	    }
 	  else
 	    {
-	      plist = MPLIST_PLIST (plist); /* (NAME nil VALUE) */
-	      plist = MPLIST_NEXT (plist);	/* ([nil VALUE]) */
-	      if (! MPLIST_TAIL_P (plist))
-		return 0;
-	      mplist_set (plist, Mnil ,NULL);
+	      if (no_custom)
+		mplist__pop_unref (plist);
+	      else
+		{
+		  plist = MPLIST_PLIST (plist); /* (NAME nil VALUE) */
+		  plist = MPLIST_NEXT (plist);	/* ([nil VALUE]) */
+		  mplist_set (plist, Mnil ,NULL);
+		}
 	    }
 	}
       else
