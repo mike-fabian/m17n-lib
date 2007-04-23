@@ -1782,11 +1782,14 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
     }
   else if (custom_cmds && (custom = mplist__assq (custom_cmds, name)))
     {
-      custom = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
-      if (! MPLIST_TAIL_P (custom))
+      MPlist *this_keyseq = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
+
+      if (MPLIST_TAIL_P (this_keyseq))
+	mplist__pop_unref (custom);
+      else
 	{
 	  status = Mcustomized;
-	  keyseq = custom;
+	  keyseq = this_keyseq;
 	}
     }
   
@@ -2075,10 +2078,13 @@ config_variable (MPlist *plist, MPlist *global_vars, MPlist *custom_vars,
     }
   else if (custom_vars && (custom = mplist__assq (custom_vars, name)))
     {
-      custom = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
-      if (! MPLIST_TAIL_P (custom))
+      MPlist *this_value = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (custom)));
+
+      if (MPLIST_TAIL_P (this_value))
+	mplist__pop_unref (custom);
+      else
 	{
-	  value = custom;
+	  value = this_value;
 	  if (MFAILP (check_variable_value (value, global ? global : plist)))
 	    value = NULL;
 	  status = Mcustomized;
@@ -5631,28 +5637,20 @@ minput_save_config (void)
 	    else
 	      custom->cmds = mplist (), p = NULL;
 	    elt = MPLIST_NEXT (elt);
-	    if (MPLIST_TAIL_P (elt))
+	    if (p)
 	      {
-		if (p)
-		  mplist__pop_unref (p);
+		p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
+		mplist_set (p, Mnil, NULL);
 	      }
 	    else
 	      {
-		if (p)
-		  {
-		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
-		    mplist_set (p, Mnil, NULL);
-		  }
-		else
-		  {
-		    p = mplist ();
-		    mplist_add (custom->cmds, Mplist, p);
-		    mplist_add (p, Msymbol, command);
-		    p = mplist_add (p, Msymbol, Mnil);
-		    p = MPLIST_NEXT (p);
-		  }
-		mplist__conc (p, elt);
+		p = mplist ();
+		mplist_add (custom->cmds, Mplist, p);
+		mplist_add (p, Msymbol, command);
+		p = mplist_add (p, Msymbol, Mnil);
+		p = MPLIST_NEXT (p);
 	      }
+	    mplist__conc (p, elt);
 	  }
       if (config->vars)
 	MPLIST_DO (pl, config->vars)
@@ -5664,28 +5662,20 @@ minput_save_config (void)
 	    else
 	      custom->vars = mplist (), p = NULL;
 	    elt = MPLIST_NEXT (elt);
-	    if (MPLIST_TAIL_P (elt))
+	    if (p)
 	      {
-		if (p)
-		  mplist__pop_unref (p);
+		p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
+		mplist_set (p, Mnil, NULL);
 	      }
 	    else
 	      {
-		if (p)
-		  {
-		    p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p)));
-		    mplist_set (p, Mnil, NULL);
-		  }
-		else
-		  {
-		    p = mplist ();
-		    mplist_add (custom->vars, Mplist, p);
-		    mplist_add (p, Msymbol, variable);
-		    p = mplist_add (p, Msymbol, Mnil);
-		    p = MPLIST_NEXT (p);
-		  }
-		mplist__conc (p, elt);
+		p = mplist ();
+		mplist_add (custom->vars, Mplist, p);
+		mplist_add (p, Msymbol, variable);
+		p = mplist_add (p, Msymbol, Mnil);
+		p = MPLIST_NEXT (p);
 	      }
+	    mplist__conc (p, elt);
 	  }
     }
   M17N_OBJECT_UNREF (im_config_list);
