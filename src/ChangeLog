@@ -1,3 +1,8 @@
+2007-05-02  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_save_config): Unref unnecessary plist.  Use
+	free_im_list to free im_config_list.
+
 2007-04-20  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (config_command): Fix previous change again.
