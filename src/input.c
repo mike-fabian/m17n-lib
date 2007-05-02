@@ -5646,6 +5646,7 @@ minput_save_config (void)
 	      {
 		p = mplist ();
 		mplist_add (custom->cmds, Mplist, p);
+		M17N_OBJECT_UNREF (p);
 		mplist_add (p, Msymbol, command);
 		p = mplist_add (p, Msymbol, Mnil);
 		p = MPLIST_NEXT (p);
@@ -5671,6 +5672,7 @@ minput_save_config (void)
 	      {
 		p = mplist ();
 		mplist_add (custom->vars, Mplist, p);
+		M17N_OBJECT_UNREF (p);
 		mplist_add (p, Msymbol, variable);
 		p = mplist_add (p, Msymbol, Mnil);
 		p = MPLIST_NEXT (p);
@@ -5678,7 +5680,8 @@ minput_save_config (void)
 	    mplist__conc (p, elt);
 	  }
     }
-  M17N_OBJECT_UNREF (im_config_list);
+  free_im_list (im_config_list);
+  im_config_list = NULL;
 
   /* Next, reflect customization to the actual plist to be written.  */
   data = tail = mplist ();
