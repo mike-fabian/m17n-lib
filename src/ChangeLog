@@ -1,3 +1,7 @@
+2007-05-08  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (check_description): Force copying the translated text.
+
 2007-05-02  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_save_config): Unref unnecessary plist.  Use
