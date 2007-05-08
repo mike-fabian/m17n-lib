@@ -1640,7 +1640,7 @@ check_description (MPlist *plist)
 	  {
 	    M17N_OBJECT_UNREF (mt);
 	    mt = mtext__from_data (translated, strlen (translated),
-				   MTEXT_FORMAT_UTF_8, 0);
+				   MTEXT_FORMAT_UTF_8, 1);
 	  }
       }
 #endif
