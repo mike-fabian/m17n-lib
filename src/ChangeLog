@@ -1,3 +1,7 @@
+2007-05-11  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (mconv_reset_converter): Set internal->used to 0.
+
 2007-05-08  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (check_description): Force copying the translated text.
