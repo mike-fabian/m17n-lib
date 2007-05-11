@@ -4238,6 +4238,7 @@ mconv_reset_converter (MConverter *converter)
   converter->nchars = converter->nbytes = 0;
   converter->result = MCONVERSION_RESULT_SUCCESS;
   internal->carryover_bytes = 0;
+  internal->used = 0;
   mtext_reset (internal->unread);
   if (internal->coding->resetter)
     return (*internal->coding->resetter) (converter);
