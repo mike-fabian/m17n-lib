@@ -129,7 +129,9 @@ free_plist (void *object)
   do {
     MPlist *next = plist->next;
 
-    if (MPLIST_KEY (plist) != Mnil && MPLIST_KEY (plist)->managing_key)
+    if (MPLIST_KEY (plist) != Mnil
+	&& (MPLIST_KEY (plist)->managing_key
+	    || MPLIST_NESTED_P (plist)))
       M17N_OBJECT_UNREF (MPLIST_VAL (plist));
     M17N_OBJECT_UNREGISTER (plist_table, plist);
     free (plist);
