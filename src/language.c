@@ -299,15 +299,15 @@ MSymbol Miso639_1, Miso639_2;
     mscript_list ().  */
 
 /***ja
-    @brief 3$BJ8;z8@8l%3!<%I$r%j%9%H$9$k(B.
+    @brief 3Ê¸»ú¸À¸ì¥³¡¼¥É¤ò¥ê¥¹¥È¤¹¤ë.
 
-    $B4X?t(B mlanguage_list () $B$O!"@07A<0(B (well-formed) plist $B$rJV$9!#3F%-!<(B
-    $B$O(B #Msymbol $B$G$"$j!"8D!9$NCM$O(B ISO639-2 $B$KDj$a$i$l$?(B3$BJ8;z8@8l%3!<(B
-    $B%I$rL>A0$H$9$k%7%s%\%k$G$"$k!#(B
+    ´Ø¿ô mlanguage_list () ¤Ï¡¢À°·Á¼° (well-formed) plist ¤òÊÖ¤¹¡£³Æ¥­¡¼
+    ¤Ï #Msymbol ¤Ç¤¢¤ê¡¢¸Ä¡¹¤ÎÃÍ¤Ï ISO639-2 ¤ËÄê¤á¤é¤ì¤¿3Ê¸»ú¸À¸ì¥³¡¼
+    ¥É¤òÌ¾Á°¤È¤¹¤ë¥·¥ó¥Ü¥ë¤Ç¤¢¤ë¡£
 
     @return
-    $B$3$N4X?t$,JV$9(B plist $B$O!"8F$S=P$7B&$,(B m17n_object_unref () $B$r;H$C(B
-    $B$F2rJ|$9$kI,MW$,$"$k!#(B
+    ¤³¤Î´Ø¿ô¤¬ÊÖ¤¹ plist ¤Ï¡¢¸Æ¤Ó½Ð¤·Â¦¤¬ m17n_object_unref () ¤ò»È¤Ã
+    ¤Æ²òÊü¤¹¤ëÉ¬Í×¤¬¤¢¤ë¡£
 
     @seealso
     mscript_list ().  */
@@ -350,25 +350,25 @@ mlanguage_list (void)
     symbol.  Otherwise, it returns #Mnil.
 
     @seealso
-    mlanguage_names (), mlanguage_text ().  */
+    mlanguage_name_list (), mlanguage_text ().  */
 
 /***ja
-    @brief $B8@8l%3!<%I$rF@$k(B.
+    @brief ¸À¸ì¥³¡¼¥É¤òÆÀ¤ë.
 
-    $B4X?t(B mlanguage_code () $B$O!"(B$LANGUAGE $B$KBP1~$7$?(B ISO-639 $B8@8l%3!<%I(B
-    $B$,L>A0$G$"$k$h$&$J%7%s%\%k$rJV$9!#(B$LANGUAGE $B$O%7%s%\%k$G$"$j!"$=$N(B
-    $BL>A0$O!"(BISO639-2 3$BJ8;z8@8l%3!<%I!"(BISO639-1 2$BJ8;z8@8l%3!<%I!"1Q8lL>!"(B
-    $B$N$$$:$l$+$G$"$k!#(B
+    ´Ø¿ô mlanguage_code () ¤Ï¡¢$LANGUAGE ¤ËÂÐ±þ¤·¤¿ ISO-639 ¸À¸ì¥³¡¼¥É
+    ¤¬Ì¾Á°¤Ç¤¢¤ë¤è¤¦¤Ê¥·¥ó¥Ü¥ë¤òÊÖ¤¹¡£$LANGUAGE ¤Ï¥·¥ó¥Ü¥ë¤Ç¤¢¤ê¡¢¤½¤Î
+    Ì¾Á°¤Ï¡¢ISO639-2 3Ê¸»ú¸À¸ì¥³¡¼¥É¡¢ISO639-1 2Ê¸»ú¸À¸ì¥³¡¼¥É¡¢±Ñ¸ìÌ¾¡¢
+    ¤Î¤¤¤º¤ì¤«¤Ç¤¢¤ë¡£
 
-    $LEN $B$OJV$5$l$k8@8l%3!<%I$N<oN`$r7hDj$9$k!#(B$LEN $B$,(B3$B$N>l9g$O(B 
-    ISO639-2 3$BJ8;z8@8l%3!<%I$,JV$5$l$k!#(B2$B$N>l9g$O!"$b$7Dj5A$5$l$F$$$l(B
-    $B$P(B ISO639-1 2$BJ8;z8@8l%3!<%I$,!"$=$&$G$J$1$l$P(B #Mnil $B$,JV$5$l$k!#(B0 
-    $B$N>l9g$O!"$b$7Dj5A$5$l$F$$$l$P(B2$BJ8;z%3!<%I$,!"$=$&$G$J$1$l$P(B3$BJ8;z%3!<(B
-    $B%I$,JV$5$l$k!#(B
+    $LEN ¤ÏÊÖ¤µ¤ì¤ë¸À¸ì¥³¡¼¥É¤Î¼ïÎà¤ò·èÄê¤¹¤ë¡£$LEN ¤¬3¤Î¾ì¹ç¤Ï 
+    ISO639-2 3Ê¸»ú¸À¸ì¥³¡¼¥É¤¬ÊÖ¤µ¤ì¤ë¡£2¤Î¾ì¹ç¤Ï¡¢¤â¤·ÄêµÁ¤µ¤ì¤Æ¤¤¤ì
+    ¤Ð ISO639-1 2Ê¸»ú¸À¸ì¥³¡¼¥É¤¬¡¢¤½¤¦¤Ç¤Ê¤±¤ì¤Ð #Mnil ¤¬ÊÖ¤µ¤ì¤ë¡£0 
+    ¤Î¾ì¹ç¤Ï¡¢¤â¤·ÄêµÁ¤µ¤ì¤Æ¤¤¤ì¤Ð2Ê¸»ú¥³¡¼¥É¤¬¡¢¤½¤¦¤Ç¤Ê¤±¤ì¤Ð3Ê¸»ú¥³¡¼
+    ¥É¤¬ÊÖ¤µ¤ì¤ë¡£
 
     @return
-    $B$b$7>pJs$,F@$i$l$l$P!"$3$N4X?t$O(B #Mnil $B0J30$N%7%s%\%k$rJV$9!#$=$&(B
-    $B$G$J$1$l$P(B #Mnil $B$rJV$9!#(B
+    ¤â¤·¾ðÊó¤¬ÆÀ¤é¤ì¤ì¤Ð¡¢¤³¤Î´Ø¿ô¤Ï #Mnil °Ê³°¤Î¥·¥ó¥Ü¥ë¤òÊÖ¤¹¡£¤½¤¦
+    ¤Ç¤Ê¤±¤ì¤Ð #Mnil ¤òÊÖ¤¹¡£
 
     @seealso
     mlanguage_name (), mlanguage_text ().  */
@@ -493,16 +493,16 @@ mlanguage_name_list (MSymbol language, MSymbol target)
     mlanguage_code (), mlanguage_name ().  */
 
 /***ja
-    @brief $BM?$($i$l$?8@8l<+?H$G=q$+$l$?8@8lL>$rJV$9(B.
+    @brief Í¿¤¨¤é¤ì¤¿¸À¸ì¼«¿È¤Ç½ñ¤«¤ì¤¿¸À¸ìÌ¾¤òÊÖ¤¹.
 
-    $B4X?t(B mlanguage_text () $B$O!"8@8l(B $LANGUAGE $B$G=q$+$l$?(B $LANGUAGE $B$N(B
-    $BL>A0$r(B M-text $B$N7A<0$GJV$9!#$=$N8@8l$NBeI=E*$JJ8;z$,$o$+$C$F$$$k>l(B
-    $B9g$O!"JV$5$l$k(B M-text $B$N3FJ8;z$K!"%-!<$,(B #Mtext $B$GCM$,$=$NBeI=E*$J(B
-    $BJ8;z$r4^$`(B M-text $B$G$"$k$h$&$J%F%-%9%H%W%m%Q%F%#$,IU2C$5$l$k!#(B
+    ´Ø¿ô mlanguage_text () ¤Ï¡¢¸À¸ì $LANGUAGE ¤Ç½ñ¤«¤ì¤¿ $LANGUAGE ¤Î
+    Ì¾Á°¤ò M-text ¤Î·Á¼°¤ÇÊÖ¤¹¡£¤½¤Î¸À¸ì¤ÎÂåÉ½Åª¤ÊÊ¸»ú¤¬¤ï¤«¤Ã¤Æ¤¤¤ë¾ì
+    ¹ç¤Ï¡¢ÊÖ¤µ¤ì¤ë M-text ¤Î³ÆÊ¸»ú¤Ë¡¢¥­¡¼¤¬ #Mtext ¤ÇÃÍ¤¬¤½¤ÎÂåÉ½Åª¤Ê
+    Ê¸»ú¤ò´Þ¤à M-text ¤Ç¤¢¤ë¤è¤¦¤Ê¥Æ¥­¥¹¥È¥×¥í¥Ñ¥Æ¥£¤¬ÉÕ²Ã¤µ¤ì¤ë¡£
 
     @return
-    $B5a$a$k>pJs$,F@$i$l$?>l9g!"$3$N4X?t$,JV$9(B M-text $B$rJQ99$7$?$j2rJ|$7(B
-    $B$?$j$7$F$O$$$1$J$$!#>pJs$,F@$i$l$J$+$C$?>l9g$O(B @c NULL $B$,JV$5$l$k!#(B
+    µá¤á¤ë¾ðÊó¤¬ÆÀ¤é¤ì¤¿¾ì¹ç¡¢¤³¤Î´Ø¿ô¤¬ÊÖ¤¹ M-text ¤òÊÑ¹¹¤·¤¿¤ê²òÊü¤·
+    ¤¿¤ê¤·¤Æ¤Ï¤¤¤±¤Ê¤¤¡£¾ðÊó¤¬ÆÀ¤é¤ì¤Ê¤«¤Ã¤¿¾ì¹ç¤Ï @c NULL ¤¬ÊÖ¤µ¤ì¤ë¡£
 
     @seealso
     mlanguage_code (), mlanguage_name ().  */
@@ -549,15 +549,15 @@ mlanguage_text (MSymbol language)
     mscript_language_list (), mlanguage_list ().  */
 
 /***ja
-    @brief $B%9%/%j%W%HL>$r%j%9%H$9$k(B.
+    @brief ¥¹¥¯¥ê¥×¥ÈÌ¾¤ò¥ê¥¹¥È¤¹¤ë.
 
-    $B4X?t(B mscript_list () $B$O!"@07A<0(B (well-formed) plist $B$rJV$9!#3F%-!<(B
-    $B$O(B #Msymbol $B$G$"$j!"8D!9$NCM$O%9%/%j%W%HL>$rL>A0$H$9$k%7%s%\%k$G$"(B
-    $B$k!#(B
+    ´Ø¿ô mscript_list () ¤Ï¡¢À°·Á¼° (well-formed) plist ¤òÊÖ¤¹¡£³Æ¥­¡¼
+    ¤Ï #Msymbol ¤Ç¤¢¤ê¡¢¸Ä¡¹¤ÎÃÍ¤Ï¥¹¥¯¥ê¥×¥ÈÌ¾¤òÌ¾Á°¤È¤¹¤ë¥·¥ó¥Ü¥ë¤Ç¤¢
+    ¤ë¡£
 
     @return
-    $B$3$N4X?t$,JV$9(B plist $B$O!"8F$S=P$7B&$,(B m17n_object_unref () $B$r;H$C(B
-    $B$F2rJ|$9$kI,MW$,$"$k!#(B
+    ¤³¤Î´Ø¿ô¤¬ÊÖ¤¹ plist ¤Ï¡¢¸Æ¤Ó½Ð¤·Â¦¤¬ m17n_object_unref () ¤ò»È¤Ã
+    ¤Æ²òÊü¤¹¤ëÉ¬Í×¤¬¤¢¤ë¡£
 
     @seealso
     mscript_language_list (), mlanguage_list ().  */
@@ -601,17 +601,17 @@ mscript_list (void)
     mscript_list (), mlanguage_list ().  */
 
 /***ja
-    @brief $BM?$($i$l$?%9%/%j%W%H$rMQ$$$k8@8l$r%j%9%H$9$k(B.
+    @brief Í¿¤¨¤é¤ì¤¿¥¹¥¯¥ê¥×¥È¤òÍÑ¤¤¤ë¸À¸ì¤ò¥ê¥¹¥È¤¹¤ë.
 
-    $B4X?t(B mscript_language_list () $B$O!"(B$SCRIPT $B$rMQ$$$k8@8l$r%j%9%H$9$k!#(B
-    $SCRIPT $B$O%7%s%\%k$G!"$=$NL>A0$O(B Unicode Character Database $B$K<($5(B
-    $B$l$F$$$k%9%/%j%W%HL>$r$9$Y$F>.J8;z$K$7$?$b$N$G$"$k!#(B
+    ´Ø¿ô mscript_language_list () ¤Ï¡¢$SCRIPT ¤òÍÑ¤¤¤ë¸À¸ì¤ò¥ê¥¹¥È¤¹¤ë¡£
+    $SCRIPT ¤Ï¥·¥ó¥Ü¥ë¤Ç¡¢¤½¤ÎÌ¾Á°¤Ï Unicode Character Database ¤Ë¼¨¤µ
+    ¤ì¤Æ¤¤¤ë¥¹¥¯¥ê¥×¥ÈÌ¾¤ò¤¹¤Ù¤Æ¾®Ê¸»ú¤Ë¤·¤¿¤â¤Î¤Ç¤¢¤ë¡£
 
-    @return $B$3$N4X?t$O!"@07A<0(B (well-formed) plist $B$rJV$9!#3F%-!<$O(B 
-    #Msymbol $B$G$"$j!"8D!9$NCM$O(B ISO639-1 $B$KDj$a$i$l$?(B2$BJ8;z8@8l%3!<%I(B
-    ($BDj5A$5$l$F$$$J$$>l9g$O(B ISO639-2 $B$KDj$a$i$l$?(B3$BJ8;z8@8l%3!<%I(B) $B$rL>(B
-    $BA0$H$9$k%7%s%\%k$G$"$k!#JV$5$l$k(B plist $B$OJQ99$7$?$j2rJ|$7$?$j$7$F(B
-    $B$O$J$i$J$$!#(B$SCRIPT $B$,L$CN$N>l9g$O(B @c NULL $B$,JV$5$l$k!#(B
+    @return ¤³¤Î´Ø¿ô¤Ï¡¢À°·Á¼° (well-formed) plist ¤òÊÖ¤¹¡£³Æ¥­¡¼¤Ï 
+    #Msymbol ¤Ç¤¢¤ê¡¢¸Ä¡¹¤ÎÃÍ¤Ï ISO639-1 ¤ËÄê¤á¤é¤ì¤¿2Ê¸»ú¸À¸ì¥³¡¼¥É
+    (ÄêµÁ¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï ISO639-2 ¤ËÄê¤á¤é¤ì¤¿3Ê¸»ú¸À¸ì¥³¡¼¥É) ¤òÌ¾
+    Á°¤È¤¹¤ë¥·¥ó¥Ü¥ë¤Ç¤¢¤ë¡£ÊÖ¤µ¤ì¤ë plist ¤ÏÊÑ¹¹¤·¤¿¤ê²òÊü¤·¤¿¤ê¤·¤Æ
+    ¤Ï¤Ê¤é¤Ê¤¤¡£$SCRIPT ¤¬Ì¤ÃÎ¤Î¾ì¹ç¤Ï @c NULL ¤¬ÊÖ¤µ¤ì¤ë¡£
 
     @seealso
     mscript_list (), mlanguage_list ().  */
@@ -635,14 +635,14 @@ mscript_language_list (MSymbol script)
     @name Obsolete functions
 */
 /***ja
-    @name Obsolete $B$J4X?t(B
+    @name Obsolete ¤Ê´Ø¿ô
 */
 /*** @{ */
 
 /***en
     @brief Get an English language name.
 
-    This function is obsolete.  Use mlanguage_names () instead.
+    This function is obsolete.  Use mlanguage_name_list () instead.
 
     The mlanguage_name () function returns a symbol whose name is an
     English name of $LANGUAGE.  $LANGUAGE is a symbol whose name is an
@@ -657,15 +657,15 @@ mscript_language_list (MSymbol script)
     mlanguage_code (), mlanguage_text ().  */
 
 /***ja
-    @brief $B8@8l$N1Q8lL>$rF@$k(B.
+    @brief ¸À¸ì¤Î±Ñ¸ìÌ¾¤òÆÀ¤ë.
 
-    $B4X?t(B mlanguage_name () $B$O!"(B$LANGUAGE $B$N1Q8lL>$rL>A0$H$9$k$h$&$J%7(B
-    $B%s%\%k$rJV$9!#(B$LANGUAGE $B$O%7%s%\%k$G$"$j!"$=$NL>A0$O!"(BISO639-2 3$BJ8(B
-    $B;z8@8l%3!<%I!"(BISO639-1 2$BJ8;z8@8l%3!<%I!"1Q8lL>!"$N$$$:$l$+$G$"$k!#(B
+    ´Ø¿ô mlanguage_name () ¤Ï¡¢$LANGUAGE ¤Î±Ñ¸ìÌ¾¤òÌ¾Á°¤È¤¹¤ë¤è¤¦¤Ê¥·
+    ¥ó¥Ü¥ë¤òÊÖ¤¹¡£$LANGUAGE ¤Ï¥·¥ó¥Ü¥ë¤Ç¤¢¤ê¡¢¤½¤ÎÌ¾Á°¤Ï¡¢ISO639-2 3Ê¸
+    »ú¸À¸ì¥³¡¼¥É¡¢ISO639-1 2Ê¸»ú¸À¸ì¥³¡¼¥É¡¢±Ñ¸ìÌ¾¡¢¤Î¤¤¤º¤ì¤«¤Ç¤¢¤ë¡£
 
     @return
-    $B5a$a$F$$$k>pJs$,F@$i$l$k$J$i!"$3$N4X?t$O(B #Mnil $B0J30$N%7%s%\%k$rJV(B
-    $B$9!#$=$&$G$J$1$l$P(B #Mnil $B$rJV$9!#(B
+    µá¤á¤Æ¤¤¤ë¾ðÊó¤¬ÆÀ¤é¤ì¤ë¤Ê¤é¡¢¤³¤Î´Ø¿ô¤Ï #Mnil °Ê³°¤Î¥·¥ó¥Ü¥ë¤òÊÖ
+    ¤¹¡£¤½¤¦¤Ç¤Ê¤±¤ì¤Ð #Mnil ¤òÊÖ¤¹¡£
 
     @seealso
     mlanguage_code (), mlanguage_text ().  */
@@ -695,3 +695,8 @@ mlanguage_name (MSymbol language)
 
 /*=*/
 
+/*
+  Local Variables:
+  coding: euc-japan
+  End:
+*/
