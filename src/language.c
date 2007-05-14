@@ -350,7 +350,7 @@ mlanguage_list (void)
     symbol.  Otherwise, it returns #Mnil.
 
     @seealso
-    mlanguage_names (), mlanguage_text ().  */
+    mlanguage_name_list (), mlanguage_text ().  */
 
 /***ja
     @brief 言語コードを得る.
