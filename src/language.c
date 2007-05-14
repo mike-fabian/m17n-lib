@@ -22,6 +22,8 @@
 
 #include <config.h>
 #include <stdlib.h>
+#include <string.h>
+#include <locale.h>
 #include "m17n.h"
 #include "m17n-misc.h"
 #include "internal.h"
@@ -34,6 +36,7 @@
 
 static MPlist *language_list;
 static MPlist *script_list;
+static MPlist *langname_list;
 
 static MPlist *
 load_lang_script_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
@@ -45,18 +48,18 @@ load_lang_script_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
       || ! (plist = mdatabase_load (mdb)))
     return NULL;
   /* Check at least if the plist is ((SYMBOL ...) ...).  */
-  MPLIST_DO (pl, plist)
+  for (pl = plist; ! MPLIST_TAIL_P (pl);)
     {
       if (! MPLIST_PLIST_P (pl))
-	break;
-      p = MPLIST_PLIST (pl);
-      if (! MPLIST_SYMBOL_P (p))
-	break;
-    }
-  if (! MPLIST_TAIL_P (pl))
-    {
-      M17N_OBJECT_UNREF (plist);
-      return NULL;
+	mplist__pop_unref (pl);
+      else
+	{
+	  p = MPLIST_PLIST (pl);
+	  if (! MPLIST_SYMBOL_P (p))
+	    mplist__pop_unref (pl);
+	  else
+	    pl = MPLIST_NEXT (pl);
+	}
     }
   return plist;
 }
@@ -101,7 +104,7 @@ mlang__init ()
   Miso639_2 = msymbol ("iso639-2");
   Miso639_1 = msymbol ("iso639-1");
 
-  language_list = script_list = NULL;
+  language_list = script_list = langname_list = NULL;
   return 0;
 }
 
@@ -109,9 +112,8 @@ void
 mlang__fini (void)
 {
   M17N_OBJECT_UNREF (language_list);
-  language_list = NULL;
   M17N_OBJECT_UNREF (script_list);
-  script_list = NULL;
+  M17N_OBJECT_UNREF (langname_list);
 }
 
 /*=*/
@@ -163,19 +165,25 @@ mlanguage__info (MSymbol language)
     {
       MPlist *pl = MPLIST_PLIST (plist);
 
+      if (MPLIST_SYMBOL (pl) == language)
+	return pl;
+      if (MPLIST_TAIL_P (pl))
+	continue;
+      pl = MPLIST_NEXT (pl);
       if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == language)
 	return MPLIST_PLIST (plist);
-      if (! MPLIST_TAIL_P (pl))
+      if (MPLIST_TAIL_P (pl))
+	continue;
+      pl = MPLIST_NEXT (pl);
+      if (MPLIST_MTEXT_P (pl))
 	{
-	  pl = MPLIST_NEXT (pl);
-	  if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == language)
+	  MText *mt = MPLIST_MTEXT (pl);
+
+	  if (mtext_nbytes (mt) == MSYMBOL_NAMELEN (language)
+	      && memcmp (MTEXT_DATA (MPLIST_MTEXT (pl)),
+			 MSYMBOL_NAME (language),
+			 MSYMBOL_NAMELEN (language)) == 0)
 	    return MPLIST_PLIST (plist);
-	  if (! MPLIST_TAIL_P (pl))
-	    {
-	      pl = MPLIST_NEXT (pl);
-	      if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == language)
-		return MPLIST_PLIST (plist);
-	    }
 	}
     }
   return NULL;
@@ -342,7 +350,7 @@ mlanguage_list (void)
     symbol.  Otherwise, it returns #Mnil.
 
     @seealso
-    mlanguage_name (), mlanguage_text ().  */
+    mlanguage_names (), mlanguage_text ().  */
 
 /***ja
     @brief 言語コードを得る.
@@ -387,48 +395,81 @@ mlanguage_code (MSymbol language, int len)
 /*=*/
 
 /***en
-    @brief Get an English language name.
+    @brief Return the language names written in the specified language.
 
-    The mlanguage_name () function returns a symbol whose name is an
-    English name of $LANGUAGE.  $LANGUAGE is a symbol whose name is an
-    ISO639-2 3-letter language code, an ISO639-1 2-letter language
-    codes, or an English word.
+    The mlanguage_name_list () function returns a plist of LANGUAGE's
+    names written in TARGET language.
+
+    LANGUAGE and TARGET must be a symbol whose name is an ISO639-2
+    3-letter language code or an ISO639-1 2-letter language codes.
+    TARGET may be #Mnil, in which case, the language of the current
+    locale is used.  If locale is not set or is C, English is used.
 
     @return
-    If the information is available, this function returns a non-#Mnil
-    symbol.  Otherwise, it returns #Mnil.
+    If the information is available, this function returns a non-empty
+    plist whose keys are #Mtext and values are M-texts of the
+    translated language names.  Otherwise, @c NULL is returned.
+    The returned plist should not be modified nor freed.
 
     @seealso
     mlanguage_code (), mlanguage_text ().  */
 
-/***ja
-    @brief 言語の英語名を得る.
-
-    関数 mlanguage_name () は、$LANGUAGE の英語名を名前とするようなシ
-    ンボルを返す。$LANGUAGE はシンボルであり、その名前は、ISO639-2 3文
-    字言語コード、ISO639-1 2文字言語コード、英語名、のいずれかである。
-
-    @return
-    求めている情報が得られるなら、この関数は #Mnil 以外のシンボルを返
-    す。そうでなければ #Mnil を返す。
-
-    @seealso
-    mlanguage_code (), mlanguage_text ().  */
-
-MSymbol
-mlanguage_name (MSymbol language)
+MPlist *
+mlanguage_name_list (MSymbol language, MSymbol target)
 {
-  MPlist *plist = mlanguage__info (language);
+  MPlist *plist;
 
-  if (! plist)			/* 3-letter code */
-    return Mnil;
-  plist = MPLIST_NEXT (plist);	/* 2-letter code */
-  if (MPLIST_TAIL_P (plist))
-    return Mnil;
-  plist = MPLIST_NEXT (plist);	/* english name */
-  if (! MPLIST_SYMBOL_P (plist))
-    return Mnil;
-  return MPLIST_SYMBOL (plist);
+  plist = mlanguage__info (language);
+  if (! plist)
+    return NULL;
+  language = mplist_value (plist);
+  if (target != Mnil)
+    {
+      plist = mlanguage__info (target);
+      if (! plist)
+	return NULL;
+      target = mplist_value (plist);
+    }
+  else
+    {
+      MLocale *locale = mlocale_set (LC_MESSAGES, NULL);
+
+      if (! locale)
+	target = msymbol ("eng");
+      else
+	{
+	  target = mlocale_get_prop (locale, Mlanguage);
+	  plist = mlanguage__info (target);
+	  if (! plist)
+	    return NULL;
+	  target = mplist_value (plist);
+	}
+    }
+  /* Now both LANGUAGE and TARGET are 3-letter codes.  */
+
+  if (langname_list)
+    plist = mplist_get (langname_list, target);
+  else
+    langname_list = mplist (), plist = NULL;
+  if (! plist)
+    {
+      MDatabase *mdb = mdatabase_find (Mlanguage, Mname, target, Mnil);
+
+      if (! mdb
+	  || ! (plist = mdatabase_load (mdb)))
+	plist = mplist ();
+      else
+	mplist__pop_unref (plist);
+      langname_list = mplist_push (langname_list, target, plist);
+      MPLIST_SET_NESTED_P (langname_list);
+    }
+  /* PLIST == ((LANGUAGE TRANSLATED) ...) */
+  plist = mplist__assq (plist, language);
+  if (! plist || MPLIST_TAIL_P (plist))
+    return NULL;
+  plist = MPLIST_PLIST (plist);
+  plist = MPLIST_NEXT (plist);
+  return plist;
 }
 
 /*=*/
@@ -587,3 +628,70 @@ mscript_language_list (MSymbol script)
     return MPLIST_PLIST (plist);
   return NULL;
 }
+
+/*** @} */
+/*=*/
+/***en
+    @name Obsolete functions
+*/
+/***ja
+    @name Obsolete な関数
+*/
+/*** @{ */
+
+/***en
+    @brief Get an English language name.
+
+    This function is obsolete.  Use mlanguage_names () instead.
+
+    The mlanguage_name () function returns a symbol whose name is an
+    English name of $LANGUAGE.  $LANGUAGE is a symbol whose name is an
+    ISO639-2 3-letter language code, an ISO639-1 2-letter language
+    codes, or an English word.
+
+    @return
+    If the information is available, this function returns a non-#Mnil
+    symbol.  Otherwise, it returns #Mnil.
+
+    @seealso
+    mlanguage_code (), mlanguage_text ().  */
+
+/***ja
+    @brief 言語の英語名を得る.
+
+    関数 mlanguage_name () は、$LANGUAGE の英語名を名前とするようなシ
+    ンボルを返す。$LANGUAGE はシンボルであり、その名前は、ISO639-2 3文
+    字言語コード、ISO639-1 2文字言語コード、英語名、のいずれかである。
+
+    @return
+    求めている情報が得られるなら、この関数は #Mnil 以外のシンボルを返
+    す。そうでなければ #Mnil を返す。
+
+    @seealso
+    mlanguage_code (), mlanguage_text ().  */
+
+MSymbol
+mlanguage_name (MSymbol language)
+{
+  MPlist *plist = mlanguage__info (language);
+  MText *mt;
+
+  if (! plist)			/* 3-letter code */
+    return Mnil;
+  plist = MPLIST_NEXT (plist);	/* 2-letter code */
+  if (MPLIST_TAIL_P (plist))
+    return Mnil;
+  plist = MPLIST_NEXT (plist);	/* english name */
+  if (MPLIST_MTEXT_P (plist))
+    return Mnil;
+  mt = MPLIST_MTEXT (plist);
+  if (mtext_nbytes (mt) != MSYMBOL_NAMELEN (language)
+      || memcmp (MTEXT_DATA (MPLIST_MTEXT (plist)),
+		 MSYMBOL_NAME (language),
+		 MSYMBOL_NAMELEN (language)))
+    return Mnil;
+  return language;
+}
+
+/*=*/
+
