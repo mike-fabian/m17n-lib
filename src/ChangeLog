@@ -1,3 +1,21 @@
+2007-05-14  Kenichi Handa  <handa@m17n.org>
+
+	* language.c: Include <string.h> and <locale.h>.
+	(langname_list): New variable.
+	(load_lang_script_list): Exclude invalid list elements.
+	(mlang__init): Initialize langname_list.
+	(mlang__fini): Unref langname_list.
+	(mlanguage__info): Adjusted for the change of English
+	name (symbol->M-text).
+	(mlanguage_name): Label it as obsolete.
+	(mlanguage_name_list): New function.
+
+	* m17n.h (mlanguage_name_list): Extern it.
+
+	* locale.c (make_locale): Fix setting of members of locale.
+
+	* plist.c (free_plist): Unref also nested plist.
+
 2007-05-11  Kenichi Handa  <handa@m17n.org>
 
 	* coding.c (mconv_reset_converter): Set internal->used to 0.
