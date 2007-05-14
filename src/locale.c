@@ -128,20 +128,20 @@ make_locale (const char *name)
       str[i] = '\0';
       if (c == '\0')
 	/* The first field is for language.  */
-	locale->language = msymbol (name);	
+	locale->language = msymbol (str);
       else if (c == '_')
 	/* The field following '_' is for territory.  */
-	locale->territory = msymbol (name);
+	locale->territory = msymbol (str);
       else if (c == '.')
 	/* The field following '.' is for codeset.  */
-	locale->codeset = msymbol (name);
+	locale->codeset = msymbol (str);
       else
 	/* The other field is for modifier.  */
-	locale->modifier = msymbol (name);
+	locale->modifier = msymbol (str);
       if (! c1)
 	break;
       c = c1;
-      name += i + 1;
+      str += i + 1;
     }
 
 #ifdef HAVE_NL_LANGINFO
