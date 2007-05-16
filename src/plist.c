@@ -130,8 +130,7 @@ free_plist (void *object)
     MPlist *next = plist->next;
 
     if (MPLIST_KEY (plist) != Mnil
-	&& (MPLIST_KEY (plist)->managing_key
-	    || MPLIST_NESTED_P (plist)))
+	&& MPLIST_KEY (plist)->managing_key)
       M17N_OBJECT_UNREF (MPLIST_VAL (plist));
     M17N_OBJECT_UNREGISTER (plist_table, plist);
     free (plist);
@@ -615,11 +614,17 @@ write_element (MText *mt, MPlist *plist, int indent)
       sprintf (buf, "%d", num);
       PUTS (mt, buf);
     }
-  else if (MPLIST_PLIST_P (plist))
+  else if (MPLIST_PLIST_P (plist)
+	   || MPLIST_NESTED_P (plist))
     {
       MPlist *pl;
       int newline = 0;
 
+      if (MPLIST_NESTED_P (plist))
+	{
+	  write_symbol (mt, MPLIST_KEY (plist));
+	  PUTC (mt, ':');
+	}
       plist = MPLIST_PLIST (plist);
       PUTC (mt, '(');
       if (indent >= 0)
@@ -716,17 +721,12 @@ write_element (MText *mt, MPlist *plist, int indent)
     }
   else 
     {
+      char buf[128];
+
       write_symbol (mt, MPLIST_KEY (plist));
       PUTC (mt, ':');
-      if (MPLIST_NESTED_P (plist))
-	write_element (mt, plist, indent + 1);
-      else
-	{
-	  char buf[128];
-
-	  sprintf (buf, "%04X", (unsigned) MPLIST_VAL (plist));
-	  PUTS (mt, buf);
-	}
+      sprintf (buf, "%04X", (unsigned) MPLIST_VAL (plist));
+      PUTS (mt, buf);
     }
 }
 
@@ -793,6 +793,8 @@ mplist__from_plist (MPlist *plist)
       type = MPLIST_KEY (plist);
       if (type->managing_key && MPLIST_VAL (plist))
 	M17N_OBJECT_REF (MPLIST_VAL (plist));
+      if (type == Mplist)
+	MPLIST_SET_NESTED_P (p);
       MPLIST_SET_ADVANCE (p, key, MPLIST_VAL (plist));
       plist = MPLIST_NEXT (plist);
     }
@@ -821,6 +823,7 @@ mplist__from_alist (MPlist *plist)
       elt = MPLIST_PLIST (plist);
       if (! MPLIST_SYMBOL_P (elt))
 	MERROR (MERROR_PLIST, NULL);
+      MPLIST_SET_NESTED_P (p);
       MPLIST_SET_ADVANCE (p, MPLIST_SYMBOL (elt), MPLIST_NEXT (elt));
       M17N_OBJECT_REF (MPLIST_NEXT (elt));
     }
@@ -926,8 +929,10 @@ mplist__conc (MPlist *plist, MPlist *tail)
   MPLIST_DO (pl, plist);
   MPLIST_KEY (pl) = MPLIST_KEY (tail);
   MPLIST_VAL (pl) = MPLIST_VAL (tail);
-  if (MPLIST_KEY (pl)->managing_key)
+  if (MPLIST_KEY (pl)->managing_key && MPLIST_VAL (pl))
     M17N_OBJECT_REF (MPLIST_VAL (pl));
+  if (MPLIST_NESTED_P (tail))
+    MPLIST_SET_NESTED_P (pl);
   tail = MPLIST_NEXT (tail);
   MPLIST_NEXT (pl) = tail;
   M17N_OBJECT_REF (tail);
@@ -1105,7 +1110,11 @@ mplist_copy (MPlist *plist)
   MPlist *copy = mplist (), *pl = copy;
 
   MPLIST_DO (plist, plist)
-    pl = mplist_add (pl, MPLIST_KEY (plist), MPLIST_VAL (plist));
+    {
+      if (MPLIST_NESTED_P (plist))
+	MPLIST_SET_NESTED_P (pl);
+      pl = mplist_add (pl, MPLIST_KEY (plist), MPLIST_VAL (plist));
+    }
   return copy;
 }
 
@@ -1208,14 +1217,14 @@ mplist_get (MPlist *plist, MSymbol key)
 
     The mplist_put_func () function is similar to mplist_put () but for
     setting function pointer $FUNC in property list $PLIST for key
-    $KEY.  */
+    $KEY.  $KEY must not be a managing key.  */
 
 /***ja
     @brief プロパティリスト中のプロパティに関数ポインタである値を設定する.
 
     関数 mplist_put_func () は関数 mplist_put () 同様、プロパティリスト $PLIST
     中でキーが $KEY であるプロパティに値を設定する。但しその値は関数ポインタ
-    $FUNC である。 */
+    $FUNC である。$KEY は管理キーであってはならない。  */
 
 
 /***
@@ -1225,17 +1234,10 @@ mplist_get (MPlist *plist, MSymbol key)
 MPlist *
 mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
 {
-  if (key == Mnil)
+  if (key == Mnil || key->managing_key)
     MERROR (MERROR_PLIST, NULL);
-  while (1)
-    {
-      MPLIST_FIND (plist, key);
-      if (MPLIST_TAIL_P (plist) || MPLIST_VAL_FUNC_P (plist))
-	break;
-      plist = MPLIST_NEXT (plist);
-    };
-
-  MPLIST_KEY (plist) = (key);
+  MPLIST_FIND (plist, key);
+  MPLIST_KEY (plist) = key;
   MPLIST_FUNC (plist) = func;
   MPLIST_SET_VAL_FUNC_P (plist);
   if (! plist->next)
@@ -1349,6 +1351,8 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
   MPLIST_NEW (pl);
   MPLIST_KEY (pl) = MPLIST_KEY (plist);
   MPLIST_VAL (pl) = MPLIST_VAL (plist);
+  if (MPLIST_NESTED_P (plist))
+    MPLIST_SET_NESTED_P (pl);
   MPLIST_NEXT (pl) = MPLIST_NEXT (plist);
   plist->next = pl;
   if (val && key->managing_key)
