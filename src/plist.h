@@ -59,7 +59,7 @@ struct MPlist
 #define MPLIST_PLIST_P(plist) (MPLIST_KEY (plist) == Mplist)
 
 #define MPLIST_NESTED_P(plist)	\
-  (MPLIST_PLIST_P (plist) || ((plist)->control.flag & 1))
+  ((plist)->control.flag & 1)
 #define MPLIST_SET_NESTED_P(plist)	\
   ((plist)->control.flag |= 1)
 
