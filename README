@@ -1,4 +1,4 @@
-This directory tree holds version 1.3.5 of the m17n library.	-*- text -*-
+This directory tree holds version 1.4.0 of the m17n library.	-*- text -*-
 
 Copyright (C) 2003, 2004, 2005, 2006, 2007
   National Institute of Advanced Industrial Science and Technology (AIST)
@@ -16,9 +16,9 @@ language.
 Run the script "bootstrap.sh" in this directory.  It is tested that
 the script run successfully with these versions of autotools.
 
-	libtool-1.5.6
-	automake-1.9.5
-	autoconf-2.59
+	libtool-1.5.22
+	automake-1.9.6
+	autoconf-2.61
 
 Then, proceed to the next step.
 
@@ -98,7 +98,7 @@ Please read also INSTALL for the generic installation instructions.
 The m17n library utilizes the m17n database available at:
 	http://www.m17n.org/m17n-lib/m17n-db
 Without this database, the m17n library loses half its value.  Please
-install it (Ver.1.3.5 or the later is required) too before you try the
+install it (Ver.1.4.0 or the later is required) too before you try the
 above sample programs or develop a program that uses the m17n library.
 
 
