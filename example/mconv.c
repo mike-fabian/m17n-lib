@@ -1,5 +1,5 @@
 /* mconv.c -- Code converter.				-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005, 2006, 2007
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -133,8 +133,6 @@
 
 #include <m17n.h>
 #include <m17n-misc.h>
-
-#define VERSION "1.3.4"
 
 /* Print all coding system names.  */
 
@@ -314,8 +312,8 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("m17n-conv (m17n library) %s\n", VERSION);
-	  printf ("Copyright (C) 2003 AIST, JAPAN\n");
+	  printf ("m17n-conv (m17n library) %s\n", M17NLIB_VERSION_NAME);
+	  printf ("Copyright (C) 2003, 2004, 2005, 2006, 2007 AIST, JAPAN\n");
 	  exit (0);
 	}
       else if (! strcmp (argv[i], "-l"))
