@@ -1,5 +1,5 @@
 /* mdump.c -- Dump text image				-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004, 2005, 2006
+   Copyright (C) 2003, 2004, 2005, 2006, 2007
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -255,8 +255,6 @@
 #include <m17n-gui.h>
 #include <m17n-misc.h>
 
-#define PROGRAM_VERSION "1.3.4"
-
 /* Enumuration of the supported paper types.  */
 enum paper_type
   {
@@ -500,8 +498,8 @@ main (int argc, char **argv)
 	help_exit (argv[0], 0);
       else if (! strcmp (argv[i], "--version"))
 	{
-	  printf ("m17n-dump (m17n library) %s\n", PROGRAM_VERSION);
-	  printf ("Copyright (C) 2003, 2004 AIST, JAPAN\n");
+	  printf ("m17n-dump (m17n library) %s\n", M17NLIB_VERSION_NAME);
+	  printf ("Copyright (C) 2007 AIST, JAPAN\n");
 	  exit (0);
 	}
       else if (! strcmp (argv[i], "-s") && i + 1< argc)
