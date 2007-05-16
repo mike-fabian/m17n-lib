@@ -1,3 +1,20 @@
+2007-05-16  Kenichi Handa  <handa@m17n.org>
+
+	* plist.c (free_plist): Cancel the last change.
+	(write_element): Check if PLIST is nested.
+	(mplist__from_plist): Label a plist as nested if appropriate.
+	(mplist__from_alist): Label a plist as nested.
+	(mplist__conc): Check the value of PL before referring it.  Label
+	a plist as nested if appropriate.
+	(mplist_copy): Label a plist as nested if appropriate.
+	(mplist_put_func): Return Mnil if KEY is a managing key.
+	(mplist_push): Label a plist as nested if appropriate.
+
+	* plist.h (MPLIST_SET_NESTED_P): Return 1 iff plist->control.flag
+	is set as nested.
+
+	* language.c (mlang__fini): Unref each element of langname_list.
+
 2007-05-14  Kenichi Handa  <handa@m17n.org>
 
 	* language.c: Include <string.h> and <locale.h>.
