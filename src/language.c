@@ -115,8 +115,9 @@ mlang__fini (void)
 
   M17N_OBJECT_UNREF (language_list);
   M17N_OBJECT_UNREF (script_list);
-  MPLIST_DO (pl, langname_list)
-    M17N_OBJECT_UNREF (MPLIST_VAL (pl));
+  if (langname_list)
+    MPLIST_DO (pl, langname_list)
+      M17N_OBJECT_UNREF (MPLIST_VAL (pl));
   M17N_OBJECT_UNREF (langname_list);
 }
 
