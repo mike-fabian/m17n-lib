@@ -1070,34 +1070,48 @@ load_branch (MInputMethodInfo *im_info, MPlist *plist, MIMMap *map)
       if (branch_actions)
 	M17N_OBJECT_REF (branch_actions);
     }
-  else if (im_info->maps
-	   && (plist = (MPlist *) mplist_get (im_info->maps, map_name)))
+  else if (im_info->maps) 
     {
-      MPLIST_DO (plist, plist)
+      plist = (MPlist *) mplist_get (im_info->maps, map_name);
+      if (! plist)
 	{
-	  MPlist *keylist, *map_actions;
+	  MPlist *p = mplist__assq (im_info->configured_vars, map_name);
 
-	  if (! MPLIST_PLIST_P (plist))
-	    MERROR (MERROR_IM, -1);
-	  keylist = MPLIST_PLIST (plist);
-	  map_actions = MPLIST_NEXT (keylist);
-	  if (MPLIST_SYMBOL_P (keylist))
+	  if (p && MPLIST_PLIST_P (p))
 	    {
-	      MSymbol command = MPLIST_SYMBOL (keylist);
-	      MPlist *pl;
+	      p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (p))));
+	      if (MPLIST_SYMBOL_P (p))
+		plist = mplist_get (im_info->maps, MPLIST_SYMBOL (p));
+	    }
+	}
+      if (plist)
+	{
+	  MPLIST_DO (plist, plist)
+	    {
+	      MPlist *keylist, *map_actions;
 
-	      if (MFAILP (command != Mat_reload))
-		continue;
-	      pl = resolve_command (im_info->configured_cmds, command);
-	      if (MFAILP (pl))
-		continue;
-	      MPLIST_DO (pl, pl)
-		load_translation (map, pl, map_actions, branch_actions,
+	      if (! MPLIST_PLIST_P (plist))
+		MERROR (MERROR_IM, -1);
+	      keylist = MPLIST_PLIST (plist);
+	      map_actions = MPLIST_NEXT (keylist);
+	      if (MPLIST_SYMBOL_P (keylist))
+		{
+		  MSymbol command = MPLIST_SYMBOL (keylist);
+		  MPlist *pl;
+
+		  if (MFAILP (command != Mat_reload))
+		    continue;
+		  pl = resolve_command (im_info->configured_cmds, command);
+		  if (MFAILP (pl))
+		    continue;
+		  MPLIST_DO (pl, pl)
+		    load_translation (map, pl, map_actions, branch_actions,
+				      im_info->macros);
+		}
+	      else
+		load_translation (map, keylist, map_actions, branch_actions,
 				  im_info->macros);
 	    }
-	  else
-	    load_translation (map, keylist, map_actions, branch_actions,
-			      im_info->macros);
 	}
     }
 
