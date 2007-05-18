@@ -1,3 +1,7 @@
+2007-05-18  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (config_command): Set NAME before using it.
+
 2007-05-17  Kenichi Handa  <handa@m17n.org>
 
 	* language.c (mlang__fini): Fix previous change.
