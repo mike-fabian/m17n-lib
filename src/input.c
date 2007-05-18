@@ -1742,14 +1742,13 @@ config_command (MPlist *plist, MPlist *global_cmds, MPlist *custom_cmds,
 		MPlist *config_cmds)
 {
   MPlist *global = NULL, *custom = NULL, *config = NULL;
-  MSymbol name;
+  MSymbol name = MPLIST_SYMBOL (plist);
   MSymbol status;
   MPlist *description, *keyseq;
 
   if (global_cmds && (global = mplist__assq (global_cmds, name)))
     global = MPLIST_NEXT (MPLIST_PLIST (global));  
 
-  name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
   if (MPLIST_MTEXT_P (plist) || MPLIST_PLIST_P (plist))
     {
