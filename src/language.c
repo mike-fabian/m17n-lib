@@ -23,6 +23,7 @@
 #include <config.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <locale.h>
 #include "m17n.h"
 #include "m17n-misc.h"
@@ -185,9 +186,9 @@ mlanguage__info (MSymbol language)
 	  MText *mt = MPLIST_MTEXT (pl);
 
 	  if (mtext_nbytes (mt) == MSYMBOL_NAMELEN (language)
-	      && memcmp (MTEXT_DATA (MPLIST_MTEXT (pl)),
-			 MSYMBOL_NAME (language),
-			 MSYMBOL_NAMELEN (language)) == 0)
+	      && strncasecmp ((char *) MTEXT_DATA (MPLIST_MTEXT (pl)),
+			      MSYMBOL_NAME (language),
+			      MSYMBOL_NAMELEN (language)) == 0)
 	    return MPLIST_PLIST (plist);
 	}
     }
@@ -680,6 +681,7 @@ mlanguage_name (MSymbol language)
 {
   MPlist *plist = mlanguage__info (language);
   MText *mt;
+  char *str;
 
   if (! plist)			/* 3-letter code */
     return Mnil;
@@ -687,15 +689,13 @@ mlanguage_name (MSymbol language)
   if (MPLIST_TAIL_P (plist))
     return Mnil;
   plist = MPLIST_NEXT (plist);	/* english name */
-  if (MPLIST_MTEXT_P (plist))
+  if (! MPLIST_MTEXT_P (plist))
     return Mnil;
   mt = MPLIST_MTEXT (plist);
-  if (mtext_nbytes (mt) != MSYMBOL_NAMELEN (language)
-      || memcmp (MTEXT_DATA (MPLIST_MTEXT (plist)),
-		 MSYMBOL_NAME (language),
-		 MSYMBOL_NAMELEN (language)))
-    return Mnil;
-  return language;
+  str = alloca (mtext_nbytes (mt));
+  memcpy (str, MTEXT_DATA (mt), mtext_nbytes (mt));
+  str[0] = tolower (str[0]);
+  return msymbol__with_len (str, mtext_nbytes (mt));
 }
 
 /*=*/
