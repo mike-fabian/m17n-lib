@@ -1,3 +1,7 @@
+2007-05-21  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (show_cursor): Use msymbol_name (not mlangauge_name).
+
 2007-05-16  Kenichi Handa  <handa@m17n.org>
 
 	* mdate.c (VERSION): Delete it.

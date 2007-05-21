@@ -1,5 +1,10 @@
 2007-05-21  Kenichi Handa  <handa@m17n.org>
 
+	* language.c: Include <ctype.h>
+	(mlanguage__info): Use strncasecmp (not memcmp).
+	(mlanguage_name): Downcase language name for backward
+	compatibility.
+
 	* input.c (filter): Don't check Mlanguage property of
 	ic->im->langauge.
 
