@@ -1,4 +1,12 @@
+2007-05-21  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (filter): Don't check Mlanguage property of
+	ic->im->langauge.
+
 2007-05-18  Kenichi Handa  <handa@m17n.org>
+
+	* language.c (mlanguage_name): Fix it to handle M-text English
+	name.
 
 	* input.c (config_command): Set NAME before using it.
 	(load_branch): Try to resolve a map name by variables.
