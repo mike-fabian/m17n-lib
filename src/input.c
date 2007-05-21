@@ -3809,8 +3809,6 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 
   if (mtext_nchars (ic->produced) > 0)
     {
-      MSymbol lang = msymbol_get (ic->im->language, Mlanguage);
-
       if (mdebug__flag & mdebug_mask)
 	{
 	  MDEBUG_PRINT (" (produced");
@@ -3819,9 +3817,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	  MDEBUG_PRINT (")");
 	}
 
-      if (lang != Mnil)
-	mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
-			Mlanguage, ic->im->language);
+      mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
+		      Mlanguage, ic->im->language);
     }
   if (ic_info->commit_key_head > 0)
     {
