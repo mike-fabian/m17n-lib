@@ -863,7 +863,8 @@ show_cursor (XtPointer client_data)
       else
 	{
 	  XtSetArg (arg[0], XtNborderWidth, 1);
-	  XtSetArg (arg[1], XtNlabel, mlanguage_name (sym));
+	  sym = mlanguage_name (sym);
+	  XtSetArg (arg[1], XtNlabel, msymbol_name (sym));
 	  XtSetValues (CurLangWidget, arg, 2);
 	}
       XtSetValues (CurLangWidget, arg, 2);
