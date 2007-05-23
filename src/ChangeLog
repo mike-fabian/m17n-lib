@@ -1,3 +1,13 @@
+2007-05-23  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (Mversion): New variable.
+	(mdatabase__init): Initialize it.
+	(register_database): New arg properties.  Caller changed.
+	(register_databases_in_files): Don't check version here.
+	(mdatabase__update): Likewise.
+
+	* database.h (MDatabaseInfo): New member properties.
+
 2007-05-21  Kenichi Handa  <handa@m17n.org>
 
 	* language.c: Include <ctype.h>
