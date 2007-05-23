@@ -160,6 +160,7 @@
       path[dir_len + file_len] = '\0', 1))
 
 static MSymbol Masterisk;
+static MSymbol Mversion;
 
 /** Structure for a data in the m17n database.  */
 
@@ -616,12 +617,31 @@ check_version (MText *version)
 static MDatabase *
 register_database (MSymbol tags[4],
 		   void *(*loader) (MSymbol *, void *),
-		   void *extra_info, enum MDatabaseStatus status)
+		   void *extra_info, enum MDatabaseStatus status,
+		   MPlist *properties)
 {
   MDatabase *mdb;
   MDatabaseInfo *db_info;
   int i;
   MPlist *plist;
+
+  if (properties)
+    {
+      MPLIST_DO (plist, properties)
+	if (MPLIST_PLIST_P (plist))
+	  {
+	    MPlist *p = MPLIST_PLIST (pl);
+
+	    if (MPLIST_SYMBOL_P (p)
+		&& MPLIST_SYMBOL (p) == Mversion
+		&& MPLIST_MTEXT_P (MPLIST_NEXT (p)))
+	      {
+		if (check_version (MPLIST_MTEXT (MPLIST_NEXT (p))))
+		  break;
+		return NULL;
+	      }
+	  }
+    }
 
   if (! mdatabase__list)
     mdatabase__list = mplist ();
@@ -730,16 +750,9 @@ register_databases_in_files (MSymbol tags[4], glob_t *globbuf, int headlen)
 		: (tags[j] != Mnil && tags[j] != tags2[j]))
 	      break;
 	  if (j == 4)
-	    {
-	      MText *version = NULL;
-
-	      MPLIST_DO (pl, pl)
-		version = MPLIST_MTEXT_P (pl) ? MPLIST_MTEXT (pl) : NULL;
-	      if (! version || check_version (version))
-		register_database (tags2, load_database,
-				   globbuf->gl_pathv[i] + headlen,
-				   MDB_STATUS_AUTO);
-	    }
+	    register_database (tags2, load_database,
+			       globbuf->gl_pathv[i] + headlen,
+			       MDB_STATUS_AUTO, pl);
 	}
       M17N_OBJECT_UNREF (plist);
     }
@@ -760,6 +773,7 @@ mdatabase__init ()
 
   Mchar_table = msymbol ("char-table");
   Masterisk = msymbol ("*");
+  Mversion = msymbol ("version");
 
   mdatabase__dir_list = mplist ();
   /** The macro M17NDIR specifies a directory where the system-wide
@@ -999,14 +1013,7 @@ mdatabase__update (void)
 		  }
 	    }
 	  else
-	    {
-	      MText *version = NULL;
-
-	      MPLIST_DO (p1, p1)
-		version = MPLIST_MTEXT_P (pl) ? MPLIST_MTEXT (pl) : NULL;
-	      if (! version || check_version (version))
-		register_database (tags, load_database, path, MDB_STATUS_AUTO);
-	    }
+	    register_database (tags, load_database, path, MDB_STATUS_AUTO, pl);
 	}
       M17N_OBJECT_UNREF (pl);
     }
@@ -1407,7 +1414,7 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
   tags[0] = tag0, tags[1] = tag1, tags[2] = tag2, tags[3] = tag3;
   if (! loader)
     loader = load_database;
-  mdb = register_database (tags, loader, extra_info, MDB_STATUS_EXPLICIT);
+  mdb = register_database (tags, loader, extra_info, MDB_STATUS_EXPLICIT, NULL);
   return mdb;
 }
 
