@@ -62,6 +62,8 @@ typedef struct
      loaded.  */
   time_t time;
   char *lock_file, *uniq_file;
+
+  MPlist *properties;
 } MDatabaseInfo;
 
 extern MPlist *mdatabase__dir_list;
