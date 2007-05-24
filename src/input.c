@@ -1073,7 +1073,7 @@ load_branch (MInputMethodInfo *im_info, MPlist *plist, MIMMap *map)
   else if (im_info->maps) 
     {
       plist = (MPlist *) mplist_get (im_info->maps, map_name);
-      if (! plist)
+      if (! plist && im_info->configured_vars)
 	{
 	  MPlist *p = mplist__assq (im_info->configured_vars, map_name);
 
@@ -1493,6 +1493,8 @@ update_global_info (void)
     {
       MDatabase *mdb = mdatabase_find (Minput_method, Mt, Mnil, Mglobal);
 
+      if (! mdb)
+	return -1;
       global_info = new_im_info (mdb, Mt, Mnil, Mglobal, im_info_list);
     }
   if (! global_info->mdb
