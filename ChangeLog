@@ -1,3 +1,7 @@
+2007-05-24  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac (HAVE_ANTHY): Use PKG_CHECK_MODULES to check it.
+
 2007-05-16  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Version changed to 1.4.0
