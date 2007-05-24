@@ -556,23 +556,48 @@ get_dir_info (char *dirname)
   return dir_info;
 }
 
+static void register_databases_in_files (MSymbol tags[4],
+					 char *filename, int len);
+
 static MDatabase *
 find_database (MSymbol tags[4])
 {
   MPlist *plist;
   int i;
+  MDatabase *mdb;
   
   if (! mdatabase__list)
     return NULL;
   for (i = 0, plist = mdatabase__list; i < 4; i++)
     {
-      plist = mplist__assq (plist, tags[i]);
-      if (! plist)
+      MPlist *pl = mplist__assq (plist, tags[i]);
+      MPlist *p;
+
+      if ((p = mplist__assq (plist, Masterisk)))
+	{
+	  MDatabaseInfo *db_info;
+	  int j;
+
+	  p = MPLIST_PLIST (p);
+	  for (j = i + 1; j < 4; j++)
+	    p = MPLIST_PLIST (MPLIST_NEXT (p));
+	  mdb = MPLIST_VAL (MPLIST_NEXT (p));
+	  db_info = mdb->extra_info;
+	  if (db_info->status != MDB_STATUS_DISABLED)
+	    {
+	      register_databases_in_files (mdb->tag,
+					   db_info->filename, db_info->len);
+	      db_info->status = MDB_STATUS_DISABLED;
+	      return find_database (tags);
+	    }
+	}
+      if (! pl)
 	return NULL;
-      plist = MPLIST_PLIST (plist);
+      plist = MPLIST_PLIST (pl);
       plist = MPLIST_NEXT (plist);
     }
-  return MPLIST_VAL (plist);
+  mdb = MPLIST_VAL (plist);
+  return mdb;
 }
 
 static void
@@ -582,6 +607,7 @@ free_db_info (MDatabaseInfo *db_info)
   if (db_info->absolute_filename
       && db_info->filename != db_info->absolute_filename)
     free (db_info->absolute_filename);
+  M17N_OBJECT_UNREF (db_info->properties);
   free (db_info);
 }
 
@@ -630,7 +656,7 @@ register_database (MSymbol tags[4],
       MPLIST_DO (plist, properties)
 	if (MPLIST_PLIST_P (plist))
 	  {
-	    MPlist *p = MPLIST_PLIST (pl);
+	    MPlist *p = MPLIST_PLIST (plist);
 
 	    if (MPLIST_SYMBOL_P (p)
 		&& MPLIST_SYMBOL (p) == Mversion
@@ -642,9 +668,6 @@ register_database (MSymbol tags[4],
 	      }
 	  }
     }
-
-  if (! mdatabase__list)
-    mdatabase__list = mplist ();
 
   for (i = 0, plist = mdatabase__list; i < 4; i++)
     {
@@ -708,6 +731,12 @@ register_database (MSymbol tags[4],
 	db_info->absolute_filename = db_info->filename;
       else
 	db_info->absolute_filename = NULL;
+      M17N_OBJECT_UNREF (db_info->properties);
+      if (properties)
+	{
+	  db_info->properties = properties;
+	  M17N_OBJECT_REF (properties);
+	}
     }
 
   if (mdb->tag[0] == Mchar_table
@@ -720,41 +749,69 @@ register_database (MSymbol tags[4],
 }
 
 static void
-register_databases_in_files (MSymbol tags[4], glob_t *globbuf, int headlen)
+register_databases_in_files (MSymbol tags[4], char *filename, int len)
 {
   int i, j;
   MPlist *load_key = mplist ();
   FILE *fp;
-  MPlist *plist;
+  MPlist *plist, *pl;
 
-  for (i = 0; i < globbuf->gl_pathc; i++)
+  MPLIST_DO (plist, mdatabase__dir_list)
     {
-      if (! (fp = fopen (globbuf->gl_pathv[i], "r")))
-	continue;
-      plist = mplist__from_file (fp, load_key);
-      fclose (fp);
-      if (! plist)
-	continue;
-      if (MPLIST_PLIST_P (plist))
-	{
-	  MPlist *pl;
-	  MSymbol tags2[4];
+      glob_t globbuf;
+      int headlen;
 
-	  for (j = 0, pl = MPLIST_PLIST (plist); j < 4 && MPLIST_SYMBOL_P (pl);
-	       j++, pl = MPLIST_NEXT (pl))
-	    tags2[j] = MPLIST_SYMBOL (pl);
-	  for (; j < 4; j++)
-	    tags2[j] = Mnil;
-	  for (j = 0; j < 4; j++)
-	    if (tags[j] == Masterisk ? tags2[j] == Mnil
-		: (tags[j] != Mnil && tags[j] != tags2[j]))
-	      break;
-	  if (j == 4)
-	    register_database (tags2, load_database,
-			       globbuf->gl_pathv[i] + headlen,
-			       MDB_STATUS_AUTO, pl);
+      if (filename[0] == PATH_SEPARATOR)
+	{
+	  if (glob (filename, GLOB_NOSORT, NULL, &globbuf))
+	    break;
+	  headlen = 0;
 	}
-      M17N_OBJECT_UNREF (plist);
+      else
+	{
+	  MDatabaseInfo *d_info = MPLIST_VAL (plist);
+	  char path[PATH_MAX + 1];
+
+	  if (d_info->status == MDB_STATUS_DISABLED)
+	    continue;
+	  if (! GEN_PATH (path, d_info->filename, d_info->len, filename, len))
+	    continue;
+	  if (glob (path, GLOB_NOSORT, NULL, &globbuf))
+	    continue;
+	  headlen = d_info->len;
+	}
+
+      for (i = 0; i < globbuf.gl_pathc; i++)
+	{
+	  if (! (fp = fopen (globbuf.gl_pathv[i], "r")))
+	    continue;
+	  pl = mplist__from_file (fp, load_key);
+	  fclose (fp);
+	  if (! pl)
+	    continue;
+	  if (MPLIST_PLIST_P (pl))
+	    {
+	      MPlist *p;
+	      MSymbol tags2[4];
+
+	      for (j = 0, p = MPLIST_PLIST (pl); j < 4 && MPLIST_SYMBOL_P (p);
+		   j++, p = MPLIST_NEXT (p))
+		tags2[j] = MPLIST_SYMBOL (p);
+	      for (; j < 4; j++)
+		tags2[j] = Mnil;
+	      for (j = 0; j < 4; j++)
+		if (tags[j] != Masterisk && tags[j] != tags2[j])
+		  break;
+	      if (j == 4)
+		register_database (tags2, load_database,
+				   globbuf.gl_pathv[i] + headlen,
+				   MDB_STATUS_AUTO, p);
+	    }
+	  M17N_OBJECT_UNREF (pl);
+	}
+      globfree (&globbuf);
+      if (filename[0] == PATH_SEPARATOR)
+	break;
     }
   M17N_OBJECT_UNREF (load_key);
 }
@@ -975,7 +1032,7 @@ mdatabase__update (void)
 	      || ! MPLIST_MTEXT_P (p1))
 	    continue;
 	  for (; i < 4; i++)
-	    tags[i] = Mnil;
+	    tags[i] = with_wildcard ? Masterisk : Mnil;
 	  mt = MPLIST_MTEXT (p1);
 	  nbytes = mtext_nbytes (mt);
 	  if (nbytes > PATH_MAX)
@@ -983,37 +1040,11 @@ mdatabase__update (void)
 	  memcpy (path, MTEXT_DATA (mt), nbytes);
 	  path[nbytes] = '\0';
 	  if (with_wildcard)
-	    {
-	      glob_t globbuf;
-	      MPlist *dlist;
-
-	      if (tags[0] == Mchar_table || tags[0] == Mcharset)
-		continue;
-	      if (path[0] == PATH_SEPARATOR)
-		{
-		  if (glob (path, GLOB_NOSORT, NULL, &globbuf))
-		    continue;
-		  register_databases_in_files (tags, &globbuf, 0);
-		  globfree (&globbuf);
-		}
-	      else
-		MPLIST_DO (dlist, mdatabase__dir_list)
-		  {
-		    MDatabaseInfo *d_info = MPLIST_VAL (dlist);
-
-		    if (d_info->status == MDB_STATUS_DISABLED)
-		      continue;
-		    if (! GEN_PATH (path, d_info->filename, d_info->len,
-				    MTEXT_DATA (mt), nbytes))
-		      continue;
-		    if (glob (path, GLOB_NOSORT, NULL, &globbuf))
-		      continue;
-		    register_databases_in_files (tags, &globbuf, d_info->len);
-		    globfree (&globbuf);
-		  }
-	    }
+	    register_database (tags, load_database, path,
+			       MDB_STATUS_AUTO_WILDCARD, NULL);
 	  else
-	    register_database (tags, load_database, path, MDB_STATUS_AUTO, pl);
+	    register_database (tags, load_database, path,
+			       MDB_STATUS_AUTO, p1);
 	}
       M17N_OBJECT_UNREF (pl);
     }
@@ -1320,6 +1351,8 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 {
   MPlist *plist = mplist (), *pl = plist;
   MPlist *p, *p0, *p1, *p2, *p3;
+  MDatabase *mdb;
+  MDatabaseInfo *db_info;
 
   mdatabase__update ();
 
@@ -1327,22 +1360,42 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     {
       p0 = MPLIST_PLIST (p);
       /* P0 ::= (TAG0 (TAG1 (TAG2 (TAG3 MDB) ...) ...) ...) */
-      if (tag0 != Mnil && MPLIST_SYMBOL (p0) != tag0)
+      if (MPLIST_SYMBOL (p0) == Masterisk
+	  || (tag0 != Mnil && MPLIST_SYMBOL (p0) != tag0))
 	continue;
       MPLIST_DO (p0, MPLIST_NEXT (p0))
 	{
 	  p1 = MPLIST_PLIST (p0);
+	  if (MPLIST_SYMBOL (p1) == Masterisk)
+	    {
+	      p1 = MPLIST_PLIST (MPLIST_NEXT (p1));
+	      p1 = MPLIST_PLIST (MPLIST_NEXT (p1));
+	      mdb = MPLIST_VAL (MPLIST_NEXT (p1));
+	      if (mdb->loader == load_database
+		  && (db_info = mdb->extra_info)
+		  && db_info->status != MDB_STATUS_DISABLED)
+		{
+		  register_databases_in_files (mdb->tag,
+					       db_info->filename, db_info->len);
+		  db_info->status = MDB_STATUS_DISABLED;
+		  M17N_OBJECT_UNREF (plist);
+		  return mdatabase_list (tag0, tag1, tag2, tag3);
+		}
+	      continue;
+	    }
 	  if (tag1 != Mnil && MPLIST_SYMBOL (p1) != tag1)
 	    continue;
 	  MPLIST_DO (p1, MPLIST_NEXT (p1))
 	    {
 	      p2 = MPLIST_PLIST (p1);
-	      if (tag2 != Mnil && MPLIST_SYMBOL (p2) != tag2)
+	      if (MPLIST_SYMBOL (p2) == Masterisk
+		  || (tag2 != Mnil && MPLIST_SYMBOL (p2) != tag2))
 		continue;
 	      MPLIST_DO (p2, MPLIST_NEXT (p2))
 		{
 		  p3 = MPLIST_PLIST (p2);
-		  if (tag3 != Mnil && MPLIST_SYMBOL (p3) != tag3)
+		  if (MPLIST_SYMBOL (p3) == Masterisk
+		      || (tag3 != Mnil && MPLIST_SYMBOL (p3) != tag3))
 		    continue;
 		  p3 = MPLIST_NEXT (p3);
 		  pl = mplist_add (pl, Mt, MPLIST_VAL (p3));
@@ -1351,10 +1404,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 	}
     }
   if (MPLIST_TAIL_P (plist))
-    {
-      M17N_OBJECT_UNREF (plist);
-      plist = NULL;
-    }
+    M17N_OBJECT_UNREF (plist);
   return plist;
 }
 
