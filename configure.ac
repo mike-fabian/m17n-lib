@@ -324,19 +324,14 @@ LIBS="$save_LIBS"
 AC_SUBST(XML2_LD_FLAGS)
 
 dnl Check for Anthy usability.
-AC_CHECK_LIB(anthydic, anthy_init_sessions, HAVE_ANTHY=yes, HAVE_ANTHY=no)
+
+PKG_CHECK_MODULES(ANTHY, anthy, HAVE_ANTHY=yes, HAVE_ANTHY=no)
 if test "x$HAVE_ANTHY" = "xyes"; then
-  AC_CHECK_LIB(anthy, anthy_init, HAVE_ANTHY=yes, HAVE_ANTHY=no, -lanthydic)
-  if test "x$HAVE_ANTHY" = "xyes"; then
-    AC_CHECK_HEADER(anthy/anthy.h, HAVE_ANTHY=yes, HAVE_ANTHY=no)
-    if test "x$HAVE_ANTHY" = "xyes"; then
-      AC_DEFINE(HAVE_ANTHY, 1,
-		[Define to 1 if you have Anthy library and header file])
-      M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
-      ANTHY_LD_FLAGS="-lanthy -lanthydic"
-      CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_ANTHY"
-    fi
-  fi
+  AC_DEFINE(HAVE_ANTHY, 1,
+	   [Define to 1 if you have Anthy library and header file])
+  M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
+  ANTHY_LD_FLAGS="$ANTHY_LIBS"
+  CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_ANTHY"
 fi
 AC_SUBST(ANTHY_LD_FLAGS)
 
