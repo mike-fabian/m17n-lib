@@ -37,8 +37,12 @@
 
 enum MDatabaseStatus
   {
-    /* The database was defined automatically (from mdb.dir file(s)).*/
+    /* The database was defined automatically (from mdb.dir file(s))
+       with no wildcard tag.  */
     MDB_STATUS_AUTO,
+    /* The database was defined automatically (from mdb.dir file(s)).
+       with a wildcard tag.  */
+    MDB_STATUS_AUTO_WILDCARD,
     /* The database was defined explicitely (by mdatabase_define ()). */
     MDB_STATUS_EXPLICIT,
     /* The databse is currently disabled. (usually because it is
