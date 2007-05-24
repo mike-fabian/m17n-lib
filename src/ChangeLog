@@ -1,3 +1,21 @@
+2007-05-24  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (find_database): If unprocessed wildcard database is
+	found, register database filed and recursively call find_database.
+	(free_db_info): Unref db_info->properties.
+	(register_database): New arg properties.  Delete code for
+	initializing mdatabase__list.
+	(register_databases_in_files): Argument changed.  Caller changed.
+	(mdatabase__update): Don't list files by glob here.
+	(mdatabase_list): If unprocessed wildcard database is found,
+	register database filed and recursively call mdatabase_list.
+
+	* database.h (enum MDatabaseStatus): New enum
+	MDB_STATUS_AUTO_WILDCARD.
+
+	* input.c (load_branch): Fix previous change.
+	(update_global_info): If the global database is not found, return -1.
+
 2007-05-23  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (Mversion): New variable.
