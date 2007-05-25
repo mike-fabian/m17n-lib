@@ -441,46 +441,42 @@ gen_database_name (char *buf, MSymbol *tags)
   return buf;
 }
 
-char *
-find_file (MDatabaseInfo *db_info, struct stat *buf)
-{
-  MPlist *plist;
-  char path[PATH_MAX + 1];
-
-  MPLIST_DO (plist, mdatabase__dir_list)
-    {
-      MDatabaseInfo *dir_info = MPLIST_VAL (plist);
-
-      if (dir_info->status != MDB_STATUS_DISABLED
-	  && GEN_PATH (path, dir_info->filename, dir_info->len,
-		       db_info->filename, db_info->len)
-	  && stat (path, buf) == 0)
-	return strdup (path);
-    }
-  return NULL;
-}
-
-
-/* Return the absolute file name for DB_INFO->filename.  If BUF is
-   non-NULL, store the result of `stat' call in it.  It returns NULL
-   if no absolute file name was found.  */
+/* Return the absolute file name for DB_INFO->filename or NULL if no
+   absolute file name was found.  If BUF is non-NULL, store the result
+   of `stat' call in it.  In that case, set *RESULT to the return
+   value of `stat'.  */
 
 char *
-get_database_file (MDatabaseInfo *db_info, struct stat *buf)
+get_database_file (MDatabaseInfo *db_info, struct stat *buf, int *result)
 {
-  if (db_info->status == MDB_STATUS_DISABLED)
-    return NULL;
   if (db_info->absolute_filename)
     {
       if (buf)
-	stat (db_info->absolute_filename, buf);
+	*result = stat (db_info->absolute_filename, buf);
     }
   else
     {
       struct stat stat_buf;
       struct stat *statbuf = buf ? buf : &stat_buf;
+      int res;
+      MPlist *plist;
+      char path[PATH_MAX + 1];
 
-      db_info->absolute_filename = find_file (db_info, statbuf);
+      MPLIST_DO (plist, mdatabase__dir_list)
+	{
+	  MDatabaseInfo *dir_info = MPLIST_VAL (plist);
+
+	  if (dir_info->status != MDB_STATUS_DISABLED
+	      && GEN_PATH (path, dir_info->filename, dir_info->len,
+			   db_info->filename, db_info->len)
+	      && (res = stat (path, statbuf)) == 0)
+	    {
+	      db_info->absolute_filename = strdup (path);
+	      if (result)
+		*result = res;
+	      break;
+	    }
+	}
     }
 
   return db_info->absolute_filename;
@@ -491,7 +487,7 @@ load_database (MSymbol *tags, void *extra_info)
 {
   MDatabaseInfo *db_info = extra_info;
   void *value;
-  char *filename = get_database_file (db_info, NULL);
+  char *filename = get_database_file (db_info, NULL, NULL);
   FILE *fp;
   int mdebug_mask = MDEBUG_DATABASE;
   char buf[256];
@@ -1068,7 +1064,7 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
   MDEBUG_PRINT1 (" [DB]  <%s>.\n",
 		 gen_database_name (name, mdb->tag));
   db_info = mdb->extra_info;
-  filename = get_database_file (db_info, NULL);
+  filename = get_database_file (db_info, NULL, NULL);
   if (! filename || ! (fp = fopen (filename, "r")))
     MERROR (MERROR_DB, NULL);
   plist = mplist__from_file (fp, keys);
@@ -1092,22 +1088,17 @@ mdatabase__check (MDatabase *mdb)
 {
   MDatabaseInfo *db_info = (MDatabaseInfo *) mdb->extra_info;
   struct stat buf;
+  int result;
 
-  if (! get_database_file (db_info, &buf))
+  if (db_info->absolute_filename != db_info->filename
+      || db_info->status == MDB_STATUS_AUTO)
+    mdatabase__update ();
+
+  if (! get_database_file (db_info, &buf, &result)
+      || result < 0)
     return -1;
   if (db_info->time < buf.st_mtime)
     return 0;
-  if (db_info->status == MDB_STATUS_AUTO
-      && db_info->filename != db_info->absolute_filename)
-    {
-      MDatabase *new;
-      
-      mdatabase__update ();
-      new = find_database (mdb->tag);
-      if (new != mdb)
-	return 0;
-    }
-
   return 1;
 }
 
@@ -1119,6 +1110,7 @@ char *
 mdatabase__find_file (char *filename)
 {
   struct stat buf;
+  int result;
   MDatabaseInfo db_info;
 
   if (filename[0] == PATH_SEPARATOR)
@@ -1127,8 +1119,8 @@ mdatabase__find_file (char *filename)
   db_info.len = strlen (filename);
   db_info.time = 0;
   db_info.absolute_filename = NULL;
-  if (! get_database_file (&db_info, &buf)
-      || stat (db_info.absolute_filename, &buf) < 0)
+  if (! get_database_file (&db_info, &buf, &result)
+      || result < 0)
     return NULL;
   return db_info.absolute_filename;
 }
@@ -1141,7 +1133,7 @@ mdatabase__file (MDatabase *mdb)
   if (mdb->loader != load_database)
     return NULL;
   db_info = mdb->extra_info;
-  return get_database_file (db_info, NULL);
+  return get_database_file (db_info, NULL, NULL);
 }
 
 int
@@ -1158,7 +1150,7 @@ mdatabase__lock (MDatabase *mdb)
   db_info = mdb->extra_info;
   if (db_info->lock_file)
     return -1;
-  file = get_database_file (db_info, NULL);
+  file = get_database_file (db_info, NULL, NULL);
   if (! file)
     return -1;
   len = strlen (file);
@@ -1222,7 +1214,7 @@ mdatabase__save (MDatabase *mdb, MPlist *data)
   db_info = mdb->extra_info;
   if (! db_info->lock_file)
     return -1;
-  file = get_database_file (db_info, NULL);
+  file = get_database_file (db_info, NULL, NULL);
   if (! file)
     return -1;
   mt = mtext ();
