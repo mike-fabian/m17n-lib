@@ -1,3 +1,11 @@
+2007-05-25  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.c (mdebug__unregister_object): Small optimization.
+
+	* database.c (find_file): Merged into get_database_file.
+	(get_database_file): New arg result.  Caller changed.
+	(mdatabase__check): Fix the logic.
+
 2007-05-24  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (find_database): If unprocessed wildcard database is
