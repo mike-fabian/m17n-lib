@@ -490,11 +490,15 @@ mdebug__unregister_object (M17NObjectArray *array, void *object)
   array->count--;
   if (array->count >= 0)
     {
-      int i = 0;
+      int i;
 
-      while (i < array->used && array->objects[i] != object) i++;
-      if (i < array->used)
-	array->objects[i] = NULL;
+      for (i = array->used - 1; i >= 0 && array->objects[i] != object; i--);
+      if (i >= 0)
+	{
+	  if (i == array->used - 1)
+	    array->used--;
+	  array->objects[i] = NULL;
+	}
       else
 	mdebug_hook ();
     }
