@@ -900,8 +900,6 @@ load_flt (MSymbol layouter_name)
 	    }
 	  mplist_add (layouter, Mt, stage);
 	}
-      else
-	MERROR_GOTO (MERROR_FONT, finish);
     }
 
   if (category)
