@@ -1,5 +1,11 @@
 2007-06-01  Kenichi Handa  <handa@m17n.org>
 
+	* input.c (shift_state): Change the format of debug print.
+	(preedit_commit): New arg need_prefix.  Caller changed.
+	(update_candidate): Copy candidate_list.
+	(take_action_list): Likewise.
+	(handle_key): Change the format of debug print.
+
 	* font-flt.c (load_flt): Ignore unknown directives.
 
 2007-05-25  Kenichi Handa  <handa@m17n.org>
