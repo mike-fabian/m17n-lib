@@ -1,3 +1,7 @@
+2007-06-01  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (load_flt): Ignore unknown directives.
+
 2007-05-25  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.c (mdebug__unregister_object): Small optimization.
