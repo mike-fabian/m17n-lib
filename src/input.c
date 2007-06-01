@@ -2326,7 +2326,7 @@ load_im_info (MPlist *plist, MInputMethodInfo *im_info)
 
 
 static int take_action_list (MInputContext *ic, MPlist *action_list);
-static void preedit_commit (MInputContext *ic);
+static void preedit_commit (MInputContext *ic, int need_prefix);
 
 static void
 shift_state (MInputContext *ic, MSymbol state_name)
@@ -2354,7 +2354,15 @@ shift_state (MInputContext *ic, MSymbol state_name)
 	state = (MIMState *) MPLIST_VAL (im_info->states);
     }
 
-  MDEBUG_PRINT1 ("\n  [IM] (shift %s)", MSYMBOL_NAME (state->name));
+  if (mdebug__flag & mdebug_mask)
+    {
+      if (orig_state)
+	MDEBUG_PRINT2 ("\n  [IM] [%s] (shift %s)\n",
+		       MSYMBOL_NAME (orig_state->name),
+		       MSYMBOL_NAME (state->name));
+      else
+	MDEBUG_PRINT1 (" (shift %s)\n", MSYMBOL_NAME (state->name));
+    }
 
   /* Enter the new state.  */
   ic_info->state = state;
@@ -2363,7 +2371,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (state == (MIMState *) MPLIST_VAL (im_info->states)
       && orig_state)
     /* We have shifted to the initial state.  */
-    preedit_commit (ic);
+    preedit_commit (ic, 0);
   mtext_cpy (ic_info->preedit_saved, ic->preedit);
   ic_info->state_pos = ic->cursor_pos;
   if (state != orig_state)
@@ -2386,7 +2394,8 @@ shift_state (MInputContext *ic, MSymbol state_name)
       if (ic_info->map == ic_info->state->map
 	  && ic_info->map->map_actions)
 	{
-	  MDEBUG_PRINT (" init-actions:");
+	  MDEBUG_PRINT1 ("  [IM] [%s] init-actions:",
+			 MSYMBOL_NAME (state->name));
 	  take_action_list (ic, ic_info->map->map_actions);
 	}
     }
@@ -2508,7 +2517,7 @@ preedit_replace (MInputContext *ic, int from, int to, MText *mt, int c)
 
 
 static void
-preedit_commit (MInputContext *ic)
+preedit_commit (MInputContext *ic, int need_prefix)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int preedit_len = mtext_nchars (ic->preedit);
@@ -2526,6 +2535,9 @@ preedit_commit (MInputContext *ic)
 	{
 	  int i;
 
+	  if (need_prefix)
+	    MDEBUG_PRINT1 ("\n  [IM] [%s]",
+			   MSYMBOL_NAME (ic_info->state->name));
 	  MDEBUG_PRINT (" (commit");
 	  for (i = 0; i < mtext_nchars (ic->preedit); i++)
 	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->preedit, i));
@@ -2619,7 +2631,9 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
       preedit_replace (ic, from, to, mt, 0);
       to = from + mtext_nchars (mt);
     }
+  candidate_list = mplist_copy (candidate_list);
   mtext_put_prop (ic->preedit, from, to, Mcandidate_list, candidate_list);
+  M17N_OBJECT_UNREF (candidate_list);
   mtext_put_prop (ic->preedit, from, to, Mcandidate_index, (void *) idx);
   ic->cursor_pos = to;
 }
@@ -2947,9 +2961,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      preedit_insert (ic, ic->cursor_pos, mt, 0);
 	      len = mtext_nchars (mt);
 	    }
+	  plist = mplist_copy (plist);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_list, plist);
+	  M17N_OBJECT_UNREF (plist);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_index, (void *) 0);
@@ -3344,11 +3360,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	}
       else if (name == Mcommit)
 	{
-	  preedit_commit (ic);
+	  preedit_commit (ic, 0);
 	}
       else if (name == Munhandle)
 	{
-	  preedit_commit (ic);
+	  preedit_commit (ic, 0);
 	  return -1;
 	}
       else
@@ -3408,8 +3424,8 @@ handle_key (MInputContext *ic)
   MSymbol alias = Mnil;
   int i;
 
-  MDEBUG_PRINT2 ("  [IM] handle `%s' in state %s", 
-		 msymbol_name (key), MSYMBOL_NAME (ic_info->state->name));
+  MDEBUG_PRINT2 ("  [IM] [%s] handle `%s'", 
+		 MSYMBOL_NAME (ic_info->state->name), msymbol_name (key));
 
   if (map->submaps)
     {
@@ -3807,13 +3823,14 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   /* If the current map is the root of the initial state, we should
      produce any preedit text in ic->produced.  */
   if (ic_info->map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
-    preedit_commit (ic);
+    preedit_commit (ic, 1);
 
   if (mtext_nchars (ic->produced) > 0)
     {
       if (mdebug__flag & mdebug_mask)
 	{
-	  MDEBUG_PRINT (" (produced");
+	  MDEBUG_PRINT1 ("\n  [IM] [%s] (produced",
+			 MSYMBOL_NAME (ic_info->state->name));
 	  for (i = 0; i < mtext_nchars (ic->produced); i++)
 	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->produced, i));
 	  MDEBUG_PRINT (")");
