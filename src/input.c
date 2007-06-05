@@ -2479,9 +2479,15 @@ preedit_insert (MInputContext *ic, int pos, MText *mt, int c)
   int nchars = mt ? mtext_nchars (mt) : 1;
 
   if (mt)
-    mtext_ins (ic->preedit, pos, mt);
+    {
+      mtext_ins (ic->preedit, pos, mt);
+      MDEBUG_PRINT1 ("(\"%s\")", MTEXT_DATA (mt));
+    }
   else
-    mtext_ins_char (ic->preedit, pos, c, 1);
+    {
+      mtext_ins_char (ic->preedit, pos, c, 1);
+      MDEBUG_PRINT1 ("('%c')", c);
+    }
   adjust_markers (ic, pos, pos, nchars);
   ic->preedit_changed = 1;
 }
