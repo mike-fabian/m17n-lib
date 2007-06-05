@@ -1,3 +1,20 @@
+2007-06-05  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (expand_wildcard_database): New function.
+	(mdatabase_list): Fix handling of wildcard database.
+
+	* language.c (load_lang_name): New function.
+	(mlang__fini): Cancel the last two changes.
+	(mlanguage_name_list): New arg script and territories.  Use
+	load_lang_name.
+
+	* m17n.h (mlangauge_name_list): Adjusted.
+
+2007-06-04  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (open_im): Check if the input method has at least one
+	state.
+
 2007-06-01  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (shift_state): Change the format of debug print.
