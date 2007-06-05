@@ -847,7 +847,8 @@ extern MPlist *mlanguage_list (void);
 
 extern MSymbol mlanguage_code (MSymbol language, int len);
 
-extern MPlist *mlanguage_name_list (MSymbol language, MSymbol target);
+extern MPlist *mlanguage_name_list (MSymbol language, MSymbol target,
+				    MSymbol script, MSymbol territory);
 
 extern MText *mlanguage_text (MSymbol language);
 
