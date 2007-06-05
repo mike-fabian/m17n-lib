@@ -1,5 +1,7 @@
 2007-06-05  Kenichi Handa  <handa@m17n.org>
 
+	* input.c (preedit_insert): Print debug information.
+
 	* database.c (expand_wildcard_database): New function.
 	(mdatabase_list): Fix handling of wildcard database.
 
