@@ -92,6 +92,57 @@ init_script_list (void)
   return 0;
 }
 
+static MPlist *
+load_lang_name (MSymbol target3, MSymbol target2)
+{
+  MPlist *plist, *pl, *p;
+
+  plist = mplist ();
+  mplist_add (plist, Msymbol, target3);
+  pl = mdatabase_list (Mlanguage, Mname, target3, Mnil);
+  if (! pl && target2 != Mnil)
+    pl = mdatabase_list (Mlanguage, Mname, target2, Mnil);
+  if (pl)
+    {
+      MPLIST_DO (p, pl)
+	{
+	  MDatabase *mdb = MPLIST_VAL (p);
+	  MPlist *p0 = mdatabase_load (mdb), *p1, *territories;
+	  MSymbol script = mdatabase_tag (mdb)[3];
+	  
+	  if (MPLIST_PLIST_P (p0))
+	    {
+	      p1 = MPLIST_PLIST (p0);
+	      if (MPLIST_SYMBOL_P (p1) && MPLIST_SYMBOL (p1) == Mlanguage)
+		{
+		  p1 = MPLIST_NEXT (MPLIST_NEXT (MPLIST_NEXT (MPLIST_NEXT (p1))));
+		  territories = p1;
+		  while (! MPLIST_TAIL_P (p1))
+		    {
+		      if (MPLIST_SYMBOL_P (p1))
+			p1 = MPLIST_NEXT (p1);
+		      else
+			mplist__pop_unref (p1);
+		    }
+		  M17N_OBJECT_REF (territories);
+		  mplist__pop_unref (p0);
+		}
+	      else
+		territories = mplist ();
+	      mplist_push (p0, Mplist, territories);
+	      M17N_OBJECT_UNREF (territories);
+	      mplist_push (p0, Msymbol, script);
+	      mplist_add (plist, Mplist, p0);
+	      M17N_OBJECT_UNREF (p0);
+	    }
+	}
+      M17N_OBJECT_UNREF (pl);
+    }
+  mplist_push (langname_list, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
+  return plist;
+}
+
 
 /* Internal API */
 
@@ -112,13 +163,8 @@ mlang__init ()
 void
 mlang__fini (void)
 {
-  MPlist *pl;
-
   M17N_OBJECT_UNREF (language_list);
   M17N_OBJECT_UNREF (script_list);
-  if (langname_list)
-    MPLIST_DO (pl, langname_list)
-      M17N_OBJECT_UNREF (MPLIST_VAL (pl));
   M17N_OBJECT_UNREF (langname_list);
 }
 
@@ -404,78 +450,138 @@ mlanguage_code (MSymbol language, int len)
     @brief Return the language names written in the specified language.
 
     The mlanguage_name_list () function returns a plist of LANGUAGE's
-    names written in TARGET language.
+    names written in TARGET language.  SCRIPT and TERRITORY, if not #Mnil,
+    specifies which script and territory to concern at first.
 
     LANGUAGE and TARGET must be a symbol whose name is an ISO639-2
     3-letter language code or an ISO639-1 2-letter language codes.
     TARGET may be #Mnil, in which case, the language of the current
     locale is used.  If locale is not set or is C, English is used.
 
+    SCRIPT and TERRITORY must be a symbol whose name is a script and
+    territory name of a locale (e.g. "TW", "SG") respectively.
+
     @return
-    If the information is available, this function returns a non-empty
-    plist whose keys are #Mtext and values are M-texts of the
-    translated language names.  Otherwise, @c NULL is returned.
+    If the translation is available, this function returns a non-empty
+    plist.  The first element has key #MText and the value is an
+    M-text of a translated language name.  If the succeeding elements
+    also have key #MText, their values are M-texts of alternate
+    translations.
+
+    If no translation is available, @c NULL is returned.
+
     The returned plist should not be modified nor freed.
 
     @seealso
     mlanguage_code (), mlanguage_text ().  */
 
 MPlist *
-mlanguage_name_list (MSymbol language, MSymbol target)
+mlanguage_name_list (MSymbol language, MSymbol target,
+		     MSymbol script, MSymbol territory)
 {
-  MPlist *plist;
+  MPlist *plist, *pl;
+  MSymbol language2, target2;
 
   plist = mlanguage__info (language);
   if (! plist)
     return NULL;
-  language = mplist_value (plist);
+  language = MPLIST_SYMBOL (plist);
+  language2 = MPLIST_SYMBOL (MPLIST_NEXT (plist));
   if (target != Mnil)
     {
       plist = mlanguage__info (target);
       if (! plist)
 	return NULL;
-      target = mplist_value (plist);
+      target = MPLIST_SYMBOL (plist);
+      target2 = MPLIST_SYMBOL (MPLIST_NEXT (plist));
     }
   else
     {
       MLocale *locale = mlocale_set (LC_MESSAGES, NULL);
 
       if (! locale)
-	target = msymbol ("eng");
+	{
+	  target = msymbol ("eng");
+	  target2 = msymbol ("en");
+	  script = territory = Mnil;
+	}
       else
 	{
 	  target = mlocale_get_prop (locale, Mlanguage);
 	  plist = mlanguage__info (target);
 	  if (! plist)
 	    return NULL;
-	  target = mplist_value (plist);
+	  target = MPLIST_SYMBOL (plist);
+	  target2 = MPLIST_SYMBOL (MPLIST_NEXT (plist));
+	  script = mlocale_get_prop (locale, Mscript);
+	  territory = mlocale_get_prop (locale, Mterritory);
 	}
     }
+
   /* Now both LANGUAGE and TARGET are 3-letter codes.  */
-
-  if (langname_list)
-    plist = mplist_get (langname_list, target);
+  if (! langname_list)
+    langname_list = mplist ();
+  plist = mplist__assq (langname_list, target);
+  if (plist)
+    plist = MPLIST_PLIST (plist);
   else
-    langname_list = mplist (), plist = NULL;
-  if (! plist)
-    {
-      MDatabase *mdb = mdatabase_find (Mlanguage, Mname, target, Mnil);
+    plist = load_lang_name (target, target2);
 
-      if (! mdb
-	  || ! (plist = mdatabase_load (mdb)))
-	plist = mplist ();
-      else
-	mplist__pop_unref (plist);
-      langname_list = mplist_push (langname_list, target, plist);
-      MPLIST_SET_NESTED_P (langname_list);
-    }
-  /* PLIST == ((LANGUAGE TRANSLATED) ...) */
-  plist = mplist__assq (plist, language);
-  if (! plist || MPLIST_TAIL_P (plist))
-    return NULL;
-  plist = MPLIST_PLIST (plist);
+  /* PLIST = (TARGET (SCRIPT (TERRITORY ...) (LANG-CODE NAME ...) ...) ...) */
   plist = MPLIST_NEXT (plist);
-  return plist;
+  if (MPLIST_TAIL_P (plist))
+    return NULL;
+
+  MPLIST_DO (pl, plist)
+    {
+      MPlist *p = MPLIST_PLIST (pl);
+
+      if (MPLIST_SYMBOL (p) == script
+	  && (territory == Mnil
+	      || mplist_find_by_value (MPLIST_PLIST (MPLIST_NEXT (p)),
+				       territory)))
+	break;
+    }
+  if (MPLIST_TAIL_P (pl))
+    {
+      MPLIST_DO (pl, plist)
+	{
+	  MPlist *p = MPLIST_NEXT (MPLIST_PLIST (pl));
+
+	  if (territory == Mnil
+	      || mplist_find_by_value (MPLIST_VAL (MPLIST_NEXT (p)),
+				       territory))
+	    break;
+	}
+      if (MPLIST_TAIL_P (pl))
+	pl = plist;
+    }
+
+  /* PL = ((SCRIPT (TERRITORY ...) (LANG-CODE NAME ...) ...) ...)  */
+  plist = MPLIST_PLIST (pl);
+  plist = MPLIST_NEXT (MPLIST_NEXT (plist));
+  pl = mplist__assq (plist, language);
+  if (! pl && language2 != Mnil)
+    pl = mplist__assq (plist, language2);
+  if (! pl)
+    return NULL;
+  plist = MPLIST_PLIST (pl);
+  plist = MPLIST_NEXT (plist);
+  if (territory != Mnil)
+    {
+      pl = MPLIST_NEXT (pl);
+      MPLIST_DO (pl, plist)
+	if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == territory)
+	  break;
+      if (! MPLIST_TAIL_P (pl)
+	  && (pl = MPLIST_NEXT (pl))
+	  && MPLIST_MTEXT_P (pl))
+	return pl;
+    }
+  MPLIST_DO (plist, plist)
+    if (MPLIST_MTEXT_P (plist))
+      break;
+  return (MPLIST_MTEXT_P (plist) ? plist : NULL);
 }
 
 /*=*/
