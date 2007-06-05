@@ -812,6 +812,30 @@ register_databases_in_files (MSymbol tags[4], char *filename, int len)
   M17N_OBJECT_UNREF (load_key);
 }
 
+static int
+expand_wildcard_database (MPlist *plist)
+{
+  MDatabase *mdb;
+  MDatabaseInfo *db_info;
+
+  plist = MPLIST_NEXT (plist);
+  while (MPLIST_PLIST_P (plist))
+    {
+      plist = MPLIST_PLIST (plist);
+      plist = MPLIST_NEXT (plist);
+    }
+  mdb = MPLIST_VAL (plist);
+  if (mdb->loader == load_database
+      && (db_info = mdb->extra_info)
+      && db_info->status != MDB_STATUS_DISABLED)
+    {
+      register_databases_in_files (mdb->tag, db_info->filename, db_info->len);
+      db_info->status = MDB_STATUS_DISABLED;
+      return 1;
+    }
+  return 0;
+}
+
 
 /* Internal API */
 
@@ -1343,8 +1367,6 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 {
   MPlist *plist = mplist (), *pl = plist;
   MPlist *p, *p0, *p1, *p2, *p3;
-  MDatabase *mdb;
-  MDatabaseInfo *db_info;
 
   mdatabase__update ();
 
@@ -1360,16 +1382,8 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 	  p1 = MPLIST_PLIST (p0);
 	  if (MPLIST_SYMBOL (p1) == Masterisk)
 	    {
-	      p1 = MPLIST_PLIST (MPLIST_NEXT (p1));
-	      p1 = MPLIST_PLIST (MPLIST_NEXT (p1));
-	      mdb = MPLIST_VAL (MPLIST_NEXT (p1));
-	      if (mdb->loader == load_database
-		  && (db_info = mdb->extra_info)
-		  && db_info->status != MDB_STATUS_DISABLED)
+	      if (expand_wildcard_database (p1))
 		{
-		  register_databases_in_files (mdb->tag,
-					       db_info->filename, db_info->len);
-		  db_info->status = MDB_STATUS_DISABLED;
 		  M17N_OBJECT_UNREF (plist);
 		  return mdatabase_list (tag0, tag1, tag2, tag3);
 		}
@@ -1380,14 +1394,30 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 	  MPLIST_DO (p1, MPLIST_NEXT (p1))
 	    {
 	      p2 = MPLIST_PLIST (p1);
-	      if (MPLIST_SYMBOL (p2) == Masterisk
-		  || (tag2 != Mnil && MPLIST_SYMBOL (p2) != tag2))
+	      if (MPLIST_SYMBOL (p2) == Masterisk)
+		{
+		  if (expand_wildcard_database (p2))
+		    {
+		      M17N_OBJECT_UNREF (plist);
+		      return mdatabase_list (tag0, tag1, tag2, tag3);
+		    }
+		  continue;
+		}
+	      if (tag2 != Mnil && MPLIST_SYMBOL (p2) != tag2)
 		continue;
 	      MPLIST_DO (p2, MPLIST_NEXT (p2))
 		{
 		  p3 = MPLIST_PLIST (p2);
-		  if (MPLIST_SYMBOL (p3) == Masterisk
-		      || (tag3 != Mnil && MPLIST_SYMBOL (p3) != tag3))
+		  if (MPLIST_SYMBOL (p3) == Masterisk)
+		    {
+		      if (expand_wildcard_database (p3))
+			{
+			  M17N_OBJECT_UNREF (plist);
+			  return mdatabase_list (tag0, tag1, tag2, tag3);
+			}
+		      continue;
+		    }
+		  if (tag3 != Mnil && MPLIST_SYMBOL (p3) != tag3)
 		    continue;
 		  p3 = MPLIST_NEXT (p3);
 		  pl = mplist_add (pl, Mt, MPLIST_VAL (p3));
