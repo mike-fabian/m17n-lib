@@ -1,3 +1,8 @@
+2007-06-08  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (update_candidate): Copy candidate_list earlier.
+	(re_init_ic): Provide pseudo initialize state if none.
+
 2007-06-05  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (preedit_insert): Print debug information.
