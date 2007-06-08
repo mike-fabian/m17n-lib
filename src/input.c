@@ -2620,6 +2620,7 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
   int ingroup_index = idx - start;
   MText *mt;
 
+  candidate_list = mplist_copy (candidate_list);
   if (MPLIST_MTEXT_P (group))
     {
       mt = MPLIST_MTEXT (group);
@@ -2637,7 +2638,6 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
       preedit_replace (ic, from, to, mt, 0);
       to = from + mtext_nchars (mt);
     }
-  candidate_list = mplist_copy (candidate_list);
   mtext_put_prop (ic->preedit, from, to, Mcandidate_list, candidate_list);
   M17N_OBJECT_UNREF (candidate_list);
   mtext_put_prop (ic->preedit, from, to, Mcandidate_index, (void *) idx);
@@ -3670,8 +3670,20 @@ re_init_ic (MInputContext *ic, int reload)
   fini_ic_info (ic);
   if (reload)
     reload_im_info (im_info);
+  if (! im_info->states)
+    {
+      struct MIMState *state;
+
+      M17N_OBJECT (state, free_state, MERROR_IM);
+      state->name = msymbol ("init");
+      state->title = mtext__from_data ("ERROR!", 6, MTEXT_FORMAT_US_ASCII, 0);
+      MSTRUCT_CALLOC (state->map, MERROR_IM);
+      im_info->states = mplist ();
+      mplist_add (im_info->states, state->name, state);
+    }
   init_ic_info (ic);
   shift_state (ic, Mnil);
+
   ic->status_changed = status_changed;
   ic->preedit_changed = preedit_changed;
   ic->cursor_pos_changed = cursor_pos_changed;
