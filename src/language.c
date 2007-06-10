@@ -534,43 +534,50 @@ mlanguage_name_list (MSymbol language, MSymbol target,
 
   MPLIST_DO (pl, plist)
     {
-      MPlist *p = MPLIST_PLIST (pl);
+      MPlist *p = MPLIST_PLIST (pl), *p0;
 
       if (MPLIST_SYMBOL (p) == script
 	  && (territory == Mnil
 	      || mplist_find_by_value (MPLIST_PLIST (MPLIST_NEXT (p)),
-				       territory)))
-	break;
+				       territory))
+	  && (p = MPLIST_NEXT (MPLIST_NEXT (p)))
+	  && ((p0 = mplist__assq (p, language))
+	      || (p0 = mplist__assq (p, language2))))
+	{
+	  plist = p0;
+	  break;
+	}
     }
   if (MPLIST_TAIL_P (pl))
     {
       MPLIST_DO (pl, plist)
 	{
-	  MPlist *p = MPLIST_NEXT (MPLIST_PLIST (pl));
+	  MPlist *p = MPLIST_NEXT (MPLIST_PLIST (pl)), *p0;
 
-	  if (territory == Mnil
-	      || mplist_find_by_value (MPLIST_VAL (MPLIST_NEXT (p)),
-				       territory))
-	    break;
+	  if ((territory == Mnil
+	       || mplist_find_by_value (MPLIST_VAL (p), territory))
+	      && (p = MPLIST_NEXT (MPLIST_NEXT (p)))
+	      && ((p0 = mplist__assq (p, language))
+		  || (p0 = mplist__assq (p, language2))))
+	    {
+	      plist = p0;
+	      break;
+	    }
 	}
       if (MPLIST_TAIL_P (pl))
-	pl = plist;
+	{
+	  pl = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (plist)));
+	  if (! (plist = mplist__assq (pl, language)))
+	    plist = mplist__assq (pl, language2);
+	}
     }
 
-  /* PL = ((SCRIPT (TERRITORY ...) (LANG-CODE NAME ...) ...) ...)  */
-  plist = MPLIST_PLIST (pl);
-  plist = MPLIST_NEXT (MPLIST_NEXT (plist));
-  pl = mplist__assq (plist, language);
-  if (! pl && language2 != Mnil)
-    pl = mplist__assq (plist, language2);
-  if (! pl)
+  if (! plist)
     return NULL;
-  plist = MPLIST_PLIST (pl);
-  plist = MPLIST_NEXT (plist);
+  plist = MPLIST_NEXT (MPLIST_PLIST (plist));
   if (territory != Mnil)
     {
-      pl = MPLIST_NEXT (pl);
-      MPLIST_DO (pl, plist)
+      MPLIST_DO (pl, MPLIST_NEXT (plist))
 	if (MPLIST_SYMBOL_P (pl) && MPLIST_SYMBOL (pl) == territory)
 	  break;
       if (! MPLIST_TAIL_P (pl)
