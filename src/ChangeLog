@@ -1,3 +1,8 @@
+2007-06-11  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (mcoding__load_from_database): Add aliases in
+	coding_definition_list.
+
 2007-06-10  Kenichi Handa  <handa@m17n.org>
 
 	* language.c (mlanguage_name_list): Fix previous change.
