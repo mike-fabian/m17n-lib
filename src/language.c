@@ -566,14 +566,22 @@ mlanguage_name_list (MSymbol language, MSymbol target,
 	}
       if (MPLIST_TAIL_P (pl))
 	{
-	  pl = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (plist)));
-	  if (! (plist = mplist__assq (pl, language)))
-	    plist = mplist__assq (pl, language2);
+	  MPLIST_DO (pl, plist)
+	    {
+	      MPlist *p = MPLIST_NEXT (MPLIST_NEXT (MPLIST_PLIST (pl))), *p0;
+
+	      if ((p0 = mplist__assq (p, language))
+		  || (p0 = mplist__assq (p, language2)))
+		{
+		  plist = p0;
+		  break;
+		}
+	    }
+	  if (MPLIST_TAIL_P (pl))
+	    return NULL;
 	}
     }
 
-  if (! plist)
-    return NULL;
   plist = MPLIST_NEXT (MPLIST_PLIST (plist));
   if (territory != Mnil)
     {
