@@ -3049,7 +3049,7 @@ mcoding__load_from_database ()
   MDEBUG_PUSH_TIME ();
   MPLIST_DO (plist, def_list)
     {
-      MPlist *pl;
+      MPlist *pl, *aliases;
       MSymbol name, canonicalized;
 
       if (! MPLIST_PLIST_P (plist))
@@ -3062,6 +3062,16 @@ mcoding__load_from_database ()
       pl = mplist__from_plist (MPLIST_NEXT (pl));
       mplist_push (pl, Msymbol, name);
       definitions = mplist_add (definitions, canonicalized, pl);
+      aliases = mplist_get (pl, Maliases);
+      if (aliases)
+	MPLIST_DO (aliases, aliases)
+	  if (MPLIST_SYMBOL_P (aliases))
+	    {
+	      name = MPLIST_SYMBOL (aliases);
+	      canonicalized = msymbol__canonicalize (name);
+	      definitions = mplist_add (definitions, canonicalized, pl);
+	      M17N_OBJECT_REF (pl);
+	    }
     }
 
   M17N_OBJECT_UNREF (def_list);
