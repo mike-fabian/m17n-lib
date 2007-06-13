@@ -633,8 +633,14 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 	  cmd->type = FontLayoutCmdTypeRule;
 	  if (MPLIST_MTEXT_P (elt))
 	    {
-	      char *str = (char *) MTEXT_DATA (MPLIST_MTEXT (elt));
+	      MText *mt = MPLIST_MTEXT (elt);
+	      char *str = (char *) MTEXT_DATA (mt);
 
+	      if (str[0] != '^')
+		{
+		  mtext_ins_char (mt, 0, '^', 1);
+		  str = (char *) MTEXT_DATA (mt);
+		}
 	      if (regcomp (&cmd->body.rule.src.re.preg, str, REG_EXTENDED))
 		MERROR (MERROR_FONT, INVALID_CMD_ID);
 	      cmd->body.rule.src_type = SRC_REGEX;
