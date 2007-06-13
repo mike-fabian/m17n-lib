@@ -1,3 +1,7 @@
+2007-06-13  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (load_command): Prepend "^" in the regular expression.
+
 2007-06-11  Kenichi Handa  <handa@m17n.org>
 
 	* language.c (mlanguage_name_list): Fix previous change.
