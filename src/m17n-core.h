@@ -24,9 +24,14 @@
 #define _M17N_CORE_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+#define M17N_BEGIN_HEADER extern "C" {
+#define M17N_END_HEADER }
+#else
+#define M17N_BEGIN_HEADER	/* do nothing */
+#define M17N_END_HEADER		/* do nothing */
 #endif
+
+M17N_BEGIN_HEADER
 
 /*
  * Header file for m17n library.
@@ -773,9 +778,7 @@ extern MText *mtext_serialize (MText *mt, int from, int to,
 
 extern MText *mtext_deserialize (MText *mt);
 
-#ifdef __cplusplus
-}
-#endif
+M17N_END_HEADER
 
 #endif /* _M17N_CORE_H_ */
 
