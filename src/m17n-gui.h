@@ -27,10 +27,7 @@
 #include <m17n.h>
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+M17N_BEGIN_HEADER
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 
@@ -987,9 +984,7 @@ extern MFace *mdebug_dump_face (MFace *face, int indent);
 extern MFont *mdebug_dump_font (MFont *font);
 extern MFontset *mdebug_dump_fontset (MFontset *fontset, int indent);
 
-#ifdef __cplusplus
-}
-#endif
+M17N_END_HEADER
 
 #endif /* _M17N_GUI_H_ */
 
