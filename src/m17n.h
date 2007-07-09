@@ -31,10 +31,7 @@
 #include <m17n-core.h>
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+M17N_BEGIN_HEADER
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 extern void m17n_init (void);
@@ -1417,9 +1414,7 @@ extern int minput_set_variable (MSymbol language, MSymbol name,
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
 
 
-#ifdef __cplusplus
-}
-#endif
+M17N_END_HEADER
 
 #endif /* _M17N_H_ */
 
