@@ -1,3 +1,14 @@
+2007-07-09  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17N_BEGIN_HEADER, M17N_END_HEADER): New macros.
+
+	* m17n.h: Include m17n-core.h if not yet done.  Use macros
+	M17N_BEGIN_HEADER and M17N_END_HEADER.
+
+	* m17n-gui.h: Likewise.
+
+	* m17n-misc.h: Likewise.
+
 2007-06-13  Kenichi Handa  <handa@m17n.org>
 
 	* font-flt.c (load_command): Prepend "^" in the regular expression.
