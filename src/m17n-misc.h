@@ -23,6 +23,12 @@
 #ifndef _M17N_ERR_H_
 #define _M17N_ERR_H_
 
+#ifndef _M17N_CORE_H_
+#include <m17n-core.h>
+#endif
+
+M17N_BEGIN_HEADER
+
 /*** @defgroup m17nMisc MISC API */
 /*=*/
 /*** @ingroup m17nMisc  */
@@ -115,6 +121,9 @@ extern MCharTable *mdebug_dump_chartab (MCharTable *table, int indent);
 /***en @defgroup m17nInternal Internal */
 /***ja @defgroup m17nInternal Internal */
 #endif
+
+M17N_END_HEADER
+
 #endif /* _M17N_ERR_H_ */
 
 /*
