@@ -134,7 +134,7 @@ extern int m17n_object_unref (void *object);
     #M17NFunc is a generic function type for setting a function
     pointer as a value of #MSymbol property or #MPlist.  */
 
-/***en
+/***ja
     @brief 汎関数型.
 
     #M17NFunc は汎関数型であり、関数ポインタを #MSymbol プロパティや
