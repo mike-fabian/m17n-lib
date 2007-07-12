@@ -4822,7 +4822,7 @@ minput_get_description (MSymbol language, MSymbol name)
 
     If $COMMAND is #Mnil, information about all commands is returned.
 
-    The return value is a @e well-formed plist (#m17nPlist) of this
+    The return value is a @e well-formed plist (@ref m17nPlist) of this
     format:
 @verbatim
   ((NAME DESCRIPTION STATUS [KEYSEQ ...]) ...)
@@ -4876,7 +4876,7 @@ minput_get_description (MSymbol language, MSymbol name)
 
     $COMMAND が #Mnil の場合は、すべてのコマンドに関する情報を返す。
 
-    戻り値は以下の形式の @e well-formed plist (#m17nPlist) である。
+    戻り値は以下の形式の @e well-formed plist (@ref m17nPlist) である。
 
 @verbatim
   ((NAME DESCRIPTION STATUS [KEYSEQ ...]) ...)
@@ -5220,7 +5220,7 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     If $VARIABLE is #Mnil, information about all variables is
     returned.
 
-    The return value is a @e well-formed plist (#m17nPlist) of this
+    The return value is a @e well-formed plist (@ref m17nPlist) of this
     format:
 @verbatim
   ((NAME DESCRIPTION STATUS VALUE [VALID-VALUE ...]) ...)
@@ -5280,7 +5280,7 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
 
     $VARIABLE が #Mnil の場合は、すべてのコマンドに関する情報を返す。
 
-    戻り値は以下の形式の @e well-formed plist (#m17nPlist) である。
+    戻り値は以下の形式の @e well-formed plist (@ref m17nPlist) である。
 @verbatim
   ((NAME DESCRIPTION STATUS VALUE [VALID-VALUE ...]) ...)
 @endverbatim
@@ -5835,7 +5835,7 @@ minput_save_config (void)
     The minput_get_variables () function returns a plist (#MPlist) of
     variables used to control the behavior of the input method
     specified by $LANGUAGE and $NAME.  The plist is @e well-formed
-    (#m17nPlist) of the following format:
+    (@ref m17nPlist) of the following format:
 
 @verbatim
     (VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
@@ -5884,7 +5884,7 @@ minput_save_config (void)
 
     関数 minput_get_variables () は、$LANGUAGE と $NAME によって指定さ
     れた入力メソッドの振る舞いを制御する変数のプロパティリスト
-    (#MPlist) を返す。このリストは @e well-formed であり(#m17nPlist) 以
+    (#MPlist) を返す。このリストは @e well-formed であり(@ref m17nPlist) 以
     下の形式である。
 
 @verbatim
