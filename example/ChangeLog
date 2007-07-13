@@ -1,3 +1,7 @@
+2007-07-13  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.4.0 released.
+
 2007-05-21  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (show_cursor): Use msymbol_name (not mlangauge_name).
