@@ -2511,7 +2511,7 @@ mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
       int size10, size;
       MGlyph *base = NULL, *mark = NULL;
 
-      if (OTF_check_features (otf, 1,
+      if (OTF_check_features (otf, 0,
 			      cap->script_tag, cap->langsys_tag,
 			      cap->features[MFONT_OTT_GPOS].tags,
 			      cap->features[MFONT_OTT_GPOS].nfeatures) != 1
