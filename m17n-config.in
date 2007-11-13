@@ -10,7 +10,7 @@ exec_prefix=@exec_prefix@
 
 help ()
 {
-  echo "Usage: $0 [API-LEVEL] [--version | --cflags | --libs | --libtool]"
+  echo "Usage: $0 [API-LEVEL ...] [--version | --cflags | --libs | --libtool]"
   echo "  API-LEVEL is CORE, SHELL (default), GUI, or FLT"
 }
 
@@ -19,12 +19,50 @@ if test $# -eq 0; then
   exit 0
 fi
 
+while true; do
 case $1 in
-CORE) LIBNAME="-lm17n-core"; LIBTOOLNAME="m17n-core"; shift;;
-GUI|X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; LIBTOOLNAME="m17n-gui"; shift;;
-FLT) LIBNAME="-lm17n-core -lm17n-flt"; LIBTOOLNAME="m17n-flt"; shift;;
-*) LIBNAME="-lm17n-core -lm17n"; LIBTOOLNAME="m17n"; ;;
+CORE) if test "x$API" = "x"; then 
+        API="CORE"; LIBTOOLNAME="m17n-core";
+      fi;
+      shift;;
+
+SHELL) if test "x$API" != "xGUI"; then
+         API="FLT"; LIBSHELL=" -lm17n"
+         if test "x$LIBFLT" = "x"; then
+           LIBTOOLNAME="m17n";
+         else
+           LIBTOOLNAME="m17n m17n-flt";
+	 fi
+       fi;
+       shift;;
+
+FLT) if test "x$API" != "xGUI"; then
+       API="FLT"; LIBFLT=" -lm17n-flt"
+       if test "x$LIBSHELL" = "x"; then
+         LIBTOOLNAME="m17n-flt";
+       else
+         LIBTOOLNAME="m17n m17n-flt";
+       fi
+     fi;
+     shift;;
+
+GUI|X) API="GUI";
+       LIBSHELL=" -lm17n"; LIBFLT=" -lm17n-flt"; LIBGUI=" -lm17n-gui";
+       LIBTOOLNAME="m17n-gui";
+       shift;;
+
+*) break;;
 esac
+done
+
+LIBNAME="-lm17n-core"
+
+if test "x$API" = "x"; then
+  LIBNAME="$LIBNAME -lm17n"
+  LIBTOOLNAME="m17n"
+else
+  LIBNAME="$LIBNAME$LIBSHELL$LIBFLT$LIBGUI"
+fi
 
 case $1 in
 --version)
@@ -43,9 +81,10 @@ case $1 in
   fi;;
 
 --libtool)
-  echo "@libdir@/lib${LIBTOOLNAME}.la"
-  ;;
-
+  for name in $LIBTOOLNAME; do
+    echo -n "@libdir@/lib${name}.la "
+  done;
+  echo;;
 *)
     help
     exit 1;;
