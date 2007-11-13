@@ -1,4 +1,4 @@
-This directory tree holds version 1.4.0 of the m17n library.	-*- text -*-
+This directory tree holds version 1.5.0 of the m17n library.	-*- text -*-
 
 Copyright (C) 2003, 2004, 2005, 2006, 2007
   National Institute of Advanced Industrial Science and Technology (AIST)
@@ -58,17 +58,25 @@ will not compile with an old-style K&R compiler.
 
 The default installation path is "/usr/local".
 Thus, these header files are installed in /usr/local/include:
-	m17n-core.h, m17n.h, m17n-gui.h, m17n-err.h, m17n-X.h
+	m17n-core.h, m17n.h, m17n-gui.h, m17n-err.h, m17n-X.h, m17n-flt.h
+
 These library files are installed in /usr/local/lib:
 	libm17n-core.{a,so*,la}
 	libm17n.{a,so*,la}
 	libm17n-gui.{a,so*,la}
 	libm17n-X.{a,so*,la}
 	libm17n-gd.{a,so*,la}
+	libm17n-flt.{a,so*,la}
 	libimx-anthy.{a,so*,la},
 	libimx-ispell.{a,so*,la},
+
 This shell script is installed in /usr/local/bin:
 	m17n-config
+
+These pkgconfig metadata files are installed in
+/usr/local/lib/pkgconfig:
+	m17n-core.pc, m17n-shell.pc, m17n-flt.pc, m17n-gui.pc
+
 These sample programs are installed in /usr/local/bin too:
 	m17n-conv, m17n-date, m17n-view, m17n-dump, m17n-edit
 
@@ -116,8 +124,12 @@ parallel.
 
 The library provides three levels of APIs, CORE, SHELL, and GUI.  For
 CORE API, include <m17n-core.h>, for SHELL API, include <m17n.h>, and
-for GUI API, include <m17n-gui.h >.  See the documentation above, or
-the manual of m17nIntro(3) for more detail.
+for GUI API, include <m17n-gui.h >.  In addition, for those who need
+only text shaping facility that uses FLT (Font Layout Table), the
+library provides FLT API.  To use it, include <m17n-flt.h>.
+
+See the documentation above, or the manual of m17nIntro(3) for more
+detail.
 
 The shell script "m17n-config" helps compiling and linking of a
 program that uses the m17n library.  For instance this compiles PROG.c
