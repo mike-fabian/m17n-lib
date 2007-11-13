@@ -1,6 +1,482 @@
-2007-08-14  Kenichi Handa  <handa@m17n.org>
+2007-11-12  Kenichi Handa  <handa@ni.aist.go.jp>
 
-	* font-ft.c (mfont__ft_drive_otf): Fix arg to OTF_check_features.
+	* font-ft.c (ft_check_otf): Fix arg to OTF_check_features.
+
+	* m17n-flt.c (Mcombining): New variable.
+	(Mfont_facility): Renamed from Mfont_has.  Referrer changed.
+	(enum FontLayoutCmdRuleSrcType): Delete SRC_EXIST, add
+	SRC_HAS_GLYPH and SRC_OTF_SPEC.
+	(FontLayoutCmdRule): Delete src.exist, add src.supported_glyph and
+	src.otf_spec.
+	(load_command): Adjusted for the above changes.
+	(run_rule): Likewise.
+	(combining_code_from_class): Delete it.
+	(mflt_get): Check flt->name against Mcombining, not Mt.
+
+	* internal-flt.h (Mcombining): Extern it.
+
+	* draw.c (compose_glyph_string): Call run_flt with Mcombining for
+	combining characters.
+
+2007-11-09  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* face.c (mface__realize): Reset measured flag before calling
+	mfont__get_metric.
+
+	* m17n-flt.c (run_stages): Fix handing of off_x and off_y.
+	(setup_combining_coverage): New function.
+	(setup_combining_flt): New function.
+	(mflt_get): If flt is not found, return NULL.  If name if Mt,
+	call setup_combining_flt.
+	(mflt_run): For debugging, print font family name.
+
+	* font-ft.c (ft_render): Fix handling of baseline_offset.
+	(ft_encapsulate): Set metrics in 26.6 fixed pixel.
+	(ft_render): Check pixel_mode to determine anti_alias.
+
+	* m17n-X.c (xfont_find_metric): Delete invalid "continue" line.
+	(xfont_find_metric): Set metrics in 26.6 fixed pixel.
+	(xfont_render): Set baseline_offset in pixel.
+	(xft_render): Fix handling of baseline_offset.
+
+	* draw.c (run_flt): Set font.font.family.
+	(compose_glyph_string): Fix handling of combining characters.
+
+	* fontset.c (try_font_list): Check if the named flt is surely
+	available.
+
+2007-11-07  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* draw.c (analyse_bidi_level): New function.
+	(visual_order): Do reordering using the already decided
+	bidi-level.
+	(compose_glyph_string): Decide bidi-level before calling flt.
+
+	* m17n-flt.c (mflt_run): Fix typo.
+
+	* font-ft.c (ft_drive_otf): Fix indexing gstring->glyphs.
+
+2007-11-06  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* draw.c (visual_order): Don't rely on the width of glyphs.
+	(run_flt): Fix culculation of g->g.to.
+
+	* m17n-flt.c (run_rule): Don't set error code here.
+	(run_cond): Likewise.
+	(run_otf): Fix culculation of xoff and yoff.
+	(run_command): Don't set error code here.
+	(PREV): New macro.
+	(NEXT): New macro.
+
+	* m17n-X.c (xfont_open): Keep rfont's metrics in 26.6 fixed pixels.
+	(xfont_find_metric): Set glyph's yadv to 0.
+	(xft_find_metric): Likewise.
+
+	* font-ft.c (ft_open): Keep rfont's metrics in 26.6 fixed pixels.
+	(ft_find_metric): Adjust glyph's metrics.
+	(ft_encapsulate): Keep rfont's metrics in 26.6 fixed pixels.
+	(ft_drive_otf): Set mark glyph's xadv to 0.
+
+	* face.c (mface__for_chars): Adjusts the unit of face's ascent and
+	descent.
+
+2007-10-29  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h (struct _MFLTOtfSpec): Adjusted for the new FLT handling.
+	(mflt_get): Adjusted for the argument change.
+	(mflt_name): Adjusted for the return value change.
+
+	* m17n-flt.c (Mgenerator, Mend): New variables.
+	(flt_min_coverage, flt_max_coverage): New variables.
+	(GCPY): New macro.
+	(GDUP): Use it.
+	(Mfont_has): Renamed from Mexist.  Referrers chagned.
+	(gen_otf_tag): Handle the trailing whitespaces.
+	(otf_count_features, otf_store_features): Fix for negative features.
+	(parse_otf_command): Adjusted for the change of MFLTOtfSpec.
+	(load_otf_command): Likewise.
+	(free_flt_command): Adjusted for the change of MFLTOtfSpec.
+	(load_flt): Argument changed.  Caller changed.
+	(free_flt_list): New function.
+	(run_rule): Adjusted for the change of FontLayoutContext.
+	(mflt_run): Adjusted for the change of FontLayoutContext.
+
+	* m17n-gui.c (m17n_init_win): Call m17n_init_flt.
+	(m17n_fini_win): Call m17n_fini_flt.
+
+	* m17n-gui.h: Include m17n-flt.h.
+
+	* m17n-gd.c: Adusted for the change of MGlyph.
+
+	* m17n-X.c: Adusted for the change of MGlyph.
+	(xft_check_otf, xft_drive_otf): New functions.
+
+	* internal-gui.h (MGlyph): Modified for new FLT handling.
+
+	* fontset.c (try_font_list): Adusted for the change of MGlyph.
+
+	* font-ft.c: Adjusted for the change of MGlyph.
+	(ft_check_cap_otf): Renamed from ft_check_otf.  Callers changed.
+	(get_glyph_metric): Deleted.
+	(ft_check_otf): New function.
+	(ft_drive_otf): New fucntion.
+
+	* font.c: Adjusted for the change of MGlyph.
+	(mfont__init): Don't call mfont__flt_init.
+	(mfont__fini): Don't call mfont__flt_fini.
+	(mfont__get_glyph_id, mfont__get_metrics): New functions.
+
+	* font.h (struct MRealizedFont): New members x_ppem and y_ppem.
+	(MFLTFontForRealized): New struct.
+	(struct MFontDriver): New members check_otf and drive_otf.
+	(mfont__get_glyph_id, mfont__get_metrics): Extern them.
+
+	* face.c: Adjusted for the change of MGlyph.
+
+	* draw.c: Adjusted for the change of MGlyph.
+
+	* m17n.c (m17n_init): Don't call mchar_init.
+
+	* m17n-core.c (m17n_init_core): Call mchar_init.
+
+	* m17n-core.h (mchartable_min_char, mchartable_max_char): Extern them.
+
+	* input.c: Include "m17n.h" instead of "m17n-gui.h".
+
+	* chartab.c (mchartable): Initialize table->min_char to -1.
+	(mchartable_min_char): New function.
+	(mchartable_max_char): New function.
+
+	* Makefile.am (GUI_SOURCES): Delete font-flt.c.
+	(libm17n_gui_la_LIBADD): Add ${top_builddir}/src/libm17n-flt.la.
+
+2007-10-12  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (Mcharset): Extern it.
+	Move detabase related declarations from m17n.h.
+
+	* m17n-flt.h: Include m17n-core.h instead of m17n.h.
+	(struct _MFLTOtfFeatures): New struct.
+	(struct _MFLTOtfSpec): Delete gsub, gpos, etc, add gsub_gpos.
+	(struct _MFLTFont): Delete otf, add check_otf.
+	(MCHAR_INVALID_CODE): Define it.
+
+	* plist.c (read_mtext_element): Simplify the code.
+
+	* m17n.h: Move database related declarations to m17n-core.h
+	(Mharset): Don't extern it.
+
+	* m17n.c (m17n_init): Don't call mdatabase__init.
+
+	* m17n-gd.c (read_rgb_txt): Check also /etc/X11/rgb.txt.  Downcase
+	color names.
+
+	* m17n-flt.c: Include m17n-core.h instead of m17n.h.
+	(Mexist): New variable.
+	(enum FontLayoutCmdRuleSrcType): New enum SRC_EXIST.
+	(FontLayoutCmdRule): New member src.exist.
+	(parse_otf_command): Handle gsub_count and gpos_count separately.
+	(load_otf_command): Adjusted for the change of MFLTOtfSpec.
+	(load_command): Handle the command "exist".
+	(free_flt_command): Adjusted for the change of MFLTOtfSpec.
+	(run_rule): Handle the case SRC_EXIST.
+	(run_otf): Adjusted for the change of MFLTOtfSpec.
+	(run_command): Check the range of FROM.
+	(check_otf_spec): Delete it.
+	(m17n_init_flt): Call m17n_init_core instead of m17n_init.
+	Initialize Mexist.
+	(m17n_fini_flt): Call m17n_fini_core instead of m17n_fiini.
+	(mflt_find): Call font->check_otf instead of check_otf_spec.
+	(mflt_run): Keep the metrics in 26.6 fixed point.
+
+	* m17n-core.c (mdatabase__finder, mdatabase__loader): Delete them.
+	(m17n_init_core): Call mdatabase__init.
+
+	* m17n-X.c (device_open): Use mplist_add, not mplist_push.
+
+	* internal.h (mdatabase__finder, mdatabase__loader): Delete externs
+	of them.
+
+	* font-flt.c (Mexist): New variable.
+	(enum FontLayoutCmdRuleSrcType): New enum SRC_EXIST.
+	(FontLayoutCmdRule): New member src.exist.
+	(load_category_table): Use isalnum, not isalpha.
+	(load_command): Check the command "exist".
+	(run_rule): Hande the case SRC_EXIST.
+	(run_command): Check the range of FROM.
+	(mfont__flt_init): Initialize Mexist.
+
+	* draw.c (layout_glyphs): Fix calculation of off_x and off_y.
+
+	* database.h (mdatabase__load_charset_func): Extern it.
+
+	* database.c: Include m17n-core.h instead of m17n.h.
+	(load_chartable): Use mtext__from_data.
+	(load_charset): Moved to charset.c
+	(load_database): Call mdatabase__load_charset_func instead of
+	load_charset.
+	(mdatabase__load_charset_func): New variable.
+	(mdatabase__init): Initialize mdatabase__load_charset_func and
+	Mcharset.  Don't set mdatabase__finder and mdatabase__loader.
+	(mdatabase__save): Use fwrite, not mconv_encode_stream.
+	(Mcharset): Declare it here.
+
+	* charset.c: Include "database.h.".
+	(load_charset): Moved from database.c.
+	(mcharset__init): Initialize mdatabase__load_charset_func, don't
+	initialize Mcharset.
+
+	* character.c (mchar_define_property): Call mdatabase_find directly.
+	(mchar_get_prop): Call mdatabase_add directly.
+	(mchar_put_prop): Call mdatabase_load directly.
+	(mchar_get_prop_table): Likewise.
+
+	* Makefile.am (libm17n_core_la_SOURCES): Add database.[ch].
+	(libm17n_la_SOURCES): Remove database.[ch].
+	(libm17n_flt_la_LIBADD): Delete libm17n.la, add libm17n-core.la.
+
+2007-09-18  Kenichi Handa  <handa@m17n.org>
+
+	* face.c (mface__realize): Try Freetype based font at first.
+
+	* font.c: Include <ctype.h>
+
+2007-09-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (load_flt): New arg full.  If full is zero, load only
+	coverage.
+	(run_otf): Call font->get_metrics, not font->get_metric.
+	(run_stages): Likewise.
+	(CHECK_FLT_COVERAGE): New macro.
+	(CHECK_FLT_STAGES): Call load_flt with the second arg 1.
+	(check_otf_spec): New function.
+	(m17n_fini_flt): Unref flt->coverage.
+	(mflt_find): Argument changed.
+	(mflt_name): New function.
+	(mflt_coverage): Use CHECK_FLT_COVERAGE.
+
+	* m17n-flt.h (MFLTFont): Member get_metrics renamed from get_metric.
+	(mflt_find): Prototype adjusted.
+	(mflt_name): Extern it.
+
+2007-09-14  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h (struct _MFLTGlyph): Change signedness of members.
+
+	* font-flt.c (run_otf): Make debug info printing comaptible with
+	that of m17n-flt.c.
+	(run_command): Likewise.
+	(mfont__flt_run): Likewise.
+
+	* m17n-flt.c (UPDATE_CLUSTER_RANGE): ctx->cluster_begin_idx is
+	invalid only when it's negative.
+	(run_otf): Likewise.
+	(run_command): Likewise.
+	(mflt_run): Initialize ctx.cluster_begin_idx to -1.
+
+2007-09-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h (struct _MFLTGlyph): New member encoded and measured.
+	(struct _MFLTFont): Prototype of get_glyph_id changed.
+
+	* m17n-flt.c (enum GlyphInfoMask): Delete EncodedMask and
+	PositionedMask.
+	(GAPPEND): Delete this macro.
+	(GET_ENCODED, SET_ENCODED, GET_MEASURED, SET_MEASURED): Adjusted
+	for the change of MFLTGlyph.  Caller changed.
+	(run_otf): Simply calls font->get_glyph_id.
+	(run_command): Reset g->encoded and g->measured for direct code.
+	(positioning): Delete this function.
+	(run_stages): Simply calls font->get_glyph_id and font->get_metric.
+
+2007-09-07  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Improve script detection.
+
+2007-09-06  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h (mflt_get): Extern it.
+
+	* m17n-flt.c (run_stages): Call positioning only if
+	font->get_metric is non-NULL.
+	(CHECK_FLT_STAGES): Fix typo.
+	(mflt_get): New function.
+
+	* font-flt.c (mfont__flt_run): Improve debug info printing.
+
+2007-09-04  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (MFontLayoutTable): Delete this type.
+	(struct _MFLT): New member mdb and coverage.
+	(list_flt): Set flt->mdb.
+	(load_generator): Argument and return value changed.  Caller
+	changed.
+	(get_font_layout_table): Delete this function.
+	(run_stages): Argument changed.  Caller changed.
+	(CHECK_FLT_STAGES): New macro.
+	(mfont__flt_encode_char): Argument changed.
+	(mflt_find): Likewise.
+	(mflt_coverage): New function.
+	(mflt_run): Argument changed.
+	(mdebug_dump_flt): Likewise.
+
+	* m17n-flt.h (mflt_coverage): Extern it.
+	(mflt_find): Prototype adjusted.
+
+2007-09-03  Kenichi Handa  <handa@m17n.org>
+
+	* internal.h (MTABLE_CALLOC_SAFE, MSTRUCT_CALLOC_SAFE): New macros.
+
+	* database.c (mdatabase__props): New function.
+
+	* database.h (mdatabase__props): Extern it.
+
+	* m17n-flt.h (struct _MFLTGlyphString): Delete user_data, add
+	script and langsys.
+	(struct _MFLTFont): Add suitable_p.
+	(mflt_find): Extern it.
+
+	* m17n-flt.c: Include "database.h".
+	(struct _MFLT): New struct.
+	(list_flt): New function.
+	(load_flt): Don't update flt_list.
+	(get_font_layout_table): Use flt_list.
+	(m17n_init_flt): Don't initialize flt_list.
+	(m17n_fini_flt): Adjusted for the change of flt_list.
+	(mflt_find): New function.
+	(mflt_run): Fix debug printing.
+
+2007-08-23  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_otf): Remove #ifdef HAVE_OTF and #endi.
+	(run_stages): Print separator in encoded string as "|".
+
+2007-08-23  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (mfont__flt_run): Don't calculate a glyph metric if
+	the glyph is already handled by OTF.
+
+2007-08-21  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_check_capability): Check cap->script_tag at first.
+
+2007-08-20  Kenichi Handa  <handa@m17n.org>
+
+	* font-flt.c (mfont__flt_run): Get glyph metrics before printing
+	debug information.
+
+2007-08-17  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h (struct _MFLTGlyphString): Member pointer renamed to
+	user_data.
+	(MFLTOtfSpec): Renamed from MFLT_OTF_Spec.
+	(MFLTFont): Prototype of the member drive_otf adjusted.
+
+	* m17n-flt.c (run_stages): Fix handling of padding.
+
+	* font-ft.c (get_glyph_metric): New function.
+	(DEVICE_DELTA): Return 26.6 fixed point value.
+	(adjust_anchor): Likewise.
+	(mfont__ft_drive_otf): Use get_glyph_metric.
+
+	* font-flt.c (mfont__flt_run): Pay attention to padding on
+	printing debug info.
+
+2007-08-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_stages): Fix typo.
+
+	* font-ft.c (adjust_anchor): Argument changed.  Calculte based on
+	26.6 fixed point.
+	(mfont__ft_drive_otf): Don't call OTF_check_features for GPOS.
+	Adjusted for the argument change of adjust_anchor.  Calculte based
+	on 26.6 fixed point.
+
+2007-08-15  Kenichi Handa  <handa@m17n.org>
+
+	* charset.c (mcharset__load_from_database): Set mdebug_flag
+	instead of mdebug_mask.
+
+	* coding.c (mcoding__load_from_database): Set mdebug_flag instead
+	of mdebug_mask.
+
+	* database.c (load_database): Set mdebug_flag instead of
+	mdebug_mask.
+	(mdatabase__load_for_keys): Likewise.
+
+	* draw.c: Include "internal-flt.h".
+	(dump_combining_code): Don't subtract 128 from combining code
+	off_x/y.
+
+	* font-flt.c: Include "internal-flt.h".  Set mdebug_flag instead
+	of mdebug_mask.
+	(run_rule): Print debug info only when MDEBUG_FLAG is greater than
+	2.
+	(run_cond): Likewise.
+	(run_otf): Likewise.
+	(run_command): Likewise.
+	(mfont__flt_run): Change format of debug info.
+
+	* font-ft.c: Include "internal-flt.h".
+	Set mdebug_flag instead of mdebug_mask.
+	(mfont__ft_drive_otf): Fix arg to OTF_check_features.
+
+	* input.c: Set mdebug_flag instead of mdebug_mask.
+	(shift_state): New MDEBUG_FLAG macro.
+	(preedit_commit): Likewise.
+	(filter): Likewise.
+
+	* internal-flt.h: New file.
+
+	* internal-gui.h (MAKE_COMBINING_CODE, COMBINING_CODE_OFF_Y)
+	(COMBINING_CODE_OFF_X, COMBINING_CODE_BASE_X)
+	(COMBINING_CODE_BASE_Y, COMBINING_CODE_ADD_X)
+	(COMBINING_CODE_ADD_Y, MAKE_COMBINING_CODE_BY_CLASS)
+	(COMBINING_BY_CLASS_P, COMBINING_CODE_CLASS)
+	(MAKE_PRECOMPUTED_COMBINDING_CODE, COMBINING_PRECOMPUTED_P): Move
+	these macros to internal-flt.h.
+
+	* internal.h (M17N_OBJECT_ADD_ARRAY): Adjusted for the change of
+	mdebug__flags.
+	(M17N_OBJECT_REGISTER, M17N_OBJECT_UNREGISTER): Likewise.
+	(enum MDebugMaskBit): Delete this enum.
+	(enum MDebugFlag): New enum.
+	(mdebug__flag): Don't extern it.
+	(mdebug__flags): Extern it.
+	(MDEBUG_FLAG): New macro.
+	(MDEBUG_PRINT0): Use the macro MDEBUG_FLAG.
+	(MDEBUG_DUMP, MDEBUG_PUSH_TIME, MDEBUG_POP_TIME)
+	(MDEBUG_PRINT_TIME): Likewise.
+
+	* m17n-X.c (xfont_open): Set mdebug_flag instead of mdebug_mask.
+	(xfont_list): Likewise.
+
+	* m17n-core.c (mdebug__flag): Delete this variable.
+	(mdebug__flags): New variable.
+	(SET_DEBUG_FLAG): Make it a function.
+	(m17n_init_core): Set mdebug_flag instead of mdebug_mask.
+	(m17n_fini_core): Likewise.
+
+	* m17n-gui.c (m17n_init_win): Set mdebug_flag instead of mdebug_mask.
+	(m17n_fini_win): Likewise.
+
+	* m17n-misc.h (enum MErrorCode): Add MERROR_FLT.
+
+	* m17n.c (m17n_init): Set mdebug_flag instead of mdebug_mask.
+	(m17n_fini): Likewise.
+
+	* symbol.c (msymbol__free_table): Adjusted for the change of
+	mdebug__flags.
+
+	* Makefile.am (BASICBUILDS): Add libm17n-flt.la.
+	(BASICHEADERS): Add m17n-flt.h.
+	(FLT_SOURCES): New variable.
+	(libm17n_flt_la_SOURCES, libm17n_flt_la_LIBADD)
+	(libm17n_flt_la_LDFLAGS): Likewise.
+
+	* m17n-flt.h: New file.
+
+	* m17n-flt.c: New file created by modifying font-flt.c.
 
 2007-07-13  Kenichi Handa  <handa@m17n.org>
 

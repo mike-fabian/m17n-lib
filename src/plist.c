@@ -233,15 +233,9 @@ read_hexadesimal (MStream *st)
 static MPlist *
 read_mtext_element (MPlist *plist, MStream *st, int skip)
 {
-  union {
-    int chars[READ_MTEXT_BUF_SIZE];
-    unsigned char bytes[sizeof (int) * READ_MTEXT_BUF_SIZE];
-  } buffer;
-  unsigned char *bytes = buffer.bytes;
-  int nbytes = sizeof (int) * READ_MTEXT_BUF_SIZE;
-  int *chars = NULL;
-  int nchars = 0;
-  int c, i, j;
+  unsigned char buffer[READ_MTEXT_BUF_SIZE], *buf = buffer;
+  int nbytes = READ_MTEXT_BUF_SIZE;
+  int c, i;
 
   i = 0;
   while ((c = GETC (st)) != EOF && c != '"')
@@ -272,46 +266,25 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 
       if (! skip)
 	{
-	  if (is_char && ! chars)
+	  if (i + MAX_UTF8_CHAR_BYTES >= nbytes)
 	    {
-	      chars = buffer.chars;
-	      for (j = i - 1; j >= 0; j--)
-		chars[j] = bytes[j];
-	      nchars = READ_MTEXT_BUF_SIZE;
-	      if (bytes != buffer.bytes)
-		free (bytes);
-	    }
-
-	  if (chars)
-	    {
-	      if (i + 1 >= nchars)
-		{
-		  nchars *= 2;
-		  if (chars == buffer.chars)
-		    {
-		      MTABLE_MALLOC (chars, nchars, MERROR_PLIST);
-		      memcpy (chars, buffer.chars, sizeof (int) * i);
-		    }
-		  else
-		    MTABLE_REALLOC (chars, nchars, MERROR_PLIST);
-		}
-	      chars[i++] = c;
-	    }
-	  else
-	    {
-	      if (i + MAX_UTF8_CHAR_BYTES >= nbytes)
+	      if (buf == buffer)
 		{
 		  nbytes *= 2;
-		  if (bytes == buffer.bytes)
-		    {
-		      MTABLE_MALLOC (bytes, nbytes, MERROR_PLIST);
-		      memcpy (bytes, buffer.bytes, i);
-		    }
-		  else
-		    MTABLE_REALLOC (bytes, nbytes, MERROR_PLIST);
+		  buf = malloc (nbytes);
+		  memcpy (buf, buffer, i);
 		}
-	      bytes[i++] = c;
+	      else
+		{
+		  nbytes += READ_MTEXT_BUF_SIZE;
+		  buf = realloc (buf, nbytes);
+		}
 	    }
+
+	  if (is_char)
+	    i += CHAR_STRING_UTF8 (c, buf);
+	  else
+	    buf[i++] = c;
 	}
     }
 
@@ -319,17 +292,12 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
     {
       MText *mt;
 
-      if (chars)
-	{
-	  mt = mtext__from_data (chars, i, MTEXT_FORMAT_UTF_32, 1);
-	  if (chars != buffer.chars)
-	    free (chars);
-	}	  
+      if (buf == buffer)
+	mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 1);
       else
 	{
-	  mt = mtext__from_data (bytes, i, MTEXT_FORMAT_UTF_8, 1);
-	  if (bytes != buffer.bytes)
-	    free (bytes);
+	  mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 0);
+	  free (buf);
 	}
       MPLIST_SET_ADVANCE (plist, Mtext, mt);
     }

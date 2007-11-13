@@ -68,7 +68,7 @@ static void
 read_rgb_txt ()
 {
   FILE *fp;
-  int r, g, b;
+  int r, g, b, i;
 
   /* At first, support HTML 4.0 color names. */
   msymbol_put (msymbol ("black"), M_rgb, (void *) 0x000000);
@@ -88,11 +88,18 @@ read_rgb_txt ()
   msymbol_put (msymbol ("teal"), M_rgb, (void *) 0x008080);
   msymbol_put (msymbol ("aqua"), M_rgb, (void *) 0x00FFFF);
 
-  fp = fopen ("/usr/lib/X11/rgb.txt", "r");
-  if (! fp)
-    fp = fopen ("/usr/X11R6/lib/X11/rgb.txt", "r");
-  if (! fp)
-    return;
+  {
+    char *rgb_path[]
+      =  {"/usr/lib/X11/rgb.txt", "/usr/X11R6/lib/X11/rgb.txt",
+	  "/etc/X11/rgb.txt" };
+
+    fp = NULL;
+    for (i = 0; i < (sizeof rgb_path) / (sizeof rgb_path[0]); i++)
+      if ((fp = fopen ("/usr/lib/X11/rgb.txt", "r")))
+	break;
+    if (! fp)
+      return;
+  }
   while (1)
     {
       char buf[256];
@@ -114,6 +121,8 @@ read_rgb_txt ()
       buf[0] = c;
       fgets (buf + 1, 255, fp);
       len = strlen (buf);
+      for (i = 0; i < len; i++)
+	buf[i] = tolower (buf[i]);
       if (buf[len - 1] == '\n')
 	buf[len - 1] = '\0';
       b |= (r << 16) | (g << 8);
@@ -319,14 +328,14 @@ gd_render (MDrawWindow win, int x, int y,
 #endif
     }
 
-  for (; from < to; x += from++->width)
+  for (; from < to; x += from++->g.xadv)
     {
       unsigned char *bmp;
       int xoff, yoff;
       int width, pitch;
 
-      FT_Load_Glyph (ft_face, (FT_UInt) from->code, load_flags);
-      yoff = y - ft_face->glyph->bitmap_top + from->yoff;
+      FT_Load_Glyph (ft_face, (FT_UInt) from->g.code, load_flags);
+      yoff = y - ft_face->glyph->bitmap_top + from->g.yoff;
       bmp = ft_face->glyph->bitmap.buffer;
       width = ft_face->glyph->bitmap.width;
       pitch = ft_face->glyph->bitmap.pitch;
@@ -339,7 +348,7 @@ gd_render (MDrawWindow win, int x, int y,
 	for (i = 0; i < ft_face->glyph->bitmap.rows;
 	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
 	  {
-	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
+	    xoff = x + ft_face->glyph->bitmap_left + from->g.xoff;
 	    for (j = 0; j < width; j++, xoff++)
 	      if (bmp[j] > 0)
 		{
@@ -373,7 +382,7 @@ gd_render (MDrawWindow win, int x, int y,
 	for (i = 0; i < ft_face->glyph->bitmap.rows;
 	     i++, bmp += ft_face->glyph->bitmap.pitch, yoff++)
 	  {
-	    xoff = x + ft_face->glyph->bitmap_left + from->xoff;
+	    xoff = x + ft_face->glyph->bitmap_left + from->g.xoff;
 	    for (j = 0; j < width; j++, xoff++)
 	      if (bmp[j / 8] & (1 << (7 - (j % 8))))
 		gdImageSetPixel (img, xoff, yoff, pixel);
@@ -505,15 +514,15 @@ gd_draw_empty_boxes (MDrawWindow win, int x, int y,
   y -= gstring->ascent - 1;
   height = gstring->ascent + gstring->descent - 2;
   if (! region)
-    for (; from < to; x += from++->width)
-      gdImageRectangle (img, x, y, x + from->width - 2, y + height - 1, color);
+    for (; from < to; x += from++->g.xadv)
+      gdImageRectangle (img, x, y, x + from->g.xadv - 2, y + height - 1, color);
   else
     {
       gdImagePtr cpy;
       MGlyph *g;
       int width, x1;
 
-      for (g = from, width = 0; g < to; width += g++->width);
+      for (g = from, width = 0; g < to; width += g++->g.xadv);
       cpy = get_scrach_image (img, width, height);
       MPLIST_DO (plist, region_list)
 	{
@@ -521,8 +530,8 @@ gd_draw_empty_boxes (MDrawWindow win, int x, int y,
 	  gdImageCopy (cpy, img, rect->x - x, rect->y - y, rect->x, rect->y,
 		       rect->x + rect->width, rect->y + rect->height);
 	}
-      for (x1 = 0; from < to; x1 += from++->width)
-	gdImageRectangle (cpy, x1, 0, x1 + from->width - 2, height - 1, color);
+      for (x1 = 0; from < to; x1 += from++->g.xadv)
+	gdImageRectangle (cpy, x1, 0, x1 + from->g.xadv - 2, height - 1, color);
       MPLIST_DO (plist, region_list)
 	{
 	  MDrawMetric *rect = MPLIST_VAL (plist);
@@ -596,7 +605,7 @@ gd_draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
       gdImagePtr cpy;
 
       if (g->type == GLYPH_BOX)
-	width = g->width;
+	width = g->g.xadv;
       cpy = get_scrach_image (img, width, height);
       MPLIST_DO (plist, region_list)
 	{
@@ -619,9 +628,9 @@ gd_draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
       int x0, x1;
 
       if (g->left_padding)
-	x0 = x + box->outer_hmargin, x1 = x + g->width - 1;
+	x0 = x + box->outer_hmargin, x1 = x + g->g.xadv - 1;
       else
-	x0 = x, x1 = x + g->width - box->outer_hmargin - 1;
+	x0 = x, x1 = x + g->g.xadv - box->outer_hmargin - 1;
 
       /* Draw the top side.  */
       color = RESOLVE_COLOR (img, colors[COLOR_BOX_TOP]);
@@ -806,6 +815,8 @@ device_init ()
   gd_font_driver.has_char = mfont__ft_driver.has_char;
   gd_font_driver.encode_char = mfont__ft_driver.encode_char;
   gd_font_driver.list = mfont__ft_driver.list;
+  gd_font_driver.check_otf = mfont__ft_driver.check_otf;
+  gd_font_driver.drive_otf = mfont__ft_driver.drive_otf;
 
   return 0;
 }

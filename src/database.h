@@ -88,4 +88,8 @@ extern int mdatabase__save (MDatabase *mdb, MPlist *data);
 
 extern int mdatabase__unlock (MDatabase *mdb);
 
+extern MPlist *mdatabase__props (MDatabase *mdb);
+
+extern void *(*mdatabase__load_charset_func) (FILE *fp, MSymbol charset_name);
+
 #endif /* not _M17N_DATABASE_H_ */

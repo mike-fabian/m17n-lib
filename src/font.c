@@ -328,6 +328,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "m17n-gui.h"
 #include "m17n-misc.h"
@@ -1177,8 +1178,6 @@ mfont__init ()
   if (mfont__ft_init () < 0)
     return -1;
 #endif /* HAVE_FREETYPE */
-  if (mfont__flt_init () < 0)
-    return -1;
 
   return 0;
 }
@@ -1189,7 +1188,6 @@ mfont__fini ()
   MPlist *plist;
   int i;
 
-  mfont__flt_fini ();
 #ifdef HAVE_FREETYPE
   mfont__ft_fini ();
 #endif /* HAVE_FREETYPE */
@@ -1644,19 +1642,91 @@ mfont__get_metric (MGlyphString *gstring, int from, int to)
   MGlyph *from_g = MGLYPH (from), *to_g = MGLYPH (to), *g;
   MRealizedFont *rfont = from_g->rface->rfont;
 
-  for (g = from_g; g != to_g; g++)
-    if (g->rface->rfont != rfont)
+  for (g = from_g; ; g++)
+    if (g == to_g || g->rface->rfont != rfont)
       {
 	int idx = GLYPH_INDEX (g);
 
 	(rfont->driver->find_metric) (rfont, gstring, from, idx);
-	from_g = g;
+	while (from_g < g)
+	  {
+	    from_g->g.xadv >>= 6;
+	    from_g->g.yadv >>= 6;
+	    from_g->g.xoff >>= 6;
+	    from_g->g.yoff >>= 6;
+	    from_g->g.ascent >>= 6;
+	    from_g->g.descent >>= 6;
+	    from_g->g.lbearing >>= 6;
+	    from_g->g.rbearing >>= 6;
+	    from_g++;
+	  }
+	if (g == to_g)
+	  break;
 	rfont = g->rface->rfont;
 	from = idx;
       }
-  (rfont->driver->find_metric) (rfont, gstring, from, GLYPH_INDEX (g));
 }
 
+int
+mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
+		     int from, int to)
+{
+  MFont *mfont = (MFont *) ((MFLTFontForRealized *) font)->rfont;
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MFontEncoding *encoding;
+  MFontDriver *driver = NULL;
+  MGlyph *glyphs = (MGlyph *) gstring->glyphs;
+
+  encoding = mfont->encoding ? mfont->encoding : find_encoding (mfont);
+  for (; from < to; from++)
+    {
+      MGlyph *g = glyphs + from;
+
+      if (g->g.encoded)
+	continue;
+      if (! encoding->encoding_charset)
+	g->g.code = MCHAR_INVALID_CODE;
+      else if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
+	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.c);
+      else
+	{
+	  g->g.code = ENCODE_CHAR (encoding->encoding_charset, g->g.c);
+	  if (g->g.code != MCHAR_INVALID_CODE)
+	    {
+	      if (! driver)
+		{
+		  if (mfont->type == MFONT_TYPE_REALIZED)
+		    driver = rfont->driver;
+		  else
+		    {
+		      driver = mplist_get (rfont->frame->font_driver_list,
+					   mfont->source == MFONT_SOURCE_X
+					   ? Mx : Mfreetype);
+		      if (! driver)
+			MFATAL (MERROR_FONT);
+		    }
+		}
+	      g->g.code
+		= (driver->encode_char) (rfont->frame, rfont->font, mfont,
+					 g->g.code);
+	    }
+	}
+      g->g.encoded = 1;
+    }
+  return 0;
+}
+
+int
+mfont__get_metrics (MFLTFont *font, MFLTGlyphString *gstring,
+		    int from, int to)
+{
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MGlyphString gstr;
+
+  gstr.glyphs = (MGlyph *) gstring->glyphs;
+  (rfont->driver->find_metric) (rfont, &gstr, from, to);
+  return 0;
+}
 
 /* KEY <= MFONT_REGISTRY */
 

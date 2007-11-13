@@ -673,7 +673,7 @@ mchartable (MSymbol key, void *default_value)
   M17N_OBJECT (table, free_chartable, MERROR_CHARTABLE);
   M17N_OBJECT_REGISTER (chartable_table, table);
   table->key = key;
-  table->min_char = 0;
+  table->min_char = -1;
   table->max_char = -1;
   SET_DEPTH_MIN_CHAR (&table->subtable, 0, 0);
   table->subtable.default_value = default_value;
@@ -681,6 +681,38 @@ mchartable (MSymbol key, void *default_value)
     M17N_OBJECT_REF (default_value);
   table->subtable.contents.tables = NULL;
   return table;
+}
+
+/*=*/
+
+/***en
+    @brief Return the minimum character whose value is set in a chartabe.
+
+    The mchartable_min_char () function return the minimum character
+    whose value is set in chartable $TABLE.  No character is set its
+    value, the function returns -1.
+ */
+
+int
+mchartable_min_char (MCharTable *table)
+{
+  return table->min_char;
+}
+
+/*=*/
+
+/***en
+    @brief Return the maximum character whose value is set in a chartabe.
+
+    The mchartable_max_char () function return the maximum character
+    whose value is set in chartable $TABLE.  No character is set its
+    value, the function returns -1.
+ */
+
+int
+mchartable_max_char (MCharTable *table)
+{
+  return table->max_char;
 }
 
 /*=*/

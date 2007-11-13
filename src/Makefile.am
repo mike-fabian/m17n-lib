@@ -21,7 +21,7 @@
 
 VINFO = -version-info @API_VERSION@
 
-BASICBUILDS = libm17n-core.la libm17n.la
+BASICBUILDS = libm17n-core.la libm17n.la libm17n-flt.la
 if WITH_GUI
 BUILD_LIBS = $(BASICBUILDS) libm17n-gui.la libm17n-X.la libm17n-gd.la
 else
@@ -33,6 +33,7 @@ lib_LTLIBRARIES = $(BUILD_LIBS)
 libm17n_core_la_SOURCES = \
 	character.h character.c \
 	chartab.h chartab.c \
+	database.h database.c \
 	internal.h \
 	plist.h plist.c \
 	m17n-core.h m17n-core.c \
@@ -48,7 +49,6 @@ libm17n_core_la_LDFLAGS = -export-dynamic ${VINFO}
 libm17n_la_SOURCES = \
 	charset.h charset.c \
 	coding.h coding.c \
-	database.h database.c \
 	input.h input.c \
 	language.h language.c \
 	mlocale.h locale.c \
@@ -56,9 +56,16 @@ libm17n_la_SOURCES = \
 libm17n_la_LIBADD = ${top_builddir}/src/libm17n-core.la -ldl
 libm17n_la_LDFLAGS = -export-dynamic ${VINFO}
 
+FLT_SOURCES = \
+	m17n-flt.h m17n-flt.c
+
+libm17n_flt_la_SOURCES = ${FLT_SOURCES}
+libm17n_flt_la_LIBADD = ${top_builddir}/src/libm17n-core.la
+libm17n_flt_la_LDFLAGS = -export-dynamic ${VINFO}
+
 GUI_SOURCES = \
 	face.h face.c \
-	font.h font.c font-ft.c font-flt.c \
+	font.h font.c font-ft.c \
 	fontset.h fontset.c \
 	draw.c \
 	input-gui.c \
@@ -72,7 +79,7 @@ OPTIONAL_LD_FLAGS = \
 	@FONTCONFIG_LD_FLAGS@
 
 libm17n_gui_la_SOURCES = ${GUI_SOURCES}
-libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n.la
+libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n.la
 libm17n_gui_la_LDFLAGS = -export-dynamic ${VINFO}
 
 X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @X11_LD_FLAGS@ ${X_EXTRA_LIBS}
@@ -88,7 +95,7 @@ libm17n_gd_la_LDFLAGS = -module ${VINFO}
 AM_CPPFLAGS = -DM17NDIR=\"@M17NDIR@\" -DGETTEXTDIR=\"@GETTEXTDIR@\"
 
 
-BASICHEADERS = m17n-core.h m17n.h m17n-misc.h
+BASICHEADERS = m17n-core.h m17n.h m17n-misc.h m17n-flt.h
 if WITH_GUI
 include_HEADERS = $(BASICHEADERS) m17n-gui.h m17n-X.h
 else

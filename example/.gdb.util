@@ -39,7 +39,12 @@ echo \n
 end
 
 define xgstring
-set dump_gstring (gstring, 0)
+set dump_gstring (gstring, 0, 0)
+echo \n
+end
+
+define xgstr
+set dump_gstring ($arg0, 0, 1)
 echo \n
 end
 

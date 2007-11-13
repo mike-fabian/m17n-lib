@@ -3035,7 +3035,7 @@ mcoding__load_from_database ()
   MDatabase *mdb = mdatabase_find (msymbol ("coding-list"), Mnil, Mnil, Mnil);
   MPlist *def_list, *plist;
   MPlist *definitions = coding_definition_list;
-  int mdebug_mask = MDEBUG_CODING;
+  int mdebug_flag = MDEBUG_CODING;
 
   if (! mdb)
     return 0;

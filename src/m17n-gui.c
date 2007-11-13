@@ -237,12 +237,13 @@ static MDeviceLibraryInterface null_interface =
 void
 m17n_init_win (void)
 {
-  int mdebug_mask = MDEBUG_INIT;
+  int mdebug_flag = MDEBUG_INIT;
 
   merror_code = MERROR_NONE;
   if (m17n__gui_initialized++)
     return;
   m17n_init ();
+  m17n_init_flt ();
   if (merror_code != MERROR_NONE)
     {
       m17n__gui_initialized--;
@@ -297,7 +298,7 @@ m17n_init_win (void)
 void
 m17n_fini_win (void)
 {
-  int mdebug_mask = MDEBUG_FINI;
+  int mdebug_flag = MDEBUG_FINI;
   MPlist *plist;
 
   if (m17n__gui_initialized == 0
@@ -341,6 +342,7 @@ m17n_fini_win (void)
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
   MDEBUG_POP_TIME ();
+  m17n_fini_flt ();
   m17n_fini ();
 }
 

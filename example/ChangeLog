@@ -1,3 +1,15 @@
+2007-10-29  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (common_ldflags_gui): Add
+	${top_builddir}/src/libm17n-flt.la.
+
+	* .gdb.util (xgstring): Adjusted for the change of dump_gstring.
+	(xgtr): New command.
+
+2007-09-18  Kenichi Handa  <handa@m17n.org>
+
+	* mdump.c (main): Use "generic" fontset by default.
+
 2007-07-13  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.4.0 released.

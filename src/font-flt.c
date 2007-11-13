@@ -35,6 +35,7 @@
 #include "mtext.h"
 #include "symbol.h"
 #include "plist.h"
+#include "internal-flt.h"
 #include "internal-gui.h"
 #include "font.h"
 #include "face.h"
@@ -222,7 +223,7 @@ MACRO-NAME ::= SYMBOL
 
 */
 
-static int mdebug_mask = MDEBUG_FONT_FLT;
+static int mdebug_flag = MDEBUG_FONT_FLT;
 
 MSymbol Mlayouter;
 
@@ -256,7 +257,7 @@ static MPlist *flt_list;
 #define CMD_ID_TO_INDEX(id) (CMD_ID_OFFSET_INDEX - (id))
 #define INDEX_TO_CMD_ID(idx) (CMD_ID_OFFSET_INDEX - (idx))
 
-static MSymbol Mcond, Mrange;
+static MSymbol Mcond, Mrange, Mexist;
 
 #define GLYPH_CODE_P(code)	\
   ((code) >= GLYPH_CODE_MIN && (code) <= GLYPH_CODE_MAX)
@@ -279,7 +280,8 @@ enum FontLayoutCmdRuleSrcType
     SRC_REGEX,
     SRC_INDEX,
     SRC_SEQ,
-    SRC_RANGE
+    SRC_RANGE,
+    SRC_EXIST
   };
 
 typedef struct
@@ -298,6 +300,9 @@ typedef struct
     struct {
       int from, to;
     } range;
+    struct {
+      int c;
+    } exist;
   } src;
 
   int n_cmds;
@@ -382,7 +387,7 @@ load_category_table (MPlist *plist)
 	    MERROR (MERROR_FONT, NULL);
 	  category_code = MPLIST_INTEGER (elt);
 	}
-      if (! isalpha (category_code))
+      if (! isalnum (category_code))
 	MERROR (MERROR_FONT, NULL);
 
       if (from == to)
@@ -685,6 +690,21 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 		    MERROR (MERROR_DRAW, INVALID_CMD_ID);
 		  cmd->body.rule.src.range.to
 		    = (unsigned) MPLIST_INTEGER (pl);
+		}
+	      else if (MPLIST_SYMBOL_P (pl) && size <= 2)
+		{
+		  if (MPLIST_SYMBOL (pl) != Mexist)
+		    MERROR (MERROR_FLT, INVALID_CMD_ID);
+		  cmd->body.rule.src_type = SRC_EXIST;
+		  if (size == 1)
+		    cmd->body.rule.src.exist.c = -1;
+		  else
+		    {
+		      pl = MPLIST_NEXT (pl);
+		      if (! MPLIST_INTEGER_P (pl))
+			MERROR (MERROR_DRAW, INVALID_CMD_ID);
+		      cmd->body.rule.src.exist.c = MPLIST_INTEGER (pl);
+		    }
 		}
 	      else
 		MERROR (MERROR_DRAW, INVALID_CMD_ID);
@@ -993,8 +1013,9 @@ run_rule (int depth,
       if (i < len)
 	return 0;
       to = from + len;
-      MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
-		     rule->src.seq.codes[0]);
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
+		       rule->src.seq.codes[0]);
     }
   else if (rule->src_type == SRC_RANGE)
     {
@@ -1007,8 +1028,9 @@ run_rule (int depth,
 	return 0;
       ctx->code_offset = head - rule->src.range.from;
       to = from + 1;
-      MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
-		     rule->src.range.from, rule->src.range.to);
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
+		       rule->src.range.from, rule->src.range.to);
     }
   else if (rule->src_type == SRC_REGEX)
     {
@@ -1025,10 +1047,11 @@ run_rule (int depth,
 			NMATCH, pmatch, 0);
       if (result == 0 && pmatch[0].rm_so == 0)
 	{
-	  MDEBUG_PRINT5 ("\n [FLT] %*s(REGEX \"%s\" \"%s\" %d", depth, "",
-			 rule->src.re.pattern,
-			 ctx->encoded + from - ctx->encoded_offset,
-			 pmatch[0].rm_eo);
+	  if (MDEBUG_FLAG () > 2)
+	    MDEBUG_PRINT5 ("\n [FLT] %*s(REGEX \"%s\" \"%s\" %d", depth, "",
+			   rule->src.re.pattern,
+			   ctx->encoded + from - ctx->encoded_offset,
+			   pmatch[0].rm_eo);
 	  ctx->encoded[to - ctx->encoded_offset] = saved_code;
 	  for (i = 0; i < NMATCH; i++)
 	    {
@@ -1057,7 +1080,35 @@ run_rule (int depth,
       if (from < 0)
 	return 0;
       to = ctx->match_indices[rule->src.match_idx * 2 + 1];
-      MDEBUG_PRINT3 ("\n [FLT] %*s(INDEX %d", depth, "", rule->src.match_idx);
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(INDEX %d", depth, "", rule->src.match_idx);
+    }
+  else if (rule->src_type == SRC_EXIST)
+    {
+      MGlyph *g = MGLYPH (from);
+      int encoded = g->otf_encoded;
+      unsigned code;
+
+      if (rule->src.exist.c < 0)
+	{
+	  if (from >= to)
+	    return 0;
+	  code = g->code;
+	  to = from + 1;
+	}
+      else
+	{
+	  code = rule->src.exist.c;
+	  to = from;
+	  encoded = 0;
+	}
+      if (! encoded)
+	{
+	  code = (g->rface->rfont->driver->encode_char
+		  (NULL, (MFont *) g->rface->rfont, NULL, code));
+	  if (code == MCHAR_INVALID_CODE)
+	    return 0;
+	}
     }
 
   consumed = 0;
@@ -1081,7 +1132,8 @@ run_rule (int depth,
     }
 
   ctx->match_indices = saved_match_indices;
-  MDEBUG_PRINT (")");
+  if (MDEBUG_FLAG () > 2)
+    MDEBUG_PRINT (")");
   return (rule->src_type == SRC_INDEX ? orig_from : to);
 }
 
@@ -1092,7 +1144,8 @@ run_cond (int depth,
 {
   int i, pos = 0;
 
-  MDEBUG_PRINT2 ("\n [FLT] %*s(COND", depth, "");
+  if (MDEBUG_FLAG () > 2)
+    MDEBUG_PRINT2 ("\n [FLT] %*s(COND", depth, "");
   depth++;
   for (i = 0; i < cond->n_cmds; i++)
     {
@@ -1104,7 +1157,8 @@ run_cond (int depth,
     }
   if (pos < 0)
     MERROR (MERROR_DRAW, -1);
-  MDEBUG_PRINT (")");
+  if (MDEBUG_FLAG () > 2)
+    MDEBUG_PRINT (")");
   return (pos);
 }
 
@@ -1116,11 +1170,17 @@ run_otf (int depth,
 #ifdef HAVE_OTF
   int from_idx = gstring->used;
 
-  MDEBUG_PRINT4 ("\n [FLT] %*s(OTF %s,%s)", depth, "",
-		 (! otf_cmd->features[MFONT_OTT_GSUB].str ? ""
-		  : otf_cmd->features[MFONT_OTT_GSUB].str),
-		 (! otf_cmd->features[MFONT_OTT_GPOS].str ? ""
-		  : otf_cmd->features[MFONT_OTT_GPOS].str));
+  if (MDEBUG_FLAG () > 2)
+#if 0
+    MDEBUG_PRINT4 ("\n [FLT] %*s(OTF %s,%s)", depth, "",
+		   (! otf_cmd->features[MFONT_OTT_GSUB].str ? ""
+		    : otf_cmd->features[MFONT_OTT_GSUB].str),
+		   (! otf_cmd->features[MFONT_OTT_GPOS].str ? ""
+		    : otf_cmd->features[MFONT_OTT_GPOS].str));
+#else
+    MDEBUG_PRINT3 ("\n [FLT] %*s:otf=%s", depth, "",
+		   MSYMBOL_NAME (otf_cmd->otf));
+#endif
   to = mfont__ft_drive_otf (gstring, from, to, otf_cmd);
   if (ctx->cluster_begin_idx)
     for (; from_idx < gstring->used; from_idx++)
@@ -1143,13 +1203,14 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 
       /* Direct code (== id + ctx->code_offset) output.
 	 The source is not consumed.  */
-      if (from < to)
+      if (from < to || from == 1)
 	g = *(MGLYPH (from));
       else
 	g = *(MGLYPH (from - 1));
       g.type = GLYPH_CHAR;
       g.code = ctx->code_offset + id;
-      MDEBUG_PRINT3 ("\n [FLT] %*s(DIRECT 0x%X", depth, "", g.code);
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(DIRECT 0x%X", depth, "", g.code);
       if (ctx->combining_code)
 	g.combining_code = ctx->combining_code;
       if (ctx->left_padding)
@@ -1166,7 +1227,8 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
       APPEND_GLYPH (gstring, g);
       UPDATE_CLUSTER_RANGE (ctx, g);
       ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
-      MDEBUG_PRINT (")");
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT (")");
       return (from);
     }
 
@@ -1193,8 +1255,9 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
   if (id <= CMD_ID_OFFSET_COMBINING)
     {
       ctx->combining_code = CMD_ID_TO_COMBINING_CODE (id);
-      MDEBUG_PRINT3 ("\n [FLT] %*s(CMB %s)", depth, "",
-		     dump_combining_code (ctx->combining_code));
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(CMB %s)", depth, "",
+		       dump_combining_code (ctx->combining_code));
       return from;
     }
 
@@ -1211,7 +1274,13 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	  g.left_padding = ctx->left_padding;
 	APPEND_GLYPH (gstring, g);
 	UPDATE_CLUSTER_RANGE (ctx, g);
-	MDEBUG_PRINT3 ("\n [FLT] %*s(COPY 0x%X)", depth, "", g.code);
+	if (MDEBUG_FLAG () > 2)
+	  {
+	    if (g.type == GLYPH_PAD)
+	      MDEBUG_PRINT2 ("\n [FLT] %*s(COPY |)", depth, "");
+	    else
+	      MDEBUG_PRINT3 ("\n [FLT] %*s(COPY 0x%X)", depth, "", g.code);
+	  }
 	ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
 	return (from + 1);
       }
@@ -1219,7 +1288,8 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
     case CMD_ID_CLUSTER_BEGIN:
       if (! ctx->cluster_begin_idx)
 	{
-	  MDEBUG_PRINT3 ("\n [FLT] %*s<%d", depth, "", MGLYPH (from)->pos);
+	  if (MDEBUG_FLAG () > 2)
+	    MDEBUG_PRINT3 ("\n [FLT] %*s<%d", depth, "", MGLYPH (from)->pos);
 	  ctx->cluster_begin_idx = gstring->used;
 	  ctx->cluster_begin_pos = MGLYPH (from)->pos;
 	  ctx->cluster_end_pos = MGLYPH (from)->to;
@@ -1231,7 +1301,8 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
 	{
 	  int i;
 
-	  MDEBUG_PRINT1 (" %d>", ctx->cluster_end_pos);
+	  if (MDEBUG_FLAG () > 2)
+	    MDEBUG_PRINT1 (" %d>", ctx->cluster_end_pos);
 	  for (i = ctx->cluster_begin_idx; i < gstring->used; i++)
 	    {
 	      MGLYPH (i)->pos = ctx->cluster_begin_pos;
@@ -1255,14 +1326,16 @@ run_command (int depth, int id, MGlyphString *gstring, int from, int to,
       }
 
     case CMD_ID_LEFT_PADDING:
-      MDEBUG_PRINT2 ("\n [FLT] %*s[", depth, "");
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT2 ("\n [FLT] %*s[", depth, "");
       ctx->left_padding = 1;
       return from;
 
     case CMD_ID_RIGHT_PADDING:
       if (gstring->used > 0)
 	{
-	  MDEBUG_PRINT2 ("\n [FLT] %*s]", depth, "");
+	  if (MDEBUG_FLAG () > 2)
+	    MDEBUG_PRINT2 ("\n [FLT] %*s]", depth, "");
 	  gstring->glyphs[gstring->used - 1].right_padding = 1;
 	}
       return from;
@@ -1280,6 +1353,7 @@ mfont__flt_init (void)
   Mcond = msymbol ("cond");
   Mrange = msymbol ("range");
   Mlayouter = msymbol ("layouter");
+  Mexist = msymbol ("exist");
   flt_list = mplist ();
   return 0;
 }
@@ -1383,26 +1457,36 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   from_pos = MGLYPH (from)->pos;
   to_pos = MGLYPH (to)->pos;
 
+  if (MDEBUG_FLAG ())
+    {
+      MDEBUG_PRINT ("\n [FLT]   (SOURCE");
+      for (i = from; i < to; i++)
+	{
+	  if (i > from && (i - from) % 8 == 0)
+	    MDEBUG_PRINT ("\n [FLT]          ");
+	  MDEBUG_PRINT1 (" %04X", MGLYPH (i)->c);
+	}
+      MDEBUG_PRINT (")");
+    }
+
   for (stage_idx = 0; 1; stage_idx++)
     {
       int len = to - from;
       int result;
 
       ctx.code_offset = ctx.combining_code = ctx.left_padding = 0;
-      MDEBUG_PRINT2 ("\n [FLT]   (STAGE %d \"%s\"", stage_idx, ctx.encoded);
-      if (mdebug__flag & mdebug_mask
-	  && ctx.encoded_offset < to)
+      if (MDEBUG_FLAG () > 2)
 	{
-	  if (gstring->glyphs[ctx.encoded_offset].type == GLYPH_PAD)
-	    fprintf (stderr, " (|");
-	  else
-	    fprintf (stderr, " (%X", gstring->glyphs[ctx.encoded_offset].code);
-	  for (i = ctx.encoded_offset + 1; i < to; i++)
+	  MDEBUG_PRINT2 ("\n [FLT]   (STAGE %d \"%s\"", stage_idx,
+			 ctx.encoded + from - ctx.encoded_offset);
+	  fprintf (stderr, " (");
+	  for (i = from; i < to ; i++)
 	    {
 	      if (gstring->glyphs[i].type == GLYPH_PAD)
-		fprintf (stderr, " |");
+		fprintf (stderr, "%*s|", (i > from), "");
 	      else
-		fprintf (stderr, " %X", gstring->glyphs[i].code);
+		fprintf (stderr, "%*s%04X", (i > from), "",
+			 gstring->glyphs[i].code);
 	    }
 	  fprintf (stderr, ")");
 	}
@@ -1412,7 +1496,8 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 
       result = run_command (4, INDEX_TO_CMD_ID (0), gstring,
 			    ctx.encoded_offset, to, &ctx);
-      MDEBUG_PRINT (")");
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT (")");
       if (result < 0)
 	return -1;
       to = from + (gstring->used - gidx);
@@ -1521,24 +1606,49 @@ mfont__flt_run (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 	    latest = glyphs[i];
 	}
     }
-  MDEBUG_PRINT ("\n [FLT]   (RESULT (");
-  if (mdebug__flag & mdebug_mask
-      && ctx.encoded_offset < to)
+  if (MDEBUG_FLAG ())
     {
-      if (gstring->glyphs[from].type == GLYPH_PAD)
-	fprintf (stderr, "|");
-      else
-	fprintf (stderr, "%X", gstring->glyphs[from].code);
-      for (from++; from < to; from++)
+      MDEBUG_PRINT ("\n [FLT]   (RESULT");
+      for (i = from; i < to;)
 	{
-	  if (gstring->glyphs[from].type == GLYPH_PAD)
-	    fprintf (stderr, " |");
+	  if (MGLYPH (i)->otf_encoded)
+	    i++;
 	  else
-	    fprintf (stderr, " %X", gstring->glyphs[from].code);
+	    {
+	      int j = i++;
+
+	      while (i < to && ! MGLYPH (i)->otf_encoded) i++;
+	      mfont__get_metric (gstring, j, i);
+	    }
 	}
-      fprintf (stderr, "))");
+      if (MDEBUG_FLAG () > 1)
+	for (i = 0; from < to; from++, i++)
+	  {
+	    MGlyph *g;
+	    int width, xoff, yoff;
+
+	    if (i > 0 && i % 4 == 0)
+	      MDEBUG_PRINT ("\n [FLT]          ");
+	    g = MGLYPH (from);
+	    g->otf_encoded = 1;
+	    width = g->width, xoff = g->xoff, yoff = g->yoff;
+	    if (g->right_padding && g->rbearing > g->width)
+	      width = g->rbearing;
+	    if (g->left_padding && g->lbearing < 0)
+	      {
+		width += - g->lbearing;
+		xoff += - g->lbearing;
+	      }
+	    MDEBUG_PRINT4 (" (%04X %d %d %d)", g->code, width, xoff, yoff);
+	  }
+      else
+	for (; from < to; from++)
+	  {
+	    MGLYPH (from)->otf_encoded = 1;
+	    MDEBUG_PRINT1 (" %04X", MGLYPH (from)->code);
+	  }
+      MDEBUG_PRINT ("))\n");
     }
-  MDEBUG_PRINT (")\n");
 
   return to;
 }

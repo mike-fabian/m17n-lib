@@ -580,9 +580,15 @@ try_font_list (MFrame *frame, MFontList *font_list, MFont *request,
       /* Check if this font can display all glyphs.  */
       for (j = 0; j < *num; j++)
 	{
-	  int c = g[j].type == GLYPH_CHAR ? g[j].c : ' ';
+	  int c = g[j].type == GLYPH_CHAR ? g[j].g.c : ' ';
+	  MFLT *flt;
+	  MCharTable *coverage;
+
 	  if (layouter != Mt
-	      ? mfont__flt_encode_char (layouter, c) == MCHAR_INVALID_CODE
+	      ? ((flt = mflt_get (layouter))
+		 ? (coverage = mflt_coverage (flt),
+		    ! mchartable_lookup (coverage, c))
+		 : 0)
 	      : ! mfont__has_char (frame, font, &font_list->object, c))
 	    break;
 	}
@@ -590,6 +596,8 @@ try_font_list (MFrame *frame, MFontList *font_list, MFont *request,
 	continue;
       if (j == *num || !all)
 	{
+	  MCharTable *coverage = NULL;
+
 	  /* We found a font that can display the requested range of
 	     glyphs.  */
 	  if (font->type == MFONT_TYPE_REALIZED)
@@ -602,15 +610,22 @@ try_font_list (MFrame *frame, MFontList *font_list, MFont *request,
 	      font_list->fonts[i].font = (MFont *) rfont;
 	    }
 	  rfont->layouter = layouter == Mt ? Mnil : layouter;
+	  if (rfont->layouter)
+	    {
+	      MFLT *flt = mflt_get (rfont->layouter);
+
+	      if (flt)
+		coverage = mflt_coverage (flt);
+	    }
 	  *num = j;
 	  for (j = 0; j < *num; j++)
 	    {
-	      int c = g[j].type == GLYPH_CHAR ? g[j].c : ' ';
+	      int c = g[j].type == GLYPH_CHAR ? g[j].g.c : ' ';
 
-	      g[j].code = (rfont->layouter
-			   ? mfont__flt_encode_char (rfont->layouter, c)
-			   : mfont__encode_char (frame, (MFont *) rfont,
-						 &font_list->object, c));
+	      g[j].g.code = (coverage
+			     ? (unsigned ) mchartable_lookup (coverage, c)
+			     : mfont__encode_char (frame, (MFont *) rfont,
+						   &font_list->object, c));
 	    }
 	  return rfont;
 	}

@@ -40,7 +40,7 @@
 void
 m17n_init (void)
 {
-  int mdebug_mask = MDEBUG_INIT;
+  int mdebug_flag = MDEBUG_INIT;
 
   merror_code = MERROR_NONE;
   if (m17n__shell_initialized++)
@@ -59,18 +59,12 @@ m17n_init (void)
   if (mcoding__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize conv module."));
-  if (mdatabase__init () < 0)
-    goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize database module."));
   if (mcharset__load_from_database () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to load charset definitions."));
   if (mcoding__load_from_database () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to load coding definitions."));
-  if (mchar__init () < 0)
-    goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize character module."));
   if (mlang__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize language module"));
@@ -90,7 +84,7 @@ m17n_init (void)
 void
 m17n_fini (void)
 {
-  int mdebug_mask = MDEBUG_FINI;
+  int mdebug_flag = MDEBUG_FINI;
 
   if (m17n__shell_initialized == 0
       || --m17n__shell_initialized > 0)

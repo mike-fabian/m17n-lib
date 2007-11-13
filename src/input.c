@@ -153,7 +153,7 @@
 #include <dlfcn.h>
 #endif
 
-#include "m17n-gui.h"
+#include "m17n.h"
 #include "m17n-misc.h"
 #include "internal.h"
 #include "mtext.h"
@@ -163,7 +163,7 @@
 #include "database.h"
 #include "charset.h"
 
-static int mdebug_mask = MDEBUG_INPUT;
+static int mdebug_flag = MDEBUG_INPUT;
 
 static int fully_initialized;
 
@@ -2354,7 +2354,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
 	state = (MIMState *) MPLIST_VAL (im_info->states);
     }
 
-  if (mdebug__flag & mdebug_mask)
+  if (MDEBUG_FLAG ())
     {
       if (orig_state)
 	MDEBUG_PRINT2 ("\n  [IM] [%s] (shift %s)\n",
@@ -2537,7 +2537,7 @@ preedit_commit (MInputContext *ic, int need_prefix)
       mtext_put_prop_values (ic->preedit, 0, mtext_nchars (ic->preedit),
 			     Mcandidate_index, NULL, 0);
       mtext_cat (ic->produced, ic->preedit);
-      if (mdebug__flag & mdebug_mask)
+      if (MDEBUG_FLAG ())
 	{
 	  int i;
 
@@ -3845,7 +3845,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 
   if (mtext_nchars (ic->produced) > 0)
     {
-      if (mdebug__flag & mdebug_mask)
+      if (MDEBUG_FLAG ())
 	{
 	  MDEBUG_PRINT1 ("\n  [IM] [%s] (produced",
 			 MSYMBOL_NAME (ic_info->state->name));

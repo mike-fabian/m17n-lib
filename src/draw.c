@@ -67,6 +67,7 @@
 #include "mtext.h"
 #include "textprop.h"
 #include "internal-gui.h"
+#include "internal-flt.h"
 #include "face.h"
 #include "font.h"
 
@@ -99,23 +100,21 @@ static MSymbol MbidiBN;
 static MSymbol MbidiS;
 static MSymbol MbidiNSM;
 
-static void
-visual_order (MGlyphString *gstring)
+static int
+analyse_bidi_level (MGlyphString *gstring)
 {
   int len = gstring->used - 2;
-  MGlyph *glyphs;
   int bidi_sensitive = gstring->control.orientation_reversed;
+  int max_level;
   MGlyph *g;
   int i;
 #ifdef HAVE_FRIBIDI
   FriBidiCharType base = bidi_sensitive ? FRIBIDI_TYPE_RTL : FRIBIDI_TYPE_LTR;
   FriBidiChar *logical = alloca (sizeof (FriBidiChar) * len);
-  FriBidiChar *visual;
-  FriBidiStrIndex *indices;
   FriBidiLevel *levels;
+  FriBidiStrIndex *indices;
 #else  /* not HAVE_FRIBIDI */
   int *logical = alloca (sizeof (int) * len);
-  int *indices;
   char *levels = alloca (len);
 
   memset (levels, 0, sizeof (int) * len);
@@ -129,7 +128,7 @@ visual_order (MGlyphString *gstring)
 #endif	/* not HAVE_FRIBIDI */
 	  )
 	{
-	  MSymbol bidi = (MSymbol) mchar_get_prop (g->c, Mbidi_category);
+	  MSymbol bidi = (MSymbol) mchar_get_prop (g->g.c, Mbidi_category);
 
 	  if (bidi == MbidiR || bidi == MbidiAL
 	      || bidi == MbidiRLE || bidi == MbidiRLO)
@@ -144,71 +143,102 @@ visual_order (MGlyphString *gstring)
 	    levels[i] = 1;	    
 #endif	/* not HAVE_FRIBIDI */
 	}
-      logical[i] = g->c;
+      logical[i] = g->g.c;
     }
 
   if (! bidi_sensitive)
-    return;
+    return 0;
 
-  glyphs = alloca (sizeof (MGlyph) * len);
-  memcpy (glyphs, gstring->glyphs + 1, sizeof (MGlyph) * len);
 #ifdef HAVE_FRIBIDI
-  visual = alloca (sizeof (FriBidiChar) * (len + 1));
-  indices = alloca (sizeof (FriBidiStrIndex) * (len + 1));
   levels = alloca (sizeof (FriBidiLevel) * (len + 1));
+  indices = alloca (sizeof (FriBidiStrIndex) * (len + 1));
 
-  fribidi_log2vis (logical, len, &base, visual, indices, NULL, levels);
-#else  /* not HAVE_FRIBIDI */
-  indices = alloca (sizeof (int) * len);
-  for (i = 0; i < len; i++)
-    {
-      if (levels[i])
-	{
-	  int j, k;
-
-	  for (j = i + 1; j < len && levels[j]; j++);
-	  for (k = j--; i < k; i++, j--)
-	    indices[i] = j;
-	  i--;
-	}
-      else
-	indices[i] = i;
-    }
+  fribidi_log2vis (logical, len, &base, NULL, NULL, indices, levels);
 #endif /* not HAVE_FRIBIDI */
 
-  for (i = 0; i < len;)
+  MGLYPH (0)->bidi_level = 0;
+  max_level = 0;
+  for (g = MGLYPH (1), i = 0; i < len; g++, i++)
     {
-      /* Index into gstring->glyphs plus 1 for GLYPHS[i].  */
-      int j = indices[i];
-      /* Length of grapheme-cluster */
-      int seglen;
-
-      g = glyphs + i;
-#ifdef HAVE_FRIBIDI
-      if (visual[j] != logical[i])
-	{
-	  /* Mirrored.  */
-	  g->c = visual[j];
-	  if (g->rface->rfont)
-	    g->code = mfont__encode_char (NULL, (MFont *) g->rface->rfont,
-					  NULL, g->c);
-	}
-#endif /* HAVE_FRIBIDI */
       g->bidi_level = levels[i];
-      for (seglen = 1, g++;
-	   i + seglen < len && (glyphs[i].pos == glyphs[i + seglen].pos
-				|| glyphs[i + seglen].combining_code);
-	   seglen++, g++)
+      if (max_level < g->bidi_level)
+	max_level = g->bidi_level;
+    }
+  MGLYPH (i)->bidi_level = 0;
+  return max_level;
+}
+
+static void
+visual_order (MGlyphString *gstring)
+{
+  MGlyph *glyphs = alloca (sizeof (MGlyph) * gstring->used);
+  int i, j, gidx;
+
+  memcpy (glyphs, gstring->glyphs, sizeof (MGlyph) * gstring->used);
+
+  for (i = gidx = 0; i < gstring->used; gidx++)
+    {
+      int level = glyphs[i].bidi_level;
+      
+      gstring->glyphs[gidx] = glyphs[i];
+      glyphs[i].rface = NULL;
+
+      if (level % 2)
 	{
-	  g->bidi_level = levels[i];
-	  if (indices[i + seglen] < j)
-	    j = indices[i + seglen];
+	  int prev_level = glyphs[i - 1].bidi_level;
+
+	  if (prev_level == level)
+	    i--;
+	  else if (prev_level > level)
+	    {
+	      for (; glyphs[i - 1].bidi_level > level; i--);
+	      if (glyphs[i].bidi_level % 2)
+		for (level = glyphs[i].bidi_level;
+		     glyphs[i + 1].bidi_level == level; i++);
+	    }
+	  else
+	    for (i++; ! glyphs[i].rface; i++);
 	}
-      memcpy (MGLYPH (j + 1), glyphs + i, sizeof (MGlyph) * seglen);
-      i += seglen;
+      else
+	{
+	  int next_level = glyphs[i + 1].bidi_level;
+
+	  if (next_level == level)
+	    i++;
+	  else if (next_level > level)
+	    {
+	      for (; glyphs[i + 1].bidi_level > level; i++);
+	      if ((glyphs[i].bidi_level % 2) == 0)
+		for (level = glyphs[i].bidi_level;
+		     glyphs[i - 1].bidi_level == level; i--);
+	    }
+	  else
+	    {
+	      int save = i + 1;
+
+	      for (i--; glyphs[i].bidi_level >= level; i--);
+	      if (! glyphs[i].rface)
+		for (i = save; ! glyphs[i].rface; i++);
+	    }
+	}
+    }
+  for (i = 1; i < gstring->used - 1; i++)
+    {
+      MGlyph *g = gstring->glyphs + i;
+
+      for (j = i; g->g.from == gstring->glyphs[j + 1].g.from; j++);
+      if (j > i)
+	{
+	  memcpy (glyphs + i, gstring->glyphs + i,
+		  sizeof (MGlyph) * (j - i + 1));
+	  for (; i <= j; i++)
+	    g[j - i] = glyphs[i];
+	  i--;
+	}
     }
 }
 
+#if 0
 static void
 reorder_combining_chars (MGlyphString *gstring, int from, int to)
 {
@@ -230,7 +260,62 @@ reorder_combining_chars (MGlyphString *gstring, int from, int to)
 	  }
     }
 }
+#endif
 
+static int
+run_flt (MGlyphString *gstring, int from, int to, MRealizedFont *rfont,
+	 MSymbol layouter)
+{
+  MFLTGlyphString flt_gstr;
+  MFLTFontForRealized font;
+  MFLT *flt;
+  int from_pos = MGLYPH (from)->g.from;
+  int len = to - from;
+  int i;
+
+  flt = mflt_get (layouter);
+  flt_gstr.glyph_size = sizeof (MGlyph);
+  flt_gstr.glyphs = (MFLTGlyph *) (gstring->glyphs);
+  flt_gstr.used = gstring->used;
+  flt_gstr.allocated = gstring->size;
+  flt_gstr.r2l = 0;
+  font.font.family = mfont_get_prop (rfont->font, Mfamily);
+  font.font.x_ppem = rfont->x_ppem;
+  font.font.y_ppem = rfont->y_ppem;
+  font.font.get_glyph_id = mfont__get_glyph_id;
+  font.font.get_metrics = mfont__get_metrics;
+  font.font.check_otf = rfont->driver->check_otf;
+  font.font.drive_otf = rfont->driver->drive_otf;
+  font.font.internal = NULL;
+  font.rfont = rfont;
+  for (i = 0; i < 3; i++)
+    {
+      to = mflt_run (&flt_gstr, from, to, &font.font, flt);
+      if (to != -2)
+	break;
+      APPEND_GLYPH (gstring, *MGLYPH (0));
+      APPEND_GLYPH (gstring, *MGLYPH (0));
+      gstring->used -= 2;
+    }
+  if (from + len != to)
+    gstring->used += to - (from + len);
+  for (i = from; i < to; i++)
+    {
+      MGlyph *g = MGLYPH (i);
+
+      g->g.from += from_pos - from;
+      g->g.to += from_pos - from + 1;
+      g->g.xadv >>= 6;
+      g->g.yadv >>= 6;
+      g->g.ascent >>= 6;
+      g->g.descent >>= 6;
+      g->g.lbearing >>= 6;
+      g->g.rbearing >>= 6;
+      g->g.xoff >>= 6;
+      g->g.yoff >>= 6;
+    }
+  return to;
+}
 
 /** Scan M-text MT from FROM to TO, and compose glyphs in GSTRING for
     displaying them on FRAME.
@@ -252,6 +337,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   MRealizedFace *rface = default_rface;
   MRealizedFont *rfont;
   int size = gstring->control.fixed_width;
+  int max_bidi_level = 0;
   int i;
 
   MLIST_RESET (gstring);
@@ -263,7 +349,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
   /** Put anchor glyphs at the head and tail.  */
   g_tmp.type = GLYPH_ANCHOR;
-  g_tmp.pos = g_tmp.to = from;
+  g_tmp.g.from = g_tmp.g.to = from;
   APPEND_GLYPH (gstring, g_tmp);
   stop = face_change = font_change = pos = from;
   while (1)
@@ -318,9 +404,9 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	c = '\n';
       g_tmp.type
 	= (c == ' ' || c == '\n' || c == '\t') ? GLYPH_SPACE : GLYPH_CHAR;
-      g_tmp.c = c;
-      g_tmp.pos = pos++;
-      g_tmp.to = pos;
+      g_tmp.g.c = c;
+      g_tmp.g.from = pos++;
+      g_tmp.g.to = pos;
       g_tmp.rface = rface;
       category = mchar_get_prop (c, Mcategory);
       if (category == McatCf)
@@ -335,8 +421,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	  MGlyph ctrl[2];
 
 	  ctrl[0] = ctrl[1] = g_tmp;
-	  ctrl[0].c = '^';
-	  ctrl[1].c = c < ' ' ? c + 0x40 : '?';
+	  ctrl[0].g.c = '^';
+	  ctrl[1].g.c = c < ' ' ? c + 0x40 : '?';
 	  APPEND_GLYPH (gstring, ctrl[0]);
 	  APPEND_GLYPH (gstring, ctrl[1]);
 	}
@@ -348,9 +434,12 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   /* Append an anchor glyph.  */
   INIT_GLYPH (g_tmp);
   g_tmp.type = GLYPH_ANCHOR;
-  g_tmp.pos = g_tmp.to = pos;
+  g_tmp.g.from = g_tmp.g.to = pos;
   APPEND_GLYPH (gstring, g_tmp);
   gstring->to = pos;
+
+  if (gstring->control.enable_bidi)
+    max_bidi_level = analyse_bidi_level (gstring);
 
   /* The next loop is to change each <rface> member for non-ASCII
      characters if necessary.  */
@@ -358,7 +447,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
   rfont = default_rface->rfont;
   for (last_g = g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
     {
-      int c = g->c;
+      int c = g->g.c;
       MSymbol this_script;
 
       if (c < 0x100)
@@ -368,8 +457,16 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	{
 	  this_script = (MSymbol) mchar_get_prop (c, Mscript);
 	  if (this_script == Minherited || this_script == Mcommon)
-	    this_script = script;
-	  if (this_script == Mcommon)
+	    {
+	      if (g > MGLYPH (1))
+		{
+		  MSymbol category = mchar_get_prop (g[-1].g.c, Mcategory);
+
+		  if (MSYMBOL_NAME (category)[0] != 'Z')
+		    this_script = script;
+		}
+	    }
+	  if (this_script == Mcommon && non_latin_script)
 	    this_script = non_latin_script;
 	  if (this_script == Mcommon)
 	    {
@@ -379,8 +476,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	      MGlyph *g1;
 
 	      for (g1 = g + 1; g1->type != GLYPH_ANCHOR; g1++)
-		if (g1->c >= 0x100
-		    && (sym = mchar_get_prop (g1->c, Mscript)) != Mcommon
+		if (g1->g.c >= 0x100
+		    && (sym = mchar_get_prop (g1->g.c, Mscript)) != Mcommon
 		    && sym != Minherited)
 		  {
 		    this_script = sym;
@@ -389,7 +486,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 	    }
 	}
 
-      pos = g->pos;
+      pos = g->g.from;
       if (pos == stop || script != this_script || g->rface->rfont != rfont)
 	{
 	  while (last_g < g)
@@ -436,59 +533,45 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
 	  if (this->rface->layouter != Mnil)
 	    {
-	      MGlyph *prev;
-	      unsigned code;
+	      MGlyph *prev = MGLYPH (start - 1);
 
-	      for (prev = MGLYPH (start - 1);
-		   (prev->type == GLYPH_CHAR
-		    && prev->category == GLYPH_CATEGORY_FORMATTER
-		    && (code = mfont__encode_char (NULL,
-						   (MFont *) this->rface->rfont,
-						   NULL, prev->c)
-			!= MCHAR_INVALID_CODE));
-		   start--, prev--)
-		if (prev->rface->rfont != this->rface->rfont)
-		  {
-		    prev->rface->rfont = this->rface->rfont;
-		    prev->code = code;
-		  }
+	      while (prev->type == GLYPH_CHAR
+		     && prev->category == GLYPH_CATEGORY_FORMATTER
+		     && (mfont__encode_char (NULL, (MFont *) this->rface->rfont,
+					     NULL, prev->g.c)
+			 != MCHAR_INVALID_CODE))
+		{
+		  start--, prev--;
+		  prev->rface->rfont = this->rface->rfont;
+		}
 
 	      for (g++;
 		   (g->type == GLYPH_CHAR
 		    && g->rface->layouter == this->rface->layouter
 		    && (g->rface->rfont == this->rface->rfont
 			|| (g->category == GLYPH_CATEGORY_FORMATTER
-			    && ((code = mfont__encode_char (NULL,
-							    (MFont *) this->rface->rfont,
-							    NULL,
-							    g->c))
+			    && (mfont__encode_char (NULL,
+						    (MFont *) this->rface->rfont,
+						    NULL, g->g.c)
 				!= MCHAR_INVALID_CODE))));
 		   i++, g++)
-		if (g->rface->rfont != this->rface->rfont)
-		  {
-		    g->rface->rfont = this->rface->rfont;
-		    g->code = code;
-		  }
-	      i = mfont__flt_run (gstring, start, i, this->rface);
+		g->rface->rfont = this->rface->rfont;
+	      i = run_flt (gstring, start, i, this->rface->rfont,
+			   this->rface->layouter);
 	    }
 	  else
 	    {
-	      while (this->type == GLYPH_CHAR
-		     && this->c >= 0x100
-		     && this->category == GLYPH_CATEGORY_MODIFIER
-		     && this->rface->rfont
-		     && this->rface->rfont->layouter == Mnil)
-		{
-		  int class = (int) mchar_get_prop (this->c,
-						    Mcombining_class);
-		  this->combining_code
-		    = MAKE_COMBINING_CODE_BY_CLASS (class);
-		  i++, this++;
-		}
+	      g++;
+	      while (g->type == GLYPH_CHAR
+		     && g->g.c >= 0x100
+		     && g->category == GLYPH_CATEGORY_MODIFIER
+		     && g->rface->rfont
+		     && g->rface->rfont->layouter == Mnil)
+		i++, g++;
 	      if (start + 1 < i)
-		reorder_combining_chars (gstring, start, i);
-	      if (this->type == GLYPH_ANCHOR)
-		break;
+		run_flt (gstring, start, i, this->rface->rfont, Mcombining);
+	      else
+		mfont__get_metric (gstring, start, i);
 	    }
 	  g = MGLYPH (i);
 	}
@@ -497,61 +580,9 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
     }
 
   /* At last, reorder glyphs visually if necessary.  */
-  if (gstring->control.enable_bidi)
+  if (max_bidi_level > 0)
     visual_order (gstring);
 }
-
-
-static int
-combining_code_from_class (int class)
-{
-  int code;
-
-  if (class < 200)
-    code = MAKE_COMBINING_CODE (3, 1, 3, 1, 128, 128);
-  else if (class == 200)	/* below left attached */
-    code = MAKE_COMBINING_CODE (2, 0, 0, 1, 128, 128);
-  else if (class == 202)	/* below attached*/
-    code = MAKE_COMBINING_CODE (2, 1, 0, 1, 128, 128);
-  else if (class == 204)	/* below right attached */
-    code = MAKE_COMBINING_CODE (2, 2, 0, 1, 128, 128);
-  else if (class == 208)	/* left attached */
-    code = MAKE_COMBINING_CODE (3, 0, 3, 2, 128, 128);
-  else if (class == 210)	/* right attached */
-    code = MAKE_COMBINING_CODE (3, 2, 3, 0, 128, 128);
-  else if (class == 212)	/* above left attached */
-    code = MAKE_COMBINING_CODE (0, 0, 2, 1, 128, 128);
-  else if (class == 214)	/* above attached */
-    code = MAKE_COMBINING_CODE (0, 1, 2, 1, 128, 128);
-  else if (class == 216)	/* above right attached */
-    code = MAKE_COMBINING_CODE (0, 2, 2, 1, 128, 128);
-  else if (class == 218)	/* below left */
-    code = MAKE_COMBINING_CODE (2, 0, 0, 1, 122, 128);
-  else if (class == 220)	/* below */
-    code = MAKE_COMBINING_CODE (2, 1, 0, 1, 122, 128);
-  else if (class == 222)	/* below right */
-    code = MAKE_COMBINING_CODE (2, 2, 0, 1, 122, 128);
-  else if (class == 224)	/* left */
-    code = MAKE_COMBINING_CODE (3, 0, 3, 2, 128, 122);
-  else if (class == 226)	/* right */
-    code = MAKE_COMBINING_CODE (3, 2, 3, 0, 128, 133);
-  else if (class == 228)	/* above left */
-    code = MAKE_COMBINING_CODE (0, 0, 2, 1, 133, 128);
-  else if (class == 230)	/* above */
-    code = MAKE_COMBINING_CODE (0, 1, 2, 1, 133, 128);
-  else if (class == 232)	/* above right */
-    code = MAKE_COMBINING_CODE (0, 2, 2, 1, 133, 128);
-  else if (class == 233)	/* double below */
-    code = MAKE_COMBINING_CODE (2, 2, 0, 2, 122, 128);
-  else if (class == 234)	/* double above */
-    code = MAKE_COMBINING_CODE (0, 2, 2, 2, 133, 128);
-  else if (class == 240)	/* iota subscript */
-    code = MAKE_COMBINING_CODE (2, 1, 0, 1, 122, 128);
-  else				/* unknown */
-    code = MAKE_COMBINING_CODE (3, 1, 3, 1, 128, 128);
-  return code;
-}
-
 
 typedef struct {
   int width, lbearing, rbearing;
@@ -564,181 +595,20 @@ layout_glyphs (MFrame *frame, MGlyphString *gstring, int from, int to,
   int g_physical_ascent, g_physical_descent;
   MGlyph *g = MGLYPH (from);
   MGlyph *last_g = MGLYPH (to);
-  int i;
 
   g_physical_ascent = gstring->physical_ascent;
   g_physical_descent = gstring->physical_descent;
   extents->width = extents->lbearing = extents->rbearing = 0;
 
-  for (i = from; i < to;)
+  for (g = MGLYPH (from); g < last_g; g++)
     {
-      if ( MGLYPH (i)->otf_encoded)
-	i++;
-      else
-	{
-	  int j = i++;
-
-	  while (i < to && ! MGLYPH (i)->otf_encoded) i++;
-	  mfont__get_metric (gstring, j, i);
-	}
-    }
-
-  g = MGLYPH (from);
-  while (g < last_g)
-    {
-      MGlyph *base = g++;
-      MRealizedFont *rfont = base->rface->rfont;
-      int size = rfont->spec.size;
-      int width, lbearing, rbearing;
-
-      if (g == last_g || ! g->combining_code)
-	{
-	  /* No combining.  */
-	  if (base->width == 0 && ! base->left_padding && ! base->right_padding
-	      && GLYPH_INDEX (base) > from)
-	    {
-	      MGlyph *prev = base - 1; 
-
-	      if (base->pos < prev->pos)
-		prev->pos = base->pos;
-	      else
-		base->pos = prev->pos;
-	      if (base->to > prev->to)
-		prev->to = base->to;
-	      else
-		base->to = prev->to;
-	    }
-
-	  if (base->left_padding && base->lbearing < 0)
-	    {
-	      base->xoff = - base->lbearing;
-	      if (base->rbearing < 0)
-		base->width = base->rbearing - base->lbearing;
-	      else
-		base->width += base->xoff;
-	      base->rbearing += base->xoff;
-	      base->lbearing = 0;
-	    }
-	  if (base->right_padding && base->rbearing > base->width)
-	    {
-	      base->width = base->rbearing;
-	    }
-	  lbearing = base->lbearing;
-	  rbearing = base->rbearing;
-	}
-      else
-	{
-	  /* With combining glyphs.  */
-	  int left = -base->width;
-	  int right = 0;
-	  int top = - base->ascent;
-	  int bottom = base->descent;
-	  int height = bottom - top;
-	  int begin = base->pos;
-	  int end = base->to;
-	  int i;
-
-	  width = base->width;
-	  lbearing = (base->lbearing < 0 ? base->lbearing : 0);
-	  rbearing = base->rbearing;
-
-	  while (g != last_g && g->combining_code)
-	    {
-	      int combining_code = g->combining_code;
-
-	      if (begin > g->pos)
-		begin = g->pos;
-	      else if (end < g->to)
-		end = g->to;
-		
-	      if (! COMBINING_PRECOMPUTED_P (combining_code))
-		{
-		  int base_x, base_y, add_x, add_y, off_x, off_y;
-
-		  if (COMBINING_BY_CLASS_P (combining_code))
-		    g->combining_code = combining_code
-		      = combining_code_from_class (COMBINING_CODE_CLASS
-						   (combining_code));
-
-		  rfont = g->rface->rfont;
-		  size = rfont->spec.size;
-		  off_x = (size * (COMBINING_CODE_OFF_X (combining_code) - 128)
-			   / 1000);
-		  off_y = (size * (COMBINING_CODE_OFF_Y (combining_code) - 128)
-			   / 1000);
-		  base_x = COMBINING_CODE_BASE_X (combining_code);
-		  base_y = COMBINING_CODE_BASE_Y (combining_code);
-		  add_x = COMBINING_CODE_ADD_X (combining_code);
-		  add_y = COMBINING_CODE_ADD_Y (combining_code);
-
-		  g->xoff = left + (width * base_x - g->width * add_x) / 2 + off_x;
-		  if (g->xoff < left)
-		    left = g->xoff;
-		  if (g->xoff + g->width > right)
-		    right = g->xoff + g->width;
-		  width = right - left;
-
-		  if (base_y < 3)
-		    g->yoff = top + height * base_y / 2;
-		  else
-		    g->yoff = 0;
-		  if (add_y < 3)
-		    g->yoff -= (g->ascent + g->descent) * add_y / 2 - g->ascent;
-		  g->yoff -= off_y;
-		}
-
-	      if (g->xoff + g->lbearing < left + lbearing)
-		lbearing = g->xoff + g->lbearing - left;
-	      if (g->xoff + g->rbearing > left + rbearing)
-		rbearing = g->xoff + g->rbearing - left;
-	      if (g->yoff - g->ascent < top)
-		top = g->yoff - g->ascent;
-	      if (g->yoff + g->descent > bottom)
-		bottom = g->yoff + g->descent;
-	      height = bottom - top;
-
-	      g->width = 0;
-	      g++;
-	    }
-
-	  base->ascent = - top;
-	  base->descent = bottom;
-	  base->lbearing = lbearing;
-	  base->rbearing = rbearing;
-	  if (left < - base->width)
-	    {
-	      base->xoff = - base->width - left;
-	      base->width += base->xoff;
-	      base->rbearing += base->xoff;
-	      base->lbearing += base->xoff;
-	    }
-	  if (right > 0)
-	    {
-	      base->width += right;
-	      base->rbearing += right;
-	      base->right_padding = 1;
-	      for (i = 1; base + i != g; i++)
-		base[i].xoff -= right;
-	    }
-
-	  for (i = 0; base + i != g; i++)
-	    {
-	      base[i].pos = begin;
-	      base[i].to = end;
-	    }
-	  if (base->left_padding && lbearing < 0)
-	    {
-	      base->xoff -= lbearing;
-	      base->width -= lbearing;
-	      lbearing = 0;
-	    }
-	}
-
-      g_physical_ascent = MAX (g_physical_ascent, base->ascent);
-      g_physical_descent = MAX (g_physical_descent, base->descent);
-      extents->lbearing = MIN (extents->lbearing, extents->width + lbearing);
-      extents->rbearing = MAX (extents->rbearing, extents->width + rbearing);
-      extents->width += base->width;
+      g_physical_ascent = MAX (g_physical_ascent, g->g.ascent);
+      g_physical_descent = MAX (g_physical_descent, g->g.descent);
+      extents->lbearing = MIN (extents->lbearing,
+			       extents->width + g->g.lbearing);
+      extents->rbearing = MAX (extents->rbearing,
+			       extents->width + g->g.rbearing);
+      extents->width += g->g.xadv;
     }
 
   gstring->physical_ascent = g_physical_ascent;
@@ -786,16 +656,16 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	      MGlyph box_glyph = g[-1];
 
 	      box_glyph.type = GLYPH_BOX;
-	      box_glyph.width
+	      box_glyph.g.xadv
 		= (control->fixed_width
 		   ? frame->space_width
 		   : box->inner_hmargin + box->width + box->outer_hmargin);
-	      box_glyph.lbearing = 0;
-	      box_glyph.rbearing = box_glyph.width;
-	      box_glyph.xoff = 0;
+	      box_glyph.g.lbearing = 0;
+	      box_glyph.g.rbearing = box_glyph.g.xadv;
+	      box_glyph.g.xoff = 0;
 	      box_glyph.right_padding = 1;
-	      gstring->width += box_glyph.width;
-	      gstring->rbearing += box_glyph.width;
+	      gstring->width += box_glyph.g.xadv;
+	      gstring->rbearing += box_glyph.g.xadv;
 	      INSERT_GLYPH (gstring, gidx, box_glyph);
 	      gidx++;
 	      g = MGLYPH (gidx);
@@ -812,16 +682,16 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	      if (box_line_height < box_height)
 		box_line_height = box_height;
 	      box_glyph.type = GLYPH_BOX;
-	      box_glyph.width
+	      box_glyph.g.xadv
 		= (control->fixed_width
 		   ? frame->space_width
 		   : box->inner_hmargin + box->width + box->outer_hmargin);
-	      box_glyph.lbearing = 0;
-	      box_glyph.rbearing = box_glyph.width;
-	      box_glyph.xoff = 0;
+	      box_glyph.g.lbearing = 0;
+	      box_glyph.g.rbearing = box_glyph.g.xadv;
+	      box_glyph.g.xoff = 0;
 	      box_glyph.left_padding = 1;
-	      gstring->width += box_glyph.width;
-	      gstring->rbearing += box_glyph.width;
+	      gstring->width += box_glyph.g.xadv;
+	      gstring->rbearing += box_glyph.g.xadv;
 	      INSERT_GLYPH (gstring, gidx, box_glyph);
 	      gidx++;
 	      g = MGLYPH (gidx);
@@ -841,12 +711,12 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	  for (g++; g->type == GLYPH_CHAR; g++)
 	    if (! rfont != ! g->rface->rfont
 		|| box != g->rface->box
-		|| ((fromg->code == MCHAR_INVALID_CODE)
-		    != (g->code == MCHAR_INVALID_CODE))
+		|| ((fromg->g.code == MCHAR_INVALID_CODE)
+		    != (g->g.code == MCHAR_INVALID_CODE))
 		|| (g->category == GLYPH_CATEGORY_FORMATTER
 		    && ignore_formatting_char))
 	      break;
-	  if (rfont && fromg->code != MCHAR_INVALID_CODE)
+	  if (rfont && fromg->g.code != MCHAR_INVALID_CODE)
 	    {
 	      int extra_width;
 	      int to = GLYPH_INDEX (g);
@@ -865,9 +735,9 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		  g = MGLYPH (from);
 		  pad = *g;
 		  pad.type = GLYPH_PAD;
-		  pad.xoff = 0;
-		  pad.lbearing = 0;
-		  pad.width = pad.rbearing = extra_width;
+		  pad.g.xoff = 0;
+		  pad.g.lbearing = 0;
+		  pad.g.xadv = pad.g.rbearing = extra_width;
 		  pad.left_padding = 1;
 		  INSERT_GLYPH (gstring, from, pad);
 		  to++;
@@ -886,14 +756,14 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 			 face, or a default value of the current
 			 frame, which is, however, not yet
 			 implemented.  */
-		      if (extra_width + 2 < g->width)
+		      if (extra_width + 2 < g->g.xadv)
 			{
-			  g->width -= extra_width;
+			  g->g.xadv -= extra_width;
 			}
 		      else
 			{
-			  extra_width = g->width - 2;
-			  g->width = 2;
+			  extra_width = g->g.xadv - 2;
+			  g->g.xadv = 2;
 			}
 		      gstring->width -= extra_width;
 		      gstring->rbearing -= extra_width;
@@ -911,15 +781,15 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 		    {
 		      pad = g[-1];
 		      pad.type = GLYPH_PAD;
-		      pad.xoff = 0;
-		      pad.lbearing = 0;
-		      pad.width = pad.rbearing = extra_width;
+		      pad.g.xoff = 0;
+		      pad.g.lbearing = 0;
+		      pad.g.xadv = pad.g.rbearing = extra_width;
 		      INSERT_GLYPH (gstring, to, pad);
 		      to++;
 		      g = MGLYPH (to);
 		    }
 		  else
-		    g[-1].width += extra_width;
+		    g[-1].g.xadv += extra_width;
 		  extents.width += extra_width;
 		}
 
@@ -937,15 +807,15 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	    {
 	      for (; fromg < g; fromg++)
 		{
-		  if ((fromg->c >= 0x200B && fromg->c <= 0x200F)
-		      || (fromg->c >= 0x202A && fromg->c <= 0x202E))
-		    fromg->width = fromg->rbearing = 1;
+		  if ((fromg->g.c >= 0x200B && fromg->g.c <= 0x200F)
+		      || (fromg->g.c >= 0x202A && fromg->g.c <= 0x202E))
+		    fromg->g.xadv = fromg->g.rbearing = 1;
 		  else
-		    fromg->width = fromg->rbearing = rface->space_width;
-		  fromg->xoff = fromg->lbearing = 0;
-		  fromg->ascent = fromg->descent = 0;
-		  gstring->width += fromg->width;
-		  gstring->rbearing += fromg->width;
+		    fromg->g.xadv = fromg->g.rbearing = rface->space_width;
+		  fromg->g.xoff = fromg->g.lbearing = 0;
+		  fromg->g.ascent = fromg->g.descent = 0;
+		  gstring->width += fromg->g.xadv;
+		  gstring->rbearing += fromg->g.xadv;
 		}
 	      if (gstring->ascent < frame->rface->ascent)
 		gstring->ascent = frame->rface->ascent;
@@ -955,40 +825,40 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	}
       else if (g->type == GLYPH_SPACE)
 	{
-	  if (g->c == ' ')
-	    g->width = g->rface->space_width;
-	  else if (g->c == '\n')
+	  if (g->g.c == ' ')
+	    g->g.xadv = g->rface->space_width;
+	  else if (g->g.c == '\n')
 	    {
-	      g->width = control->cursor_width;
-	      if (g->width)
+	      g->g.xadv = control->cursor_width;
+	      if (g->g.xadv)
 		{
 		  if (control->cursor_bidi)
-		    g->width = 3;
-		  else if (g->width < 0)
-		    g->width = g->rface->space_width;
+		    g->g.xadv = 3;
+		  else if (g->g.xadv < 0)
+		    g->g.xadv = g->rface->space_width;
 		}
 	    }
-	  else if (g->c == '\t')
+	  else if (g->g.c == '\t')
 	    {
-	      g->width = tab_width - ((gstring->indent + gstring->width)
-				      % tab_width);
+	      g->g.xadv = tab_width - ((gstring->indent + gstring->width)
+				       % tab_width);
 	      tab_found = 1;
 	    }
 	  else
-	    g->width = 1;
+	    g->g.xadv = 1;
 	  if (g[-1].type == GLYPH_PAD)
 	    {
 	      /* This space glyph absorbs (maybe partially) the
 		 previous padding glyph.  */
-	      g->width -= g[-1].width;
-	      if (g->width < 1)
+	      g->g.xadv -= g[-1].g.xadv;
+	      if (g->g.xadv < 1)
 		/* But, keep at least some space width.  For the
 		   moment, we use the arbitrary width 2-pixel.  */
-		g->width = 2;
+		g->g.xadv = 2;
 	    }
-	  g->rbearing = g->width;
-	  gstring->width += g->width;
-	  gstring->rbearing += g->width;
+	  g->g.rbearing = g->g.xadv;
+	  gstring->width += g->g.xadv;
+	  gstring->rbearing += g->g.xadv;
 	  if (g->rface->rfont)
 	    {
 	      if (gstring->ascent < g->rface->ascent)
@@ -1000,8 +870,8 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 	}
       else
 	{
-	  gstring->width += g->width;
-	  gstring->rbearing += g->width;
+	  gstring->width += g->g.xadv;
+	  gstring->rbearing += g->g.xadv;
 	  g++;
 	}
     }
@@ -1013,16 +883,16 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
       MGlyph box_glyph = g[-1];
 
       box_glyph.type = GLYPH_BOX;
-      box_glyph.width
+      box_glyph.g.xadv
 	= (control->fixed_width
 	   ? frame->space_width
 	   : box->inner_hmargin + box->width + box->outer_hmargin);
-      box_glyph.lbearing = 0;
-      box_glyph.rbearing = box_glyph.width;
-      box_glyph.xoff = 0;
+      box_glyph.g.lbearing = 0;
+      box_glyph.g.rbearing = box_glyph.g.xadv;
+      box_glyph.g.xoff = 0;
       box_glyph.right_padding = 1;
-      gstring->width += box_glyph.width;
-      gstring->rbearing += box_glyph.width;
+      gstring->width += box_glyph.g.xadv;
+      gstring->rbearing += box_glyph.g.xadv;
       INSERT_GLYPH (gstring, gidx, box_glyph);
     }
 
@@ -1065,23 +935,23 @@ layout_glyph_string (MFrame *frame, MGlyphString *gstring)
 
       for (g = MGLYPH (gstring->used - 2); g->type != GLYPH_ANCHOR; g--)
 	{
-	  if (g->type == GLYPH_CHAR && g->c == '\t')
+	  if (g->type == GLYPH_CHAR && g->g.c == '\t')
 	    {
 	      int this_width = tab_width - (width % tab_width);
 
 	      if (g[1].type == GLYPH_PAD)
-		this_width -= g[1].width;
+		this_width -= g[1].g.xadv;
 	      if (g[-1].type == GLYPH_PAD)
-		this_width -= g[-1].width;		
+		this_width -= g[-1].g.xadv;		
 	      if (this_width < 2)
 		this_width = 2;
-	      gstring->width += this_width - g->width;
-	      gstring->rbearing += this_width - g->width;
-	      g->width = this_width;
+	      gstring->width += this_width - g->g.xadv;
+	      gstring->rbearing += this_width - g->g.xadv;
+	      g->g.xadv = this_width;
 	      width += this_width;
 	    }
 	  else
-	    width += g->width;
+	    width += g->g.xadv;
 	}
     }
 }
@@ -1115,7 +985,7 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
   *to_x = x;
   while (g->type != GLYPH_ANCHOR)
     {
-      if (g->pos >= from && g->pos < to)
+      if (g->g.from >= from && g->g.from < to)
 	{
 	  MGlyph *fromg = g, *cursor = NULL;
 	  MRealizedFace *rface = g->rface;
@@ -1125,18 +995,18 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 
 	  if (! *from_idx)
 	    *from_idx = GLYPH_INDEX (g);
-	  while (g->pos >= from && g->pos < to
+	  while (g->g.from >= from && g->g.from < to
 		 && g->rface == rface)
 	    {
 	      g->enabled = 1;
 	      if (g->type != GLYPH_BOX
-		  && g->pos <= cursor_pos && g->to > cursor_pos)
+		  && g->g.from <= cursor_pos && g->g.to > cursor_pos)
 		{
 		  if (! cursor)
 		    cursor = g, cursor_x = x + width;
-		  cursor_width += g->width;
+		  cursor_width += g->g.xadv;
 		}
-	      width += g++->width;
+	      width += g++->g.xadv;
 	    }
 	  if (width > 0
 	      && (control->as_image
@@ -1145,9 +1015,9 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 	      int this_x = x, this_width = width;
 
 	      if (fromg->type == GLYPH_BOX)
-		this_x += fromg->width, this_width -= fromg->width;
+		this_x += fromg->g.xadv, this_width -= fromg->g.xadv;
 	      if (g[-1].type == GLYPH_BOX)
-		this_width -= g[-1].width;
+		this_width -= g[-1].g.xadv;
 	      (frame->driver->fill_space)
 		(frame, win, rface, 0,
 		 this_x, y - gstring->text_ascent, this_width,
@@ -1201,13 +1071,13 @@ draw_background (MFrame *frame, MDrawWindow win, int x, int y,
 	      while (fromg < g)
 		{
 		  if (fromg->type != GLYPH_BOX
-		      && fromg->pos <= prev_pos && fromg->to > prev_pos)
+		      && fromg->g.from <= prev_pos && fromg->g.to > prev_pos)
 		    {
 		      if (! cursor)
 			cursor = fromg, cursor_x = x + temp_width;
-		      cursor_width += fromg->width;
+		      cursor_width += fromg->g.xadv;
 		    }
-		  temp_width += fromg++->width;
+		  temp_width += fromg++->g.xadv;
 		}
 	      if (cursor)
 		{
@@ -1262,10 +1132,10 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
       (*frame->driver->region_to_rect) (region, &rect);
       if (rect.x > x)
 	{
-	  while (g != gend && x + g->rbearing <= rect.x)
+	  while (g != gend && x + g->g.rbearing <= rect.x)
 	    {
-	      x += g->width;
-	      width -= g++->width;
+	      x += g->g.xadv;
+	      width -= g++->g.xadv;
 	      while (! g->enabled && g != gend)
 		g++;
 	    }
@@ -1274,14 +1144,14 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
       if (rect.x < x + width)
 	{
 	  while (g != gend
-		 && (x + width - gend[-1].width + gend[-1].lbearing >= rect.x))
+		 && (x + width - gend[-1].g.xadv + gend[-1].g.lbearing >= rect.x))
 	    {
-	      width -= (--gend)->width;
+	      width -= (--gend)->g.xadv;
 	      while (! gend->enabled && g != gend)
 		gend--;
 	    }
 	  if (g != gend)
-	    while (gend->type != GLYPH_ANCHOR && gend[-1].to == gend->to)
+	    while (gend->type != GLYPH_ANCHOR && gend[-1].g.to == gend->g.to)
 	      gend++;
 	}
     }
@@ -1291,21 +1161,21 @@ render_glyphs (MFrame *frame, MDrawWindow win, int x, int y, int width,
       if (g->enabled)
 	{
 	  MRealizedFace *rface = g->rface;
-	  int width = g->width;
+	  int width = g->g.xadv;
 	  MGlyph *from_g = g++;
 
 	  /* Handle the glyphs of the same type/face at once.  */
 	  while (g != gend
 		 && g->type == from_g->type
 		 && g->rface == rface
-		 && ((g->code == MCHAR_INVALID_CODE)
-		     == (from_g->code == MCHAR_INVALID_CODE))
+		 && ((g->g.code == MCHAR_INVALID_CODE)
+		     == (from_g->g.code == MCHAR_INVALID_CODE))
 		 && g->enabled)
-	    width += g++->width;
+	    width += g++->g.xadv;
 
 	  if (from_g->type == GLYPH_CHAR)
 	    {
-	      if (rface->rfont && from_g->code != MCHAR_INVALID_CODE)
+	      if (rface->rfont && from_g->g.code != MCHAR_INVALID_CODE)
 		(rface->rfont->driver->render) (win, x, y, gstring, from_g, g,
 						reverse, region);
 	      else
@@ -1349,11 +1219,11 @@ find_overlapping_glyphs (MGlyphString *gstring, int *left, int *right,
 
   for (g = MGLYPH (*left) - 1, x = 0; g->type != GLYPH_ANCHOR; g--)
     {
-      x -= g->width;
-      if (x + g->rbearing > 0)
+      x -= g->g.xadv;
+      if (x + g->g.rbearing > 0)
 	{
-	  while (g[-1].pos == g->pos && g[-1].type != GLYPH_ANCHOR)
-	    x -= (--g)->width;
+	  while (g[-1].g.from == g->g.from && g[-1].type != GLYPH_ANCHOR)
+	    x -= (--g)->g.xadv;
 	  left_idx = GLYPH_INDEX (g);
 	  left_x = x;
 	}
@@ -1361,11 +1231,11 @@ find_overlapping_glyphs (MGlyphString *gstring, int *left, int *right,
 
   for (g = MGLYPH (*right), x = 0; g->type != GLYPH_ANCHOR; g++)
     {
-      x += g->width;
-      if (x - g->width + g->lbearing < 0)
+      x += g->g.xadv;
+      if (x - g->g.xadv + g->g.lbearing < 0)
 	{
-	  while (g->pos == g[1].pos && g[1].type != GLYPH_ANCHOR)
-	    x += (++g)->width;
+	  while (g->g.from == g[1].g.from && g[1].type != GLYPH_ANCHOR)
+	    x += (++g)->g.xadv;
 	  right_idx = GLYPH_INDEX (g) + 1;
 	  right_x = x;
 	}
@@ -1413,13 +1283,13 @@ gstring_width (MGlyphString *gstring, int from, int to,
   if (rbearing)
     *rbearing = 0;
   for (g = MGLYPH (1), width = 0; g->type != GLYPH_ANCHOR; g++)
-    if (g->pos >= from && g->pos < to)
+    if (g->g.from >= from && g->g.from < to)
       {
-	if (lbearing && width + g->lbearing < *lbearing)
-	  *lbearing = width + g->lbearing;
-	if (rbearing && width + g->rbearing > *rbearing)
-	  *rbearing = width + g->rbearing;
-	width += g->width;
+	if (lbearing && width + g->g.lbearing < *lbearing)
+	  *lbearing = width + g->g.lbearing;
+	if (rbearing && width + g->g.rbearing > *rbearing)
+	  *rbearing = width + g->g.rbearing;
+	width += g->g.xadv;
       }
   return width;
 }
@@ -1519,19 +1389,19 @@ alloc_gstring (MFrame *frame, MText *mt, int pos, MDrawControl *control,
 	  APPEND_GLYPH (gstring, g_tmp);
 	  APPEND_GLYPH (gstring, g_tmp);
 	  gstring->glyphs[1].type = GLYPH_SPACE;
-	  gstring->glyphs[1].c = '\n';
-	  gstring->glyphs[1].code = '\n';
+	  gstring->glyphs[1].g.c = '\n';
+	  gstring->glyphs[1].g.code = '\n';
 	}
       gstring->from = pos;
       g = MGLYPH (0);
       g->rface = frame->rface;
-      g->pos = g->to = pos;
+      g->g.from = g->g.to = pos;
       g++;
       g->rface = frame->rface;
-      g->pos = pos++, g->to = pos;
+      g->g.from = pos++, g->g.to = pos;
       g++;
       g->rface = frame->rface;
-      g->pos = g->to = pos;
+      g->g.from = g->g.to = pos;
       gstring->to = pos;
     }
   else
@@ -1575,7 +1445,7 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   MTABLE_ALLOCA (pos_width, gstring->to - gstring->from, MERROR_DRAW);
   memset (pos_width, 0, sizeof (int) * (gstring->to - gstring->from));
   for (g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
-    pos_width[g->pos - gstring->from] += g->width;
+    pos_width[g->g.from - gstring->from] += g->g.xadv;
   for (i = 0, width = 0; i < gstring->to - gstring->from; i++)
     {
       if (pos_width[i] > 0)
@@ -1595,7 +1465,7 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
       if (pos <= gstring->from)
 	{
 	  g = find_glyph_in_gstring (gstring, gstring->from, 1);
-	  pos = g->to;
+	  pos = g->g.to;
 	}
       else if (pos >= gstring->to)
 	pos = gstring->to;
@@ -1603,7 +1473,7 @@ truncate_gstring (MFrame *frame, MText *mt, MGlyphString *gstring)
   else if (i == 0)
     {
       g = find_glyph_in_gstring (gstring, gstring->from, 1);
-      pos = g->to;
+      pos = g->g.to;
     }
   if (pos < gstring->to)
     {
@@ -1672,8 +1542,8 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
 	    gst->to += offset;
 	    for (i = 0; i < gst->used; i++)
 	      {
-		gst->glyphs[i].pos += offset;
-		gst->glyphs[i].to += offset;
+		gst->glyphs[i].g.from += offset;
+		gst->glyphs[i].g.to += offset;
 	      }
 	  }
       M17N_OBJECT_REF (gstring);
@@ -1794,13 +1664,13 @@ find_glyph_in_gstring (MGlyphString *gstring, int pos, int forwardp)
   if (forwardp)
     {
       for (g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
-	if (g->pos <= pos && g->to > pos)
+	if (g->g.from <= pos && g->g.to > pos)
 	  break;
     }
   else
     {
       for (g = MGLYPH (gstring->used - 2); g->type != GLYPH_ANCHOR; g--)
-	if (g->pos <= pos && g->to > pos)
+	if (g->g.from <= pos && g->g.to > pos)
 	  break;
     }
   return g;
@@ -1810,62 +1680,43 @@ find_glyph_in_gstring (MGlyphString *gstring, int pos, int forwardp)
 /* for debugging... */
 char work[16];
 
-char *
-dump_combining_code (int code)
-{
-  char *vallign = "tcbB";
-  char *hallign = "lcr";
-  char *p;
-  int off_x, off_y;
-
-  if (! code)
-    return "none";
-  if (COMBINING_BY_CLASS_P (code))
-    code = combining_code_from_class (COMBINING_CODE_CLASS (code));
-  work[0] = vallign[COMBINING_CODE_BASE_Y (code)];
-  work[1] = hallign[COMBINING_CODE_BASE_X (code)];
-  off_y = COMBINING_CODE_OFF_Y (code) - 128;
-  off_x = COMBINING_CODE_OFF_X (code) - 128;
-  if (off_y > 0)
-    sprintf (work + 2, "+%d", off_y);
-  else if (off_y < 0)
-    sprintf (work + 2, "%d", off_y);
-  else if (off_x == 0)
-    sprintf (work + 2, ".");
-  p = work + strlen (work);
-  if (off_x > 0)
-    sprintf (p, ">%d", off_x);
-  else if (off_x < 0)
-    sprintf (p, "<%d", -off_x);
-  p += strlen (p);
-  p[0] = vallign[COMBINING_CODE_ADD_Y (code)];
-  p[1] = hallign[COMBINING_CODE_ADD_X (code)];
-  p[2] = '\0';
-  return work;
-}
-
 void
-dump_gstring (MGlyphString *gstring, int indent)
+dump_gstring (MGlyphString *gstring, int indent, int type)
 {
   char *prefix = (char *) alloca (indent + 1);
-  MGlyph *g, *last_g = gstring->glyphs + gstring->used;
+  MGlyph *g, *first_g, *last_g;
 
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
   fprintf (stderr, "(glyph-string");
 
-  for (g = MGLYPH (0); g < last_g; g++)
-    fprintf (stderr,
-	     "\n%s  (%02d %s pos:%d-%d c:%04X code:%04X face:%x cmb:%s w:%02d bidi:%d)",
-	     prefix,
-	     g - gstring->glyphs,
-	     (g->type == GLYPH_SPACE ? "SPC": g->type == GLYPH_PAD ? "PAD"
-	      : g->type == GLYPH_ANCHOR ? "ANC"
-	      : g->type == GLYPH_BOX ? "BOX" : "CHR"),
-	     g->pos, g->to, g->c, g->code, (unsigned) g->rface,
-	     dump_combining_code (g->combining_code),
-	     g->width, g->bidi_level);
+  if (type == 0)
+    {
+      first_g = MGLYPH (0);
+      last_g = first_g + gstring->used;
+    }
+  else
+    {
+      first_g = (MGlyph *) ((MFLTGlyphString *) gstring)->glyphs;
+      last_g = first_g + ((MFLTGlyphString *) gstring)->used;
+    }
+
+  for (g = first_g; g < last_g; g++)
+    {
+      fprintf (stderr,
+	       "\n%s  (%02d %s pos:%d-%d c:%04X code:%04X face:%x w:%02d bidi:%d",
+	       prefix,
+	       g - first_g,
+	       (g->type == GLYPH_SPACE ? "SPC": g->type == GLYPH_PAD ? "PAD"
+		: g->type == GLYPH_ANCHOR ? "ANC"
+		: g->type == GLYPH_BOX ? "BOX" : "CHR"),
+	       g->g.from, g->g.to, g->g.c, g->g.code, (unsigned) g->rface,
+	       g->g.xadv, g->bidi_level);
+      if (g->g.xoff || g->g.yoff)
+	fprintf (stderr, " off:%d,%d", g->g.xoff, g->g.yoff);
+      fprintf (stderr, ")");
+    }
   fprintf (stderr, ")");
 }
 
@@ -2403,15 +2254,15 @@ mdraw_text_per_char_extents (MFrame *frame,
     }
 
   for (g = MGLYPH (1), x = 0; g->type != GLYPH_ANCHOR; g++)
-    if (g->pos >= from && g->pos < to)
+    if (g->g.from >= from && g->g.from < to)
       {
-	int start = g->pos;
-	int end = g->to;
-	int width = g->width;
-	int lbearing = g->lbearing;
-	int rbearing = g->rbearing;
-	int ascent = g->ascent;
-	int descent = g->descent;
+	int start = g->g.from;
+	int end = g->g.to;
+	int width = g->g.xadv;
+	int lbearing = g->g.lbearing;
+	int rbearing = g->g.rbearing;
+	int ascent = g->g.ascent;
+	int descent = g->g.descent;
 	int logical_ascent;
 	int logical_descent;
 
@@ -2425,17 +2276,17 @@ mdraw_text_per_char_extents (MFrame *frame,
 	    logical_ascent = g->rface->ascent;
 	    logical_descent = g->rface->descent;
 	  }
-	for (g++; g->type != GLYPH_ANCHOR && g->pos == start; g++)
+	for (g++; g->type != GLYPH_ANCHOR && g->g.from == start; g++)
 	  {
-	    if (lbearing < width + g->lbearing)
-	      lbearing = width + g->lbearing;
-	    if (rbearing < width + g->rbearing)
-	      rbearing = width + g->rbearing;
-	    width += g->width;
-	    if (ascent < g->ascent)
-	      ascent = g->ascent;
-	    if (descent < g->descent)
-	      descent = g->descent;
+	    if (lbearing < width + g->g.lbearing)
+	      lbearing = width + g->g.lbearing;
+	    if (rbearing < width + g->g.rbearing)
+	      rbearing = width + g->g.rbearing;
+	    width += g->g.xadv;
+	    if (ascent < g->g.ascent)
+	      ascent = g->g.ascent;
+	    if (descent < g->g.descent)
+	      descent = g->g.descent;
 	  }
 
 	if (end > to)
@@ -2568,9 +2419,9 @@ mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
     {
       width = gstring->indent;
       for (g = MGLYPH (1); g->type != GLYPH_ANCHOR; g++)
-	if (g->pos >= from && g->pos < to)
+	if (g->g.from >= from && g->g.from < to)
 	  {
-	    width += g->width;
+	    width += g->g.xadv;
 	    if (width > x_offset)
 	      break;
 	  }
@@ -2579,18 +2430,18 @@ mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
     {
       width = - gstring->indent;
       for (g = MGLYPH (gstring->used - 2); g->type != GLYPH_ANCHOR; g--)
-	if (g->pos >= from && g->pos < to)
+	if (g->g.from >= from && g->g.from < to)
 	  {
-	    width -= g->width;
+	    width -= g->g.xadv;
 	    if (width < x_offset)
 	      break;
 	  }
     }
   if (g->type == GLYPH_ANCHOR
       && control->two_dimensional
-      && g[-1].c == '\n')
+      && g[-1].g.c == '\n')
     g--;
-  from = g->pos;
+  from = g->g.from;
   M17N_OBJECT_UNREF (gstring->top);
 
   return from;
@@ -2653,23 +2504,23 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
   if (! control->orientation_reversed)
     {
       info->x = gstring->indent;
-      for (g = MGLYPH (1); g->pos > pos || g->to <= pos; g++)
-	info->x += g->width;
+      for (g = MGLYPH (1); g->g.from > pos || g->g.to <= pos; g++)
+	info->x += g->g.xadv;
     }
   else
     {
       info->x = - gstring->indent;
-      for (g = MGLYPH (gstring->used - 2); g->pos > pos || g->to <= pos; g--)
-	info->x -= g->width;
-      while (g[-1].to == g->to)
+      for (g = MGLYPH (gstring->used - 2); g->g.from > pos || g->g.to <= pos; g--)
+	info->x -= g->g.xadv;
+      while (g[-1].g.to == g->g.to)
 	g--;
     }
-  info->from = g->pos;
-  info->to = g->to;
-  info->metrics.x = g->lbearing;
+  info->from = g->g.from;
+  info->to = g->g.to;
+  info->metrics.x = g->g.lbearing;
   info->metrics.y = - gstring->line_ascent;
   info->metrics.height = gstring->height;
-  info->metrics.width = - g->lbearing + g->width;
+  info->metrics.width = - g->g.lbearing + g->g.xadv;
   if (g->rface->rfont)
     info->font = (MFont *) g->rface->rfont;
   else
@@ -2681,7 +2532,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
       /* The logically previous glyph is on this line.  */
       MGlyph *g_tmp = find_glyph_in_gstring (gstring, info->from - 1, 1);
 
-      info->prev_from = g_tmp->pos;
+      info->prev_from = g_tmp->g.from;
     }
   else if (info->line_from > 0
 	   && gstring->from > 0)
@@ -2691,14 +2542,14 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 				       gstring->from, control);
       MGlyph *g_tmp = find_glyph_in_gstring (gst, info->from - 1, 1);
 
-      info->prev_from = g_tmp->pos;
+      info->prev_from = g_tmp->g.from;
       M17N_OBJECT_UNREF (gst->top);
     }
   else
     info->prev_from = -1;
 
   if (GLYPH_INDEX (g) > 1)
-    info->left_from = g[-1].pos, info->left_to = g[-1].to;
+    info->left_from = g[-1].g.from, info->left_to = g[-1].g.to;
   else if (! control->orientation_reversed)
     {
       if (info->line_from > 0)
@@ -2709,7 +2560,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
 	  gst = get_gstring (frame, mt, p, gstring->from, control);
 	  g_tmp = gst->glyphs + (gst->used - 2);
-	  info->left_from = g_tmp->pos, info->left_to = g_tmp->to;
+	  info->left_from = g_tmp->g.from, info->left_to = g_tmp->g.to;
 	  M17N_OBJECT_UNREF (gst->top);
 	}
       else
@@ -2725,7 +2576,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 
 	  gst = get_gstring (frame, mt, p, p + 1, control);
 	  g_tmp = gst->glyphs + (gst->used - 2);
-	  info->left_from = g_tmp->pos, info->left_to = g_tmp->to;
+	  info->left_from = g_tmp->g.from, info->left_to = g_tmp->g.to;
 	  M17N_OBJECT_UNREF (gst->top);
 	}
       else
@@ -2737,7 +2588,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
       /* The logically next glyph is on this line.   */
       MGlyph *g_tmp = find_glyph_in_gstring (gstring, info->to, 0);
 
-      info->next_to = g_tmp->to;
+      info->next_to = g_tmp->g.to;
     }
   else if (info->to + (control->cursor_width == 0) <= mtext_nchars (mt))
     {
@@ -2746,19 +2597,19 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
       MGlyphString *gst = get_gstring (frame, mt, p, p + 1, control);
       MGlyph *g_tmp = find_glyph_in_gstring (gst, p, 0);
 
-      info->next_to = g_tmp->to;
+      info->next_to = g_tmp->g.to;
       M17N_OBJECT_UNREF (gst->top);
     }
   else
     info->next_to = -1;
 
-  for (info->logical_width = (g++)->width;
-       g->pos == pos && g->type != GLYPH_ANCHOR;
-       info->metrics.width += g->width, info->logical_width += (g++)->width);
-  info->metrics.width += g[-1].rbearing - g[-1].width;
+  for (info->logical_width = (g++)->g.xadv;
+       g->g.from == pos && g->type != GLYPH_ANCHOR;
+       info->metrics.width += g->g.xadv, info->logical_width += (g++)->g.xadv);
+  info->metrics.width += g[-1].g.rbearing - g[-1].g.xadv;
 
   if (g->type != GLYPH_ANCHOR)
-    info->right_from = g->pos, info->right_to = g->to;
+    info->right_from = g->g.from, info->right_to = g->g.to;
   else if (! control->orientation_reversed)
     {
       if (gstring->to + (control->cursor_width == 0) <= mtext_nchars (mt))
@@ -2767,7 +2618,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 	  M17N_OBJECT_UNREF (gstring->top);
 	  gstring = get_gstring (frame, mt, pos, pos + 1, control);
 	  g = MGLYPH (1);
-	  info->right_from = g->pos, info->right_to = g->to;
+	  info->right_from = g->g.from, info->right_to = g->g.to;
 	}
       else
 	info->right_from = info->right_to = -1;
@@ -2780,7 +2631,7 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
 	  M17N_OBJECT_UNREF (gstring->top);
 	  gstring = get_gstring (frame, mt, pos, pos + 1, control);
 	  g = MGLYPH (1);
-	  info->right_from = g->pos, info->right_to = g->to;
+	  info->right_from = g->g.from, info->right_to = g->g.to;
 	}
       else
 	info->right_from = info->right_to = -1;
@@ -2849,31 +2700,31 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
   for (g = MGLYPH (1), n = 0; g->type != GLYPH_ANCHOR; g++)
     {
       if (g->type == GLYPH_BOX
-	  || g->pos < from || g->pos >= to)
+	  || g->g.from < from || g->g.from >= to)
 	continue;
       if (g->type == GLYPH_PAD)
 	{
 	  if (g->left_padding)
-	    pad_width = g->width;
+	    pad_width = g->g.xadv;
 	  else if (n > 0)
 	    {
 	      pad_width = 0;
-	      glyphs[-1].x_advance += g->width;
+	      glyphs[-1].x_advance += g->g.xadv;
 	    }
 	  continue;
 	}
       if (n < array_size)
 	{
-	  glyphs->from = g->pos;
-	  glyphs->to = g->to;
-	  glyphs->glyph_code = g->code;
-	  glyphs->x_off = g->xoff + pad_width;
-	  glyphs->y_off = g->yoff;
-	  glyphs->lbearing = g->lbearing;
-	  glyphs->rbearing = g->rbearing;
-	  glyphs->ascent = g->ascent;
-	  glyphs->descent = g->descent;
-	  glyphs->x_advance = g->width + pad_width;
+	  glyphs->from = g->g.from;
+	  glyphs->to = g->g.to;
+	  glyphs->glyph_code = g->g.code;
+	  glyphs->x_off = g->g.xoff + pad_width;
+	  glyphs->y_off = g->g.yoff;
+	  glyphs->lbearing = g->g.lbearing;
+	  glyphs->rbearing = g->g.rbearing;
+	  glyphs->ascent = g->g.ascent;
+	  glyphs->descent = g->g.descent;
+	  glyphs->x_advance = g->g.xadv + pad_width;
 	  glyphs->y_advance = 0;
 	  if (g->rface->rfont)
 	    {

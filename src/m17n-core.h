@@ -197,6 +197,7 @@ extern MSymbol Mt;
 extern MSymbol Mstring;
 extern MSymbol Msymbol;
 extern MSymbol Mtext;
+extern MSymbol Mcharset;
 
 /* Return a symbol of name NAME.  */
 extern MSymbol msymbol (const char *name);
@@ -337,6 +338,10 @@ typedef struct MCharTable MCharTable;
 /*=*/
 
 extern MCharTable *mchartable (MSymbol key, void *default_value);
+
+extern int mchartable_min_char (MCharTable *table);
+
+extern int mchartable_max_char (MCharTable *table);
 
 extern void *mchartable_lookup (MCharTable *table, int c);
 
@@ -777,6 +782,51 @@ extern MText *mtext_serialize (MText *mt, int from, int to,
 			       MPlist *property_list);
 
 extern MText *mtext_deserialize (MText *mt);
+
+/*** @ingroup m17nCore */
+/***en @defgroup m17nDatabase Database */
+/***ja @defgroup m17nDatabase データベース */
+/*=*/
+
+/* Directory of an application specific databases.  */
+extern char *mdatabase_dir;
+/*=*/
+/***
+    @ingroup m17nDatabase  */ 
+/***en
+    @brief Type of database.
+
+    The type #MDatabase is for a database object.  Its internal
+    structure is concealed from an application program.  */
+/***ja 
+    @brief データベースの型宣言.
+
+    #MDatabase 型はデータベースオブジェクト用の構造体である。
+    内部構造はアプリケーションプログラムからは見えない。
+    */
+
+typedef struct MDatabase MDatabase;
+
+/*=*/
+
+/* Look for a data.  */
+extern MDatabase *mdatabase_find (MSymbol tag1, MSymbol tag2,
+				  MSymbol tag3, MSymbol tag4);
+
+extern MPlist *mdatabase_list (MSymbol tag0, MSymbol tag1,
+			       MSymbol tag2, MSymbol tag3);
+
+/* Load a data.  */
+void *mdatabase_load (MDatabase *mdb);
+
+/* Get tags of a data.  */
+extern MSymbol *mdatabase_tag (MDatabase *mdb);
+
+/* Define a data.  */
+extern MDatabase *mdatabase_define (MSymbol tag1, MSymbol tag2,
+				    MSymbol tag3, MSymbol tag4,
+				    void *(*loader) (MSymbol *, void *),
+				    void *extra_info);
 
 M17N_END_HEADER
 

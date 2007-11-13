@@ -52,51 +52,6 @@ extern void m17n_fini (void);
  */
 /*=*/
 
-/*** @ingroup m17nShell */
-/***en @defgroup m17nDatabase Database */
-/***ja @defgroup m17nDatabase データベース */
-/*=*/
-
-/* Directory of an application specific databases.  */
-extern char *mdatabase_dir;
-/*=*/
-/***
-    @ingroup m17nDatabase  */ 
-/***en
-    @brief Type of database.
-
-    The type #MDatabase is for a database object.  Its internal
-    structure is concealed from an application program.  */
-/***ja 
-    @brief データベースの型宣言.
-
-    #MDatabase 型はデータベースオブジェクト用の構造体である。
-    内部構造はアプリケーションプログラムからは見えない。
-    */
-
-typedef struct MDatabase MDatabase;
-
-/*=*/
-
-/* Look for a data.  */
-extern MDatabase *mdatabase_find (MSymbol tag1, MSymbol tag2,
-				  MSymbol tag3, MSymbol tag4);
-
-extern MPlist *mdatabase_list (MSymbol tag0, MSymbol tag1,
-			       MSymbol tag2, MSymbol tag3);
-
-/* Load a data.  */
-void *mdatabase_load (MDatabase *mdb);
-
-/* Get tags of a data.  */
-extern MSymbol *mdatabase_tag (MDatabase *mdb);
-
-/* Define a data.  */
-extern MDatabase *mdatabase_define (MSymbol tag1, MSymbol tag2,
-				    MSymbol tag3, MSymbol tag4,
-				    void *(*loader) (MSymbol *, void *),
-				    void *extra_info);
-
 /*=*/
 /* (S2) Charset staffs */
 /*=*/
@@ -142,8 +97,6 @@ extern MSymbol Msubset;
 extern MSymbol Msuperset;
 
 /* etc. */
-extern MSymbol Mcharset;
-
 extern MSymbol mchar_define_charset (const char *name, MPlist *plist);
 
 extern MSymbol mchar_resolve_charset (MSymbol symbol);
