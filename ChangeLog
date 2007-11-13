@@ -1,3 +1,10 @@
+2007-11-13  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* configure.ac: Version changed to 1.5.0
+	(API_VERSION): Updated to 3:0:3.
+
+	* m17n-config.in: Add FLT support.
+
 2007-10-12  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.pc.in: Don't require m17n-shell.
