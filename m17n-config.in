@@ -10,7 +10,8 @@ exec_prefix=@exec_prefix@
 
 help ()
 {
-  echo "Usage: $0 [CORE | GUI] [--version | --cflags | --libs | --libtool]"
+  echo "Usage: $0 [API-LEVEL] [--version | --cflags | --libs | --libtool]"
+  echo "  API-LEVEL is CORE, SHELL (default), GUI, or FLT"
 }
 
 if test $# -eq 0; then
@@ -21,6 +22,7 @@ fi
 case $1 in
 CORE) LIBNAME="-lm17n-core"; LIBTOOLNAME="m17n-core"; shift;;
 GUI|X) LIBNAME="-lm17n-core -lm17n -lm17n-gui"; LIBTOOLNAME="m17n-gui"; shift;;
+FLT) LIBNAME="-lm17n-core -lm17n-flt"; LIBTOOLNAME="m17n-flt"; shift;;
 *) LIBNAME="-lm17n-core -lm17n"; LIBTOOLNAME="m17n"; ;;
 esac
 
@@ -57,7 +59,7 @@ cat > /dev/null <<EOF
 /***
 @section m17n-config-synopsis SYNOPSIS
 
-m17n-config [CORE | GUI] [--cflags | --libs | --libtool] [--version]
+m17n-config [API-LEVEL] [--cflags | --libs | --libtool] [--version]
 
 @section m17n-config-description DESCRIPTION
 
@@ -65,9 +67,8 @@ The shell script m17n-config prints compile and link options for a
 program that uses the m17n library.
 
 By default, the printed options are for such a program that uses SHELL
-API of the libray.  But, if the first argument is "CORE", the options
-are for a program that uses only CORE API, if the first argument "GUI",
-the options are for a program that uses GUI API.
+API of the libray.  But, if the first argument is "CORE", "GUI", or
+"FLT", the options are for a program that uses the corresponding API.
 
 The other arguments are as follows.
 
