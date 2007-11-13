@@ -124,20 +124,14 @@ enum glyph_category
 
 typedef struct
 {
-  int pos, to;
-  int c;
-  unsigned code;
+  MFLTGlyph g;
   MRealizedFace *rface;
-  short width, ascent, descent, lbearing, rbearing;
-  short xoff, yoff;
-  unsigned enabled : 1;
   unsigned left_padding : 1;
   unsigned right_padding : 1;
-  unsigned otf_encoded : 1;
+  unsigned enabled : 1;
   unsigned bidi_level : 6;
   unsigned category : 2;
   unsigned type : 3;
-  int combining_code;
 } MGlyph;
 
 struct MGlyphString
@@ -200,31 +194,6 @@ struct MGlyphString
 	     (sizeof (MGlyph)) * newlen);				  \
     (gstring)->used -= newlen;						  \
   } while (0)
-
-#define MAKE_COMBINING_CODE(base_y, base_x, add_y, add_x, off_y, off_x)	\
-  (((off_y) << 16)							\
-   | ((off_x) << 8)							\
-   | ((base_x) << 6)							\
-   | ((base_y) << 4)							\
-   | ((add_x) << 2)							\
-   | (add_y))
-
-#define COMBINING_CODE_OFF_Y(code) (((code) >> 16) & 0xFF)
-#define COMBINING_CODE_OFF_X(code) (((code) >> 8) & 0xFF)
-#define COMBINING_CODE_BASE_X(code) (((code) >> 6) & 0x3)
-#define COMBINING_CODE_BASE_Y(code) (((code) >> 4) & 0x3)
-#define COMBINING_CODE_ADD_X(code) (((code) >> 2) & 0x3)
-#define COMBINING_CODE_ADD_Y(code) ((code) & 0x3)
-
-#define MAKE_COMBINING_CODE_BY_CLASS(class) (0x1000000 | class)
-
-#define COMBINING_BY_CLASS_P(code) ((code) & 0x1000000)
-
-#define COMBINING_CODE_CLASS(code) ((code) & 0xFFFFFF)
-
-#define MAKE_PRECOMPUTED_COMBINDING_CODE() (0x2000000)
-
-#define COMBINING_PRECOMPUTED_P(code) ((code) & 0x2000000)
 
 typedef struct MGlyphString MGlyphString;
 

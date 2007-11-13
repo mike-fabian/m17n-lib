@@ -486,7 +486,7 @@ main (int argc, char **argv)
   MDrawMetric rect;
   char *filename = "output";
   int len, from;
-  char *fontset_name = "truetype";
+  char *fontset_name = "generic";
 
 
   /* Parse the command line arguments.  */

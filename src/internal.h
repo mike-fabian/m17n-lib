@@ -117,6 +117,9 @@ extern int mdebug_hook ();
       MEMORY_FULL (err);					\
   } while (0)
 
+#define MTABLE_CALLOC_SAFE(p, size)	\
+  ((p) = (void *) calloc (sizeof (*(p)), (size)))
+
 
 /** The macro MTABLE_REALLOC () changes the size of memory block
     pointed to by P to a size suitable for an array of SIZE objects.
@@ -161,6 +164,8 @@ extern int mdebug_hook ();
 
 
 #define MSTRUCT_CALLOC(p, err) MTABLE_CALLOC ((p), 1, (err))
+
+#define MSTRUCT_CALLOC_SAFE(p) MTABLE_CALLOC_SAFE ((p), 1)
 
 #define USE_SAFE_ALLOCA \
   int sa_must_free = 0, sa_size = 0
@@ -410,21 +415,21 @@ struct _M17NObjectArray
 extern void mdebug__add_object_array (M17NObjectArray *array, char *name);
 
 #define M17N_OBJECT_ADD_ARRAY(array, name)	\
-  if (mdebug__flag & MDEBUG_FINI)		\
+  if (mdebug__flags[MDEBUG_FINI])		\
     mdebug__add_object_array (&array, name);	\
   else
 
 extern void mdebug__register_object (M17NObjectArray *array, void *object);
 
 #define M17N_OBJECT_REGISTER(array, object)	\
-  if (mdebug__flag & MDEBUG_FINI)		\
+  if (mdebug__flags[MDEBUG_FINI])		\
     mdebug__register_object (&array, object);	\
   else
 
 extern void mdebug__unregister_object (M17NObjectArray *array, void *object);
 
 #define M17N_OBJECT_UNREGISTER(array, object)	\
-  if (mdebug__flag & MDEBUG_FINI)		\
+  if (mdebug__flags[MDEBUG_FINI])		\
     mdebug__unregister_object (&array, object);	\
   else
 
@@ -535,30 +540,32 @@ struct MText
 
 
 
-enum MDebugMaskBit
+enum MDebugFlag
   {
-    MDEBUG_INIT =	0x01,
-    MDEBUG_FINI =	0x02,
-    MDEBUG_CHARSET =	0x04,
-    MDEBUG_CODING =	0x08,
-    MDEBUG_DATABASE =	0x10,
-    MDEBUG_FONT =	0x0100,
-    MDEBUG_FONT_FLT =	0x0200,
-    MDEBUG_FONT_OTF =	0x0400,
-    MDEBUG_INPUT = 	0x0800,
-    MDEBUG_ALL =	0xFFFF,
-    MDEBUG_MAX
+    MDEBUG_INIT,
+    MDEBUG_FINI,
+    MDEBUG_CHARSET,
+    MDEBUG_CODING,
+    MDEBUG_DATABASE,
+    MDEBUG_FONT,
+    MDEBUG_FONT_FLT,
+    MDEBUG_FONT_OTF,
+    MDEBUG_INPUT,
+    MDEBUG_ALL,
+    MDEBUG_MAX = MDEBUG_ALL
   };
 
-extern int mdebug__flag;
+extern int mdebug__flags[MDEBUG_MAX];
 extern FILE *mdebug__output;
 extern void mdebug__push_time ();
 extern void mdebug__pop_time ();
 extern void mdebug__print_time ();
 
+#define MDEBUG_FLAG() mdebug__flags[mdebug_flag]
+
 #define MDEBUG_PRINT0(FPRINTF)		\
   do {					\
-    if (mdebug__flag & mdebug_mask)	\
+    if (MDEBUG_FLAG ())			\
       {					\
 	FPRINTF;			\
 	fflush (mdebug__output);	\
@@ -585,7 +592,7 @@ extern void mdebug__print_time ();
 
 #define MDEBUG_DUMP(prefix, postfix, call)		\
   do {							\
-    if (mdebug__flag & mdebug_mask)			\
+    if (MDEBUG_FLAG ())					\
       {							\
 	fprintf (mdebug__output, "%s", prefix);		\
 	call;						\
@@ -594,23 +601,23 @@ extern void mdebug__print_time ();
       }							\
   } while (0)
 
-#define MDEBUG_PUSH_TIME()		\
-  do {					\
-    if (mdebug__flag & mdebug_mask)	\
-      mdebug__push_time ();		\
+#define MDEBUG_PUSH_TIME()	\
+  do {				\
+    if (MDEBUG_FLAG ())		\
+      mdebug__push_time ();	\
   } while (0)
 
 
-#define MDEBUG_POP_TIME()		\
-  do {					\
-    if (mdebug__flag & mdebug_mask)	\
-      mdebug__pop_time ();		\
+#define MDEBUG_POP_TIME()	\
+  do {				\
+    if (MDEBUG_FLAG ())		\
+      mdebug__pop_time ();	\
   } while (0)
 
 
 #define MDEBUG_PRINT_TIME(tag, ARG_LIST)		\
   do {							\
-    if (mdebug__flag & mdebug_mask)			\
+    if (MDEBUG_FLAG ())					\
       {							\
 	fprintf (mdebug__output, " [%s] ", tag);	\
 	mdebug__print_time ();				\
@@ -626,10 +633,6 @@ extern void mdebug__print_time ();
   (((c) >> 24) | (((c) >> 8) & 0xFF00)	\
    | (((c) & 0xFF00) << 8) | (((c) & 0xFF) << 24))
 
-
-extern void *(*mdatabase__finder) (MSymbol tag1, MSymbol tag2,
-				   MSymbol tag3, MSymbol tag4);
-extern void *(*mdatabase__loader) (void *);
 
 /* Initialize/finalize function.  */
 

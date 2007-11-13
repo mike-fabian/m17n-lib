@@ -23,6 +23,10 @@
 #ifndef _M17N_GUI_H_
 #define _M17N_GUI_H_
 
+#ifndef _M17N_FLT_H_
+#include <m17n-flt.h>
+#endif
+
 #ifndef _M17N_H_
 #include <m17n.h>
 #endif

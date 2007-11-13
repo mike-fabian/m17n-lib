@@ -702,15 +702,15 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 						font);
       rfont = NULL;
       mfont__set_spec_from_face (&spec, &merged_face);
-      mfont_put_prop (&spec, Mregistry, Miso8859_1);
-      spec.source = MFONT_SOURCE_X;
+      mfont_put_prop (&spec, Mregistry, Municode_bmp);
+      spec.source = MFONT_SOURCE_FT;
       font = mfont__select (frame, &spec, 0);
       if (font)
 	rfont = mfont__open (frame, font, &spec);
       if (! rfont)
 	{
-	  mfont_put_prop (&spec, Mregistry, Municode_bmp);
-	  spec.source = MFONT_SOURCE_FT;
+	  mfont_put_prop (&spec, Mregistry, Miso8859_1);
+	  spec.source = MFONT_SOURCE_X;
 	  font = mfont__select (frame, &spec, 0);
 	  if (font)
 	    rfont = mfont__open (frame, font, &spec);
@@ -729,29 +729,32 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
       rface->layouter = rfont->layouter;
       rfont->layouter = Mnil;
       work_gstring.glyphs[0].rface = rface;
-      work_gstring.glyphs[0].code = MCHAR_INVALID_CODE;
+      work_gstring.glyphs[0].g.code = MCHAR_INVALID_CODE;
+      work_gstring.glyphs[0].g.measured = 0;
       mfont__get_metric (&work_gstring, 0, 1);
-      rface->ascent = work_gstring.glyphs[0].ascent;
-      rface->descent = work_gstring.glyphs[0].descent;
-      work_gstring.glyphs[0].code
+      rface->ascent = work_gstring.glyphs[0].g.ascent;
+      rface->descent = work_gstring.glyphs[0].g.descent;
+      work_gstring.glyphs[0].g.code
 	= mfont__encode_char (frame, (MFont *) rfont, NULL, ' ');
-      if (work_gstring.glyphs[0].code != MCHAR_INVALID_CODE)
+      if (work_gstring.glyphs[0].g.code != MCHAR_INVALID_CODE)
 	{
+	  work_gstring.glyphs[0].g.measured = 0;
 	  mfont__get_metric (&work_gstring, 0, 1);
-	  rface->space_width = work_gstring.glyphs[0].width;
+	  rface->space_width = work_gstring.glyphs[0].g.xadv;
 	}
       else
 	rface->space_width = rfont->spec.size / 10;
       if (rfont->average_width)
-	rface->average_width = rfont->average_width;
+	rface->average_width = rfont->average_width >> 6;
       else
 	{
-	  work_gstring.glyphs[0].code
+	  work_gstring.glyphs[0].g.code
 	    = mfont__encode_char (frame, (MFont *) rfont, NULL, 'x');
-	  if (work_gstring.glyphs[0].code != MCHAR_INVALID_CODE)
+	  if (work_gstring.glyphs[0].g.code != MCHAR_INVALID_CODE)
 	    {
+	      work_gstring.glyphs[0].g.measured = 0;
 	      mfont__get_metric (&work_gstring, 0, 1);
-	      rface->average_width = work_gstring.glyphs[0].width;
+	      rface->average_width = work_gstring.glyphs[0].g.xadv;
 	    }
 	  else
 	    rface->average_width = rface->space_width;
@@ -818,7 +821,7 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
       if (! rfont)
 	{
 	  for (; from_g < to_g && from_g->rface->font; from_g++)
-	    from_g->code = MCHAR_INVALID_CODE;
+	    from_g->g.code = MCHAR_INVALID_CODE;
 	}
       else
 	{
@@ -833,28 +836,33 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	      new->layouter = rfont->layouter;
 	      rfont->layouter = Mnil;
 	      new->non_ascii_list = NULL;
-	      new->ascent = rfont->ascent;
-	      new->descent = rfont->descent;
+	      new->ascent = rfont->ascent >> 6;
+	      new->descent = rfont->descent >> 6;
 	    } 
 	  for (; from_g < to_g && from_g->rface->font; from_g++)
 	    {
 	      from_g->rface = new;
 	      if (new->layouter)
 		{
-		  from_g->code = mfont__flt_encode_char (new->layouter, 
-							 from_g->c);
-		  if (from_g->code == MCHAR_INVALID_CODE)
+		  MFLT *flt = mflt_get (new->layouter);
+		  MCharTable *coverage;
+
+		  if (! flt
+		      || ((coverage = mflt_coverage (flt))
+			  && ! (from_g->g.code
+				= (unsigned) mchartable_lookup (coverage,
+								from_g->g.c))))
 		    {
 		      from_g->rface = rface;
-		      from_g->code = mfont__encode_char (rfont->frame, 
-							 (MFont *) rfont,
-							 NULL, from_g->c);
+		      from_g->g.code = mfont__encode_char (rfont->frame, 
+							   (MFont *) rfont,
+							   NULL, from_g->g.c);
 		    }
 		}
 	      else
-		from_g->code = mfont__encode_char (rfont->frame, 
-						   (MFont *) rfont,
-						   NULL, from_g->c);
+		from_g->g.code = mfont__encode_char (rfont->frame, 
+						     (MFont *) rfont,
+						     NULL, from_g->g.c);
 	    }
 	}
       return from_g;
@@ -865,10 +873,10 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
       for (i = 0; i < num; i++)
 	{
 	  unsigned code = mfont__encode_char (rfont->frame, (MFont *) rfont,
-					      NULL, from_g[i].c);
+					      NULL, from_g[i].g.c);
 	  if (code == MCHAR_INVALID_CODE)
 	    break;
-	  from_g[i].code = code;
+	  from_g[i].g.code = code;
 	}
       if (i == num || from_g[i].rface->font)
 	return from_g + i;
@@ -883,7 +891,7 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
     }
   else
     {
-      from_g->code = MCHAR_INVALID_CODE;
+      from_g->g.code = MCHAR_INVALID_CODE;
       num = 1;
       rfont = NULL;
       layouter = Mnil;
@@ -919,8 +927,8 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 	      new->non_ascii_list = NULL;
 	      if (rfont)
 		{
-		  new->ascent = rfont->ascent;
-		  new->descent = rfont->descent;
+		  new->ascent = rfont->ascent >> 6;
+		  new->descent = rfont->descent >> 6;
 		}
 	    }
 	  while (g < from_g)

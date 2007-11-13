@@ -159,6 +159,8 @@ struct MRealizedFont
      non-NULL, it must be a pointer to a managed object.  */
   void *info;
 
+  int x_ppem, y_ppem;
+
   int ascent, descent, max_advance, average_width, baseline_offset;
 
   /* Pointer to the font structure.  */
@@ -166,6 +168,11 @@ struct MRealizedFont
 
   MRealizedFont *next;
 };
+
+typedef struct MFLTFontForRealized {
+  MFLTFont font;
+  MRealizedFont *rfont;
+} MFLTFontForRealized;
 
 typedef struct {
   MFont *font;
@@ -227,6 +234,12 @@ struct MFontDriver
   MRealizedFont *(*encapsulate) (MFrame *frame, MSymbol source, void *data);
 
   void (*close) (MRealizedFont *rfont);
+
+  int (*check_otf) (MFLTFont *font, MFLTOtfSpec *spec);
+
+  int (*drive_otf) (MFLTFont *font, MFLTOtfSpec *spec,
+		    MFLTGlyphString *in, int from, int to,
+		    MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment);
 };
 
 /** Initialize the members of FONT.  */
@@ -313,6 +326,9 @@ extern int mfont__has_char (MFrame *frame, MFont *font, MFont *spec, int c);
 extern unsigned mfont__encode_char (MFrame *frame, MFont *font, MFont *spec,
 				    int c);
 
+extern int mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
+				int from, int to);
+
 extern MFont *mfont__select (MFrame *frame, MFont *font, int max_size);
 
 extern MFontList *mfont__list (MFrame *frame, MFont *spec, MFont *request,
@@ -321,6 +337,9 @@ extern MFontList *mfont__list (MFrame *frame, MFont *spec, MFont *request,
 extern MRealizedFont *mfont__open (MFrame *frame, MFont *font, MFont *spec);
 
 extern void mfont__get_metric (MGlyphString *gstring, int from, int to);
+
+extern int mfont__get_metrics (MFLTFont *font, MFLTGlyphString *gstring,
+			       int from, int to);
 
 extern void mfont__set_property (MFont *font, enum MFontProperty key,
 				 MSymbol val);

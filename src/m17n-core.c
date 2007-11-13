@@ -416,11 +416,7 @@ int m17n__core_initialized;
 int m17n__shell_initialized;
 int m17n__gui_initialized;
 
-void *(*mdatabase__finder) (MSymbol tag1, MSymbol tag2,
-			   MSymbol tag3, MSymbol tag4);
-void *(*mdatabase__loader) (void *);
-
-int mdebug__flag;
+int mdebug__flags[MDEBUG_MAX];
 FILE *mdebug__output;
 
 void
@@ -451,19 +447,25 @@ mdebug__print_time ()
   time_stack[time_stack_index - 1] = tv;
 }
 
-#define SET_DEBUG_FLAG(env_name, mask)		\
-  do {						\
-    char *env_value = getenv (env_name);	\
-						\
-    if (env_value)				\
-      {						\
-	if (env_value[0] == '1')		\
-	  mdebug__flag |= (mask);		\
-	else if (env_value[0] == '0')		\
-	  mdebug__flag &= ~(mask);		\
-      }						\
-  } while (0)
+static void
+SET_DEBUG_FLAG (char *env_name, enum MDebugFlag flag)
+{
+  char *env_value = getenv (env_name);
 
+  if (env_value)
+    {
+      int int_value = atoi (env_value);
+
+      if (flag == MDEBUG_ALL)
+	{
+	  int i;
+	  for (i = 0; i < MDEBUG_MAX; i++)
+	    mdebug__flags[i] = int_value;
+	}
+      else
+	mdebug__flags[flag] = int_value;
+    }
+}
 
 void
 mdebug__add_object_array (M17NObjectArray *array, char *name)
@@ -515,7 +517,7 @@ mdebug__unregister_object (M17NObjectArray *array, void *object)
 void
 m17n_init_core (void)
 {
-  int mdebug_mask = MDEBUG_INIT;
+  int mdebug_flag = MDEBUG_INIT;
 
   merror_code = MERROR_NONE;
   if (m17n__core_initialized++)
@@ -523,7 +525,6 @@ m17n_init_core (void)
 
   m17n_memory_full_handler = default_error_handler;
 
-  mdebug__flag = 0;
   SET_DEBUG_FLAG ("MDEBUG_ALL", MDEBUG_ALL);
   SET_DEBUG_FLAG ("MDEBUG_INIT", MDEBUG_INIT);
   SET_DEBUG_FLAG ("MDEBUG_FINI", MDEBUG_FINI);
@@ -557,17 +558,18 @@ m17n_init_core (void)
   if  (mplist__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize plist module."));
+  if (mchar__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize character module."));
   if  (mchartable__init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize chartable module."));
-  if (mtext__init () < 0)
-    goto err;
-  if (mtext__prop_init () < 0)
+  if (mtext__init () < 0 || mtext__prop_init () < 0)
     goto err;
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize mtext module."));
-
-  mdatabase__finder = NULL;
-  mdatabase__loader = NULL;
+  if (mdatabase__init () < 0)
+    goto err;
+  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize database module."));
 
 #if ENABLE_NLS
   bindtextdomain ("m17n-lib", GETTEXTDIR);
@@ -587,7 +589,7 @@ m17n_init_core (void)
 void
 m17n_fini_core (void)
 {
-  int mdebug_mask = MDEBUG_FINI;
+  int mdebug_flag = MDEBUG_FINI;
 
   if (m17n__core_initialized == 0
       || --m17n__core_initialized > 0)
@@ -610,7 +612,7 @@ m17n_fini_core (void)
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
   MDEBUG_POP_TIME ();
-  if (mdebug__flag & MDEBUG_FINI)
+  if (mdebug__flags[MDEBUG_FINI])
     report_object_array ();
   msymbol__free_table ();
   if (mdebug__output != stderr)

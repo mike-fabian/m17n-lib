@@ -407,10 +407,9 @@ mchar_define_property (const char *name, MSymbol type)
   MSymbol key = msymbol (name);
   void *mdb;
 
-  if (mdatabase__finder)
-    mdb = (*mdatabase__finder) (Mchar_table, type, key, Mnil);
-  else
-    mdb = NULL;
+  mdb = mdatabase_find (Mchar_table, type, key, Mnil);
+  if (! mdb)
+    return Mnil;
   mchar__define_prop (key, type, mdb);
   return key;
 }
@@ -459,7 +458,7 @@ mchar_get_prop (int c, MSymbol key)
     return NULL;
   if (record->mdb)
     {
-      record->table = (*mdatabase__loader) (record->mdb);
+      record->table = mdatabase_load (record->mdb);
       if (! record->table)
 	MERROR (MERROR_DB, NULL);
       record->mdb = NULL;
@@ -506,7 +505,7 @@ mchar_put_prop (int c, MSymbol key, void *val)
     return -1;
   if (record->mdb)
     {
-      record->table = (*mdatabase__loader) (record->mdb);
+      record->table = mdatabase_load (record->mdb);
       if (! record->table)
 	MERROR (MERROR_DB, -1);
       record->mdb = NULL;
@@ -553,7 +552,7 @@ mchar_get_prop_table (MSymbol key, MSymbol *type)
     return NULL;
   if (record->mdb)
     {
-      record->table = (*mdatabase__loader) (record->mdb);
+      record->table = mdatabase_load (record->mdb);
       if (! record->table)
 	MERROR (MERROR_DB, NULL);
       record->mdb = NULL;

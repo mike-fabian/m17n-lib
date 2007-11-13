@@ -1,3 +1,16 @@
+2007-10-12  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.pc.in: Don't require m17n-shell.
+
+2007-08-15  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.pc.in (prefix): New file.
+
+	* configure.ac (AC_CONFIG_FILES): Add m17n-flt.pc.
+
+	* Makefile.am (EXTRA_DIST): Add m17n-flt.pc.in.
+	(BASICDATA): Add m17n-flt.pc.
+
 2007-07-13  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.4.0 released.

@@ -136,14 +136,12 @@
 #include <time.h>
 #include <libgen.h>
 
-#include "m17n.h"
+#include "m17n-core.h"
 #include "m17n-misc.h"
 #include "internal.h"
 #include "mtext.h"
 #include "character.h"
-#include "charset.h"
 #include "database.h"
-#include "coding.h"
 #include "plist.h"
 
 /** The file containing a list of databases.  */
@@ -298,9 +296,7 @@ load_chartable (FILE *fp, MSymbol type)
 	  /* VAL is an M-text.  */
 	  MText *mt;
 	  if (c == '"')
-	    mt = mconv_decode_buffer (Mcoding_utf_8,
-				      (unsigned char *) (buf + i),
-				      len - i - 1);
+	    mt = mtext__from_data (buf + i, len - i - 1, MTEXT_FORMAT_UTF_8, 1);
 	  else
 	    {
 	      mt = mtext ();
@@ -348,84 +344,6 @@ load_chartable (FILE *fp, MSymbol type)
   MERROR (MERROR_DB, NULL);
 }
 
-
-/** Load a data of type @c charset from the file FD.  */
-
-static void *
-load_charset (FILE *fp, MSymbol charset_name)
-{
-  MCharset *charset = MCHARSET (charset_name);
-  int *decoder;
-  MCharTable *encoder;
-  int size;
-  int i, c;
-  int found = 0;
-  MPlist *plist;
-
-  if (! charset)
-    MERROR (MERROR_DB, NULL);
-  size = (charset->code_range[15]
-	  - (charset->min_code - charset->code_range_min_code));
-  MTABLE_MALLOC (decoder, size, MERROR_DB);
-  for (i = 0; i < size; i++)
-    decoder[i] = -1;
-  encoder = mchartable (Minteger, (void *) MCHAR_INVALID_CODE);
-
-  while ((c = getc (fp)) != EOF)
-    {
-      unsigned code1, code2, c1, c2;
-      int idx1, idx2;
-      char buf[256];
-
-      ungetc (c, fp);
-      fgets (buf, 256, fp);
-      if (c != '#')
-	{
-	  if (sscanf (buf, "0x%x-0x%x 0x%x", &code1, &code2, &c1) == 3)
-	    {
-	      idx1 = CODE_POINT_TO_INDEX (charset, code1);
-	      if (idx1 >= size)
-		continue;
-	      idx2 = CODE_POINT_TO_INDEX (charset, code2);
-	      if (idx2 >= size)
-		idx2 = size - 1;
-	      c2 = c1 + (idx2 - idx1);
-	    }
-	  else if (sscanf (buf, "0x%x 0x%x", &code1, &c1) == 2)
-	    {
-	      idx1 = idx2 = CODE_POINT_TO_INDEX (charset, code1);
-	      if (idx1 >= size)
-		continue;
-	      c2 = c1;
-	    }
-	  else
-	    continue;
-	  if (idx1 >= 0 && idx2 >= 0)
-	    {
-	      decoder[idx1] = c1;
-	      mchartable_set (encoder, c1, (void *) code1);
-	      for (idx1++, c1++; idx1 <= idx2; idx1++, c1++)
-		{
-		  code1 = INDEX_TO_CODE_POINT (charset, idx1);
-		  decoder[idx1] = c1;
-		  mchartable_set (encoder, c1, (void *) code1);
-		}
-	      found++;
-	    }
-	}
-    }
-
-  if (! found)
-    {
-      free (decoder);
-      M17N_OBJECT_UNREF (encoder);
-      return NULL;
-    }
-  plist = mplist ();
-  mplist_add (plist, Mt, decoder);
-  mplist_add (plist, Mt, encoder);
-  return plist;
-}
 
 static char *
 gen_database_name (char *buf, MSymbol *tags)
@@ -489,7 +407,7 @@ load_database (MSymbol *tags, void *extra_info)
   void *value;
   char *filename = get_database_file (db_info, NULL, NULL);
   FILE *fp;
-  int mdebug_mask = MDEBUG_DATABASE;
+  int mdebug_flag = MDEBUG_DATABASE;
   char buf[256];
 
   MDEBUG_PRINT1 (" [DB] <%s>", gen_database_name (buf, tags));
@@ -507,7 +425,11 @@ load_database (MSymbol *tags, void *extra_info)
   if (tags[0] == Mchar_table)
     value = load_chartable (fp, tags[1]);
   else if (tags[0] == Mcharset)
-    value = load_charset (fp, tags[1]);
+    {
+      if (! mdatabase__load_charset_func)
+	MERROR (MERROR_DB, NULL);
+      value = (*mdatabase__load_charset_func) (fp, tags[1]);
+    }
   else
     value = mplist__from_file (fp, NULL);
   fclose (fp);
@@ -842,13 +764,18 @@ expand_wildcard_database (MPlist *plist)
 /** List of database directories.  */ 
 MPlist *mdatabase__dir_list;
 
+void *(*mdatabase__load_charset_func) (FILE *fp, MSymbol charset_name);
+
 int
 mdatabase__init ()
 {
   MDatabaseInfo *dir_info;
   char *path;
 
+  mdatabase__load_charset_func = NULL;
+
   Mchar_table = msymbol ("char-table");
+  Mcharset = msymbol ("charset");
   Masterisk = msymbol ("*");
   Mversion = msymbol ("version");
 
@@ -887,10 +814,6 @@ mdatabase__init ()
       else
 	mplist_push (mdatabase__dir_list, Mt, get_dir_info (NULL));
     }
-
-  mdatabase__finder = ((void *(*) (MSymbol, MSymbol, MSymbol, MSymbol))
-		       mdatabase_find);
-  mdatabase__loader = (void *(*) (void *)) mdatabase_load;
 
   mdatabase__list = mplist ();
   mdatabase__update ();
@@ -1074,7 +997,7 @@ mdatabase__update (void)
 MPlist *
 mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
 {
-  int mdebug_mask = MDEBUG_DATABASE;
+  int mdebug_flag = MDEBUG_DATABASE;
   MDatabaseInfo *db_info;
   char *filename;
   FILE *fp;
@@ -1253,9 +1176,11 @@ mdatabase__save (MDatabase *mdb, MPlist *data)
       M17N_OBJECT_UNREF (mt);
       return -1;
     }
-  mconv_encode_stream (msymbol ("utf-8"), mt, fp);
-  M17N_OBJECT_UNREF (mt);
+  if (mt->format > MTEXT_FORMAT_UTF_8)
+    mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
+  fwrite (MTEXT_DATA (mt), 1, mtext_nchars (mt), fp);
   fclose (fp);
+  M17N_OBJECT_UNREF (mt);
   if ((ret = rename (db_info->uniq_file, file)) < 0)
     unlink (db_info->uniq_file);
   free (db_info->uniq_file);
@@ -1284,11 +1209,44 @@ mdatabase__unlock (MDatabase *mdb)
   return 0;
 }
 
+MPlist *
+mdatabase__props (MDatabase *mdb)
+{
+  MDatabaseInfo *db_info;
+
+  if (mdb->loader != load_database)
+    return NULL;
+  db_info = mdb->extra_info;
+  return db_info->properties;
+}
+
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
 
 
 /* External API */
+
+/*** @addtogroup m17nCharset */
+/*** @{ */
+
+/***en
+    @brief The symbol @c Mcharset.
+
+    Any decoded M-text has a text property whose key is the predefined
+    symbol @c Mcharset.  The name of @c Mcharset is
+    <tt>"charset"</tt>.  */
+
+/***ja
+    @brief シンボル @c Mcharset.
+
+    デコードされた M-text は、キーが @c Mcharset
+    であるようなテキストプロパティを持つ。
+    シンボル @c Mcharset は <tt>"charset"</tt> という名前を持つ。  */
+
+MSymbol Mcharset;
+/*=*/
+/*** @} */
+/*=*/
 
 /*** @addtogroup m17nDatabase */
 /*** @{ */

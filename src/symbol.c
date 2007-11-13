@@ -179,7 +179,7 @@ msymbol__free_table ()
 	}
       symbol_table[i] = NULL;
     }
-  if (mdebug__flag & MDEBUG_FINI)
+  if (mdebug__flags[MDEBUG_FINI])
     fprintf (stderr, "%16s %7d %7d %7d\n", "Symbol",
 	     num_symbols, freed_symbols, num_symbols - freed_symbols);
   num_symbols = 0;

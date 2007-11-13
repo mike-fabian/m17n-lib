@@ -91,10 +91,11 @@
 #include "m17n-misc.h"
 #include "internal.h"
 #include "symbol.h"
-#include "charset.h"
-#include "coding.h"
+#include "database.h"
 #include "chartab.h"
 #include "plist.h"
+#include "charset.h"
+#include "coding.h"
 
 static int unified_max;
 
@@ -322,6 +323,84 @@ load_charset_fully (MCharset *charset)
   return 0;
 }
 
+/** Load a data of type @c charset from the file FD.  */
+
+static void *
+load_charset (FILE *fp, MSymbol charset_name)
+{
+  MCharset *charset = MCHARSET (charset_name);
+  int *decoder;
+  MCharTable *encoder;
+  int size;
+  int i, c;
+  int found = 0;
+  MPlist *plist;
+
+  if (! charset)
+    MERROR (MERROR_DB, NULL);
+  size = (charset->code_range[15]
+	  - (charset->min_code - charset->code_range_min_code));
+  MTABLE_MALLOC (decoder, size, MERROR_DB);
+  for (i = 0; i < size; i++)
+    decoder[i] = -1;
+  encoder = mchartable (Minteger, (void *) MCHAR_INVALID_CODE);
+
+  while ((c = getc (fp)) != EOF)
+    {
+      unsigned code1, code2, c1, c2;
+      int idx1, idx2;
+      char buf[256];
+
+      ungetc (c, fp);
+      fgets (buf, 256, fp);
+      if (c != '#')
+	{
+	  if (sscanf (buf, "0x%x-0x%x 0x%x", &code1, &code2, &c1) == 3)
+	    {
+	      idx1 = CODE_POINT_TO_INDEX (charset, code1);
+	      if (idx1 >= size)
+		continue;
+	      idx2 = CODE_POINT_TO_INDEX (charset, code2);
+	      if (idx2 >= size)
+		idx2 = size - 1;
+	      c2 = c1 + (idx2 - idx1);
+	    }
+	  else if (sscanf (buf, "0x%x 0x%x", &code1, &c1) == 2)
+	    {
+	      idx1 = idx2 = CODE_POINT_TO_INDEX (charset, code1);
+	      if (idx1 >= size)
+		continue;
+	      c2 = c1;
+	    }
+	  else
+	    continue;
+	  if (idx1 >= 0 && idx2 >= 0)
+	    {
+	      decoder[idx1] = c1;
+	      mchartable_set (encoder, c1, (void *) code1);
+	      for (idx1++, c1++; idx1 <= idx2; idx1++, c1++)
+		{
+		  code1 = INDEX_TO_CODE_POINT (charset, idx1);
+		  decoder[idx1] = c1;
+		  mchartable_set (encoder, c1, (void *) code1);
+		}
+	      found++;
+	    }
+	}
+    }
+
+  if (! found)
+    {
+      free (decoder);
+      M17N_OBJECT_UNREF (encoder);
+      return NULL;
+    }
+  plist = mplist ();
+  mplist_add (plist, Mt, decoder);
+  mplist_add (plist, Mt, encoder);
+  return plist;
+}
+
 
 /* Internal API */
 
@@ -344,6 +423,7 @@ mcharset__init ()
 
   unified_max = MCHAR_MAX;
 
+  mdatabase__load_charset_func = load_charset;
   mcharset__cache = mplist ();
   mplist_set (mcharset__cache, Mt, NULL);
 
@@ -353,8 +433,6 @@ mcharset__init ()
 
   memset (mcharset__iso_2022_table.classified, 0,
 	  sizeof (mcharset__iso_2022_table.classified));
-
-  Mcharset = msymbol ("charset");
 
   Mmethod = msymbol ("method");
   Moffset = msymbol ("offset");
@@ -587,7 +665,7 @@ mcharset__load_from_database ()
   MDatabase *mdb = mdatabase_find (msymbol ("charset-list"), Mnil, Mnil, Mnil);
   MPlist *def_list, *plist;
   MPlist *definitions = charset_definition_list;
-  int mdebug_mask = MDEBUG_CHARSET;
+  int mdebug_flag = MDEBUG_CHARSET;
 
   if (! mdb)
     return 0;
@@ -647,22 +725,7 @@ mcharset__load_from_database ()
 
 #define MCHAR_INVALID_CODE
 #endif
-/*=*/
-/***en
-    @brief The symbol @c Mcharset.
 
-    Any decoded M-text has a text property whose key is the predefined
-    symbol @c Mcharset.  The name of @c Mcharset is
-    <tt>"charset"</tt>.  */
-
-/***ja
-    @brief シンボル @c Mcharset.
-
-    デコードされた M-text は、キーが @c Mcharset
-    であるようなテキストプロパティを持つ。
-    シンボル @c Mcharset は <tt>"charset"</tt> という名前を持つ。  */
-
-MSymbol Mcharset;
 /*=*/
 
 /***en

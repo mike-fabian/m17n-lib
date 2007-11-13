@@ -421,7 +421,8 @@ static int xfont_check_capability (MRealizedFont *rfont, MSymbol capability);
 static MFontDriver xfont_driver =
   { xfont_select, xfont_open,
     xfont_find_metric, xfont_has_char, xfont_encode_char,
-    xfont_render, xfont_list, xfont_list_family_names, xfont_check_capability };
+    xfont_render, xfont_list, xfont_list_family_names, xfont_check_capability
+  };
 
 static int
 font_compare (const void *p1, const void *p2)
@@ -598,7 +599,7 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   char *name;
   Display *display = FRAME_DISPLAY (frame);
   XFontStruct *xfont;
-  int mdebug_mask = MDEBUG_FONT;
+  int mdebug_flag = MDEBUG_FONT;
   MFont this;
 
   size = spec->size;
@@ -675,14 +676,15 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
 
     rfont->baseline_offset
       = (XGetFontProperty (xfont, disp_info->MULE_BASELINE_OFFSET, &value)
-	 ? (int) value : 0);
+	 ? (int) (value << 6) : 0);
     rfont->average_width
       = (XGetFontProperty (xfont, disp_info->AVERAGE_WIDTH, &value)
-	 ? (int) value / 10 : 0);
+	 ? (int) (value << 6) / 10 : 0);
   }
-  rfont->ascent = xfont->ascent + rfont->baseline_offset;
-  rfont->descent = xfont->descent - rfont->baseline_offset;
-  rfont->max_advance = xfont->max_bounds.width;
+  rfont->ascent = (xfont->ascent << 6) + rfont->baseline_offset;
+  rfont->descent = (xfont->descent << 6) - rfont->baseline_offset;
+  rfont->max_advance = xfont->max_bounds.width << 6;
+  rfont->x_ppem = rfont->y_ppem = size / 10;
   rfont->fontp = xfont;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
@@ -700,69 +702,72 @@ xfont_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
   MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
 
   for (; g != gend; g++)
-    {
-      if (g->code == MCHAR_INVALID_CODE)
-	{
-	  g->lbearing = xfont->max_bounds.lbearing;
-	  g->rbearing = xfont->max_bounds.rbearing;
-	  g->width = xfont->max_bounds.width;
-	  g->ascent = xfont->ascent;
-	  g->descent = xfont->descent;
-	}
-      else
-	{
-	  int byte1 = g->code >> 8, byte2 = g->code & 0xFF;
-	  XCharStruct *pcm = NULL;
+    if (! g->g.measured)
+      {
+	if (g->g.code == MCHAR_INVALID_CODE)
+	  {
+	    g->g.lbearing = xfont->max_bounds.lbearing << 6;
+	    g->g.rbearing = xfont->max_bounds.rbearing << 6;
+	    g->g.xadv = xfont->max_bounds.width << 6;
+	    g->g.ascent = xfont->ascent << 6;
+	    g->g.descent = xfont->descent << 6;
+	  }
+	else
+	  {
+	    int byte1 = g->g.code >> 8, byte2 = g->g.code & 0xFF;
+	    XCharStruct *pcm = NULL;
 
-	  if (xfont->per_char != NULL)
-	    {
-	      if (xfont->min_byte1 == 0 && xfont->max_byte1 == 0)
-		{
-		  if (byte1 == 0
-		      && byte2 >= xfont->min_char_or_byte2
-		      && byte2 <= xfont->max_char_or_byte2)
-		    pcm = xfont->per_char + byte2 - xfont->min_char_or_byte2;
-		}
-	      else
-		{
-		  if (byte1 >= xfont->min_byte1
-		      && byte1 <= xfont->max_byte1
-		      && byte2 >= xfont->min_char_or_byte2
-		      && byte2 <= xfont->max_char_or_byte2)
-		    {
-		      pcm = (xfont->per_char
-			     + ((xfont->max_char_or_byte2
-				 - xfont->min_char_or_byte2 + 1)
-				* (byte1 - xfont->min_byte1))
-			     + (byte2 - xfont->min_char_or_byte2));
-		    }
-		}
-	    }
+	    if (xfont->per_char != NULL)
+	      {
+		if (xfont->min_byte1 == 0 && xfont->max_byte1 == 0)
+		  {
+		    if (byte1 == 0
+			&& byte2 >= xfont->min_char_or_byte2
+			&& byte2 <= xfont->max_char_or_byte2)
+		      pcm = xfont->per_char + byte2 - xfont->min_char_or_byte2;
+		  }
+		else
+		  {
+		    if (byte1 >= xfont->min_byte1
+			&& byte1 <= xfont->max_byte1
+			&& byte2 >= xfont->min_char_or_byte2
+			&& byte2 <= xfont->max_char_or_byte2)
+		      {
+			pcm = (xfont->per_char
+			       + ((xfont->max_char_or_byte2
+				   - xfont->min_char_or_byte2 + 1)
+				  * (byte1 - xfont->min_byte1))
+			       + (byte2 - xfont->min_char_or_byte2));
+		      }
+		  }
+	      }
 
-	  if (pcm)
-	    {
-	      g->lbearing = pcm->lbearing;
-	      g->rbearing = pcm->rbearing;
-	      g->width = pcm->width;
-	      g->ascent = pcm->ascent;
-	      g->descent = pcm->descent;
-	    }
-	  else
-	    {
-	      /* If the per_char pointer is null, all glyphs between
-		 the first and last character indexes inclusive have
-		 the same information, as given by both min_bounds and
-		 max_bounds.  */
-	      g->lbearing = 0;
-	      g->rbearing = xfont->max_bounds.width;
-	      g->width = xfont->max_bounds.width;
-	      g->ascent = xfont->ascent;
-	      g->descent = xfont->descent;
-	    }
-	}
-      g->ascent += rfont->baseline_offset;
-      g->descent -= rfont->baseline_offset;
-    }
+	    if (pcm)
+	      {
+		g->g.lbearing = pcm->lbearing << 6;
+		g->g.rbearing = pcm->rbearing << 6;
+		g->g.xadv = pcm->width << 6;
+		g->g.ascent = pcm->ascent << 6;
+		g->g.descent = pcm->descent << 6;
+	      }
+	    else
+	      {
+		/* If the per_char pointer is null, all glyphs between
+		   the first and last character indexes inclusive have
+		   the same information, as given by both min_bounds and
+		   max_bounds.  */
+		g->g.lbearing = 0;
+		g->g.rbearing = xfont->max_bounds.width << 6;
+		g->g.xadv = xfont->max_bounds.width << 6;
+		g->g.ascent = xfont->ascent << 6;
+		g->g.descent = xfont->descent << 6;
+	      }
+	  }
+	g->g.yadv = 0;
+	g->g.ascent += rfont->baseline_offset;
+	g->g.descent -= rfont->baseline_offset;
+	g->g.measured = 1;
+      }
 }
 
 
@@ -853,35 +858,35 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
   if (from == to)
     return;
 
-  baseline_offset = rface->rfont->baseline_offset;
+  baseline_offset = rface->rfont->baseline_offset >> 6;
   if (region)
     gc = set_region (rface->frame, gc, region);
   XSetFont (display, gc, ((XFontStruct *) rface->rfont->fontp)->fid);
   code = (XChar2b *) alloca (sizeof (XChar2b) * (to - from));
   for (i = 0, g = from; g < to; i++, g++)
     {
-      code[i].byte1 = g->code >> 8;
-      code[i].byte2 = g->code & 0xFF;
+      code[i].byte1 = g->g.code >> 8;
+      code[i].byte2 = g->g.code & 0xFF;
     }
 
   g = from;
   while (g < to)
     {
       if (g->type == GLYPH_PAD)
-	x += g++->width;
+	x += g++->g.xadv;
       else if (g->type == GLYPH_SPACE)
 	for (; g < to && g->type == GLYPH_SPACE; g++)
-	  x += g->width;
+	  x += g->g.xadv;
       else if (! g->rface->rfont)
 	{
-	  if ((g->c >= 0x200B && g->c <= 0x200F)
-	      || (g->c >= 0x202A && g->c <= 0x202E))
-	    x += g++->width;
+	  if ((g->g.c >= 0x200B && g->g.c <= 0x200F)
+	      || (g->g.c >= 0x202A && g->g.c <= 0x202E))
+	    x += g++->g.xadv;
 	  else
 	    {
 	      /* As a font is not found for this character, draw an
 		 empty box.  */
-	      int box_width = g->width;
+	      int box_width = g->g.xadv;
 	      int box_height = gstring->ascent + gstring->descent;
 
 	      if (box_width > 4)
@@ -890,15 +895,15 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 		box_height -= 2;
 	      XDrawRectangle (display, (Window) win, gc,
 			      x, y - gstring->ascent, box_width, box_height);
-	      x += g++->width;
+	      x += g++->g.xadv;
 	    }
 	}
-      else if (g->xoff != 0 || g->yoff != 0 || g->right_padding)
+      else if (g->g.xoff != 0 || g->g.yoff != 0 || g->right_padding)
 	{
 	  XDrawString16 (display, (Window) win, gc,
-			 x + g->xoff, y + g->yoff - baseline_offset,
+			 x + g->g.xoff, y + g->g.yoff - baseline_offset,
 			 code + (g - from), 1);
-	  x += g->width;
+	  x += g->g.xadv;
 	  g++;
 	}
       else
@@ -907,9 +912,9 @@ xfont_render (MDrawWindow win, int x, int y, MGlyphString *gstring,
 	  int code_idx = g - from;
 
 	  for (i = 0;
-	       g < to && g->type == GLYPH_CHAR && g->xoff == 0 && g->yoff == 0;
+	       g < to && g->type == GLYPH_CHAR && g->g.xoff == 0 && g->g.yoff == 0;
 	       i++, g++)
-	      x += g->width;
+	      x += g->g.xadv;
 	  XDrawString16 (display, (Window) win, gc,
 			 orig_x, y - baseline_offset, code + code_idx, i);
 	}
@@ -925,7 +930,7 @@ xfont_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
   int size = font ? font->size : 0;
   MPlist *pl, *p;
   int num = 0;
-  int mdebug_mask = MDEBUG_FONT;
+  int mdebug_flag = MDEBUG_FONT;
 
   MDEBUG_PRINT2 (" [X-FONT] listing %s-%s...",
 		 family ? msymbol_name (family) : "*",
@@ -1045,11 +1050,16 @@ static void xft_find_metric (MRealizedFont *, MGlyphString *, int, int);
 static void xft_render (MDrawWindow, int, int, MGlyphString *,
 			MGlyph *, MGlyph *, int, MDrawRegion);
 static int xft_check_capability (MRealizedFont *rfont, MSymbol capability);
+static int xft_check_otf (MFLTFont *font, MFLTOtfSpec *spec);
+static int xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
+			  MFLTGlyphString *in, int from, int to,
+			  MFLTGlyphString *out,
+			  MFLTGlyphAdjustment *adjustment);
 
 static MFontDriver xft_driver =
   { NULL, xft_open,
     xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL, NULL,
-    xft_check_capability
+    xft_check_capability, NULL, NULL, xft_check_otf, xft_drive_otf
   };
 
 static void
@@ -1157,6 +1167,8 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->max_advance = max_advance;
   rfont->average_width = average_width;
   rfont->baseline_offset = baseline_offset;
+  rfont->x_ppem = ft_face->size->metrics.x_ppem;
+  rfont->y_ppem = ft_face->size->metrics.y_ppem;
   rfont->fontp = xft_font;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
@@ -1172,27 +1184,30 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
   MGlyph *g = MGLYPH (from), *gend = MGLYPH (to);
 
   for (; g != gend; g++)
-    {
-      if (g->code == MCHAR_INVALID_CODE)
-	{
-	  g->lbearing = 0;
-	  g->rbearing = xft_font->max_advance_width;
-	  g->width = g->rbearing;
-	  g->ascent = xft_font->ascent;
-	  g->descent = xft_font->descent;
-	}
-      else
-	{
-	  XGlyphInfo extents;
+    if (! g->g.measured)
+      {
+	if (g->g.code == MCHAR_INVALID_CODE)
+	  {
+	    g->g.lbearing = 0;
+	    g->g.rbearing = xft_font->max_advance_width << 6;
+	    g->g.xadv = g->g.rbearing << 6;
+	    g->g.ascent = xft_font->ascent << 6;
+	    g->g.descent = xft_font->descent << 6;
+	  }
+	else
+	  {
+	    XGlyphInfo extents;
 
-	  XftGlyphExtents (display, xft_font, &g->code, 1, &extents);
-	  g->lbearing = - extents.x;
-	  g->rbearing = extents.width - extents.x;
-	  g->width = extents.xOff;
-	  g->ascent = extents.y;
-	  g->descent = extents.height - extents.y;
-	}
-    }
+	    XftGlyphExtents (display, xft_font, &g->g.code, 1, &extents);
+	    g->g.lbearing = (- extents.x) << 6;
+	    g->g.rbearing = (extents.width - extents.x) << 6;
+	    g->g.xadv = extents.xOff << 6;
+	    g->g.ascent = extents.y << 6;
+	    g->g.descent = (extents.height - extents.y) << 6;
+	  }
+	g->g.yadv = 0;
+	g->g.measured = 0;
+      }
 }
 
 static int
@@ -1292,12 +1307,12 @@ xft_render (MDrawWindow win, int x, int y,
   XftDrawChange (xft_draw, (Drawable) win);
   XftDrawSetClip (xft_draw, (Region) region);
       
-  y -= rfont->baseline_offset;
+  y -= rfont->baseline_offset >> 6;
   glyphs = alloca (sizeof (FT_UInt) * (to - from));
-  for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->width)
+  for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->g.xadv)
     {
-      if (g->xoff == 0 && g->yoff == 0 && !g->left_padding && !g->right_padding)
-	glyphs[nglyphs++] = g->code;
+      if (g->g.xoff == 0 && g->g.yoff == 0 && !g->left_padding && !g->right_padding)
+	glyphs[nglyphs++] = g->g.code;
       else
 	{
 	  if (nglyphs > 0)
@@ -1305,8 +1320,8 @@ xft_render (MDrawWindow win, int x, int y,
 			   last_x, y, glyphs, nglyphs);
 	  nglyphs = 0;
 	  XftDrawGlyphs (xft_draw, xft_color, xft_font,
-			 x + g->xoff, y + g->yoff, (FT_UInt *) &g->code, 1);
-	  last_x = x + g->width;
+			 x + g->g.xoff, y + g->g.yoff, (FT_UInt *) &g->g.code, 1);
+	  last_x = x + g->g.xadv;
 	}
     }
   if (nglyphs > 0)
@@ -1321,6 +1336,36 @@ xft_check_capability (MRealizedFont *rfont, MSymbol capability)
       
   rfont->info = rfont_xft->info;
   result = mfont__ft_driver.check_capability (rfont, capability);
+  rfont->info = rfont_xft;
+  return result;
+}
+
+static int
+xft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
+{
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MRealizedFontXft *rfont_xft = rfont->info;
+  int result;
+      
+  rfont->info = rfont_xft->info;
+  result = mfont__ft_driver.check_otf (font, spec);
+  rfont->info = rfont_xft;
+  return result;
+}
+
+static int
+xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
+	       MFLTGlyphString *in, int from, int to,
+	       MFLTGlyphString *out,
+	       MFLTGlyphAdjustment *adjustment)
+{
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MRealizedFontXft *rfont_xft = rfont->info;
+  int result;
+      
+  rfont->info = rfont_xft->info;
+  result = mfont__ft_driver.drive_otf (font, spec, in, from, to, out,
+				       adjustment);
   rfont->info = rfont_xft;
   return result;
 }
@@ -1490,9 +1535,9 @@ mwin__draw_empty_boxes (MDrawWindow win, int x, int y,
   for (; from < to; from++)
     {
       XDrawRectangle (display, (Window) win, gc,
-		      x, y - gstring->ascent + 1, from->width - 1,
+		      x, y - gstring->ascent + 1, from->g.xadv - 1,
 		      gstring->ascent + gstring->descent - 2);
-      x += from->width;
+      x += from->g.xadv;
     }
 }
 
@@ -1553,9 +1598,9 @@ mwin__draw_box (MFrame *frame, MDrawWindow win, MGlyphString *gstring,
       int x0, x1;
 
       if (g->left_padding)
-	x0 = x + box->outer_hmargin, x1 = x + g->width - 1;
+	x0 = x + box->outer_hmargin, x1 = x + g->g.xadv - 1;
       else
-	x0 = x, x1 = x + g->width - box->outer_hmargin - 1;
+	x0 = x, x1 = x + g->g.xadv - box->outer_hmargin - 1;
 
       /* Draw the top side.  */
       for (i = 0; i < box->width; i++)
@@ -2257,7 +2302,7 @@ device_open (MFrame *frame, MPlist *param)
     mplist_add (frame->font_driver_list, Mfreetype, &mfont__ft_driver);
 #endif	/* HAVE_FREETYPE */
   if (use_xfont || MPLIST_TAIL_P (frame->font_driver_list))
-    mplist_push (frame->font_driver_list, Mx, &xfont_driver);
+    mplist_add (frame->font_driver_list, Mx, &xfont_driver);
 
   frame->realized_font_list = device->realized_font_list;
   frame->realized_face_list = device->realized_face_list;
