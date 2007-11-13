@@ -98,7 +98,7 @@ cat > /dev/null <<EOF
 /***
 @section m17n-config-synopsis SYNOPSIS
 
-m17n-config [API-LEVEL] [--cflags | --libs | --libtool] [--version]
+m17n-config [API-LEVEL ...] [--cflags | --libs | --libtool] [--version]
 
 @section m17n-config-description DESCRIPTION
 
