@@ -87,6 +87,10 @@ struct _MFLTGlyph
   /***en Flag to tell if the metrics of the glyph (members <xadv> thru
       <rbearing>) are already calculated.  */
   unsigned measured : 1;
+  /***en Flag to tell if the metrics of the glyph is adjusted,
+      i.e. <xadv> or <yadv> is different from the normal size, or
+      <xoff> or <yoff> is nonzero.  */
+  unsigned adjusted : 1;
   /***en For m17n-lib's internal use only.  */
   unsigned internal : 30;
 
