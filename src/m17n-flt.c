@@ -1257,7 +1257,6 @@ load_flt (MFLT *flt, MPlist *key_list)
     }
   if (category)
     M17N_OBJECT_UNREF (category);
-  printf ("FLT:%s\n", MSYMBOL_NAME (flt->name));
   if (! MPLIST_TAIL_P (plist))
     {
       M17N_OBJECT_UNREF (top);
