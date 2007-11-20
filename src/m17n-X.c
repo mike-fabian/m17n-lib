@@ -1311,7 +1311,7 @@ xft_render (MDrawWindow win, int x, int y,
   glyphs = alloca (sizeof (FT_UInt) * (to - from));
   for (last_x = x, nglyphs = 0, g = from; g < to; x += g++->g.xadv)
     {
-      if (g->g.xoff == 0 && g->g.yoff == 0 && !g->left_padding && !g->right_padding)
+      if (! g->g.adjusted && !g->left_padding && !g->right_padding)
 	glyphs[nglyphs++] = g->g.code;
       else
 	{
