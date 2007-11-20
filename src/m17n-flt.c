@@ -1636,39 +1636,40 @@ run_otf (int depth,
 	  if (i < out_len)
 	    {
 	      font->get_metrics (font, ctx->out, from_idx, ctx->out->used);
-	      for (i = 0, g = GREF (ctx->out, from_idx + i), a = adjustment;
+	      for (g = GREF (ctx->out, from_idx + i);
 		   i < out_len; i++, a++, g = NEXT (ctx->out, g))
-		{
-		  SET_MEASURED (g, 1);
-		  if (a->advance_is_absolute)
-		    {
-		      g->xadv = a->xadv;
-		      g->yadv = a->yadv;
-		    }
-		  else if (a->xadv || a->yadv)
-		    {
-		      g->xadv += a->xadv;
-		      g->yadv += a->yadv;
-		    }
-		  if (a->xoff || a->yoff)
-		    {
-		      int j;
-		      MFLTGlyph *gg = PREV (ctx->out, g);
-		      MFLTGlyphAdjustment *aa = a;
+		if (a->set)
+		  {
+		    if (a->advance_is_absolute)
+		      {
+			g->xadv = a->xadv;
+			g->yadv = a->yadv;
+		      }
+		    else if (a->xadv || a->yadv)
+		      {
+			g->xadv += a->xadv;
+			g->yadv += a->yadv;
+		      }
+		    if (a->xoff || a->yoff)
+		      {
+			int j;
+			MFLTGlyph *gg = PREV (ctx->out, g);
+			MFLTGlyphAdjustment *aa = a;
 
-		      g->xoff = a->xoff;
-		      g->yoff = a->yoff;
-		      while (aa->back > 0)
-			{
-			  for (j = 0; j < aa->back;
-			       j++, gg = PREV (ctx->out, gg))
-			    g->xoff -= gg->xadv;
-			  aa = aa - aa->back;
-			  g->xoff += aa->xoff;
-			  g->yoff += aa->yoff;
-			}
-		    }
-		}
+			g->xoff = a->xoff;
+			g->yoff = a->yoff;
+			while (aa->back > 0)
+			  {
+			    for (j = 0; j < aa->back;
+				 j++, gg = PREV (ctx->out, gg))
+			      g->xoff -= gg->xadv;
+			    aa = aa - aa->back;
+			    g->xoff += aa->xoff;
+			    g->yoff += aa->yoff;
+			  }
+		      }
+		    g->adjusted = 1;
+		  }
 	    }
 	}
     }
@@ -2079,6 +2080,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		  g->xadv = g->yadv = 0;
 		  if (GET_RIGHT_PADDING (g))
 		    SET_RIGHT_PADDING (base, ctx, RightPaddingMask);
+		  g->adjusted = 1;
 		}
 	      else
 		{
@@ -2098,6 +2100,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		if (GET_RIGHT_PADDING (g) && g->rbearing > g->xadv)
 		  {
 		    g->xadv = g->rbearing;
+		    g->adjusted = 1;
 		  }
 		if (GET_LEFT_PADDING (g) && g->lbearing < 0)
 		  {
@@ -2105,6 +2108,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		    g->xadv += - g->lbearing;
 		    g->rbearing += - g->lbearing;
 		    g->lbearing = 0;
+		    g->adjusted = 1;
 		  }
 	      }
 	  }
