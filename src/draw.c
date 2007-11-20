@@ -176,7 +176,7 @@ visual_order (MGlyphString *gstring)
 
   memcpy (glyphs, gstring->glyphs, sizeof (MGlyph) * gstring->used);
 
-  for (i = gidx = 0; i < gstring->used; gidx++)
+  for (i = gidx = 0; i < gstring->used - 1; gidx++)
     {
       int level = glyphs[i].bidi_level;
       
