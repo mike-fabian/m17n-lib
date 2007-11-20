@@ -1,9 +1,13 @@
 2007-11-20  Kenichi Handa  <handa@ni.aist.go.jp>
 
+	* draw.c (visual_order): Exclude the last anchor glyph from the
+	iteration.
+
 	* m17n-flt.h (MFLTGlyph): New member <adjusted>.
 
 	* m17n-flt.c (run_otf): Set adjusted flag of glyphs if necessary.
 	(run_stages): Likewise.
+	(load_flt): Unref top after checking plist.
 
 	* m17n-X.c (xft_render): Check adjusted flag of glyphs.
 
