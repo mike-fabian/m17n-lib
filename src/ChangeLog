@@ -1,3 +1,12 @@
+2007-11-20  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* m17n-flt.h (MFLTGlyph): New member <adjusted>.
+
+	* m17n-flt.c (run_otf): Set adjusted flag of glyphs if necessary.
+	(run_stages): Likewise.
+
+	* m17n-X.c (xft_render): Check adjusted flag of glyphs.
+
 2007-11-12  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* font-ft.c (ft_check_otf): Fix arg to OTF_check_features.
