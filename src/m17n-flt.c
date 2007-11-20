@@ -1257,12 +1257,14 @@ load_flt (MFLT *flt, MPlist *key_list)
     }
   if (category)
     M17N_OBJECT_UNREF (category);
-  M17N_OBJECT_UNREF (top);
+  printf ("FLT:%s\n", MSYMBOL_NAME (flt->name));
   if (! MPLIST_TAIL_P (plist))
     {
+      M17N_OBJECT_UNREF (top);
       M17N_OBJECT_UNREF (flt->stages);
       MERROR (MERROR_FLT, -1);
     }
+  M17N_OBJECT_UNREF (top);
   return 0;
 }
 
