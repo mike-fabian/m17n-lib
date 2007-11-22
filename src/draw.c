@@ -1,5 +1,5 @@
 /* draw.c -- drawing module.
-   Copyright (C) 2003, 2004, 2005, 2006
+   Copyright (C) 2003, 2004, 2005, 2006, 2007
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -566,7 +566,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		     && g->g.c >= 0x100
 		     && g->category == GLYPH_CATEGORY_MODIFIER
 		     && g->rface->rfont
-		     && g->rface->rfont->layouter == Mnil)
+		     && g->rface->layouter == Mnil)
 		i++, g++;
 	      if (start + 1 < i)
 		run_flt (gstring, start, i, this->rface->rfont, Mcombining);
