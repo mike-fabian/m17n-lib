@@ -1384,6 +1384,7 @@ typedef struct
      table into this array.  An element is a category letter used for
      a regular expression matching.  */
   char *encoded;
+  int encoded_offset;
   int *match_indices;
   int code_offset;
   int cluster_begin_idx;
@@ -1448,18 +1449,19 @@ run_rule (int depth,
 
       if (from > to)
 	return 0;
-      saved_code = ctx->encoded[to];
-      ctx->encoded[to] = '\0';
+      saved_code = ctx->encoded[to - ctx->encoded_offset];
+      ctx->encoded[to - ctx->encoded_offset] = '\0';
       result = regexec (&(rule->src.re.preg),
-			ctx->encoded + from, NMATCH, pmatch, 0);
+			ctx->encoded + (from - ctx->encoded_offset),
+			NMATCH, pmatch, 0);
       if (result == 0 && pmatch[0].rm_so == 0)
 	{
 	  if (MDEBUG_FLAG () > 2)
 	    MDEBUG_PRINT5 ("\n [FLT] %*s(REGEX \"%s\" \"%s\" %d", depth, "",
 			   rule->src.re.pattern,
-			   ctx->encoded + from,
+			   ctx->encoded + (from - ctx->encoded_offset),
 			   pmatch[0].rm_eo);
-	  ctx->encoded[to] = saved_code;
+	  ctx->encoded[to - ctx->encoded_offset] = saved_code;
 	  for (i = 0; i < NMATCH; i++)
 	    {
 	      if (pmatch[i].rm_so < 0)
@@ -1475,7 +1477,7 @@ run_rule (int depth,
 	}
       else
 	{
-	  ctx->encoded[to] = saved_code;
+	  ctx->encoded[to - ctx->encoded_offset] = saved_code;
 	  return 0;
 	}
     }
@@ -1735,7 +1737,7 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
       i = (from < to || from == 0) ? from : from - 1;
       GDUP (ctx, i);
       g = GREF (ctx->out, ctx->out->used - 1);
-      g->code = ctx->code_offset + id;
+      g->c = g->code = ctx->code_offset + id;
       SET_ENCODED (g, 0);
       SET_MEASURED (g, 0);
       if (ctx->combining_code)
@@ -1902,6 +1904,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
       ctx->stage = (FontLayoutStage *) MPLIST_VAL (stages);
       table = ctx->stage->category;
       ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
+      ctx->encoded_offset = from;
       for (i = from; i < to; i++)
 	{
 	  MFLTGlyph *g = GREF (ctx->in, i);
@@ -1911,14 +1914,14 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		      ? (int) mchartable_lookup (table, g->code)
 		      : ' ');
 
-	  ctx->encoded[i] = enc;
+	  ctx->encoded[i - from] = enc;
 	  if (! enc && stage_idx == 0)
 	    {
 	      to = i;
 	      break;
 	    }
 	}
-      ctx->encoded[i] = '\0';
+      ctx->encoded[i - from] = '\0';
       ctx->match_indices[0] = from;
       ctx->match_indices[1] = to;
       for (i = 2; i < NMATCH; i++)
@@ -1927,7 +1930,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
       if (MDEBUG_FLAG () > 2)
 	{
 	  MDEBUG_PRINT2 ("\n [FLT]   (STAGE %d \"%s\"", stage_idx,
-			 ctx->encoded + from);
+			 ctx->encoded);
 	  MDEBUG_PRINT (" (");
 	  for (i = from; i < to; i++)
 	    {
