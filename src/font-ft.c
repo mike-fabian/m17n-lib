@@ -2330,20 +2330,30 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	{
 	  MGlyph *g = out_glyphs + out->used;
 	  int j;
+	  int min_from, max_to;
 
 	  *g = in_glyphs[from + otfg->f.index.from];
+	  min_from = g->g.from, max_to = g->g.to;
 	  g->g.c = 0;
-	  for (j = from + otfg->f.index.from; j <= from + otfg->f.index.to; j++)
-	    if (in_glyphs[j].g.code == otfg->glyph_id)
+	  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
+	    if (in_glyphs[from + j].g.code == otfg->glyph_id)
 	      {
-		g->g.c = in_glyphs[j].g.c;
+		g->g.c = in_glyphs[from + j].g.c;
 		break;
 	      }
+	  for (j = otfg->f.index.from + 1; j <= otfg->f.index.to; j++)
+	    {
+	      if (min_from > in_glyphs[from + j].g.from)
+		min_from = in_glyphs[from + j].g.from;
+	      if (max_to < in_glyphs[from + j].g.to)
+		max_to = in_glyphs[from + j].g.to;
+	    }
 	  if (g->g.code != otfg->glyph_id)
 	    {
 	      g->g.code = otfg->glyph_id;
 	      g->g.measured = 0;
 	    }
+	  g->g.from = min_from, g->g.to = max_to;
 	  out->used++;
 	}
     }
