@@ -28,6 +28,14 @@
     layouting facility using FLT (Font Layout Table).  The format of
     FLT is described in @ref mdbFLT.  */
 
+/***ja
+    @addtogroup m17nFLT
+    @brief ウィンドウシステムのための FLT サポート.
+
+    このセクションでは、FLT (Font Layout Table)
+    を用いた文字レイアウト機能に関する m17n FLT API を定義する。
+    FLT の形式は @ref mdbFLT に記述されている。  */
+
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -2243,13 +2251,22 @@ m17n_fini_flt (int with_shell)
 
 /*=*/
 /***en
-    @brief Return a FLT object whose name is NAME.
+    @brief Return an FLT object that has a specified name.
 
-    The mflt_get () function returns a FLT object whose name is $NAME.
+    The mflt_get () function returns an FLT object whose name is $NAME.
 
     @return
-    If the operation was successfully, mflt_get () returns a pointer
-    to a FLT object.  Otherwise, it returns @c NULL.  */
+    If the operation was successful, mflt_get () returns a pointer
+    to the found FLT object.  Otherwise, it returns @c NULL.  */
+
+/***ja
+    @brief 指定された名前を持つ FLT オブジェクトを返す.
+
+    関数 mflt_get () は、$NAME という名前を持つ FLT オブジェクトを返す。
+
+    @return
+    もし成功すれば、mflt_get () は見つかった FLT
+    オブジェクトへのポインタを返す。失敗した場合は @c NULL を返す。  */
 
 MFLT *
 mflt_get (MSymbol name)
@@ -2270,14 +2287,24 @@ mflt_get (MSymbol name)
 
 /*=*/
 /***en
-    @brief Find a FLT suitable for a specified character and font.
+    @brief Find an FLT suitable for the specified character and font.
 
     The mflt_find () function returns the most appropriate FLT for
-    rendering the character $C by font $FONT.
+    layouting character $C with font $FONT.
 
     @return
-    If the operation was successfully, mflt_find () returns a pointer
-    to a FLT object.  Otherwise, it returns @c NULL.  */
+    If the operation was successful, mflt_find () returns a pointer
+    to the found FLT object.  Otherwise, it returns @c NULL.  */
+
+/***ja
+    @brief 指定された文字とフォントに合った FLT を探す.
+
+    関数 mflt_find () は、文字 $C をフォント $FONT
+    でレイアウトするために最も適切な FLT を返す。
+
+    @return
+    もし成功すれば、mflt_find () は見つかった FLT
+    オブジェクトへのポインタを返す。失敗した場合は @c NULL を返す。  */
 
 MFLT *
 mflt_find (int c, MFLTFont *font)
@@ -2341,9 +2368,14 @@ mflt_find (int c, MFLTFont *font)
 
 /*=*/
 /***en
-    @brief Return a name of a FLT.
+    @brief Return the name of an FLT.
 
     The mflt_name () function returns the name of $FLT.  */
+
+/***ja
+    @brief FLT の名前を返す.
+
+    関数 mflt_name () は $FLT の名前を返す。  */
 
 const char *
 mflt_name (MFLT *flt)
@@ -2356,7 +2388,13 @@ mflt_name (MFLT *flt)
     @brief Return a coverage of a FLT.
 
     The mflt_coverage () function returns a char-table that contains
-    nonzero value for characters supported by $FLT.  */
+    nonzero values for characters supported by $FLT.  */
+
+/***
+    @brief FLT の範囲を返す.
+
+    関数 mflt_coverage () は、$FLT がサポートする文字に対して
+    0 でない値を含む文字テーブルを返す。  */
 
 MCharTable *
 mflt_coverage (MFLT *flt)
@@ -2366,23 +2404,43 @@ mflt_coverage (MFLT *flt)
 
 /*=*/
 /***en
-    @brief Layout characters by Font Layout Table.
+    @brief Layout characters with an FLT.
 
-    The mflt_run () function layout characters in $GSTRING between
-    $FROM (inclusive) and $TO (exclusive) by $FONT.  If $FLT is
+    The mflt_run () function layouts characters in $GSTRING between
+    $FROM (inclusive) and $TO (exclusive) with $FONT.  If $FLT is
     nonzero, it is used for all the charaters.  Otherwise, appropriate
     FLTs are automatically chosen.
 
     @retval >=0
-    The operation was successful.  The value is an index to the
-    $GSTRING->glyphs which was previously indexed by $TO.
+    The operation was successful.  The value is the index to the
+    glyph, which was previously indexed by $TO, in $GSTRING->glyphs.
 
     @retval -2
-    $GSTRING->glyphs is too short to store the result.  A caller can
-    call this fucntion again with the larger $GSTRING->glyphs.
+    $GSTRING->glyphs is too short to store the result.  The caller can
+    call this fucntion again with a longer $GSTRING->glyphs.
 
     @retval -1
     Some other error occurred.  */
+
+/***ja
+    @brief FLT を使って文字をレイアウトする.
+
+    関数 mflt_run () は、$GSTRING 中の $FROM から $TO 直前までの文字を
+    $FONT を用いてレイアウトする。もし $FLT
+    がゼロでなければ、その値をすべての文字に対して用いる。
+    そうでなければ適切な FLT を自動的に選択する。
+
+    @retval >=0
+    実行成功を示す。返される値は、$GSTRING->glyphs 中で以前 $TO
+    によって示されていたグリフへのインデクスである。
+
+    @retval -2
+    結果を格納するには $GSTRING->glyphs が短すぎることを示す。
+    呼び出し側は、より長い $GSTRING->glyphs
+    を用いて再度この関数を呼ぶことができる。
+
+    @retval -1
+    その他のエラーが起きたことを示す。  */
 
 int
 mflt_run (MFLTGlyphString *gstring, int from, int to,
