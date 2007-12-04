@@ -37,7 +37,11 @@ M17N_BEGIN_HEADER
 extern void m17n_init (void);
 #undef M17N_INIT
 #ifdef _M17N_FLT_H_
-#define M17N_INIT() m17n_init_flt (1)
+#define M17N_INIT()	\
+  do {			\
+    m17n_init ();	\
+    m17n_init_flt ();	\
+  } while (0)
 #else  /* not _M17N_FLT_H_ */
 #define M17N_INIT() m17n_init ()
 #endif	/* not _M17N_FLT_H_ */
@@ -45,7 +49,11 @@ extern void m17n_init (void);
 extern void m17n_fini (void);
 #undef M17N_FINI
 #ifdef _M17N_FLT_H_
-#define M17N_FINI() m17n_fini_flt (1)
+#define M17N_FINI()	\
+  do {			\
+    m17n_fini_flt ();	\
+    m17n_fini ();	\
+  } while (0)
 #else  /* not _M17N_FLT_H_ */
 #define M17N_FINI() m17n_fini ()
 #endif	/* not _M17N_FLT_H_ */
