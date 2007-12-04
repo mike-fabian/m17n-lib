@@ -36,11 +36,20 @@ M17N_BEGIN_HEADER
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 extern void m17n_init (void);
 #undef M17N_INIT
-#define M17N_INIT() m17n_init ()
+#ifdef _M17N_FLT_H_
+#define M17N_INIT() m17n_init_flt (1)
+#else  /* not _M17N_FLT_H_ */
+#define M17N_INIT() m17n_init (1)
+#endif	/* not _M17N_FLT_H_ */
 
 extern void m17n_fini (void);
 #undef M17N_FINI
+#ifdef _M17N_FLT_H_
+#define M17N_FINI() m17n_fini_flt (1)
+#else  /* not _M17N_FLT_H_ */
 #define M17N_FINI() m17n_fini ()
+#endif	/* not _M17N_FLT_H_ */
+
 #endif
 
 /***en @defgroup m17nShell SHELL API */
