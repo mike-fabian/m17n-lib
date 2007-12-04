@@ -243,7 +243,7 @@ m17n_init_win (void)
   if (m17n__gui_initialized++)
     return;
   m17n_init ();
-  m17n_init_flt (0);
+  m17n_init_flt ();
   if (merror_code != MERROR_NONE)
     {
       m17n__gui_initialized--;
@@ -342,7 +342,7 @@ m17n_fini_win (void)
   MDEBUG_POP_TIME ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
   MDEBUG_POP_TIME ();
-  m17n_fini_flt (0);
+  m17n_fini_flt ();
   m17n_fini ();
 }
 
