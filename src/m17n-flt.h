@@ -31,20 +31,29 @@ M17N_BEGIN_HEADER
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 
-extern void m17n_init_flt (int);
+extern void m17n_init_flt (void);
 #undef M17N_INIT
 #ifdef _M17N_H_
-#define M17N_INIT() m17n_init_flt (1)
+#define M17N_INIT()			\
+  do {					\
+    m17n_init ();			\
+    if (merror_code == MERROR_NONE)	\
+      m17n_init_flt ();			\
+  } while (0)
 #else  /* not _M17N_H_ */
-#define M17N_INIT() m17n_init_flt (0)
+#define M17N_INIT() m17n_init_flt ()
 #endif	/* not _M17N_H_ */
 
-extern void m17n_fini_flt (int);
+extern void m17n_fini_flt (void);
 #undef M17N_FINI
 #ifdef _M17N_H_
-#define M17N_FINI() m17n_fini_flt (1)
+#define M17N_FINI()	\
+  do {			\
+    m17n_fini_flt ();	\
+    m17n_fini ();	\
+  } while (0)
 #else  /* not _M17N_H_ */
-#define M17N_FINI() m17n_fini_flt (0)
+#define M17N_FINI() m17n_fini_flt ()
 #endif	/* not _M17N_H_ */
 
 #endif
