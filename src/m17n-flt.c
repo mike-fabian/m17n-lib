@@ -2182,32 +2182,24 @@ int m17n__flt_initialized;
 
 /* External API */
 
-extern void m17n_init (void);
-extern void m17n_fini (void);
-
 /* The following two are actually not exposed to a user but concealed
    by the macro M17N_INIT (). */
 
 void
-m17n_init_flt (int with_shell)
+m17n_init_flt (void)
 {
   int mdebug_flag = MDEBUG_INIT;
 
   merror_code = MERROR_NONE;
-  if (m17n__flt_initialized)
-    {
-      m17n__flt_initialized++;
-      return;
-    }
+  if (m17n__flt_initialized++)
+    return;
   m17n_init_core ();
   if (merror_code != MERROR_NONE)
-    return;
-  if (with_shell)
     {
-      m17n_init ();
-      if (merror_code != MERROR_NONE)
-	return;
+      m17n__flt_initialized--;
+      return;
     }
+
   MDEBUG_PUSH_TIME ();
 
   Mcond = msymbol ("cond");
@@ -2221,11 +2213,10 @@ m17n_init_flt (int with_shell)
 
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the flt modules."));
   MDEBUG_POP_TIME ();
-  m17n__flt_initialized++;
 }
 
 void
-m17n_fini_flt (int with_shell)
+m17n_fini_flt (void)
 {
   int mdebug_flag = MDEBUG_FINI;
 
@@ -2237,8 +2228,6 @@ m17n_fini_flt (int with_shell)
   free_flt_list ();
   MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the flt modules."));
   MDEBUG_POP_TIME ();
-  if (with_shell)
-    m17n_fini ();
   m17n_fini_core ();
 }
 
