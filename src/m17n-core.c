@@ -31,17 +31,25 @@
     <ol>
     <li> CORE API
 
-    It provides basic modules to handle M-texts.  They do not require
-    the m17n database.  To use this API, an application program must
-    include <m17n-core<EM></EM>.h> and be linked by -lm17n-core.
+    It provides basic modules to handle M-texts.  To use this API, an
+    application program must include <m17n-core<EM></EM>.h> and be
+    linked by -lm17n-core.
 
     <li> SHELL API
 
-    It provides modules that utilize the m17n database (code
-    conversion, character property, etc).  They load various kinds of
+    It provides modules for character properties, character set
+    handling, code conversion, and etc.  They load various kinds of
     data from the database on demand.  To use this API, an application
     program must include <m17n<EM></EM>.h> and be linked by
     -lm17n-core -lm17n.
+
+    When you use this API, CORE API is also available.
+
+    <li> FLT API
+
+    It provides modules for text shaping using @ref mdbFLT.  To use
+    this API, an application provides must include <m17n<EM></EM>.h>
+    and be linked by -lm17n-core -lm17n-flt.
 
     When you use this API, CORE API is also available.
 
@@ -67,7 +75,8 @@
     <m17n-gui<EM></EM>.h> and be linked by -lm17n-core -lm17n
     -lm17n-gui.
 
-    When you use this API, CORE and SHELL API are also available.
+    When you use this API, CORE, SHELL, and FLT APIs are also
+    available.
 
     <li> MISC API
 

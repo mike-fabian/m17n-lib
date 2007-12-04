@@ -25,7 +25,8 @@
     @brief FLT support for a window system.
 
     This section defines the m17n FLT API concerning character
-    layouting facility using FLT (Font Layout Table).  */
+    layouting facility using FLT (Font Layout Table).  The format of
+    FLT is described in @ref mdbFLT.  */
 
 /*=*/
 
@@ -2172,6 +2173,9 @@ int m17n__flt_initialized;
 
 
 /* External API */
+
+extern void m17n_init (void);
+extern void m17n_fini (void);
 
 /* The following two are actually not exposed to a user but concealed
    by the macro M17N_INIT (). */
