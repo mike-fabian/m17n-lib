@@ -55,6 +55,8 @@ extern void m17n_init_core (void);
 extern void m17n_fini_core (void);
 #define M17N_FINI() m17n_fini_core ()
 
+extern int merror_code;
+
 #endif
 
 /*=*/
