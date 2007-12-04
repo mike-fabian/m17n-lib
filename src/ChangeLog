@@ -1,3 +1,14 @@
+2007-12-04  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* m17n.h: Handle the case of _M17N_FLT_H_ being defined.
+
+	* m17n-gui.c (m17n_init_win, m17n_fini_win): Adjusted for the
+	change of m17n_init_flt and m17n_fini_flt.
+
+	* m17n-flt.h: Handle the case of _M17N_H_ being defined.
+
+	* m17n-flt.c (m17n_init_flt, m17n_fini_flt): New arg with_shell.
+
 2007-11-22  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* draw.c (compose_glyph_string): Check g->rface->layouter, not
