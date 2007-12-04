@@ -1,5 +1,5 @@
 /* m17n-core.c -- body of the CORE API.
-   Copyright (C) 2003, 2004
+   Copyright (C) 2003, 2004, 2005, 2006, 2007
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -33,14 +33,14 @@
 
     It provides basic modules to handle M-texts.  To use this API, an
     application program must include <m17n-core<EM></EM>.h> and be
-    linked by -lm17n-core.
+    linked with -lm17n-core.
 
     <li> SHELL API
 
     It provides modules for character properties, character set
-    handling, code conversion, and etc.  They load various kinds of
+    handling, code conversion, etc.  They load various kinds of
     data from the database on demand.  To use this API, an application
-    program must include <m17n<EM></EM>.h> and be linked by
+    program must include <m17n<EM></EM>.h> and be linked with
     -lm17n-core -lm17n.
 
     When you use this API, CORE API is also available.
@@ -48,31 +48,31 @@
     <li> FLT API
 
     It provides modules for text shaping using @ref mdbFLT.  To use
-    this API, an application provides must include <m17n<EM></EM>.h>
-    and be linked by -lm17n-core -lm17n-flt.
+    this API, an application program must include <m17n<EM></EM>.h>
+    and be linked with -lm17n-core -lm17n-flt.
 
     When you use this API, CORE API is also available.
 
     <li> GUI API
 
     It provides GUI modules such as drawing and inputting M-texts on a
-    graphic device.  The API itself is independent on a graphic device
-    but most functions require an argument MFrame which is created for
-    a specific type of graphic device.  Currently, a null device, X
-    Window System, and an image date (gdImagePtr) of GD library are
-    supported as a graphic device.
+    graphic device.  This API itself is independent of graphic
+    devices, but most functions require an argument MFrame that is
+    created for a specific type of graphic devices.  The currently
+    supported graphic devices are null device, the X Window System,
+    and image data (gdImagePtr) of the GD library.
 
-    On a frame of the null device, you can't draw text nor use an
-    input method (but, for instance, the function mdraw_glyph_list ()
-    is available).
+    On a frame of a null device, you cannot draw text nor use input
+    methods.  However, functions like mdraw_glyph_list (), etc. are
+    available.
 
     On a frame of the X Window System, you can use the whole GUI API.
 
-    On a frame of GD library, you can use all drawing API but can't
-    use input method.
+    On a frame of the GD library, you can use all drawing API but
+    cannot use input methods.
 
-    To use this device, an application program must include
-    <m17n-gui<EM></EM>.h> and be linked by -lm17n-core -lm17n
+    To use this API, an application program must include
+    <m17n-gui<EM></EM>.h> and be linked with -lm17n-core -lm17n
     -lm17n-gui.
 
     When you use this API, CORE, SHELL, and FLT APIs are also
@@ -81,47 +81,48 @@
     <li> MISC API
 
     It provides miscellaneous functions to support error handling and
-    debugging.  This API cannot be used by itself, but with one or
-    more APIs listed above.  To use the API, an application program
-    must include <m17n-misc<EM></EM>.h> in addition to one of a header
-    file described above.
+    debugging.  This API cannot be used standalone; it must be used
+    with one or more APIs listed above.  To use this API, an
+    application program must include <m17n-misc<EM></EM>.h> in
+    addition to one of the header files described above.
 
     </ol>
 
     See also the section @ref m17n-config "m17n-config(1)".
 
-    <em>ENVIRONMENT VARIABLE</em>
+    <em>ENVIRONMENT VARIABLES</em>
 
-    The m17n library pays attention to these environment variables.
+    The m17n library pays attention to the following environment
+    variables.
 
     <ul>
     <li> @c M17NDIR
 
-    Name of a directory that contains data of the m17n database.  See
-    @ref m17nDatabase for more details.
+    The name of the directory that contains data of the m17n database.
+    See @ref m17nDatabase for details.
 
-    <li> @c MDEBUG_XXXX
+    <li> @c MDEBUG_XXX
 
-    Environment variables whose name start by "MDEBUG_" controls
-    printing of debug information.  See @ref m17nDebug for more
-    details.
+    Environment variables whose names start with "MDEBUG_" control
+    debug information output.  See @ref m17nDebug for details.
 
     </ul>
 
     <em>API NAMING CONVENTION</em>
 
-    The library exports functions, variables, macros, and types.  All
-    of them start by the letter 'm' or 'M' followed by an object name
-    (e.g. "symbol" and "plist", but "mtext" object is given the name
-    "text" to avoid double 'm' at the head) or a module name
-    (e.g. draw, input).
-    
+    The m17n library exports functions, variables, macros, and types.
+    All of them start with the letter 'm' or 'M', and are followed by
+    an object name (e.g. "symbol", "plist") or a module name
+    (e.g. draw, input).  Note that the name of M-text objects start
+    with "mtext" and not with "mmtext".
+
     <ul>
 
     <li> functions -- mobject () or mobject_xxx ()
 
-    They start with 'm' followed by lower case object name.  For
-    example, msymbol (), mtext_ref_char (), mdraw_text ().
+    They start with 'm' and are followed by an object name in lower
+    case.  Words are separated by '_'.  For example, msymbol (),
+    mtext_ref_char (), mdraw_text ().
 
     <li> non-symbol variables -- mobject, or mobject_xxx
     
@@ -129,18 +130,20 @@
 
     <li> symbol variables -- Mname
 
-    Variables of type MSymbol start with 'M' followed by their names
-    (e.g. Mlanguage (name is "language"), Miso_2022 (name is
-    "iso-2022").
+    Variables of the type MSymbol start with 'M' and are followed by
+    their names.  Words are separated by '_'.  For example, Mlanguage
+    (the name is "language"), Miso_2022 (the name is "iso-2022").
 
     <li> macros -- MOBJECT_XXX
 
-    They start by 'M' followed by upper case object names.
+    They start with 'M' and are followed by an object name in upper
+    case.  Words are separated by '_'.
 
     <li> types -- MObject or MObjectXxx
 
-    They start by 'M' followed by capitalized object names (e.g.
-    MConverter, MInputDriver).
+    They start with 'M' and are followed by capitalized object names.
+    Words are concatenated directly and no '_' are used.  For example,
+    MConverter, MInputDriver.
 
     </ul>
 
@@ -157,44 +160,62 @@
     <ol>
     <li> コア API
 
-    M-text を扱うための基本的なモジュールを提供する。この分類の API は
-    m17n データベースを必要としない。利用するためには、アプリケーションプログラムは
-    <m17n-core<EM></EM>.h> を include し、 -lm17n-core でリンクされなくてはならない。
+    M-text を扱うための基本的なモジュールを提供する。
+    この API を利用するためには、アプリケーションプログラムは
+    <m17n-core<EM></EM>.h> を include し、 -lm17n-core
+    でリンクされなくてはならない。
 
     <li> シェル API
 
-    m17n データベースを利用するモジュール（コード変換、文字プロパティ等）
-    を提供する。モジュールはデータベースから必要に応じて多様なデータをロードする。
-    利用するためには、アプリケーションプログラムは <m17n<EM></EM>.h> を include
-    し、 -lm17n-core -lm17n でリンクされなくてはならない。
+    文字プロパティ、文字集合操作、コード変換等のためのモジュールを提供する。
+    これらのモジュールは、データベースから必要に応じて多様なデータをロードする。
+    この API を利用するためには、アプリケーションプログラムは
+    <m17n<EM></EM>.h> を include し、 -lm17n-core -lm17n
+    でリンクされなくてはならない。
 
-    この API を使用する際にはコア API も使用できる。
+    この API を使用すれば、コア API も自動的に使用可能となる。
+
+    <li> FLT API
+
+    文字列表示に @ref mdbFLT を用いるモジュールを提供する。この API
+    を利用するためには、アプリケーションプログラムは <m17n<EM></EM>.h> 
+    を include し、 -lm17n-core -lm17n-flt でリンクされなくてはならない。
+
+    この API を使用すれば、コア API も自動的に使用可能となる。
 
     <li> GUI API
 
-    M-text をグラフィックデバイス上で表示したり入力したりするといった、グラフィックユーザインタフェースモジュールを提供する。
-    API 自体はグラフィックデバイスとは独立であるが、多くの関数は特定のグラフィックデバイス上に作成された 
-    MFrame を引数に取る。現時点では、ヌルデバイス、X ウィンドウシステム、
-    GD ライブラリのイメージ（gdImagePtr）、がグラフィックデバイスとしてサポートされている。
+    グラフィックデバイス上で M-text を表示したり入力したりするための
+    GUI モジュールを提供する。この API
+    自体はグラフィックデバイスとは独立であるが、
+    多くの関数は特定のグラフィックデバイス用に作成された 
+    MFrame を引数に取る。
+    現時点でサポートされているグラフィックデバイスは、ヌルデバイス、X
+    ウィンドウシステム、および GD ライブラリのイメージデータ
+    (gdImagePtr) である。
 
-    ヌルデバイス上では表示も入力もできない（ただしたとえば
-    mdraw_glyph_list () などの関数は使用可能）。
+    ヌルデバイスのフレーム上では表示も入力もできない。ただし
+    mdraw_glyph_list () などの関数は使用可能である。
 
-    X ウィンドウシステム上ではすべての GUI API が使用できる。
+    X ウィンドウシステムのフレーム上ではすべての GUI API が使用できる。
 
-    GD ライブラリのイメージ上では、描画用の API はすべて使用できるが入力はできない。
+    GD ライブラリのフレーム上では、描画用の API
+    はすべて使用できるが、入力はできない。
 
-    このデバイスを使用するためには、アプリケーションプログラムは
+    この API を使用するためには、アプリケーションプログラムは
     <m17n-gui<EM></EM>.h> を include し、-lm17n-core -lm17n -lm17n-gui
     でリンクされなくてはならない。
 
-    この API を使用する際には、コア API とシェル API も使用できる。
+    この API を使用すれば、コア API、シェル API、および FLT API
+    も自動的に使用可能となる。
 
     <li> その他の API
 
-    エラー処理、デバッグ用のその他の関数を提供する。この API 
-    はそれだけでは使用できず、上記の他のものと共に使う。利用するためには、上記のいずれかの
-    include ファイルに加えて、 <m17n-misc<EM></EM>.h> を include しなくてはならない。
+    エラー処理、デバッグ用のその他の関数を提供する。この API
+    はそれだけでは使用できず、上記の他の API
+    と共に使う。利用するためには、上記のいずれかのinclude
+    ファイルに加えて、 <m17n-misc<EM></EM>.h> をinclude
+    しなくてはならない。
 
     </ol>
 
@@ -202,51 +223,55 @@
 
     @em 環境変数
 
-    m17n ライブラリは次の環境変数を考慮する。
+    m17n ライブラリは以下の環境変数を参照する。
 
     <ul>
     <li> @c M17NDIR
 
-    m17n データベースのデータを含むディレクトリの名前。詳細は @ref
+    m17n データベースのデータを格納したディレクトリの名前。詳細は @ref
     m17nDatabase 参照。
 
-    <li> @c MDEBUG_XXXX
+    <li> @c MDEBUG_XXX
 
-    "MDEBUG_" で始まる名前を持つ環境変数はデバッグ情報を制御する。詳細は @ref m17nDebug 参照。
+    "MDEBUG_" で始まる名前を持つ環境変数はデバッグ情報の出力を制御する。
+    詳細は @ref m17nDebug 参照。
 
     </ul>
 
-    @em API @em の命名規則 コマンド
+    @em API @em の命名規則
 
-    ライブラリは、関数、変数、マクロ、型を export する。それらは'm' 
-    または 'M' のあとにオブジェクト名("symbol" や "plist" など。ただし 
-    "mtext" オブジェクトははじめの 'm' の重複を避けるため "text" 
-    を用いる。) またはモジュール名(draw, input など) を続けたものである。
+    m17n ライブラリは、関数、変数、マクロ、型を export する。それらは 'm' 
+    または 'M' のあとにオブジェクト名 ("symbol"、"plist" など)
+    またはモジュール名 (draw, input など) を続けたものである。
+    M-text オブジェクトの名前は "mmtext" ではなくて "mtext"
+    で始まることに注意。
     
     <ul>
 
     <li> 関数 -- mobject () または mobject_xxx ()
 
-    'm' のあとに小文字でオブジェクト名が続く。たとえば、msymbol (),
+    'm' のあとに小文字でオブジェクト名が続く。単語間は '_'
+    で区切られる。たとえば、msymbol (),
      mtext_ref_char (), mdraw_text () など。
 
     <li> シンボルでない変数 -- mobject,  または mobject_xxx
     
-    関数と同じ命名規則に従う。(たとえば  mface_large)
+    関数と同じ命名規則に従う。たとえば  mface_large など。
 
     <li> シンボル変数 -- Mname
 
-    MSymbol 型変数は、'M' の後に名前が続く。たとえば Mlanguage (名前は 
-    "language"), Miso_2022 (名前は"iso-2022")など。
+    MSymbol 型変数は、'M' の後に名前が続く。単語間は '_'
+    で区切られる。たとえば Mlanguage (名前は "language"), Miso_2022
+    (名前は"iso-2022") など。
 
     <li> マクロ -- MOBJECT_XXX
 
-    'M' の後に大文字でオブジェクト名が続く。
+    'M' の後に大文字でオブジェクト名が続く。単語間は '_' で区切られる。
 
     <li> タイプ -- MObject または MObjectXxx
 
-    'M' の後に大文字で始めてオブジェクト名をが続く。 (たとえば
-    MConverter, MInputDriver)
+    'M' の後に大文字で始まるオブジェクト名が続く。単語は連続して書かれ、
+    '_' は用いられない。たとえば MConverter, MInputDriver など。
 
     </ul>
     
