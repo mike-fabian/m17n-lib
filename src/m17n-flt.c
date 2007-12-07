@@ -2379,7 +2379,7 @@ mflt_name (MFLT *flt)
     The mflt_coverage () function returns a char-table that contains
     nonzero values for characters supported by $FLT.  */
 
-/***
+/***ja
     @brief FLT の範囲を返す.
 
     関数 mflt_coverage () は、$FLT がサポートする文字に対して
