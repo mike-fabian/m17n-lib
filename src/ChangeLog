@@ -1,3 +1,7 @@
+2007-12-07  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* plist.c (read_mtext_element): Don't free the malloced buffer.
+
 2007-12-04  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* m17n-core.h (merror_code): Extern it.
