@@ -290,15 +290,9 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 
   if (! skip)
     {
-      MText *mt;
-
-      if (buf == buffer)
-	mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 1);
-      else
-	{
-	  mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, 0);
-	  free (buf);
-	}
+      MText *mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8,
+				    (buf == buffer));
+      mt->allocated = nbytes;
       MPLIST_SET_ADVANCE (plist, Mtext, mt);
     }
   return plist;
