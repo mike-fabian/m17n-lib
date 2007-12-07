@@ -292,7 +292,8 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
     {
       MText *mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8,
 				    (buf == buffer));
-      mt->allocated = nbytes;
+      if (buf != buffer)
+	mt->allocated = nbytes;
       MPLIST_SET_ADVANCE (plist, Mtext, mt);
     }
   return plist;
