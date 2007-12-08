@@ -1499,7 +1499,8 @@ run_rule (int depth,
 	return 0;
       to = ctx->match_indices[rule->src.match_idx * 2 + 1];
       if (MDEBUG_FLAG () > 2)
-	MDEBUG_PRINT3 ("\n [FLT] %*s(INDEX %d", depth, "", rule->src.match_idx);
+	MDEBUG_PRINT3 ("\n [FLT] %*s(SUBPART %d", depth, "",
+		       rule->src.match_idx);
     }
   else if (rule->src_type == SRC_HAS_GLYPH)
     {
@@ -1511,13 +1512,11 @@ run_rule (int depth,
 	  if (from >= to)
 	    return 0;
 	  code = GREF (ctx->in, from)->code;
-	  to = from + 1;
 	  encoded = GREF (ctx->in, from)->encoded;
 	}
       else
 	{
 	  code = rule->src.supported_glyph;
-	  to = from;
 	  encoded = 0;
 	}
       if (! encoded)
@@ -1536,6 +1535,8 @@ run_rule (int depth,
 	      || ! gstring.glyphs[0].encoded)
 	    return 0;
 	}
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(HAS-GLYPH %04X", depth, "", code);
     }
   else if (rule->src_type == SRC_OTF_SPEC)
     {
