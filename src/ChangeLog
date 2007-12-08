@@ -1,3 +1,11 @@
+2007-12-08  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* m17n-flt.c (run_rule): Fix printing of debug info.  Don't update
+	TO for the rule of SRC_HAS_GLYPH.
+
+	* draw.c (run_flt): Argument changed.
+	(compose_glyph_string): Adjusted for the above change.
+
 2007-12-07  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* plist.c (read_mtext_element): Don't free the malloced buffer.
