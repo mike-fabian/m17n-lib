@@ -263,9 +263,10 @@ reorder_combining_chars (MGlyphString *gstring, int from, int to)
 #endif
 
 static int
-run_flt (MGlyphString *gstring, int from, int to, MRealizedFont *rfont,
-	 MSymbol layouter)
+run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 {
+  MRealizedFont *rfont = rface->rfont;
+  MSymbol layouter = rface->layouter;
   MFLTGlyphString flt_gstr;
   MFLTFontForRealized font;
   MFLT *flt;
@@ -313,6 +314,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFont *rfont,
       g->g.rbearing >>= 6;
       g->g.xoff >>= 6;
       g->g.yoff >>= 6;
+      g->rface = rface;
     }
   return to;
 }
@@ -556,8 +558,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 				!= MCHAR_INVALID_CODE))));
 		   i++, g++)
 		g->rface->rfont = this->rface->rfont;
-	      i = run_flt (gstring, start, i, this->rface->rfont,
-			   this->rface->layouter);
+	      i = run_flt (gstring, start, i, this->rface);
 	    }
 	  else
 	    {
@@ -569,7 +570,10 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		     && g->rface->layouter == Mnil)
 		i++, g++;
 	      if (start + 1 < i)
-		run_flt (gstring, start, i, this->rface->rfont, Mcombining);
+		{
+		  this->rface->layouter = Mcombining;
+		  run_flt (gstring, start, i, this->rface);
+		}
 	      else
 		mfont__get_metric (gstring, start, i);
 	    }
