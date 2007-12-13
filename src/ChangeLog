@@ -1,5 +1,15 @@
 2007-12-13  Kenichi Handa  <handa@ni.aist.go.jp>
 
+	* m17n-core.c (m17n_init_core): Handle the lang. env. MDEBUG_FLT.
+
+	* m17n-flt.c (mdebug_flag): Set to MDEBUG_FLT.
+	(run_rule): Check if a font has the specific glyph correctly.
+
+	* internal.h (enum MDebugFlag): Delete MDEBUG_FONT_OTF, change
+	MDEBUG_FONT_FLT to MDEBUG_FLT.
+
+	* font.c (mfont__get_glyph_id): Encode g->g.code (not g->g.c).
+
 	* font-flt.c: Delete it.
 
 2007-12-08  Kenichi Handa  <handa@ni.aist.go.jp>
