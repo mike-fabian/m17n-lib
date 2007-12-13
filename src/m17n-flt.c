@@ -244,7 +244,7 @@ MACRO-NAME ::= SYMBOL
 
 */
 
-static int mdebug_flag = MDEBUG_FONT_FLT;
+static int mdebug_flag = MDEBUG_FLT;
 
 MSymbol Mfont, Mlayouter, Mcombining;
 
@@ -1531,7 +1531,8 @@ run_rule (int depth,
 	      gstring.used = 1;
 	    }
 	  gstring.glyphs[0].code = code;
-	  if (ctx->font->get_glyph_id (ctx->font, &gstring, 0, 1) < 0
+	  ctx->font->get_glyph_id (ctx->font, &gstring, 0, 1);
+	  if (gstring.glyphs[0].code == 0xFFFFFFFF
 	      || ! gstring.glyphs[0].encoded)
 	    return 0;
 	}
