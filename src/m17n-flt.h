@@ -77,9 +77,7 @@ extern void m17n_fini_flt (void);
 
     型 #MFLTGlyph は、グリフに関する情報を格納する構造体である。  */
 
-typedef struct _MFLTGlyph MFLTGlyph;
-
-struct _MFLTGlyph
+typedef struct
 {
   /***en Character code (Unicode) of the glyph.  This is the sole
       member to be set before calling the functions mflt_find () and
@@ -144,7 +142,7 @@ struct _MFLTGlyph
   unsigned internal : 30;
 
   /* Arbitrary data can follow.  */
-};
+} MFLTGlyph;
 
 /*=*/
 
@@ -162,9 +160,7 @@ struct _MFLTGlyph
     は、グリフのメトリック/位置の調整に関する情報を格納するための構造体であり、
     #MFLTFont の callback 関数 #drive_otf に渡される。  */
 
-typedef struct _MFLTGlyphAdjustment MFLTGlyphAdjustment;
-
-struct _MFLTGlyphAdjustment
+typedef struct
 {
   /***en Adjustments for advance width for horizontal layout and
       advance height for vertical layout expressed in 26.6 fractional
@@ -190,7 +186,9 @@ struct _MFLTGlyphAdjustment
       a nonzero value.  */
   /***ja 他のメンバーのうち最低1個が非ゼロのときのみ、1にセットされる。  */
   unsigned set : 1;
-};
+} MFLTGlyphAdjustment;
+
+/*=*/
 
 /***en
     @brief Type of information about a glyph sequence.
@@ -203,9 +201,7 @@ struct _MFLTGlyphAdjustment
 
     型 #MFLTGlyphString は、グリフ列の情報を格納するための構造体である。  */
 
-typedef struct _MFLTGlyphString MFLTGlyphString;
-
-struct _MFLTGlyphString
+typedef struct
 {
   /***en The actual byte size of elements of the array pointed by the
       member #glyphs.  It must be equal to or greater than "sizeof
@@ -226,7 +222,9 @@ struct _MFLTGlyphString
       or not.  */
   /***ja グリフが右から左へと描かれるべきか否かを示すフラグ。  */
   unsigned int r2l;
-};
+} MFLTGlyphString;
+
+/*=*/
 
 /***en
     @brief Type of specification of GSUB and GPOS OpenType tables.
@@ -238,13 +236,11 @@ struct _MFLTGlyphString
 /***ja
     @brief GSUB および GPOS OpenType テーブルの仕様のための型.
 
-    型 #MFLTOtfSpec は、GSUB および GPOS
-    フィーチャーの情報を格納するための構造体である。
-    これらフィーチャーは特定のスクリプトおよび言語システムのものであり、グリフ列に適用される。  */
+    型 #MFLTOtfSpec は、GSUB および GPOSフィーチャーの情報を格納するた
+    めの構造体である。これらフィーチャーは特定のスクリプトおよび言語シ
+    ステムのものであり、グリフ列に適用される。  */
 
-typedef struct _MFLTOtfSpec MFLTOtfSpec;
-
-struct _MFLTOtfSpec
+typedef struct
 {
   /***en Unique symbol representing the spec.  This is the same as the
       #OTF-SPEC of the FLT.  */
@@ -261,12 +257,15 @@ struct _MFLTOtfSpec
       apply the previous features in that order, and apply all the
       other features except those that appear in the following elements.
       It may be NULL if there are no features.  */
-  /***ja GSUB フィーチャーを第1要素、GPOS フィーチャーを第2要素とする配列。
-      各配列の末尾は0で示される。もしある要素が 0xFFFFFFFF
-      ならば、以前の全フィーチャーをその順序で適用し、更に以降の要素として現われるフィチャー以外のすべてを適用する。
-      フィーチャーが1つもない場合は NULL でもよい。  */
+  /***ja GSUB フィーチャーを第1要素、GPOS フィーチャーを第2要素とする配
+      列。各配列の末尾は0で示される。もしある要素が 0xFFFFFFFFならば、
+      以前の全フィーチャーをその順序で適用し、更に以降の要素として現わ
+      れるフィチャー以外のすべてを適用する。フィーチャーが1つもない場合
+      は NULL でもよい。  */
   unsigned int *features[2];
-};
+} MFLTOtfSpec;
+
+/*=*/
 
 /***en
     @brief Type of font to be used by the FLT driver.
@@ -277,20 +276,17 @@ struct _MFLTOtfSpec
 /***ja
     @brief FLT ドライバが使うフォントの型.
 
-    型 #MFLTFont は、FLT
-    ドライバが使うフォントに関する情報を格納するための構造体である。  */
+    型 #MFLTFont は、FLTドライバが使うフォントに関する情報を格納するた
+    めの構造体である。  */
 
-typedef struct _MFLTFont MFLTFont;
-
-struct _MFLTFont
+typedef struct _MFLTFont
 {
   /***en Family name of the font.  It may be #Mnil if the family name
      is not important in finding a Font Layout Table suitable for the
      font (for instance, in the case that the font is an OpenType
      font).  */
-  /***ja フォントのファミリー名。フォントに適した FLT
-      を探す際に重要でない場合 (たとえば OpenType
-      フォントの場合など) は、#Mnil でよい。*/
+  /***ja フォントのファミリー名。フォントに適した FLTを探す際に重要でな
+      い場合 (たとえば OpenTypeフォントの場合など) は、#Mnil でよい。 */
   MSymbol family;
 
   /***en Horizontal and vertical font sizes in pixels per EM.  */
@@ -301,50 +297,48 @@ struct _MFLTFont
      (inclusive) and TO (exclusive) of GSTRING.  If the member <encoded>
      of a glyph is zero, the member <code> of that glyph is a character
      code.  The function must convert it to the glyph ID of FONT.  */
-  /***ja GSTRING 内の FROM から TO 直前までの各グリフに対応するグリフ ID
-      を取得するための callback 関数。もしあるグリフのメンバー <encoded>
-      がゼロならば、そのグリフのメンバー <code> は文字コードである。
-      この関数はその文字コードを FONT のグリフ ID
-      に変換しなくてはならない。  */
-  int (*get_glyph_id) (MFLTFont *font, MFLTGlyphString *gstring,
+  /***ja GSTRING 内の FROM から TO 直前までの各グリフに対応するグリフ
+      IDを取得するための callback 関数。もしあるグリフのメンバー
+      <encoded>がゼロならば、そのグリフのメンバー <code> は文字コードで
+      ある。この関数はその文字コードを FONT のグリフ IDに変換しなくては
+      ならない。  */
+  int (*get_glyph_id) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		       int from, int to);
 
   /***en Callback function to get metrics of glyphs between FROM
      (inclusive) and TO (exclusive) of GSTRING.  If the member <measured>
      of a glyph is zero, the function must set the members <xadv>, <yadv>,
      <ascent>, <descent>, <lbearing>, and <rbearing> of the glyph.  */
-  /***ja GSTRING 内の FROM から TO
-      直前までの各グリフに対応するメトリックを取得するための callback 関数。
-      もしあるグリフのメンバー <measured>
-      がゼロならば、この関数はそのグリフのメンバー <xadv>, <yadv>,
-      <ascent>, <descent>, <lbearing>, および <rbearing>
-      をセットしなければならない。  */
-  int (*get_metrics) (MFLTFont *font, MFLTGlyphString *gstring,
+  /***ja GSTRING 内の FROM から TO直前までの各グリフに対応するメトリッ
+      クを取得するための callback 関数。もしあるグリフのメンバー
+      <measured>がゼロならば、この関数はそのグリフのメンバー <xadv>,
+      <yadv>, <ascent>, <descent>, <lbearing>, および <rbearing>をセッ
+      トしなければならない。  */
+  int (*get_metrics) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		     int from, int to);
 
   /***en Callback function to check if the font has OpenType GSUB/GPOS
      features for a specific script/language.  The function must
      return 1, if the font satisfies SPEC, or 0.  It must be
      NULL if the font does not have OpenType tables.  */
-  /***ja フォントがある特定のスクリプト/言語に対する GSUB/GPOS OpenType
-      フィーチャーを持つか否かを調べる callback 関数。この関数はフォントが
-      SPEC を満たすときは 1 を、そうでないときは 0
-      を返さなければならない。フォントが OpenType テーブルを持たないときは
-      NULL でなければならない。  */
-  int (*check_otf) (MFLTFont *font, MFLTOtfSpec *spec);
+  /***ja フォントがある特定のスクリプト/言語に対する GSUB/GPOS
+      OpenTypeフィーチャーを持つか否かを調べる callback 関数。この関数
+      はフォントがSPEC を満たすときは 1 を、そうでないときは 0を返さな
+      ければならない。フォントが OpenType テーブルを持たないときはNULL
+      でなければならない。  */
+  int (*check_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec);
 
   /***en Callback function to apply OpenType features in SPEC to glyphs
      between FROM (inclusive) and TO (exclusive) of IN.  The resulting
      glyphs are appended to the tail of OUT.  If OUT does not
      have a room to store all the resulting glyphs, it must return -2.
      It must be NULL if the font does not have OpenType tables.  */
-  /***ja IN 内の FROM から TO 直前までの各グリフに SPEC
-      内の各 OpenType フィーチャーを適用するための callback 関数。
-      適用結果のグリフ列は OUT の末尾に追加される。
-      OUT が短か過ぎて結果を追加し切れない場合は -2 を返さなくてはならない。
-      フォントが OpenType テーブルを持たない場合は NULL
-      でなければならない。  /*
-  int (*drive_otf) (MFLTFont *font, MFLTOtfSpec *spec,
+  /***ja IN 内の FROM から TO 直前までの各グリフに SPEC内の各 OpenType
+      フィーチャーを適用するための callback 関数。適用結果のグリフ列は
+      OUT の末尾に追加される。OUT が短か過ぎて結果を追加し切れない場合
+      は -2 を返さなくてはならない。フォントが OpenType テーブルを持た
+      ない場合は NULLでなければならない。  */
+  int (*drive_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec,
 		    MFLTGlyphString *in, int from, int to,
 		    MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment);
 
@@ -352,7 +346,9 @@ struct _MFLTFont
       to NULL.  */
   /***ja m17n-lib の内部作業用。NULL に初値化される。  */
   void *internal;
-};
+} MFLTFont;
+
+/*=*/
 
 /***en
     @brief Type of FLT (Font Layout Table).
