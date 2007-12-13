@@ -284,7 +284,7 @@
     of the m17n library.  */
 /***ja
     マクロ #M17NLIB_MAJOR_VERSION は m17n 
-    ライブラリのメジャーバージョン番号を与える。  */
+    ライブラリのメジャーバージョン番号を与える.  */
 
 #define M17NLIB_MAJOR_VERSION
 
@@ -296,7 +296,7 @@
 
 /***ja
     マクロ #M17NLIB_MINOR_VERSION は m17n 
-    ライブラリのマイナーバージョン番号を与える。  */
+    ライブラリのマイナーバージョン番号を与える.  */
 
 #define M17NLIB_MINOR_VERSION
 
@@ -308,7 +308,7 @@
 
 /***ja
     マクロ #M17NLIB_PATCH_LEVEL は m17n 
-    ライブラリのパッチレベル番号を与える。  */
+    ライブラリのパッチレベル番号を与える.  */
 
 #define M17NLIB_PATCH_LEVEL
 
@@ -320,7 +320,7 @@
 
 /***ja
     マクロ #M17NLIB_VERSION_NAME は m17n 
-    ライブラリのバージョン名を文字列として与える。  */
+    ライブラリのバージョン名を文字列として与える.  */
 
 #define M17NLIB_VERSION_NAME
 
