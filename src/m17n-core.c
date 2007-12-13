@@ -566,9 +566,11 @@ m17n_init_core (void)
   SET_DEBUG_FLAG ("MDEBUG_CODING", MDEBUG_CODING);
   SET_DEBUG_FLAG ("MDEBUG_DATABASE", MDEBUG_DATABASE);
   SET_DEBUG_FLAG ("MDEBUG_FONT", MDEBUG_FONT); 
-  SET_DEBUG_FLAG ("MDEBUG_FONT_FLT", MDEBUG_FONT_FLT);
-  SET_DEBUG_FLAG ("MDEBUG_FONT_OTF", MDEBUG_FONT_OTF);
+  SET_DEBUG_FLAG ("MDEBUG_FLT", MDEBUG_FLT);
   SET_DEBUG_FLAG ("MDEBUG_INPUT", MDEBUG_INPUT);
+  /* for backward compatibility... */
+  SET_DEBUG_FLAG ("MDEBUG_FONT_FLT", MDEBUG_FLT);
+  SET_DEBUG_FLAG ("MDEBUG_FONT_OTF", MDEBUG_FLT);
   {
     char *env_value = getenv ("MDEBUG_OUTPUT_FILE");
 
@@ -1064,11 +1066,9 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     <li> MDEBUG_FONT -- If set to 1, print information about fonts
     being selected and opened.
 
-    <li> MDEBUG_FONT_FLT -- If set to 1, print information about which
-    command of Font Layout Table are being executed.
-
-    <li> MDEBUG_FONT_OTF -- If set to 1, print information about which
-    feature of OpenType Layout Table are being executed.
+    <li> MDEBUG_FLT -- If set to 1, 2, or 3, print information about
+    which command of Font Layout Table are being executed.  The bigger
+    number prints the more detailed information.
 
     <li> MDEBUG_INPUT -- If set to 1, print information about how an
     input method is running.
@@ -1113,15 +1113,15 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     <li> MDEBUG_DATABASE -- 1 ならば、m17n
     データベースからロードされたデータについての情報をプリントする。
 
-    <li> MDEBUG_FONT -- 1 ならば、選択されてオープンされたフォントについての情報をプリントする。
+    <li> MDEBUG_FONT -- 1 ならば、選択されてオープンされたフォントにつ
+    いての情報をプリントする。
 
-    <li> MDEBUG_FONT_FLT -- 1 ならば、Font Layout Table 
-    のどのコマンドが実行中かについてのをプリントする。
+    <li> MDEBUG_FLT -- 1、2、もしくは 3 ならば、Font Layout Table のど
+    のコマンドが実行中かについてのをプリントする。より大きな値程より詳
+    しい情報をプリントする。
 
-    <li> MDEBUG_FONT_OTF -- 1 ならば、OpenType Layout Table 
-    のどの属性が実行中かについてのをプリントする。
-
-    <li> MDEBUG_INPUT -- 1 ならば、実行中の入力メソッドの状態に付いての情報をプリントする。
+    <li> MDEBUG_INPUT -- 1 ならば、実行中の入力メソッドの状態に付いての
+    情報をプリントする。
 
     <li> MDEBUG_ALL -- 1 ならば、上記すべての変数を 1 
     にしたのと同じ効果を持つ。
