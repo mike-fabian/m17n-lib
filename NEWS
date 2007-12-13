@@ -5,6 +5,19 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.5.0
+
+** New API layer FLT is created.
+
+** New environment variable MDEBUG_FLT is available to turn on
+printing debug information for FLT, and these are now obsolete;
+MDEBUG_FONT_FLT, MDEBUG_FONT_OTF.
+
+** New functions mchartable_min_char () returns the mininum character.
+that is set some value in a char-table.  New funcion
+mchartable_min_char () is for the maximum character.
+
+
 * Changes in the m17n library 1.4.0
 
 ** If the environment variable "M17NDIR" is not set, the directory
