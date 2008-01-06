@@ -367,7 +367,7 @@ GREPLACE (MFLTGlyphString *src, int src_from, int src_to,
 #define CMD_ID_TO_INDEX(id) (CMD_ID_OFFSET_INDEX - (id))
 #define INDEX_TO_CMD_ID(idx) (CMD_ID_OFFSET_INDEX - (idx))
 
-static MSymbol Mcond, Mrange, Mfont_facility;
+static MSymbol Mcond, Mrange, Mfont_facility, Mequal;
 
 #define GLYPH_CODE_P(code)	\
   ((code) >= GLYPH_CODE_MIN && (code) <= GLYPH_CODE_MAX)
@@ -411,8 +411,11 @@ typedef struct
     struct {
       int from, to;
     } range;
-    int supported_glyph;
-    MFLTOtfSpec otf_spec;
+    struct {
+      int len;
+      MPlist *codes;
+      MFLTOtfSpec otf_spec;
+    } facility;
   } src;
 
   int n_cmds;
@@ -925,7 +928,7 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 	    }
 	  else if (MPLIST_PLIST_P (elt))
 	    {
-	      MPlist *pl = MPLIST_PLIST (elt);
+	      MPlist *pl = MPLIST_PLIST (elt), *p;
 	      int size = MPLIST_LENGTH (pl);
 
 	      if (MPLIST_INTEGER_P (pl))
@@ -944,47 +947,58 @@ load_command (FontLayoutStage *stage, MPlist *plist,
 			= (unsigned) MPLIST_INTEGER (pl);
 		    }
 		}
-	      else if (MPLIST_SYMBOL_P (pl) && size == 3)
+	      else if (MPLIST_SYMBOL_P (pl))
 		{
-		  if (MPLIST_SYMBOL (pl) != Mrange)
-		    MERROR (MERROR_FLT, INVALID_CMD_ID);
-		  cmd->body.rule.src_type = SRC_RANGE;
-		  pl = MPLIST_NEXT (pl);
-		  if (! MPLIST_INTEGER_P (pl))
-		    MERROR (MERROR_DRAW, INVALID_CMD_ID);
-		  cmd->body.rule.src.range.from
-		    = (unsigned) MPLIST_INTEGER (pl);
-		  pl = MPLIST_NEXT (pl);
-		  if (! MPLIST_INTEGER_P (pl))
-		    MERROR (MERROR_DRAW, INVALID_CMD_ID);
-		  cmd->body.rule.src.range.to
-		    = (unsigned) MPLIST_INTEGER (pl);
-		}
-	      else if (MPLIST_SYMBOL_P (pl) && size <= 2)
-		{
-		  if (MPLIST_SYMBOL (pl) != Mfont_facility)
-		    MERROR (MERROR_FLT, INVALID_CMD_ID);
-		  pl = MPLIST_NEXT (pl);
-		  if (MPLIST_SYMBOL_P (pl))
+		  if (MPLIST_SYMBOL (pl) == Mrange)
 		    {
-		      MSymbol sym = MPLIST_SYMBOL (pl);
-		      char *otf_spec = MSYMBOL_NAME (sym);
-
-		      if (otf_spec[0] == ':' && otf_spec[1] == 'o'
-			  && otf_spec[2] == 't' && otf_spec[3] == 'f')
-			parse_otf_command (sym, &cmd->body.rule.src.otf_spec);
-		      else
+		      if (size != 3)
 			MERROR (MERROR_FLT, INVALID_CMD_ID);
-		      cmd->body.rule.src_type = SRC_OTF_SPEC;
+		      cmd->body.rule.src_type = SRC_RANGE;
+		      pl = MPLIST_NEXT (pl);
+		      if (! MPLIST_INTEGER_P (pl))
+			MERROR (MERROR_DRAW, INVALID_CMD_ID);
+		      cmd->body.rule.src.range.from
+			= (unsigned) MPLIST_INTEGER (pl);
+		      pl = MPLIST_NEXT (pl);
+		      if (! MPLIST_INTEGER_P (pl))
+			MERROR (MERROR_DRAW, INVALID_CMD_ID);
+		      cmd->body.rule.src.range.to
+			= (unsigned) MPLIST_INTEGER (pl);
 		    }
-		  else
+		  else if (MPLIST_SYMBOL (pl) == Mfont_facility)
 		    {
-		      cmd->body.rule.src_type = SRC_HAS_GLYPH;
-		      if (MPLIST_INTEGER_P (pl))
-			cmd->body.rule.src.supported_glyph
-			  = MPLIST_INTEGER (pl);
+		      FontLayoutCmdRule *rule = &cmd->body.rule;
+
+		      pl = MPLIST_NEXT (pl);
+		      if (MPLIST_SYMBOL_P (pl))
+			{
+			  MSymbol sym = MPLIST_SYMBOL (pl);
+			  char *otf_spec = MSYMBOL_NAME (sym);
+
+			  if (otf_spec[0] == ':' && otf_spec[1] == 'o'
+			      && otf_spec[2] == 't' && otf_spec[3] == 'f')
+			    parse_otf_command (sym, &rule->src.facility.otf_spec);
+			  else
+			    MERROR (MERROR_FLT, INVALID_CMD_ID);
+			  rule->src_type = SRC_OTF_SPEC;
+			  pl = MPLIST_NEXT (pl);
+			}
+		      else if (MPLIST_TAIL_P (pl))
+			MERROR (MERROR_FLT, INVALID_CMD_ID);
 		      else
-			cmd->body.rule.src.supported_glyph = -1;
+			rule->src_type = SRC_HAS_GLYPH;
+		      rule->src.facility.len = 0;
+		      MPLIST_DO (p, pl)
+			{
+			  if (! MPLIST_INTEGER_P (p)
+			      && (MPLIST_SYMBOL_P (p)
+				  ? MPLIST_SYMBOL (p) != Mequal
+				  : 1))
+			    MERROR (MERROR_FLT, INVALID_CMD_ID);
+			  rule->src.facility.len++;
+			}
+		      rule->src.facility.codes = pl;
+		      M17N_OBJECT_REF (pl);
 		    }
 		}
 	      else
@@ -1502,55 +1516,115 @@ run_rule (int depth,
 	MDEBUG_PRINT3 ("\n [FLT] %*s(SUBPART %d", depth, "",
 		       rule->src.match_idx);
     }
-  else if (rule->src_type == SRC_HAS_GLYPH)
+  else if (rule->src_type == SRC_HAS_GLYPH
+	   || rule->src_type == SRC_OTF_SPEC)
     {
-      int encoded;
-      unsigned code;
+      static MFLTGlyphString gstring;
+      MPlist *p;
+      int idx;
 
-      if (rule->src.supported_glyph < 0)
+      if (rule->src.facility.len > 0)
 	{
-	  if (from >= to)
-	    return 0;
-	  code = GREF (ctx->in, from)->code;
-	  encoded = GREF (ctx->in, from)->encoded;
-	}
-      else
-	{
-	  code = rule->src.supported_glyph;
-	  encoded = 0;
-	}
-      if (! encoded)
-	{
-	  static MFLTGlyphString gstring;
-
 	  if (! gstring.glyph_size)
 	    {
 	      gstring.glyph_size = ctx->in->glyph_size;
-	      gstring.glyphs = calloc (1, gstring.glyph_size);
-	      gstring.allocated = 1;
-	      gstring.used = 1;
+	      gstring.glyphs = calloc (rule->src.facility.len,
+				       gstring.glyph_size);
+	      gstring.allocated = rule->src.facility.len;
+	      gstring.used = rule->src.facility.len;
 	    }
-	  gstring.glyphs[0].code = code;
-	  ctx->font->get_glyph_id (ctx->font, &gstring, 0, 1);
-	  if (gstring.glyphs[0].code == 0xFFFFFFFF
-	      || ! gstring.glyphs[0].encoded)
-	    return 0;
-	}
-      if (MDEBUG_FLAG () > 2)
-	MDEBUG_PRINT3 ("\n [FLT] %*s(HAS-GLYPH %04X", depth, "", code);
-    }
-  else if (rule->src_type == SRC_OTF_SPEC)
-    {
-      MFLTOtfSpec *spec = &rule->src.otf_spec;
+	  else if (rule->src.facility.len < gstring.allocated)
+	    {
+	      gstring.glyphs = realloc (gstring.glyphs,
+					gstring.glyph_size
+					* rule->src.facility.len);
+	      gstring.allocated = rule->src.facility.len;
+	      gstring.used = rule->src.facility.len;
+	    }
 
-      if (! ctx->font->check_otf)
-	{
-	  if ((spec->features[0] && spec->features[0][0] != 0xFFFFFFFF)
-	      || (spec->features[1] && spec->features[1][0] != 0xFFFFFFFF))
-	    return 0;
+	  for (i = 0, p = rule->src.facility.codes, idx = from;
+	       i < rule->src.facility.len; i++, p = MPLIST_NEXT (p))
+	    {
+	      if (MPLIST_INTEGER_P (p))
+		{
+		  GREF (&gstring, i)->code = MPLIST_INTEGER (p);
+		  GREF (&gstring, i)->encoded = 0;
+		}
+	      else
+		{
+		  GREF (&gstring, i)->code = GREF (ctx->in, idx)->code;
+		  GREF (&gstring, i)->encoded = GREF (ctx->in, idx)->encoded;
+		  idx++;
+		}
+	    }
 	}
-      else if (! ctx->font->check_otf (ctx->font, spec))
-	return 0;
+
+      if (MDEBUG_FLAG () > 2)
+	{
+	  if (rule->src_type == SRC_HAS_GLYPH)
+	    MDEBUG_PRINT2 ("\n [FLT] %*s(HAS-GLYPH", depth, "");
+	  else
+	    MDEBUG_PRINT2 ("\n [FLT] %*s(OTF-SPEC", depth, "");
+	  for (i = 0; i < rule->src.facility.len; i++)
+	    MDEBUG_PRINT1 (" %04X", GREF (&gstring, i)->code);
+	}
+      if (ctx->font->get_glyph_id (ctx->font, &gstring, 0,
+				   rule->src.facility.len) < 0)
+	{
+	  MDEBUG_PRINT (") FAIL!");
+	  return 0;
+	}
+      if (rule->src_type == SRC_OTF_SPEC)
+	{
+	  MFLTOtfSpec *spec = &rule->src.facility.otf_spec;
+
+	  if (! ctx->font->check_otf)
+	    {
+	      if ((spec->features[0] && spec->features[0][0] != 0xFFFFFFFF)
+		  || (spec->features[1] && spec->features[1][0] != 0xFFFFFFFF))
+		return 0;
+	    }
+	  else
+	    {
+	      if (rule->src.facility.len == 0)
+		{
+		  if (! ctx->font->check_otf (ctx->font, spec))
+		    return 0;
+		}
+	      else
+		{
+		  int prev_out_used = ctx->out->used, out_used;
+		  MFLTGlyphAdjustment *adjustment;
+
+		  adjustment = alloca ((sizeof *adjustment)
+				       * (ctx->out->allocated - ctx->out->used));
+		  if (! adjustment)
+		    MERROR (MERROR_FLT, -1);
+		  memset (adjustment, 0,
+			  (sizeof *adjustment)
+			  * (ctx->out->allocated - ctx->out->used));
+		  ctx->font->drive_otf (ctx->font, &rule->src.facility.otf_spec,
+					&gstring, 0, rule->src.facility.len,
+					ctx->out,
+					adjustment);
+		  out_used = ctx->out->used;
+		  ctx->out->used = prev_out_used;
+		  if (rule->src.facility.len == out_used - prev_out_used)
+		    {
+		      for (i = prev_out_used; i < out_used; i++)
+			{
+			  if (GREF (&gstring, i - prev_out_used)->code
+			      != GREF (ctx->out, i)->code)
+			    break;
+			  if (adjustment[i - prev_out_used].set)
+			    break;
+			}
+		      if (i == out_used)
+			return 0;
+		    }
+		}
+	    }
+	}
     }
 
   consumed = 0;
@@ -1664,7 +1738,7 @@ run_otf (int depth,
 			g->xadv += a->xadv;
 			g->yadv += a->yadv;
 		      }
-		    if (a->xoff || a->yoff)
+		    if (a->xoff || a->yoff || a->back)
 		      {
 			int j;
 			MFLTGlyph *gg = PREV (ctx->out, g);
@@ -1676,10 +1750,18 @@ run_otf (int depth,
 			  {
 			    for (j = 0; j < aa->back;
 				 j++, gg = PREV (ctx->out, gg))
-			      g->xoff -= gg->xadv;
+			      {
+				g->xoff -= gg->xadv;
+				g->lbearing -= gg->xadv;
+				g->rbearing -= gg->xadv;
+			      }
 			    aa = aa - aa->back;
 			    g->xoff += aa->xoff;
 			    g->yoff += aa->yoff;
+			    g->lbearing += aa->xoff;
+			    g->rbearing += aa->xoff;
+			    g->ascent -= aa->yoff;
+			    g->descent -= aa->yoff;
 			  }
 		      }
 		    g->adjusted = 1;
@@ -2210,6 +2292,7 @@ m17n_init_flt (void)
   Mlayouter = msymbol ("layouter");
   Mcombining = msymbol ("combining");
   Mfont_facility = msymbol ("font-facility");
+  Mequal = msymbol ("=");
   Mgenerator = msymbol ("generator");
   Mend = msymbol ("end");
 
