@@ -1,3 +1,19 @@
+2008-01-06  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (mfont__get_glyph_id): Return -1 if some code is invalid.
+
+	* font-ft.c (ft_drive_otf): Fix checking of negative feature.
+
+	* m17n-X.c (xft_find_metric): Set g->g.measured.
+
+	* m17n-flt.c (Mequal): New variable.
+	(m17n_init_flt): Initialize it.
+	(FontLayoutCmdRule): Merge members supported_glyph and otf_spec
+	into a new member facility.
+	(load_command): Modify parsing of Mfont_facility.
+	(run_rule): Adjuted for the change of FontLayoutCmdRule.
+	(run_otf): Adjusted metrics if a->back is nonzero.
+
 2007-12-28  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* Version 1.5.0 released.
