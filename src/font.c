@@ -1676,6 +1676,7 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
   MFontEncoding *encoding;
   MFontDriver *driver = NULL;
   MGlyph *glyphs = (MGlyph *) gstring->glyphs;
+  int result = 0;
 
   encoding = mfont->encoding ? mfont->encoding : find_encoding (mfont);
   for (; from < to; from++)
@@ -1713,8 +1714,10 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
 	    }
 	}
       g->g.encoded = 1;
+      if (g->g.code == MCHAR_INVALID_CODE)
+	result = -1;
     }
-  return 0;
+  return result;
 }
 
 int
