@@ -1206,7 +1206,7 @@ xft_find_metric (MRealizedFont *rfont, MGlyphString *gstring,
 	    g->g.descent = (extents.height - extents.y) << 6;
 	  }
 	g->g.yadv = 0;
-	g->g.measured = 0;
+	g->g.measured = 1;
       }
 }
 
