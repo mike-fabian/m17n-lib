@@ -1,3 +1,11 @@
+2008-01-07  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* m17n-flt.c (UPDATE_CLUSTER_RANGE): Don't check if clustering
+	now.
+	(run_rule): Call UPDATE_CLUSTER_RANGE when necessary.
+	(run_command): Check if clustering now before calling
+	UPDATE_CLUSTER_RANGE.
+
 2008-01-06  Kenichi Handa  <handa@m17n.org>
 
 	* font.c (mfont__get_glyph_id): Return -1 if some code is invalid.
