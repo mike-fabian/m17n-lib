@@ -376,13 +376,10 @@ static MSymbol Mcond, Mrange, Mfont_facility, Mequal;
 
 #define UPDATE_CLUSTER_RANGE(ctx, g)		\
   do {						\
-    if ((ctx)->cluster_begin_idx >= 0)		\
-      {						\
-	if (ctx->cluster_begin_pos > (g)->from)	\
-	  ctx->cluster_begin_pos = (g)->from;	\
-	if (ctx->cluster_end_pos < (g)->to)	\
-	  ctx->cluster_end_pos = (g)->to;	\
-      }						\
+    if (ctx->cluster_begin_pos > (g)->from)	\
+      ctx->cluster_begin_pos = (g)->from;	\
+    if (ctx->cluster_end_pos < (g)->to)		\
+      ctx->cluster_end_pos = (g)->to;		\
   } while (0)
 
 enum FontLayoutCmdRuleSrcType
@@ -1431,6 +1428,7 @@ run_rule (int depth,
   int consumed;
   int i;
   int orig_from = from;
+  int need_cluster_update = 0;
 
   if (rule->src_type == SRC_SEQ)
     {
@@ -1448,6 +1446,7 @@ run_rule (int depth,
       if (MDEBUG_FLAG () > 2)
 	MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
 		       rule->src.seq.codes[0]);
+      need_cluster_update = 1;
     }
   else if (rule->src_type == SRC_RANGE)
     {
@@ -1463,6 +1462,7 @@ run_rule (int depth,
       if (MDEBUG_FLAG () > 2)
 	MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
 		       rule->src.range.from, rule->src.range.to);
+      need_cluster_update = 1;
     }
   else if (rule->src_type == SRC_REGEX)
     {
@@ -1503,6 +1503,7 @@ run_rule (int depth,
 	  ctx->encoded[to - ctx->encoded_offset] = saved_code;
 	  return 0;
 	}
+      need_cluster_update = 1;
     }
   else if (rule->src_type == SRC_INDEX)
     {
@@ -1515,6 +1516,7 @@ run_rule (int depth,
       if (MDEBUG_FLAG () > 2)
 	MDEBUG_PRINT3 ("\n [FLT] %*s(SUBPART %d", depth, "",
 		       rule->src.match_idx);
+      need_cluster_update = 1;
     }
   else if (rule->src_type == SRC_HAS_GLYPH
 	   || rule->src_type == SRC_OTF_SPEC)
@@ -1624,6 +1626,15 @@ run_rule (int depth,
 		    }
 		}
 	    }
+	}
+    }
+
+  if (need_cluster_update && ctx->cluster_begin_idx >= 0)
+    {
+      for (i = from; i < to; i++)
+	{
+	  MFLTGlyph *g = GREF (ctx->in, i);
+	  UPDATE_CLUSTER_RANGE (ctx, g);
 	}
     }
 
@@ -1846,7 +1857,8 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
 	  else if (g->to < tmp->to)
 	    g->to = tmp->to;
 	}
-      UPDATE_CLUSTER_RANGE (ctx, g);
+      if (ctx->cluster_begin_idx >= 0)
+	UPDATE_CLUSTER_RANGE (ctx, g);
       ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
       if (MDEBUG_FLAG () > 2)
 	MDEBUG_PRINT (")");
@@ -1891,7 +1903,8 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
 	  SET_COMBINING_CODE (g, ctx, ctx->combining_code);
 	if (ctx->left_padding)
 	  SET_LEFT_PADDING (g, ctx, LeftPaddingMask);
-	UPDATE_CLUSTER_RANGE (ctx, g);
+	if (ctx->cluster_begin_idx >= 0)
+	  UPDATE_CLUSTER_RANGE (ctx, g);
 	if (MDEBUG_FLAG () > 2)
 	  {
 	    if (g->c < 0)
