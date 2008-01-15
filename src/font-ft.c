@@ -2488,6 +2488,8 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   return to;
 
  simple_copy:
+  if (otf_gstring.glyphs)
+    free (otf_gstring.glyphs);
 #endif	/* HAVE_OTF */
   if (out->allocated < out->used + len)
     return -2;
@@ -2495,8 +2497,6 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   memcpy ((MGlyph *)out->glyphs + out->used, (MGlyph *) in->glyphs + from,
 	  sizeof (MGlyph) * len);
   out->used += len;
-  if (otf_gstring.glyphs)
-    free (otf_gstring.glyphs);
   return to;
 }
 
