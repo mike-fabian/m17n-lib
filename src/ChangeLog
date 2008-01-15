@@ -1,3 +1,7 @@
+2008-01-15  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* Makefile.am (FLT_SOURCES): Include internal-flt.h.
+
 2008-01-07  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* m17n-flt.c (UPDATE_CLUSTER_RANGE): Don't check if clustering
