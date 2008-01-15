@@ -57,6 +57,7 @@ libm17n_la_LIBADD = ${top_builddir}/src/libm17n-core.la -ldl
 libm17n_la_LDFLAGS = -export-dynamic ${VINFO}
 
 FLT_SOURCES = \
+	internal-flt.h \
 	m17n-flt.h m17n-flt.c
 
 libm17n_flt_la_SOURCES = ${FLT_SOURCES}
