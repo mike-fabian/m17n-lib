@@ -1,5 +1,12 @@
 2008-01-15  Kenichi Handa  <handa@ni.aist.go.jp>
 
+	* Version 1.5.1 released.
+
+2008-01-15  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* font-ft.c (ft_drive_otf): Don't refer to otf_gstring if HAVE_OTF
+	is not defined.
+
 	* Makefile.am (FLT_SOURCES): Include internal-flt.h.
 
 2008-01-07  Kenichi Handa  <handa@ni.aist.go.jp>
