@@ -1,5 +1,5 @@
 /* font-ft.c -- FreeType interface sub-module.
-   Copyright (C) 2003, 2004, 2007
+   Copyright (C) 2003, 2004, 2007, 2008
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 

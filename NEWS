@@ -1,8 +1,13 @@
 * NEWS -- What's new in the m17n library.			-*- outline -*-
-Copyright (C) 2003, 2004, 2005, 2006, 2007
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
+
+
+* Changes in the m17n library 1.5.1
+
+This release is just for bug fixing.
 
 
 * Changes in the m17n library 1.5.0
