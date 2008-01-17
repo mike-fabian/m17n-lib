@@ -585,10 +585,10 @@ get_following_char (MInputContext *ic, int pos)
   if (ic_info->following_text)
     {
       len = mtext_nchars (ic_info->following_text);
-      if (pos <= len)
-	return mtext_ref_char (ic_info->following_text, pos - 1);
+      if (pos < len)
+	return mtext_ref_char (ic_info->following_text, pos);
     }
-  mt = get_surrounding_text (ic, pos);
+  mt = get_surrounding_text (ic, pos + 1);
   if (! mt)
     return -2;
   len = mtext_nchars (mt);
@@ -604,9 +604,9 @@ get_following_char (MInputContext *ic, int pos)
     }
   else
     ic_info->following_text = mt;
-  if (pos > len)
+  if (pos >= len)
     return -1;
-  return mtext_ref_char (ic_info->following_text, pos - 1);
+  return mtext_ref_char (ic_info->following_text, pos);
 }
 
 static int
@@ -665,8 +665,10 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 				       mtext_len (ic->produced) + pos);
 	      return get_preceding_char (ic, - pos);
 	    }
+	  else
+	    pos--;
 	  if (pos >= len)
-	    return get_following_char (ic, pos - len + 1);
+	    return get_following_char (ic, pos - len);
 	}
       else
 	pos = ic->cursor_pos + (code == '+' ? 1 : -1);
@@ -2486,7 +2488,10 @@ preedit_insert (MInputContext *ic, int pos, MText *mt, int c)
   else
     {
       mtext_ins_char (ic->preedit, pos, c, 1);
-      MDEBUG_PRINT1 ("('%c')", c);
+      if (c < 0x7F)
+	MDEBUG_PRINT1 ("('%c')", c);
+      else
+	MDEBUG_PRINT1 ("(U+%04X)", c);
     }
   adjust_markers (ic, pos, pos, nchars);
   ic->preedit_changed = 1;
