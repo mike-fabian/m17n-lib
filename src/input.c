@@ -657,7 +657,10 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 	  pos = atoi (name + 1);
 	  if (pos == 0)
 	    return get_preceding_char (ic, 0);
-	  pos = ic->cursor_pos + pos;
+	  if (pos < 0)
+	    pos = ic->cursor_pos + pos;
+	  else
+	    pos = ic->cursor_pos + pos - 1;
 	  if (pos < 0)
 	    {
 	      if (ic->produced && mtext_len (ic->produced) + pos >= 0)
@@ -665,9 +668,7 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
 				       mtext_len (ic->produced) + pos);
 	      return get_preceding_char (ic, - pos);
 	    }
-	  else
-	    pos--;
-	  if (pos >= len)
+	  else if (pos >= len)
 	    return get_following_char (ic, pos - len);
 	}
       else
