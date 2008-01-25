@@ -830,6 +830,13 @@ parse_action_list (MPlist *plist, MPlist *macros)
 		  if (mtext_nchars (MPLIST_MTEXT (pl)) == 0)
 		    MERROR (MERROR_IM, -1);
 		}
+	      else if (MPLIST_INTEGER_P (pl))
+		{
+		  int c = MPLIST_INTEGER (pl);
+
+		  if (c < 0 || c > MCHAR_MAX)
+		    MERROR (MERROR_IM, -1);
+		}
 	      else if (MPLIST_PLIST_P (pl))
 		{
 		  MPLIST_DO (pl, MPLIST_PLIST (pl))
