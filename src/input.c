@@ -818,6 +818,11 @@ parse_action_list (MPlist *plist, MPlist *macros)
 
 	  pl = MPLIST_NEXT (pl);
 
+	  if (action_name == M_candidates)
+	    {
+	      /* This is an already regularised action.  */
+	      continue;
+	    }
 	  if (action_name == Minsert)
 	    {
 	      if (MPLIST_MTEXT_P (pl))
@@ -1567,6 +1572,8 @@ get_im_info (MSymbol language, MSymbol name, MSymbol extra, MSymbol key)
 	im_info->cmds = mplist ();
       if (! im_info->vars)
 	im_info->vars = mplist ();
+      if (! im_info->states)
+	im_info->states = mplist ();
     }
   if (! im_info->title
       && (key == Mnil || key == Mtitle))
