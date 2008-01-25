@@ -1,6 +1,12 @@
-2008-01-23  Kenichi Handa  <handa@ni.aist.go.jp>
+2008-01-25  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* Version 1.5.1 released.
+
+2008-01-25  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* input.c (parse_action_list): Check M_candidates.
+	(get_im_info): If key is Mnil, be sure to set im_info->states to a
+	plist.
 
 2008-01-23  Kenichi Handa  <handa@ni.aist.go.jp>
 
