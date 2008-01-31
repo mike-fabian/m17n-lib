@@ -100,6 +100,7 @@
 #ifndef FOR_DOXYGEN
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef HAVE_X11_XAW_COMMAND_H
 
