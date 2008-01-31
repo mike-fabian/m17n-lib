@@ -287,7 +287,11 @@ extern int mfont__ft_decode_otf (MGlyph *g);
 
 #endif	/* HAVE_OTF */
 
-#endif /* HAVE_FREETYPE */
+#else  /* not HAVE_FREETYPE */
+
+typedef unsigned OTF_Tag;
+
+#endif /* not HAVE_FREETYPE */
 
 enum MFontOpenTypeTable
   {
