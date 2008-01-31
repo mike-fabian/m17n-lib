@@ -2733,10 +2733,14 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
 	  if (g->rface->rfont)
 	    {
 	      glyphs->font = (MFont *) g->rface->rfont;
+#ifdef HAVE_FREETYPE
 	      glyphs->font_type
 		= (glyphs->font->source == MFONT_SOURCE_X ? Mx
 		   : g->rface->rfont->driver == &mfont__ft_driver ? Mfreetype
 		   : Mxft);
+#else  /* not HAVE_FREETYPE */
+	      glyphs->font_type = Mx;
+#endif	/* not HAVE_FREETYPE */
 	      glyphs->fontp = g->rface->rfont->fontp;
 	    }
 	  else
