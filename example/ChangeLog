@@ -1,6 +1,10 @@
-2008-01-30  Kenichi Handa  <handa@ni.aist.go.jp>
+2008-01-31  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* Version 1.5.1 released.
+
+2008-01-31  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* mview.c: Include <stdlib.h>.
 
 2007-12-28  Kenichi Handa  <handa@ni.aist.go.jp>
 

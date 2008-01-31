@@ -1,6 +1,13 @@
-2008-01-30  Kenichi Handa  <handa@ni.aist.go.jp>
+2008-01-31  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* Version 1.5.1 released.
+
+2008-01-31  Kenichi Handa  <handa@ni.aist.go.jp>
+
+	* draw.c (mdraw_glyph_list): Refer to mfont__ft_driver only when
+	HAVE_FREETYPE is defined.
+
+	* font.h (OTF_Tag): Be sure that it is defined in any cases.
 
 2008-01-30  Kenichi Handa  <handa@ni.aist.go.jp>
 
