@@ -257,6 +257,7 @@ extern void mfont__flt_fini ();
 #ifdef HAVE_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#endif
 
 #ifdef HAVE_FONTCONFIG
 #include <fontconfig/fontconfig.h>
@@ -267,31 +268,6 @@ extern void mfont__flt_fini ();
 #else  /* not HAVE_OTF */
 typedef unsigned OTF_Tag;
 #endif /* not HAVE_OTF */
-
-extern MFontDriver mfont__ft_driver;
-
-extern int mfont__ft_init ();
-
-extern void mfont__ft_fini ();
-
-extern int mfont__ft_parse_name (const char *name, MFont *font);
-
-extern char *mfont__ft_unparse_name (MFont *font);
-
-#ifdef HAVE_OTF
-
-extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
-				MFontCapability *capability);
-
-extern int mfont__ft_decode_otf (MGlyph *g);
-
-#endif	/* HAVE_OTF */
-
-#else  /* not HAVE_FREETYPE */
-
-typedef unsigned OTF_Tag;
-
-#endif /* not HAVE_FREETYPE */
 
 enum MFontOpenTypeTable
   {
@@ -314,6 +290,28 @@ typedef struct
     OTF_Tag *tags;
   } features[MFONT_OTT_MAX];
 } MFontCapability;
+
+#ifdef HAVE_FREETYPE
+extern MFontDriver mfont__ft_driver;
+
+extern int mfont__ft_init ();
+
+extern void mfont__ft_fini ();
+
+extern int mfont__ft_parse_name (const char *name, MFont *font);
+
+extern char *mfont__ft_unparse_name (MFont *font);
+
+#ifdef HAVE_OTF
+
+extern int mfont__ft_drive_otf (MGlyphString *gstring, int from, int to,
+				MFontCapability *capability);
+
+extern int mfont__ft_decode_otf (MGlyph *g);
+
+#endif	/* HAVE_OTF */
+
+#endif /* HAVE_FREETYPE */
 
 extern void mfont__free_realized (MRealizedFont *rfont);
 
