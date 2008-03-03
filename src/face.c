@@ -33,8 +33,8 @@
     #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle,
     #Msize, #Mfontset, #Mratio, #Mhook_func, #Mhook_arg
 
-    "The face property that belongs to face F and whose key is @c xxx"
-    may be shortened to "the xxx property of F".
+    The notation "xxx property of F" means the face property that
+    belongs to face F and whose key is @c Mxxx.
 
     The M-text drawing functions first search an M-text for the text
     property whose key is the symbol #Mface, then draw the M-text

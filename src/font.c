@@ -35,8 +35,8 @@
     When the key of a font property is @c Msize or @c Mresolution, its
     value is an integer.  Otherwise the value is a symbol.  
 
-    "The font property that belongs to font F and whose key is @c
-    Mxxx" may be shortened to "the xxx property of F".
+    The notation "xxx property of F" means the font property that
+    belongs to font F and whose key is @c Mxxx.
 
     The value of a foundry property is a symbol representing font
     foundry information, e.g. adobe, misc, etc.
