@@ -543,8 +543,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 					     NULL, prev->g.c)
 			 != MCHAR_INVALID_CODE))
 		{
-		  start--, prev--;
 		  prev->rface->rfont = this->rface->rfont;
+		  start--, prev--;
 		}
 
 	      for (g++;
