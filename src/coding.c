@@ -4141,7 +4141,8 @@ mconv_buffer_converter (MSymbol name, const unsigned char *buf, int n)
     $NAME can be #Mnil.  In this case, a coding system associated
     with the current locale (LC_CTYPE) is used.
 
-    @return If the operation was successful, mconv_stream_converter ()
+    @return 
+    If the operation was successful, mconv_stream_converter ()
     returns the created code converter.  Otherwise it returns @c NULL
     and assigns an error code to the external variable 
     #merror_code.  */

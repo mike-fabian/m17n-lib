@@ -734,7 +734,8 @@ mscript_list (void)
     $SCRIPT はシンボルで、その名前は Unicode Character Database に示さ
     れているスクリプト名をすべて小文字にしたものである。
 
-    @return この関数は、整形式 (well-formed) plist を返す。各キーは 
+    @return 
+    この関数は、整形式 (well-formed) plist を返す。各キーは 
     #Msymbol であり、個々の値は ISO639-1 に定められた2文字言語コード
     (定義されていない場合は ISO639-2 に定められた3文字言語コード) を名
     前とするシンボルである。返される plist は変更したり解放したりして

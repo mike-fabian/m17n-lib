@@ -2397,7 +2397,8 @@ mfont_copy (MFont *font)
 
 	#Mfont_ascent, #Mfont_descent, #Mmax_advance.
 
-    @return If $KEY is @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle,
+    @return 
+    If $KEY is @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle,
     @c Mstretch, @c Madstyle, @c Mregistry, or @c Mspacing, this
     function returns the corresponding value as a symbol.  If the font
     does not have $KEY property, it returns @c Mnil.  If $KEY is @c
@@ -2417,7 +2418,8 @@ mfont_copy (MFont *font)
 	@c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c Mstretch,
 	@c Madstyle, @c Mregistry, @c Msize, @c Mresolution, @c Mspacing.
 
-    @return $KEY が @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c
+    @return 
+    $KEY が @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle, @c
     Mstretch, @c Madstyle, @c Mregistry, @c Mspacing のいずれかであれば、
     相当する値をシンボルとして返す。フォントがそのプロパティを持たない
     場合には@c Mnil を返す。$KEY が @c Msize あるいは @c Mresolution の
@@ -3040,7 +3042,8 @@ mfont_list_family_names (MFrame *frame)
     The mfont_check () function checkes if $FONT can be used for
     $SCRIPT and $LANGUAGE in $FONTSET on $FRAME.
 
-    @return If the font is usable, return 1.  Otherwise return 0.
+    @return 
+    If the font is usable, return 1.  Otherwise return 0.
  */
 
 int

@@ -483,7 +483,8 @@ msymbol_as_managing_key (const char *name)
     The msymbol_is_managing_key () function checks if the symbol
     $SYMBOL is a managing key or not.
 
-    @return Return 1 if the symbol is a managing key.  Otherwise,
+    @return 
+    Return 1 if the symbol is a managing key.  Otherwise,
     return 0.  */
 
 int

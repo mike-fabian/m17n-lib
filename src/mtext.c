@@ -2270,7 +2270,8 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
     (exclusive) while inheriting all the text properties of $MT.  $MT
     itself is not modified.
 
-    @return If the operation was successful, mtext_duplicate ()
+    @return 
+    If the operation was successful, mtext_duplicate ()
     returns a pointer to the created M-text.  If an error is detected,
     it returns NULL and assigns an error code to the external variable
     #merror_code.  */
@@ -2481,7 +2482,8 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
     On insertion, all the text properties of the sub-text of $MT2 are
     inherited.
 
-    @return If the operation was successful, mtext_insert () returns
+    @return 
+    If the operation was successful, mtext_insert () returns
     0.  Otherwise, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
 
@@ -2633,7 +2635,8 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     of M-text $MT2 between $FROM2 (inclusive) and $TO2 (exclusive).
     The new sub-text inherits text properties of the old sub-text.
 
-    @return If the operation was successful, mtext_replace () returns
+    @return 
+    If the operation was successful, mtext_replace () returns
     0.  Otherwise, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
 
@@ -2646,7 +2649,8 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     き換える。新しく挿入された部分は、置き換える前のテキストプロパティ
     すべてを継承する。
 
-    @return 処理が成功すれば、 mtext_replace () は 0 を返す。そうでな
+    @return 
+    処理が成功すれば、 mtext_replace () は 0 を返す。そうでな
     ければ -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
