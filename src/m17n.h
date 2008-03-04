@@ -398,14 +398,12 @@ enum MCodingType
 	The dimension of each charset defines the length of bytes to
 	represent a single character of the charset, and a byte
 	sequence directly represents the code-point of a character.
-
 	The m17n library provides the default decoding and encoding
 	routines of this type.  */
 
     /***ja
 	このタイプのコード系は文字セットを直接サポートする。
 	各文字セットの次元とは、その文字セットで一文字を表現するために必要なバイト数であり、バイト列は文字のコードポイントを直接表す。
-
 	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_CHARSET,
@@ -413,13 +411,11 @@ enum MCodingType
     /***en
 	A coding system of this type supports byte sequences of a
 	UTF (UTF-8, UTF-16, UTF-32) like structure.
-
 	The m17n library provides the default decoding and encoding
 	routines of this type.  */
 
     /***ja
 	このタイプのコード系は、UTF 系 (UTF-8, UTF-16, UTF-32) のバイト列をサポートする。
-
 	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_UTF,
@@ -428,14 +424,12 @@ enum MCodingType
 	A coding system of this type supports byte sequences of an
 	ISO-2022 like structure.  The details of each structure are
 	specified by @c MCodingInfoISO2022 .
-
 	The m17n library provides decoding and encoding routines of
 	this type.  */
 
     /***ja 
         このタイプのコード系は、ISO-2022 系のバイト列をサポートする。
 	各コード系の構造の詳細は @c MCodingInfoISO2022 で指定される。
-
 	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_ISO_2022,
@@ -443,14 +437,12 @@ enum MCodingType
     /***en
 	A coding system of this type is for byte sequences of
 	miscellaneous structures.
-
 	The m17n library does not provide decoding and encoding
 	routines of this type.  They must be provided by the
 	application program.  */
 
     /***ja
 	このタイプのコード系は、その他の構造のバイト列のためのものである。
-
 	m17n ライブラリはこのタイプ用のエンコード／デコードルーティンを提供しないので、アプリケーションプログラム側で準備する必要がある。  */
 
     MCODING_TYPE_MISC
