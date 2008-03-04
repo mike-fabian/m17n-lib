@@ -4794,7 +4794,8 @@ minput_get_title_icon (MSymbol language, MSymbol name)
     関数 minput_get_description () は、$LANGUAGE と $NAME によって指定
     された入力メソッドを説明する M-text を返す。
 
-    @return 指定された入力メソッドが説明するテキストを持っていれば、
+    @return
+    指定された入力メソッドが説明するテキストを持っていれば、
     #MText へのポインタを返す。呼び出し側は、それを m17n_object_unref
     () を用いて解放しなくてはならない。入力メソッドに説明テキストが無け
     れば@c NULL を返す。 */
@@ -6193,7 +6194,8 @@ minput_get_commands (MSymbol language, MSymbol name)
     この割り当ては、割り当て以降新しくオープンされた入力メソッドから有
     効になる。
 
-    @return 処理が成功すれば 0 を返す。そうでなければ -1 を返し、
+    @return 
+    処理が成功すれば 0 を返す。そうでなければ -1 を返し、
     #merror_code を #MERROR_IM に設定する。  */
 
 int

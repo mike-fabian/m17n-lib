@@ -363,7 +363,8 @@ mtext__wseg_fini ()
    boundary position at or previous to POS, and update *TO to the word
    boundary position after POS.
 
-   @return If word boundaries were found successfully, return 1 (if
+   @return 
+   If word boundaries were found successfully, return 1 (if
    the character at POS is a part of a word) or 0 (otherwise).  If the
    operation was not successful, return -1 without setting *FROM and
    *TO.  */
