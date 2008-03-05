@@ -3445,7 +3445,8 @@ mtext_case_compare (MText *mt1, int from1, int to1,
 */
 
 /***
-    @seealso mtext_titlecase (), mtext_uppercase ()
+    @seealso
+     mtext_titlecase (), mtext_uppercase ()
 */
 
 int
@@ -3486,7 +3487,8 @@ mtext_lowercase (MText *mt)
 */
 
 /***
-    @seealso mtext_lowercase (), mtext_uppercase ()
+    @seealso
+     mtext_lowercase (), mtext_uppercase ()
 */
 
 int
@@ -3556,7 +3558,8 @@ mtext_titlecase (MText *mt)
 */
 
 /***
-    @seealso mtext_lowercase (), mtext_titlecase ()
+    @seealso
+     mtext_lowercase (), mtext_titlecase ()
 */
 
 int

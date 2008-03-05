@@ -677,7 +677,8 @@ msymbol_get (MSymbol symbol, MSymbol key)
     その値は関数ポインタ $FUNC である。 */
 
 /***
-    @seealso msymbol_put (), M17N_FUNC ()  */
+    @seealso
+     msymbol_put (), M17N_FUNC ()  */
 int
 msymbol_put_func (MSymbol symbol, MSymbol key, M17NFunc func)
 {
