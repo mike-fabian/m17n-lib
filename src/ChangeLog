@@ -1,3 +1,8 @@
+2008-03-06  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Don't ignore the otf-spec to apply all
+	features.
+
 2008-01-31  Kenichi Handa  <handa@ni.aist.go.jp>
 
 	* Version 1.5.1 released.
