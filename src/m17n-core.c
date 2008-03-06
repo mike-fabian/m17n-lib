@@ -26,7 +26,7 @@
 
     <em>API LEVELS</em>
 
-    The API of the m17n library is divided into these four.
+    The API of the m17n library is divided into these five.
 
     <ol>
     <li> CORE API
