@@ -2285,7 +2285,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
     {
       char *p;
 
-      if (spec->features[i] && spec->features[i][0] != 0xFFFFFFFF)
+      if (spec->features[i])
 	{
 	  for (j = 0; spec->features[i][j]; j++);
 	  if (i == 0)
