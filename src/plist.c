@@ -1583,7 +1583,7 @@ mplist_value (MPlist *plist)
     Msymbol, @c Minteger, @c Mtext, @c Mplist
 
     In an ascii-character-sequence, a backslash (\) is used as the escape
-    character, which means that, for instance, <tt>"abc\ def"</tt>
+    character, which means that, for instance, <tt>abc\ def</tt>
     produces a symbol whose name is of length seven with the fourth
     character being a space.  */
 /***ja
@@ -1608,7 +1608,7 @@ mplist_value (MPlist *plist)
     @c Mplist のいずれかを割り当てられている。
 
     アスキー文字列内では、バックスラッシュ (\) がエスケープ文字として用いられる。たとえば
-    <tt>"abc\ def"</tt> は 4 文字目が空白文字であり長さが 7 
+    <tt>abc\ def</tt> は 4 文字目が空白文字であり長さが 7 
     である持つ名前を持つシンボルを生成する。   */
 
 MPlist *
