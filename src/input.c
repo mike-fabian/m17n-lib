@@ -489,6 +489,8 @@ marker_code (MSymbol sym, int surrounding)
 }
 
 
+/* Return a plist containing an integer value of VAR.  */
+
 static MPlist *
 resolve_variable (MInputContextInfo *ic_info, MSymbol var)
 {
@@ -625,15 +627,13 @@ surrounding_pos (MSymbol sym)
 }
 
 static int
-integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
+integer_value (MInputContext *ic, MPlist *arg, int surrounding)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int code, pos;
   MText *preedit = ic->preedit;
   int len = mtext_nchars (preedit);
 
-  if (value)
-    *value = NULL;
   if (MPLIST_INTEGER_P (arg))
     return MPLIST_INTEGER (arg);
 
@@ -642,8 +642,6 @@ integer_value (MInputContext *ic, MPlist *arg, MPlist **value, int surrounding)
     {
       MPlist *val = resolve_variable (ic_info, MPLIST_SYMBOL (arg));
 
-      if (value)
-	*value = val;
       return (MPLIST_INTEGER_P (val) ? MPLIST_INTEGER (val) : 0);
     }
   if (code == '@')
@@ -720,7 +718,7 @@ resolve_expression (MInputContext *ic, MPlist *plist)
   if (MPLIST_INTEGER_P (plist))
     return MPLIST_INTEGER (plist);
   if (MPLIST_SYMBOL_P (plist))
-    return integer_value (ic, plist, NULL, 1);
+    return integer_value (ic, plist, 1);
   if (! MPLIST_PLIST_P (plist))
     return 0;
   plist = MPLIST_PLIST (plist);
@@ -3276,7 +3274,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	{
 	  int intarg = (MPLIST_TAIL_P (args)
 			? ic_info->used - 2
-			: integer_value (ic, args, NULL, 0));
+			: integer_value (ic, args, 0));
 
 	  mtext_reset (ic->preedit);
 	  mtext_reset (ic_info->preedit_saved);
@@ -3305,11 +3303,11 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	       || name == Mmul || name == Mdiv)
 	{
 	  MSymbol sym = MPLIST_SYMBOL (args);
+	  MPlist *value = resolve_variable (ic_info, sym);
 	  int val1, val2;
-	  MPlist *value;
 	  char *op;
 
-	  val1 = integer_value (ic, args, &value, 0);
+	  val1 = MPLIST_INTEGER (value);
 	  args = MPLIST_NEXT (args);
 	  val2 = resolve_expression (ic, args);
 	  if (name == Mset)
@@ -3324,8 +3322,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    val1 /= val2, op = "/=";
 	  MDEBUG_PRINT4 ("(%s %s 0x%X(%d))",
 			 MSYMBOL_NAME (sym), op, val1, val1);
-	  if (value)
-	    mplist_set (value, Minteger, (void *) val1);
+	  mplist_set (value, Minteger, (void *) val1);
 	}
       else if (name == Mequal || name == Mless || name == Mgreater
 	       || name == Mless_equal || name == Mgreater_equal)
