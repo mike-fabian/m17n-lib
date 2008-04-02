@@ -1,3 +1,9 @@
+2008-04-02  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (integer_value): Delete the 3rd arg VALUE.
+	(resolve_expression): Adjust the call of integer_value.
+	(take_action_list): Likewise.
+
 2008-03-06  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_drive_otf): Don't ignore the otf-spec to apply all
@@ -852,7 +858,7 @@
 	(M17N_FUNC): New macro.
 	(msymbol_put_func, msymbol_get_func): Extern them.
 	(mplist_put_func, mplist_get_func): Extern them.
-	
+
 	* m17n-gui.h (mface_get_hook, mface_put_hook): Extern them.
 
 	* m17n-gui.c (mframe): Add a proper casting.
