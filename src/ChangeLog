@@ -2,6 +2,8 @@
 
 	* draw.c (compose_glyph_string): Don't run flt striding over the
 	cursor position.
+	(get_gstring): Don't use the cached gstring if cursor position is
+	changed.
 
 2008-04-02  Kenichi Handa  <handa@m17n.org>
 
