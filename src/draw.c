@@ -1516,6 +1516,7 @@ get_gstring (MFrame *frame, MText *mt, int pos, int to, MDrawControl *control)
 	      || memcmp (control, &gstring->control,
 			 (char *) (&control->with_cursor)
 			 - (char *) (control))
+	      || control->cursor_pos != gstring->control.cursor_pos
 	      || control->cursor_width != gstring->control.cursor_width
 	      || control->cursor_bidi != gstring->control.cursor_bidi)
 	    {
