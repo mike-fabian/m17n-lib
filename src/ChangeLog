@@ -1,3 +1,8 @@
+2008-04-03  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Don't run flt striding over the
+	cursor position.
+
 2008-04-02  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (integer_value): Delete the 3rd arg VALUE.
