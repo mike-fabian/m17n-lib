@@ -1,3 +1,11 @@
+2008-04-04  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (unicode_input_method, saved_input_method): New
+	variables.
+	(KeyProc): Make `C-=' activate the unicode input method
+	temporarily.
+	(setup_input_methods): Set unicode_input_method if any.
+
 2008-04-03  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (update_cursor): Update control.cursor_pos at first.
