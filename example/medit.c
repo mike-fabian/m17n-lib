@@ -199,7 +199,9 @@ InputMethodInfo *input_method_table;
 
 int num_input_methods;
 int current_input_method = -1;	/* i.e. none */
+int unicode_input_method = -1;
 int auto_input_method = 0;
+int saved_input_method = -3;
 MInputContext *current_input_context;
 
 struct FaceRec
@@ -1550,6 +1552,7 @@ JumpProc (Widget w, XtPointer client_data, XtPointer persent_ptr)
   update_cursor (pos1, 1);
 }
 
+static void InputMethodProc (Widget, XtPointer, XtPointer);
 
 static void
 KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
@@ -1588,6 +1591,12 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
   if (ret)
     ret = XLookupString (key_event, buf, sizeof (buf), &keysym, NULL);
   m17n_object_unref (produced);
+
+  if (saved_input_method > -3)
+    {
+      InputMethodProc (w, (XtPointer) saved_input_method, NULL);
+      saved_input_method = -3;
+    }
 
   switch (keysym)
     {
@@ -1756,6 +1765,14 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 	    {
 	      redraw (0, win_height, 1, 1);
 	      return;
+	    }
+	  else if (buf[0] == '='
+		   && (event->xkey.state & ControlMask)
+		   && unicode_input_method >= 0)
+	    {
+	      saved_input_method = current_input_method;
+	      InputMethodProc (w, (XtPointer) unicode_input_method, NULL);
+	      minput_filter (current_input_context, msymbol ("C-u"), NULL);
 	    }
 	  else
 	    {
@@ -2256,6 +2273,7 @@ setup_input_methods (int with_xim, char *initial_input_method)
   MPlist *plist = mdatabase_list (msymbol ("input-method"), Mnil, Mnil, Mnil);
   MPlist *pl;
   int i;
+  MSymbol Municode = msymbol ("unicode");
 
   num_input_methods = plist ? mplist_length (plist) : 0;
   if (with_xim)
@@ -2289,6 +2307,13 @@ setup_input_methods (int with_xim, char *initial_input_method)
 
   qsort (input_method_table, num_input_methods, sizeof input_method_table[0],
 	 compare_input_method);
+  for (i = 0; i < num_input_methods; i++)
+    if (input_method_table[i].language == Mt
+	&& input_method_table[i].name == Municode)
+      {
+	unicode_input_method = i;
+	break;
+      }
   mplist_put_func (minput_driver->callback_list, Minput_status_start,
 		   M17N_FUNC (input_status));
   mplist_put_func (minput_driver->callback_list, Minput_status_draw,
