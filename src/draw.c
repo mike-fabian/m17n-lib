@@ -2833,7 +2833,8 @@ int mdraw_line_break_option;
     character, and incremented each time when a long line is broken
     because of the width limit.
 
-    @return This function returns a character position to break the
+    @return 
+    This function returns a character position to break the
     line.
 */
 

@@ -344,7 +344,6 @@ MSymbol Mcodeset;
     If the call is successful, mlocale_set () returns an opaque locale
     object that corresponds to the locale.  The name of the locale can
     be acquired by the function mlocale_get_prop ().
-
     Otherwise, it returns NULL.  */
 
 /***ja
@@ -363,7 +362,6 @@ MSymbol Mcodeset;
     呼び出しに成功すれば、mlocale_set () はロケールに対応する opaque 
     ロケールオブジェクトを返す。ロケールの名前は関数
     mlocale_get_prop () によって得ることができる。
-
     そうでなければ NULL を返す。
      */
 
@@ -460,7 +458,7 @@ mlocale_get_prop (MLocale *locale, MSymbol key)
     of strftime ().
 
     @seealso
-    strftime ()
+    strftime ().
 */
 /***ja
     @brief 日付と時間をフォーマットする.
@@ -472,7 +470,7 @@ mlocale_get_prop (MLocale *locale, MSymbol key)
     引数 $TM と $FORMAT の意味は strftime () の場合と同じ。
 
     @seealso
-    strftime ()
+    strftime ().
 */
 
 int
