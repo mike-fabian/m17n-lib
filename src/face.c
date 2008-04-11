@@ -1682,7 +1682,8 @@ mface_copy (MFace *face)
 
     The mface_equal () function compares faces $FACE1 and $FACE2.
 
-    @return If two faces have the same property values, return 1.
+    @return
+    If two faces have the same property values, return 1.
     Otherwise return 0.  */
 
 int
