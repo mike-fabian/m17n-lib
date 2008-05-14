@@ -1430,41 +1430,7 @@ run_rule (int depth,
   int orig_from = from;
   int need_cluster_update = 0;
 
-  if (rule->src_type == SRC_SEQ)
-    {
-      int len;
-
-      len = rule->src.seq.n_codes;
-      if (len > (to - from))
-	return 0;
-      for (i = 0; i < len; i++)
-	if (rule->src.seq.codes[i] != GREF (ctx->in, from + i)->code)
-	  break;
-      if (i < len)
-	return 0;
-      to = from + len;
-      if (MDEBUG_FLAG () > 2)
-	MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
-		       rule->src.seq.codes[0]);
-      need_cluster_update = 1;
-    }
-  else if (rule->src_type == SRC_RANGE)
-    {
-      int head;
-
-      if (from >= to)
-	return 0;
-      head = GREF (ctx->in, from)->code;
-      if (head < rule->src.range.from || head > rule->src.range.to)
-	return 0;
-      ctx->code_offset = head - rule->src.range.from;
-      to = from + 1;
-      if (MDEBUG_FLAG () > 2)
-	MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
-		       rule->src.range.from, rule->src.range.to);
-      need_cluster_update = 1;
-    }
-  else if (rule->src_type == SRC_REGEX)
+  if (rule->src_type == SRC_REGEX)
     {
       regmatch_t pmatch[NMATCH];
       char saved_code;
@@ -1503,6 +1469,40 @@ run_rule (int depth,
 	  ctx->encoded[to - ctx->encoded_offset] = saved_code;
 	  return 0;
 	}
+      need_cluster_update = 1;
+    }
+  else if (rule->src_type == SRC_SEQ)
+    {
+      int len;
+
+      len = rule->src.seq.n_codes;
+      if (len > (to - from))
+	return 0;
+      for (i = 0; i < len; i++)
+	if (rule->src.seq.codes[i] != GREF (ctx->in, from + i)->code)
+	  break;
+      if (i < len)
+	return 0;
+      to = from + len;
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT3 ("\n [FLT] %*s(SEQ 0x%X", depth, "",
+		       rule->src.seq.codes[0]);
+      need_cluster_update = 1;
+    }
+  else if (rule->src_type == SRC_RANGE)
+    {
+      int head;
+
+      if (from >= to)
+	return 0;
+      head = GREF (ctx->in, from)->code;
+      if (head < rule->src.range.from || head > rule->src.range.to)
+	return 0;
+      ctx->code_offset = head - rule->src.range.from;
+      to = from + 1;
+      if (MDEBUG_FLAG () > 2)
+	MDEBUG_PRINT4 ("\n [FLT] %*s(RANGE 0x%X-0x%X", depth, "",
+		       rule->src.range.from, rule->src.range.to);
       need_cluster_update = 1;
     }
   else if (rule->src_type == SRC_INDEX)
@@ -2106,8 +2106,8 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 
 	  g = GREF (ctx->out, i);
 	  for (pos = g->from; pos <= g->to; pos++)
-	    if (g_indices[pos - orig_from] < 0)
-	      g_indices[pos - orig_from] = i;
+	    if (g_indices[pos - from_pos] < 0)
+	      g_indices[pos - from_pos] = i;
 	}
       for (i = 0; i < len; i++)
 	if (g_indices[i] < 0)
