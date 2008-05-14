@@ -1,3 +1,8 @@
+2008-05-14  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_rule): Check SRC_REGEX at first.
+	(run_stages): Fix index of g_indices.
+
 2008-04-03  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Don't run flt striding over the
