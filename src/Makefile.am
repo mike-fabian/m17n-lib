@@ -80,17 +80,17 @@ OPTIONAL_LD_FLAGS = \
 	@FONTCONFIG_LD_FLAGS@
 
 libm17n_gui_la_SOURCES = ${GUI_SOURCES}
-libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n.la
+libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la
 libm17n_gui_la_LDFLAGS = -export-dynamic ${VINFO}
 
 X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @X11_LD_FLAGS@ ${X_EXTRA_LIBS}
 
 libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
-libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_builddir}/src/libm17n-gui.la
+libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
 libm17n_X_la_LDFLAGS = -module ${VINFO}
 
 libm17n_gd_la_SOURCES = m17n-gd.c
-libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ ${top_builddir}/src/libm17n-gui.la
+libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
 libm17n_gd_la_LDFLAGS = -module ${VINFO}
 
 AM_CPPFLAGS = -DM17NDIR=\"@M17NDIR@\" -DGETTEXTDIR=\"@GETTEXTDIR@\"
