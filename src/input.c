@@ -3113,8 +3113,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		to = 0;
 	      else if (to > len)
 		to = len;
+	      pos = to - ic->cursor_pos;
 	    }
-	  MDEBUG_PRINT1 ("(%d)", to - ic->cursor_pos);
+	  MDEBUG_PRINT1 ("(%d)", pos);
 	  if (to < ic->cursor_pos)
 	    preedit_delete (ic, to, ic->cursor_pos);
 	  else if (to > ic->cursor_pos)
