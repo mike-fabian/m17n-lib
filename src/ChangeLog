@@ -1,3 +1,12 @@
+2008-05-23  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (libm17n_gui_la_LIBADD): Include libm17n-core.la.
+	(libm17n_X_la_LIBADD): Include libm17n-core.la, libm17n.la, and
+	libm17n-flt.la.
+	(libm17n_gd_la_LIBADD): Likewise.
+
+	* input.c (take_action_list): Fix debug info.
+
 2008-05-14  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (run_rule): Check SRC_REGEX at first.
