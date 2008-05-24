@@ -30,6 +30,8 @@
 M17N_BEGIN_HEADER
 
 /*** @defgroup m17nMisc MISC API */
+/***en @brief Miscellaneous API */
+/***ja @brief その他の API */
 /*=*/
 /*** @ingroup m17nMisc  */
 /***en @defgroup m17nError Error Handling */

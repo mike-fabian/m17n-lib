@@ -89,12 +89,16 @@ enum M17NStatus
 
 extern enum M17NStatus m17n_status (void);
 
-/***en @defgroup m17nCore CORE API  */
-/***ja @defgroup m17nCore コア API */
+/***en @defgroup m17nCore CORE API
+    @brief API provided by libm17n-core.so */
+/***ja @defgroup m17nCore コア API
+    @brief libm17n-core.so が提供する API */
 /*=*/
 /*** @ingroup m17nCore */
-/***en @defgroup m17nObject Managed Object */
-/***ja @defgroup m17nObject 管理下オブジェクト */
+/***en @defgroup m17nObject Managed Object
+    @brief Objets managed by the reference count */
+/***ja @defgroup m17nObject 管理下オブジェクト
+    @brief 参照回数で管理されるオブジェクト */
 /*=*/
 
 /*** @ingroup m17nObject  */

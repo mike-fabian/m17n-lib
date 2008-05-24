@@ -45,8 +45,10 @@ extern void m17n_fini_win (void);
 
 #endif
 
-/***en @defgroup m17nGUI GUI API */
-/***ja @defgroup m17nGUI GUI API */
+/***en @defgroup m17nGUI GUI API
+    @brief API provided by libm17n-gui.so */
+/***ja @defgroup m17nGUI GUI API
+    @brief libm17n-gui.so が提供する API */
 /*=*/
 
 /*** @ingroup m17nGUI */
