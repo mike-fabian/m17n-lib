@@ -1,3 +1,7 @@
+2008-05-24  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (mdebug_dump_flt): Change return value to (MFLT *).
+
 2008-05-23  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (libm17n_gui_la_LIBADD): Include libm17n-core.la.

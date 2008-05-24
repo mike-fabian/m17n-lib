@@ -60,8 +60,10 @@ extern void m17n_fini (void);
 
 #endif
 
-/***en @defgroup m17nShell SHELL API */
-/***ja @defgroup m17nShell シェル API */
+/***en @defgroup m17nShell SHELL API
+    @brief API provided by libm17n.so */
+/***ja @defgroup m17nShell シェル API
+    @brief libm17n.so が提供する API */
 /*=*/
 
 /*
