@@ -2759,7 +2759,17 @@ dump_flt_cmd (FontLayoutStage *stage, int id, int indent)
     fprintf (stderr, "(predefiend %d)", id);
 }
 
-void
+/***en
+    @brief Dump a Font Layout Table.
+
+    The mdebug_dump_flt () function prints the Font Layout Table $FLT
+    in a human readable way to the stderr.  $INDENT specifies how many
+    columns to indent the lines but the first one.
+
+    @return
+    This function returns $FLT.  */
+
+MFLT *
 mdebug_dump_flt (MFLT *flt, int indent)
 {
   char *prefix = (char *) alloca (indent + 1);
@@ -2784,6 +2794,7 @@ mdebug_dump_flt (MFLT *flt, int indent)
       stage_idx++;
     }
   fprintf (stderr, ")");
+  return flt;
 }
 
 /*** @} */
