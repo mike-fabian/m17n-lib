@@ -938,7 +938,7 @@ m17n_object_unref (void *object)
 /*** @} */
 
 /***en
-    @addtogroup m17nError Error handling
+    @addtogroup m17nError Error Handling
     @brief Error handling of the m17n library.
 
     There are two types of errors that may happen in a function of
