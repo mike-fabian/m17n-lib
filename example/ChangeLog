@@ -1,3 +1,7 @@
+2008-06-13  Kenichi Handa  <handa@m17n.org>
+
+	* M17NEdit.ja: Shinalese -> Shinhala.
+
 2008-04-04  Kenichi Handa  <handa@m17n.org>
 
 	* medit.c (unicode_input_method, saved_input_method): New
