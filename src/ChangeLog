@@ -1,3 +1,7 @@
+2008-06-13  Harshula  <harshula@gmail.com>  (tiny change)
+
+	* Makefile.am (libm17n_gd_la_LIBADD): Add @FREETYPE_LD_FLAGS@.
+
 2008-05-24  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (mdebug_dump_flt): Change return value to (MFLT *).
