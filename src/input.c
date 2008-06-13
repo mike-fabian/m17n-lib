@@ -5578,12 +5578,12 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
     
     The minput_config_file () function returns the absolute path name
     of per-user customization file into which minput_save_config ()
-    save configurations.  It is usually @c "config.mic" under the
-    directory @c ".m17n.d" of user's home directory.  It is not assured
-    that the file of the returned name exists nor is
-    readable/writable.  If minput_save_config () fails and returns -1,
-    an application program might check the file, make it
-    writable (if possible), and try minput_save_config () again.
+    save configurations.  It is usually @c config.mic under the
+    directory <tt>${HOME}/.m17n.d</tt> (${HOME} is user's home
+    directory).  It is not assured that the file of the returned name
+    exists nor is readable/writable.  If minput_save_config () fails
+    and returns -1, an application program might check the file, make
+    it writable (if possible), and try minput_save_config () again.
 
     @return
 
