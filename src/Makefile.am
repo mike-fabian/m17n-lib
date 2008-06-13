@@ -90,7 +90,7 @@ libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_builddir}/src/libm17n-
 libm17n_X_la_LDFLAGS = -module ${VINFO}
 
 libm17n_gd_la_SOURCES = m17n-gd.c
-libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
+libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ @FREETYPE_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
 libm17n_gd_la_LDFLAGS = -module ${VINFO}
 
 AM_CPPFLAGS = -DM17NDIR=\"@M17NDIR@\" -DGETTEXTDIR=\"@GETTEXTDIR@\"
