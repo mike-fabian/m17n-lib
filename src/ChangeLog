@@ -1,3 +1,7 @@
+2008-06-13  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_config_file): Comment fixed for man-page.
+
 2008-06-13  Harshula  <harshula@gmail.com>  (tiny change)
 
 	* Makefile.am (libm17n_gd_la_LIBADD): Add @FREETYPE_LD_FLAGS@.
