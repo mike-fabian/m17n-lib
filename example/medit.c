@@ -1,5 +1,5 @@
 /* medit.c -- simple multilingual editor.		-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004, 2005, 2006, 2007
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -2677,7 +2677,7 @@ main (int argc, char **argv)
       else if (! strcmp (argv[i], "--version"))
 	{
 	  printf ("m17n-edit (m17n library) %s\n", M17NLIB_VERSION_NAME);
-	  printf ("Copyright (C) 2003, 2004, 2005, 2006, 2007 AIST, JAPAN\n");
+	  printf ("Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 AIST, JAPAN\n");
 	  exit (0);
 	}
       else if (! strcmp (argv[i], "--geometry"))
