@@ -96,7 +96,7 @@ extern enum M17NStatus m17n_status (void);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nObject Managed Object
-    @brief Objets managed by the reference count */
+    @brief Objects managed by the reference count */
 /***ja @defgroup m17nObject 管理下オブジェクト
     @brief 参照回数で管理されるオブジェクト */
 /*=*/
