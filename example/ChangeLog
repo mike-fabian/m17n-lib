@@ -1,3 +1,17 @@
+2008-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.5.2 released.
+
+	* mview.c: (main): Copyright years updated.
+
+	* mdump.c (main): Copyright years updated.
+
+	* mdate.c: (main): Copyright years updated.
+
+	* medit.c: (main): Copyright years updated.
+
+	* mconv.c (main): Copyright years updated.
+
 2008-06-13  Kenichi Handa  <handa@m17n.org>
 
 	* M17NEdit.ja: Shinalese -> Shinhala.
