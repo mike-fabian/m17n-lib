@@ -1,3 +1,13 @@
+2008-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.5.2 released.
+
+2008-06-23  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_MINOR_VERSION): Changed to 5.
+	(M17NLIB_PATCH_LEVEL): Changed to 2.
+	(M17NLIB_VERSION_NAME): Changed "1.5.2".
+
 2008-06-13  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_config_file): Comment fixed for man-page.
@@ -2686,7 +2696,7 @@
 	(MTEXT_FORMAT_UTF_16): Correct type.
 	(M17NLIB_MINOR_VERSION): Changed to 3.
 	(M17NLIB_VERSION_NAME): Changed to "1.3.0".
-	
+
 	* chartab.c (mchartable__init): Initalize chartable_table.count.
 	(mchartable__fini): Use N17N_OBJECT_ADD_ARRAY instead of
 	mdebug__report_object.
