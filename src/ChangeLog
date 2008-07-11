@@ -1,3 +1,7 @@
+2008-07-11  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (minput_open_im): Check if the arg NAME is not Mnil.
+
 2008-06-23  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.5.2 released.
