@@ -4321,7 +4321,11 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
   MDEBUG_PRINT2 ("  [IM] opening (%s %s) ... ",
 		 msymbol_name (language), msymbol_name (name));
   if (language)
-    driver = minput_driver;
+    {
+      if (name == Mnil)
+	MERROR (MERROR_IM, NULL);
+      driver = minput_driver;
+    }
   else
     {
       driver = (MInputDriver *) msymbol_get (name, Minput_driver);
