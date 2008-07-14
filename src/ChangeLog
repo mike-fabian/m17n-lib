@@ -1,5 +1,9 @@
 2008-07-14  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (ft_list_family): New arg CHECK_ALIAS.  Callers changed.
+
+2008-07-14  Kenichi Handa  <handa@m17n.org>
+
 	* input.c (fully_initialize): Handle C-M-1, etc.
 
 2008-07-11  Kenichi Handa  <handa@m17n.org>
