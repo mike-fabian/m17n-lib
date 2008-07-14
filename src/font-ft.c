@@ -142,7 +142,7 @@ static int all_fonts_scaned;
   } while (0)
 
 
-static MPlist *ft_list_family (MSymbol, int);
+static MPlist *ft_list_family (MSymbol, int, int);
 
 static void
 free_ft_rfont (void *object)
@@ -556,7 +556,7 @@ fc_list_pattern (FcPattern *pattern)
       file = msymbol (filename);
       if (family != last_family)
 	{
-	  pl = MPLIST_PLIST (ft_list_family (family, 0));
+	  pl = MPLIST_PLIST (ft_list_family (family, 0, 1));
 	  last_family = family;
 	}
       ft_info = mplist_get (pl, file);
@@ -723,7 +723,7 @@ ft_list_char_list (MPlist *char_list, MText *mt)
   MPlist *plist = NULL, *pl, *p;
 
   if (! ft_font_list)
-    ft_list_family (Mnil, 0);
+    ft_list_family (Mnil, 0, 1);
 
   if (mt)
     {
@@ -770,7 +770,7 @@ ft_list_char_list (MPlist *char_list, MText *mt)
    scan all fonts and return ft_font_list.  */
 
 static MPlist *
-ft_list_family (MSymbol family, int check_generic)
+ft_list_family (MSymbol family, int check_generic, int check_alias)
 {
   MPlist *plist;
 #ifdef HAVE_FONTCONFIG
@@ -814,7 +814,7 @@ ft_list_family (MSymbol family, int check_generic)
 	  MPLIST_DO (plist, ft_font_list)
 	    {
 	      if (! MPLIST_VAL (plist))
-		ft_list_family (MPLIST_KEY (plist), 0);
+		ft_list_family (MPLIST_KEY (plist), 0, 1);
 	    }
 	  all_fonts_scaned = 1;
 	}
@@ -852,7 +852,7 @@ ft_list_family (MSymbol family, int check_generic)
       FcChar8 *fam8;
       
       if (family != generic)
-	plist = ft_list_family (generic, 1);
+	plist = ft_list_family (generic, 1, 1);
       else
 	{
 	  fam = MSYMBOL_NAME (family);
@@ -869,7 +869,7 @@ ft_list_family (MSymbol family, int check_generic)
 	      family = msymbol (buf);
 	      if (msymbol_get (family, Mgeneric_family))
 		break;
-	      pl = ft_list_family (family, 0);
+	      pl = ft_list_family (family, 0, 1);
 	      if (! pl)
 		continue;
 	      MPLIST_DO (pl, MPLIST_PLIST (pl))
@@ -878,7 +878,7 @@ ft_list_family (MSymbol family, int check_generic)
 	  plist = ft_font_list;
 	}
     }
-  else
+  else if (check_alias)
     {
       /* Check if there exist an alias.  */
       pl = mplist ();
@@ -914,12 +914,17 @@ ft_list_family (MSymbol family, int check_generic)
 	      FcPatternGetString (pattern, FC_FAMILY, i, (FcChar8 **) &fam);
 	      STRDUP_LOWER (buf, bufsize, fam);
 	      sym = msymbol (buf);
-	      p = MPLIST_PLIST (ft_list_family (sym, 0));
+	      p = MPLIST_PLIST (ft_list_family (sym, 0, 0));
 	      if (! MPLIST_TAIL_P (p))
 		MPLIST_DO (p, p)
 		  mplist_push (pl, Mt, MPLIST_VAL (p));
 	    }
 	}
+    }
+  else
+    {
+      pl = mplist ();
+      plist = mplist_add (ft_font_list, family, pl);
     }
 
 #else  /* not HAVE_FONTCONFIG */
@@ -1195,7 +1200,7 @@ ft_list_default ()
 	family = msymbol (buf);
 	if (msymbol_get (family, Mgeneric_family))
 	  continue;
-	plist = MPLIST_PLIST (ft_list_family (family, 0));
+	plist = MPLIST_PLIST (ft_list_family (family, 0, 1));
 	MPLIST_DO (plist, plist)
 	  mplist_add (ft_default_list, family, MPLIST_VAL (plist));
       }
@@ -1204,7 +1209,7 @@ ft_list_default ()
   {
     MPlist *plist, *pl;
 
-    MPLIST_DO (plist, ft_list_family (Mnil, 0))
+    MPLIST_DO (plist, ft_list_family (Mnil, 0, 1))
       {
 	pl = MPLIST_PLIST (plist);
 	if (! MPLIST_TAIL_P (pl))
@@ -1315,7 +1320,7 @@ ft_list_file (MSymbol filename)
 
 	    STRDUP_LOWER (buf, bufsize, fam);
 	    family = msymbol (buf);
-	    pl = ft_list_family (family, 0);
+	    pl = ft_list_family (family, 0, 1);
 	    MPLIST_DO (pl, MPLIST_PLIST (pl))
 	      {
 		MFontFT *ft_info = MPLIST_VAL (pl);
@@ -1334,7 +1339,7 @@ ft_list_file (MSymbol filename)
   {
     MPlist *pl, *p;
 
-    MPLIST_DO (pl, ft_list_family (Mnil, 0))
+    MPLIST_DO (pl, ft_list_family (Mnil, 0, 1))
       {
 	MPLIST_DO (p, MPLIST_PLIST (pl))
 	  {
@@ -1380,7 +1385,7 @@ ft_select (MFrame *frame, MFont *font, int limited_size)
       MSymbol family = FONT_PROPERTY (font, MFONT_FAMILY);
 
       if (family)
-	plist = MPLIST_PLIST (ft_list_family (family, 1));
+	plist = MPLIST_PLIST (ft_list_family (family, 1, 1));
       else
 	plist = ft_list_default ();
       if (MPLIST_TAIL_P (plist))
@@ -1886,7 +1891,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
 	goto done;
       family = FONT_PROPERTY (font, MFONT_FAMILY);
       if (family != Mnil
-	  && (family_list = MPLIST_PLIST (ft_list_family (family, 1)))
+	  && (family_list = MPLIST_PLIST (ft_list_family (family, 1, 1)))
 	  && MPLIST_TAIL_P (family_list))
 	goto done;
       if (font->capability != Mnil)
@@ -1901,7 +1906,7 @@ ft_list (MFrame *frame, MPlist *plist, MFont *font, int maxnum)
     {
       /* No restriction.  Get all fonts.  */
       pl = mplist ();
-      MPLIST_DO (family_list, ft_list_family (Mnil, 0))
+      MPLIST_DO (family_list, ft_list_family (Mnil, 0, 1))
 	{
 	  MPLIST_DO (p, MPLIST_PLIST (family_list))
 	    mplist_push (pl, MPLIST_KEY (p), MPLIST_VAL (p));
