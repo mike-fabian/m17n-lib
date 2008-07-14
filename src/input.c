@@ -281,21 +281,21 @@ fully_initialize ()
 	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
   char buf[6], buf2[32];
   int i, j;
-  /* Maximum case: C-M-a, C-M-A, M-Return, C-A-a, C-A-A, A-Return.  */
+  /* Maximum case: C-M-m, C-M-M, M-Return, C-A-m, C-A-M, A-Return.  */
   MSymbol alias[7];
 
   M_key_alias = msymbol ("  key-alias");
 
+  /* Aliases for 0x00-0x1F */
   buf[0] = 'C';
   buf[1] = '-';
   buf[3] = '\0';
   for (i = 0, buf[2] = '@'; i < ' '; i++, buf[2]++)
     {
-      one_char_symbol[i] = msymbol (buf);
+      j = 0;
+      alias[j++] = one_char_symbol[i] = msymbol (buf);
       if (key_names[i] || (buf[2] >= 'A' && buf[2] <= 'Z'))
 	{
-	  j = 0;
-	  alias[j++] = one_char_symbol[i];
 	  if (key_names[i])
 	    {
 	      /* Ex: `Escape' == `C-['  */
@@ -308,12 +308,14 @@ fully_initialize ()
 	      alias[j++] = msymbol (buf);
 	      buf[2] -= 32;
 	    }
-	  /* Establish cyclic alias chain.  */
-	  alias[j] = alias[0];
-	  while (--j >= 0)
-	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
 	}
+      /* Establish cyclic alias chain.  */
+      alias[j] = alias[0];
+      while (--j >= 0)
+	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
     }
+
+  /* Aliases for 0x20-0x7E */
   buf[0] = 'S';
   for (i = buf[2] = ' '; i < 127; i++, buf[2]++)
     {
@@ -330,13 +332,16 @@ fully_initialize ()
 	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
 	}
     }
-  buf[0] = 'C';
 
+  /* Aliases for 0x7F */
   alias[0] = alias[2] = one_char_symbol[127] = msymbol ("Delete");
   alias[1] = msymbol ("C-?");
   for (j = 0; j < 2; j++)
     msymbol_put (alias[j], M_key_alias, alias[j + 1]);
 
+  /* Aliases for 0x80-0x9F */
+  buf[0] = 'C';
+  /* buf[1] = '-'; -- already done */
   buf[3] = '-';
   buf[5] = '\0';
   buf2[1] = '-';
@@ -372,6 +377,8 @@ fully_initialize ()
       while (--j >= 0)
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
     }
+
+  /* Aliases for 0xA0-0xFF */
   for (i = 160, buf[4] = ' '; i < 256; i++, buf[4]++)
     {
       buf[2] = 'M';
@@ -380,6 +387,15 @@ fully_initialize ()
       alias[1] = msymbol (buf + 2);
       for (j = 0; j < 2; j++)
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+      if (buf[4] < 'A' || (buf[4] > 'Z' && buf[4] < 'a') || buf[4] > 'z')
+	{
+	  buf[2] = 'M';
+	  alias[0] = alias[2] = msymbol (buf);
+	  buf[2] = 'A';
+	  alias[1] = msymbol (buf);
+	  for (j = 0; j < 2; j++)
+	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+	}
     }
 
   alias[0] = alias[4] = one_char_symbol[255] = msymbol ("M-Delete");
