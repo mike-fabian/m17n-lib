@@ -279,10 +279,10 @@ fully_initialize ()
 	"BackSpace", "Tab", "Linefeed", "Clear", NULL, "Return", NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
-  char buf[6], buf2[32];
+  char buf[6], buf2[32], buf3[2];
   int i, j;
-  /* Maximum case: C-M-m, C-M-M, M-Return, C-A-m, C-A-M, A-Return.  */
-  MSymbol alias[7];
+  /* Maximum case: '\215', C-M-m, C-M-M, M-Return, C-A-m, C-A-M, A-Return.  */
+  MSymbol alias[8];
 
   M_key_alias = msymbol ("  key-alias");
 
@@ -345,9 +345,12 @@ fully_initialize ()
   buf[3] = '-';
   buf[5] = '\0';
   buf2[1] = '-';
+  buf3[1] = '\0';
   for (i = 128, buf[4] = '@'; i < 160; i++, buf[4]++)
     {
       j = 0;
+      buf3[0] = i;
+      alias[j++] = msymbol (buf3);
       /* `C-M-a' == `C-A-a' */
       buf[2] = 'M';
       alias[j++] = one_char_symbol[i] = msymbol (buf);
@@ -379,13 +382,16 @@ fully_initialize ()
     }
 
   /* Aliases for 0xA0-0xFF */
-  for (i = 160, buf[4] = ' '; i < 256; i++, buf[4]++)
+  for (i = 160, buf[4] = ' '; i < 255; i++, buf[4]++)
     {
+      buf3[0] = i;
+      alias[j++] = msymbol (buf3);
       buf[2] = 'M';
-      alias[0] = alias[2] = one_char_symbol[i] = msymbol (buf + 2);
+      alias[j++] = one_char_symbol[i] = msymbol (buf + 2);
       buf[2] = 'A';
-      alias[1] = msymbol (buf + 2);
-      for (j = 0; j < 2; j++)
+      alias[j++] = msymbol (buf + 2);
+      alias[j]= alias[0];
+      while (--j >= 0)
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
       if (buf[4] < 'A' || (buf[4] > 'Z' && buf[4] < 'a') || buf[4] > 'z')
 	{
@@ -398,11 +404,13 @@ fully_initialize ()
 	}
     }
 
-  alias[0] = alias[4] = one_char_symbol[255] = msymbol ("M-Delete");
-  alias[1] = msymbol ("A-Delete");
-  alias[2] = msymbol ("C-M-?");
-  alias[3] = msymbol ("C-A-?");
-  for (j = 0; j < 4; j++)
+  buf3[0] = 255;
+  alias[0] = alias[5] = msymbol (buf);
+  alias[1] = one_char_symbol[255] = msymbol ("M-Delete");
+  alias[2] = msymbol ("A-Delete");
+  alias[3] = msymbol ("C-M-?");
+  alias[4] = msymbol ("C-A-?");
+  for (j = 0; j < 5; j++)
     msymbol_put (alias[j], M_key_alias, alias[j + 1]);
 
   Minput_method = msymbol ("input-method");
