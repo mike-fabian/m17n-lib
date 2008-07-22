@@ -286,6 +286,8 @@ fully_initialize ()
 
   M_key_alias = msymbol ("  key-alias");
 
+  buf3[1] = '\0';
+
   /* Aliases for 0x00-0x1F */
   buf[0] = 'C';
   buf[1] = '-';
@@ -293,6 +295,8 @@ fully_initialize ()
   for (i = 0, buf[2] = '@'; i < ' '; i++, buf[2]++)
     {
       j = 0;
+      buf3[0] = i;
+      alias[j++] = msymbol (buf3);
       alias[j++] = one_char_symbol[i] = msymbol (buf);
       if (key_names[i] || (buf[2] >= 'A' && buf[2] <= 'Z'))
 	{
@@ -334,9 +338,11 @@ fully_initialize ()
     }
 
   /* Aliases for 0x7F */
-  alias[0] = alias[2] = one_char_symbol[127] = msymbol ("Delete");
-  alias[1] = msymbol ("C-?");
-  for (j = 0; j < 2; j++)
+  buf3[0] = 0x7F;
+  alias[0] = alias[3] = msymbol (buf3);
+  alias[1] = one_char_symbol[127] = msymbol ("Delete");
+  alias[2] = msymbol ("C-?");
+  for (j = 0; j < 3; j++)
     msymbol_put (alias[j], M_key_alias, alias[j + 1]);
 
   /* Aliases for 0x80-0x9F */
@@ -345,7 +351,6 @@ fully_initialize ()
   buf[3] = '-';
   buf[5] = '\0';
   buf2[1] = '-';
-  buf3[1] = '\0';
   for (i = 128, buf[4] = '@'; i < 160; i++, buf[4]++)
     {
       j = 0;
@@ -375,6 +380,7 @@ fully_initialize ()
 	  alias[j++] = msymbol (buf);
 	  buf[4] -= 32;
 	}
+
       /* Establish cyclic alias chain.  */
       alias[j] = alias[0];
       while (--j >= 0)
@@ -384,6 +390,7 @@ fully_initialize ()
   /* Aliases for 0xA0-0xFF */
   for (i = 160, buf[4] = ' '; i < 255; i++, buf[4]++)
     {
+      j = 0;
       buf3[0] = i;
       alias[j++] = msymbol (buf3);
       buf[2] = 'M';
@@ -393,19 +400,10 @@ fully_initialize ()
       alias[j]= alias[0];
       while (--j >= 0)
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
-      if (buf[4] < 'A' || (buf[4] > 'Z' && buf[4] < 'a') || buf[4] > 'z')
-	{
-	  buf[2] = 'M';
-	  alias[0] = alias[2] = msymbol (buf);
-	  buf[2] = 'A';
-	  alias[1] = msymbol (buf);
-	  for (j = 0; j < 2; j++)
-	    msymbol_put (alias[j], M_key_alias, alias[j + 1]);
-	}
     }
 
   buf3[0] = 255;
-  alias[0] = alias[5] = msymbol (buf);
+  alias[0] = alias[5] = msymbol (buf3);
   alias[1] = one_char_symbol[255] = msymbol ("M-Delete");
   alias[2] = msymbol ("A-Delete");
   alias[3] = msymbol ("C-M-?");
