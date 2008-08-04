@@ -1,3 +1,8 @@
+2008-08-04  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (fully_initialize): Add more aliaese (e.g. C-M-1
+	vs. C-A-1).
+
 2008-07-22  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (fully_initialize): Fix previous change.
