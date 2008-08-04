@@ -403,13 +403,35 @@ fully_initialize ()
     }
 
   buf3[0] = 255;
-  alias[0] = alias[5] = msymbol (buf3);
+  alias[0] = alias[3] = msymbol (buf3);
   alias[1] = one_char_symbol[255] = msymbol ("M-Delete");
   alias[2] = msymbol ("A-Delete");
-  alias[3] = msymbol ("C-M-?");
-  alias[4] = msymbol ("C-A-?");
-  for (j = 0; j < 5; j++)
+  for (j = 0; j < 3; j++)
     msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+
+  /* Aliases for keys that can't be mapped to one-char-symbol
+     (e.g. C-A-1) */
+  /* buf is already set to "C-?-".  */
+  for (i = ' '; i <= '~'; i++)
+    {
+      if (i == '@')
+	{
+	  i = '_';
+	  continue;
+	}
+      if (i == 'a')
+	{
+	  i = 'z';
+	  continue;
+	}
+      buf[2] = 'M';
+      buf[4] = i;
+      alias[0] = alias[2] = msymbol (buf);
+      buf[2] = 'A';
+      alias[1] = msymbol (buf);
+      for (j = 0; j < 2; j++)
+	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
+    }
 
   Minput_method = msymbol ("input-method");
   Mtitle = msymbol ("title");
