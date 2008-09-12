@@ -281,7 +281,8 @@ fully_initialize ()
 	NULL, NULL, NULL, "Escape", NULL, NULL, NULL, NULL };
   char buf[6], buf2[32], buf3[2];
   int i, j;
-  /* Maximum case: '\215', C-M-m, C-M-M, M-Return, C-A-m, C-A-M, A-Return.  */
+  /* Maximum case: '\215', C-M-m, C-M-M, M-Return, C-A-m, C-A-M,
+     A-Return plus one for cyclic alias.  */
   MSymbol alias[8];
 
   M_key_alias = msymbol ("  key-alias");
