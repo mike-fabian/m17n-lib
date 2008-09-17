@@ -1,3 +1,8 @@
+2008-09-17  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_stages): Fix combining with a variable width
+	font.
+
 2008-08-04  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (fully_initialize): Add more aliaese (e.g. C-M-1
