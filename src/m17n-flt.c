@@ -2148,6 +2148,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 	{
 	  MFLTGlyph *base = GREF (ctx->out, 0);
 	  int base_height = base->ascent + base->descent;
+	  int base_width = base->rbearing - base->lbearing;
 	  int combining_code;
 
 	  for (i = 1; i < ctx->out->used; i++)
@@ -2156,6 +2157,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		  && (combining_code = GET_COMBINING_CODE (g)))
 		{
 		  int height = g->ascent + g->descent;
+		  int width = g->rbearing - g->lbearing;
 		  int base_x, base_y, add_x, add_y, off_x, off_y;
 
 		  if (base->from > g->from)
@@ -2170,8 +2172,9 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		  off_x = COMBINING_CODE_OFF_X (combining_code);
 		  off_y = COMBINING_CODE_OFF_Y (combining_code);
 
-		  g->xoff = ((base->xadv * base_x - g->xadv * add_x) / 2
-			     + x_ppem * off_x / 100 - base->xadv);
+		  g->xoff = ((base_width * base_x - width * add_x) / 2
+			     + x_ppem * off_x / 100
+			     - (base->xadv - base->lbearing) - g->lbearing);
 		  if (base_y < 3)
 		    g->yoff = base_height * base_y / 2 - base->ascent;
 		  else
@@ -2181,8 +2184,8 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		  g->yoff -= y_ppem * off_y / 100;
 		  if (base->lbearing > base->xadv + g->lbearing + g->xoff)
 		    base->lbearing = base->xadv + g->lbearing + g->xoff;
-		  if (base->rbearing < base->xadv + g->xadv + g->xoff)
-		    base->rbearing = base->xadv + g->xadv + g->xoff;
+		  if (base->rbearing < base->xadv + g->rbearing + g->xoff)
+		    base->rbearing = base->xadv + g->rbearing + g->xoff;
 		  if (base->ascent < g->ascent - g->yoff)
 		    base->ascent = g->ascent - g->yoff;
 		  if (base->descent < g->descent - g->yoff)
@@ -2196,6 +2199,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		{
 		  base = g;
 		  base_height = g->ascent + g->descent;
+		  base_width = g->rbearing - g->lbearing;
 		}
 	    }
 	}
