@@ -475,7 +475,7 @@ fully_initialize ()
   Mor = msymbol ("|");
   Mnot = msymbol ("!");
 
-  Mat_reload = msymbol ("@reload");
+  Mat_reload = msymbol ("-reload");
 
   Mcandidates_group_size = msymbol ("candidates-group-size");
   Mcandidates_charset = msymbol ("candidates-charset");
