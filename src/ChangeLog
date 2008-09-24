@@ -1,3 +1,7 @@
+2008-09-19  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (fully_initialize): Rename "@reload" to "-reload".
+
 2008-09-17  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (run_stages): Fix combining with a variable width
