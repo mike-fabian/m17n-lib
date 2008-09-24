@@ -2424,6 +2424,9 @@ mflt_find (int c, MFLTFont *font)
 	    continue;
 	  if (flt->family && flt->family != font->family)
 	    continue;
+	  if (flt->name == Mcombining
+	      && ! mchartable_lookup (flt->coverage, 0))
+	    setup_combining_flt (flt);
 	  if (c >= 0
 	      && ! mchartable_lookup (flt->coverage, c))
 	    continue;
