@@ -1177,7 +1177,7 @@ load_branch (MInputMethodInfo *im_info, MPlist *plist, MIMMap *map)
 }
 
 /* Load a macro from PLIST into IM_INFO->macros.
-   PLIST has this from:
+   PLIST has this form:
       PLIST ::= ( MACRO-NAME ACTION * )
    IM_INFO->macros is a plist of macro names vs action list.  */
 
@@ -1191,8 +1191,7 @@ load_macros (MInputMethodInfo *im_info, MPlist *plist)
     MERROR (MERROR_IM, -1);
   name = MPLIST_SYMBOL (plist);
   plist = MPLIST_NEXT (plist);
-  if (MPLIST_TAIL_P (plist)
-      || parse_action_list (plist, im_info->macros) < 0)
+  if (MFAILP (! MPLIST_TAIL_P (plist)))
     MERROR (MERROR_IM, -1);
   pl = mplist_get (im_info->macros, name);
   M17N_OBJECT_UNREF (pl);
@@ -2380,6 +2379,12 @@ load_im_info (MPlist *plist, MInputMethodInfo *im_info)
 	    M17N_OBJECT_REF (im_info->description);
 	  }
       }
+  if (im_info->macros)
+    {
+      MPLIST_DO (pl, im_info->macros)
+	parse_action_list (MPLIST_PLIST (pl), im_info->macros);
+    }
+
   im_info->tick = time (NULL);
 }
 
