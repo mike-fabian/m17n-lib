@@ -1,3 +1,8 @@
+2008-09-25  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (load_macros): Don't parse the action list here.
+	(load_im_info): Parse action lists of all macros.
+
 2008-09-24  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (mflt_find): Setup coverage of "combining" flt.
