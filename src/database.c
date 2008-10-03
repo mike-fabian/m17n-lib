@@ -1061,7 +1061,7 @@ mdatabase__find_file (char *filename)
   MDatabaseInfo db_info;
 
   if (filename[0] == PATH_SEPARATOR)
-    return (stat (filename, &buf) == 0 ? filename : NULL);
+    return (stat (filename, &buf) == 0 ? strdup (filename) : NULL);
   db_info.filename = filename;
   db_info.len = strlen (filename);
   db_info.time = 0;
