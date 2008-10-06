@@ -1,3 +1,8 @@
+2008-10-06  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (mdraw__init): Use TRUE only when
+	FRIBIDI_INTERFACE_VERSION is less than 3.
+
 2008-10-03  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (mdatabase__find_file): Return a copy of filename if
