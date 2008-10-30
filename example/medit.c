@@ -353,12 +353,8 @@ update_scroll_bar (int from, int to)
 {
   float top = (float) from / nchars;
   float shown = (float) (to - from) / nchars;
-  XtArgVal *l_top = (XtArgVal *) &top;
-  XtArgVal *l_shown = (XtArgVal *) &shown;
 
-  XtSetArg (arg[0], XtNtopOfThumb, *l_top);
-  XtSetArg (arg[1], XtNshown, *l_shown);
-  XtSetValues (SbarWidget, arg, 2);
+  XawScrollbarSetThumb (SbarWidget, top, shown);
 }
 
 
@@ -1945,7 +1941,7 @@ FilterProc (Widget w, XtPointer client_data, XtPointer call_data)
   handle = dlopen (filter_module, RTLD_NOW);
   if (! handle)
     return;
-  *(void **) (&func) = dlsym (handle, "filter");
+  func = (void (*) (MText *, int, int)) dlsym (handle, "filter");
   if (func)
     (*func) (mt, mtext_property_start (selection),
 	     mtext_property_end (selection));
