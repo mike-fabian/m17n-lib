@@ -657,12 +657,13 @@ mframe (MPlist *plist)
       if (! interface->handle)
 	{
 	  if (! (interface->handle = dlopen (interface->library, RTLD_NOW))
-	      || ! (*(void **) (&interface->init)
-		    = dlsym (interface->handle, "device_init"))
-	      || ! (*(void **) (&interface->open)
-		    = dlsym (interface->handle, "device_open"))
-	      || ! (*(void **) (&interface->fini)
-		    = dlsym (interface->handle, "device_fini"))
+	      || ! (interface->init
+		    = (int (*) ()) dlsym (interface->handle, "device_init"))
+	      || ! (interface->open
+		    = (int (*) (MFrame *, MPlist *)) dlsym (interface->handle,
+							    "device_open"))
+	      || ! (interface->fini
+		    = (int (*) ()) dlsym (interface->handle, "device_fini"))
 	      || (*interface->init) () < 0)
 	    {
 	      fprintf (stderr, "%s\n", (char *) dlerror ());
