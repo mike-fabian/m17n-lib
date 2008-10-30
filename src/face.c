@@ -1853,7 +1853,7 @@ mface_get_prop (MFace *face, MSymbol key)
     {
       if (key == Mhook_func)
 	/* This unsafe code is for backward compatiblity.  */
-	return *(void **) &face->hook;
+	return (void *) face->hook;
       MERROR (MERROR_FACE, NULL);
     }
   return face->property[index];
@@ -1938,9 +1938,9 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
   if (key == Mhook_func)
     {
       /* This unsafe code is for backward compatiblity.  */
-      if (*(void **) &face->hook == val)
+      if (face->hook == (MFaceHookFunc) val)
 	return 0;
-      *(void **) &face->hook = val;
+      face->hook = (MFaceHookFunc) val;
     }
   else
     {
