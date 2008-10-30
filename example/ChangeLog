@@ -1,3 +1,11 @@
+2008-10-30  Andreas Schwab <schwab@suse.de>  (tiny change)
+
+	* medit.c (FilterProc): Fix strict aliasing bug.
+
+2008-10-30  Kenichi Handa  <handa@m17n.org>
+
+	* medit.c (update_scroll_bar): Use XawScrollbarSetThumb.
+
 2008-10-20  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.5.3 released.
