@@ -3,8 +3,6 @@
 	* face.c (mface_get_prop): Fix strict aliasing bug.
 	(mface_put_prop): Likewise.
 
-	* m17n-gui.c (mframe): Fix strict aliasing bug.
-
 2008-10-20  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.5.3 released.
