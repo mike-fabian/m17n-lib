@@ -366,6 +366,9 @@ main (int argc, char **argv)
 
   /* Create a converter for decoding.  */
   converter = mconv_stream_converter (incode, in);
+  if (! converter)
+    FATAL_ERROR ("Encoding \"%s\" requires the missing library \"m17n-db\".\n",
+		 msymbol_name (incode));
   /* Instead of doing strict decoding, we decode all input bytes at
      once, and check invalid bytes later by the fuction
      check_invalid_bytes.  */
@@ -383,6 +386,9 @@ main (int argc, char **argv)
 
   /* Create a converter for encoding.  */
   converter = mconv_stream_converter (outcode, out);
+  if (! converter)
+    FATAL_ERROR ("Encoding \"%s\" requires the missing library \"m17n-db\".\n",
+		 msymbol_name (outcode));
   /* Instead of doing strict encoding, we encode all characters at
      once, and check unencoded characters later by the fuction
      check_unencoded_chars.  */
