@@ -1,7 +1,14 @@
+2008-12-31  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (mflt_run): If g->encoded is set, don't clear
+	g->code.
+
 2008-10-30  Andreas Schwab <schwab@suse.de>  (tiny change)
 
 	* face.c (mface_get_prop): Fix strict aliasing bug.
 	(mface_put_prop): Likewise.
+
+	* m17n-gui.c (mframe): Fix strict aliasing bug.
 
 2008-10-20  Kenichi Handa  <handa@m17n.org>
 
