@@ -2558,9 +2558,12 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
   for (i = from; i < to; i++)
     {
       g = GREF (gstring, i);
-      c = g->c;
-      memset (g, 0, sizeof (MFLTGlyph));
-      g->code = g->c = c;
+      if (! g->encoded)
+	{
+	  c = g->c;
+	  memset (g, 0, sizeof (MFLTGlyph));
+	  g->code = g->c = c;
+	}
       g->from = g->to = i;
     }
 
