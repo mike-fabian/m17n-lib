@@ -3447,7 +3447,7 @@ MSymbol Mcoding;
     <li> #Mlong_form
 
     If this flag exists, the over-long escape sequences (ESC '$' '('
-    <final_byte>) are used for designating the CCS JISX0208.1978,
+    \<final_byte\>) are used for designating the CCS JISX0208.1978,
     GB2312, and JISX0208.
 
     <li> #Mdesignation_g0

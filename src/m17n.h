@@ -679,7 +679,7 @@ typedef struct
       ending by them.  On encoding, produce byte sequence according to
       @c endian with heading BOM.
 
-      If <code_unit_bits> is 8, the value has no meaning.  */
+      If \<code_unit_bits\> is 8, the value has no meaning.  */
 
   /***ja
       先頭の BOM (バイトオーダーマーク) の取り扱いを指定する。値は 0,
@@ -702,12 +702,12 @@ typedef struct
       Specify the endian type.  The value must be 0 or 1.  0 means
       little endian, and 1 means big endian.
 
-      If <code_unit_bits> is 8, the value has no meaning.  */
+      If \<code_unit_bits\> is 8, the value has no meaning.  */
   /***ja
       エンディアンのタイプを指定する。値は 0 か 1 であり、0 
       ならばリトルエンディアン、1 ならばビッグエンディアンである。
 
-      <code_unit_bits> が 8 の場合には、この値は意味を持たない。
+      \<code_unit_bits\> が 8 の場合には、この値は意味を持たない。
   */
   int endian;
 } MCodingInfoUTF;
@@ -890,7 +890,7 @@ typedef struct MInputDriver
       @brief Open an input method.
 
       This function opens the input method $IM.  It is called from the
-      function minput_open_im () after all member of $IM but <info>
+      function minput_open_im () after all member of $IM but \<info\>
       set.  If opening $IM succeeds, it returns 0.  Otherwise, it
       returns -1.  The function can setup $IM->info to keep various
       information that is referred by the other driver functions.  */
@@ -898,7 +898,7 @@ typedef struct MInputDriver
   /***ja
       @brief 入力メソッドをオープンする.
 
-      この関数は、入力メソッド $IM をオープンする。$IM の <info> 
+      この関数は、入力メソッド $IM をオープンする。$IM の \<info\> 
       以外の全メンバーがセットされた後で、関数 minput_open_im () 
       から呼ばれる。$IM をオープンできれば 0 を、できなければ -1を返す。
       この関数は $IM->info 
@@ -933,7 +933,7 @@ typedef struct MInputDriver
 
       This function creates the input context $IC.  It is called from
       the function minput_create_ic () after all members of $IC but
-      <info> are set.  If creating $IC succeeds, it returns 0.
+      \<info\> are set.  If creating $IC succeeds, it returns 0.
       Otherwise, it returns -1.  The function can setup $IC->info to
       keep various information that is referred by the other driver
       functions.  */
@@ -942,7 +942,7 @@ typedef struct MInputDriver
       @brief 入力コンテクストを生成する.
 
       この関数は入力コンテクスト $IC を生成する。
-      $IC の <info> 以外の全メンバーがセットされた後で、関数
+      $IC の \<info\> 以外の全メンバーがセットされた後で、関数
       minput_create_ic () から呼ばれる。
       $IC を生成できれば 0 を、できなければ -1 を返す。
       この関数は $IC->info を設定して、他のドライバ関数から参照される情報を保持することができる。  */
@@ -982,7 +982,7 @@ typedef struct MInputDriver
 
       It may update $IC->status, $IC->preedit, $IC->cursor_pos,
       $IC->ncandidates, $IC->candidates, and $IC->produced if that is
-      necessary for the member <callback>.
+      necessary for the member \<callback\>.
 
       The meaning of $ARG depends on the input method river.  See the
       documentation of @c minput_default_driver and @c
@@ -998,7 +998,7 @@ typedef struct MInputDriver
       が入力メソッドに吸収されてテキストが生成されなかった場合には、 
       1 を返す。そうでなければ 0 を返す。
 
-      メンバ <callback> に必要であれば、$IC->status, $IC->preedit,
+      メンバ \<callback\> に必要であれば、$IC->status, $IC->preedit,
       $IC->cursor_pos, $IC->ncandidates, $IC->candidates,
       $IC->produced を更新できる。
 
@@ -1127,9 +1127,9 @@ struct MInputMethod
   /***ja minput_open_im () に渡される引数。  */
   void *arg;
 
-  /***en Pointer to extra information that <driver>.open_im ()
+  /***en Pointer to extra information that \<driver\>.open_im ()
       setups. */
-  /***ja <driver>.open_im () が設定する追加情報へのポインタ。 */
+  /***ja \<driver\>.open_im () が設定する追加情報へのポインタ。 */
   void *info;
 };
 
@@ -1208,8 +1208,8 @@ struct MInputContext
     /***ja スポット上の M-text、または NULL.  */
     MText *mt;
 
-    /***en Character position in <mt> at the spot.  */
-    /***ja <mt> におけるスポットの文字位置.  */
+    /***en Character position in \<mt\> at the spot.  */
+    /***ja \<mt\> におけるスポットの文字位置.  */
     int pos;
   } spot;
 
@@ -1234,8 +1234,8 @@ struct MInputContext
   MText *status;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
-      it changes <status>.  */
-  /***ja 関数 <im>->driver.filter () は、<status> を変えた際にこの値を 1 
+      it changes \<status\>.  */
+  /***ja 関数 <im>->driver.filter () は、\<status\> を変えた際にこの値を 1 
       に設定する。  */
   int status_changed;
 
@@ -1246,18 +1246,18 @@ struct MInputContext
   MText *preedit;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
-      it changes <preedit>.  */
-  /***ja 関数 <im>->driver.filter () は、<preedit> を変えた際にこの値を 
+      it changes \<preedit\>.  */
+  /***ja 関数 <im>->driver.filter () は、\<preedit\> を変えた際にこの値を 
       1 に設定する。  */
   int preedit_changed;
 
-  /***en Cursor position of <preedit>.  */
-  /***ja <preedit>のカーソル位置  */
+  /***en Cursor position of \<preedit\>.  */
+  /***ja \<preedit\>のカーソル位置  */
   int cursor_pos;
 
   /***en The function <im>->driver.filter () sets the value to 1 when
-      it changes <cursor_pos>.  */
-  /***ja 関数 <im>->driver.filter () は、<cursor_pos> を変えた際にこの値を 
+      it changes \<cursor_pos\>.  */
+  /***ja 関数 <im>->driver.filter () は、\<cursor_pos\> を変えた際にこの値を 
       1 に設定する。  */
   int cursor_pos_changed;
 
@@ -1284,8 +1284,8 @@ struct MInputContext
   int candidate_index;
 
   /***en Start and the end positions of the preedit text where
-       <candidate_list> corresponds to.  */
-  /***ja preedit テキスト中で、<candidate_list>に対応する最初と最後の位置。
+       \<candidate_list\> corresponds to.  */
+  /***ja preedit テキスト中で、\<candidate_list\>に対応する最初と最後の位置。
        */
   int candidate_from, candidate_to;
 
@@ -1300,9 +1300,9 @@ struct MInputContext
 
   /***en The function <im>->driver.filter () sets the value to bitwise
       OR of @c enum @c MInputCandidatesChanged when it changed any of
-      the above members (<candidate_XXX>), and sets the value to 0
+      the above members (\<candidate_XXX\>), and sets the value to 0
       otherwise.  */
-  /***ja 関数 <im>->driver.filter () は、上記のメンバ <candidate_XXX>
+  /***ja 関数 <im>->driver.filter () は、上記のメンバ \<candidate_XXX\>
       の１つでも変更した際には、この値を @c enum @c
       MInputCandidatesChanged のビット単位での論理 OR に設定する。そう
       でなければ 0 に設定する。 */
