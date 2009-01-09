@@ -2005,7 +2005,7 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
     this function also follows what specified in the drawing control
     object $CONTROL.
 
-    For instance, if <two_dimensional> of $CONTROL is nonzero, this
+    For instance, if \<two_dimensional\> of $CONTROL is nonzero, this
     function draw an M-text 2-dimensionally, i.e., newlines in M-text
     breaks lines and the following characters are drawn in the next
     line.  See the documentation of the structure @ MDrawControl for
@@ -2021,7 +2021,7 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
     テキストの描画方法は mdraw_text () とほぼ同じであるが、この関数は描画制御用のオブジェクト
     $CONTROL の指示にも従う点が異なっている。
 
-    たとえば $CONTROL の <two_dimensional> がゼロでなければ、この関数は 
+    たとえば $CONTROL の \<two_dimensional\> がゼロでなければ、この関数は 
     M-text を2次元的に描く。すなわち M-text 中の改行で行を改め、続く文字は次の行に描く。詳細は構造体
     @ MDrawControl の説明を参照すること。*/
 

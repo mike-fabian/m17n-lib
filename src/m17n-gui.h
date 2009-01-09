@@ -512,11 +512,11 @@ typedef struct
 
   /***en If nonzero, draw an M-text two-dimensionally, i.e., newlines
       in M-text breaks lines and the following characters are drawn in
-      the next line.  If <format> is non-NULL, and the function
+      the next line.  If \<format\> is non-NULL, and the function
       returns nonzero line width, a line longer than that width is
       also broken.  */
   /***ja 0 でなければ、M-text を２次元的に、すなわち M-text 中の 
-      newline で改行し、続く文字は次の行に表示する。もし <format> が 
+      newline で改行し、続く文字は次の行に表示する。もし \<format\> が 
       NULL でなく、その関数が 0 でない行幅を返せば、その幅より長い行も改行される。  */
   unsigned two_dimensional : 1;
 
@@ -565,9 +565,9 @@ typedef struct
 
   /***en If nonzero, the value specifies how many pixels each line can
       occupy on the display.  The value zero means that there is no
-      limit.  It is ignored if <format> is non-NULL.  */
+      limit.  It is ignored if \<format\> is non-NULL.  */
   /***ja 0 でなければ、値はこのディスプレイ上で各行が占めることのできるピクセル数を示す。
-      0 は限定されないことを意味する。<format> が NULL でなければ無視される。   */
+      0 は限定されないことを意味する。\<format\> が NULL でなければ無視される。   */
   unsigned int max_line_width;
 
   /***en If nonzero, the value specifies the distance between tab
@@ -587,7 +587,7 @@ typedef struct
 
       The indentation specifies how many pixels the first glyph of
       each line is shifted to the right (if the member
-      <orientation_reversed> is zero) or to the left (otherwise).  If
+      \<orientation_reversed\> is zero) or to the left (otherwise).  If
       the value is negative, each line is shifted to the reverse
       direction.
 
@@ -598,13 +598,13 @@ typedef struct
       character, and incremented each time when a long line is broken
       because of the width limit.
 
-      This has an effect only when <two_dimensional> is nonzero.  */
+      This has an effect only when \<two_dimensional\> is nonzero.  */
   /***ja 0 でなければ、値は関数であり、その関数は行番号 LINE と座標 Y 
       に基づいて各行のインデントと最大幅を計算し、それぞれをINDENT と
       WIDTH で指される場所に保存する。
 
       インデントは、各行の最初のグリフを右（メンバ 
-      <orientation_reversed> が 0 
+      \<orientation_reversed\> が 0 
       の時）あるいは左（それ以外の時）に何ピクセルずらすかを指定する。値が負ならば逆方向にずらす。
 
       最大幅は、各行がディスプレイ上で占めることのできるピクセル数の最大値である。値が
@@ -613,7 +613,7 @@ typedef struct
       LINE と Y は改行文字によって行が改まった際には 0 
       にリセットされ、長い行が最大幅の制限によって改行されるたびに 1 増やされる。
 
-      これは <two_dimensional> が 0 でない場合にのみ有効である。  */
+      これは \<two_dimensional\> が 0 でない場合にのみ有効である。  */
   void (*format) (int line, int y, int *indent, int *width);
 
   /***en If non-NULL, the value is a function that calculates a line
@@ -622,7 +622,7 @@ typedef struct
       last one that fits within the limit.  FROM is the position of the
       first character of the line, and TO is the position of the last
       character displayed on the line if there were not width limit.
-      LINE and Y are the same as the arguments to <format>.
+      LINE and Y are the same as the arguments to \<format\>.
 
       The function must return a character position to break the
       line.
@@ -635,7 +635,7 @@ typedef struct
       POS は最大幅に収まる最後の文字の次の文字の位置である。FROM
       は行の最初の文字の位置、TO 
       は最大幅が指定されていなければその行に表示される最後の文字の位置である。LINE 
-      と Y は <format> の引数と同様である。
+      と Y は \<format\> の引数と同様である。
 
       この関数は行を改める文字位置を返さなくてはならない。また MT を変更してはならない。
 
@@ -648,29 +648,29 @@ typedef struct
   /***en Specifies the character position to display a cursor.  If it
       is greater than the maximum character position, the cursor is
       displayed next to the last character of an M-text.  If the value
-      is negative, even if <cursor_width> is nonzero, cursor is not
+      is negative, even if \<cursor_width\> is nonzero, cursor is not
       displayed.  */
   /***ja カーソルを表示する文字位置を示す。最大の文字位置より大きければ、カーソルは 
       M-text の最後の文字の隣に表示される。負ならば、
-      <cursor_width> が 0 でなくてもカーソルは表示されない。
+      \<cursor_width\> が 0 でなくてもカーソルは表示されない。
         */
   int cursor_pos;
 
   /***en If nonzero, display a cursor at the character position
-      <cursor_pos>.  If the value is positive, it is the pixel width
+      \<cursor_pos\>.  If the value is positive, it is the pixel width
       of the cursor.  If the value is negative, the cursor width is
       the same as the underlining glyph(s).  */
-  /***ja 0 でなければ、<cursor_pos> にカーソルを表示する。
+  /***ja 0 でなければ、\<cursor_pos\> にカーソルを表示する。
       値が正ならば、カーソルの幅はその値（ピクセル単位）である。
       負ならば、カーソルのあるグリフと同じ幅である。  */
   int cursor_width;
 
-  /***en If nonzero and <cursor_width> is also nonzero, display double
-      bar cursors; at the character position <cursor_pos> and at the
+  /***en If nonzero and \<cursor_width\> is also nonzero, display double
+      bar cursors; at the character position \<cursor_pos\> and at the
       logically previous character.  Both cursors have one pixel width
       with horizontal fringes at upper or lower positions.  */
-  /***ja If 0 でなく、かつ <cursor_width> も 0 でなければ、バーカーソルを文字位置
-      <cursor_pos> と論理的にそれの前にある文字の２ヶ所に表示する。
+  /***ja If 0 でなく、かつ \<cursor_width\> も 0 でなければ、バーカーソルを文字位置
+      \<cursor_pos\> と論理的にそれの前にある文字の２ヶ所に表示する。
       双方とも１ピクセル幅で、上か下に水平の飾りがつく。*/
   int cursor_bidi;
 
@@ -832,10 +832,10 @@ typedef struct
   MSymbol font_type;
 
   /***en Pointer to the font structure.  The actual type is
-      (XFontStruct *) if <font_type> member is Mx, FT_Face if
-      <font_type> member is Mfreetype, and (XftFont *) if <font_type>
+      (XFontStruct *) if \<font_type\> member is Mx, FT_Face if
+      \<font_type\> member is Mfreetype, and (XftFont *) if \<font_type\>
       member is Mxft.  */
-  /***ja フォントの構造体へのポインタ。実際の型は <font_type> メンバが
+  /***ja フォントの構造体へのポインタ。実際の型は \<font_type\> メンバが
       Mx なら (XFontStruct *)、 Mfreetype なら FT_Face、Mxft 
       なら (XftFont *)。 */
   void *fontp;
@@ -872,15 +872,15 @@ typedef struct
 
   /***en Pointer to a face object.  Each property of the face, if not
       Mnil, overrides the same property of face(s) specified as a text
-      property in <mt>.  */
+      property in \<mt\>.  */
   /***ja フェースオブジェクトへのポインタ。フェースの各プロパティは 
-      Mnil でなければ <mt> で指定されたフェースの同じプロパティに優先する*/
+      Mnil でなければ \<mt\> で指定されたフェースの同じプロパティに優先する*/
   MFace *face;
 
-  /***en Pointer to a draw control object.  The M-text <mt> is drawn
+  /***en Pointer to a draw control object.  The M-text \<mt\> is drawn
       by mdraw_text_with_control () with this control object.  */
   /***ja 表示制御オブジェクトへのポインタ。 mdraw_text_with_control () 
-      はこのオブジェクトを用いて M-text <mt> を表示する。  */
+      はこのオブジェクトを用いて M-text \<mt\> を表示する。  */
   MDrawControl *control;
 
 } MDrawTextItem;

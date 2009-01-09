@@ -119,25 +119,25 @@ typedef struct
   /***ja グリフ位置決めの際の水平・垂直調整値を、
       26.6 fractional pixel format で表現したもの。  */
   int xoff, yoff;
-  /***en Flag to tell whether the member <code> has already been set
+  /***en Flag to tell whether the member \<code\> has already been set
       to a glyph ID in the font.  */
-  /***ja メンバー <code> に既にグリフ ID
+  /***ja メンバー \<code\> に既にグリフ ID
       がセットされているか否かを示すフラグ。  */
   unsigned encoded : 1;
-  /***en Flag to tell if the metrics of the glyph (members <xadv> thru
-      <rbearing>) are already calculated.  */
-  /***ja メンバー <xadv> から <rbearing>
+  /***en Flag to tell if the metrics of the glyph (members \<xadv\> thru
+      \<rbearing\>) are already calculated.  */
+  /***ja メンバー \<xadv\> から \<rbearing\>
       までの各メトリックが既に計算済か否かを示すフラグ。  */
   unsigned measured : 1;
   /***en Flag to tell if the metrics of the glyph is adjusted,
-      i.e. <xadv> or <yadv> is different from the normal size, or
-      <xoff> or <yoff> is nonzero.  */
+      i.e. \<xadv\> or \<yadv\> is different from the normal size, or
+      \<xoff\> or \<yoff\> is nonzero.  */
   /***ja グリフのメトリックが調整済みか否か、
       すなわち以下のうち1つ以上が成立していることを示すフラグ。
-      <xadv> が標準の値と異なる、
-      <yadv> が標準の値と異なる、
-      <xoff> がゼロでない、
-      <yoff> がゼロでない。  */
+      \<xadv\> が標準の値と異なる、
+      \<yadv\> が標準の値と異なる、
+      \<xoff\> がゼロでない、
+      \<yoff\> がゼロでない。  */
   unsigned adjusted : 1;
   /***en For m17n-lib's internal use only.  */
   /***ja m17n-lib 内部作業用。  */
@@ -178,10 +178,10 @@ typedef struct
   /***en Number of glyphs to go back for drawing a glyph.  */
   /***ja グリフ描画のために戻るべきグリフ数。  */
   short back;
-  /***en If nonzero, the member <xadv> and <yadv> are absolute, i.e.,
+  /***en If nonzero, the member \<xadv\> and \<yadv\> are absolute, i.e.,
       they should not be added to a glyph's origianl advance width and
       height.  */
-  /***ja 非ゼロのとき、メンバー <xadv> と <yadv> は絶対値である。
+  /***ja 非ゼロのとき、メンバー \<xadv\> と \<yadv\> は絶対値である。
       すなわちその値をグリフ本来の送り幅に加算してはならない。  */
   unsigned advance_is_absolute : 1;
   /***en Should be set to 1 iff at least one of the other members has
@@ -296,25 +296,25 @@ typedef struct _MFLTFont
   int x_ppem, y_ppem;
 
   /***en Callback function to get glyph IDs for glyphs between FROM
-     (inclusive) and TO (exclusive) of GSTRING.  If the member <encoded>
-     of a glyph is zero, the member <code> of that glyph is a character
+     (inclusive) and TO (exclusive) of GSTRING.  If the member \<encoded\>
+     of a glyph is zero, the member \<code\> of that glyph is a character
      code.  The function must convert it to the glyph ID of FONT.  */
   /***ja GSTRING 内の FROM から TO 直前までの各グリフに対応するグリフ
       IDを取得するための callback 関数。もしあるグリフのメンバー
-      <encoded>がゼロならば、そのグリフのメンバー <code> は文字コードで
+      \<encoded\>がゼロならば、そのグリフのメンバー \<code\> は文字コードで
       ある。この関数はその文字コードを FONT のグリフ IDに変換しなくては
       ならない。  */
   int (*get_glyph_id) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		       int from, int to);
 
   /***en Callback function to get metrics of glyphs between FROM
-     (inclusive) and TO (exclusive) of GSTRING.  If the member <measured>
-     of a glyph is zero, the function must set the members <xadv>, <yadv>,
-     <ascent>, <descent>, <lbearing>, and <rbearing> of the glyph.  */
+     (inclusive) and TO (exclusive) of GSTRING.  If the member \<measured\>
+     of a glyph is zero, the function must set the members \<xadv\>, \<yadv\>,
+     \<ascent\>, \<descent\>, \<lbearing\>, and \<rbearing\> of the glyph.  */
   /***ja GSTRING 内の FROM から TO直前までの各グリフに対応するメトリッ
       クを取得するための callback 関数。もしあるグリフのメンバー
-      <measured>がゼロならば、この関数はそのグリフのメンバー <xadv>,
-      <yadv>, <ascent>, <descent>, <lbearing>, および <rbearing>をセッ
+      \<measured\>がゼロならば、この関数はそのグリフのメンバー \<xadv\>,
+      \<yadv\>, \<ascent\>, \<descent\>, \<lbearing\>, および \<rbearing\>をセッ
       トしなければならない。  */
   int (*get_metrics) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		     int from, int to);

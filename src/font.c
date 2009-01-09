@@ -2158,42 +2158,42 @@ MSymbol Mfontconfig;
 /***en
     @brief Symbol of name "x".
 
-    The variable #Mx is to be used for a value of <type> member of the
-    structure #MDrawGlyph to specify the type of <fontp> member is
+    The variable #Mx is to be used for a value of \<type\> member of the
+    structure #MDrawGlyph to specify the type of \<fontp\> member is
     actually (XFontStruct *).  */
 /***ja
     @brief "x" という名前を持つシンボル.
 
-    変数 #Mx は構造 #MDrawGlyph のメンバ <type> 
-    の値として用いられ、メンバ <fontp> の型が実際には (XFontStruct *) であることを表す.  */
+    変数 #Mx は構造 #MDrawGlyph のメンバ \<type\> 
+    の値として用いられ、メンバ \<fontp\> の型が実際には (XFontStruct *) であることを表す.  */
 
 MSymbol Mx;
 
 /***en
     @brief Symbol of name "freetype".
 
-    The variable #Mfreetype is to be used for a value of <type> member
-    of the structure #MDrawGlyph to specify the type of <fontp> member
+    The variable #Mfreetype is to be used for a value of \<type\> member
+    of the structure #MDrawGlyph to specify the type of \<fontp\> member
     is actually FT_Face.  */
 /***ja
     @brief "freetype" という名前を持つシンボル.
 
-    変数 #Mfreetype は構造 #MDrawGlyph のメンバ <type> 
-    の値として用いられ、メンバ <fontp> の型が実際には FT_Face であることを表す。  */
+    変数 #Mfreetype は構造 #MDrawGlyph のメンバ \<type\> 
+    の値として用いられ、メンバ \<fontp\> の型が実際には FT_Face であることを表す。  */
 
 MSymbol Mfreetype;
 
 /***en
     @brief Symbol of name "xft".
 
-    The variable #Mxft is to be used for a value of <type> member of the
-    structure #MDrawGlyph to specify the type of <fontp> member
+    The variable #Mxft is to be used for a value of \<type\> member of the
+    structure #MDrawGlyph to specify the type of \<fontp\> member
     is actually (XftFont *).  */
 /***ja
     @brief  "xft" という名前を持つシンボル.
 
-    変数 #Mxft は構造 #MDrawGlyph のメンバ <type> 
-    の値として用いられ、メンバ <fontp> の型が実際には (XftFont *) であることを表す。  */
+    変数 #Mxft は構造 #MDrawGlyph のメンバ \<type\> 
+    の値として用いられ、メンバ \<fontp\> の型が実際には (XftFont *) であることを表す。  */
 
 MSymbol Mxft;
 

@@ -102,11 +102,11 @@ typedef struct
 {
   /***en Used as the arguments of @c XCreateIC following @c
       XNInputStyle.  If this is zero, ( @c XIMPreeditNothing | @c
-      XIMStatusNothing) is used, and <preedit_attrs> and
-      <status_attrs> are set to @c NULL.  */
+      XIMStatusNothing) is used, and \<preedit_attrs\> and
+      \<status_attrs\> are set to @c NULL.  */
   /***ja @c XCreateIC の @c XNInputStyle に続く引数として用いられる。
       ゼロならば、 ( @c XIMPreeditNothing | @c XIMStatusNothing) が用
-      いられ、 <preedit_attrs> と <status_attrs> は @c NULL 
+      いられ、 \<preedit_attrs\> と \<status_attrs\> は @c NULL 
       に設定される。 */
 
   XIMStyle input_style;
