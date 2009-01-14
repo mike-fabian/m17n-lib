@@ -1754,8 +1754,10 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 	      else
 		goto invalid_byte;
 	      /* We must update these variables now.  */
-	      charset0 = status->designation[status->invocation[0]];
-	      charset1 = status->designation[status->invocation[1]];
+	      if (status->invocation[0] >= 0)
+		charset0 = status->designation[status->invocation[0]];
+	      if (status->invocation[1] >= 0)
+		charset1 = status->designation[status->invocation[1]];
 	      continue;
 
 	    case 'n':		/* invocation of locking-shift-2 */
@@ -1907,8 +1909,10 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 	      else
 		goto invalid_byte;
 	      /* We must update these variables now.  */
-	      charset0 = status->designation[status->invocation[0]];
-	      charset1 = status->designation[status->invocation[1]];
+	      if (status->invocation[0] >= 0)
+		charset0 = status->designation[status->invocation[0]];
+	      if (status->invocation[1] >= 0)
+		charset1 = status->designation[status->invocation[1]];
 	      continue;
 
 	    unused_escape_sequence:
