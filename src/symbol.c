@@ -220,13 +220,14 @@ msymbol__list (MSymbol prop)
 	o convert all uppercase characters to lowercase.
 	o remove all non alpha-numeric characters.
 	o change the leading "ibm" to "cp".
-	o change the leading "cp" to "ibm"
+	o change the leading "windows-" to "cp".
+	o change the leading "cp" to "ibm".
 	o remove the leading "iso".
     For instance:
 	"ISO-8859-2" -> "88592"
 	"euc-JP" -> "eucjp"
 	"IBM851" -> "cp851"
-	"CP1250" -> "ibm1250"
+	"windows-1250" -> "cp250"
 
     This function is used to canonicalize charset and coding system
     names.  */
@@ -269,7 +270,15 @@ msymbol__canonicalize (MSymbol sym)
       canon[1] = 'b';
       canon[2] = 'm';
     }
-
+  else if (canon[0] == 'w' && p - canon > 7
+	   && memcmp (canon + 1, "indows", 6) == 0
+	   && isdigit (canon[7]))
+    {
+      /* Change "windowsXXX" to "cpXXX" */
+      canon += 5;
+      canon[0] = 'c';
+      canon[1] = 'p';
+    }
   return msymbol (canon);
 }
 
