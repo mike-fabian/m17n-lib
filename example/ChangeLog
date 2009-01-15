@@ -1,3 +1,14 @@
+2009-01-15  Kenichi Handa  <handa@m17n.org>
+
+	* mconv.c (suppress_warning, continue_on_error): Make them global
+	variables.
+	(check_invalid_bytes, check_unencoded_chars): Check
+	suppress_warning and continue_on_error.
+	(unknown_encoding): New function.
+	(FATAL_ERROR): Check suppress_warning.
+	(main): Use unknown_encoding.  Call check_invalid_bytes and
+	check_unencoded_chars unconditionally.
+
 2008-12-26  Kenichi Handa  <handa@m17n.org>
 
 	* mconv.c (main): Print a proper error message if the specified
