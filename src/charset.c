@@ -76,6 +76,7 @@
     コードポイントから文字コードへの変換を @e デコード
     と呼び、文字コードからコードポイントへの変換を @e エンコード と呼ぶ。  */
 
+
 /*=*/
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 /*** @addtogroup m17nInternal
@@ -837,13 +838,6 @@ MSymbol Mcharset_binary;
 /*** @{ */
 /*=*/
 
-/***en
-    Parameter key for mchar_define_charset () (which see). */ 
-
-/***ja
-    関数 mchar_define_charset () 用のパラメータ・キー. 
-    詳しくはこの関数の解説を参照のこと。*/ 
-
 MSymbol Mmethod;
 MSymbol Mdimension;
 MSymbol Mmin_range;
@@ -867,7 +861,7 @@ MSymbol Maliases;
     @name Variables: Symbols representing charset methods.
 
     These are the predefined symbols that can be a value of the
-    #Mmethod parameter of a charset used in an argument to the
+    @b Mmethod parameter of a charset used in an argument to the
     mchar_define_charset () function.
 
     A method specifies how code-points and character codes are
@@ -878,7 +872,7 @@ MSymbol Maliases;
     @name 変数: 文字セットのメソッド指定に使われるシンボル
 
     これらは、文字セットの @e メソッド を指定するための定義済みシンボルであり、文字セットの
-    #Mmethod パラメータの値となることができる。
+    @b Mmethod パラメータの値となることができる。
     この値は関数 mchar_define_charset () の引数として使われる。
 
     メソッドとは、コードポイントと文字コードを相互変換する際の方式のことである。
@@ -889,7 +883,7 @@ MSymbol Maliases;
     @brief Symbol for the offset type method of charset.
 
     The symbol #Moffset has the name <tt>"offset"</tt> and, when used
-    as a value of #Mmethod parameter of a charset, it means that the
+    as a value of @b Mmethod parameter of a charset, it means that the
     conversion of code-points and character codes of the charset is
     done by this calculation:
 
@@ -897,21 +891,21 @@ MSymbol Maliases;
 CHARACTER-CODE = CODE-POINT - MIN-CODE + MIN-CHAR
 @endverbatim
 
-    where, MIN-CODE is a value of #Mmin_code parameter of the charset,
-    and MIN-CHAR is a value of #Mmin_char parameter.  */
+    where, MIN-CODE is a value of @b Mmin_code parameter of the charset,
+    and MIN-CHAR is a value of @b Mmin_char parameter.  */
 
 /***ja
     @brief オフセット型のメソッドを示すシンボル.
 
     シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、文字セットの
-    #Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が以下の式に従って行われることを意味する。
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が以下の式に従って行われることを意味する。
 
 @verbatim
 文字コード = コードポイント - MIN-CODE + MIN-CHAR
 @endverbatim
 
-    ここで、MIN-CODE は文字セットの #Mmin_code パラメータの値であり、MIN-CHAR は
-    #Mmin_char パラメータの値である。 */
+    ここで、MIN-CODE は文字セットの @b Mmin_code パラメータの値であり、MIN-CHAR は
+    @b Mmin_char パラメータの値である。 */
 
 MSymbol Moffset;
 /*=*/
@@ -919,16 +913,16 @@ MSymbol Moffset;
 /***en @brief Symbol for the map type method of charset.
 
     The symbol #Mmap has the name <tt>"map"</tt> and, when used as a
-    value of #Mmethod parameter of a charset, it means that the
+    value of @b Mmethod parameter of a charset, it means that the
     conversion of code-points and character codes of the charset is
-    done by map looking up.  The map must be given by #Mmapfile
+    done by map looking up.  The map must be given by @b Mmapfile
     parameter.  */
 
 /***ja @brief マップ型のメソッドを示すシンボル.
 
     シンボル #Mmap は <tt>"map"</tt> という名前を持ち、文字セットの 
-    #Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換がマップを参照することによって行われることを意味する。
-    マップは #Mmapfile パラメータとして与えなければならない。 */
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換がマップを参照することによって行われることを意味する。
+    マップは @b Mmapfile パラメータとして与えなければならない。 */
 
 MSymbol Mmap;
 /*=*/
@@ -936,10 +930,10 @@ MSymbol Mmap;
 /***en @brief Symbol for the unify type method of charset.
 
     The symbol #Munify has the name <tt>"unify"</tt> and, when used as
-    a value of #Mmethod parameter of a charset, it means that the
+    a value of @b Mmethod parameter of a charset, it means that the
     conversion of code-points and character codes of the charset is
     done by map looking up and offsetting.  The map must be given by
-    #Mmapfile parameter.  For this kind of charset, a unique
+    @b Mmapfile parameter.  For this kind of charset, a unique
     continuous character code space for all characters is assigned.
 
     If the map has an entry for a code-point, the conversion is done
@@ -950,15 +944,15 @@ MSymbol Mmap;
 CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
 @endverbatim
 
-    where, MIN-CODE is a value of #Mmin_code parameter of the charset,
+    where, MIN-CODE is a value of @b Mmin_code parameter of the charset,
     and LOWEST-CHAR-CODE is the lowest character code of the assigned
     code space.  */
 
 /***ja @brief ユニファイ型のメソッドを示すシンボル.
 
     シンボル #Minherit は <tt>"unify"</tt> という名前を持ち、文字セットの 
-    #Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が、マップの参照とオフセットの組み合わせによって行われることを意味する。
-    マップは #Mmapfile パラメータとして与えなければならない。
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が、マップの参照とオフセットの組み合わせによって行われることを意味する。
+    マップは @b Mmapfile パラメータとして与えなければならない。
     この種の各文字セットには、全文字に対して連続するコードスペースがそれぞれ割り当てられる。
 
     コードポイントがマップに含まれていれば、変換はマップ参照によって行われる。
@@ -968,7 +962,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
 CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
 @endverbatim
     
-    ここで、MIN-CODE は文字セットの #Mmin_code パラメータの値であり、
+    ここで、MIN-CODE は文字セットの @b Mmin_code パラメータの値であり、
     LOWEST-CHAR-CODE は割り当てられたコードスペースの最も小さい文字コードである。
     */
 
@@ -979,9 +973,9 @@ MSymbol Munify;
     @brief Symbol for the subset type method of charset.
 
     The symbol #Msubset has the name <tt>"subset"</tt> and, when used
-    as a value of #Mmethod parameter of a charset, it means that the
+    as a value of @b Mmethod parameter of a charset, it means that the
     charset is a subset of a parent charset.  The parent charset must
-    be given by #Mparents parameter.  The conversion of code-points
+    be given by @b Mparents parameter.  The conversion of code-points
     and character codes of the charset is done conceptually by this
     calculation:
 
@@ -996,8 +990,8 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 /***ja @brief サブセット型のメソッドを示すシンボル.
 
     シンボル #Msubset は <tt>"subset"</tt> という名前を持ち、文字セットの
-    #Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の部分集合であることを意味する。
-    親文字セットは #Mparents パラメータによって与えられなくてはならない。
+    @b Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の部分集合であることを意味する。
+    親文字セットは @b Mparents パラメータによって与えられなくてはならない。
     コードポイントと文字セットの文字コードの間の変換は、概念的には以下の式に従う。
 
 @verbatim
@@ -1006,7 +1000,7 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 
     ここで PARENT-CODE は CODE-POINT 
     の親文字セット中での文字コードを返す擬関数であり、SUBSET-OFFSET は 
-    #Msubset_offset パラメータで与えられる値である。
+    @b Msubset_offset パラメータで与えられる値である。
     */
 
 MSymbol Msubset;
@@ -1016,16 +1010,16 @@ MSymbol Msubset;
     @brief Symbol for the superset type method of charset.
 
     The symbol #Msuperset has the name <tt>"superset"</tt> and, when
-    used as a value of #Mmethod parameter of a charset, it means that
+    used as a value of @b Mmethod parameter of a charset, it means that
     the charset is a superset of parent charsets.  The parent charsets
-    must be given by #Mparents parameter.  */
+    must be given by @b Mparents parameter.  */
 
 /***ja
     @brief スーパーセット型のメソッドを示すシンボル.
 
     シンボル #Msuperset は <tt>"superset"</tt> という名前を持ち、文字セットの
-    #Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の上位集合であることを意味する。
-    親文字セットは #Mparents パラメータによって与えられなくてはならない。
+    @b Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の上位集合であることを意味する。
+    親文字セットは @b Mparents パラメータによって与えられなくてはならない。
     */
 
 MSymbol Msuperset;
@@ -1041,24 +1035,24 @@ MSymbol Msuperset;
 
     <ul>
 
-    <li> Key is #Mmethod, value is a symbol.
+    <li> Key is @b Mmethod, value is a symbol.
 
     The value specifies the method for decoding/encoding code-points
     in the charset.  It must be #Moffset, #Mmap (default), #Munify,
     #Msubset, or #Msuperset.
 
-    <li> Key is #Mdimension, value is an integer
+    <li> Key is @b Mdimension, value is an integer
 
     The value specifies the dimension of code-points of the charset.
     It must be 1 (default), 2, 3, or 4.
 
-    <li> Key is #Mmin_range, value is an unsigned integer
+    <li> Key is @b Mmin_range, value is an unsigned integer
 
     The value specifies the minimum range of a code-point, which means
     that the Nth byte of the value is the minimum Nth byte of
     code-points of the charset.   The default value is 0.
 
-    <li> Key is #Mmax_range, value is an unsigned integer
+    <li> Key is @b Mmax_range, value is an unsigned integer
 
     The value specifies the maximum range of a code-point, which means
     that the Nth byte of the value is the maximum Nth byte of
@@ -1066,29 +1060,29 @@ MSymbol Msuperset;
     0xFFFFFF, or 0xFFFFFFFF if the dimension is 1, 2, 3, or 4
     respectively.
 
-    <li> Key is #Mmin_code, value is an unsigned integer
+    <li> Key is @b Mmin_code, value is an unsigned integer
 
     The value specifies the minimum code-point of
     the charset.  The default value is the minimum range.
 
-    <li> Key is #Mmax_code, value is an unsigned integer
+    <li> Key is @b Mmax_code, value is an unsigned integer
 
     The value specifies the maximum code-point of
     the charset.  The default value is the maximum range.
 
-    <li> Key is #Mascii_compatible, value is a symbol
+    <li> Key is @b Mascii_compatible, value is a symbol
 
     The value specifies whether the charset is ASCII compatible or
     not.  If the value is #Mnil (default), it is not ASCII
     compatible, else compatible.
 
-    <li> Key is #Mfinal_byte, value is an integer
+    <li> Key is @b Mfinal_byte, value is an integer
 
     The value specifies the @e final @e byte of the charset registered
     in The International Registry.  It must be 0 (default) or 32..127.
     The value 0 means that the charset is not in the registry.
 
-    <li> Key is #Mrevision, value is an integer
+    <li> Key is @b Mrevision, value is an integer
 
     The value specifies the @e revision @e number of the charset
     registered in The International Registry.  It must be 0..127.  If
@@ -1096,12 +1090,12 @@ MSymbol Msuperset;
     ignored.  The value 0 means that the charset has no revision
     number.
 
-    <li> Key is #Mmin_char, value is an integer
+    <li> Key is @b Mmin_char, value is an integer
 
     The value specifies the minimum character code of the charset.
     The default value is 0.
 
-    <li> Key is #Mmapfile, value is an M-text
+    <li> Key is @b Mmapfile, value is an M-text
 
     If the method is #Mmap or #Munify, a data that contains
     mapping information is added to the m17n database by calling
@@ -1110,7 +1104,7 @@ MSymbol Msuperset;
 
     Otherwise, this parameter is ignored.
 
-    <li> Key is #Mparents, value is a plist
+    <li> Key is @b Mparents, value is a plist
 
     If the method is #Msubset, the value must is a plist of length
     1, and the value of the plist must be a symbol representing a
@@ -1122,7 +1116,7 @@ MSymbol Msuperset;
 
     Otherwise, this parameter is ignored.
 
-    <li> Key is #Mdefine_coding, value is a symbol
+    <li> Key is @b Mdefine_coding, value is a symbol
 
     If the dimension of the charset is 1, the value specifies whether
     or not to define a coding system of the same name whose type is
@@ -1146,62 +1140,62 @@ MSymbol Msuperset;
 
     <ul>
 
-    <li> キーが #Mmethod で値がシンボルの時
+    <li> キーが @b Mmethod で値がシンボルの時
 
     値は、#Moffset, #Mmap (デフォルト値), #Munify, #Msubset,
     #Msuperset のいずれかであり、文字セットのコードポイントをデコード／エンコードする際のメソッドを指定する。
 
-    <li> キーが #Mdimension で値が整数値の時
+    <li> キーが @b Mdimension で値が整数値の時
 
     値は、1 (デフォルト値), 2, 3, 4 
     のいずれかであり、文字セットのコードポイントの次元である。
 
-    <li> キーが #Mmin_range で値が非負整数値の時
+    <li> キーが @b Mmin_range で値が非負整数値の時
 
     値はコードポイントの最小の値である。すなわち、この値の N 
     番目のバイトはこの文字セットのコードポイントの N 番目のバイトの最小のものとなる。
     デフォルト値は 0 。
 
-    <li> キーが #Mmax_range で値が非負整数値の時
+    <li> キーが @b Mmax_range で値が非負整数値の時
 
     値はコードポイントの最大の値である。すなわち、この値の N 
     番目のバイトはこの文字セットのコードポイントの N 番目のバイトの最大のものとなる。
     デフォルト値は、コードポイントの次元が 1, 2, 3, 4 の時、それぞれ
     0xFF, 0xFFFF, 0xFFFFFF, 0xFFFFFFFF 。
 
-    <li> キーが #Mmin_code で値が非負整数値の時
+    <li> キーが @b Mmin_code で値が非負整数値の時
 
     値はこの文字セットの最小のコードポイントである。デフォルト値は 
-    #Mmin_range の値。
+    @b Mmin_range の値。
 
-    <li> キーが #Mmax_code で値が非負整数値の時
+    <li> キーが @b Mmax_code で値が非負整数値の時
 
     値はこの文字セットの最大のコードポイントである。デフォルト値は 
-    #Mmax_range の値。
+    @b Mmax_range の値。
 
-    <li> キーが  #Mascii_compatible で値がシンボルの時
+    <li> キーが  @b Mascii_compatible で値がシンボルの時
 
     値はこの文字セットが ASCII 互換であるかどうかを示す。デフォルト値の
     #Mnil であれば互換ではなく、それ以外の場合は互換である。
 
-    <li> キーが  #Mfinal_byte で値が整数値の時
+    <li> キーが  @b Mfinal_byte で値が整数値の時
 
     値はこの文字セットの The International Registry に登録されている 
     @e 終端バイト であり、0 (デフォルト値) であるか 32..127 である。0 
     は登録されていないことを意味する。
 
-    <li> キーが  #Mrevision で値が整数値の時
+    <li> キーが  @b Mrevision で値が整数値の時
 
     値は The International Registry に登録されている @e revision @e
     number であり、0..127 である。
     文字セットが登録されていない場合にはこの値は無視される。
     0 は revision number が存在しないことを意味する。
 
-    <li> キーが  #Mmin_char で値が整数値の時
+    <li> キーが  @b Mmin_char で値が整数値の時
 
     値はこの文字セットの最小の文字コードである。デフォルト値は 0 。
 
-    <li> キーが #Mmapfile で値が M-text の時
+    <li> キーが @b Mmapfile で値が M-text の時
 
     メソッドが #Mmap か #Munify の時、関数 mdatabase_define () 
     をこの値を引数 $EXTRA_INFO として呼ぶことによって、マッピングに関するデータが
@@ -1210,7 +1204,7 @@ MSymbol Msuperset;
 
     そうでなければ、このパラメータは無視される。
 
-    <li> キーが #Mparents で値が plist の時
+    <li> キーが @b Mparents で値が plist の時
 
     メソッドが #Msubset ならば、値は長さ 1 の plist 
     であり、その値はこの文字セットの上位集合となる文字セットを示すシンボルである。
@@ -1220,7 +1214,7 @@ MSymbol Msuperset;
 
     そうでなければ、このパラメータは無視される。
 
-    <li> キーが  #Mdefine_coding で値がシンボルの時
+    <li> キーが  @b Mdefine_coding で値がシンボルの時
 
     文字セットの次元が 1 ならば、値が #Mnil 以外の場合に #Mcharset 型
     で同じ名前を持つコード系を定義する。
