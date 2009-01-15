@@ -1,5 +1,5 @@
 /* mconv.c -- Code converter.				-*- coding: euc-jp; -*-
-   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -203,6 +203,9 @@ help_exit (char *prog, int exit_code)
   exit (exit_code);
 }
 
+/* Global flags to control the behaviour.  */
+int suppress_warning;
+int continue_on_error;
 
 /* Check invalid bytes found in the last decoding.  Text property
    Mcharset of such a byte is Mcharset_binary.  */
@@ -222,14 +225,24 @@ check_invalid_bytes (MText *mt)
 
       if (charset == Mcharset_binary)
 	{
-	  if (first)
+	  if (! suppress_warning)
 	    {
-	      fprintf (stderr,
-		       "Invalid bytes (at each character position);\n");
-	      first = 0;
+	      if (first)
+		{
+		  fprintf (stderr,
+			   "Invalid bytes (at each character position);\n");
+		  first = 0;
+		}
+	      for (; from < to; from++)
+		fprintf (stderr, " 0x%02X(%d)",
+			 mtext_ref_char (mt, from), from);
 	    }
-	  for (; from < to; from++)
-	    fprintf (stderr, " 0x%02X(%d)", mtext_ref_char (mt, from), from);
+	  if (! continue_on_error)
+	    {
+	      if (! first)
+		fprintf (stderr, "\n");
+	      exit (1);
+	    }
 	}
       else
 	from = to;
@@ -256,14 +269,24 @@ check_unencoded_chars (MText *mt, int len)
 
       if (coding == Mnil)
 	{
-	  if (first)
+	  if (! suppress_warning)
 	    {
-	      fprintf (stderr,
-		       "Unencoded characters (at each character position):\n");
-	      first = 0;
+	      if (first)
+		{
+		  fprintf (stderr,
+			   "Unencoded chars (at each character position):\n");
+		  first = 0;
+		}
+	      for (; from < to; from++)
+		fprintf (stderr, " 0x%02X(%d)",
+			 mtext_ref_char (mt, from), from);
 	    }
-	  for (; from < to; from++)
-	    fprintf (stderr, " 0x%02X(%d)", mtext_ref_char (mt, from), from);
+	  if (! continue_on_error)
+	    {
+	      if (! first)
+		fprintf (stderr, "\n");
+	      exit (1);
+	    }
 	}
       else
 	from = to;
@@ -273,19 +296,32 @@ check_unencoded_chars (MText *mt, int len)
 }
 
 
+void
+unknown_encoding (char *name)
+{
+  if (! suppress_warning)
+    {
+      fprintf (stderr, "Unknown encoding: \"%s\"\n", name);
+      if (mconv_resolve_coding (msymbol ("iso-2022-jp")) == Mnil)
+	fprintf (stderr, "Perhaps the library \"m17n-db\" is missing.\n");
+    }
+  exit (1);
+}
+
 /* Format MSG by FMT and print the result to the stderr, and exit.  */
 
-#define FATAL_ERROR(fmt, arg)	\
-  do {				\
-    fprintf (stderr, fmt, arg);	\
-    exit (1);			\
+#define FATAL_ERROR(fmt, arg)		\
+  do {					\
+    if (! suppress_warning)		\
+      fprintf (stderr, fmt, arg);	\
+    exit (1);				\
   } while (0)
 
 
 int
 main (int argc, char **argv)
 {
-  int suppress_warning, verbose, continue_on_error;
+  int verbose;
   MSymbol incode, outcode;
   FILE *in, *out;
   MText *mt;
@@ -313,7 +349,7 @@ main (int argc, char **argv)
       else if (! strcmp (argv[i], "--version"))
 	{
 	  printf ("m17n-conv (m17n library) %s\n", M17NLIB_VERSION_NAME);
-	  printf ("Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 AIST, JAPAN\n");
+	  printf ("Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009 AIST, JAPAN\n");
 	  exit (0);
 	}
       else if (! strcmp (argv[i], "-l"))
@@ -326,13 +362,13 @@ main (int argc, char **argv)
 	{
 	  incode = mconv_resolve_coding (msymbol (argv[++i]));
 	  if (incode == Mnil)
-	    FATAL_ERROR ("Unknown encoding: %s\n", argv[i]);
+	    unknown_encoding (argv[i]);
 	}
       else if (! strcmp (argv[i], "-t"))
 	{
 	  outcode = mconv_resolve_coding (msymbol (argv[++i]));
 	  if (outcode == Mnil)
-	    FATAL_ERROR ("Unknown encoding: %s\n", argv[i]);
+	    unknown_encoding (argv[i]);
 	}
       else if (! strcmp (argv[i], "-k"))
 	continue_on_error = 1;
@@ -360,6 +396,8 @@ main (int argc, char **argv)
       else
 	help_exit (argv[0], 1);
     }
+  if (verbose)
+    suppress_warning = 0;
 
   /* Create an M-text to store the decoded characters.  */
   mt = mtext ();
@@ -376,8 +414,7 @@ main (int argc, char **argv)
 
   mconv_decode (converter, mt);
 
-  if (! suppress_warning)
-    check_invalid_bytes (mt);
+  check_invalid_bytes (mt);
   if (verbose)
     fprintf (stderr, "%d bytes (%s) decoded into %d characters,\n",
 	     converter->nbytes, msymbol_name (incode), mtext_len (mt));
@@ -397,8 +434,7 @@ main (int argc, char **argv)
   if (mconv_encode (converter, mt) < 0
       && ! suppress_warning)
     fprintf (stderr, "I/O error on writing\n");
-  if (! suppress_warning)
-    check_unencoded_chars (mt, converter->nchars);
+  check_unencoded_chars (mt, converter->nchars);
   if (verbose)
     fprintf (stderr, "%d characters encoded into %d bytes (%s).\n",
 	     converter->nchars, converter->nbytes, msymbol_name (outcode));
