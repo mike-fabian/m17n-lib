@@ -1228,7 +1228,7 @@ mdatabase__props (MDatabase *mdb)
 
 /*** @addtogroup m17nCharset */
 /*** @{ */
-
+/*=*/
 /***en
     @brief The symbol @c Mcharset.
 
