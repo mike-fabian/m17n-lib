@@ -204,6 +204,8 @@ mchar__define_prop (MSymbol key, MSymbol type, void *mdb)
     @name 変数: 文字プロパティのキー
 
     これらのシンボルは文字プロパティのキーとして使われる。*/
+
+/*=*/
 /*** @{ */
 
 /***en
@@ -383,10 +385,20 @@ MSymbol Mcomplicated_case_folding;
     and both of them respective.  See the Unicode Standard 5.0
     (Section 3.13 Default Case Algorithm) for the detail.
  */
+
+/***ja
+    @brief Case 処理に用いられる値のキー.
+
+    シンボル #Mcased は、<tt>"cased"</tt> という名前を持ち、文字プロパ
+    ティのキーとして使われる。このプロパティの値は整数値 1, 2, 3 のいず
+    れかであり、それぞれ "cased", "case-ignorable", その両方を意味する。
+    詳細については、the Unicode Standard 5.0 (Section 3.13 Default
+    Case Algorithm) 参照。
+ */
 MSymbol Mcased;
 
 /*=*/
-/***en Msoft_dotted
+/***en
     @brief Key for values used in case operation.
 
     The symbol #Msoft_dotted has the name <tt>"soft-dotted"</tt> and
@@ -394,10 +406,20 @@ MSymbol Mcased;
     property is #Mt if a character has "Soft_Dotted" property, and
     #Mnil otherwise.  See the Unicode Standard 5.0 (Section 3.13
     Default Case Algorithm) for the detail.  */
+
+/***ja
+    @brief Case 処理に用いられる値のキー.
+
+    シンボル #Msoft_dotted は、<tt>"soft-dotted"</tt> という名前を持ち、
+    文字プロパティのキーとして使われる。このプロパティの値は、文字が
+    "Soft_Dotted"プロパティを持つ場合には #Mt, そうでなければ #Mnil で
+    ある。 詳細については、the Unicode Standard 5.0 (Section 3.13
+    Default Case Algorithm) 参照。
+ */
 MSymbol Msoft_dotted;
 
 /*=*/
-/***en Mcase_mapping
+/***en 
     @brief Key for values used in case operation.
 
     The symbol #Mcase_mapping has the name <tt>"case-mapping"</tt> and
@@ -405,16 +427,32 @@ MSymbol Msoft_dotted;
     property is a plist of three M-Texts; lower, title, and upper of
     the corresponding character.  See the Unicode Standard 5.0
     (Section 5.18 Case Mappings) for the detail.  */
+
+/***ja
+    @brief Case 処理に用いられる値のキー.
+
+    シンボル #Mcase_mapping は、<tt>"case-mapping"</tt> という名前をも
+    ち、文字プロパティのキーとして使われる。このプロパティの値は、３つ
+    の M-text、すなわちその文字の lower, title, と upperからなる plist
+    である。 詳細については、the Unicode Standard 5.0 (Section 3.13
+    Default Case Algorithm) 参照。
+*/
 MSymbol Mcase_mapping;
 
 /*=*/
-/***en Mblock
+/***en 
     @brief Key for script block name.
 
     The symbol #Mblock the name <tt>"block"</tt> and is used as the
     key of charater property.  The value of such a property is a
     symbol representing a script block of the corresponding
     character.  */
+/***ja
+    @brief スクリプトブロック名を表すキー.
+
+    シンボル #Mblock は、<tt>"block"</tt> という名前をもち、文字プロパ
+    ティのキーとして使われる。このプロパティの値は、その文字のスクリプ
+    トブロック名を表すシンボルである。*/
 MSymbol Mblock;
 
 /*** @} */
