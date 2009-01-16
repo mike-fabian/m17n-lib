@@ -311,6 +311,8 @@ extern MSymbol Mcombining_class;
 extern MSymbol Mbidi_category;
 extern MSymbol Msimple_case_folding;
 extern MSymbol Mcomplicated_case_folding;
+extern MSymbol Mcased, Msoft_dotted, Mcase_mapping;
+extern MSymbol Mblock;
 
 extern MSymbol mchar_define_property (const char *name, MSymbol type);
 
