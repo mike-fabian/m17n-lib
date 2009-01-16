@@ -101,6 +101,10 @@ mchar__init ()
   Mbidi_category = msymbol ("bidirectional-category");
   Msimple_case_folding = msymbol ("simple-case-folding");
   Mcomplicated_case_folding = msymbol ("complicated-case-folding");
+  Mcased = msymbol ("cased");
+  Msoft_dotted = msymbol ("soft-dotted");
+  Mcase_mapping = msymbol ("case-mapping");
+  Mblock = msymbol ("block");
   Mscript = msymbol ("script");
 
   return 0;
@@ -346,6 +350,8 @@ MSymbol Mbidi_category;
     というキーの文字プロパティを持つ。  */
 
 MSymbol Msimple_case_folding;
+/*=*/
+
 /***en
     @brief Key for corresponding multiple lowercase characters.
 
@@ -367,6 +373,50 @@ MSymbol Msimple_case_folding;
 
 MSymbol Mcomplicated_case_folding;
 /*=*/
+
+/***en
+    @brief Key for values used in case operation.
+
+    The symbol #Mcased has the name <tt>"cased"</tt> and is used as
+    the key of charater property.  The value of such a property is an
+    integer value 1, 2, or 3 representing "cased", "case-ignorable",
+    and both of them respective.  See the Unicode Standard 5.0
+    (Section 3.13 Default Case Algorithm) for the detail.
+ */
+MSymbol Mcased;
+
+/*=*/
+/***en Msoft_dotted
+    @brief Key for values used in case operation.
+
+    The symbol #Msoft_dotted has the name <tt>"soft-dotted"</tt> and
+    is used as the key of charater property.  The value of such a
+    property is #Mt if a character has "Soft_Dotted" property, and
+    #Mnil otherwise.  See the Unicode Standard 5.0 (Section 3.13
+    Default Case Algorithm) for the detail.  */
+MSymbol Msoft_dotted;
+
+/*=*/
+/***en Mcase_mapping
+    @brief Key for values used in case operation.
+
+    The symbol #Mcase_mapping has the name <tt>"case-mapping"</tt> and
+    is used as the key of charater property.  The value of such a
+    property is a plist of three M-Texts; lower, title, and upper of
+    the corresponding character.  See the Unicode Standard 5.0
+    (Section 5.18 Case Mappings) for the detail.  */
+MSymbol Mcase_mapping;
+
+/*=*/
+/***en Mblock
+    @brief Key for script block name.
+
+    The symbol #Mblock the name <tt>"block"</tt> and is used as the
+    key of charater property.  The value of such a property is a
+    symbol representing a script block of the corresponding
+    character.  */
+MSymbol Mblock;
+
 /*** @} */
 /*=*/
 
