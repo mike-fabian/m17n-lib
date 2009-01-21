@@ -322,25 +322,28 @@ typedef struct {
   } while (0)
 
 
-#define SET_SRC(mt, format, from, to)					\
-  do {									\
-    if (format <= MTEXT_FORMAT_UTF_8)					\
-      {									\
-	src = mt->data + POS_CHAR_TO_BYTE (mt, from);			\
-	src_end = mt->data + POS_CHAR_TO_BYTE (mt, to);			\
-      }									\
-    else if (format <= MTEXT_FORMAT_UTF_16BE)				\
-      {									\
-	src								\
-	  = mt->data + (sizeof (short)) * POS_CHAR_TO_BYTE (mt, from);	\
-	src_end								\
-	  = mt->data + (sizeof (short)) * POS_CHAR_TO_BYTE (mt, to);	\
-      }									\
-    else								\
-      {									\
-	src = mt->data + (sizeof (int)) * from;				\
-	src_end = mt->data + (sizeof (int)) * to;			\
-      }									\
+#define SET_SRC(mt, format, from, to)					   \
+  do {									   \
+    if (format <= MTEXT_FORMAT_UTF_8)					   \
+      {									   \
+	src = mt->data + POS_CHAR_TO_BYTE (mt, from);			   \
+	src_end = mt->data + POS_CHAR_TO_BYTE (mt, to);			   \
+      }									   \
+    else if (format <= MTEXT_FORMAT_UTF_16BE)				   \
+      {									   \
+	src = mt->data + (sizeof (short)) * POS_CHAR_TO_BYTE (mt, from);   \
+	src_end = mt->data + (sizeof (short)) * POS_CHAR_TO_BYTE (mt, to); \
+      }									   \
+    else if (format <= MTEXT_FORMAT_UTF_32BE)				   \
+      {									   \
+	src = mt->data + (sizeof (int)) * from;				   \
+	src_end = mt->data + (sizeof (int)) * to;			   \
+      }									   \
+    else								   \
+      {									   \
+	src = mt->data + from;						   \
+	src_end = mt->data + to;					   \
+      }									   \
   } while (0)
 
 
@@ -355,10 +358,15 @@ typedef struct {
 	c = mtext_ref_char (mt, from++);			\
 	bytes = (sizeof (short)) * CHAR_UNITS_UTF16 (c);	\
       }								\
-    else							\
+    else if (format <= MTEXT_FORMAT_UTF_32BE)			\
       {								\
 	c = ((unsigned *) (mt->data))[from++];			\
 	bytes = sizeof (int);					\
+      }								\
+    else							\
+      {								\
+	c = mt->data[from++];					\
+	bytes = 1;						\
       }								\
   } while (0)
 
@@ -1754,10 +1762,8 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 	      else
 		goto invalid_byte;
 	      /* We must update these variables now.  */
-	      if (status->invocation[0] >= 0)
-		charset0 = status->designation[status->invocation[0]];
-	      if (status->invocation[1] >= 0)
-		charset1 = status->designation[status->invocation[1]];
+	      charset0 = status->designation[status->invocation[0]];
+	      charset1 = status->designation[status->invocation[1]];
 	      continue;
 
 	    case 'n':		/* invocation of locking-shift-2 */
@@ -1909,10 +1915,8 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 	      else
 		goto invalid_byte;
 	      /* We must update these variables now.  */
-	      if (status->invocation[0] >= 0)
-		charset0 = status->designation[status->invocation[0]];
-	      if (status->invocation[1] >= 0)
-		charset1 = status->designation[status->invocation[1]];
+	      charset0 = status->designation[status->invocation[0]];
+	      charset1 = status->designation[status->invocation[1]];
 	      continue;
 
 	    unused_escape_sequence:
@@ -3451,7 +3455,7 @@ MSymbol Mcoding;
     <li> #Mlong_form
 
     If this flag exists, the over-long escape sequences (ESC '$' '('
-    \<final_byte\>) are used for designating the CCS JISX0208.1978,
+    <final_byte>) are used for designating the CCS JISX0208.1978,
     GB2312, and JISX0208.
 
     <li> #Mdesignation_g0
@@ -4417,6 +4421,8 @@ mconv_decode (MConverter *converter, MText *mt)
 
   M_CHECK_READONLY (mt, NULL);
 
+  if (mt->format == MTEXT_FORMAT_BINARY)
+    MERROR (MERROR_CODING, NULL);
   if (mt->format != MTEXT_FORMAT_UTF_8)
     mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
 
@@ -5052,6 +5058,8 @@ mconv_gets (MConverter *converter, MText *mt)
   int c;
 
   M_CHECK_READONLY (mt, NULL);
+  if (mt->format == MTEXT_FORMAT_BINARY)
+    MERROR (MERROR_CODING, NULL);
   if (mt->format != MTEXT_FORMAT_UTF_8)
     mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
 

@@ -270,6 +270,8 @@ static int update_global_info (void);
 static int update_custom_info (void);
 static MInputMethodInfo *get_im_info (MSymbol, MSymbol, MSymbol, MSymbol);
 
+static MDatabaseLoaderXML load_xml_input_method;
+
 
 void
 fully_initialize ()
@@ -403,7 +405,7 @@ fully_initialize ()
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
     }
 
-  buf3[0] = 255;
+  buf3[0] = (char) 255;
   alias[0] = alias[3] = msymbol (buf3);
   alias[1] = one_char_symbol[255] = msymbol ("M-Delete");
   alias[2] = msymbol ("A-Delete");
@@ -496,6 +498,14 @@ fully_initialize ()
   load_im_info_keys = mplist ();
   mplist_add (load_im_info_keys, Mstate, Mnil);
   mplist_push (load_im_info_keys, Mmap, Mnil);
+
+  {
+    MSymbol tags[4];
+
+    tags[0] = Minput_method;
+    tags[1] = tags[2] = tags[3] = Mnil;
+    mdatabase__register_xml_loader (tags, load_xml_input_method);
+  }
 
   im_info_list = mplist ();
   im_config_list = im_custom_list = NULL;
@@ -1474,13 +1484,18 @@ update_custom_info (void)
     {
       MDatabaseInfo *custom_dir_info;
       char custom_path[PATH_MAX + 1];
+      char *dirname;
+      int len;
 
       custom_dir_info = MPLIST_VAL (mdatabase__dir_list);
       if (! custom_dir_info->filename
-	  || custom_dir_info->len + strlen (CUSTOM_FILE) > PATH_MAX)
+	  || (mtext_nbytes (custom_dir_info->filename) + strlen (CUSTOM_FILE)
+	      > PATH_MAX - 1))
 	return -1;
-      strcpy (custom_path, custom_dir_info->filename);
-      strcat (custom_path, CUSTOM_FILE);
+      dirname = mtext_data (custom_dir_info->filename, NULL, &len, NULL, NULL);
+      strcpy (custom_path, dirname);
+      custom_path[len++] = PATH_SEPARATOR;
+      strcpy (custom_path + len, CUSTOM_FILE);
       im_custom_mdb = mdatabase_define (Minput_method, Mt, Mnil, Mconfig,
 					NULL, custom_path);
     }

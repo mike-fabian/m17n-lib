@@ -311,8 +311,6 @@ extern MSymbol Mcombining_class;
 extern MSymbol Mbidi_category;
 extern MSymbol Msimple_case_folding;
 extern MSymbol Mcomplicated_case_folding;
-extern MSymbol Mcased, Msoft_dotted, Mcase_mapping;
-extern MSymbol Mblock;
 
 extern MSymbol mchar_define_property (const char *name, MSymbol type);
 
@@ -426,6 +424,7 @@ enum MTextFormat
     MTEXT_FORMAT_UTF_16BE,
     MTEXT_FORMAT_UTF_32LE,
     MTEXT_FORMAT_UTF_32BE,
+    MTEXT_FORMAT_BINARY,
     MTEXT_FORMAT_MAX
   };
 /*=*/

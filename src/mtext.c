@@ -155,6 +155,7 @@ static MSymbol M_charbag;
 #define FORMAT_COVERAGE(fmt)					\
   (fmt == MTEXT_FORMAT_UTF_8 ? MTEXT_COVERAGE_FULL		\
    : fmt == MTEXT_FORMAT_US_ASCII ? MTEXT_COVERAGE_ASCII	\
+   : fmt == MTEXT_FORMAT_BINARY ? MTEXT_COVERAGE_BINARY		\
    : fmt >= MTEXT_FORMAT_UTF_32LE ? MTEXT_COVERAGE_FULL		\
    : MTEXT_COVERAGE_UNICODE)
 
@@ -242,9 +243,14 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
   int from_unit = POS_CHAR_TO_BYTE (mt2, from);
   int new_units = POS_CHAR_TO_BYTE (mt2, to) - from_unit;
   int unit_bytes;
+  enum MTextFormat format = mt2->format;;
 
   if (mt1->nchars == 0)
-    mt1->format = mt2->format, mt1->coverage = mt2->coverage;
+    {
+      if (mt2->nchars == 0)
+	return mt1;
+      mt1->format = mt2->format, mt1->coverage = mt2->coverage;
+    }
   else if (mt1->format != mt2->format)
     {
       /* Be sure to make mt1->format sufficient to contain all
@@ -262,11 +268,26 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
 	  else if (mt2->format == MTEXT_FORMAT_UTF_16
 		   || mt2->format == MTEXT_FORMAT_UTF_32)
 	    mtext__adjust_format (mt1, mt2->format);
+	  else if (mt2->format == MTEXT_FORMAT_BINARY)
+	    mtext__adjust_format (mt1, MTEXT_FORMAT_BINARY);
 	  else
 	    mtext__adjust_format (mt1, MTEXT_FORMAT_UTF_8);
 	}
+      else if (mt1->format == MTEXT_FORMAT_BINARY)
+	{
+	  if (mt2->format != MTEXT_FORMAT_BINARY)
+	    {
+	      if (mt2->format != MTEXT_FORMAT_US_ASCII
+		  && (mt2->format != MTEXT_FORMAT_UTF_8
+		      || mt2->nchars != mt2->nbytes))
+		MERROR (MERROR_MTEXT, NULL);
+	    }
+	  format = MTEXT_FORMAT_BINARY;
+	}
       else
 	{
+	  if (mt2->format == MTEXT_FORMAT_BINARY)
+	    MERROR (MERROR_MTEXT, NULL);
 	  mtext__adjust_format (mt1, MTEXT_FORMAT_UTF_8);
 	  pos_unit = POS_CHAR_TO_BYTE (mt1, pos);
 	}
@@ -274,7 +295,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
 
   unit_bytes = UNIT_BYTES (mt1->format);
 
-  if (mt1->format == mt2->format)
+  if (mt1->format == format)
     {
       int pos_byte = pos_unit * unit_bytes;
       int total_bytes = (mt1->nbytes + new_units) * unit_bytes;
@@ -359,6 +380,7 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
      mtext__copy_plist (mt2->plist, from, to, mt1, pos));
   mt1->nchars += to - from;
   mt1->nbytes += new_units;
+  MTEXT_DATA (mt1)[mt1->nbytes] = 0;
   if (mt1->cache_char_pos > pos)
     {
       mt1->cache_char_pos += to - from;
@@ -514,7 +536,7 @@ find_char_forward (MText *mt, int from, int to, int c)
       else
 	from = to;
     }
-  else
+  else if (mt->format <= MTEXT_FORMAT_UTF_32BE)
     {
       unsigned *p = (unsigned *) (mt->data) + from_byte;
       unsigned c1 = c;
@@ -522,6 +544,15 @@ find_char_forward (MText *mt, int from, int to, int c)
       if (mt->format != MTEXT_FORMAT_UTF_32)
 	c1 = SWAP_32 (c1);
       while (from < to && *p++ != c1) from++;
+    }
+  else
+    {
+      unsigned *p = (unsigned *) (mt->data) + from_byte;
+
+      if (c >= 0x100)
+	from = to;
+      else
+	while (from < to && *p++ != c) from++;
     }
 
   return (from < to ? from : -1);
@@ -584,7 +615,7 @@ find_char_backward (MText *mt, int from, int to, int c)
 	    }
 	}
     }
-  else
+  else if (mt->format <= MTEXT_FORMAT_UTF_16LE)
     {
       unsigned *p = (unsigned *) (mt->data) + to_byte;
       unsigned c1 = c;
@@ -593,7 +624,15 @@ find_char_backward (MText *mt, int from, int to, int c)
 	c1 = SWAP_32 (c1);
       while (from < to && p[-1] != c1) to--, p--;
     }
+  else
+    {
+      unsigned *p = (unsigned *) (mt->data) + to_byte;
 
+      if (c >= 0x100)
+	to = from;
+      else
+	while (from < to && p[-1] != c) to--, p--;
+    }
   return (from < to ? to - 1 : -1);
 }
 
@@ -1121,12 +1160,14 @@ mtext__cat_data (MText *mt, unsigned char *p, int nbytes,
 {
   int nchars = -1;
 
-  if (mt->format > MTEXT_FORMAT_UTF_8)
+  if (mt->format > MTEXT_FORMAT_UTF_8 && mt->format < MTEXT_FORMAT_BINARY)
     MERROR (MERROR_MTEXT, -1);
   if (format == MTEXT_FORMAT_US_ASCII)
     nchars = nbytes;
   else if (format == MTEXT_FORMAT_UTF_8)
     nchars = count_utf_8_chars (p, nbytes);
+  else
+    nchars = nbytes;
   if (nchars < 0)
     MERROR (MERROR_MTEXT, -1);
   mtext__enlarge (mt, mtext_nbytes (mt) + nbytes + 1);
@@ -1167,11 +1208,17 @@ mtext__from_data (const void *data, int nitems, enum MTextFormat format,
       nbytes = USHORT_SIZE * nitems;
       unit_bytes = USHORT_SIZE;
     }
-  else				/* MTEXT_FORMAT_UTF_32XX */
+  else if (format <= MTEXT_FORMAT_UTF_16BE)
     {
       nchars = nitems;
       nbytes = UINT_SIZE * nitems;
       unit_bytes = UINT_SIZE;
+    }
+  else				/* MTEXT_FORMAT_BINARY */
+    {
+      nchars = nitems;
+      nbytes = nitems;
+      unit_bytes = 1;
     }
 
   mt = mtext ();
@@ -1251,7 +1298,7 @@ mtext__adjust_format (MText *mt, enum MTextFormat format)
 	    mt->cache_char_pos = mt->cache_byte_pos = 0;
 	    break;
 	  }
-	else
+	else if (format == MTEXT_FORMAT_UTF_32)
 	  {
 	    unsigned int *p;
 
@@ -1282,7 +1329,7 @@ mtext__bol (MText *mt, int pos)
   if (pos == 0)
     return pos;
   byte_pos = POS_CHAR_TO_BYTE (mt, pos);
-  if (mt->format <= MTEXT_FORMAT_UTF_8)
+  if (mt->format <= MTEXT_FORMAT_UTF_8 || mt->format == MTEXT_FORMAT_BINARY)
     {
       unsigned char *p = mt->data + byte_pos;
 
@@ -1294,7 +1341,8 @@ mtext__bol (MText *mt, int pos)
       if (p == mt->data)
 	return 0;
       byte_pos = p - mt->data;
-      return POS_BYTE_TO_CHAR (mt, byte_pos);
+      return (mt->format == MTEXT_FORMAT_BINARY ? byte_pos
+	      : POS_BYTE_TO_CHAR (mt, byte_pos));
     }
   else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
@@ -1339,7 +1387,7 @@ mtext__eol (MText *mt, int pos)
   if (pos == mt->nchars)
     return pos;
   byte_pos = POS_CHAR_TO_BYTE (mt, pos);
-  if (mt->format <= MTEXT_FORMAT_UTF_8)
+  if (mt->format <= MTEXT_FORMAT_UTF_8 || mt->format == MTEXT_FORMAT_BINARY)
     {
       unsigned char *p = mt->data + byte_pos;
       unsigned char *endp;
@@ -1353,7 +1401,8 @@ mtext__eol (MText *mt, int pos)
       if (p == endp)
 	return mt->nchars;
       byte_pos = p + 1 - mt->data;
-      return POS_BYTE_TO_CHAR (mt, byte_pos);
+      return (mt->format == MTEXT_FORMAT_BINARY ? byte_pos
+	      : POS_BYTE_TO_CHAR (mt, byte_pos));
     }
   else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
     {
@@ -1398,6 +1447,8 @@ mtext__lowercase (MText *mt, int pos, int end)
   MText *orig = NULL;
   MSymbol lang;
 
+  if (mt->format == MTEXT_FORMAT_BINARY)
+    return end;
   if (lowercase_precheck (mt, pos, end))
     orig = mtext_dup (mt);
 
@@ -1463,6 +1514,9 @@ mtext__titlecase (MText *mt, int pos, int end)
   MSymbol lang;
   MPlist *pl;
 
+  if (mt->format == MTEXT_FORMAT_BINARY)
+    return end;
+
   /* Precheck for titlecase is identical to that for uppercase. */
   if (uppercase_precheck (mt, pos, end))
     orig = mtext_dup (mt);
@@ -1514,6 +1568,9 @@ mtext__uppercase (MText *mt, int pos, int end)
   MText *orig = NULL;
   MSymbol lang;
   MPlist *pl;
+
+  if (mt->format == MTEXT_FORMAT_BINARY)
+    return end;
 
   CASE_CONV_INIT (-1);
 
@@ -1722,8 +1779,9 @@ mtext_from_data (const void *data, int nitems, enum MTextFormat format)
 
     <ul>
 
-    <li> If the format of the text data is MTEXT_FORMAT_US_ASCII or
-    MTEXT_FORMAT_UTF_8, one unit is unsigned char.
+    <li> If the format of the text data is MTEXT_FORMAT_US_ASCII,
+    MTEXT_FORMAT_UTF_8, or MTEXT_FORMAT_BINARY, one unit is unsigned
+    char.
 
     <li> If the format is MTEXT_FORMAT_UTF_16LE or
     MTEXT_FORMAT_UTF_16BE, one unit is unsigned short.
@@ -1767,7 +1825,7 @@ mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
     *unit_idx = unit_pos;
   if (unit_pos > 0)
     {
-      if (mt->format <= MTEXT_FORMAT_UTF_8)
+      if (mt->format <= MTEXT_FORMAT_UTF_8 || mt->format == MTEXT_FORMAT_BINARY)
 	data = (unsigned char *) data + unit_pos;
       else if (mt->format <= MTEXT_FORMAT_UTF_16BE)
 	data = (unsigned short *) data + unit_pos;
@@ -1847,12 +1905,15 @@ mtext_ref_char (MText *mt, int pos)
 	}
       c = STRING_CHAR_UTF16 (p);
     }
-  else
+  else if (mt->format <= MTEXT_FORMAT_UTF_32BE)
     {
       c = ((unsigned *) (mt->data))[pos];
       if (mt->format != MTEXT_FORMAT_UTF_32)
 	c = SWAP_32 (c);
     }
+  else
+    c = mt->data[pos];
+
   return c;
 }
 
@@ -1883,7 +1944,7 @@ mtext_ref_char (MText *mt, int pos)
 
 /***
     @errors
-    @c MERROR_RANGE */
+    @c MERROR_RANGE, MERROR_MTEXT */
 
 int
 mtext_set_char (MText *mt, int pos, int c)
@@ -1896,6 +1957,9 @@ mtext_set_char (MText *mt, int pos, int c)
 
   M_CHECK_POS (mt, pos, -1);
   M_CHECK_READONLY (mt, -1);
+
+  if (mt->format == MTEXT_FORMAT_BINARY && c >= 0x100)
+    MERROR (MERROR_MTEXT, -1);
 
   mtext__adjust_plist_for_change (mt, pos, 1, 1);
 
@@ -1936,11 +2000,12 @@ mtext_set_char (MText *mt, int pos, int c)
 	       mt->data + (pos_unit + old_units) * unit_bytes,
 	       (mt->nbytes - pos_unit - old_units + 1) * unit_bytes);
       mt->nbytes += delta;
-      mt->data[mt->nbytes * unit_bytes] = 0;
+      mt->data[mt->nbytes] = 0;
     }
   switch (mt->format)
     {
     case MTEXT_FORMAT_US_ASCII:
+    case MTEXT_FORMAT_BINARY:
       mt->data[pos_unit] = c;
       break;
     case MTEXT_FORMAT_UTF_8:
@@ -1985,6 +2050,9 @@ mtext_set_char (MText *mt, int pos, int c)
     が正しい文字でない場合には @c NULL を返す。  */
 
 /***
+    @errors
+    @c MERROR_MTEXT
+
     @seealso
     mtext_cat (), mtext_ncat ()  */
 
@@ -1995,8 +2063,9 @@ mtext_cat_char (MText *mt, int c)
   int unit_bytes = UNIT_BYTES (mt->format);
 
   M_CHECK_READONLY (mt, NULL);
-  if (c < 0 || c > MCHAR_MAX)
-    return NULL;
+  if (c < 0 || c > MCHAR_MAX
+      || (mt->format == MTEXT_FORMAT_BINARY && c >= 0x100))
+    MERROR (MERROR_MTEXT, NULL);
   mtext__adjust_plist_for_insert (mt, mt->nchars, 1, NULL);
 
   if (c >= 0x80
@@ -2009,6 +2078,8 @@ mtext_cat_char (MText *mt, int c)
       mtext__adjust_format (mt, MTEXT_FORMAT_UTF_8);
       unit_bytes = 1;
     }
+  else if (mt->format == MTEXT_FORMAT_BINARY)
+    ;
   else if (mt->format >= MTEXT_FORMAT_UTF_32LE)
     {
       if (mt->format != MTEXT_FORMAT_UTF_32)
@@ -2039,11 +2110,16 @@ mtext_cat_char (MText *mt, int c)
       p += CHAR_STRING_UTF16 (c, p);
       *p = 0;
     }
-  else
+  else if (mt->format == MTEXT_FORMAT_UTF_32)
     {
       unsigned *p = (unsigned *) mt->data + mt->nbytes;
       *p++ = c;
       *p = 0;
+    }
+  else				/* mt->format == MTEXT_FORMAT_BINARY */
+    {
+      mt->data[mt->nbytes] = c;
+      mt->data[mt->nbytes + 1] = '\0';
     }
 
   mt->nchars++;
@@ -2115,8 +2191,9 @@ mtext_cat (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
 
-  if (mt2->nchars > 0)
-    insert (mt1, mt1->nchars, mt2, 0, mt2->nchars);
+  if (mt2->nchars > 0
+      && ! insert (mt1, mt1->nchars, mt2, 0, mt2->nchars))
+    return NULL;
   return mt1;
 }
 
@@ -2164,8 +2241,9 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
   M_CHECK_READONLY (mt1, NULL);
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
-  if (mt2->nchars > 0)
-    insert (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  if (mt2->nchars > 0
+      && ! insert (mt1, mt1->nchars, mt2, 0, mt2->nchars < n ? mt2->nchars : n))
+    return NULL;
   return mt1;
 }
 
@@ -2204,8 +2282,9 @@ mtext_cpy (MText *mt1, MText *mt2)
 {
   M_CHECK_READONLY (mt1, NULL);
   mtext_del (mt1, 0, mt1->nchars);
-  if (mt2->nchars > 0)
-    insert (mt1, 0, mt2, 0, mt2->nchars);
+  if (mt2->nchars > 0
+      && ! insert (mt1, 0, mt2, 0, mt2->nchars))
+    return NULL;
   return mt1;
 }
 
@@ -2255,8 +2334,9 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
   if (n < 0)
     MERROR (MERROR_RANGE, NULL);
   mtext_del (mt1, 0, mt1->nchars);
-  if (mt2->nchars > 0)
-    insert (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n);
+  if (mt2->nchars > 0
+      && ! insert (mt1, 0, mt2, 0, mt2->nchars < n ? mt2->nchars : n))
+    return NULL;
   return mt1;
 }
 
@@ -2420,6 +2500,7 @@ mtext_del (MText *mt, int from, int to)
 	   (mt->nbytes - to_byte + 1) * unit_bytes);
   mt->nchars -= (to - from);
   mt->nbytes -= (to_byte - from_byte);
+  MTEXT_DATA (mt)[mt->nbytes] = 0;
   mt->cache_char_pos = from;
   mt->cache_byte_pos = from_byte;
   return 0;
@@ -2467,7 +2548,8 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
 
   if (mt2->nchars == 0)
     return 0;
-  insert (mt1, pos, mt2, 0, mt2->nchars);
+  if (! insert (mt1, pos, mt2, 0, mt2->nchars))
+    return -1;
   return 0;
 }
 
@@ -2514,7 +2596,8 @@ mtext_insert (MText *mt1, int pos, MText *mt2, int from, int to)
   M_CHECK_POS_X (mt1, pos, -1);
   M_CHECK_RANGE (mt2, from, to, -1, 0);
 
-  insert (mt1, pos, mt2, from, to);
+  if (! insert (mt1, pos, mt2, from, to))
+    return -1;
   return 0;
 }
 
@@ -2559,7 +2642,8 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
 
   M_CHECK_READONLY (mt, -1);
   M_CHECK_POS_X (mt, pos, -1);
-  if (c < 0 || c > MCHAR_MAX)
+  if (c < 0 || c > MCHAR_MAX
+      || (mt->format == MTEXT_FORMAT_BINARY && c >= 0x100))
     MERROR (MERROR_MTEXT, -1);
   if (n <= 0)
     return 0;
@@ -2622,6 +2706,7 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     }
   mt->nchars += n;
   mt->nbytes += nunits * n;
+  MTEXT_DATA (mt)[mt->nbytes] = 0;
   return 0;
 }
 
@@ -2679,7 +2764,8 @@ mtext_replace (MText *mt1, int from1, int to1,
       struct MTextPlist *saved = mt2->plist;
 
       mt2->plist = NULL;
-      insert (mt1, from1, mt2, from2, to2);
+      if (! insert (mt1, from1, mt2, from2, to2))
+	return -1;
       mt2->plist = saved;
       return 0;
     }
@@ -2697,9 +2783,23 @@ mtext_replace (MText *mt1, int from1, int to1,
       free_mt2 = 1;
     }
 
-  if (mt1->format != mt2->format
-      && mt1->format == MTEXT_FORMAT_US_ASCII)
-    mt1->format = MTEXT_FORMAT_UTF_8;
+  if (mt1->format != mt2->format)
+    {
+      if (mt1->format == MTEXT_FORMAT_BINARY)
+	{
+	  if (mt2->format != MTEXT_FORMAT_US_ASCII)
+	    MERROR (MERROR_MTEXT, -1);
+	}
+      else if (mt2->format == MTEXT_FORMAT_BINARY)
+	{
+	  if (mt1->format == MTEXT_FORMAT_US_ASCII)
+	    mt1->format = MTEXT_FORMAT_BINARY;
+	  else
+	    MERROR (MERROR_MTEXT, -1);
+	}
+      else if (mt1->format == MTEXT_FORMAT_US_ASCII)
+	mt1->format = MTEXT_FORMAT_UTF_8;
+    }
   if (mt1->format != mt2->format
       && mt1->coverage < mt2->coverage)
     mtext__adjust_format (mt1, mt2->format);
@@ -2735,6 +2835,7 @@ mtext_replace (MText *mt1, int from1, int to1,
   memcpy (p, mt2->data + from2_byte, new_bytes);
   mt1->nchars += len2 - len1;
   mt1->nbytes += (new_bytes - old_bytes) / unit_bytes;
+  MTEXT_DATA (mt1)[mt1->nbytes] = 0;
   if (mt1->cache_char_pos >= to1)
     {
       mt1->cache_char_pos += len2 - len1;
@@ -3189,8 +3290,13 @@ mtext_text (MText *mt1, int pos, MText *mt2)
   int nbytes2 = mtext_nbytes (mt2);
   int limit;
   int use_memcmp = (mt1->format == mt2->format
-		    || (mt1->format < MTEXT_FORMAT_UTF_8
-			&& mt2->format == MTEXT_FORMAT_UTF_8));
+		    || (mt1->format == MTEXT_FORMAT_US_ASCII
+			? (mt2->format == MTEXT_FORMAT_UTF_8
+			   || mt2->format == MTEXT_FORMAT_BINARY)
+			: mt1->format == MTEXT_FORMAT_UTF_8
+			? mt2->format == MTEXT_FORMAT_US_ASCII
+			: (mt1->format == MTEXT_FORMAT_BINARY
+			   && mt2->format == MTEXT_FORMAT_US_ASCII)));
   int unit_bytes = UNIT_BYTES (mt1->format);
 
   if (from + mtext_nchars (mt2) > mtext_nchars (mt1))

@@ -46,9 +46,9 @@
 /* Return how many bytes one unit (char, short, or int) in FORMAT
    occupies.  */
 
-#define UNIT_BYTES(format)				\
-  ((format) <= MTEXT_FORMAT_UTF_8 ? 1			\
-   : (format) <= MTEXT_FORMAT_UTF_16BE ? USHORT_SIZE	\
+#define UNIT_BYTES(format)						   \
+  (((format) <= MTEXT_FORMAT_UTF_8 || (format) == MTEXT_FORMAT_BINARY) ? 1 \
+   : (format) <= MTEXT_FORMAT_UTF_16BE ? USHORT_SIZE			   \
    : UINT_SIZE)
 
 /* Return how many units (char, short, or int) C will occupy in
@@ -71,7 +71,8 @@
 #define CHAR_UNITS(c, format)					\
   ((format) <= MTEXT_FORMAT_UTF_8 ? CHAR_UNITS_UTF8 (c)		\
    : (format) <= MTEXT_FORMAT_UTF_16BE ? CHAR_UNITS_UTF16 (c)	\
-   : CHAR_UNITS_UTF32 (c))
+   : (format) <= MTEXT_FORMAT_UTF_32BE ? CHAR_UNITS_UTF32 (c)	\
+   : 1)
 
 #define CHAR_BYTES CHAR_UNITS_UTF8
 
@@ -215,8 +216,9 @@
    ? STRING_CHAR_AND_UNITS_UTF8 (p, units)	\
    : (format) <= MTEXT_FORMAT_UTF_16BE		\
    ? STRING_CHAR_AND_UNITS_UTF16 (p, units)	\
-   : ((units) = 1, ((unsigned) (p))[0]))
-
+   : (format) <= MTEXT_FORMAT_UTF_32BE		\
+   ? ((units) = 1, ((unsigned) (p))[0])		\
+   : ((units) = 1, (p)[0]))
 
 #define STRING_CHAR_AND_BYTES STRING_CHAR_AND_UNITS_UTF8
 
