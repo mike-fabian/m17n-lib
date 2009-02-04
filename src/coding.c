@@ -2976,6 +2976,9 @@ mcoding__init (void)
 					  NULL, NULL, NULL, NULL);
 
   mplist_put (param, Mtype, Mnil);
+  pl = mplist ();
+  mplist_add (pl, Msymbol, msymbol ("Shift_JIS"));
+  mplist_put (param, Maliases, pl);
   mplist_set (charsets, Msymbol, Mcharset_ascii);
   Mcoding_sjis = mconv_define_coding ("sjis", param,
 				      reset_coding_sjis,
@@ -2984,6 +2987,7 @@ mcoding__init (void)
 
   M17N_OBJECT_UNREF (charsets);
   M17N_OBJECT_UNREF (param);
+  M17N_OBJECT_UNREF (pl);
 
   return 0;
 }
