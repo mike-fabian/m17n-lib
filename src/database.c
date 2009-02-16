@@ -1381,9 +1381,13 @@ mdatabase__init ()
   work = mtext ();
 
   mdatabase__dir_list = mplist ();
-  /** The macro M17NDIR specifies a directory where the system-wide
-    MDB_DIR file exists.  */
-  mplist_set (mdatabase__dir_list, Mt, get_dir_info (M17NDIR, 1));
+  /* The environment variable M17N_SYSTEM_DIR specifies the directory
+     where a system wide MDB_DIR file exists.  If the variable is not
+     specified, use the macro M17NDIR.  */
+  path = getenv ("M17N_SYSTEM_DIR");
+  if (! path)
+    path = M17NDIR;
+  mplist_set (mdatabase__dir_list, Mt, get_dir_info (path, 1));
 
   /* The variable mdatabase_dir specifies a directory where an
      application program specific MDB_DIR file exists.  */
