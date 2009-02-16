@@ -100,8 +100,7 @@ typedef struct
   MPlist *properties;
 } MDatabaseInfo;
 
-typedef MPlist *(*MDatabaseLoaderXML) (MSymbol *, char *filename, int validate,
-				       MPlist *keys);
+typedef MPlist *(*MDatabaseLoaderXML) (MDatabaseInfo *, char *filename);
 
 extern MPlist *mdatabase__dir_list;
 
@@ -124,5 +123,8 @@ extern int mdatabase__unlock (MDatabase *mdb);
 extern MPlist *mdatabase__props (MDatabase *mdb);
 
 extern void *(*mdatabase__load_charset_func) (FILE *fp, MSymbol charset_name);
+
+#include <libxml/xmlreader.h>
+extern int mdatabase__validate (xmlDocPtr doc, MDatabaseInfo *db_info);
 
 #endif /* not _M17N_DATABASE_H_ */

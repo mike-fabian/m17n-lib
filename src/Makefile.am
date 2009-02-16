@@ -49,7 +49,7 @@ libm17n_core_la_LDFLAGS = -export-dynamic ${VINFO}
 libm17n_la_SOURCES = \
 	charset.h charset.c \
 	coding.h coding.c \
-	input.h input.c \
+	input.h input.c input-xml.c \
 	language.h language.c \
 	mlocale.h locale.c \
 	m17n.h m17n.c

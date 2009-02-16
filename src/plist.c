@@ -177,6 +177,31 @@ get_byte (MStream *st)
 
 #define UNGETC(c, st) (--((st)->p))
 
+static void
+init_stream (MStream *st, FILE *fp, unsigned char *str, int n)
+{
+  st->eof = 0;
+  st->fp = fp;
+  if (fp)
+    {
+      int c;
+
+      st->fp = fp;
+      st->p = st->pend = st->buffer;
+      if ((c = GETC (st)) != 0xEF)
+	st->p = st->buffer;
+      else if ((c = GETC (st)) != 0xBB)
+	st->p = st->buffer;
+      else if ((c = GETC (st)) != 0xBF)
+	st->p = st->buffer;
+    }
+  else
+    {
+      st->p = str;
+      st->pend = str + n;
+    }
+}
+
 /** Mapping table for reading a number.  Hexadecimal chars
     (0..9,A..F,a..F) are mapped to the corresponding numbers.
     Apostrophe (code 39) is mapped to 254.  All the other bytes are
@@ -800,9 +825,7 @@ mplist__from_file (FILE *fp, MPlist *keys)
   MPlist *plist, *pl;
   MStream st;
 
-  st.fp = fp;
-  st.eof = 0;
-  st.p = st.pend = st.buffer;
+  init_stream (&st, fp, NULL, 0);
   MPLIST_NEW (plist);
   pl = plist;
   while ((pl = read_element (pl, &st, keys)));
@@ -848,10 +871,7 @@ mplist__from_string (unsigned char *str, int n)
   MPlist *plist, *pl;
   MStream st;
 
-  st.fp = NULL;
-  st.eof = 0;
-  st.p = str;
-  st.pend = str + n;
+  init_stream (&st, NULL, str, n);
   MPLIST_NEW (plist);
   pl = plist;
   while ((pl = read_element (pl, &st, NULL)));

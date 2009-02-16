@@ -702,7 +702,72 @@ encode_coding_charset (MText *mt, int from, int to,
 }
 
 
-/* Staffs for coding-systems of type MCODING_TYPE_UTF (8).  */
+
+/* Staffs for coding-systems of type MCODING_TYPE_UTF.  */
+
+enum utf_bom
+  {
+    UTF_BOM_MAYBE,
+    UTF_BOM_NO,
+    UTF_BOM_YES,
+    UTF_BOM_MAX
+  };
+
+enum utf_endian
+  {
+    UTF_BIG_ENDIAN,
+    UTF_LITTLE_ENDIAN,
+    UTF_ENDIAN_MAX
+  };
+
+struct utf_status
+{
+  int surrogate;
+  enum utf_bom bom;
+  enum utf_endian endian;
+};
+
+static int
+setup_coding_utf (MCodingSystem *coding)
+{
+  MCodingInfoUTF *info = (MCodingInfoUTF *) (coding->extra_info);
+  MCodingInfoUTF *spec;
+
+  if (info->code_unit_bits == 8)
+    coding->ascii_compatible = 1;
+  else if (info->code_unit_bits == 16
+	   || info->code_unit_bits == 32)
+    {
+      if (info->bom < 0 || info->bom > 2
+	  || info->endian < 0 || info->endian > 1)
+	MERROR (MERROR_CODING, -1);
+    }
+  else
+    return -1;
+
+  MSTRUCT_CALLOC (spec, MERROR_CODING);
+  *spec = *info;
+  coding->extra_spec = (void *) (spec);
+  return 0;
+}
+
+static int
+reset_coding_utf (MConverter *converter)
+{
+  MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
+  MCodingSystem *coding = internal->coding;
+  struct utf_status *status = (struct utf_status *) &(converter->status);
+
+  if (! coding->ready
+      && setup_coding_utf (coding) < 0)
+    return -1;
+  coding->ready = 1;
+
+  status->surrogate = 0;
+  status->bom = ((MCodingInfoUTF *) (coding->extra_spec))->bom;
+  status->endian = ((MCodingInfoUTF *) (coding->extra_spec))->endian;
+  return 0;
+}
 
 #define UTF8_CHARSET(p)					\
   (! ((p)[0] & 0x80) ? (mcharset__unicode)			\
@@ -737,9 +802,32 @@ decode_coding_utf_8 (const unsigned char *source, int src_bytes, MText *mt,
   int nchars = 0;
   int last_nchars = 0;
   int at_most = converter->at_most > 0 ? converter->at_most : -1;
+  struct utf_status *status = (struct utf_status *) &(converter->status);
   int error = 0;
   int full = converter->lenient || (coding->charsets[0] == mcharset__m17n);
   MCharset *charset = NULL;
+
+  if (status->bom != UTF_BOM_NO)
+    {
+      int c;
+
+      ONE_MORE_BASE_BYTE (c);
+      if (c != 0xEF)
+	REWIND_SRC_TO_BASE ();
+      else
+	{
+	  ONE_MORE_BYTE (c);
+	  if (c != 0xBB)
+	    REWIND_SRC_TO_BASE ();
+	  else
+	    {
+	      ONE_MORE_BYTE (c);
+	      if (c != 0xBF)
+		REWIND_SRC_TO_BASE ();		
+	    }
+	}
+      status->bom = UTF_BOM_NO;
+    }
 
   while (1)
     {
@@ -862,73 +950,6 @@ encode_coding_utf_8 (MText *mt, int from, int to,
   converter->nchars += nchars;
   converter->nbytes += dst - destination;
   return (converter->result == MCONVERSION_RESULT_INVALID_CHAR ? -1 : 0);
-}
-
-
-/* Staffs for coding-systems of type MCODING_TYPE_UTF (16 & 32).  */
-
-enum utf_bom
-  {
-    UTF_BOM_MAYBE,
-    UTF_BOM_NO,
-    UTF_BOM_YES,
-    UTF_BOM_MAX
-  };
-
-enum utf_endian
-  {
-    UTF_BIG_ENDIAN,
-    UTF_LITTLE_ENDIAN,
-    UTF_ENDIAN_MAX
-  };
-
-struct utf_status
-{
-  int surrogate;
-  enum utf_bom bom;
-  enum utf_endian endian;
-};
-
-static int
-setup_coding_utf (MCodingSystem *coding)
-{
-  MCodingInfoUTF *info = (MCodingInfoUTF *) (coding->extra_info);
-  MCodingInfoUTF *spec;
-
-  if (info->code_unit_bits == 8)
-    coding->ascii_compatible = 1;
-  else if (info->code_unit_bits == 16
-	   || info->code_unit_bits == 32)
-    {
-      if (info->bom < 0 || info->bom > 2
-	  || info->endian < 0 || info->endian > 1)
-	MERROR (MERROR_CODING, -1);
-    }
-  else
-    return -1;
-
-  MSTRUCT_CALLOC (spec, MERROR_CODING);
-  *spec = *info;
-  coding->extra_spec = (void *) (spec);
-  return 0;
-}
-
-static int
-reset_coding_utf (MConverter *converter)
-{
-  MConverterStatus *internal = (MConverterStatus *) converter->internal_info;
-  MCodingSystem *coding = internal->coding;
-  struct utf_status *status = (struct utf_status *) &(converter->status);
-
-  if (! coding->ready
-      && setup_coding_utf (coding) < 0)
-    return -1;
-  coding->ready = 1;
-
-  status->surrogate = 0;
-  status->bom = ((MCodingInfoUTF *) (coding->extra_spec))->bom;
-  status->endian = ((MCodingInfoUTF *) (coding->extra_spec))->endian;
-  return 0;
 }
 
 static int
@@ -1139,7 +1160,7 @@ encode_coding_utf_16 (MText *mt, int from, int to,
 
   SET_SRC (mt, format, from, to);
 
-  if (status->bom != UTF_BOM_NO)
+  if (status->bom == UTF_BOM_YES)
     {
       CHECK_DST (2);
       if (big_endian)
@@ -1227,7 +1248,7 @@ encode_coding_utf_32 (MText *mt, int from, int to,
 
   SET_SRC (mt, format, from, to);
 
-  if (status->bom != UTF_BOM_NO)
+  if (status->bom == UTF_BOM_YES)
     {
       CHECK_DST (4);
       if (big_endian)
@@ -2941,6 +2962,7 @@ mcoding__init (void)
   mplist_set (charsets, Msymbol, Mcharset_m17n);
   mplist_put (param, Mtype, Mutf);
   mplist_put (param, Mcode_unit, (void *) 8);
+  mplist_put (param, Mbom, Mmaybe);
   Mcoding_utf_8_full = mconv_define_coding ("utf-8-full", param,
 					    NULL, NULL, NULL, NULL);
 

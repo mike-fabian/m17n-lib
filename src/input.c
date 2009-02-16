@@ -1,5 +1,5 @@
 /* input.c -- input method module.
-   Copyright (C) 2003, 2004, 2005, 2006
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -270,7 +270,8 @@ static int update_global_info (void);
 static int update_custom_info (void);
 static MInputMethodInfo *get_im_info (MSymbol, MSymbol, MSymbol, MSymbol);
 
-static MDatabaseLoaderXML load_xml_input_method;
+extern MPlist minput__load_xml (MDatabaseInfo *, char *);
+/*extern MDatabaseLoaderXML minput__load_xml;*/
 
 
 void
@@ -504,7 +505,7 @@ fully_initialize ()
 
     tags[0] = Minput_method;
     tags[1] = tags[2] = tags[3] = Mnil;
-    mdatabase__register_xml_loader (tags, load_xml_input_method);
+    mdatabase__register_xml_loader (tags, minput__load_xml);
   }
 
   im_info_list = mplist ();
@@ -1492,9 +1493,10 @@ update_custom_info (void)
 	  || (mtext_nbytes (custom_dir_info->filename) + strlen (CUSTOM_FILE)
 	      > PATH_MAX - 1))
 	return -1;
-      dirname = mtext_data (custom_dir_info->filename, NULL, &len, NULL, NULL);
+      dirname = mtext_data (custom_dir_info->dirname, NULL, &len, NULL, NULL);
       strcpy (custom_path, dirname);
-      custom_path[len++] = PATH_SEPARATOR;
+      if (custom_path[len - 1] != PATH_SEPARATOR)
+	custom_path[len++] = PATH_SEPARATOR;
       strcpy (custom_path + len, CUSTOM_FILE);
       im_custom_mdb = mdatabase_define (Minput_method, Mt, Mnil, Mconfig,
 					NULL, custom_path);

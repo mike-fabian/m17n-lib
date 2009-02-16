@@ -528,6 +528,7 @@ load_database (MSymbol *tags, void *extra_info)
       MERROR (MERROR_DB, NULL);
     }
 
+#if 0
   if (db_info->status != MDB_STATUS_UPDATED)
     {
       if (! xml_validate (db_info))
@@ -538,6 +539,7 @@ load_database (MSymbol *tags, void *extra_info)
 	}
       db_info->status = MDB_STATUS_UPDATED;
     }
+#endif
   MDEBUG_PRINT1 (" from %s\n", MTEXT_STR (path));
 
   if (tags[0] == Mchar_table)
@@ -551,8 +553,20 @@ load_database (MSymbol *tags, void *extra_info)
   else
     {
       int c;
+      unsigned char buf[4];
 
-      while ((c = getc (fp)) != EOF && isspace (c));
+      if (fgets (buf, 4, fp) == NULL)
+	c = EOF;
+      else
+	{
+	  /* Skip BOM of UTF-8.  */
+	  if ((c = buf[0]) != 0xEF)
+	    fseek (fp, 0L, SEEK_SET);
+	  else if (buf[1] != 0xBB)
+	    fseek (fp, 0L, SEEK_SET);
+	  else if (buf[2] != 0xBF)
+	    fseek (fp, 0L, SEEK_SET);
+	}
       if (c == '<')
 	{
 	  MDatabaseLoaderXML loader = find_xml_loader (tags);
@@ -561,12 +575,10 @@ load_database (MSymbol *tags, void *extra_info)
 	    MERROR (MERROR_DB, NULL);
 	  fclose (fp);
 	  fp = NULL;
-	  value = loader (tags, MTEXT_STR (path),
-			  ! db_info->system_database, NULL);
+	  value = loader (db_info, MTEXT_STR (path));
 	}
       else if (c != EOF)
 	{
-	  ungetc (c, fp);
 	  value = mplist__from_file (fp, NULL);
 	}
       else
@@ -605,6 +617,7 @@ static int
 update_dir_info (MDatabaseInfo *dir_info)
 {
   struct stat statbuf;
+  MText *mdb_file;
 
   if (! file_readble_p (dir_info->dirname, NULL, &statbuf))
     {
@@ -616,34 +629,26 @@ update_dir_info (MDatabaseInfo *dir_info)
       return 1;
     }
 
-  if (file_readble_p (dir_info->dirname, mdb_xml, &statbuf))
-    {
-      if (dir_info->filename == mdb_xml
-	  && dir_info->time >= statbuf.st_mtime)
-	return 0;
-      M17N_OBJECT_UNREF (dir_info->filename);
-      dir_info->filename = mdb_xml;
-      M17N_OBJECT_REF (mdb_xml);
-      dir_info->format = Mxml;
-      dir_info->mtime = statbuf.st_mtime;
-      dir_info->time = 0;
-      return 1;
-    }
-  if (file_readble_p (dir_info->dirname, mdb_dir, &statbuf))
-    {
-      if (dir_info->filename == mdb_dir
-	  && dir_info->time >= statbuf.st_mtime)
-	return 0;
-      M17N_OBJECT_UNREF (dir_info->filename);
-      dir_info->filename = mdb_dir;
-      M17N_OBJECT_REF (mdb_dir);
-      dir_info->format = Mplist;
-      dir_info->mtime = statbuf.st_mtime;
-      dir_info->time = 0;
-      return 1;
-    }
+  for (mdb_file = mdb_xml; mdb_file;
+       mdb_file = (mdb_file == mdb_dir ? NULL : mdb_dir))
+    if (file_readble_p (dir_info->dirname, mdb_file, &statbuf))
+      {
+	if (dir_info->filename == mdb_file
+	    && dir_info->time >= statbuf.st_mtime)
+	  return 0;
+	dir_info->status = MDB_STATUS_OUTDATED;
+	M17N_OBJECT_UNREF (dir_info->filename);
+	dir_info->filename = mdb_file;
+	M17N_OBJECT_REF (mdb_file);
+	dir_info->format = mdb_file == mdb_xml ? Mxml : Mplist;
+	dir_info->time = dir_info->mtime = statbuf.st_mtime;
+	return 1;
+      }
+  dir_info->status = MDB_STATUS_INVALID;
   if (! dir_info->filename)
     return 0;
+  /* The directory is readable but doesn't have mdb.xml nor
+     mdb.dir.  */
   dir_info->filename = NULL;
   dir_info->mtime = dir_info->time = 0;
   return 1;
@@ -677,10 +682,10 @@ find_database (MSymbol tags[4])
 	    p = MPLIST_PLIST (MPLIST_NEXT (p));
 	  mdb = MPLIST_VAL (MPLIST_NEXT (p));
 	  db_info = mdb->extra_info;
-	  if (db_info->status != MDB_STATUS_DISABLED)
+	  if (db_info->status == MDB_STATUS_OUTDATED)
 	    {
 	      register_databases_in_files (mdb->tag, db_info);
-	      db_info->status = MDB_STATUS_DISABLED;
+	      db_info->status = MDB_STATUS_UPDATED;
 	      return find_database (tags);
 	    }
 	}
@@ -782,7 +787,6 @@ register_database (MSymbol tags[4],
       if (mdb->extra_info)
 	{
 	  db_info = mdb->extra_info;
-	  M17N_OBJECT_UNREF (db_info->dirname);
 	  M17N_OBJECT_UNREF (db_info->filename);
 	  M17N_OBJECT_UNREF (db_info->validater);
 	  M17N_OBJECT_UNREF (db_info->properties);
@@ -862,10 +866,13 @@ parse_mdb_xml_item (xmlNodePtr node)
 	      else if (STR_EQ (cur->name, "format"))
 		format = msymbol (content);
 	      else if (STR_EQ (cur->name, "schema"))
-		schema = msymbol (content);
-	      else if (STR_EQ (cur->name, "schema-filename"))
-		schema_file = mtext__from_data (content, strlen (content),
-						MTEXT_FORMAT_UTF_8, 1);
+		{
+		  attr = xmlHasProp (cur, "type");
+		  schema = msymbol ((char *) attr->children->content);
+		  content = cur->children->children->content;
+		  schema_file = mtext__from_data (content, strlen (content),
+						  MTEXT_FORMAT_UTF_8, 1);
+		}
 	    }
 	  if (format == Mnil)
 	    pl = mplist_add (pl, Mtext, filename);
@@ -978,7 +985,7 @@ xml_validate (MDatabaseInfo *db_info)
   xmlDocPtr doc = NULL;
   MText *path = NULL;
   char *file;
-  int result = 0;
+  int result;
 
   if (db_info->schema == Mnil)
     return 1;
@@ -991,62 +998,7 @@ xml_validate (MDatabaseInfo *db_info)
 				  | XML_PARSE_XINCLUDE | XML_PARSE_COMPACT));
   if (! doc)
     MERROR (MERROR_DB, 0);
-  if (db_info->schema == Mdtd)
-    {
-      if (db_info->validater)
-	/* Not yet supported. */
-	result = 0;
-      else
-	result = 1;
-    }
-  else if (! db_info->validater)
-    result = 0;
-  else
-    {
-      path = get_database_file (NULL, db_info->validater);
-      if (! path)
-	result = 0;
-      else
-	{
-	  file = MTEXT_STR (path);
-	  if (db_info->schema == Mxml_schema)
-	    {
-	      xmlSchemaParserCtxtPtr context = NULL;
-	      xmlSchemaPtr schema = NULL;
-	      xmlSchemaValidCtxtPtr valid_context = NULL;
-
-	      if ((context = xmlSchemaNewParserCtxt (file))
-		   && (schema = xmlSchemaParse (context))
-		   && (valid_context = xmlSchemaNewValidCtxt (schema))
-		   && xmlSchemaValidateDoc (valid_context, doc) == 0)
-		result = 1;
-	      if (valid_context)
-		xmlSchemaFreeValidCtxt (valid_context);
-	      if (schema)
-		xmlSchemaFree (schema);
-	      if (context)
-		xmlSchemaFreeParserCtxt (context);
-	    }
-	  else if (db_info->schema == Mrelaxng)
-	    {
-	      xmlRelaxNGParserCtxtPtr context = NULL;
-	      xmlRelaxNGPtr schema = NULL;
-	      xmlRelaxNGValidCtxtPtr valid_context = NULL;
-
-	      if ((context = xmlRelaxNGNewParserCtxt (file))
-		  && (schema = xmlRelaxNGParse (context))
-		  && (valid_context = xmlRelaxNGNewValidCtxt (schema))
-		  && xmlRelaxNGValidateDoc (valid_context, doc) == 0)
-		result = 1;
-	      if (valid_context)
-		xmlRelaxNGFreeValidCtxt (valid_context);
-	      if (schema)
-		xmlRelaxNGFree (schema);
-	      if (context)
-		xmlRelaxNGFreeParserCtxt (context);
-	    }
-	}
-    }
+  result = mdatabase__validate (doc, db_info);
   xmlFreeDoc (doc);
   return result;
 }
@@ -1248,6 +1200,9 @@ parse_header_sexp (char *filename, MSymbol tags[4], MDatabaseInfo *db_info)
       M17N_OBJECT_UNREF (plist);
       MERROR (MERROR_DB, 0);
     }
+  if (db_info->filename)
+    MERROR (MERROR_DB, 0);
+  db_info->filename = MTEXT_FOR_FILE (filename);
   M17N_OBJECT_UNREF (plist);
   return 1;
 }
@@ -1259,7 +1214,7 @@ merge_info (MSymbol tags1[4], MDatabaseInfo *info1,
   int i;
 
   for (i = 0; i < 4; i++)
-    if (tags1[i] != Masterisk && tags1[i] != tags2[i])
+    if (tags1[i] && tags1[i] != Masterisk && tags1[i] != tags2[i])
       goto err;
   if (info2->format == Mnil)
     info2->format = info1->format;
@@ -1274,7 +1229,7 @@ merge_info (MSymbol tags1[4], MDatabaseInfo *info1,
       info2->filename = info1->filename;
       M17N_OBJECT_REF (info2->filename);
     }
-  if (! info2->validater)
+  if (! info2->validater && info1->validater)
     {
       info2->validater = info1->validater;
       M17N_OBJECT_REF (info2->validater);
@@ -1292,21 +1247,27 @@ merge_info (MSymbol tags1[4], MDatabaseInfo *info1,
 static void
 register_databases_in_files (MSymbol tags[4], MDatabaseInfo *db_info)
 {
-  glob_t globbuf;
-  int i;
+  int check[3];
+  glob_t globbuf[3];
+  MText *dirname[3];
+  int i, j;
   MPlist *plist;
-  MText *dirname;
+
+  check[0] = check[1] = check[2] = 0;
 
   if (ABSOLUTE_PATH_P (db_info->filename))
     {
-      if (glob (MTEXT_STR (db_info->filename), GLOB_NOSORT, NULL, &globbuf))
-	return;
-      dirname = NULL;
+      if (glob (MTEXT_STR (db_info->filename), GLOB_NOSORT, NULL, globbuf) == 0)
+	{
+	  check[0] = 1;
+	  dirname[0] = NULL;
+	}
     }
   else
     {
       MDatabaseInfo *dir_info;
 
+      j = 2;
       MPLIST_DO (plist, mdatabase__dir_list)
 	{
 	  MText *path;
@@ -1315,46 +1276,50 @@ register_databases_in_files (MSymbol tags[4], MDatabaseInfo *db_info)
 	  if (dir_info->status == MDB_STATUS_DISABLED)
 	    continue;
 	  path = GEN_PATH (dir_info->dirname, db_info->filename);
-	  if (glob (MTEXT_STR (path), GLOB_NOSORT, NULL, &globbuf) == 0)
-	    break;
+	  if (glob (MTEXT_STR (path), GLOB_NOSORT, NULL, globbuf + j) == 0)
+	    {
+	      check[j] = 1;
+	      dirname[j] = dir_info->dirname;
+	    }
+	  j--;
 	}
-      if (MPLIST_TAIL_P (plist))
-	return;
-      dirname = dir_info->dirname;
     }
 
-  for (i = 0; i < globbuf.gl_pathc; i++)
-    {
-      MDatabaseInfo this;
-      MSymbol tags2[4];	  
+  for (j = 0; j < 3; j++)
+    if (check[j])
+      {
+	for (i = 0; i < globbuf[j].gl_pathc; i++)
+	  {
+	    MDatabaseInfo this;
+	    MSymbol tags2[4];	  
 
-      memset (&this, 0, sizeof (MDatabaseInfo));
-      if (dirname)
-	{
-	  this.dirname = dirname;
-	  M17N_OBJECT_REF (dirname);
-	  this.filename = MTEXT_FOR_FILE (globbuf.gl_pathv[i]
-					  + mtext_nbytes (dirname));
-	}
-      else
-	this.filename = MTEXT_FOR_FILE (globbuf.gl_pathv[i]);
-      if (db_info->format == Mxml)
-	{
-	  xmlTextReaderPtr reader
-	    = xmlReaderForFile (globbuf.gl_pathv[i], "utf-8",
-				XML_PARSE_NOBLANKS
-				| XML_PARSE_NOENT
-				| XML_PARSE_XINCLUDE);
-	  if (reader
-	      && parse_header_xml (reader, tags2, &this)
-	      && merge_info (tags, db_info, tags2, &this))
-	    register_database (tags2, load_database, &this, MDB_TYPE_AUTO);
-	}
-      else if (parse_header_sexp (globbuf.gl_pathv[i], tags2, &this)
-	       && merge_info (tags, db_info, tags2, &this))
-	register_database (tags2, load_database, &this, MDB_TYPE_AUTO);
-    }
-  globfree (&globbuf);
+	    memset (&this, 0, sizeof (MDatabaseInfo));
+	    if (dirname[j])
+	      this.filename = MTEXT_FOR_FILE (globbuf[j].gl_pathv[i]
+					      + mtext_nbytes (dirname[j]));
+	    else
+	      this.filename = MTEXT_FOR_FILE (globbuf[j].gl_pathv[i]);
+	    if (db_info->format == Mxml)
+	      {
+		xmlTextReaderPtr reader
+		  = xmlReaderForFile (globbuf[j].gl_pathv[i], "utf-8",
+				      XML_PARSE_NOBLANKS
+				      | XML_PARSE_NOENT
+				      | XML_PARSE_XINCLUDE);
+		if (reader
+		    && parse_header_xml (reader, tags2, &this)
+		    && merge_info (tags, db_info, tags2, &this))
+		  register_database (tags2, load_database, &this,
+				     MDB_TYPE_AUTO);
+	      }
+	    else if (parse_header_sexp (globbuf[j].gl_pathv[i], tags2, &this)
+		     && merge_info (tags, db_info, tags2, &this))
+	      register_database (tags2, load_database, &this, MDB_TYPE_AUTO);
+	    M17N_OBJECT_UNREF (this.filename);
+	    M17N_OBJECT_UNREF (this.validater);
+	  }
+	globfree (globbuf + j);
+      }
 }
 
 static int
@@ -1372,10 +1337,10 @@ expand_wildcard_database (MPlist *plist)
   mdb = MPLIST_VAL (plist);
   if (mdb->loader == load_database
       && (db_info = mdb->extra_info)
-      && db_info->status != MDB_STATUS_DISABLED)
+      && db_info->status != MDB_STATUS_UPDATED)
     {
       register_databases_in_files (mdb->tag, db_info);
-      db_info->status = MDB_STATUS_DISABLED;
+      db_info->status = MDB_STATUS_UPDATED;
       return 1;
     }
   return 0;
@@ -1503,6 +1468,7 @@ mdatabase__update (void)
 {
   MPlist *plist, *p0, *p1, *p2, *p3;
   int rescan = 0;
+  int mdebug_flag = MDEBUG_DATABASE;
 
   /* Update elements of mdatabase__dir_list.  */
   MPLIST_DO (plist, mdatabase__dir_list)
@@ -1554,14 +1520,19 @@ mdatabase__update (void)
       MText *path;
 
       if (dir_info->status == MDB_STATUS_DISABLED
-	  || ! dir_info->filename)
+	  || dir_info->status == MDB_STATUS_INVALID)
 	continue;
       path = GEN_PATH (dir_info->dirname, dir_info->filename);
+      MDEBUG_PRINT1 (" [DB] Parsing <%s>", MTEXT_STR (path));
       p0 = (dir_info->format == Mxml
 	    ? parse_mdb_xml (MTEXT_STR (path), ! dir_info->system_database)
 	    : parse_mdb_dir (MTEXT_STR (path)));
       if (! p0)
-	continue;
+	{
+	  MDEBUG_PRINT (" fail\n");
+	  continue;
+	}
+      MDEBUG_PRINT ("\n");
       MPLIST_DO (p1, p0)
 	{
 	  MSymbol tags[4];
@@ -1616,8 +1587,7 @@ mdatabase__load_for_keys (MDatabase *mdb, MPlist *keys)
 
 	  if (! loader)
 	    MERROR (MERROR_DB, NULL);
-	  plist = loader (mdb->tag, MTEXT_STR (path),
-			  ! db_info->system_database, keys);
+	  plist = loader (db_info, MTEXT_STR (path));
 	}
       else if (c != EOF)
 	plist = mplist__from_file (fp, keys);
@@ -1667,10 +1637,7 @@ mdatabase__find_file (char *filename)
   if (! path)
     filename = NULL;
   else
-    {
-      filename = strdup (MTEXT_STR (path));
-      M17N_OBJECT_UNREF (path);
-    }
+    filename = strdup (MTEXT_STR (path));
   M17N_OBJECT_UNREF (file);
   return filename;
 }
@@ -1861,9 +1828,75 @@ mdatabase__register_xml_loader (MSymbol tags[4], MDatabaseLoaderXML loader)
 	  plist = MPLIST_NEXT (pl);
 	}
     }
-  MPLIST_KEY (plist) = Mt;
+  mplist_add (plist, Mt, NULL);
   MPLIST_FUNC (plist) = (M17NFunc) loader;
   MPLIST_SET_VAL_FUNC_P (plist);
+}
+
+int
+mdatabase__validate (xmlDocPtr doc, MDatabaseInfo *db_info)
+{
+  int result = 0;
+  MText *path = NULL;
+  char *file;
+
+  if (db_info->schema == Mdtd)
+    {
+      if (db_info->validater)
+	/* Not yet supported. */
+	result = 0;
+      else
+	result = 1;
+    }
+  else if (db_info->validater)
+    {
+      path = get_database_file (NULL, db_info->validater);
+      if (! path)
+	result = 0;
+      else
+	{
+	  file = MTEXT_STR (path);
+	  if (db_info->schema == Mxml_schema)
+	    {
+	      xmlSchemaParserCtxtPtr context = NULL;
+	      xmlSchemaPtr schema = NULL;
+	      xmlSchemaValidCtxtPtr valid_context = NULL;
+
+	      if ((context = xmlSchemaNewParserCtxt (file))
+		  && (schema = xmlSchemaParse (context))
+		  && (valid_context = xmlSchemaNewValidCtxt (schema))
+		  && xmlSchemaValidateDoc (valid_context, doc) == 0)
+		result = 1;
+	      if (valid_context)
+		xmlSchemaFreeValidCtxt (valid_context);
+	      if (schema)
+		xmlSchemaFree (schema);
+	      if (context)
+		xmlSchemaFreeParserCtxt (context);
+	    }
+	  else if (db_info->schema == Mrelaxng)
+	    {
+	      xmlRelaxNGParserCtxtPtr context = NULL;
+	      xmlRelaxNGPtr schema = NULL;
+	      xmlRelaxNGValidCtxtPtr valid_context = NULL;
+
+	      if ((context = xmlRelaxNGNewParserCtxt (file))
+		  && (schema = xmlRelaxNGParse (context))
+		  && (valid_context = xmlRelaxNGNewValidCtxt (schema))
+		  && xmlRelaxNGValidateDoc (valid_context, doc) == 0)
+		result = 1;
+	      if (valid_context)
+		xmlRelaxNGFreeValidCtxt (valid_context);
+	      if (schema)
+		xmlRelaxNGFree (schema);
+	      if (context)
+		xmlRelaxNGFreeParserCtxt (context);
+	      if (! result)
+		MERROR (MERROR_DB, result);
+	    }
+	}
+    }
+  return result;
 }
 
 /*** @} */
@@ -1969,11 +2002,12 @@ mdatabase_find (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 MPlist *
 mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 {
-  MPlist *plist = mplist (), *pl = plist;
-  MPlist *p, *p0, *p1, *p2, *p3;
+  MPlist *plist, *pl, *p, *p0, *p1, *p2, *p3;
 
   mdatabase__update ();
 
+ retry:
+  plist = mplist (), pl = plist;
   MPLIST_DO (p, mdatabase__list)
     {
       p0 = MPLIST_PLIST (p);
@@ -1989,7 +2023,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 	      if (expand_wildcard_database (p1))
 		{
 		  M17N_OBJECT_UNREF (plist);
-		  return mdatabase_list (tag0, tag1, tag2, tag3);
+		  goto retry;
 		}
 	      continue;
 	    }
@@ -2003,7 +2037,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 		  if (expand_wildcard_database (p2))
 		    {
 		      M17N_OBJECT_UNREF (plist);
-		      return mdatabase_list (tag0, tag1, tag2, tag3);
+		      goto retry;
 		    }
 		  continue;
 		}
@@ -2017,7 +2051,7 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
 		      if (expand_wildcard_database (p3))
 			{
 			  M17N_OBJECT_UNREF (plist);
-			  return mdatabase_list (tag0, tag1, tag2, tag3);
+			  goto retry;
 			}
 		      continue;
 		    }
