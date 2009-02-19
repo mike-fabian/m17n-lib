@@ -162,8 +162,12 @@ decode_keyseq (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     }
 
   else if ((ptr = xmlGetProp (cur, (xmlChar *) "keys")))
-    mplist_add (parent, Mtext,
-		mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+    {
+      MText *mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+
+      mplist_add (parent, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+    }		
 
   else
     {
@@ -189,6 +193,7 @@ decode_keyseq (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	  xmlFree (ptr);
 	}    
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
     }
 }
 
@@ -213,6 +218,7 @@ decode_expr (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	decode_expr (doc, cur, plist);
 
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
     }
   else if (xmlStrEqual (cur->name, (xmlChar *) "int-val"))
     {
@@ -239,12 +245,17 @@ decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
   xmlChar *ptr;
   MPlist *plist = mplist ();
+  MText *mt;
 
   mplist_add (plist, Msymbol, msymbol ("insert"));
 
   if ((ptr = xmlGetProp (cur, (xmlChar *) "string")))
-    mplist_add (plist, Mtext,
-		mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+    {
+      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+      mplist_add (plist, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
+    }
+		
 
   else if ((ptr = xmlGetProp (cur, (xmlChar *) "character")))
     {
@@ -270,9 +281,9 @@ decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
       while (cur)
 	{
 	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  pl = mplist_add (pl, Mtext,
-			   mtext_from_data (ptr, xmlStrlen (ptr),
-					    MTEXT_FORMAT_UTF_8));
+	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+	  pl = mplist_add (pl, Mtext, mt);
+	  M17N_OBJECT_UNREF (mt);
 	  cur = cur->next;
 	}
     }
@@ -281,8 +292,11 @@ decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     while (cur)
       {
 	xmlChar *start;
-	MPlist *plist0 = mplist (), *plist1 = mplist ();
+	MPlist *outer = mplist (), *inner = mplist ();
 	int ch, len = 4, skipping = 1;
+
+	mplist_add (outer, Mplist, inner);
+	M17N_OBJECT_UNREF (inner);
 
   	ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
 
@@ -296,9 +310,10 @@ decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	    else if (! skipping && Isspace (ch))
 	      {
 		*ptr = '\0';
-		mplist_add (plist0, Mtext,
-			    mtext_from_data (start, xmlStrlen (start),
-					     MTEXT_FORMAT_UTF_8));
+		mt = mtext_from_data (start, xmlStrlen (start),
+				      MTEXT_FORMAT_UTF_8);
+		inner = mplist_add (inner, Mtext, mt);
+		M17N_OBJECT_UNREF (mt);
 		skipping = 1;
 	      }
 	    ptr += len;
@@ -306,17 +321,18 @@ decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	  }
 	if (!skipping)
 	  {
-	    mplist_add (plist0, Mtext,
-			mtext_from_data (start, xmlStrlen (start),
-					 MTEXT_FORMAT_UTF_8));
+	    mt = mtext_from_data (start, xmlStrlen (start), MTEXT_FORMAT_UTF_8);
+	    mplist_add (inner, Mtext, mt);
+	    M17N_OBJECT_UNREF (mt);
 	  }
 
-	mplist_add (plist1, Mplist, plist0);
-	mplist_add (plist, Mplist, plist1);
+	mplist_add (plist, Mplist, outer);
+	M17N_OBJECT_UNREF (outer);
   	cur = cur->next;
       }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -347,6 +363,7 @@ decode_delete (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -374,6 +391,7 @@ decode_select (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   xmlFree (ptr);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -395,6 +413,7 @@ decode_move (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -407,6 +426,7 @@ decode_mark (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   decode_marker (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -428,6 +448,7 @@ decode_pushback (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_keyseq (doc, cur->xmlChildrenNode, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -447,6 +468,7 @@ decode_undo (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_variable_reference (doc, cur->xmlChildrenNode, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -473,10 +495,13 @@ decode_call (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
       ptr = xmlGetProp (cur, (xmlChar *) "type");
       if (xmlStrEqual (ptr, (xmlChar *) "string"))
 	{
+	  MText *mt;
+
 	  xmlFree (ptr);
 	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  mplist_add (plist, Mtext, mtext_from_data (ptr, xmlStrlen (ptr),
-						     MTEXT_FORMAT_UTF_8));
+	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+	  mplist_add (plist, Mtext, mt);
+	  M17N_OBJECT_UNREF (mt);
 	}
       else if (xmlStrEqual (ptr, (xmlChar *) "integer"))
 	{
@@ -496,7 +521,9 @@ decode_call (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	  decode_variable_reference (doc, cur->xmlChildrenNode, plist);
 	}
     }
+
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -514,6 +541,7 @@ decode_set (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   decode_expr (doc, cur->xmlChildrenNode, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -538,6 +566,7 @@ decode_if (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   for (cur0 = cur->xmlChildrenNode; cur0; cur0 = cur0->next)
     decode_saction (doc, cur0, plist0);
   mplist_add (plist, Mplist, plist0);
+  M17N_OBJECT_UNREF (plist0);
 
   cur = cur->next;		/* else */
   if (cur)
@@ -546,9 +575,11 @@ decode_if (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
       for (cur0 = cur->xmlChildrenNode; cur0; cur0 = cur0->next)
 	decode_saction (doc, cur0, plist0);
       mplist_add (plist, Mplist, plist0);
+      M17N_OBJECT_UNREF (plist0);
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -569,9 +600,11 @@ decode_conditional (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	decode_saction (doc, cur0, plist0);
 
       mplist_add (plist, Mplist, plist0);
+      M17N_OBJECT_UNREF (plist0);
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -665,6 +698,8 @@ decode_action (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     {
       /* never comes here */
     }
+
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -680,6 +715,7 @@ decode_saction (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
       mplist_add (plist, Msymbol, msymbol ((char *) ptr + 6));
       mplist_add (parent, Mplist, plist);
       xmlFree (ptr);
+      M17N_OBJECT_UNREF (plist);
     }
   else
     decode_action (doc, cur, parent);
@@ -693,18 +729,24 @@ decode_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   if (xmlStrEqual (cur->name, (xmlChar *) "get-text"))
     {
       MPlist *plist = mplist ();
+      MText *mt;
 
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
       mplist_add (plist, Msymbol, msymbol ("_"));
-      mplist_add (plist, Mtext,
-		  mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
+      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+      mplist_add (plist, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);		  
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
     }
   else
     {
+      MText *mt;
+
       ptr = xmlNodeListGetString (doc, cur, 1);
-      mplist_add (parent, Mtext,
-		  mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+      mplist_add (parent, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);		  
     }
 }
 
@@ -745,15 +787,19 @@ decode_im_declaration (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   if (cur && xmlStrEqual (cur->name, (xmlChar *) "m17n-version"))
     {
       MPlist *plist0 = mplist ();
+      MText *mt;
 
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
       mplist_add (plist0, Msymbol, msymbol ("version"));
-      mplist_add (plist0, Mtext,
-		  mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
+      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+      mplist_add (plist0, Mtext, mt);
+      M17N_OBJECT_UNREF (mt);
       mplist_add (plist, Mplist, plist0);
+      M17N_OBJECT_UNREF (plist0);
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -764,6 +810,7 @@ decode_im_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   mplist_add (plist, Msymbol, msymbol ("description"));
   decode_description (doc, cur->xmlChildrenNode, plist);
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -771,11 +818,14 @@ decode_title (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
   xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
   MPlist *plist = mplist ();
+  MText *mt;
 
   mplist_add (plist, Msymbol, msymbol ("title"));
-  mplist_add (plist, Mtext,
-	      mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8));
+  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+  mplist_add (plist, Mtext, mt);
+  M17N_OBJECT_UNREF (mt);
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -783,6 +833,7 @@ decode_variable (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
   xmlChar *ptr;
   MPlist *plist = mplist ();
+  MText *mt;
 
   ptr = xmlGetProp (cur, (xmlChar *) "id");
   mplist_add (plist, Msymbol, msymbol ((char *) ptr));
@@ -807,9 +858,11 @@ decode_variable (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
 	  valuetype = xmlGetProp (cur, (xmlChar *) "type");
 	  if (xmlStrEqual (valuetype, (xmlChar *) "string"))
-	    mplist_add (plist, Mtext,
-			mtext_from_data (ptr, xmlStrlen (ptr),
-					 MTEXT_FORMAT_UTF_8));
+	    {
+	      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+	      mplist_add (plist, Mtext, mt);
+	      M17N_OBJECT_UNREF (mt);
+	    } 
 	  else if (xmlStrEqual (valuetype, (xmlChar *) "symbol"))
 	    {
 	      mplist_add (plist, Msymbol, msymbol ((char *) ptr));
@@ -835,9 +888,12 @@ decode_variable (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 		ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
 		valuetype = xmlGetProp (cur, (xmlChar *) "type");
 		if (xmlStrEqual (valuetype, (xmlChar *) "string"))
-		  mplist_add (plist, Mtext,
-			      mtext_from_data (ptr, xmlStrlen (ptr),
-					       MTEXT_FORMAT_UTF_8));
+		  {
+		    mt = mtext_from_data (ptr, xmlStrlen (ptr),
+					  MTEXT_FORMAT_UTF_8);
+		    mplist_add (plist, Mtext, mt);
+		    M17N_OBJECT_UNREF (mt);
+		  }			      
 		else if (xmlStrEqual (valuetype, (xmlChar *) "symbol"))
 		  {
 		    mplist_add (plist, Msymbol, msymbol ((char *) ptr));
@@ -861,11 +917,13 @@ decode_variable (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 		decode_integer (ptr, range);
 		xmlFree (ptr);
 		mplist_add (plist, Mplist, range);
+		M17N_OBJECT_UNREF (range);
 	      }
 	  }
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -879,6 +937,7 @@ decode_variable_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_variable (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 void
@@ -909,6 +968,7 @@ decode_command (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -922,6 +982,7 @@ decode_command_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_command (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -944,6 +1005,7 @@ decode_module (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -957,6 +1019,7 @@ decode_module_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_module (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -974,6 +1037,7 @@ decode_macro (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_action (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -987,6 +1051,7 @@ decode_macro_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_macro (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -1002,6 +1067,7 @@ decode_rule (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_action (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }      
 
 static void
@@ -1019,6 +1085,7 @@ decode_map (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_rule (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -1031,6 +1098,7 @@ decode_map_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_map (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -1056,6 +1124,7 @@ decode_branch (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 
   if (mplist_length (plist))
     mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -1073,15 +1142,19 @@ decode_state (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     {
       if (xmlStrEqual (cur->name, (xmlChar *) "state-title-text"))
 	{
+	  MText *mt;
+
 	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  mplist_add (plist, Mtext, mtext_from_data (ptr, xmlStrlen (ptr),
-						     MTEXT_FORMAT_UTF_8));
+	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
+	  mplist_add (plist, Mtext, mt);
+	  M17N_OBJECT_UNREF (mt);
 	}
       else
 	decode_branch (doc, cur, plist);
     }
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static void
@@ -1095,6 +1168,7 @@ decode_state_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
     decode_state (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
 }
 
 static int
