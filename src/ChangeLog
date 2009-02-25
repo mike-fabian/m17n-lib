@@ -1,3 +1,12 @@
+2009-02-25  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (get_candidate_list): Free unnecessary objects.
+	(take_action_list): Free plist.
+
+2009-02-04  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (mcoding__init): Add "Shift_JIS" as an alias of "sjis".
+
 2009-01-16  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.h (Mcased, Msoft_dotted, Mcase_mapping, Mblock):
