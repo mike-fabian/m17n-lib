@@ -1,5 +1,8 @@
 2009-02-25  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Changed to 4.
+	(M17NLIB_VERSION_NAME): Changed to "1.5.4".
+
 	* input.c (get_candidate_list): Free unnecessary objects.
 	(take_action_list): Free plist.
 
