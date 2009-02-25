@@ -534,7 +534,8 @@ marker_code (MSymbol sym, int surrounding)
 }
 
 
-/* Return a plist containing an integer value of VAR.  */
+/* Return a plist containing an integer value of VAR.  The plist must
+   not be UNREFed. */
 
 static MPlist *
 resolve_variable (MInputContextInfo *ic_info, MSymbol var)
@@ -2726,6 +2727,8 @@ get_select_charset (MInputContextInfo * ic_info)
   return MCHARSET (sym);
 }
 
+/* The returned plist must be UNREFed.  */
+
 static MPlist *
 adjust_candidates (MPlist *plist, MCharset *charset)
 {
@@ -2828,6 +2831,8 @@ adjust_candidates (MPlist *plist, MCharset *charset)
   return plist;
 }
 
+/* The returned Plist must be UNREFed.  */
+
 static MPlist *
 get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 {
@@ -2840,83 +2845,90 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
   column = MPLIST_INTEGER (plist);
 
   plist = MPLIST_PLIST (args);
+  if (! plist)
+    return NULL;
   if (charset)
-    plist = adjust_candidates (plist, charset);
-
-  if (plist && column > 0)
     {
-      if (MPLIST_MTEXT_P (plist))
-	{
-	  MText *mt = MPLIST_MTEXT (plist);
-	  MPlist *next = MPLIST_NEXT (plist);
+      plist = adjust_candidates (plist, charset);
+      if (! plist)
+	return NULL;
+    }
+  else
+    M17N_OBJECT_REF (plist);
 
-	  if (MPLIST_TAIL_P (next))
-	    M17N_OBJECT_REF (mt);
-	  else
+  if (column == 0)
+    return plist;
+
+  if (MPLIST_MTEXT_P (plist))
+    {
+      MText *mt = MPLIST_MTEXT (plist);
+      MPlist *next = MPLIST_NEXT (plist);
+
+      if (MPLIST_TAIL_P (next))
+	M17N_OBJECT_REF (mt);
+      else
+	{
+	  mt = mtext_dup (mt);
+	  while (! MPLIST_TAIL_P (next))
 	    {
-	      mt = mtext_dup (mt);
-	      while (! MPLIST_TAIL_P (next))
-		{
-		  mt = mtext_cat (mt, MPLIST_MTEXT (next));
-		  next = MPLIST_NEXT (next);
-		}
+	      mt = mtext_cat (mt, MPLIST_MTEXT (next));
+	      next = MPLIST_NEXT (next);
 	    }
-	  if (charset)
-	    M17N_OBJECT_UNREF (plist);
-	  plist = mplist ();
-	  len = mtext_nchars (mt);
-	  if (len <= column)
-	    mplist_add (plist, Mtext, mt);
-	  else
+	}
+      M17N_OBJECT_UNREF (plist);
+      plist = mplist ();
+      len = mtext_nchars (mt);
+      if (len <= column)
+	mplist_add (plist, Mtext, mt);
+      else
+	{
+	  for (i = 0; i < len; i += column)
 	    {
-	      for (i = 0; i < len; i += column)
-		{
-		  int to = (i + column < len ? i + column : len);
-		  MText *sub = mtext_copy (mtext (), 0, mt, i, to);
+	      int to = (i + column < len ? i + column : len);
+	      MText *sub = mtext_copy (mtext (), 0, mt, i, to);
 						       
-		  mplist_add (plist, Mtext, sub);
-		  M17N_OBJECT_UNREF (sub);
-		}
+	      mplist_add (plist, Mtext, sub);
+	      M17N_OBJECT_UNREF (sub);
 	    }
-	  M17N_OBJECT_UNREF (mt);
 	}
-      else if (! MPLIST_TAIL_P (plist))
+      M17N_OBJECT_UNREF (mt);
+    }
+  else if (MPLIST_PLIST_P (plist))
+    {
+      MPlist *tail = plist;
+      MPlist *new = mplist ();
+      MPlist *this = mplist ();
+      int count = 0;
+
+      MPLIST_DO (tail, tail)
 	{
-	  MPlist *tail = plist;
-	  MPlist *new = mplist ();
-	  MPlist *this = mplist ();
-	  int count = 0;
+	  MPlist *p = MPLIST_PLIST (tail);
 
-	  MPLIST_DO (tail, tail)
+	  MPLIST_DO (p, p)
 	    {
-	      MPlist *p = MPLIST_PLIST (tail);
+	      MText *mt = MPLIST_MTEXT (p);
 
-	      MPLIST_DO (p, p)
+	      if (count == column)
 		{
-		  MText *mt = MPLIST_MTEXT (p);
-
-		  if (count == column)
-		    {
-		      mplist_add (new, Mplist, this);
-		      M17N_OBJECT_UNREF (this);
-		      this = mplist ();
-		      count = 0;
-		    }
-		  mplist_add (this, Mtext, mt);
-		  count++;
+		  mplist_add (new, Mplist, this);
+		  M17N_OBJECT_UNREF (this);
+		  this = mplist ();
+		  count = 0;
 		}
+	      mplist_add (this, Mtext, mt);
+	      count++;
 	    }
-	  mplist_add (new, Mplist, this);
-	  M17N_OBJECT_UNREF (this);
-	  mplist_set (plist, Mnil, NULL);
-	  MPLIST_DO (tail, new)
-	    {
-	      MPlist *elt = MPLIST_PLIST (tail);
-
-	      mplist_add (plist, Mplist, elt);
-	    }
-	  M17N_OBJECT_UNREF (new);
 	}
+      mplist_add (new, Mplist, this);
+      M17N_OBJECT_UNREF (this);
+      mplist_set (plist, Mnil, NULL);
+      MPLIST_DO (tail, new)
+	{
+	  MPlist *elt = MPLIST_PLIST (tail);
+
+	  mplist_add (plist, Mplist, elt);
+	}
+      M17N_OBJECT_UNREF (new);
     }
 
   return plist;
@@ -3016,18 +3028,22 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       else if (name == M_candidates)
 	{
 	  MPlist *plist = get_candidate_list (ic_info, args);
+	  MPlist *pl;
 	  int len;
 
-	  if (! plist || (MPLIST_PLIST_P (plist) && MPLIST_TAIL_P (plist)))
+	  if (! plist)
 	    continue;
+	  if (MPLIST_PLIST_P (plist) && MPLIST_TAIL_P (plist))
+	    {
+	      M17N_OBJECT_UNREF (plist);
+	      continue;
+	    }
 	  if (MPLIST_MTEXT_P (plist))
 	    {
 	      preedit_insert (ic, ic->cursor_pos, NULL,
 			      mtext_ref_char (MPLIST_MTEXT (plist), 0));
 	      len = 1;
 	    }
-	  else if (MPLIST_TAIL_P (MPLIST_PLIST (plist)))
-	    continue;
 	  else
 	    {
 	      MText * mt = MPLIST_MTEXT (MPLIST_PLIST (plist));
@@ -3035,11 +3051,12 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      preedit_insert (ic, ic->cursor_pos, mt, 0);
 	      len = mtext_nchars (mt);
 	    }
-	  plist = mplist_copy (plist);
+	  pl = mplist_copy (plist);
+	  M17N_OBJECT_UNREF (plist);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
-			  Mcandidate_list, plist);
-	  M17N_OBJECT_UNREF (plist);
+			  Mcandidate_list, pl);
+	  M17N_OBJECT_UNREF (pl);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_index, (void *) 0);
