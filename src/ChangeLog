@@ -1,3 +1,7 @@
+2009-03-02  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.5.4 released.
+
 2009-02-25  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.c (report_object_array): For M-text and Plist, print
