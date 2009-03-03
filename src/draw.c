@@ -464,7 +464,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		{
 		  MSymbol category = mchar_get_prop (g[-1].g.c, Mcategory);
 
-		  if (MSYMBOL_NAME (category)[0] != 'Z')
+		  if (category != Mnil && MSYMBOL_NAME (category)[0] != 'Z')
 		    this_script = script;
 		}
 	    }
