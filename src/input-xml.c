@@ -717,6 +717,15 @@ decode_saction (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
       xmlFree (ptr);
       M17N_OBJECT_UNREF (plist);
     }
+  else if (xmlStrEqual (cur->name, (xmlChar *) "shift-back"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("shift"));
+      mplist_add (plist, Msymbol, Mt);
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+    }
   else
     decode_action (doc, cur, parent);
 }
