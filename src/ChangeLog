@@ -1,22 +1,10 @@
-2009-01-16  Kenichi Handa  <handa@m17n.org>
+2009-03-10  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
-	* m17n-core.h (Mcased, Msoft_dotted, Mcase_mapping, Mblock):
-	Extern them.
+	* input-xml.c (decode_saction): Add support for "shift-back".
 
-	* character.c (Mcased, Msoft_dotted, Mcase_mapping, Mblock): New
-	variables.
+2009-02-19  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
-2009-01-14  Kenichi Handa  <handa@m17n.org>
-
-	* coding.c (decode_coding_iso_2022): Check invocation status
-	before updating charset0 and charset1.
-
-	* symbol.c (msymbol__canonicalize): Handle "windows-XXXX".
-
-2008-12-31  Kenichi Handa  <handa@m17n.org>
-
-	* m17n-flt.c (mflt_run): If g->encoded is set, don't clear
-	g->code.
+	* input-xml.c: Added necessary M17N_OBJECT_UNREF here and there.
 
 2008-10-30  Andreas Schwab <schwab@suse.de>  (tiny change)
 
