@@ -869,7 +869,7 @@ parse_mdb_xml_item (xmlNodePtr node)
 		{
 		  attr = xmlHasProp (cur, "type");
 		  schema = msymbol ((char *) attr->children->content);
-		  content = cur->children->children->content;
+		  content = cur->children->content;
 		  schema_file = mtext__from_data (content, strlen (content),
 						  MTEXT_FORMAT_UTF_8, 1);
 		}
