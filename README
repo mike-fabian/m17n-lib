@@ -19,6 +19,7 @@ the script run successfully with these versions of autotools.
 	libtool-1.5.22
 	automake-1.9.6
 	autoconf-2.61
+	pkg-config-0.22
 
 Then, proceed to the next step.
 
