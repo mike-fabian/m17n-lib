@@ -21,6 +21,9 @@ the script run successfully with these versions of autotools.
 	autoconf-2.61
 	pkg-config-0.22
 
+On Mac OS X, you may have the program 'glibtoolize' instead of
+'libtoolize'.  In that case, please modify bootstrap.sh accordingly.
+
 Then, proceed to the next step.
 
 (1-2) From the tarball.
