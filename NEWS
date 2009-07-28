@@ -5,6 +5,11 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.5.5
+
+This release is just for bug fixing.
+
+
 * Changes in the m17n library 1.5.4
 
 ** New coding system names "Shift_JIS" and "windows-XXXX" are
