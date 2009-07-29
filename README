@@ -18,7 +18,7 @@ Run the program "autoreconf" as below in this directory.
 
 It is tested that the script run successfully with these versions of
 autotools.
-	libtool-1.5.22
+	libtool-2.2.4
 	automake-1.9.6
 	autoconf-2.61
 	pkg-config-0.22
