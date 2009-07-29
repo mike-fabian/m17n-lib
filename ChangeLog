@@ -1,6 +1,8 @@
-2009-07-28  Kenichi Handa  <handa@m17n.org>
+2009-07-29  Kenichi Handa  <handa@m17n.org>
 
-	* Version 1.5.5 released.
+	* mkinstalldirs: Removed.
+
+	* bootstrap.sh: Simplified by using autoreconf.
 
 2009-07-28  Kenichi Handa  <handa@m17n.org>
 
