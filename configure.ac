@@ -38,12 +38,7 @@ AC_SUBST(GETTEXTDIR)
 
 dnl Checks for programs for compiling.
 AC_PROG_CC
-_LT_SET_OPTION([LT_INIT],[dlopen])
-AC_DIAGNOSE([obsolete],[AC_LIBTOOL_DLOPEN: Remove this warning and the call to _LT_SET_OPTION when you
-put the `dlopen' option into LT_INIT's first parameter.])
-
-_LT_CONFIG_LTDL_DIR([m4_default([], [libltdl])])
-_LTDL_CONVENIENCE
+LT_PREREQ([2.2.4])
 LT_INIT
 
 dnl Checks for X libraries.
