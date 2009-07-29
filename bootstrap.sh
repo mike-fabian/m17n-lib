@@ -1,28 +1,6 @@
 #!/bin/sh
 # bootstrap.sh -- shell script to build the m17n library from CVS.
-# Copyright (C) 2003, 2004, 2005, 2006
-#   National Institute of Advanced Industrial Science and Technology (AIST)
-#   Registration Number H15PRO112
-# See the end for copying conditions.
-
-echo "Cleaning up old files..."
-rm -rf INSTALL aclocal.m4 autom4te.cache config.guess. config.sub install-sh ltmain.sh missing libtool
-echo "Running aclocal..."
-aclocal -I m4
-echo "Running autoheader..."
-autoheader
-echo "Running libtoolize..."
-libtoolize --automake
-echo "Running automake..."
-automake -a -c
-echo "Running autoconf..."
-autoconf
-echo "The remaining steps to install this library are:"
-echo "  % ./configure"
-echo "  % make"
-echo "  % make install"
-
-# Copyright (C) 2003, 2004
+# Copyright (C) 2003, 2004, 2005, 2006, 2009
 #   National Institute of Advanced Industrial Science and Technology (AIST)
 #   Registration Number H15PRO112
 
@@ -42,3 +20,10 @@ echo "  % make install"
 # License along with the m17n library; if not, write to the Free
 # Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301, USA.
+
+echo "Running autoreconf -v -f -i"
+autoreconf -v -f -i
+echo "The remaining steps to install this library are:"
+echo "  % ./configure"
+echo "  % make"
+echo "  % make install"
