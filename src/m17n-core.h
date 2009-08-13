@@ -47,8 +47,8 @@ M17N_BEGIN_HEADER
 
 #define M17NLIB_MAJOR_VERSION 1
 #define M17NLIB_MINOR_VERSION 5
-#define M17NLIB_PATCH_LEVEL 4
-#define M17NLIB_VERSION_NAME "1.5.4"
+#define M17NLIB_PATCH_LEVEL 5
+#define M17NLIB_VERSION_NAME "1.5.5"
 
 extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()
