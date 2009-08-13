@@ -2,6 +2,11 @@
 
 	* Version 1.5.5 released.
 
+2009-08-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL):  Changed to 5.
+	(M17NLIB_VERSION_NAME): Changed to "1.5.5".
+
 2009-03-03  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Check if category not Mnil.
