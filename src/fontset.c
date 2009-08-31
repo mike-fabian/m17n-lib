@@ -1180,7 +1180,7 @@ mfontset_copy (MFontset *fontset, char *name)
     are removed from the group.
 
     If $LAYOUTER_NAME is not @c Mnil, it must be a symbol representing
-    a @ref flt (font layout table).  In that case, if $FONT is
+    a @ref mdbFLT (font layout table).  In that case, if $FONT is
     selected for drawing an M-text, that font layout table is used to
     generate a glyph code sequence from a character sequence.
 

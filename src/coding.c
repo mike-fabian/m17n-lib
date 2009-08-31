@@ -3285,8 +3285,6 @@ MSymbol Mcoding_sjis;
 /***ja
     mconv_define_coding () 用パラメータキー (詳細は mconv_define_coding ()参照). */ 
 MSymbol Mtype;
-/*=*/
-
 MSymbol Mcharsets;
 MSymbol Mflags;
 MSymbol Mdesignation;
@@ -3321,22 +3319,19 @@ MSymbol Miso_2022;
 /*=*/
 
 /***en
-    @name Variables: Symbols appearing in the value of #Mflags parameter.  */
+    @name Variables: Symbols appearing in the value of Mflags parameter.  */
 /***ja
-    @name 変数： パラメータ #Mflags の値となり得るシンボル.  */
+    @name 変数： パラメータ Mflags の値となり得るシンボル.  */
 /*** @{ */
-/*=*/
-
 /***en
-    Symbols that can be a value of the #Mflags parameter of a coding
+    Symbols that can be a value of the @b Mflags parameter of a coding
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
     関数 mconv_define_coding () の引数として用いられるコード系のパラメータ
-    #Mflags の値となり得るシンボル。(詳細は 
+    @b Mflags の値となり得るシンボル。(詳細は 
     mconv_define_coding ()参照)。  */
 MSymbol Mreset_at_eol;
-/*=*/
 MSymbol Mreset_at_cntl;
 MSymbol Meight_bit;
 MSymbol Mlong_form;
@@ -3367,13 +3362,13 @@ MSymbol Mfull_support;
     @brief Symbol whose name is "maybe".
 
     The variable #Mmaybe is a symbol of name <tt>"maybe"</tt>.  It is
-    used a value of #Mbom parameter of the function
+    used a value of @b Mbom parameter of the function
     mconv_define_coding () (which see).  */
 /***ja
     @brief "maybe"という名前を持つシンボル.
 
     変数 #Mmaybe は <tt>"maybe"</tt> という名前を持つ。これは関数 
-    mconv_define_coding () パラメータ #Mbom の値として用いられる。
+    mconv_define_coding () パラメータ @b Mbom の値として用いられる。
     (詳細は mconv_define_coding () 参照)。 */
 
 MSymbol Mmaybe;
@@ -3410,112 +3405,112 @@ MSymbol Mcoding;
     <li> Key is @c Mtype, value is a symbol
 
     The value specifies the type of the coding system.  It must be
-    #Mcharset, #Mutf, #Miso_2022, or #Mnil.
+    @b Mcharset, @b Mutf, @b Miso_2022, or @b Mnil.
 
-    If the type is #Mcharset, $EXTRA_INFO is ignored.
+    If the type is @b Mcharset, $EXTRA_INFO is ignored.
 
-    If the type is #Mutf, $EXTRA_INFO must be a pointer to
+    If the type is @b Mutf, $EXTRA_INFO must be a pointer to
     #MCodingInfoUTF.
 
-    If the type is #Miso_2022, $EXTRA_INFO must be a pointer to
+    If the type is @b Miso_2022, $EXTRA_INFO must be a pointer to
     #MCodingInfoISO2022.
 
     If the type is #Mnil, the argument $RESETTER, $DECODER, and
     $ENCODER must be supplied.  $EXTRA_INFO is ignored.  Otherwise,
     they can be @c NULL and the m17n library provides proper defaults.
 
-    <li> Key is #Mcharsets, value is a plist
+    <li> Key is @b Mcharsets, value is a plist
 
     The value specifies a list charsets supported by the coding
     system.  The keys of the plist must be #Msymbol, and the values
     must be symbols representing charsets.
 
-    <li> Key is #Mflags, value is a plist
+    <li> Key is @b Mflags, value is a plist
 
-    If the type is #Miso_2022, the values specifies flags to control
+    If the type is @b Miso_2022, the values specifies flags to control
     the ISO 2022 interpreter.  The keys of the plist must e #Msymbol,
     and values must be one of the following.
 
     <ul>
 
-    <li> #Mreset_at_eol
+    <li> @b Mreset_at_eol
 
     If this flag exists, designation and invocation status is reset to
     the initial state at the end of line.
 
-    <li> #Mreset_at_cntl
+    <li> @b Mreset_at_cntl
 
     If this flag exists, designation and invocation status is reset to
     the initial state at a control character.
 
-    <li> #Meight_bit
+    <li> @b Meight_bit
 
     If this flag exists, the graphic plane right is used.
 
-    <li> #Mlong_form
+    <li> @b Mlong_form
 
     If this flag exists, the over-long escape sequences (ESC '$' '('
     \<final_byte\>) are used for designating the CCS JISX0208.1978,
     GB2312, and JISX0208.
 
-    <li> #Mdesignation_g0
+    <li> @b Mdesignation_g0
 
-    If this flag and #Mfull_support exists, designates charsets not
+    If this flag and @b Mfull_support exists, designates charsets not
     listed in the charset list to the graphic register G0.
 
-    <li> #Mdesignation_g1
+    <li> @b Mdesignation_g1
 
-    If this flag and #Mfull_support exists, designates charsets not
+    If this flag and @b Mfull_support exists, designates charsets not
     listed in the charset list to the graphic register G1.
 
-    <li> #Mdesignation_ctext
+    <li> @b Mdesignation_ctext
 
-    If this flag and #Mfull_support exists, designates charsets not
+    If this flag and @b Mfull_support exists, designates charsets not
     listed in the charset list to a graphic register G0 or G1 based on
     the criteria of the Compound Text.
 
-    <li> #Mdesignation_ctext_ext
+    <li> @b Mdesignation_ctext_ext
 
-    If this flag and #Mfull_support exists, designates charsets not
+    If this flag and @b Mfull_support exists, designates charsets not
     listed in the charset list to a graphic register G0 or G1, or use
     extended segment for such charsets based on the criteria of the
     Compound Text.
 
-    <li> #Mlocking_shift
+    <li> @b Mlocking_shift
 
     If this flag exists, use locking shift.
 
-    <li> #Msingle_shift
+    <li> @b Msingle_shift
 
     If this flag exists, use single shift.
 
-    <li> #Msingle_shift_7
+    <li> @b Msingle_shift_7
 
     If this flag exists, use 7-bit single shift code (0x19).
 
-    <li> #Meuc_tw_shift
+    <li> @b Meuc_tw_shift
 
     If this flag exists, use a special shifting according to EUC-TW.
 
-    <li> #Miso_6429
+    <li> @b Miso_6429
 
     This flag is currently ignored.
 
-    <li> #Mrevision_number
+    <li> @b Mrevision_number
 
     If this flag exists, use a revision number escape sequence to
     designate a charset that has a revision number.
 
-    <li> #Mfull_support
+    <li> @b Mfull_support
 
     If this flag exists, support all charsets registered in the
     International Registry.
 
     </ul>
 
-    <li> Key is #Mdesignation, value is a plist
+    <li> Key is @b Mdesignation, value is a plist
 
-    If the type is #Miso_2022, the value specifies how to designate
+    If the type is @b Miso_2022, the value specifies how to designate
     each supported characters.  The keys of the plist must be 
     #Minteger, and the values must be numbers indicating a graphic
     registers.  The Nth element value is for the Nth charset of the
@@ -3525,9 +3520,9 @@ MSymbol Mcoding;
     to any register at first, and if necessary, is designated to the
     (G+4) graphic register.
 
-    <li> Key is #Minvocation, value is a plist
+    <li> Key is @b Minvocation, value is a plist
 
-    If the type is #Miso_2022, the value specifies how to invocate
+    If the type is @b Miso_2022, the value specifies how to invocate
     each graphic registers.  The plist length must be one or two.  The
     keys of the plist must be #Minteger, and the values must be
     numbers indicating a graphic register.  The value of the first
@@ -3537,22 +3532,22 @@ MSymbol Mcoding;
     second element specifies which graphic register is invocated to
     the graphic plane right.
 
-    <li> Key is #Mcode_unit, value is an integer
+    <li> Key is @b Mcode_unit, value is an integer
 
-    If the type is #Mutf, the value specifies the bit length of a
+    If the type is @b Mutf, the value specifies the bit length of a
     code-unit.  It must be 8, 16, or 32.
 
-    <li> Key is #Mbom, value is a symbol
+    <li> Key is @b Mbom, value is a symbol
 
-    If the type is #Mutf and the code-unit bit length is 16 or 32,
+    If the type is @b Mutf and the code-unit bit length is 16 or 32,
     it specifies whether or not to use BOM (Byte Order Mark).  If the
     value is #Mnil (default), BOM is not used, else if the value is
     #Mmaybe, the existence of BOM is detected at decoding time, else
     BOM is used.
 
-    <li> Key is #Mlittle_endian, value is a symbol
+    <li> Key is @b Mlittle_endian, value is a symbol
 
-    If the type is #Mutf and the code-unit bit length is 16 or 32,
+    If the type is @b Mutf and the code-unit bit length is 16 or 32,
     it specifies whether or not the encoding is little endian.  If the
     value is #Mnil (default), it is big endian, else it is little
     endian.
@@ -3608,15 +3603,15 @@ MSymbol Mcoding;
 
     <li> キーが @c Mtype で値がシンボルの時
 
-    値はコード系のタイプを表し、#Mcharset, #Mutf, #Miso_2022, #Mnil 
+    値はコード系のタイプを表し、@b Mcharset, @b Mutf, @b Miso_2022, #Mnil 
     のいずれかでなくてはならない。
 
-    タイプが #Mcharset ならば $EXTRA_INFO は無視される。
+    タイプが @b Mcharset ならば $EXTRA_INFO は無視される。
 
-    タイプが #Mutf ならば $EXTRA_INFO は #MCodingInfoUTF 
+    タイプが @b Mutf ならば $EXTRA_INFO は #MCodingInfoUTF 
     へのポインタでなくてはならない。
 
-    タイプが #Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 
+    タイプが @b Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 
     へのポインタでなくてはならない。
 
     タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER 
@@ -3624,92 +3619,92 @@ MSymbol Mcoding;
     それ以外の場合にはこれらは @c NULL でよく、
     m17n ライブラリが適切なデフォルト値を与える。
 
-    <li> キーが #Mcharsets で値が plist の時
+    <li> キーが @b Mcharsets で値が plist の時
 
     値はこのコード系でサポートされる文字セットのリストである。plistのキーは
     #Msymbol、値は文字セットを示すシンボルでなくてはならない。
 
-    <li> キーが #Mflags 値が plist の時
+    <li> キーが @b Mflags 値が plist の時
 
-    タイプが #Miso_2022 ならば、この値は, ISO 2022 
+    タイプが @b Miso_2022 ならば、この値は, ISO 2022 
     インタプリタ用の制御フラッグを示す。plist のキーは #Msymbol 
     であり、値は以下のいずれかである。
 
     <ul>
 
-    <li> #Mreset_at_eol
+    <li> @b Mreset_at_eol
 
     このフラグがあれば、図形文字集合の指示や呼出は行末でリセットされて当初の状態に戻る。
 
-    <li> #Mreset_at_cntl
+    <li> @b Mreset_at_cntl
 
     このフラグがあれば、図形文字集合の指示や呼出は制御文字に出会った時点でリセットされて当初の状態に戻る。
 
-    <li> #Meight_bit
+    <li> @b Meight_bit
 
     このフラグがあれば、図形文字集合の右半面が用いられる。
 
-    <li> #Mlong_form
+    <li> @b Mlong_form
 
     このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 
     を指示する際に over-long エスケープシーケンス (ESC '$' '('
     <final_byte>) が用いられる。
 
-    <li> #Mdesignation_g0
+    <li> @b Mdesignation_g0
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
     G0 集合に指示する。
 
-    <li> #Mdesignation_g1
+    <li> @b Mdesignation_g1
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
     G1 集合に指示する。
 
-    <li> #Mdesignation_ctext
+    <li> @b Mdesignation_ctext
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
     G0 集合または G1 集合に、コンパウンドテキストの基準にそって指示する。
 
-    <li> #Mdesignation_ctext_ext
+    <li> @b Mdesignation_ctext_ext
 
-    このフラグと #Mfull_support があれば、文字セットリストに現われない文字セットを
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
     G0 集合または G1 集合に、あるいは拡張セグメントにコンパウンドテキストの基準にそって指示する。
 
-    <li> #Mlocking_shift
+    <li> @b Mlocking_shift
 
     このフラグがあれば、ロッキングシフトを用いる。
 
-    <li> #Msingle_shift
+    <li> @b Msingle_shift
 
     このフラグがあれば、シングルシフトを用いる。
 
-    <li> #Msingle_shift_7
+    <li> @b Msingle_shift_7
 
     このフラグがあれば、7-bit シングルシフトコード (0x19) を用いる。   
     
-    <li> #Meuc_tw_shift
+    <li> @b Meuc_tw_shift
 
     このフラグがあれば、EUC-TW に沿った特別なシフトを用いる。
 
-    <li> #Miso_6429
+    <li> @b Miso_6429
 
     現時点では用いられていない。
 
-    <li> #Mrevision_number
+    <li> @b Mrevision_number
 
     このフラグがあれば、revision number を持つ文字セットを指示する際に 
     revision number エスケープシークエンスを用いる。
 
-    <li> #Mfull_support
+    <li> @b Mfull_support
 
     このフラグがあれば、the International Registry 
     に登録されている全文字セットをサポートする。
 
     </ul>
 
-    <li> キーが #Mdesignationで値が plist の時
+    <li> キーが @b Mdesignation で値が plist の時
 
-    タイプが #Miso_2022 ならば、値は各文字をどのように指示するかを示す。
+    タイプが @b Miso_2022 ならば、値は各文字をどのように指示するかを示す。
     plist のキーは #Minteger、値は集合（graphic register）
     を示す数字である。N番目の要素の値は、文字セットリストの N 
     番目の文字セットに対応する。値が 0..3 であれば、文字セットがすでに 
@@ -3718,30 +3713,30 @@ MSymbol Mcoding;
     値が負(-4..-1) であれば、初期状態では文字セットがどこにも指示されていないこと、必要な際には
     G0..G3 のそれぞれに指示することを意味する。
 
-    <li> キーが #Minvocationで値が plist の時
+    <li> キーが @b Minvocation で値が plist の時
 
-    タイプが #Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
+    タイプが @b Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
     plist の長さは 1 ないし 2 である。plist のキーは 
     #Minteger、値は集合（graphic register)を示す数字である。
     最初の要素の値が図形文字集合左半面に呼び出される集合を示す。
     plist の長さが 1 ならば、右半面には何も呼び出されない。
     そうでければ、２つめの要素の値が図形文字集合右半面に呼び出される集合を示す。
 
-    <li> キーが #Mcode_unit で値が整数値の時
+    <li> キーが @b Mcode_unit で値が整数値の時
 
-    タイプが #Mutf ならば、値はコードユニットのビット長であり、8, 16,
+    タイプが @b Mutf ならば、値はコードユニットのビット長であり、8, 16,
     32 のいずれかである。
 
-    <li> キーが #Mbom で値がシンボルの時
+    <li> キーが @b Mbom で値がシンボルの時
 
-    タイプが #Mutf でコードユニットのビット長が 16 か 32ならば、値は
+    タイプが @b Mutf でコードユニットのビット長が 16 か 32ならば、値は
     BOM (Byte Order Mark) を使用するかどうかを示す。値がデフォルト値の 
     #Mnil ならば、使用しない。値が #Mmaybe ならばデコード時に BOM 
     があるかどうかを調べる。それ以外ならば使用する。
 
-    <li> キーが #Mlittle_endian で値がシンボルの時 
+    <li> キーが @b Mlittle_endian で値がシンボルの時 
 
-    タイプが #Mutf でコードユニットのビット長が 16 か 32
+    タイプが @b Mutf でコードユニットのビット長が 16 か 32
     ならば、値はエンコードが little endian かどうかを示す。値がデフォルト値の
     #Mnil ならば big endian であり、そうでなければ little endian である。
 

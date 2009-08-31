@@ -372,8 +372,8 @@ m17n_fini_win (void)
     These are the symbols to use in a parameter to create a frame.  See
     the function mframe () for details.
 
-    #Mdevice, #Mdisplay, #Mscreen, #Mdrawable, #Mdepth, and #Mcolormap
-    are also keys of a frame property.  */
+    @b Mdevice, @b Mdisplay, @b Mscreen, @b Mdrawable, @b Mdepth, and
+    @b Mcolormap are also keys of a frame property.  */
 
 /***ja
     @name 変数： フレームパラメータ用キー
@@ -381,8 +381,8 @@ m17n_fini_win (void)
     フレームを生成する際のパラメータに用いるシンボル。詳しくは関数
     mframe () の説明参照。
 
-    #Mdevice、 #Mdisplay、 #Mscreen、 #Mdrawable、 #Mdepth、#Mcolormap
-    はフレームプロパティのキーでもある。  */
+    @b Mdevice、 @b Mdisplay、 @b Mscreen、 @b Mdrawable、 @b Mdepth、
+    @b Mcolormap はフレームプロパティのキーでもある。  */
 
 /*=*/
 
@@ -425,14 +425,14 @@ MSymbol Mfont_descent;
 
     <ul>
 
-    <li> #Mdevice, the value must be one of #Mx, #Mgd, and #Mnil.
+    <li> @b Mdevice, the value must be one of #Mx, @b Mgd, and #Mnil.
 
     If the value is #Mx, the frame is for X Window System.  The
     argument #MDrawWindow specified together with the frame must be of
     type @c Window.  The frame is both readable and writable, thus all
     GUI functions can be used.
 
-    If the value is #Mgd, the frame is for an image object of GD
+    If the value is @b Mgd, the frame is for an image object of GD
     library.  The argument #MDrawWindow specified together with the
     frame must be of type @c gdImagePtr.  The frame is writable
     only, thus functions minput_XXX can't be used for the frame.
@@ -448,23 +448,23 @@ MSymbol Mfont_descent;
 
     </ul>
 
-    In addition, if the value of the key #Mdevice is #Mx, the
+    In addition, if the value of the key @b Mdevice is #Mx, the
     following keys are recognized.  They are to specify the root
     window and the depth of drawables that can be used with the frame.
 
     <ul>
 
-    <li> #Mdrawable, the value type must be <tt>Drawable</tt>.
+    <li> @b Mdrawable, the value type must be <tt>Drawable</tt>.
 
-    A parameter of key #Mdisplay must also be specified.  The
+    A parameter of key @b Mdisplay must also be specified.  The
     created frame can be used for drawables whose root window and
     depth are the same as those of the specified drawable on the
     specified display.
 
-    When this parameter is specified, the parameter of key #Mscreen
+    When this parameter is specified, the parameter of key @b Mscreen
     is ignored.
 
-    <li> #Mwidget, the value type must be <tt>Widget</tt>.
+    <li> @b Mwidget, the value type must be <tt>Widget</tt>.
 
     The created frame can be used for drawables whose root window and
     depth are the same as those of the specified widget.
@@ -472,34 +472,34 @@ MSymbol Mfont_descent;
     If a parameter of key #Mface is not specified, the default face
     is created from the resources of the widget.
 
-    When this parameter is specified, the parameters of key #Mdisplay,
-    #Mscreen, #Mdrawable, #Mdepth are ignored.
+    When this parameter is specified, the parameters of key @b Mdisplay,
+    @b Mscreen, @b Mdrawable, @b Mdepth are ignored.
 
-    <li> #Mdepth, the value type must be <tt>unsigned</tt>.
+    <li> @b Mdepth, the value type must be <tt>unsigned</tt>.
 
     The created frame can be used for drawables of the specified
     depth.
 
-    <li> #Mscreen, the value type must be <tt>(Screen *)</tt>.
+    <li> @b Mscreen, the value type must be <tt>(Screen *)</tt>.
 
     The created frame can be used for drawables whose root window is
     the same as the root window of the specified screen, and depth is
     the same at the default depth of the screen.
 
-    When this parameter is specified, parameter of key #Mdisplay is
+    When this parameter is specified, parameter of key @b Mdisplay is
     ignored.
 
-    <li> #Mdisplay, the value type must be <tt>(Display *)</tt>.
+    <li> @b Mdisplay, the value type must be <tt>(Display *)</tt>.
 
     The created frame can be used for drawables whose root window is
     the same as the root window for the default screen of the display,
     and depth is the same as the default depth of the screen.
 
-    <li> #Mcolormap, the value type must be <tt>(Colormap)</tt>.
+    <li> @b Mcolormap, the value type must be <tt>(Colormap)</tt>.
 
     The created frame uses the specified colormap.
 
-    <li> #Mfont, the value must be #Mx, #Mfreetype, or #Mxft.
+    <li> @b Mfont, the value must be #Mx, #Mfreetype, or #Mxft.
 
     The created frame uses the specified font backend.  The value #Mx
     instructs to use X core fonts, #Mfreetype to use local fonts
@@ -530,14 +530,14 @@ MSymbol Mfont_descent;
 
     <ul>
 
-    <li> #Mdevice. 値は #Mx, #Mgd, #Mnil のいずれかでなくてはならない。
+    <li> @b Mdevice. 値は #Mx, @b Mgd, #Mnil のいずれかでなくてはならない。
 
     値が #Mx ならば、新しいフレームは X ウィンドウシステム用である。
     このフレームと共に指定された引数 #MDrawWindow は、 @c Window
     型でなくてはならない。フレームは読み書きともに可能であり、すべてのGUI 
     関数が使用できる。
 
-    値が #Mgd ならば、新しいフレームは GD 
+    値が @b Mgd ならば、新しいフレームは GD 
     ライブラリのイメージオブジェクト用である。このフレームと共に指定された引数
     #MDrawWindow は、 @c gdImagePtr 型でなくてはならない。フレームは書き出し専用であり、
     minput_ で始まる名前の関数は使用できない。
@@ -552,21 +552,21 @@ MSymbol Mfont_descent;
 
     </ul>
 
-    これらのキーに加え、#Mdevice のキーが #Mx 
+    これらのキーに加え、@b Mdevice のキーが #Mx 
     である場合に限り以下のキーも認識される。以下のキーはルートウィンドウと、フレームで利用できる 
     drawable の深さを指定する。
 
     <ul>
 
-    <li> #Mdrawable. 値は <tt>Drawable</tt> 型でなくてはならない。
+    <li> @b Mdrawable. 値は <tt>Drawable</tt> 型でなくてはならない。
 
-    キー #Mdisplay を持つパラメータも指定されている必要がある。
+    キー @b Mdisplay を持つパラメータも指定されている必要がある。
     生成されたフレームは、指定されたディスプレイ上の指定された drawable 
     と同じルートウィンドウと深さを持つ drawable に用いられる。
 
-    このパラメータがある場合には、#Mscreen をキーとするパラメータは無視される。
+    このパラメータがある場合には、@b Mscreen をキーとするパラメータは無視される。
 
-    <li> #Mwidget. 値は <tt>Widget</tt> 型でなくてはならない。
+    <li> @b Mwidget. 値は <tt>Widget</tt> 型でなくてはならない。
 
     生成されたフレームは、指定したウィジェットと同じルートウィンドウと深さを持つ
     drawable に用いられる。
@@ -574,24 +574,24 @@ MSymbol Mfont_descent;
     キー #Mface を持つパラメータがなければ、デフォルトのフェースはこの
     ウィジェットのリソースから作られる。
 
-    このパラメータがある場合には、#Mdisplay, #Mscreen, #Mdrawable,
-    #Mdepth をキーとするパラメータは無視される。
+    このパラメータがある場合には、@b Mdisplay, @b Mscreen, @b Mdrawable,
+    @b Mdepth をキーとするパラメータは無視される。
 
-    <li> #Mdepth. 値は <tt>unsigned</tt>  型でなくてはならない。
+    <li> @b Mdepth. 値は <tt>unsigned</tt>  型でなくてはならない。
 
     生成されたフレームは、指定した深さの drawable に用いられる。
 
-    <li> #Mscreen. 値は <tt>(Screen *)</tt> 型でなくてはならない。
+    <li> @b Mscreen. 値は <tt>(Screen *)</tt> 型でなくてはならない。
 
     生成したフレームは、指定したスクリーンと同じルートウィンドウを持ち、スクリーンのデフォルトの深さと同じ深さを持つ drawable に用いられる。
 
-    このパラメータがある場合には、#Mdisplay をキーとするパラメータは無視される。
+    このパラメータがある場合には、@b Mdisplay をキーとするパラメータは無視される。
 
-    <li> #Mdisplay. 値は <tt>(Display *)</tt> 型でなくてはならない。
+    <li> @b Mdisplay. 値は <tt>(Display *)</tt> 型でなくてはならない。
 
     生成されたフレームは、指定したディスプレイのデフォルトスクリーンと同じルートウィンドウと同じ深さを持つdrawables に用いられる。
 
-    <li> #Mcolormap. 値は <tt>(Colormap)</tt> 型でなくてはならない。
+    <li> @b Mcolormap. 値は <tt>(Colormap)</tt> 型でなくてはならない。
 
     生成されたフレームは、指定したカラーマップを使用する。
 
