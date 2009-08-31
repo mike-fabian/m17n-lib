@@ -2577,7 +2577,7 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 /*** @addtogroup m17nInputMethodWin */
 
 /*** @{ */
-
+/*=*/
 /***en
     @brief Input method driver for XIM.
 
@@ -2635,9 +2635,9 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 MInputDriver minput_xim_driver =
   { xim_open_im, xim_close_im, xim_create_ic, xim_destroy_ic,
     xim_filter, xim_lookup, NULL };
-
+/*=*/
 /*** @} */ 
-
+/*=*/
 #else  /* not HAVE_X11 */
 
 int device_open () { return -1; }

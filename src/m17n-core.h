@@ -119,6 +119,7 @@ extern enum M17NStatus m17n_status (void);
 
 typedef struct
 {
+  /*** Hidden from applications.  */
   void *filler[2];
 } M17NObjectHead;
 
@@ -420,11 +421,17 @@ typedef struct MText MText;
 
 enum MTextFormat
   {
+    /*** US-ASCII encoding */
     MTEXT_FORMAT_US_ASCII,
+    /*** UTF-8 encoding */
     MTEXT_FORMAT_UTF_8,
+    /*** UTF-16LE encoding  */
     MTEXT_FORMAT_UTF_16LE,
+    /*** UTF-16BE encoding  */
     MTEXT_FORMAT_UTF_16BE,
+    /*** UTF-32LE encoding  */
     MTEXT_FORMAT_UTF_32LE,
+    /*** UTF-32BE encoding  */
     MTEXT_FORMAT_UTF_32BE,
     MTEXT_FORMAT_MAX
   };
@@ -582,6 +589,7 @@ extern int mtext_titlecase (MText *mt);
 
 extern int mtext_uppercase (MText *mt);
 
+/*** @ingroup m17nMtext */
 /***en
     @brief Enumeration for specifying a set of line breaking option.
 

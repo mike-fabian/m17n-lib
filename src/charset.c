@@ -985,7 +985,7 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 
     where, PARENT-CODE is a pseudo function that returns a character
     code of CODE-POINT in the parent charset, and SUBSET-OFFSET is a
-    value given by #Msubset_offset parameter.  */
+    value given by @b Msubset_offset parameter.  */
 
 /***ja @brief サブセット型のメソッドを示すシンボル.
 

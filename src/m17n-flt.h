@@ -109,11 +109,13 @@ typedef struct
       fractional pixel format.  */
   /***ja 縦書き時の送り高を 26.6 fractional pixel format で表現したもの。  */
   int yadv;
+  /***@{ */
   /***en Ink metrics of the glyph expressed in 26.6 fractional pixel
       format.  */
   /***ja このグリフのインクメトリックを 26.6 fractional pixel format
       で表現したもの。  */
   int ascent, descent, lbearing, rbearing;
+  /***@} */
   /***en Horizontal and vertical adjustments for the glyph positioning
       expressed in 26.6 fractional pixel format.  */
   /***ja グリフ位置決めの際の水平・垂直調整値を、
@@ -291,9 +293,12 @@ typedef struct _MFLTFont
       い場合 (たとえば OpenTypeフォントの場合など) は、#Mnil でよい。 */
   MSymbol family;
 
-  /***en Horizontal and vertical font sizes in pixels per EM.  */
-  /***ja フォントの水平・垂直サイズを pixels per EM で表現したもの。  */
-  int x_ppem, y_ppem;
+  /***en Horizontal font sizes in pixels per EM.  */
+  /***ja フォントの水平サイズを pixels per EM で表現したもの。  */
+  int x_ppem;
+  /***en Vertical font sizes in pixels per EM.  */
+  /***ja フォントの垂直サイズを pixels per EM で表現したもの。  */
+  int y_ppem;
 
   /***en Callback function to get glyph IDs for glyphs between FROM
      (inclusive) and TO (exclusive) of GSTRING.  If the member \<encoded\>

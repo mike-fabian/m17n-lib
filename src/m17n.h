@@ -853,22 +853,28 @@ extern MText *mtext_toupper (MText *mt);
 
 /*** @addtogroup m17nInputMethod 
      @{ */
-
+/*=*/
 /* Struct forward declaration.  */
+/***
+    @brief See struct MInputMethod */
 typedef struct MInputMethod MInputMethod;
+/*=*/
+/***
+    @brief See struct MInputContext */
 typedef struct MInputContext MInputContext;
+/*=*/
 
 /***en
     @brief Type of input method callback functions.
 
     This is the type of callback functions called from input method
-    drivers.  #IC is a pointer to an input context, #COMMAND is a name
+    drivers.  $IC is a pointer to an input context, $COMMAND is a name
     of callback for which the function is called.   */
 /***ja
     @brief 入力メソッドコールバック関数の型宣言.
 
-    入力メソッドから呼ばれるコールバック関数の型である。#IC 
-    は入力コンテクストへのポインタ、#COMMAND は関数が呼ばれるコールバックの名前である。  */
+    入力メソッドから呼ばれるコールバック関数の型である。$IC 
+    は入力コンテクストへのポインタ、$COMMAND は関数が呼ばれるコールバックの名前である。  */
 
 typedef void (*MInputCallbackFunc) (MInputContext *ic, MSymbol command);
 /*=*/
@@ -1039,7 +1045,7 @@ typedef struct MInputDriver
       @brief List of callback functions.
 
       List of callback functions.  Keys are one of
-      #Minput_preedit_start, #Minput_preedit_draw,
+      @b Minput_preedit_start, #Minput_preedit_draw,
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
@@ -1050,7 +1056,7 @@ typedef struct MInputDriver
       @brief コールバック関数のリスト.
 
       コールバック関数のリスト。キーは次のいずれか。
-      #Minput_preedit_start, #Minput_preedit_draw,
+      @b Minput_preedit_start, #Minput_preedit_draw,
       #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
       #Minput_status_done, #Minput_candidates_start,
       #Minput_candidates_draw, #Minput_candidates_done,
@@ -1061,9 +1067,12 @@ typedef struct MInputDriver
 
 } MInputDriver;
 /*=*/
+/*** @} */
+/*=*/
 
 extern MInputDriver minput_default_driver;
 
+extern MSymbol Minput_method;
 extern MSymbol Minput_driver;
 
 extern MInputDriver *minput_driver;
@@ -1094,6 +1103,9 @@ extern MSymbol Minherited;
 extern MSymbol Mcustomized;
 extern MSymbol Mconfigured;
 
+/*** @addtogroup m17nInputMethod 
+     @{ */
+/*=*/
 /***en
     @brief Structure of input method.
 
@@ -1323,6 +1335,8 @@ struct MInputContext
 };
 
 /*=*/
+/*** @} */
+/*=*/
 
 extern MInputMethod *minput_open_im (MSymbol language, MSymbol name,
 				     void *arg);
@@ -1372,11 +1386,8 @@ extern MPlist *minput_get_variables (MSymbol language, MSymbol name);
 
 extern int minput_set_variable (MSymbol language, MSymbol name,
 				MSymbol variable, void *value);
-/*=*/
-/***     @} */
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
-
 
 M17N_END_HEADER
 

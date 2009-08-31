@@ -1023,13 +1023,13 @@ MSymbol Mbackground;
     @brief Key of a face property specifying video mode.
 
     The variable #Mvideomode is used as a key of face property.  The
-    property value must be #Mnormal, #Mreverse, or #Mnil.
+    property value must be @b Mnormal, @b Mreverse, or #Mnil.
 
-    #Mnormal means that an M-text is drawn in normal video mode
+    @b Mnormal means that an M-text is drawn in normal video mode
     (i.e. the foreground is drawn by foreground color, the background
     is drawn by background color).
 
-    #Mreverse means that an M-text is drawn in reverse video mode
+    @b Mreverse means that an M-text is drawn in reverse video mode
     (i.e. the foreground is drawn by background color, the background
     is drawn by foreground color).
 
@@ -1038,12 +1038,12 @@ MSymbol Mbackground;
     @brief ビデオモードを指定するためのフェースプロパティーのキー.
 
     変数 #Mvideomode はフェースプロパティのキーとして用いられる。プロパティの値は、
-    #Mnormal, #Mreverse, #Mnil のいずれかでなくてはならない。
+    @b Mnormal, @b Mreverse, #Mnil のいずれかでなくてはならない。
 
-    #Mnormal の場合は、M-text 
+    @b Mnormal の場合は、M-text 
     を標準のビデオモード（前景を前景色で、背景を背景色で）で表示する。
 
-    #Mreverse の場合はリバースビデオモードで（前景を背景色で、背景を前景色で）表示する。
+    @b Mreverse の場合はリバースビデオモードで（前景を背景色で、背景を前景色で）表示する。
 
     #Mnil の場合はビデオモードは指定されない。
     */
@@ -1176,7 +1176,6 @@ MSymbol Mhook_arg;
 /***en @name Variables: Possible values of #Mvideomode property of face */
 /***ja @name 変数：  フェースの #Mvideomode プロパティの可能な値 */
 /*** @{ */
-/*=*/
 
 /***en
     See the documentation of the variable #Mvideomode.  */ 
@@ -1197,14 +1196,14 @@ MSymbol Mreverse;
     @brief Normal video face.
 
     The variable #mface_normal_video points to a face that has the
-    #Mvideomode property with value #Mnormal.  The other properties
+    #Mvideomode property with value @b Mnormal.  The other properties
     are not specified.  An M-text drawn with this face appear normal
     colors (i.e. the foreground is drawn by foreground color, and
     background is drawn by background color).  */
 /***ja
     @brief 標準ビデオフェース.
 
-    変数 #mface_normal_video は #Mvideomode プロパティの値が #Mnormal 
+    変数 #mface_normal_video は #Mvideomode プロパティの値が @b Mnormal 
     であるフェースを指すポインタである。他のプロパティは指定されない。
     このフェースで表示されるM-text 
     は標準の色 (すなわち前景は前景色、背景は背景色）で描かれる。  */
@@ -1215,7 +1214,7 @@ MFace *mface_normal_video;
     @brief Reverse video face.
 
     The variable #mface_reverse_video points to a face that has the
-    #Mvideomode property with value #Mreverse.  The other properties
+    #Mvideomode property with value @b Mreverse.  The other properties
     are not specified.  An M-text drawn with this face appear in
     reversed colors (i.e. the foreground is drawn by background
     color, and background is drawn by foreground color).  */
@@ -1223,7 +1222,7 @@ MFace *mface_normal_video;
     @brief リバースビデオフェース.
 
     変数 #mface_reverse_video は #Mvideomode プロパティの値が 
-    #Mreverse であるフェースを指すポインタである。他のプロパティは指定されない。
+    @b Mreverse であるフェースを指すポインタである。他のプロパティは指定されない。
     このフェースで表示されるM-text 
     は前景色と背景色が入れ替わって (すなわち前景は背景色、背景は前景色）描かれる。  */
 
