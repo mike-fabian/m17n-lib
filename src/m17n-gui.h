@@ -397,17 +397,20 @@ typedef struct
   unsigned width;
 
   /* @{ */
-  /*** Top color  */
+  /*** Colors of borders.  */
   MSymbol color_top;
   MSymbol color_bottom;
   MSymbol color_left;
   MSymbol color_right;
   /* @} */
 
+  /* @{ */
+  /*** Margins  */
   unsigned inner_hmargin;
   unsigned inner_vmargin;
   unsigned outer_hmargin;
   unsigned outer_vmargin;
+  /* @} */
 
 } MFaceBoxProp;
 /*=*/
@@ -706,7 +709,7 @@ typedef struct
   int disable_caching;
 
   /***en If non-NULL, limit the drawing effect to the specified region.  */
-  /***en NULL でなければ表示エリアを指定された領域に限定する。 */
+  /***ja NULL でなければ表示エリアを指定された領域に限定する。 */
   MDrawRegion clip_region;
 
 } MDrawControl;
@@ -840,9 +843,11 @@ typedef struct
 
 typedef struct
 {
+  /* @{ */
   /***en Character range corresponding to the glyph.  */
   /***ja グリフに対応する文字の範囲.  */
   int from, to;
+  /* @} */
 
   /***en Font glyph code of the glyph.  */
   /***ja フォント内のグリフコード。  */
