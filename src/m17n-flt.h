@@ -109,18 +109,20 @@ typedef struct
       fractional pixel format.  */
   /***ja 縦書き時の送り高を 26.6 fractional pixel format で表現したもの。  */
   int yadv;
-  /***@{ */
+  /* @{ */
   /***en Ink metrics of the glyph expressed in 26.6 fractional pixel
       format.  */
   /***ja このグリフのインクメトリックを 26.6 fractional pixel format
       で表現したもの。  */
   int ascent, descent, lbearing, rbearing;
-  /***@} */
+  /* @} */
+  /* @{ */
   /***en Horizontal and vertical adjustments for the glyph positioning
       expressed in 26.6 fractional pixel format.  */
   /***ja グリフ位置決めの際の水平・垂直調整値を、
       26.6 fractional pixel format で表現したもの。  */
   int xoff, yoff;
+  /* @} */
   /***en Flag to tell whether the member \<code\> has already been set
       to a glyph ID in the font.  */
   /***ja メンバー \<code\> に既にグリフ ID
@@ -155,28 +157,32 @@ typedef struct
 
     The type #MFLTGlyphAdjustment is the structure to store
     information about a glyph metrics/position adjustment.  It is
-    given to the callback function #drive_otf of #MFLTFont.  */
+    given to the callback function @b drive_otf of #MFLTFont.  */
 
 /***ja
     @brief グリフ位置調整情報のための型.
 
     型 #MFLTGlyphAdjustment
     は、グリフのメトリック/位置の調整に関する情報を格納するための構造体であり、
-    #MFLTFont の callback 関数 #drive_otf に渡される。  */
+    #MFLTFont の callback 関数 @b drive_otf に渡される。  */
 
 typedef struct
 {
+  /* @{ */
   /***en Adjustments for advance width for horizontal layout and
       advance height for vertical layout expressed in 26.6 fractional
       pixel format.  */
   /***ja 水平・垂直方向の送り量の調整値を 26.6 fractional pixel format
       で表現したもの。  */
   int xadv, yadv;
+  /* @} */
+  /* @{ */
   /***en Horizontal and vertical adjustments for glyph positioning
       expressed in 26.6 fractional pixel format.  */
   /***ja グリフ位置決めための水平・垂直調整値を 26.6 fractional pixel
       format で表現したもの。  */
   int xoff, yoff;
+  /* @} */
   /***en Number of glyphs to go back for drawing a glyph.  */
   /***ja グリフ描画のために戻るべきグリフ数。  */
   short back;
@@ -247,14 +253,16 @@ typedef struct
 typedef struct
 {
   /***en Unique symbol representing the spec.  This is the same as the
-      #OTF-SPEC of the FLT.  */
+      @ref OTF-SPEC of the FLT.  */
   /***ja この仕様を表わすユニークなシンボル。
       FLT の #OTF-SPEC と同一の値である。  */
   MSymbol sym;
 
+  /* @{ */
   /***en Tags for script and language system.  */
   /***ja スクリプトおよび言語システムのタグ。  */
   unsigned int script, langsys;
+  /* @} */
 
   /***en Array of GSUB (1st element) and GPOS (2nd element) features.
       Each array is terminated by 0.  If an element is 0xFFFFFFFF
