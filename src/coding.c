@@ -3350,7 +3350,7 @@ MSymbol Mfull_support;
 /*=*/
 
 /***en
-    @name Variables: etc
+    @name Variables: Others
 
     Remaining variables.  */
 /***ja @name 変数: その他 
@@ -3648,7 +3648,7 @@ MSymbol Mcoding;
 
     このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 
     を指示する際に over-long エスケープシーケンス (ESC '$' '('
-    <final_byte>) が用いられる。
+    \<final_byte\>) が用いられる。
 
     <li> @b Mdesignation_g0
 
