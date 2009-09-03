@@ -1,3 +1,8 @@
+2009-09-03  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_otf): Clear combining code for glyphs whose
+	positions are adjusted by GPOS table.
+
 2009-08-13  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.5.5 released.
