@@ -1775,6 +1775,7 @@ run_otf (int depth,
 			    g->descent -= aa->yoff;
 			  }
 		      }
+		    SET_COMBINING_CODE (g, ctx, 0);
 		    g->adjusted = 1;
 		  }
 	    }
