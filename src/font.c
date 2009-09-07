@@ -1956,7 +1956,7 @@ mfont__check_capability (MRealizedFont *rfont, MSymbol capability)
 /***ja
     @brief 開発元を指定するフォントプロパティのキー.
     
-    変数 #Mfoundry は <tt>"fonudry"</tt> 
+    変数 #Mfoundry は <tt>"foundry"</tt> 
     という名前を持つシンボルであり、フォントプロパティとフェースプロパティのキーとして用いられる。
     値は、フォントの開発元名を名前として持つシンボルである。    */
 
