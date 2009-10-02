@@ -1253,6 +1253,8 @@ load_flt (MFLT *flt, MPlist *key_list)
 	      continue;
 	    }
 	  category = load_category_table (pl);
+	  if (! category)
+	    category = mchartable (Minteger, (void *) 0);
 	  if (! flt->coverage)
 	    {
 	      flt->coverage = category;
