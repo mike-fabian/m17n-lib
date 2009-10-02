@@ -1,3 +1,8 @@
+2009-10-02  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (load_flt): Check the return value of
+	load_category_table.
+
 2009-09-03  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (run_otf): Clear combining code for glyphs whose
