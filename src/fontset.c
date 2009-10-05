@@ -1217,7 +1217,7 @@ mfontset_copy (MFontset *fontset, char *name)
     が負ならば、最低の優先度を持つ。$HOW が 0 ならば、$FONT 
     は関連付けられたものに対する唯一の利用可能なフォントとなり、他のフォントはグループから取り除かれる。
 
-    $LAYOUTER_NAME は @c Mnil であるか、@ref flt 
+    $LAYOUTER_NAME は @c Mnil であるか、@ref mdbFLT 
     （フォントレイアウトテーブル）を示すシンボルである。シンボルであれば、$FONT を用いて
     M-text を表示する際には、そのフォントレイアウトテーブルを使って文字列からグリフコード列を生成する。
 
