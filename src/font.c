@@ -1685,13 +1685,16 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
 
       if (g->g.encoded)
 	continue;
-      if (! encoding->encoding_charset)
-	g->g.code = MCHAR_INVALID_CODE;
-      else if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
+      if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
 	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.code);
       else
 	{
-	  unsigned code = ENCODE_CHAR (encoding->encoding_charset, g->g.code);
+	  unsigned code;
+
+	  if (encoding->encoding_charset)
+	    code = ENCODE_CHAR (encoding->encoding_charset, g->g.code);
+	  else
+	    code = g->g.code;
 
 	  if (code != MCHAR_INVALID_CODE)
 	    {
