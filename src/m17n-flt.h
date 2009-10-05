@@ -255,7 +255,7 @@ typedef struct
   /***en Unique symbol representing the spec.  This is the same as the
       @ref OTF-SPEC of the FLT.  */
   /***ja この仕様を表わすユニークなシンボル。
-      FLT の #OTF-SPEC と同一の値である。  */
+      FLT の @ref OTF-SPEC と同一の値である。  */
   MSymbol sym;
 
   /* @{ */
@@ -389,6 +389,13 @@ extern MCharTable *mflt_coverage (MFLT *flt);
 
 extern int mflt_run (MFLTGlyphString *gstring, int from, int to,
 		     MFLTFont *font, MFLT *flt);
+
+extern MSymbol (*mflt_font_id) (struct _MFLTFont *font);
+
+extern int (*mflt_iterate_otf_feature) (struct _MFLTFont *font,
+					MFLTOtfSpec *spec,
+					int from, int to,
+					unsigned char *table);
 
 /*=*/
 /*** @} */
