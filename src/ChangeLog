@@ -1,3 +1,51 @@
+2009-10-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h: (mflt_iterate_otf_feature, mflt_font_id): Extern
+	them.
+
+	* m17n-flt.c (FontLayoutCategory): New typedef.
+	(FontLayoutStage): Type of the member `category' changed.
+	(struct _MFLT): Type of the member `coverage' changed.  New member
+	need_config and font_id.
+	(apply_otf_feature): New function.
+	(load_category_table): New arg FONT.  If FONT is non-NULL, call
+	apply_otf_feature.  Setup category->definition.
+	(ref_category_table): New macro.
+	(unref_category_table): New function.
+	(load_flt): Adjusted for the type change of category.
+	(free_flt_stage): New arg FLT.
+	(list_flt): Adjusted for the type change of category.
+	(run_stages): Adjusted for the type change of category.
+	(configure_category, configure_flt): New function.
+	(m17n_init_flt): Initialize mflt_iterate_otf_feature and
+	mflt_font_id to NULL.
+	(mflt_get): Skip the heading configured FLTs.
+	(mflt_find): Likewise.  If necessary, configure the found flt.
+	(mflt_run): Handle mflt_iterate_otf_feature and mflt_font_id.
+	Adjusted for the type change of category.
+	(mflt_iterate_otf_feature, mflt_font_id): New variable.
+
+	* m17n-X.c (xfont_open): Set rfont->id.
+	(xft_driver): Set xft_iterate_otf_feature.
+	(xft_open): Set rfont->id.
+	(xft_iterate_otf_feature): New function.
+
+	* font.h (struct MRealizedFont): New member id.
+	(struct MFontDriver): New member iterate_otf_feature.
+
+	* font.c (mfont__get_glyph_id): Pay attention to. mfont->source.
+
+	* font-ft.c (ft_open, ft_encapsulate): Set rfont->id.
+	(get_otf): New funcition.
+	(ft_check_otf, ft_drive_otf): Use get_otf.
+	(iterate_callback, ft_iterate_otf_feature): New functions.
+	(mfont__ft_driver): Set ft_iterate_otf_feature.
+
+	* draw.c: Docstring updated.
+	(font_id): New function.
+	(run_flt): Set mflt_font_id and mflt_iterate_otf_feature before
+	calling mflt_run.
+
 2009-10-02  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (load_flt): Check the return value of
