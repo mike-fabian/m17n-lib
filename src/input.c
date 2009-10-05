@@ -106,7 +106,7 @@
     行わなくてはならない。詳細については関数 minput_event_to_key () の
     説明を参照。
 
-    <li> 外部入力メソッド
+    <li> 外部入力メソッド @anchor foreign-input-method
 
     外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外
     部のリソースとして定義される。（たとえばX Window System のXIM な

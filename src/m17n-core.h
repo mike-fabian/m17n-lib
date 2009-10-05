@@ -721,7 +721,7 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     @brief デシリアライザ関数の型宣言.
 
     デシリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
-    #Msymbol_prop_deserializer であるとき、 値はこの型でなくてはならない。
+    #Mtext_prop_deserializer であるとき、 値はこの型でなくてはならない。
 
     @seealso
     Mtext_prop_deserialize (), Mtext_prop_deserializer
