@@ -2611,7 +2611,7 @@ mflt_find (int c, MFLTFont *font)
  found:
   if (! CHECK_FLT_STAGES (flt))
     return NULL;
-  if (font && flt->need_config)
+  if (font && flt->need_config && mflt_font_id)
     flt = configure_flt (flt, font, mflt_font_id (font));
   return flt;
 }
@@ -2780,7 +2780,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 
       MDEBUG_PRINT1 (" [FLT] (%s", MSYMBOL_NAME (flt->name));
 
-      if (flt->need_config)
+      if (flt->need_config && font_id != Mnil)
 	flt = configure_flt (flt, font, font_id);
 
       for (; this_to < to; this_to++)
