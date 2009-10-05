@@ -1537,6 +1537,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   ft_rfont->ft_face = ft_face;
   ft_rfont->charmap_list = charmap_list;
   MSTRUCT_CALLOC (rfont, MERROR_FONT_FT);
+  rfont->id = ft_info->font.file;
   rfont->spec = *font;
   rfont->spec.type = MFONT_TYPE_REALIZED;
   rfont->spec.property[MFONT_REGISTRY] = reg;
@@ -2095,6 +2096,7 @@ ft_encapsulate (MFrame *frame, MSymbol data_type, void *data)
   MDEBUG_DUMP (" [FONT-FT] encapsulating ", (char *) ft_face->family_name,);
 
   MSTRUCT_CALLOC (rfont, MERROR_FONT_FT);
+  rfont->id = ft_info->font.file;
   rfont->font = (MFont *) ft_info;
   rfont->info = ft_rfont;
   rfont->fontp = ft_face;
@@ -2141,36 +2143,40 @@ ft_close (MRealizedFont *rfont)
   free (rfont);
 }
 
-static int 
-ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
+static OTF *
+get_otf (MFLTFont *font, FT_Face *ft_face)
 {
-#ifdef HAVE_OTF
   MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
   MFontFT *ft_info = (MFontFT *) rfont->font;
-  OTF *otf;
-  OTF_Tag *tags;
-  int i, n, negative;
+  MRealizedFontFT *ft_rfont = rfont->info;
+  OTF *otf = ft_info->otf;
 
-  if (ft_info->otf == invalid_otf)
-    goto not_otf;
-  otf = ft_info->otf;
   if (! otf)
     {
-      MRealizedFontFT *ft_rfont = rfont->info;
-
 #if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
       otf = OTF_open_ft_face (ft_rfont->ft_face);
 #else
       otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
 #endif
-      if (! otf)
-	{
-	  ft_info->otf = invalid_otf;
-	  goto not_otf;
-	}
+      if (! otf || OTF_get_table (otf, "head") < 0)
+	otf = invalid_otf;
       ft_info->otf = otf;
     }
+  if (ft_face)
+    *ft_face = ft_rfont->ft_face;
+  return (otf == invalid_otf ? NULL : otf);
+}
 
+static int 
+ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
+{
+#ifdef HAVE_OTF
+  OTF_Tag *tags;
+  int i, n, negative;
+  OTF *otf = get_otf (font, NULL);
+
+  if (! otf)
+    goto not_otf;
   for (i = 0; i < 2; i++)
     {
       if (! spec->features[i])
@@ -2239,13 +2245,11 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 {
   int len = to - from;
   int i, j, gidx;
-  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
-  MRealizedFontFT *ft_rfont = rfont->info;
-  MFontFT *ft_info = (MFontFT *) rfont->font;
 #ifdef HAVE_OTF
   MGlyph *in_glyphs = (MGlyph *) (in->glyphs);
   MGlyph *out_glyphs = (MGlyph *) (out->glyphs);
   OTF *otf;
+  FT_Face face;
   OTF_GlyphString otf_gstring;
   OTF_Glyph *otfg;
   char script[5], *langsys = NULL;
@@ -2253,33 +2257,9 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 
   if (len == 0)
     return from;
-  if (ft_info->otf == invalid_otf)
-    goto simple_copy;
-  otf = ft_info->otf;
+  otf = get_otf (font, &face);
   if (! otf)
-    {
-      MRealizedFontFT *ft_rfont = rfont->info;
-
-#if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
-      otf = OTF_open_ft_face (ft_rfont->ft_face);
-#else
-      otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
-#endif
-      if (! otf)
-	{
-	  ft_info->otf = invalid_otf;
-	  goto simple_copy;
-	}
-      ft_info->otf = otf;
-    }
-
-  if (OTF_get_table (otf, "head") < 0)
-    {
-      OTF_close (otf);
-      ft_info->otf = invalid_otf;
-      goto simple_copy;
-    }
-
+    goto simple_copy;
   OTF_tag_name (spec->script, script);
   if (spec->langsys)
     {
@@ -2372,7 +2352,6 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 
   if (gpos_features)
     {
-      FT_Face face;
       MGlyph *base = NULL, *mark = NULL, *g;
       int x_ppem, y_ppem, x_scale, y_scale;
 
@@ -2380,7 +2359,6 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	  < 0)
 	return to;
 
-      face = ft_rfont->ft_face;
       x_ppem = face->size->metrics.x_ppem;
       y_ppem = face->size->metrics.y_ppem;
       x_scale = face->size->metrics.x_scale;
@@ -2505,13 +2483,103 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   return to;
 }
 
+#ifdef HAVE_OTF
+static unsigned char *iterate_bitmap;
+
+static int
+iterate_callback (OTF *otf, const char *feature, unsigned glyph_id)
+{
+  if (glyph_id <= otf->cmap->max_glyph_id)
+    iterate_bitmap[glyph_id / 8] |= 1 << (glyph_id % 8);
+  return 0;
+}
+
+static int
+ft_iterate_otf_feature (MFLTFont *font, MFLTOtfSpec *spec,
+			int from, int to, unsigned char *table)
+{
+  OTF *otf = get_otf (font, NULL);
+  char id[13];
+  int bmp_size;
+  unsigned char *bitmap = NULL;
+  int i, j;
+  char script[5], *langsys = NULL;
+
+  if (! otf)
+    return -1;
+  if (OTF_get_table (otf, "cmap") < 0)
+    return -1;
+  if (! spec->features[0])
+    return -1;
+  strcpy (id, "feature-");
+  id[12] = '\0';
+  OTF_tag_name (spec->script, script);
+  if (spec->langsys)
+    {
+      langsys = alloca (5);
+      OTF_tag_name (spec->langsys, langsys);
+    }
+  bmp_size = (otf->cmap->max_glyph_id / 8) + 1;
+  for (i = 0; spec->features[0][i]; i++)
+    {
+      unsigned char *bmp;
+
+      OTF_tag_name (spec->features[0][i], id + 8);
+      bmp = OTF_get_data (otf, id);
+      if (! bmp)
+	{
+	  iterate_bitmap = bmp = calloc (bmp_size, 1);
+	  OTF_iterate_gsub_feature (otf, iterate_callback,
+				    script, langsys, id + 8);
+	  OTF_put_data (otf, id, bmp, free);
+	}
+      if (i == 0 && ! spec->features[0][1])
+	/* Single feature */
+	bitmap = bmp;
+      else
+	{
+	  if (! bitmap)
+	    {
+	      bitmap = alloca (bmp_size);
+	      memcpy (bitmap, bmp, bmp_size);
+	    }
+	  else
+	    {
+	      int j;
+
+	      for (j = 0; j < bmp_size; j++)
+		bitmap[j] &= bmp[j];
+	    }
+	}
+    }
+  for (i = 0; i < bmp_size; i++)
+    if (bitmap[i])
+      {
+	for (j = 0; j < 8; j++)
+	  if (bitmap[i] & (1 << j))
+	    {
+	      int c = OTF_get_unicode (otf, (i * 8) + j);
+
+	      if (c >= from && c <= to)
+		table[c - from] = 1;
+	    }
+      }
+  return 0;
+}
+#endif
+
+
 
 /* Internal API */
 
 MFontDriver mfont__ft_driver =
   { ft_select, ft_open, ft_find_metric, ft_has_char, ft_encode_char,
     ft_render, ft_list, ft_list_family_names, ft_check_capability,
-    ft_encapsulate, ft_close, ft_check_otf, ft_drive_otf };
+    ft_encapsulate, ft_close, ft_check_otf, ft_drive_otf,
+#ifdef HAVE_OTF
+    ft_iterate_otf_feature
+#endif	/* HAVE_OTF */
+  };
 
 int
 mfont__ft_init ()
