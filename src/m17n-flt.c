@@ -448,9 +448,17 @@ typedef struct
   } body;
 } FontLayoutCmd;
 
+typedef struct
+{
+  MCharTable *table;
+  /* Non-null if the table must be re-configured by OTF specs included
+     in the definition.  */
+  MPlist *definition;
+} FontLayoutCategory;
+
 typedef struct 
 {
-  MCharTable *category;
+  FontLayoutCategory *category;
   int size, inc, used;
   FontLayoutCmd *cmds;
 } FontLayoutStage;
@@ -462,39 +470,62 @@ struct _MFLT
   MSymbol registry;
   MFLTOtfSpec otf;
   MDatabase *mdb;
-  MCharTable *coverage;
+  FontLayoutCategory *coverage;
   MPlist *stages;
+  int need_config;
+  /* Font for which coverage or some of categories are configured.  */
+  MSymbol font_id;
 };
 
 /* Font layout table loader */
 
 static int parse_otf_command (MSymbol symbol, MFLTOtfSpec *spec);
 
+static void
+apply_otf_feature (MFLTFont *font, MFLTOtfSpec *spec,
+		   int from, int to, MCharTable *table, int category)
+{
+  unsigned char *buf;
+  int i;
+
+  if (! mflt_iterate_otf_feature)
+    return;
+  buf = alloca (to + 1 - from);
+  memset (buf, 0, to + 1 - from);
+  if (mflt_iterate_otf_feature (font, spec, from, to, buf) < 0)
+    return;
+  for (i = to - from; i >= 0; i--)
+    if (buf[i])
+      mchartable_set (table, from + i, (void *) category);
+}
+
 /* Load a category table from PLIST.  PLIST has this form:
       PLIST ::= ( FROM-CODE TO-CODE ? CATEGORY-CHAR ) *
 */
 
-static MCharTable *
-load_category_table (MPlist *plist)
+static FontLayoutCategory *
+load_category_table (MPlist *plist, MFLTFont *font)
 {
+  FontLayoutCategory *category;
   MCharTable *table;
+  MPlist *p;
+  int need_otf = 0;
 
   table = mchartable (Minteger, (void *) 0);
-
-  MPLIST_DO (plist, plist)
+  MPLIST_DO (p, plist)
     {
       MPlist *elt;
       int from, to, category_code;
 
-      if (! MPLIST_PLIST (plist))
-	MERROR (MERROR_FONT, NULL);
-      elt = MPLIST_PLIST (plist);
+      if (! MPLIST_PLIST (p))
+	MERROR_GOTO (MERROR_FONT, end);
+      elt = MPLIST_PLIST (p);
       if (! MPLIST_INTEGER_P (elt))
-	MERROR (MERROR_FONT, NULL);
+	MERROR_GOTO (MERROR_FONT, end);
       from = MPLIST_INTEGER (elt);
       elt = MPLIST_NEXT (elt);
       if (! MPLIST_INTEGER_P (elt))
-	MERROR (MERROR_FONT, NULL);
+	MERROR_GOTO (MERROR_FONT, end);
       to = MPLIST_INTEGER (elt);
       elt = MPLIST_NEXT (elt);
       if (MPLIST_TAIL_P (elt))
@@ -502,14 +533,33 @@ load_category_table (MPlist *plist)
 	  category_code = to;
 	  to = from;
 	}
+      else if (MPLIST_SYMBOL_P (elt))
+	{
+	  if (font)
+	    {
+	      MFLTOtfSpec spec;
+	      if (parse_otf_command (MPLIST_SYMBOL (elt), &spec) < 0)
+		MERROR_GOTO (MERROR_FONT, end);
+	      elt = MPLIST_NEXT (elt);
+	      if (! MPLIST_INTEGER_P (elt))
+		MERROR_GOTO (MERROR_FONT, end);
+	      category_code = MPLIST_INTEGER (elt);
+	      if (! isalnum (category_code))
+		MERROR_GOTO (MERROR_FONT, end);
+	      apply_otf_feature (font, &spec, from, to, table, category_code);
+	    }
+	  else
+	    need_otf = 1;
+	  continue;
+	}
       else
 	{
 	  if (! MPLIST_INTEGER_P (elt))
-	    MERROR (MERROR_FONT, NULL);
+	    MERROR_GOTO (MERROR_FONT, end);
 	  category_code = MPLIST_INTEGER (elt);
 	}
       if (! isalnum (category_code))
-	MERROR (MERROR_FONT, NULL);
+	MERROR_GOTO (MERROR_FONT, end);
 
       if (from == to)
 	mchartable_set (table, from, (void *) category_code);
@@ -517,7 +567,31 @@ load_category_table (MPlist *plist)
 	mchartable_set_range (table, from, to, (void *) category_code);
     }
 
-  return table;
+ end:
+  category = malloc (sizeof (FontLayoutCategory));
+  category->table = table;
+  if (need_otf)
+    {
+      category->definition = plist;
+      M17N_OBJECT_REF (plist);
+    }
+  else
+    category->definition = NULL;
+  return category;
+}
+
+#define ref_category_table(CATEGORY) M17N_OBJECT_REF ((CATEGORY)->table)
+
+static void
+unref_category_table (FontLayoutCategory *category)
+{
+  M17N_OBJECT_UNREF (category->table);
+  if (! category->table)
+    {
+      if (category->definition)
+	M17N_OBJECT_UNREF (category->definition);
+      free (category);
+    }
 }
 
 static unsigned int
@@ -1169,7 +1243,7 @@ static int
 load_flt (MFLT *flt, MPlist *key_list)
 {
   MPlist *top, *plist, *pl, *p;
-  MCharTable *category = NULL;
+  FontLayoutCategory *category = NULL;
   MSymbol sym;
 
   if (key_list)
@@ -1246,20 +1320,21 @@ load_flt (MFLT *flt, MPlist *key_list)
       if (sym == Mcategory)
 	{
 	  if (category)
-	    M17N_OBJECT_UNREF (category);
+	    unref_category_table (category);
 	  else if (flt->coverage)
 	    {
 	      category = flt->coverage;
+	      ref_category_table (category);
 	      continue;
 	    }
-	  category = load_category_table (pl);
-	  if (! category)
-	    category = mchartable (Minteger, (void *) 0);
+	  category = load_category_table (pl, NULL);
 	  if (! flt->coverage)
 	    {
 	      flt->coverage = category;
-	      M17N_OBJECT_REF (category);
+	      ref_category_table (category);
 	    }
+	  if (category->definition)
+	    flt->need_config = 1;
 	}
       else if (sym == Mgenerator)
 	{
@@ -1271,14 +1346,15 @@ load_flt (MFLT *flt, MPlist *key_list)
 	  if (! stage)
 	    break;
 	  stage->category = category;
-	  M17N_OBJECT_REF (category);
+	  M17N_OBJECT_REF (category->table);
 	  if (! flt->stages)
 	    flt->stages = mplist ();
 	  mplist_add (flt->stages, Mt, stage);
 	}
     }
   if (category)
-    M17N_OBJECT_UNREF (category);
+    unref_category_table (category);
+
   if (! MPLIST_TAIL_P (plist))
     {
       M17N_OBJECT_UNREF (top);
@@ -1291,14 +1367,17 @@ load_flt (MFLT *flt, MPlist *key_list)
 
 
 static void
-free_flt_stage (FontLayoutStage *stage)
+free_flt_stage (MFLT *flt, FontLayoutStage *stage)
 {
   int i;
 
-  M17N_OBJECT_UNREF (stage->category);
-  for (i = 0; i < stage->used; i++)
-    free_flt_command (stage->cmds + i);
-  MLIST_FREE1 (stage, cmds);
+  unref_category_table (stage->category);
+  if (! flt->font_id)
+    {
+      for (i = 0; i < stage->used; i++)
+	free_flt_command (stage->cmds + i);
+      MLIST_FREE1 (stage, cmds);
+    }
   free (stage);
 }
 
@@ -1314,13 +1393,15 @@ free_flt_list ()
 	  MFLT *flt = MPLIST_VAL (plist);
 
 	  if (flt->coverage)
-	    M17N_OBJECT_UNREF (flt->coverage);
+	    unref_category_table (flt->coverage);
 	  if (flt->stages)
 	    {
 	      MPLIST_DO (pl, MPLIST_NEXT (flt->stages))
-		free_flt_stage (MPLIST_VAL (pl));
+		free_flt_stage (flt, MPLIST_VAL (pl));
 	      M17N_OBJECT_UNREF (flt->stages);
 	    }
+	  free (flt);
+	  MPLIST_VAL (plist) = NULL;
 	}
       M17N_OBJECT_UNREF (flt_list);
     }
@@ -1358,17 +1439,17 @@ list_flt ()
 	{
 	  if (MPLIST_TAIL_P (flt_list))
 	    {
-	      flt_min_coverage = mchartable_min_char (flt->coverage);
-	      flt_max_coverage = mchartable_max_char (flt->coverage);
+	      flt_min_coverage = mchartable_min_char (flt->coverage->table);
+	      flt_max_coverage = mchartable_max_char (flt->coverage->table);
 	    }
 	  else
 	    {
 	      int c;
 
-	      c = mchartable_min_char (flt->coverage);
+	      c = mchartable_min_char (flt->coverage->table);
 	      if (flt_min_coverage > c)
 		flt_min_coverage = c;
-	      c = mchartable_max_char (flt->coverage);
+	      c = mchartable_max_char (flt->coverage->table);
 	      if (flt_max_coverage < c)
 		flt_max_coverage = c;
 	    }
@@ -2011,7 +2092,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
       int result;
 
       ctx->stage = (FontLayoutStage *) MPLIST_VAL (stages);
-      table = ctx->stage->category;
+      table = ctx->stage->category->table;
       ctx->code_offset = ctx->combining_code = ctx->left_padding = 0;
       ctx->encoded_offset = from;
       for (i = from; i < to; i++)
@@ -2270,14 +2351,67 @@ setup_combining_flt (MFLT *flt)
   MCharTable *combininig_class_table
     = mchar_get_prop_table (Mcombining_class, &type);
 
-  mchartable_set_range (flt->coverage, 0, 0x10FFFF, (void *) 'u');
+  mchartable_set_range (flt->coverage->table, 0, 0x10FFFF, (void *) 'u');
   if (combininig_class_table)
     mchartable_map (combininig_class_table, (void *) 0,
-		    setup_combining_coverage, flt->coverage);
+		    setup_combining_coverage, flt->coverage->table);
 }
 
 #define CHECK_FLT_STAGES(flt) ((flt)->stages || load_flt (flt, NULL) == 0)
 
+static FontLayoutCategory *
+configure_category (FontLayoutCategory *category, MFLTFont *font)
+{
+  if (! mflt_font_id || ! mflt_iterate_otf_feature)
+    {
+      FontLayoutCategory *new = malloc (sizeof (FontLayoutCategory));
+      new->definition = NULL;
+      new->table = category->table;
+      M17N_OBJECT_REF (new->table);
+      return new;
+    }
+  return load_category_table (category->definition, font);
+}
+
+static MFLT *
+configure_flt (MFLT *flt, MFLTFont *font, MSymbol font_id)
+{
+  MPlist *plist;
+  MFLT *configured;
+
+  if (! mflt_font_id || ! mflt_iterate_otf_feature)
+    return flt;
+  MPLIST_DO (plist, flt_list)
+    {
+      configured = MPLIST_VAL (plist);
+      if (! configured->font_id)
+	break;
+      if (configured->name == flt->name
+	  && configured->font_id == font_id)
+	return configured;
+    }
+  if (! MSTRUCT_CALLOC_SAFE (configured))
+    return flt;
+  *configured = *flt;
+  configured->stages = mplist_copy (flt->stages);
+  MPLIST_DO (plist, configured->stages)
+    {
+      FontLayoutStage *stage = MPLIST_VAL (plist);
+      if (stage->category->definition)
+	{
+	  MSTRUCT_CALLOC (stage, MERROR_FLT);
+	  *stage = *((FontLayoutStage *) MPLIST_VAL (plist));
+	  stage->category = configure_category (stage->category, font);
+	  MPLIST_VAL (plist) = stage;
+	}
+      else
+	M17N_OBJECT_REF (stage->category->table);
+    }
+  configured->need_config = 0;
+  configured->font_id = font_id;
+  mplist_push (flt_list, flt->name, configured);
+  return configured;
+}
 
 /* Internal API */
 
@@ -2315,6 +2449,9 @@ m17n_init_flt (void)
   Mequal = msymbol ("=");
   Mgenerator = msymbol ("generator");
   Mend = msymbol ("end");
+
+  mflt_iterate_otf_feature = NULL;
+  mflt_font_id = NULL;
 
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the flt modules."));
   MDEBUG_POP_TIME ();
@@ -2366,14 +2503,18 @@ MFLT *
 mflt_get (MSymbol name)
 {
   MFLT *flt;
+  MPlist *plist;
 
   if (! flt_list && list_flt () < 0)
     return NULL;
-  flt = mplist_get (flt_list, name);
+  for (plist = flt_list; plist; plist = plist->next)
+    if (((MFLT *) MPLIST_VAL (plist))->font_id == Mnil)
+      break;
+  flt = mplist_get (plist, name);
   if (! flt || ! CHECK_FLT_STAGES (flt))
     return NULL;
   if (flt->name == Mcombining
-      && ! mchartable_lookup (flt->coverage, 0))
+      && ! mchartable_lookup (flt->coverage->table, 0))
     setup_combining_flt (flt);
 
   return flt;
@@ -2403,7 +2544,7 @@ mflt_get (MSymbol name)
 MFLT *
 mflt_find (int c, MFLTFont *font)
 {
-  MPlist *plist;
+  MPlist *plist, *pl;
   MFLT *flt;
   static MSymbol unicode_bmp = NULL, unicode_full = NULL;
 
@@ -2415,23 +2556,27 @@ mflt_find (int c, MFLTFont *font)
 
   if (! flt_list && list_flt () < 0)
     return NULL;
+  /* Skip configured FLTs.  */
+  MPLIST_DO (plist, flt_list)
+    if (((MFLT *) MPLIST_VAL (plist))->font_id == Mnil)
+      break;
   if (font)
     {
       MFLT *best = NULL;
 
-      MPLIST_DO (plist, flt_list)
+      MPLIST_DO (pl, plist)
 	{
-	  flt = MPLIST_VAL (plist);
+	  flt = MPLIST_VAL (pl);
 	  if (flt->registry != unicode_bmp
 	      && flt->registry != unicode_full)
 	    continue;
 	  if (flt->family && flt->family != font->family)
 	    continue;
 	  if (flt->name == Mcombining
-	      && ! mchartable_lookup (flt->coverage, 0))
+	      && ! mchartable_lookup (flt->coverage->table, 0))
 	    setup_combining_flt (flt);
 	  if (c >= 0
-	      && ! mchartable_lookup (flt->coverage, c))
+	      && ! mchartable_lookup (flt->coverage->table, c))
 	    continue;
 	  if (flt->otf.sym)
 	    {
@@ -2445,22 +2590,30 @@ mflt_find (int c, MFLTFont *font)
 		}
 	      else if (! font->check_otf (font, spec))
 		continue;
-	      return flt;
+	      goto found;
 	    }
 	  best = flt;
 	}
-      return best;
+      flt = best;
+      goto found;
     }
   if (c >= 0)
     {
-      MPLIST_DO (plist, flt_list)
+      MPLIST_DO (pl, plist)
 	{
-	  flt = MPLIST_VAL (plist);
-	  if (mchartable_lookup (flt->coverage, c))
-	    return flt;
+	  flt = MPLIST_VAL (pl);
+	  if (mchartable_lookup (flt->coverage->table, c))
+	    goto found;
 	}
     }
   return NULL;
+
+ found:
+  if (! CHECK_FLT_STAGES (flt))
+    return NULL;
+  if (font && flt->need_config)
+    flt = configure_flt (flt, font, mflt_font_id (font));
+  return flt;
 }
 
 /*=*/
@@ -2496,7 +2649,7 @@ mflt_name (MFLT *flt)
 MCharTable *
 mflt_coverage (MFLT *flt)
 {
-  return flt->coverage;
+  return flt->coverage->table;
 }
 
 /*=*/
@@ -2550,6 +2703,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
   int auto_flt = ! flt;
   int c, i, j, k;
   int this_from, this_to;
+  MSymbol font_id = mflt_font_id ? mflt_font_id (font) : Mnil;
 
   out = *gstring;
   out.glyphs = NULL;
@@ -2575,7 +2729,8 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
       if (! auto_flt)
 	{
 	  for (this_to = this_from; this_to < to; this_to++)
-	    if (mchartable_lookup (flt->coverage, GREF (gstring, this_to)->c))
+	    if (mchartable_lookup (flt->coverage->table,
+				   GREF (gstring, this_to)->c))
 	      break;
 	}
       else
@@ -2597,7 +2752,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 	    {
 	      c = GREF (gstring, this_to)->c;
 	      if (font->internal
-		  && mchartable_lookup (((MFLT *) font->internal)->coverage, c))
+		  && mchartable_lookup (((MFLT *) font->internal)->coverage->table, c))
 		{
 		  flt = font->internal;
 		  break;
@@ -2625,8 +2780,12 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 
       MDEBUG_PRINT1 (" [FLT] (%s", MSYMBOL_NAME (flt->name));
 
+      if (flt->need_config)
+	flt = configure_flt (flt, font, font_id);
+
       for (; this_to < to; this_to++)
-	if (! mchartable_lookup (flt->coverage, GREF (gstring, this_to)->c))
+	if (! mchartable_lookup (flt->coverage->table,
+				 GREF (gstring, this_to)->c))
 	  break;
 
       if (MDEBUG_FLAG ())
@@ -2703,6 +2862,13 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 
   return to;
 }
+
+int (*mflt_iterate_otf_feature) (struct _MFLTFont *font,
+				 MFLTOtfSpec *spec,
+				 int from, int to,
+				 unsigned char *table);
+
+MSymbol (*mflt_font_id) (struct _MFLTFont *font);
 
 
 /* for debugging... */
