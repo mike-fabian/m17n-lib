@@ -262,6 +262,12 @@ reorder_combining_chars (MGlyphString *gstring, int from, int to)
 }
 #endif
 
+static MSymbol
+font_id (MFLTFont *font)
+{
+  return ((MFLTFontForRealized *) font)->rfont->id;
+}
+
 static int
 run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
 {
@@ -289,6 +295,8 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   font.font.drive_otf = rfont->driver->drive_otf;
   font.font.internal = NULL;
   font.rfont = rfont;
+  mflt_font_id = font_id;
+  mflt_iterate_otf_feature = rfont->driver->iterate_otf_feature;
   for (i = 0; i < 3; i++)
     {
       to = mflt_run (&flt_gstr, from, to, &font.font, flt);
@@ -1969,7 +1977,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
 
     @return
     処理が成功した場合、mdraw_image_text () は 0 
-    を返す。エラーが検出された場合は -1 を返し、外部変数 #m_errro にエラーコードを設定する。
+    を返す。エラーが検出された場合は -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_image_text} @endlatexonly   */
 
