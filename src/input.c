@@ -656,7 +656,7 @@ get_following_char (MInputContext *ic, int pos)
 }
 
 static int
-surrounding_pos (MSymbol sym)
+surrounding_pos (MSymbol sym, int *pos)
 {
   char *name;
 
@@ -664,9 +664,13 @@ surrounding_pos (MSymbol sym)
     return 0;
   name = MSYMBOL_NAME (sym);
   if (name[0] == '@'
-      && (name[1] == '-' || name[1] == '+')
-      && name[2] >= '1' && name[2] <= '9')
-    return (name[1] == '-' ? - atoi (name + 2) : atoi (name + 2));
+      && (name[1] == '-' ? (name[2] >= '1' && name[2] <= '9')
+	  : name[1] == '+' ? (name[2] >= '0' && name[2] <= '9')
+	  : 0))
+    {
+      *pos = name[1] == '-' ? - atoi (name + 2) : atoi (name + 2);
+      return 1;
+    }
   return 0;
 }
 
@@ -697,12 +701,9 @@ integer_value (MInputContext *ic, MPlist *arg, int surrounding)
       if (name[2])
 	{
 	  pos = atoi (name + 1);
-	  if (pos == 0)
+	  if (pos == 0 && code == '-')
 	    return get_preceding_char (ic, 0);
-	  if (pos < 0)
-	    pos = ic->cursor_pos + pos;
-	  else
-	    pos = ic->cursor_pos + pos - 1;
+	  pos = ic->cursor_pos + pos;
 	  if (pos < 0)
 	    {
 	      if (ic->produced && mtext_len (ic->produced) + pos >= 0)
@@ -3154,7 +3155,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  int to;
 
 	  if (MPLIST_SYMBOL_P (args)
-	      && (pos = surrounding_pos (MPLIST_SYMBOL (args))) != 0)
+	      && surrounding_pos (MPLIST_SYMBOL (args), &pos))
 	    {
 	      to = ic->cursor_pos + pos;
 	      if (to < 0)
