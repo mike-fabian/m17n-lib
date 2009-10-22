@@ -1,3 +1,9 @@
+2009-10-22  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (surrounding_pos): New arg *pos.
+	(integer_value): Fix handling of "@+0".
+	(take_action_list): Adjusted for the change of surrounding_pos.
+
 2009-10-05  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.h: (mflt_iterate_otf_feature, mflt_font_id): Extern
