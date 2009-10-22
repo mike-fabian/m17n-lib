@@ -1,5 +1,7 @@
 2009-10-22  Kenichi Handa  <handa@m17n.org>
 
+	* database.c (check_version): Fix the check.
+
 	* input.c (surrounding_pos): New arg *pos.
 	(integer_value): Fix handling of "@+0".
 	(take_action_list): Adjusted for the change of surrounding_pos.
