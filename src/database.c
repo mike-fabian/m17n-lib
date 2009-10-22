@@ -551,11 +551,11 @@ check_version (MText *version)
 	break;
       ver[i] = ver[i] * 10 + (*verstr - '0');
     }
-  return (ver[0] < M17NLIB_MAJOR_VERSION
+  return (ver[0] > M17NLIB_MAJOR_VERSION
 	  || (ver[0] == M17NLIB_MAJOR_VERSION
-	      && (ver[1] < M17NLIB_MINOR_VERSION
+	      && (ver[1] > M17NLIB_MINOR_VERSION
 		  || (ver[1] == M17NLIB_MINOR_VERSION
-		      && ver[2] <= M17NLIB_PATCH_LEVEL))));
+		      && ver[2] >= M17NLIB_PATCH_LEVEL))));
 }
 
 static MDatabase *
