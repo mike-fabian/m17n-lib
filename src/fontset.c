@@ -74,6 +74,8 @@
 #include "font.h"
 #include "fontset.h"
 
+static int mdebug_flag = MDEBUG_FONTSET;
+
 static M17NObjectArray fontset_table;
 
 struct MFontset
@@ -750,6 +752,17 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
   MPlist *plist;
   MRealizedFont *rfont = NULL;
 
+  if (MDEBUG_FLAG ())
+    {
+      int i;
+
+      MDEBUG_PRINT1 (" [FONTSET] fontset looking up for %s:",
+		     script ? script->name : "none");
+      for (i = 0; i < *num; i++)
+	MDEBUG_PRINT1 (" U+%04X", g[i].g.c);
+      MDEBUG_PRINT ("\n");
+    }
+
   if (realized->tick != realized->fontset->tick)
     update_fontset_elements (realized);
 
@@ -757,7 +770,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       && (per_charset = mplist_get (realized->per_charset, charset)) != NULL
       && (rfont = try_font_group (realized, &realized->request, per_charset,
 				  g, num, size)))
-    return rfont;
+    goto done;
 
   if (script != Mnil)
     {
@@ -786,7 +799,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
       if ((per_lang = mplist_get (per_script, language))
 	  && (rfont = try_font_group (realized, &request, per_lang,
 				      g, num, size)))
-	return rfont;
+	goto done;
 
       if (per_lang && *num > 1)
 	*num = 1;
@@ -798,7 +811,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 		&& (rfont = try_font_group (realized, &request,
 					    MPLIST_PLIST (plist),
 					    g, num, size)))
-	      return rfont;
+	      goto done;
 	}
       else
 	{
@@ -806,7 +819,7 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	  if ((per_lang = mplist_get (per_script, Mt))
 	      && (rfont = try_font_group (realized, &request, per_lang,
 					  g, num, size)))
-	    return rfont;
+	    goto done;
 
 	  if (per_lang && *num > 1)
 	    *num = 1;
@@ -817,10 +830,10 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 		&& (rfont = try_font_group (realized, &request,
 					    MPLIST_PLIST (plist),
 					    g, num, size)))
-	      return rfont;
+	      goto done;
 	}
       if (ignore_fallback)
-	return NULL;
+	goto done;
     }
 
   if (language != Mnil)
@@ -836,30 +849,25 @@ mfont__lookup_fontset (MRealizedFontset *realized, MGlyph *g, int *num,
 	if ((per_lang = mplist_get (MPLIST_PLIST (plist), language))
 	    && (rfont = try_font_group (realized, &request, per_lang,
 					g, num, size)))
-	  return rfont;
+	  goto done;
       }
 
   /* Try fallback fonts.  */
-  if ((rfont = try_font_group (realized, &realized->request,
-			       realized->fallback, g, num, size)))
-    return rfont;
-
-  return NULL;
-
-  /* At last try all fonts.  */
-  MPLIST_DO (per_script, realized->per_script)
+  rfont = try_font_group (realized, &realized->request,
+			  realized->fallback, g, num, size);
+ done:
+  if (MDEBUG_FLAG ())
     {
-      MPLIST_DO (per_lang, MPLIST_PLIST (per_script))
-	if ((rfont = try_font_group (realized, &realized->request,
-				     MPLIST_PLIST (per_lang), g, num, size)))
-	  return rfont;
+      if (rfont)
+	{
+	  MSymbol family = mfont_get_prop (rfont->font, Mfamily);
+	  MDEBUG_PRINT1 (" [FONTSET] found %s\n", family->name);
+	}
+      else
+	MDEBUG_PRINT (" [FONTSET] not found\n");
     }
-  MPLIST_DO (per_charset, realized->per_charset)
-    if ((rfont = try_font_group (realized, &realized->request,
-				 MPLIST_PLIST (per_charset), g, num, size)))
-      return rfont;
 
-  return NULL;
+  return rfont;
 }
 
 MRealizedFont *
