@@ -317,11 +317,21 @@ mscript__from_otf_tag (MSymbol otf_tag)
 	  && (p = MPLIST_NEXT (p)) /* char list */
 	  && ! MPLIST_TAIL_P (p)
 	  && (p = MPLIST_NEXT (p)) /* otf tag */
-	  && MPLIST_SYMBOL_P (p)
-	  && otf_tag == MPLIST_SYMBOL (p))
+	  && ! MPLIST_TAIL_P (p))
 	{
-	  script = MPLIST_SYMBOL (pl);
-	  break;
+	  if (MPLIST_SYMBOL_P (p))
+	    {
+	      if (otf_tag == MPLIST_SYMBOL (p))
+		  return MPLIST_SYMBOL (pl);
+	    }
+	  else if (MPLIST_PLIST (p))
+	    {
+	      MPlist *p0;
+
+	      MPLIST_DO (p0, MPLIST_PLIST (p))
+		if (MPLIST_SYMBOL_P (p0) && otf_tag == MPLIST_SYMBOL (p0))
+		  return MPLIST_SYMBOL (pl);
+	    }
 	}
     }
   return script;
