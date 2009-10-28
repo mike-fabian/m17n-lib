@@ -1,5 +1,5 @@
 /* m17n-core.c -- body of the CORE API.
-   Copyright (C) 2003, 2004, 2005, 2006, 2007
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -588,6 +588,7 @@ m17n_init_core (void)
   SET_DEBUG_FLAG ("MDEBUG_DATABASE", MDEBUG_DATABASE);
   SET_DEBUG_FLAG ("MDEBUG_FONT", MDEBUG_FONT); 
   SET_DEBUG_FLAG ("MDEBUG_FLT", MDEBUG_FLT);
+  SET_DEBUG_FLAG ("MDEBUG_FONTSET", MDEBUG_FONTSET);
   SET_DEBUG_FLAG ("MDEBUG_INPUT", MDEBUG_INPUT);
   /* for backward compatibility... */
   SET_DEBUG_FLAG ("MDEBUG_FONT_FLT", MDEBUG_FLT);
