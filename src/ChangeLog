@@ -1,3 +1,8 @@
+2009-10-28  Kenichi Handa  <handa@m17n.org>
+
+	* language.c (mscript__from_otf_tag): Adjusted for the new format
+	of the database <standard script unicode>.
+
 2009-10-22  Kenichi Handa  <handa@m17n.org>
 
 	* database.c (check_version): Fix the check.
