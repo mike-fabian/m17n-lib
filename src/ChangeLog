@@ -1,5 +1,13 @@
 2009-10-28  Kenichi Handa  <handa@m17n.org>
 
+	* fontset.c (mdebug_flag): New variable.
+	(mfont__lookup_fontset): Print debug info.
+
+	* m17n-core.c (m17n_init_core): Call SET_DEBUG_FLAG for
+	MDEBUG_FONTSET.
+
+	* internal.h (enum MDebugFlag): Add MDEBUG_FONTSET.
+
 	* language.c (mscript__from_otf_tag): Adjusted for the new format
 	of the database <standard script unicode>.
 
