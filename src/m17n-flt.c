@@ -1840,6 +1840,10 @@ run_otf (int depth,
 
 			g->xoff = a->xoff;
 			g->yoff = a->yoff;
+			g->lbearing += a->xoff;
+			g->rbearing += a->xoff;
+			g->ascent -= a->yoff;
+			g->descent -= a->yoff;
 			while (aa->back > 0)
 			  {
 			    for (j = 0; j < aa->back;
