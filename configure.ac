@@ -171,6 +171,12 @@ if test "x$with_libotf" != "xno"; then
     AC_DEFINE(HAVE_OTF, 1, 
 	      [Define to 1 if you have OTF library and header file.])
     M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
+    AC_CHECK_LIB(otf, OTF_drive_gpos2, HAVE_OTF_DRIVE_GPOS2=yes,
+    		 HAVE_OTF_DRIVE_GPOS2=no)
+    if test "x$HAVE_OTF_DRIVE_GPOS2" = "xyes"; then
+      AC_DEFINE(HAVE_OTF_DRIVE_GPOS2, 1,
+                [Define to 1 if the OTF library has OTF_drive_gpos2().])
+    fi
   else
     CPPFLAGS="$save_CPPFLAGS"
     OTF_LD_FLAGS=
