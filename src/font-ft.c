@@ -2355,22 +2355,27 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
       MGlyph *base = NULL, *mark = NULL, *g;
       int x_ppem, y_ppem, x_scale, y_scale;
 
+#ifdef HAVE_OTF_DRIVE_GPOS2
+      if (OTF_drive_gpos2 (otf, &otf_gstring, script, langsys, gpos_features)
+	  < 0)
+	return to;
+#else  /* not HAVE_OTF_DRIVE_GPOS2 */
       if (OTF_drive_gpos (otf, &otf_gstring, script, langsys, gpos_features)
 	  < 0)
 	return to;
+#endif	/* not HAVE_OTF_DRIVE_GPOS2 */
 
       x_ppem = face->size->metrics.x_ppem;
       y_ppem = face->size->metrics.y_ppem;
       x_scale = face->size->metrics.x_scale;
       y_scale = face->size->metrics.y_scale;
 
-      for (i = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
-	   i < otf_gstring.used; i++, otfg++, g++)
+      for (i = j = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
+	   i < otf_gstring.used; i++, otfg++)
 	{
 	  MGlyph *prev;
+	  int adjust_idx = otfg->glyph_id ? j : j - 1;
 
-	  if (! otfg->glyph_id)
-	    continue;
 	  switch (otfg->positioning_type)
 	    {
 	    case 0:
@@ -2381,30 +2386,30 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		int format = otfg->f.f1.format;
 
 		if (format & OTF_XPlacement)
-		  adjustment[i].xoff
-		    = otfg->f.f1.value->XPlacement * x_scale / 0x10000;
+		  adjustment[adjust_idx].xoff
+		    += otfg->f.f1.value->XPlacement * x_scale / 0x10000;
 		if (format & OTF_XPlaDevice)
-		  adjustment[i].xoff
+		  adjustment[adjust_idx].xoff
 		    += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, x_ppem);
 		if (format & OTF_YPlacement)
-		  adjustment[i].yoff
-		    = - (otfg->f.f1.value->YPlacement * y_scale / 0x10000);
+		  adjustment[adjust_idx].yoff
+		    -= otfg->f.f1.value->YPlacement * y_scale / 0x10000;
 		if (format & OTF_YPlaDevice)
-		  adjustment[i].yoff
+		  adjustment[adjust_idx].yoff
 		    -= DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, y_ppem);
 		if (format & OTF_XAdvance)
-		  adjustment[i].xadv
+		  adjustment[adjust_idx].xadv
 		    += otfg->f.f1.value->XAdvance * x_scale / 0x10000;
 		if (format & OTF_XAdvDevice)
-		  adjustment[i].xadv
+		  adjustment[adjust_idx].xadv
 		    += DEVICE_DELTA (otfg->f.f1.value->XAdvDevice, x_ppem);
 		if (format & OTF_YAdvance)
-		  adjustment[i].yadv
+		  adjustment[adjust_idx].yadv
 		    += otfg->f.f1.value->YAdvance * y_scale / 0x10000;
 		if (format & OTF_YAdvDevice)
-		  adjustment[i].yadv
+		  adjustment[adjust_idx].yadv
 		    += DEVICE_DELTA (otfg->f.f1.value->YAdvDevice, y_ppem);
-		adjustment[i].set = 1;
+		adjustment[adjust_idx].set = 1;
 	      }
 	      break;
 	    case 3:		/* Cursive */
@@ -2425,6 +2430,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	      {
 		int base_x, base_y, mark_x, mark_y;
 		int this_from, this_to;
+		int k;
 
 		base_x = otfg->f.f4.base_anchor->XCoordinate * x_scale / 0x10000;
 		base_y = otfg->f.f4.base_anchor->YCoordinate * y_scale / 0x10000;
@@ -2437,20 +2443,20 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
 		  adjust_anchor (otfg->f.f4.mark_anchor, face, g->g.code,
 				 x_ppem, y_ppem, &mark_x, &mark_y);
-		adjustment[i].xoff = (base_x - mark_x);
-		adjustment[i].yoff = - (base_y - mark_y);
-		adjustment[i].back = (g - prev);
-		adjustment[i].xadv = 0;
-		adjustment[i].advance_is_absolute = 1;
-		adjustment[i].set = 1;
+		adjustment[adjust_idx].xoff += base_x - mark_x;
+		adjustment[adjust_idx].yoff -= base_y - mark_y;
+		adjustment[adjust_idx].back = (g - prev);
+		adjustment[adjust_idx].xadv = 0;
+		adjustment[adjust_idx].advance_is_absolute = 1;
+		adjustment[adjust_idx].set = 1;
 		this_from = g->g.from;
 		this_to = g->g.to;
-		for (j = 0; prev + j < g; j++)
+		for (k = 0; prev + k < g; k++)
 		  {
-		    if (this_from > prev[j].g.from)
-		      this_from = prev[j].g.from;
-		    if (this_to < prev[j].g.to)
-		      this_to = prev[j].g.to;
+		    if (this_from > prev[k].g.from)
+		      this_from = prev[k].g.from;
+		    if (this_to < prev[k].g.to)
+		      this_to = prev[k].g.to;
 		  }
 		for (; prev <= g; prev++)
 		  {
@@ -2459,12 +2465,16 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		  }
 	      }
 	    }
-	  if (otfg->GlyphClass == OTF_GlyphClass0)
-	    base = mark = g;
-	  else if (otfg->GlyphClass == OTF_GlyphClassMark)
-	    mark = g;
-	  else
-	    base = g;
+	  if (otfg->glyph_id)
+	    {
+	      if (otfg->GlyphClass == OTF_GlyphClass0)
+		base = mark = g;
+	      else if (otfg->GlyphClass == OTF_GlyphClassMark)
+		mark = g;
+	      else
+		base = g;
+	      j++, g++;
+	    }
 	}
     }
   free (otf_gstring.glyphs);
