@@ -1,3 +1,9 @@
+2009-11-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_otf): Fix updating of g->lbearing, etc.
+
+	* font-ft.c (ft_drive_otf): Use OTF_drive_gpos2 if possible.
+
 2009-10-28  Kenichi Handa  <handa@m17n.org>
 
 	* fontset.c (mdebug_flag): New variable.

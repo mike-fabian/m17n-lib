@@ -1,3 +1,7 @@
+2009-11-05  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Check if the OTF library has OTF_drive_gpos2 ().
+
 2009-10-05  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Version changed to 1.6.0.
