@@ -2443,8 +2443,8 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
 		  adjust_anchor (otfg->f.f4.mark_anchor, face, g->g.code,
 				 x_ppem, y_ppem, &mark_x, &mark_y);
-		adjustment[adjust_idx].xoff += base_x - mark_x;
-		adjustment[adjust_idx].yoff -= base_y - mark_y;
+		adjustment[adjust_idx].xoff = base_x - mark_x;
+		adjustment[adjust_idx].yoff = - (base_y - mark_y);
 		adjustment[adjust_idx].back = (g - prev);
 		adjustment[adjust_idx].xadv = 0;
 		adjustment[adjust_idx].advance_is_absolute = 1;
