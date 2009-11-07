@@ -1,3 +1,7 @@
+2009-11-07  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Don't accumulate anchor adjustments.
+
 2009-11-05  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (run_otf): Fix updating of g->lbearing, etc.
