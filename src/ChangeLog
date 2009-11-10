@@ -1,3 +1,7 @@
+2009-11-10  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (run_flt): Update category code of each glyph.
+
 2009-11-07  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_drive_otf): Don't accumulate anchor adjustments.
