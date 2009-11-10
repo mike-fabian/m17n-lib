@@ -278,6 +278,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   MFLT *flt;
   int from_pos = MGLYPH (from)->g.from;
   int len = to - from;
+  int catcode;
   int i;
 
   flt = mflt_get (layouter);
@@ -308,7 +309,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
     }
   if (from + len != to)
     gstring->used += to - (from + len);
-  for (i = from; i < to; i++)
+  for (i = from, catcode = -1; i < to; i++)
     {
       MGlyph *g = MGLYPH (i);
 
@@ -323,6 +324,17 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
       g->g.xoff >>= 6;
       g->g.yoff >>= 6;
       g->rface = rface;
+      if (catcode < 0 || g->g.from != g[-1].g.from)
+	{
+	  MSymbol category = mchar_get_prop (g->g.c, Mcategory);
+
+	  catcode = (category == McatCf
+		     ? GLYPH_CATEGORY_FORMATTER
+		     : category != Mnil && MSYMBOL_NAME (category)[0] == 'M'
+		     ? GLYPH_CATEGORY_MODIFIER
+		     : GLYPH_CATEGORY_NORMAL);
+	}
+      g->category = catcode;
     }
   return to;
 }
