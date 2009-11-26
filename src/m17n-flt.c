@@ -1,5 +1,5 @@
 /* m17n-flt.c -- Font Layout Table sub-module.
-   Copyright (C) 2003, 2004, 2007
+   Copyright (C) 2003, 2004, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -122,9 +122,9 @@ PREDEFIND-COMMAND ::=
 ;; consume nothing.
 
 OTF-COMMAND ::=
-	'otf:''SCRIPT'[':'['LANGSYS'][':'[GSUB-FEATURES][':'GPOS-FEATURES]]]
+	':otf=''SCRIPT'[':'['LANGSYS'][':'[GSUB-FEATURES][':'GPOS-FEATURES]]]
 ;; Run the Open Type Layout Table on the current run.  Succeed always,
-;; consume nothing.
+;; consume all glyphs in the current range.
 
 SCRIPT ::= OTF-TAG
 ;;	OTF's ScriptTag name (four letters) listed at:
@@ -435,6 +435,7 @@ enum FontLayoutCmdType
     FontLayoutCmdTypeRule,
     FontLayoutCmdTypeCond,
     FontLayoutCmdTypeOTF,
+    FontLayoutCmdTypeOTFCategory,
     FontLayoutCmdTypeMAX
   };
 
@@ -450,7 +451,15 @@ typedef struct
 
 typedef struct
 {
+  unsigned int tag;
+  char category_code;
+} FontLayoutFeatureTable;
+
+typedef struct
+{
   MCharTable *table;
+  int feature_table_size;
+  FontLayoutFeatureTable *feature_table;
   /* Non-null if the table must be re-configured by OTF specs included
      in the definition.  */
   MPlist *definition;
@@ -499,6 +508,8 @@ apply_otf_feature (MFLTFont *font, MFLTOtfSpec *spec,
       mchartable_set (table, from + i, (void *) category);
 }
 
+static unsigned int gen_otf_tag (char *p);
+
 /* Load a category table from PLIST.  PLIST has this form:
       PLIST ::= ( FROM-CODE TO-CODE ? CATEGORY-CHAR ) *
 */
@@ -508,6 +519,8 @@ load_category_table (MPlist *plist, MFLTFont *font)
 {
   FontLayoutCategory *category;
   MCharTable *table;
+  MPlist *feature_table_head = NULL;
+  int feature_table_size = 0;
   MPlist *p;
   int need_otf = 0;
 
@@ -517,15 +530,25 @@ load_category_table (MPlist *plist, MFLTFont *font)
       MPlist *elt;
       int from, to, category_code;
 
-      if (! MPLIST_PLIST (p))
-	MERROR_GOTO (MERROR_FONT, end);
+      if (! MPLIST_PLIST_P (p))
+	MERROR_GOTO (MERROR_FLT, end);
       elt = MPLIST_PLIST (p);
+      if (MPLIST_SYMBOL_P (elt))
+	{
+	  MPlist *next = MPLIST_NEXT (elt);
+	  if (! MPLIST_INTEGER_P (next))
+	    MERROR_GOTO (MERROR_FLT, end);
+	  if (! feature_table_head)
+	    feature_table_head = p;
+	  feature_table_size++;
+	  continue;
+	}
       if (! MPLIST_INTEGER_P (elt))
-	MERROR_GOTO (MERROR_FONT, end);
+	MERROR_GOTO (MERROR_FLT, end);
       from = MPLIST_INTEGER (elt);
       elt = MPLIST_NEXT (elt);
       if (! MPLIST_INTEGER_P (elt))
-	MERROR_GOTO (MERROR_FONT, end);
+	MERROR_GOTO (MERROR_FLT, end);
       to = MPLIST_INTEGER (elt);
       elt = MPLIST_NEXT (elt);
       if (MPLIST_TAIL_P (elt))
@@ -539,13 +562,13 @@ load_category_table (MPlist *plist, MFLTFont *font)
 	    {
 	      MFLTOtfSpec spec;
 	      if (parse_otf_command (MPLIST_SYMBOL (elt), &spec) < 0)
-		MERROR_GOTO (MERROR_FONT, end);
+		MERROR_GOTO (MERROR_FLT, end);
 	      elt = MPLIST_NEXT (elt);
 	      if (! MPLIST_INTEGER_P (elt))
-		MERROR_GOTO (MERROR_FONT, end);
+		MERROR_GOTO (MERROR_FLT, end);
 	      category_code = MPLIST_INTEGER (elt);
 	      if (! isalnum (category_code))
-		MERROR_GOTO (MERROR_FONT, end);
+		MERROR_GOTO (MERROR_FLT, end);
 	      apply_otf_feature (font, &spec, from, to, table, category_code);
 	    }
 	  else
@@ -555,11 +578,11 @@ load_category_table (MPlist *plist, MFLTFont *font)
       else
 	{
 	  if (! MPLIST_INTEGER_P (elt))
-	    MERROR_GOTO (MERROR_FONT, end);
+	    MERROR_GOTO (MERROR_FLT, end);
 	  category_code = MPLIST_INTEGER (elt);
 	}
       if (! isalnum (category_code))
-	MERROR_GOTO (MERROR_FONT, end);
+	MERROR_GOTO (MERROR_FLT, end);
 
       if (from == to)
 	mchartable_set (table, from, (void *) category_code);
@@ -568,7 +591,7 @@ load_category_table (MPlist *plist, MFLTFont *font)
     }
 
  end:
-  category = malloc (sizeof (FontLayoutCategory));
+  category = calloc (1, sizeof (FontLayoutCategory));
   category->table = table;
   if (need_otf)
     {
@@ -577,6 +600,30 @@ load_category_table (MPlist *plist, MFLTFont *font)
     }
   else
     category->definition = NULL;
+  if (feature_table_head)
+    {
+      int i = 0;
+      category->feature_table_size = feature_table_size;
+      category->feature_table = malloc (sizeof (FontLayoutFeatureTable)
+					* feature_table_size);
+      MPLIST_DO (p, feature_table_head)
+	{
+	  MPlist *elt;
+	  MSymbol feature;
+	  if (! MPLIST_PLIST_P (p))
+	    continue;
+	  elt = MPLIST_PLIST (p);
+	  if (! MPLIST_SYMBOL_P (elt))
+	    continue;
+	  feature = MPLIST_SYMBOL (elt);
+	  elt = MPLIST_NEXT (elt);
+	  if (! MPLIST_INTEGER_P (elt))
+	    continue;
+	  category->feature_table[i].tag = gen_otf_tag (MSYMBOL_NAME (feature));
+	  category->feature_table[i].category_code = MPLIST_INTEGER (elt);
+	  i++;
+	}
+    }
   return category;
 }
 
@@ -590,6 +637,8 @@ unref_category_table (FontLayoutCategory *category)
     {
       if (category->definition)
 	M17N_OBJECT_UNREF (category->definition);
+      if (category->feature_table)
+	free (category->feature_table);
       free (category);
     }
 }
@@ -755,7 +804,7 @@ load_otf_command (FontLayoutCmd *cmd, MSymbol sym)
   char *name = MSYMBOL_NAME (sym);
   int result;
 
-  if (name[0] != ':')
+  if (name[0] != ':' && name[0] != '?')
     {
       /* This is old format of "otf:...".  Change it to ":otf=...".  */
       char *str = alloca (MSYMBOL_NAMELEN (sym) + 2);
@@ -768,7 +817,8 @@ load_otf_command (FontLayoutCmd *cmd, MSymbol sym)
   result = parse_otf_command (sym, &cmd->body.otf);
   if (result == -2)
     return result;
-  cmd->type = FontLayoutCmdTypeOTF;
+  cmd->type = (name[0] == '?' ? FontLayoutCmdTypeOTFCategory
+	       : FontLayoutCmdTypeOTF);
   return 0;
 }
 
@@ -894,6 +944,7 @@ load_command (FontLayoutStage *stage, MPlist *plist,
       /* PLIST ::= ( cond ... ) | ( STRING ... ) | ( INTEGER ... )
  	           | ( ( INTEGER INTEGER ) ... )
 		   | ( ( range INTEGER INTEGER ) ... )
+	           | ( ( SYMBOL STRING ) ... )
 		   | ( ( font-facilty [ INTEGER ] ) ... )
 		   | ( ( font-facilty OTF-SPEC ) ... )  */
       MPlist *elt = MPLIST_PLIST (plist);
@@ -1104,7 +1155,8 @@ load_command (FontLayoutStage *stage, MPlist *plist,
       if (len > 4
 	  && ((name[0] == 'o' && name[1] == 't'
 	       && name[2] == 'f' && name[3] == ':')
-	      || (name[0] == ':' && name[1] == 'o' && name[2] == 't'
+	      || ((name[0] == ':' || name[0] == '?')
+		  && name[1] == 'o' && name[2] == 't'
 		  && name[3] == 'f' && name[4] == '=')))
 	{
 	  result = load_otf_command (&cmd, sym);
@@ -1185,7 +1237,8 @@ free_flt_command (FontLayoutCmd *cmd)
     }
   else if (cmd->type == FontLayoutCmdTypeCond)
     free (cmd->body.cond.cmd_ids);
-  else if (cmd->type == FontLayoutCmdTypeOTF)
+  else if (cmd->type == FontLayoutCmdTypeOTF
+	   || cmd->type == FontLayoutCmdTypeOTFCategory)
     {
       if (cmd->body.otf.features[0])
 	free (cmd->body.otf.features[0]);
@@ -1499,6 +1552,7 @@ typedef struct
 } FontLayoutContext;
 
 static int run_command (int, int, int, int, FontLayoutContext *);
+static int run_otf (int, MFLTOtfSpec *, int, int, FontLayoutContext *);
 
 #define NMATCH 20
 
