@@ -1,3 +1,59 @@
+2009-11-30  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Check if OUT is null or not.
+	(ft_drive_otf): Call OTF_drive_gsub_with_log and
+	OTF_drive_gpos_with_log.  Record the applied feature in
+	g->g.internal.
+
+	* font.c (mfont__get_glyph_id): Encode g->c instead of g->code.
+
+	* internal-flt.h (MAKE_COMBINING_CODE_BY_CLASS)
+	(COMBINING_BY_CLASS_P, COMBINING_CODE_CLASS)
+	(MAKE_PRECOMPUTED_COMBINDING_CODE, COMBINING_PRECOMPUTED_P):
+	Delete externs..
+	(PACK_OTF_TAG): Extern it.
+
+	* draw.c (reorder_combining_chars): Delete it.
+
+	* m17n-flt.h (mflt_font_id): Use type MFLFont.
+	(mflt_iterate_otf_feature): Likewise.
+
+	* m17n-flt.c (enum GlyphInfoMask): New member CategoryCodeMask and
+	CombinedMask.
+	(GET_CATEGORY_CODE, SET_CATEGORY_CODE, GET_COMBINED): New macros.
+	(SET_COMBINING_CODE): Set also CombinedMask.
+	(FontLayoutFeatureTable): Delete it.
+	(FeatureCodeTable): New type.
+	(FontLayoutCategory): Type of feature_table changed.
+	(load_category_table): Adjusted for the change of
+	FontLayoutCategory.
+	(unref_category_table): Likewise.
+	(gen_otf_tag): New member shift.  Caller changed.
+	(FontLayoutContext): New member category.
+	(run_rule): Compare g->c instead of g->code.
+	(decode_packed_otf_tag): New function.
+	(run_otf): Call decode_packed_otf_tag.  Don't reset combining-code
+	here.
+	(run_otf_category): New function.
+	(run_command): Set category-code if necessary.  Call
+	run_otf_category for FontLayoutCmdTypeOTFCategory.
+	(run_stages): Set ctx->category.  Get category from glyph if
+	possible.
+	(mflt_dump_gstring): New function.
+
+2009-11-26  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (enum FontLayoutCmdType): New member
+	FontLayoutCmdTypeOTFCategory.
+	(FontLayoutFeatureTable): New type.
+	(FontLayoutCategory): New members feature_table_size and
+	feature_table.
+	(load_category_table): Handle feature_table.
+	(unref_category_table): Likewise.
+	(load_otf_command): Handle FontLayoutCmdTypeOTFCategory.
+	(load_command): Likewise.
+	(free_flt_command): Likewise.
+
 2009-11-10  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (run_flt): Update category code of each glyph.
