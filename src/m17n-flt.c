@@ -831,7 +831,7 @@ load_otf_command (FontLayoutCmd *cmd, MSymbol sym)
   result = parse_otf_command (sym, &cmd->body.otf);
   if (result == -2)
     return result;
-  cmd->type = (name[0] == '?' ? FontLayoutCmdTypeOTFCategory
+  cmd->type = (name[4] == '?' ? FontLayoutCmdTypeOTFCategory
 	       : FontLayoutCmdTypeOTF);
   return 0;
 }
@@ -1169,9 +1169,8 @@ load_command (FontLayoutStage *stage, MPlist *plist,
       if (len > 4
 	  && ((name[0] == 'o' && name[1] == 't'
 	       && name[2] == 'f' && name[3] == ':')
-	      || ((name[0] == ':' || name[0] == '?')
-		  && name[1] == 'o' && name[2] == 't'
-		  && name[3] == 'f' && name[4] == '=')))
+	      || (name[0] == ':' && name[1] == 'o' && name[2] == 't'
+		  && name[3] == 'f' && (name[4] == '=' || name[4] == '?'))))
 	{
 	  result = load_otf_command (&cmd, sym);
 	  if (result < 0)
@@ -1844,8 +1843,8 @@ run_cond (int depth,
 }
 
 static void
-decode_packed_otf_tag (MFLTGlyphString *gstring, int from, int to,
-		       FontLayoutCategory *category)
+decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
+		       int from, int to, FontLayoutCategory *category)
 {
   for (; from < to; from++)
     {
@@ -1867,6 +1866,8 @@ decode_packed_otf_tag (MFLTGlyphString *gstring, int from, int to,
 	    if (category->feature_table.tag[i] == tag)
 	      {
 		enc = category->feature_table.code[i];
+		if (ctx->in == gstring)
+		  ctx->encoded[from - ctx->encoded_offset] = enc;
 		break;
 	      }
 	}
@@ -1913,7 +1914,8 @@ run_otf (int depth,
 			    adjustment);
       if (to < 0)
 	return to;
-      decode_packed_otf_tag (ctx->out, from_idx, ctx->out->used, ctx->category);
+      decode_packed_otf_tag (ctx, ctx->out, from_idx, ctx->out->used,
+			     ctx->category);
       out_len = ctx->out->used - from_idx;
       if (otf_spec->features[1])
 	{
@@ -1992,7 +1994,7 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
   MFLTFont *font = ctx->font;
   int from_idx = ctx->out->used;
 
-  if (! ctx->category || ctx->category->feature_table.size == 0)
+  if (ctx->stage->category->feature_table.size == 0)
     return from;
 
   if (MDEBUG_FLAG () > 2)
@@ -2007,7 +2009,7 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
       to = font->drive_otf (font, otf_spec, ctx->in, from, to, NULL, NULL);
       if (to < 0)
 	return from;
-      decode_packed_otf_tag (ctx->in, from, to, ctx->category);
+      decode_packed_otf_tag (ctx, ctx->in, from, to, ctx->stage->category);
     }
   return from;
 }
