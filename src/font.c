@@ -1686,13 +1686,13 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
       if (g->g.encoded)
 	continue;
       if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
-	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.code);
+	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.c);
       else
 	{
 	  unsigned code;
 
 	  if (encoding->encoding_charset)
-	    code = ENCODE_CHAR (encoding->encoding_charset, g->g.code);
+	    code = ENCODE_CHAR (encoding->encoding_charset, g->g.c);
 	  else
 	    code = g->g.code;
 
@@ -1711,9 +1711,8 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
 			MFATAL (MERROR_FONT);
 		    }
 		}
-	      g->g.code
-		= (driver->encode_char) (rfont->frame, rfont->font, mfont,
-					 g->g.code);
+	      g->g.code = (driver->encode_char) (rfont->frame, rfont->font,
+						 mfont, code);
 	    }
 	}
       g->g.encoded = 1;
