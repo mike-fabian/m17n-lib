@@ -1,5 +1,12 @@
 2009-11-30  Kenichi Handa  <handa@m17n.org>
 
+	* m17n-flt.c (load_otf_command): Check 4th char against '?'.
+	(load_command): Likewise.
+	(decode_packed_otf_tag): New arg CTX.  If CTX->in == gstring,
+	update CTX->encoded.  Caller changed.
+
+2009-11-30  Kenichi Handa  <handa@m17n.org>
+
 	* font-ft.c (ft_drive_otf): Check if OUT is null or not.
 	(ft_drive_otf): Call OTF_drive_gsub_with_log and
 	OTF_drive_gpos_with_log.  Record the applied feature in
