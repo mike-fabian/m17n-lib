@@ -264,16 +264,15 @@ typedef struct
   unsigned int script, langsys;
   /* @} */
 
-  /***en Array of GSUB (1st element) and GPOS (2nd element) features.
-      Each array is terminated by 0.  If an element is 0xFFFFFFFF
-      apply the previous features in that order, and apply all the
-      other features except those that appear in the following elements.
-      It may be NULL if there are no features.  */
-  /***ja GSUB フィーチャーを第1要素、GPOS フィーチャーを第2要素とする配
-      列。各配列の末尾は0で示される。もしある要素が 0xFFFFFFFFならば、
-      以前の全フィーチャーをその順序で適用し、更に以降の要素として現わ
-      れるフィチャー以外のすべてを適用する。フィーチャーが1つもない場合
-      は NULL でもよい。  */
+  /***en Array of GSUB (1st element) and GPOS (2nd element) feature
+      tag arrays.  Each array is terminated by 0.  If the first
+      element is 0xFFFFFFFF, apply all the features except those that
+      appear in the following elements.  It may be NULL if there are
+      no features.  */
+  /***ja GSUB フィーチャータグの配列を第1要素、GPOS フィーチャータグの
+      配列を第2要素とする配列。各配列の末尾は0で示される。もし最初の要
+      素が 0xFFFFFFFFならば、以降の要素として現われるフィチャー以外のす
+      べてを適用する。フィーチャーが1つもない場合は NULL でもよい。 */
   unsigned int *features[2];
 } MFLTOtfSpec;
 
@@ -283,13 +282,22 @@ typedef struct
     @brief Type of font to be used by the FLT driver.
 
     The type #MFLTFont is the structure that contains information
-    about a font used by the FLT driver.  */
+    about a font used by the FLT driver.  Usually, an application
+    should prepare a bigger structure whose first element is MFLTFont
+    and has more information about the font that is used by callback
+    funcitons, and give that structure to mflt functions by coercing
+    it to MFLTFont.  It is assured that callback functions can safely
+    coerce MFLTFont back to the original structure.  */
 
 /***ja
     @brief FLT ドライバが使うフォントの型.
 
     型 #MFLTFont は、FLTドライバが使うフォントに関する情報を格納するた
-    めの構造体である。  */
+    めの構造体である。通常アプリケーションは最初の要素が MFLTFont で、
+    残りの要素にcallback関数が利用するフォント情報を持った、より大きな
+    構造体を用意し、それを MFLTFont に coerce して mflt の各関数に渡す。
+    各callback関数は MFLTFont を元の構造体に coerce し直すことができる
+    ことが保証されている。 */
 
 typedef struct _MFLTFont
 {
@@ -390,9 +398,9 @@ extern MCharTable *mflt_coverage (MFLT *flt);
 extern int mflt_run (MFLTGlyphString *gstring, int from, int to,
 		     MFLTFont *font, MFLT *flt);
 
-extern MSymbol (*mflt_font_id) (struct _MFLTFont *font);
+extern MSymbol (*mflt_font_id) (MFLTFont *font);
 
-extern int (*mflt_iterate_otf_feature) (struct _MFLTFont *font,
+extern int (*mflt_iterate_otf_feature) (MFLTFont *font,
 					MFLTOtfSpec *spec,
 					int from, int to,
 					unsigned char *table);
