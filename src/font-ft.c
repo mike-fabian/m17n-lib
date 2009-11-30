@@ -2247,7 +2247,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   int i, j, gidx;
 #ifdef HAVE_OTF
   MGlyph *in_glyphs = (MGlyph *) (in->glyphs);
-  MGlyph *out_glyphs = (MGlyph *) (out->glyphs);
+  MGlyph *out_glyphs = out ? (MGlyph *) (out->glyphs) : NULL;
   OTF *otf;
   FT_Face face;
   OTF_GlyphString otf_gstring;
@@ -2297,54 +2297,87 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
   for (i = 0; i < len; i++)
     {
-      otf_gstring.glyphs[i].c = ((MGlyph *)in->glyphs)[from + i].g.c;
+      otf_gstring.glyphs[i].c = ((MGlyph *)in->glyphs)[from + i].g.c & 0x11FFFF;
       otf_gstring.glyphs[i].glyph_id = ((MGlyph *)in->glyphs)[from + i].g.code;
     }
 
   OTF_drive_gdef (otf, &otf_gstring);
-  gidx = out->used;
+  gidx = out ? out->used : from;
 
   if (gsub_features)
     {
-      if (OTF_drive_gsub (otf, &otf_gstring, script, langsys, gsub_features)
-	  < 0)
-	goto simple_copy;
-      if (out->allocated < out->used + otf_gstring.used)
-	return -2;
-      for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used; i++, otfg++)
-	{
-	  MGlyph *g = out_glyphs + out->used;
-	  int j;
-	  int min_from, max_to;
+      OTF_Feature *features;
+      MGlyph *g;
+      unsigned int tag;
 
-	  *g = in_glyphs[from + otfg->f.index.from];
-	  min_from = g->g.from, max_to = g->g.to;
-	  g->g.c = 0;
-	  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
-	    if (in_glyphs[from + j].g.code == otfg->glyph_id)
-	      {
-		g->g.c = in_glyphs[from + j].g.c;
-		break;
-	      }
-	  for (j = otfg->f.index.from + 1; j <= otfg->f.index.to; j++)
+      if (OTF_drive_gsub_with_log (otf, &otf_gstring, script, langsys,
+				   gsub_features) < 0)
+	goto simple_copy;
+      features = otf->gsub->FeatureList.Feature;
+      if (out)
+	{
+	  if (out->allocated < gidx + otf_gstring.used)
+	    return -2;
+	  for (i = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
+	       i < otf_gstring.used; i++, otfg++, g++, out->used++)
 	    {
-	      if (min_from > in_glyphs[from + j].g.from)
-		min_from = in_glyphs[from + j].g.from;
-	      if (max_to < in_glyphs[from + j].g.to)
-		max_to = in_glyphs[from + j].g.to;
+	      int feature_idx = otfg->positioning_type >> 4;
+	      int j;
+	      int min_from, max_to;
+
+	      *g = in_glyphs[from + otfg->f.index.from];
+	      min_from = g->g.from, max_to = g->g.to;
+	      g->g.c = 0;
+	      for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
+		if (in_glyphs[from + j].g.code == otfg->glyph_id)
+		  {
+		    g->g.c = in_glyphs[from + j].g.c;
+		    break;
+		  }
+	      if (feature_idx)
+		{
+		  tag = features[feature_idx - 1].FeatureTag;
+		  tag = PACK_OTF_TAG (tag);
+		  g->g.internal = (g->g.internal & ~0xFFFFFFF) | tag;
+		}
+	      for (j = otfg->f.index.from + 1; j <= otfg->f.index.to; j++)
+		{
+		  if (min_from > in_glyphs[from + j].g.from)
+		    min_from = in_glyphs[from + j].g.from;
+		  if (max_to < in_glyphs[from + j].g.to)
+		    max_to = in_glyphs[from + j].g.to;
+		}
+	      if (g->g.code != otfg->glyph_id)
+		{
+		  g->g.code = otfg->glyph_id;
+		  g->g.measured = 0;
+		}
+	      g->g.from = min_from, g->g.to = max_to;
 	    }
-	  if (g->g.code != otfg->glyph_id)
+	}
+      else
+	{
+	  for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used;
+	       i++, otfg++)
 	    {
-	      g->g.code = otfg->glyph_id;
-	      g->g.measured = 0;
+	      int feature_idx = otfg->positioning_type >> 4;
+
+	      if (feature_idx)
+		{
+		  tag = features[feature_idx - 1].FeatureTag;
+		  tag = PACK_OTF_TAG (tag);
+		  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
+		    {
+		      g = in_glyphs + (from + j);
+		      g->g.internal = (g->g.internal & ~0xFFFFFFF) | tag;
+		    }
+		}
 	    }
-	  g->g.from = min_from, g->g.to = max_to;
-	  out->used++;
 	}
     }
-  else
+  else if (out)
     {
-      if (out->allocated < out->used + len)
+      if (out->allocated < gidx + len)
 	return -2;
       for (i = 0; i < len; i++)
 	out_glyphs[out->used++] = in_glyphs[from + i];
@@ -2352,131 +2385,152 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 
   if (gpos_features)
     {
-      MGlyph *base = NULL, *mark = NULL, *g;
-      int x_ppem, y_ppem, x_scale, y_scale;
+      OTF_Feature *features;
+      MGlyph *g;
 
-#ifdef HAVE_OTF_DRIVE_GPOS2
-      if (OTF_drive_gpos2 (otf, &otf_gstring, script, langsys, gpos_features)
-	  < 0)
+      if (OTF_drive_gpos_with_log (otf, &otf_gstring, script, langsys,
+				   gpos_features) < 0)
 	return to;
-#else  /* not HAVE_OTF_DRIVE_GPOS2 */
-      if (OTF_drive_gpos (otf, &otf_gstring, script, langsys, gpos_features)
-	  < 0)
-	return to;
-#endif	/* not HAVE_OTF_DRIVE_GPOS2 */
-
-      x_ppem = face->size->metrics.x_ppem;
-      y_ppem = face->size->metrics.y_ppem;
-      x_scale = face->size->metrics.x_scale;
-      y_scale = face->size->metrics.y_scale;
-
-      for (i = j = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
-	   i < otf_gstring.used; i++, otfg++)
+      features = otf->gpos->FeatureList.Feature;
+      if (out)
 	{
-	  MGlyph *prev;
-	  int adjust_idx = otfg->glyph_id ? j : j - 1;
+	  MGlyph *base = NULL, *mark = NULL;
+	  int x_ppem = face->size->metrics.x_ppem;
+	  int y_ppem = face->size->metrics.y_ppem;
+	  int x_scale = face->size->metrics.x_scale;
+	  int y_scale = face->size->metrics.y_scale;
 
-	  switch (otfg->positioning_type)
+	  for (i = j = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
+	       i < otf_gstring.used; i++, otfg++)
 	    {
-	    case 0:
-	      break;
-	    case 1: 		/* Single */
-	    case 2: 		/* Pair */
-	      {
-		int format = otfg->f.f1.format;
+	      MGlyph *prev;
+	      int adjust_idx = otfg->glyph_id ? j : j - 1;
+	      int feature_idx = otfg->positioning_type >> 4;
 
-		if (format & OTF_XPlacement)
-		  adjustment[adjust_idx].xoff
-		    += otfg->f.f1.value->XPlacement * x_scale / 0x10000;
-		if (format & OTF_XPlaDevice)
-		  adjustment[adjust_idx].xoff
-		    += DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, x_ppem);
-		if (format & OTF_YPlacement)
-		  adjustment[adjust_idx].yoff
-		    -= otfg->f.f1.value->YPlacement * y_scale / 0x10000;
-		if (format & OTF_YPlaDevice)
-		  adjustment[adjust_idx].yoff
-		    -= DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, y_ppem);
-		if (format & OTF_XAdvance)
-		  adjustment[adjust_idx].xadv
-		    += otfg->f.f1.value->XAdvance * x_scale / 0x10000;
-		if (format & OTF_XAdvDevice)
-		  adjustment[adjust_idx].xadv
-		    += DEVICE_DELTA (otfg->f.f1.value->XAdvDevice, x_ppem);
-		if (format & OTF_YAdvance)
-		  adjustment[adjust_idx].yadv
-		    += otfg->f.f1.value->YAdvance * y_scale / 0x10000;
-		if (format & OTF_YAdvDevice)
-		  adjustment[adjust_idx].yadv
-		    += DEVICE_DELTA (otfg->f.f1.value->YAdvDevice, y_ppem);
-		adjustment[adjust_idx].set = 1;
-	      }
-	      break;
-	    case 3:		/* Cursive */
-	      /* Not yet supported.  */
-	      break;
-	    case 4:		/* Mark-to-Base */
-	    case 5:		/* Mark-to-Ligature */
-	      if (! base)
-		break;
-	      prev = base;
-	      goto label_adjust_anchor;
-	    default:		/* i.e. case 6 Mark-to-Mark */
-	      if (! mark)
-		break;
-	      prev = mark;
+	      if (feature_idx)
+		g->g.internal = ((g->g.internal & ~0xFFFF)
+				 | features[feature_idx - 1].FeatureTag);
 
-	    label_adjust_anchor:
-	      {
-		int base_x, base_y, mark_x, mark_y;
-		int this_from, this_to;
-		int k;
-
-		base_x = otfg->f.f4.base_anchor->XCoordinate * x_scale / 0x10000;
-		base_y = otfg->f.f4.base_anchor->YCoordinate * y_scale / 0x10000;
-		mark_x = otfg->f.f4.mark_anchor->XCoordinate * x_scale / 0x10000;
-		mark_y = otfg->f.f4.mark_anchor->YCoordinate * y_scale / 0x10000;;
-
-		if (otfg->f.f4.base_anchor->AnchorFormat != 1)
-		  adjust_anchor (otfg->f.f4.base_anchor, face, prev->g.code,
-				 x_ppem, y_ppem, &base_x, &base_y);
-		if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
-		  adjust_anchor (otfg->f.f4.mark_anchor, face, g->g.code,
-				 x_ppem, y_ppem, &mark_x, &mark_y);
-		adjustment[adjust_idx].xoff = base_x - mark_x;
-		adjustment[adjust_idx].yoff = - (base_y - mark_y);
-		adjustment[adjust_idx].back = (g - prev);
-		adjustment[adjust_idx].xadv = 0;
-		adjustment[adjust_idx].advance_is_absolute = 1;
-		adjustment[adjust_idx].set = 1;
-		this_from = g->g.from;
-		this_to = g->g.to;
-		for (k = 0; prev + k < g; k++)
+	      switch (otfg->positioning_type & 0xF)
+		{
+		case 0:
+		  break;
+		case 1: 		/* Single */
+		case 2: 		/* Pair */
 		  {
-		    if (this_from > prev[k].g.from)
-		      this_from = prev[k].g.from;
-		    if (this_to < prev[k].g.to)
-		      this_to = prev[k].g.to;
+		    int format = otfg->f.f1.format;
+
+		    if (format & OTF_XPlacement)
+		      adjustment[adjust_idx].xoff
+			+= otfg->f.f1.value->XPlacement * x_scale / 0x10000;
+		    if (format & OTF_XPlaDevice)
+		      adjustment[adjust_idx].xoff
+			+= DEVICE_DELTA (otfg->f.f1.value->XPlaDevice, x_ppem);
+		    if (format & OTF_YPlacement)
+		      adjustment[adjust_idx].yoff
+			-= otfg->f.f1.value->YPlacement * y_scale / 0x10000;
+		    if (format & OTF_YPlaDevice)
+		      adjustment[adjust_idx].yoff
+			-= DEVICE_DELTA (otfg->f.f1.value->YPlaDevice, y_ppem);
+		    if (format & OTF_XAdvance)
+		      adjustment[adjust_idx].xadv
+			+= otfg->f.f1.value->XAdvance * x_scale / 0x10000;
+		    if (format & OTF_XAdvDevice)
+		      adjustment[adjust_idx].xadv
+			+= DEVICE_DELTA (otfg->f.f1.value->XAdvDevice, x_ppem);
+		    if (format & OTF_YAdvance)
+		      adjustment[adjust_idx].yadv
+			+= otfg->f.f1.value->YAdvance * y_scale / 0x10000;
+		    if (format & OTF_YAdvDevice)
+		      adjustment[adjust_idx].yadv
+			+= DEVICE_DELTA (otfg->f.f1.value->YAdvDevice, y_ppem);
+		    adjustment[adjust_idx].set = 1;
 		  }
-		for (; prev <= g; prev++)
+		  break;
+		case 3:		/* Cursive */
+		  /* Not yet supported.  */
+		  break;
+		case 4:		/* Mark-to-Base */
+		case 5:		/* Mark-to-Ligature */
+		  if (! base)
+		    break;
+		  prev = base;
+		  goto label_adjust_anchor;
+		default:		/* i.e. case 6 Mark-to-Mark */
+		  if (! mark)
+		    break;
+		  prev = mark;
+
+		label_adjust_anchor:
 		  {
-		    prev->g.from = this_from;
-		    prev->g.to = this_to;
+		    int base_x, base_y, mark_x, mark_y;
+		    int this_from, this_to;
+		    int k;
+
+		    base_x = otfg->f.f4.base_anchor->XCoordinate * x_scale / 0x10000;
+		    base_y = otfg->f.f4.base_anchor->YCoordinate * y_scale / 0x10000;
+		    mark_x = otfg->f.f4.mark_anchor->XCoordinate * x_scale / 0x10000;
+		    mark_y = otfg->f.f4.mark_anchor->YCoordinate * y_scale / 0x10000;;
+
+		    if (otfg->f.f4.base_anchor->AnchorFormat != 1)
+		      adjust_anchor (otfg->f.f4.base_anchor, face, prev->g.code,
+				     x_ppem, y_ppem, &base_x, &base_y);
+		    if (otfg->f.f4.mark_anchor->AnchorFormat != 1)
+		      adjust_anchor (otfg->f.f4.mark_anchor, face, g->g.code,
+				     x_ppem, y_ppem, &mark_x, &mark_y);
+		    adjustment[adjust_idx].xoff = base_x - mark_x;
+		    adjustment[adjust_idx].yoff = - (base_y - mark_y);
+		    adjustment[adjust_idx].back = (g - prev);
+		    adjustment[adjust_idx].xadv = 0;
+		    adjustment[adjust_idx].advance_is_absolute = 1;
+		    adjustment[adjust_idx].set = 1;
+		    this_from = g->g.from;
+		    this_to = g->g.to;
+		    for (k = 0; prev + k < g; k++)
+		      {
+			if (this_from > prev[k].g.from)
+			  this_from = prev[k].g.from;
+			if (this_to < prev[k].g.to)
+			  this_to = prev[k].g.to;
+		      }
+		    for (; prev <= g; prev++)
+		      {
+			prev->g.from = this_from;
+			prev->g.to = this_to;
+		      }
 		  }
-	      }
-	    }
-	  if (otfg->glyph_id)
-	    {
-	      if (otfg->GlyphClass == OTF_GlyphClass0)
-		base = mark = g;
-	      else if (otfg->GlyphClass == OTF_GlyphClassMark)
-		mark = g;
-	      else
-		base = g;
-	      j++, g++;
+		}
+	      if (otfg->glyph_id)
+		{
+		  if (otfg->GlyphClass == OTF_GlyphClass0)
+		    base = mark = g;
+		  else if (otfg->GlyphClass == OTF_GlyphClassMark)
+		    mark = g;
+		  else
+		    base = g;
+		  j++, g++;
+		}
 	    }
 	}
+      else
+	{
+	  for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used;
+	       i++, otfg++)
+	    if (otfg->positioning_type & 0xF)
+	      {
+		int feature_idx = otfg->positioning_type >> 4;
+
+		if (feature_idx)
+		  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
+		    {
+		      g = in_glyphs + (from + j);
+		      g->g.internal = ((g->g.internal & ~0xFFFF)
+				       | features[feature_idx - 1].FeatureTag);
+		    }
+	      }
+	}
     }
+
   free (otf_gstring.glyphs);
   return to;
 
@@ -2484,12 +2538,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   if (otf_gstring.glyphs)
     free (otf_gstring.glyphs);
 #endif	/* HAVE_OTF */
-  if (out->allocated < out->used + len)
-    return -2;
-  font->get_metrics (font, in, from, to);
-  memcpy ((MGlyph *)out->glyphs + out->used, (MGlyph *) in->glyphs + from,
-	  sizeof (MGlyph) * len);
-  out->used += len;
+  if ( out)
+    {
+      if (out->allocated < out->used + len)
+	return -2;
+      font->get_metrics (font, in, from, to);
+      memcpy ((MGlyph *)out->glyphs + out->used, (MGlyph *) in->glyphs + from,
+	      sizeof (MGlyph) * len);
+      out->used += len;
+    }
   return to;
 }
 
