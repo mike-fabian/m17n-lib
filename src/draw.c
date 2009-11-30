@@ -238,30 +238,6 @@ visual_order (MGlyphString *gstring)
     }
 }
 
-#if 0
-static void
-reorder_combining_chars (MGlyphString *gstring, int from, int to)
-{
-  MGlyph *g, *gbeg = MGLYPH (from + 1), *gend = MGLYPH (to), temp;
-  int reordered = 1;
-  
-  while (reordered)
-    {
-      reordered = 0;
-      for (g = gbeg; g != gend; g++)
-	if (COMBINING_CODE_CLASS (g->combining_code) > 0
-	    && (COMBINING_CODE_CLASS (g[-1].combining_code)
-		> COMBINING_CODE_CLASS (g->combining_code)))
-	  {
-	    reordered = 1;
-	    temp = *g;
-	    *g = g[-1];
-	    g[-1] = temp;
-	  }
-    }
-}
-#endif
-
 static MSymbol
 font_id (MFLTFont *font)
 {
