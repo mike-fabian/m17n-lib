@@ -2,6 +2,7 @@
 
 	* m17n-flt.c (mflt_find): If FONT is specified but no flt is
 	found, return NULL.
+	(run_command): Don't set ENCODED and MEASURED of separator.
 
 2009-11-30  Kenichi Handa  <handa@m17n.org>
 
