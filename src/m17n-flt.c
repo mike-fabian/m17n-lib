@@ -2768,6 +2768,8 @@ mflt_find (int c, MFLTFont *font)
 	    }
 	  best = flt;
 	}
+      if (best == NULL)
+	return NULL;
       flt = best;
       goto found;
     }
