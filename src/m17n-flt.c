@@ -2202,8 +2202,8 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
 	g = GREF (ctx->out, ctx->out->used - 1);
 	g->c = -1, g->code = 0;
 	g->xadv = g->yadv = 0;
-	SET_ENCODED (g, 1);
-	SET_MEASURED (g, 1);
+	SET_ENCODED (g, 0);
+	SET_MEASURED (g, 0);
 	SET_CATEGORY_CODE (g, ' ');
 	return from;
       }
