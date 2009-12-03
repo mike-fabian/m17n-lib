@@ -1871,11 +1871,12 @@ decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
 		  ctx->encoded[from - ctx->encoded_offset] = enc;
 		break;
 	      }
-	  if (! enc)
-	    enc = (g->c > 0 ? (int) mchartable_lookup (category->table, g->c)
-		   : 1);
-	  SET_CATEGORY_CODE (g, enc);
 	}
+      else
+	enc = '\0';
+      if (! enc)
+	enc = g->c > 0 ? (int) mchartable_lookup (category->table, g->c) : 1;
+      SET_CATEGORY_CODE (g, enc);
     }
 }
 
@@ -2138,6 +2139,17 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
 	g = GREF (ctx->out, ctx->out->used - 1);
 	if (ctx->combining_code)
 	  SET_COMBINING_CODE (g, ctx, ctx->combining_code);
+	else if (! GET_COMBINED (g) && ctx->category)
+	  {
+	    MCharTable *table = ctx->category->table;
+	    char enc = (GET_ENCODED (g)
+			? (g->c > 0 ? (int) mchartable_lookup (table, g->c)
+			   : 1)
+			: g->code
+			? (int) mchartable_lookup (table, g->code)
+			: ' ');
+	    SET_CATEGORY_CODE (g, enc);
+	  }
 	if (ctx->left_padding)
 	  SET_LEFT_PADDING (g, ctx, LeftPaddingMask);
 	if (ctx->cluster_begin_idx >= 0)
