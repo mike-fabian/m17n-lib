@@ -2239,6 +2239,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
   int i, j;
   MFLTGlyph *g;
   MPlist *stages = flt->stages;
+  FontLayoutCategory *prev_category = NULL;
 
   from_pos = GREF (ctx->in, from)->from;
   to_pos = GREF (ctx->in, to - 1)->to;
@@ -2270,7 +2271,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 	  MFLTGlyph *g = GREF (ctx->in, i);
 	  char enc;
 
-	  if (GET_COMBINED (g))
+	  if (GET_COMBINED (g) || prev_category != ctx->stage->category)
 	    enc = (GET_ENCODED (g)
 		   ? (g->c > 0 ? (int) mchartable_lookup (table, g->c) : 1)
 		   : g->code
@@ -2317,6 +2318,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 	break;
 
       /* Otherwise, prepare for the next stage.   */
+      prev_category = ctx->stage->category;
       temp = ctx->in;
       ctx->in = ctx->out;
       if (buf.glyphs)
@@ -2959,6 +2961,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
       if (flt->need_config && font_id != Mnil)
 	flt = configure_flt (flt, font, font_id);
 
+#if 0
       for (; this_to < to; this_to++)
 	{
 	  char enc;
@@ -2968,6 +2971,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 	    break;
 	  SET_CATEGORY_CODE (g, enc);
 	}
+#endif
 
       if (MDEBUG_FLAG ())
 	{
