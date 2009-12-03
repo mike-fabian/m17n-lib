@@ -1,3 +1,9 @@
+2009-12-03  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_stages): Reset category code if category-table
+	is changed.
+	(mflt_run): Don't set category code here.
+
 2009-12-02  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (mflt_find): If FONT is specified but no flt is
