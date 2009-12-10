@@ -1998,6 +1998,9 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
   MFLTFont *font = ctx->font;
   int from_idx = ctx->out->used;
 
+  if (MDEBUG_FLAG () > 2)
+    MDEBUG_PRINT3 ("\n [FLT] %*s%s", depth, "", MSYMBOL_NAME (otf_spec->sym));
+
   if (! otf_spec->features[0] && ! otf_spec->features[1])
     {
       /* Reset categories.  */
@@ -2017,6 +2020,7 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
 			  ? (int) mchartable_lookup (table, g->code)
 			  : ' ');
 	      SET_CATEGORY_CODE (g, enc);
+	      ctx->encoded[i - ctx->encoded_offset] = enc;
 	    }
 	}
       return from;
@@ -2024,9 +2028,6 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
 
   if (ctx->stage->category->feature_table.size == 0)
     return from;
-
-  if (MDEBUG_FLAG () > 2)
-    MDEBUG_PRINT3 ("\n [FLT] %*s%s", depth, "", MSYMBOL_NAME (otf_spec->sym));
 
   font->get_glyph_id (font, ctx->in, from, to);
   if (font->drive_otf)
