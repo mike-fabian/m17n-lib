@@ -1,3 +1,10 @@
+2009-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (parse_otf_command): Handle ":otf?".
+	(run_otf_category): If not features are specified, reset category
+	codes.
+	(run_command): On copy, don't re-calculate a category code.
+
 2009-12-03  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (run_stages): Reset category code if category-table
@@ -5,7 +12,6 @@
 	(mflt_run): Don't set category code here.
 	(decode_packed_otf_tag): If no feature is applied, re-calculate
 	category code.
-	(run_command): On copy, don't re-calculate a category code.
 
 2009-12-02  Kenichi Handa  <handa@m17n.org>
 
