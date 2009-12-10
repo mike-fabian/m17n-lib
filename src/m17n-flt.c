@@ -743,7 +743,10 @@ parse_otf_command (MSymbol symbol, MFLTOtfSpec *spec)
   memset (spec, 0, sizeof (MFLTOtfSpec));
 
   spec->sym = symbol;
-  str += 5;			/* skip the heading ":otf=" */
+  str += 5;			/* skip the heading ":otf=" or ":otf?" */
+  if (str[-1] == '?' && ! *str)
+    /* This is a spec to reset category codes.  */
+    return 0;
   script = gen_otf_tag (str, 8);
   str += 4;
   if (*str == '/')
@@ -1995,6 +1998,30 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
   MFLTFont *font = ctx->font;
   int from_idx = ctx->out->used;
 
+  if (! otf_spec->features[0] && ! otf_spec->features[1])
+    {
+      /* Reset categories.  */
+      MCharTable *table = ctx->category->table;
+      int i;
+
+      for (i = from; i < to; i++)
+	{
+	  MFLTGlyph *g = GREF (ctx->in, i);
+
+	  if (! GET_COMBINED (g))
+	    {
+	      char enc = (GET_ENCODED (g)
+			  ? (g->c > 0 ? (int) mchartable_lookup (table, g->c)
+			     : 1)
+			  : g->code
+			  ? (int) mchartable_lookup (table, g->code)
+			  : ' ');
+	      SET_CATEGORY_CODE (g, enc);
+	    }
+	}
+      return from;
+    }
+
   if (ctx->stage->category->feature_table.size == 0)
     return from;
 
@@ -2139,17 +2166,6 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
 	g = GREF (ctx->out, ctx->out->used - 1);
 	if (ctx->combining_code)
 	  SET_COMBINING_CODE (g, ctx, ctx->combining_code);
-	else if (! GET_COMBINED (g) && ctx->category)
-	  {
-	    MCharTable *table = ctx->category->table;
-	    char enc = (GET_ENCODED (g)
-			? (g->c > 0 ? (int) mchartable_lookup (table, g->c)
-			   : 1)
-			: g->code
-			? (int) mchartable_lookup (table, g->code)
-			: ' ');
-	    SET_CATEGORY_CODE (g, enc);
-	  }
 	if (ctx->left_padding)
 	  SET_LEFT_PADDING (g, ctx, LeftPaddingMask);
 	if (ctx->cluster_begin_idx >= 0)
