@@ -398,12 +398,17 @@ extern MCharTable *mflt_coverage (MFLT *flt);
 extern int mflt_run (MFLTGlyphString *gstring, int from, int to,
 		     MFLTFont *font, MFLT *flt);
 
+extern int mflt_enable_new_feature;
+
 extern MSymbol (*mflt_font_id) (MFLTFont *font);
 
 extern int (*mflt_iterate_otf_feature) (MFLTFont *font,
 					MFLTOtfSpec *spec,
 					int from, int to,
 					unsigned char *table);
+
+extern int (*mflt_try_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec,
+			    MFLTGlyphString *gstring, int from, int to);
 
 /*=*/
 /*** @} */
