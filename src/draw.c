@@ -274,6 +274,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   font.rfont = rfont;
   mflt_font_id = font_id;
   mflt_iterate_otf_feature = rfont->driver->iterate_otf_feature;
+  mflt_try_otf = rfont->driver->try_otf;
   for (i = 0; i < 3; i++)
     {
       to = mflt_run (&flt_gstr, from, to, &font.font, flt);
@@ -1758,6 +1759,8 @@ mdraw__init ()
   M_break_at_any = msymbol ("ba");
   M_kinsoku_bol = msymbol ("kb");
   M_kinsoku_eol = msymbol ("ke");
+
+  mflt_enable_new_feature = 1;
 
   return 0;
 }
