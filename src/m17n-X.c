@@ -1056,6 +1056,8 @@ static int xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 			  MFLTGlyphString *in, int from, int to,
 			  MFLTGlyphString *out,
 			  MFLTGlyphAdjustment *adjustment);
+static int xft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
+			MFLTGlyphString *in, int from, int to);
 static int xft_iterate_otf_feature (struct _MFLTFont *font, MFLTOtfSpec *spec,
 				    int from, int to, unsigned char *table);
 
@@ -1063,7 +1065,7 @@ static int xft_iterate_otf_feature (struct _MFLTFont *font, MFLTOtfSpec *spec,
 static MFontDriver xft_driver =
   { NULL, xft_open,
     xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL, NULL,
-    xft_check_capability, NULL, NULL, xft_check_otf, xft_drive_otf,
+    xft_check_capability, NULL, NULL, xft_check_otf, xft_drive_otf, xft_try_otf,
 #ifdef HAVE_OTF
     xft_iterate_otf_feature
 #endif	/* HAVE_OTF */
@@ -1376,6 +1378,13 @@ xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 				       adjustment);
   rfont->info = rfont_xft;
   return result;
+}
+
+static int
+xft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
+	     MFLTGlyphString *in, int from, int to)
+{
+  return xft_drive_otf (font, spec, in, from, to, NULL, NULL);
 }
 
 #ifdef HAVE_OTF
