@@ -543,7 +543,14 @@ load_category_table (MPlist *plist, MFLTFont *font)
       elt = MPLIST_PLIST (p);
       if (MPLIST_SYMBOL_P (elt))
 	{
-	  MPlist *next = MPLIST_NEXT (elt);
+	  MPlist *next;
+
+	  if (! mflt_enable_new_feature)
+	    {
+	      M17N_OBJECT_UNREF (table);
+	      return NULL;
+	    }
+	  next = MPLIST_NEXT (elt);
 	  if (! MPLIST_INTEGER_P (next))
 	    MERROR_GOTO (MERROR_FLT, end);
 	  if (! feature_table_head)
@@ -566,6 +573,11 @@ load_category_table (MPlist *plist, MFLTFont *font)
 	}
       else if (MPLIST_SYMBOL_P (elt))
 	{
+	  if (! mflt_enable_new_feature)
+	    {
+	      M17N_OBJECT_UNREF (table);
+	      return NULL;
+	    }
 	  if (font)
 	    {
 	      MFLTOtfSpec spec;
@@ -744,9 +756,15 @@ parse_otf_command (MSymbol symbol, MFLTOtfSpec *spec)
 
   spec->sym = symbol;
   str += 5;			/* skip the heading ":otf=" or ":otf?" */
-  if (str[-1] == '?' && ! *str)
-    /* This is a spec to reset category codes.  */
-    return 0;
+  if (str[-1] == '?')
+    {
+      if (! mflt_enable_new_feature)
+	/* The client can't use this command.  */
+	return -1;
+      if (! *str)
+	/* This is a spec to reset category codes.  */
+	return 0;
+    }
   script = gen_otf_tag (str, 8);
   str += 4;
   if (*str == '/')
@@ -821,7 +839,7 @@ load_otf_command (FontLayoutCmd *cmd, MSymbol sym)
   char *name = MSYMBOL_NAME (sym);
   int result;
 
-  if (name[0] != ':' && name[0] != '?')
+  if (name[0] != ':')
     {
       /* This is old format of "otf:...".  Change it to ":otf=...".  */
       char *str = alloca (MSYMBOL_NAMELEN (sym) + 2);
@@ -1397,6 +1415,8 @@ load_flt (MFLT *flt, MPlist *key_list)
 	      continue;
 	    }
 	  category = load_category_table (pl, NULL);
+	  if (! category)
+	    goto err;
 	  if (! flt->coverage)
 	    {
 	      flt->coverage = category;
@@ -1423,7 +1443,7 @@ load_flt (MFLT *flt, MPlist *key_list)
     }
   if (category)
     unref_category_table (category);
-
+ err:
   if (! MPLIST_TAIL_P (plist))
     {
       M17N_OBJECT_UNREF (top);
@@ -1572,7 +1592,7 @@ typedef struct
 
 static int run_command (int, int, int, int, FontLayoutContext *);
 static int run_otf (int, MFLTOtfSpec *, int, int, FontLayoutContext *);
-static int run_otf_category (int, MFLTOtfSpec *, int, int, FontLayoutContext *);
+static int try_otf (int, MFLTOtfSpec *, int, int, FontLayoutContext *);
 
 #define NMATCH 20
 
@@ -1992,8 +2012,8 @@ run_otf (int depth,
 }
 
 static int
-run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
-		  FontLayoutContext *ctx)
+try_otf (int depth, MFLTOtfSpec *otf_spec, int from, int to,
+	 FontLayoutContext *ctx)
 {
   MFLTFont *font = ctx->font;
   int from_idx = ctx->out->used;
@@ -2030,12 +2050,12 @@ run_otf_category (int depth, MFLTOtfSpec *otf_spec, int from, int to,
     return from;
 
   font->get_glyph_id (font, ctx->in, from, to);
-  if (font->drive_otf)
+  if (mflt_try_otf)
     {
       int out_len;
       int i;
 
-      to = font->drive_otf (font, otf_spec, ctx->in, from, to, NULL, NULL);
+      to = mflt_try_otf (font, otf_spec, ctx->in, from, to);
       if (to < 0)
 	return from;
       decode_packed_otf_tag (ctx, ctx->in, from, to, ctx->stage->category);
@@ -2144,7 +2164,7 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
       else if (cmd->type == FontLayoutCmdTypeOTF)
 	to = run_otf (depth, &cmd->body.otf, from, to, ctx);
       else if (cmd->type == FontLayoutCmdTypeOTFCategory)
-	to = run_otf_category (depth, &cmd->body.otf, from, to, ctx);
+	to = try_otf (depth, &cmd->body.otf, from, to, ctx);
       return to;
     }
 
@@ -2645,8 +2665,10 @@ m17n_init_flt (void)
   Mgenerator = msymbol ("generator");
   Mend = msymbol ("end");
 
+  mflt_enable_new_feature = 0;
   mflt_iterate_otf_feature = NULL;
   mflt_font_id = NULL;
+  mflt_try_otf = NULL;
 
   MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the flt modules."));
   MDEBUG_POP_TIME ();
@@ -3065,12 +3087,17 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
   return to;
 }
 
+int mflt_enable_new_feature;
+
 int (*mflt_iterate_otf_feature) (struct _MFLTFont *font,
 				 MFLTOtfSpec *spec,
 				 int from, int to,
 				 unsigned char *table);
 
 MSymbol (*mflt_font_id) (struct _MFLTFont *font);
+
+int (*mflt_try_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec,
+		     MFLTGlyphString *gstring, int from, int to);
 
 
 /* for debugging... */
