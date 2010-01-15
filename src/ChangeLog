@@ -1,3 +1,34 @@
+2010-01-15  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (run_flt): Set mflt_try_otf to rfont->driver->try_otf.
+	(mdraw__init): Set mflt_enable_new_feature to 1.
+
+	* font-ft.c (ft_try_otf): New function.
+	(mfont__ft_driver): Set ft_try_otf.
+
+	* font.h (struct MFontDriver): New member try_otf.
+
+	* m17n-X.c (xft_driver): Set xft_try_otf.
+	(xft_try_otf): New function.
+
+	* m17n-flt.h: (mflt_enable_new_feature): Extern it.
+	(mflt_try_otf): Extern it.
+
+	* m17n-flt.c (load_category_table): If mflt_enable_new_feature is
+	zero, return NULL for such categories that require the new
+	feature.
+	(parse_otf_command): If mflt_enable_new_feature is zero, return
+	-1.
+	(load_otf_command): Fix previous change.
+	(load_flt): Check the return value of load_category_table.
+	(try_otf): Renamed from run_otf_category.  Call mflt_try_otf
+	instead of font->drive_otf.
+	(run_command): Call try_otf instead of run_otf_category.
+	(m17n_init_flt): Initialize mflt_enable_new_feature to 0,
+	mflt_try_otf to NULL.
+	(mflt_enable_new_feature): New variable.
+	(mflt_try_otf): New variable.
+
 2009-12-10  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (parse_otf_command): Handle ":otf?".
