@@ -2550,6 +2550,14 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   return to;
 }
 
+static int 
+ft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
+	    MFLTGlyphString *in, int from, int to)
+{
+  return ft_drive_otf (font, spec, in, from, to, NULL, NULL);
+}
+
+
 #ifdef HAVE_OTF
 static unsigned char *iterate_bitmap;
 
@@ -2642,7 +2650,7 @@ ft_iterate_otf_feature (MFLTFont *font, MFLTOtfSpec *spec,
 MFontDriver mfont__ft_driver =
   { ft_select, ft_open, ft_find_metric, ft_has_char, ft_encode_char,
     ft_render, ft_list, ft_list_family_names, ft_check_capability,
-    ft_encapsulate, ft_close, ft_check_otf, ft_drive_otf,
+    ft_encapsulate, ft_close, ft_check_otf, ft_drive_otf, ft_try_otf,
 #ifdef HAVE_OTF
     ft_iterate_otf_feature
 #endif	/* HAVE_OTF */
