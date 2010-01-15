@@ -244,6 +244,9 @@ struct MFontDriver
 		    MFLTGlyphString *in, int from, int to,
 		    MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment);
 
+  int (*try_otf) (MFLTFont *font, MFLTOtfSpec *spec,
+		  MFLTGlyphString *in, int from, int to);
+
   int (*iterate_otf_feature) (struct _MFLTFont *font, MFLTOtfSpec *spec,
 			      int from, int to, unsigned char *table);
 };
