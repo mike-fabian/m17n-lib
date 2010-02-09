@@ -1,3 +1,7 @@
+2010-02-09  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8 (Greek, Hindi): Fixed.
+
 2009-08-13  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.5.5 released.
