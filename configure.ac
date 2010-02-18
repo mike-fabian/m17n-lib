@@ -32,6 +32,13 @@ AM_MAINTAINER_MODE
 API_VERSION=4:0:4
 AC_SUBST(API_VERSION)
 
+# The earliest version that this release has binary compatibility
+# with.  This is used for module locations.
+M17N_BINARY_VERSION=1.0
+
+M17N_MODULE_DIR="m17n/$M17N_BINARY_VERSION"
+AC_SUBST(M17N_MODULE_DIR)
+
 AM_GNU_GETTEXT
 GETTEXTDIR="$datadir/locale"
 AC_SUBST(GETTEXTDIR)
