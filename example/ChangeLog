@@ -1,3 +1,8 @@
+2010-02-18  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am: Build modules dynamically loaded with
+	-avoid-version and no -version-info.
+
 2010-02-09  Kenichi Handa  <handa@m17n.org>
 
 	* HELLO.utf8 (Greek, Hindi): Fixed.
