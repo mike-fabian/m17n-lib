@@ -1219,9 +1219,11 @@ load_external_module (MInputMethodInfo *im_info, MPlist *plist)
     module = msymbol ((char *) MTEXT_DATA (MPLIST_MTEXT (plist)));
   else if (MPLIST_SYMBOL_P (plist))
     module = MPLIST_SYMBOL (plist);
-  module_file = alloca (strlen (MSYMBOL_NAME (module))
+  module_file = alloca (strlen (M17N_MODULE_DIR) + 1
+			+ strlen (MSYMBOL_NAME (module))
 			+ strlen (DLOPEN_SHLIB_EXT) + 1);
-  sprintf (module_file, "%s%s", MSYMBOL_NAME (module), DLOPEN_SHLIB_EXT);
+  sprintf (module_file, "%s/%s%s",
+	   M17N_MODULE_DIR, MSYMBOL_NAME (module), DLOPEN_SHLIB_EXT);
 
   handle = dlopen (module_file, RTLD_NOW);
   if (MFAILP (handle))
