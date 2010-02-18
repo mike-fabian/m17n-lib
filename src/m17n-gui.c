@@ -125,9 +125,11 @@ register_device_library (MSymbol name, char *lib)
   MDeviceLibraryInterface *interface;
 
   MSTRUCT_CALLOC (interface, MERROR_WIN);
-  interface->library = malloc (strlen (lib) 
+  interface->library = malloc (strlen (M17N_MODULE_DIR) + 1
+			       + strlen (lib) 
 			       + strlen (DLOPEN_SHLIB_EXT) + 1);
-  sprintf (interface->library, "%s%s", lib, DLOPEN_SHLIB_EXT);
+  sprintf (interface->library, "%s/%s%s", M17N_MODULE_DIR, lib,
+	   DLOPEN_SHLIB_EXT);
   if (! device_library_list)
     device_library_list = mplist ();
   mplist_add (device_library_list, name, interface);
