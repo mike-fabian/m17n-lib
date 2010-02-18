@@ -353,7 +353,8 @@ load_charset (FILE *fp, MSymbol charset_name)
       char buf[256];
 
       ungetc (c, fp);
-      fgets (buf, 256, fp);
+      if (! fgets (buf, 256, fp))
+	break;
       if (c != '#')
 	{
 	  if (sscanf (buf, "0x%x-0x%x 0x%x", &code1, &code2, &c1) == 3)
