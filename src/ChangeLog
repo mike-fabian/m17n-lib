@@ -1,3 +1,16 @@
+2010-02-18  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c (register_device_library): Preprend M17N_MODULE_DIR
+	to the module file name.
+
+	* input.c (load_external_module): Preprend M17N_MODULE_DIR to the
+	module file name.
+
+	* charset.c (load_charset): Check the return value of fgets.
+
+	* Makefile.am: Build modules dynamically loaded with
+	-avoid-version and no -version-info.
+
 2010-01-15  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (run_flt): Set mflt_try_otf to rfont->driver->try_otf.

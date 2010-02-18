@@ -67,9 +67,11 @@ These library files are installed in /usr/local/lib:
 	libm17n-core.{a,so*,la}
 	libm17n.{a,so*,la}
 	libm17n-gui.{a,so*,la}
+	libm17n-flt.{a,so*,la}
+
+These modules are installed in /usr/local/lib/m17n/1.0:
 	libm17n-X.{a,so*,la}
 	libm17n-gd.{a,so*,la}
-	libm17n-flt.{a,so*,la}
 	libimx-anthy.{a,so*,la},
 	libimx-ispell.{a,so*,la},
 
