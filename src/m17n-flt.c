@@ -1726,12 +1726,12 @@ run_rule (int depth,
 	    {
 	      if (MPLIST_INTEGER_P (p))
 		{
-		  GREF (&gstring, i)->code = MPLIST_INTEGER (p);
+		  GREF (&gstring, i)->c = MPLIST_INTEGER (p);
 		  GREF (&gstring, i)->encoded = 0;
 		}
 	      else
 		{
-		  GREF (&gstring, i)->code = GREF (ctx->in, idx)->code;
+		  GREF (&gstring, i)->c = GREF (ctx->in, idx)->code;
 		  GREF (&gstring, i)->encoded = GREF (ctx->in, idx)->encoded;
 		  idx++;
 		}
