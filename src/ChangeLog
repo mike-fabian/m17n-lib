@@ -1,3 +1,7 @@
+2010-03-01  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_rule): Fix checking of glyph availability.
+
 2010-02-18  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.c (register_device_library): Preprend M17N_MODULE_DIR
