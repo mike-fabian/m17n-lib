@@ -33,8 +33,107 @@
 #include "m17n-misc.h"
 #include "internal.h"
 #include "database.h"
+#include "plist.h"
 
-static void decode_saction (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+#define ADD_STRING(pl)							\
+  do {									\
+    xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1); \
+    MText *mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8); \
+    mplist_add (pl, Mtext, mt);						\
+    M17N_OBJECT_UNREF (mt);						\
+  } while (0)
+
+#define ADD_SYMBOL(pl)						      \
+  do {								      \
+  xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1); \
+  mplist_add (pl, Msymbol, msymbol ((char *) ptr));		      \
+  xmlFree (ptr);						      \
+  } while (0)
+
+#define ADD_SYMBOL_PROP(pl, prop)				\
+  do {								\
+    xmlChar *ptr = xmlGetProp (cur, (xmlChar *) prop);		\
+    mplist_add (pl, Msymbol, msymbol ((char *) ptr));		\
+    xmlFree (ptr);						\
+  } while (0)
+
+#define CUR_NAME(str) xmlStrEqual (cur->name, (xmlChar *) str)
+
+static int try_decode_keyseq (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_marker (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_selector (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_integer (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_string (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_symbol (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_error (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_varref (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_funcall (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+
+static int try_decode_keyseqterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_markerterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_selectorterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_intterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_strterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_symterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+static int try_decode_listterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+
+static void decode_term (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent);
+
+static MPlist *external_name;
+
+static int
+try_decode_keyseq (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("keyseq"))
+    cur = cur->xmlChildrenNode;
+
+  if (try_decode_listterm (doc, cur, parent))
+    return 1;
+  if (try_decode_strterm (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_marker (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("marker"))
+    {
+      ADD_SYMBOL (parent);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+try_decode_selector (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("selector"))
+    {
+      xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
+      char str[3] = "@ \0";
+
+      if (xmlStrEqual (ptr, (xmlChar *) "@first"))
+	str [1] = '<';
+      else if (xmlStrEqual (ptr, (xmlChar *) "@current"))
+	str [1] = '=';
+      else if (xmlStrEqual (ptr, (xmlChar *) "@last"))
+	str [1] = '>';
+      else if (xmlStrEqual (ptr, (xmlChar *) "@previous"))
+	str [1] = '-';
+      else if (xmlStrEqual (ptr, (xmlChar *) "@next"))
+	str [1] = '+';
+      else if (xmlStrEqual (ptr, (xmlChar *) "@previous-group"))
+	str [1] = '[';
+      else				/* @next-group */
+	str [1] = ']';
+
+      mplist_add (parent, Msymbol, msymbol (str));
+      return 1;
+    }
+  return 0;
+}
 
 /* Sometimes isspace () returns non-zero values for chars between 255
    and EOF. */
@@ -47,768 +146,820 @@ Isspace (int ch)
     return 0;
 }
 
-static MSymbol
-decode_predefined (xmlChar *ptr)
+static int
+try_decode_integer (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  char str[3];
-
-  str[0] = '@';
-  str[2] = '\0';
-  if (xmlStrEqual (ptr, (xmlChar *) "first"))
-    str [1] = '<';
-  else if (xmlStrEqual (ptr, (xmlChar *) "current"))
-    str [1] = '=';
-  else if (xmlStrEqual (ptr, (xmlChar *) "last"))
-    str [1] = '>';
-  else if (xmlStrEqual (ptr, (xmlChar *) "previous"))
-    str [1] = '-';
-  else if (xmlStrEqual (ptr, (xmlChar *) "next"))
-    str [1] = '+';
-  else if (xmlStrEqual (ptr, (xmlChar *) "previous_candidate_list"))
-    str [1] = '[';
-  else if (xmlStrEqual (ptr, (xmlChar *) "next_candidate_list"))
-    str [1] = ']';
-  else
-    str [1] = *ptr;
-  return msymbol (str);
-}
-
-static void
-decode_marker (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "position");
-
-  if (ptr)
-    mplist_add (parent, Msymbol, decode_predefined (ptr + 1));
-  else
+  if (CUR_NAME ("integer"))
     {
-      ptr = xmlGetProp (cur, (xmlChar *) "markerID");
-      mplist_add (parent, Msymbol, msymbol ((char *) ptr));
-    }
-  xmlFree (ptr);
-}
+      xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
 
-static void
-decode_variable_reference (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  /*
-  xmlChar *id = xmlGetProp (cur, (xmlChar *) "id");
-  xmlChar *type = xmlGetProp (cur, (xmlChar *) "type");
+      while (Isspace (*ptr))
+	ptr++;
 
-  if (type)
-    {
-      xmlFree (type);
-      if (xmlStrEqual (id, (xmlChar *) "handled-keys"))
-	mplist_add (parent, Msymbol, msymbol ("@@"));
-      else if (xmlStrEqual (id, (xmlChar *) "predefined-surround-text-flag"))
-	mplist_add (parent, Msymbol, msymbol ("@-0"));
+      if (xmlStrlen (ptr) >= 3
+	  && (ptr[0] == '0' || ptr[0] == '#')
+	  && ptr[1] == 'x')
+	{
+	  int val;
+
+	  sscanf ((char *) ptr + 2, "%x", &val);
+	  mplist_add (parent, Minteger, (void *) val);
+	}
+      else if (ptr[0] == '?')
+	{
+	  int val, len = 4;
+
+	  val = xmlGetUTF8Char (ptr + 1, &len);
+	  mplist_add (parent, Minteger, (void *) val);
+	}
       else
-	mplist_add (parent, Msymbol, msymbol ((char *) id));
+	mplist_add (parent, Minteger, (void *) atoi ((char *) ptr));
+
+      xmlFree (ptr);
+      return 1;
     }
-  else
-    mplist_add (parent, Msymbol, msymbol ((char *) id));
-
-  xmlFree (id);
-  */
-
-  xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "id");
-
-  if (xmlStrEqual (ptr, (xmlChar *) "handled-keys"))
-    mplist_add (parent, Msymbol, msymbol ("@@"));
-  else if (xmlStrEqual (ptr, (xmlChar *) "predefined-surround-text-flag"))
-    mplist_add (parent, Msymbol, msymbol ("@-0"));
-  else
-    mplist_add (parent, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
+  return 0;
 }
 
-static void
-decode_integer (xmlChar *ptr, MPlist *parent)
+static int
+try_decode_string (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  while (Isspace (*ptr))
-    ptr++;
-
-  if (xmlStrlen (ptr) >= 3
-      && (ptr[0] == '0' || ptr[0] == '#')
-      && ptr[1] == 'x')
+  if (CUR_NAME ("string"))
     {
-      int val;
-
-      sscanf ((char *) ptr + 2, "%x", &val);
-      mplist_add (parent, Minteger, (void *) val);
+      ADD_STRING (parent);
+      return 1;
     }
-  else if (ptr[0] == '?')
-    {
-      int val, len = 4;
-
-      val = xmlGetUTF8Char (ptr + 1, &len);
-      mplist_add (parent, Minteger, (void *) val);
-    }
-  else
-    mplist_add (parent, Minteger, (void *) atoi ((char *) ptr));
+  return 0;
 }
 
-static void
-decode_keyseq (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+static int
+try_decode_symbol (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "command-reference"))
+  if (CUR_NAME ("symbol"))
     {
-      ptr = xmlGetProp (cur, (xmlChar *) "id");
-      /* +8 to skip "command-" */
+      ADD_SYMBOL (parent);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+try_decode_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("list"))
+    {
+      MPlist *plist = mplist ();
+
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+try_decode_error (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  /* not implemented yet */
+  return 0;
+}
+
+static int
+try_decode_varref (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("varref"))
+    {
+      ADD_SYMBOL_PROP (parent, "vname");
+      return 1;
+    }
+  return 0;
+}
+
+static int
+try_decode_command_reference (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("command"))
+    {
+      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "cname");
+
+      /* 8 for "command-" */
       mplist_add (parent, Msymbol, msymbol ((char *) ptr + 8));
       xmlFree (ptr);
+      return 1;
     }
+  return 0;
+}
 
-  else if ((ptr = xmlGetProp (cur, (xmlChar *) "keys")))
-    {
-      MText *mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-
-      mplist_add (parent, Mtext, mt);
-      M17N_OBJECT_UNREF (mt);
-    }		
-
-  else
+static int
+try_decode_predefined (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (CUR_NAME ("set"))
     {
       MPlist *plist = mplist ();
 
-      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-	{
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  if (xmlStrEqual (cur->name, (xmlChar *) "key-event"))
-	    /*
-	      {
-	      char *p;
+      mplist_add (plist, Msymbol, msymbol ("set"));
+      ADD_SYMBOL_PROP (plist, "vname");
+      decode_term (doc, cur->xmlChildrenNode, plist);
 
-	      sscanf ((char *) ptr, " %ms ", &p);
-	      mplist_add (plist, Msymbol, msymbol (p));
-	      printf ("(%s)", p);
-	      free (p);
-	      }
-	    */
-	    mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-	  else			/* character-code */
-	    decode_integer (ptr, plist);
-	  xmlFree (ptr);
-	}    
       mplist_add (parent, Mplist, plist);
       M17N_OBJECT_UNREF (plist);
+      return 1;
     }
-}
 
-static void
-decode_plist (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  /* to be written */
-}
-
-static void
-decode_expr (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  if (xmlStrEqual (cur->name, (xmlChar *) "expr"))
+  else if (CUR_NAME ("and"))
     {
-      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "operator");
       MPlist *plist = mplist ();
 
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-      xmlFree (ptr);
-
+      mplist_add (plist, Msymbol, msymbol ("&"));
       for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-	decode_expr (doc, cur, plist);
+	decode_term (doc, cur, plist);
 
       mplist_add (parent, Mplist, plist);
       M17N_OBJECT_UNREF (plist);
-    }
-  else if (xmlStrEqual (cur->name, (xmlChar *) "int-val"))
-    {
-      xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-
-      decode_integer (ptr, parent);
-      xmlFree (ptr);
-    }
-  else if (xmlStrEqual (cur->name, (xmlChar *) "predefined-nth-previous-or-following-character"))
-    {
-      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "position");
-      char str[8];
-
-      snprintf (str, 8, "@%+d", atoi ((char *) ptr));
-      xmlFree (ptr);
-      mplist_add (parent, Msymbol, msymbol (str));
-    }
-  else				/* variable-reference */
-      decode_variable_reference (doc, cur, parent);
-}
-    
-static void
-decode_insert (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-  MText *mt;
-
-  mplist_add (plist, Msymbol, msymbol ("insert"));
-
-  if ((ptr = xmlGetProp (cur, (xmlChar *) "string")))
-    {
-      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-      mplist_add (plist, Mtext, mt);
-      M17N_OBJECT_UNREF (mt);
-    }
-		
-
-  else if ((ptr = xmlGetProp (cur, (xmlChar *) "character")))
-    {
-      decode_integer (ptr, plist);
-      xmlFree (ptr);
+      return 1;
     }
 
-  else if ((ptr = xmlGetProp (cur, (xmlChar *) "character-or-string")))
+  else if (CUR_NAME ("or"))
     {
-      xmlFree (ptr);
-      ptr = xmlGetProp (cur->xmlChildrenNode, (xmlChar *) "id");
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-      xmlFree (ptr);
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("|"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if ((cur = cur->xmlChildrenNode)
-  	   && xmlStrEqual (cur->name, (xmlChar *) "candidates"))
+  else if (CUR_NAME ("not"))
     {
-      MPlist *pl = mplist ();
+      MPlist *plist = mplist ();
 
-      mplist_add (plist, Mplist, pl);
-      M17N_OBJECT_UNREF (pl);
-      while (cur)
+      mplist_add (plist, Msymbol, msymbol ("!"));
+      decode_term (doc, cur->xmlChildrenNode, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("eq"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("="));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("noteq"))
+    {
+      /* not implemented yet */
+      return 1;
+    }
+
+  else if (CUR_NAME ("equal"))
+    {
+      /* not implemented yet */
+      return 1;
+    }
+
+  else if (CUR_NAME ("match"))
+    {
+      /* not implemented yet */
+      return 1;
+    }
+
+  else if (CUR_NAME ("lt"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("<"));
+      cur = cur->xmlChildrenNode;
+      try_decode_intterm (doc, cur, plist);
+      cur = cur->next;
+      try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("le"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("<="));
+      cur = cur->xmlChildrenNode;
+      try_decode_intterm (doc, cur, plist);
+      cur = cur->next;
+      try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("gt"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol (">"));
+      cur = cur->xmlChildrenNode;
+      try_decode_intterm (doc, cur, plist);
+      cur = cur->next;
+      try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("ge"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol (">="));
+      cur = cur->xmlChildrenNode;
+      try_decode_intterm (doc, cur, plist);
+      cur = cur->next;
+      try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("add"))
+    {
+      MPlist *plist = mplist ();
+      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "vname");
+
+      if (ptr)
 	{
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-	  pl = mplist_add (pl, Mtext, mt);
-	  M17N_OBJECT_UNREF (mt);
-	  cur = cur->next;
-	}
-    }
-
-  else				/* list-of-candidates */
-    while (cur)
-      {
-	xmlChar *start;
-	MPlist *outer = mplist (), *inner = mplist ();
-	int ch, len = 4, skipping = 1;
-
-	mplist_add (outer, Mplist, inner);
-	M17N_OBJECT_UNREF (inner);
-
-  	ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-
-	while ((ch = xmlGetUTF8Char (ptr, &len)))
-	  {
-	    if (skipping && ! Isspace (ch))
-	      {
-		start = ptr;
-		skipping = 0;
-	      }
-	    else if (! skipping && Isspace (ch))
-	      {
-		*ptr = '\0';
-		mt = mtext_from_data (start, xmlStrlen (start),
-				      MTEXT_FORMAT_UTF_8);
-		inner = mplist_add (inner, Mtext, mt);
-		M17N_OBJECT_UNREF (mt);
-		skipping = 1;
-	      }
-	    ptr += len;
-	    len = 4;
-	  }
-	if (!skipping)
-	  {
-	    mt = mtext_from_data (start, xmlStrlen (start), MTEXT_FORMAT_UTF_8);
-	    mplist_add (inner, Mtext, mt);
-	    M17N_OBJECT_UNREF (mt);
-	  }
-
-	mplist_add (plist, Mplist, outer);
-	M17N_OBJECT_UNREF (outer);
-  	cur = cur->next;
-      }
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_delete (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("delete"));
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "delete-to-marker"))
-    decode_marker (doc, cur, plist);
-  else if (xmlStrEqual (cur->name,
-			(xmlChar *) "delete-to-character-position"))
-    {
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-      decode_integer (ptr, plist);
-      xmlFree (ptr);
-    }
-  else				/* delete-n-characters */
-    {
-      char str[8];
-
-      ptr = xmlGetProp (cur, (xmlChar *) "n");
-      snprintf (str, 8, "@%+d", atoi ((char *) ptr));
-      xmlFree (ptr);
-      mplist_add (plist, Msymbol, msymbol (str));
-    }
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_select (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("select"));
-  
-  if ((ptr = xmlGetProp (cur, (xmlChar *) "selector")))
-    mplist_add (plist, Msymbol, decode_predefined (ptr + 1));
-  else
-    {
-      ptr = xmlGetProp (cur, (xmlChar *) "index");
-      if (xmlStrEqual (ptr, (xmlChar *) "variable"))
-	{
-	  xmlFree (ptr);
-	  ptr = xmlGetProp (cur->xmlChildrenNode, (xmlChar *) "id");
+	  mplist_add (plist, Msymbol, msymbol ("add"));
 	  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
+	  xmlFree (ptr);
 	}
       else
-	decode_integer (ptr, plist);
-    }
-  xmlFree (ptr);
+	mplist_add (plist, Msymbol, msymbol ("+"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_intterm (doc, cur, plist);
 
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_move (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("move"));
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "move-to-marker"))
-    decode_marker (doc, cur, plist);
-
-  else				/* move-to-character-position */
-    {
-      xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-
-      decode_integer (ptr, plist);
-      xmlFree (ptr);
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_mark (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("mark"));
-
-  decode_marker (doc, cur, plist);
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_pushback (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("pushback"));
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "pushback-n-events"))
+  else if (CUR_NAME ("sub"))
     {
-      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "n");
+      MPlist *plist = mplist ();
+      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "vname");
 
-      decode_integer (ptr, plist);
-      xmlFree (ptr);
-    }
-
-  else				/* pushback-keyseq */
-    decode_keyseq (doc, cur->xmlChildrenNode, plist);
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_undo (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("undo"));
-
-  if ((ptr = xmlGetProp (cur, (xmlChar *) "target-of-undo")))
-    {
-      decode_integer (ptr, plist);
-      xmlFree (ptr);
-    }
-  else if (cur->xmlChildrenNode)
-    decode_variable_reference (doc, cur->xmlChildrenNode, plist);
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_call (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("call"));
-
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +7 to skip "module-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 7));
-  xmlFree (ptr);
-
-  cur = cur->xmlChildrenNode;
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +9 to skip "function-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 9));
-  xmlFree (ptr);
-
-  for (cur = cur->next; cur; cur = cur->next)
-    {
-      ptr = xmlGetProp (cur, (xmlChar *) "type");
-      if (xmlStrEqual (ptr, (xmlChar *) "string"))
+      if (ptr)
 	{
-	  MText *mt;
-
-	  xmlFree (ptr);
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-	  mplist_add (plist, Mtext, mt);
-	  M17N_OBJECT_UNREF (mt);
-	}
-      else if (xmlStrEqual (ptr, (xmlChar *) "integer"))
-	{
-	  xmlFree (ptr);
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  decode_integer (ptr, plist);
+	  mplist_add (plist, Msymbol, msymbol ("sub"));
+	  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
 	  xmlFree (ptr);
 	}
-      else if (xmlStrEqual (ptr, (xmlChar *) "plist"))
+      else
+	mplist_add (plist, Msymbol, msymbol ("-"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("mul"))
+    {
+      MPlist *plist = mplist ();
+      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "vname");
+
+      if (ptr)
 	{
+	  mplist_add (plist, Msymbol, msymbol ("mul"));
+	  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
 	  xmlFree (ptr);
-	  decode_plist (doc, cur->xmlChildrenNode, plist);
 	}
-      else			/* symbol */
-	{
-	  xmlFree (ptr);
-	  decode_variable_reference (doc, cur->xmlChildrenNode, plist);
-	}
+      else
+	mplist_add (plist, Msymbol, msymbol ("*"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_set (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ((char *) cur->name));
-
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
-
-  decode_expr (doc, cur->xmlChildrenNode, plist);
-
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_if (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-  xmlNodePtr cur0;
-  MPlist *plist = mplist (), *plist0 = mplist ();
-
-  ptr = xmlGetProp (cur, (xmlChar *) "condition");
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
-
-  cur = cur->xmlChildrenNode;	/* 1st arg */
-  decode_expr (doc, cur, plist);
-
-  cur =  cur->next;		/* 2nd arg */
-  decode_expr (doc, cur, plist);
-
-  cur = cur->next;		/* then */
-  plist0 = mplist ();
-  for (cur0 = cur->xmlChildrenNode; cur0; cur0 = cur0->next)
-    decode_saction (doc, cur0, plist0);
-  mplist_add (plist, Mplist, plist0);
-  M17N_OBJECT_UNREF (plist0);
-
-  cur = cur->next;		/* else */
-  if (cur)
+  else if (CUR_NAME ("div"))
     {
-      plist0 = mplist ();
-      for (cur0 = cur->xmlChildrenNode; cur0; cur0 = cur0->next)
-	decode_saction (doc, cur0, plist0);
-      mplist_add (plist, Mplist, plist0);
-      M17N_OBJECT_UNREF (plist0);
+      /* not used */
+      return 1;
     }
 
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
-}
-
-static void
-decode_conditional (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  MPlist *plist = mplist ();
-
-  mplist_add (plist, Msymbol, msymbol ("cond"));
-
-  for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+  else if (CUR_NAME ("mod"))
     {
-      xmlNodePtr cur0 = cur->xmlChildrenNode;
-      MPlist *plist0 = mplist ();
-
-      decode_expr (doc, cur0, plist0);
-
-      while ((cur0 = cur0->next))
-	decode_saction (doc, cur0, plist0);
-
-      mplist_add (plist, Mplist, plist0);
-      M17N_OBJECT_UNREF (plist0);
+      /* not used */
+      return 1;
     }
 
-  mplist_add (parent, Mplist, plist);
-  M17N_OBJECT_UNREF (plist);
+  else if (CUR_NAME ("logand"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("&"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("logior"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("|"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("progn"))
+    {
+      MPlist *plist = mplist ();
+
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("if"))
+    {
+      MPlist *plist = mplist ();
+
+      /* The CONDITION term: only <gt>, <lt> and <eq> are used in the
+	 current mimx files. */
+      cur = cur->xmlChildrenNode;
+      if (CUR_NAME ("gt"))
+	mplist_add (plist, Msymbol, msymbol (">"));
+      else if (CUR_NAME ("lt"))
+	mplist_add (plist, Msymbol, msymbol ("<"));
+      else
+	mplist_add (plist, Msymbol, msymbol ("="));
+      decode_term (doc, cur->xmlChildrenNode, plist);
+      decode_term (doc, cur->xmlChildrenNode->next, plist);
+
+      /* The "THEN" term */
+      cur = cur->next;
+      decode_term (doc, cur, plist);
+
+      /* The "ELSE" term */
+      if ((cur = cur->next))
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("cond"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("cond"));
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	try_decode_list (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+  return 0;
 }
 
-static void
-decode_action (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+static int
+try_decode_funcall (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  MPlist *plist = mplist ();
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "insert"))
-    decode_insert (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "delete-to-marker")
-	   || xmlStrEqual (cur->name,
-			   (xmlChar *) "delete-to-character-position")
-	   || xmlStrEqual (cur->name, (xmlChar *) "delete-n-characters"))
-    decode_delete (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "select"))
-    decode_select (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "show-candidates"))
+  if (CUR_NAME ("insert"))
     {
+      cur = cur->xmlChildrenNode;
+      if (try_decode_intterm (doc, cur, parent))
+	return 1;
+      if (try_decode_strterm (doc, cur, parent))
+	return 1;
+    }
+
+  else if (CUR_NAME ("insert-candidates"))
+    {
+      MPlist *plist = mplist ();
+
+      cur = cur->xmlChildrenNode;
+      if (try_decode_listterm (doc, cur, plist))
+	;
+      else
+	try_decode_strterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("delete"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("delete"));
+      cur = cur->xmlChildrenNode;
+      if (try_decode_markerterm (doc, cur, plist))
+	;
+      else
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("select"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("select"));
+      cur = cur->xmlChildrenNode;
+      if (try_decode_selectorterm (doc, cur, plist))
+	;
+      else
+	try_decode_intterm (doc, cur, plist);
+      
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("show-candidates"))
+    {
+      MPlist *plist = mplist ();
+
       mplist_add (plist, Msymbol, msymbol ("show"));
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if (xmlStrEqual (cur->name, (xmlChar *) "hide-candidates"))
+  else if (CUR_NAME ("hide-candidates"))
     {
+      MPlist *plist = mplist ();
+
       mplist_add (plist, Msymbol, msymbol ("hide"));
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if (xmlStrEqual (cur->name, (xmlChar *) "move-to-marker")
-	   || xmlStrEqual (cur->name, (xmlChar *) "move-to-character-position"))
-    decode_move (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "mark-current-position"))
-    decode_mark (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "pushback-n-events")
-	   || xmlStrEqual (cur->name, (xmlChar *) "pushback-keyseq"))
-      decode_pushback (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "pop"))
+  else if (CUR_NAME ("move"))
     {
-      mplist_add (plist, Msymbol, msymbol ((char *) cur->name));
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("move"));
+      cur = cur->xmlChildrenNode;
+      if (try_decode_markerterm (doc, cur, plist))
+	;
+      else
+	try_decode_intterm (doc, cur, plist);
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if (xmlStrEqual (cur->name, (xmlChar *) "undo"))
-    decode_undo (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "commit"))
+  else if (CUR_NAME ("mark"))
     {
-      mplist_add (plist, Msymbol, msymbol ((char *) cur->name));
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("mark"));
+      try_decode_markerterm (doc, cur->xmlChildrenNode, plist);
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if (xmlStrEqual (cur->name, (xmlChar *) "unhandle"))
+  else if (CUR_NAME ("pushback"))
     {
-      mplist_add (plist, Msymbol, msymbol ((char *) cur->name));
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("pushback"));
+      cur = cur->xmlChildrenNode;
+      if (try_decode_keyseqterm (doc, cur, plist))
+	;
+      else
+	try_decode_intterm (doc, cur, plist);
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
-  else if (xmlStrEqual (cur->name, (xmlChar *) "call"))
-    decode_call (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "set")
-	   || xmlStrEqual (cur->name, (xmlChar *) "add")
-	   || xmlStrEqual (cur->name, (xmlChar *) "sub")
-	   || xmlStrEqual (cur->name, (xmlChar *) "mul")
-	   || xmlStrEqual (cur->name, (xmlChar *) "div"))
-    decode_set (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "if"))
-    decode_if (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "conditional"))
-    decode_conditional (doc, cur, parent);
-
-  else if (xmlStrEqual (cur->name, (xmlChar *) "macro-reference"))
+  else if (CUR_NAME ("pop"))
     {
-      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "id");
+      MPlist *plist = mplist ();
 
-      /* +6 to skip "macro-" */
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr + 6));
+      mplist_add (plist, Msymbol, msymbol ("pop"));
+      
       mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("undo"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("undo"));
+      if ((cur = cur->xmlChildrenNode))
+	try_decode_intterm (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("commit"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("commit"));
+      
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("unhandle"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("unhandle"));
+      
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("shift"))
+    {
+      MPlist *plist = mplist ();
+
+      mplist_add (plist, Msymbol, msymbol ("shift"));
+      try_decode_symterm (doc, cur->xmlChildrenNode, plist);
+      
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
+    }
+
+  else if (CUR_NAME ("shiftback"))
+    {
+      /* not implemented yet */
+      return 1;
+    }
+
+  else if (CUR_NAME ("char-at"))
+    {
+      try_decode_markerterm (doc, cur->xmlChildrenNode, parent);
+      return 1;
+    }
+
+  else if (CUR_NAME ("key-count"))
+    {
+      mplist_add (parent, Msymbol, msymbol ("@@"));
+      return 1;
+    }
+
+  else if (CUR_NAME ("surrounding-text-flag"))
+    {
+      mplist_add (parent, Msymbol, msymbol ("@-0"));
+      return 1;
+    }
+
+  else if (CUR_NAME ("funcall"))
+    {
+      MPlist *plist = mplist (), *pl;
+      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "fname");
+      MSymbol sym = msymbol ((char *) ptr);
+
       xmlFree (ptr);
+      pl =  mplist__assq (external_name, sym);
+      if (pl)
+	{
+	  mplist_add (plist, Msymbol, msymbol ("call"));
+	  pl = mplist_next ((MPlist *) mplist_value (pl));
+	  mplist_add (plist, Msymbol, (MSymbol) mplist_value (pl));
+	  pl = mplist_next (pl);
+	  mplist_add (plist, Msymbol, (MSymbol) mplist_value (pl));
+	}
+      else
+	mplist_add (plist, Msymbol, sym);
+
+      for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+	decode_term (doc, cur, plist);
+
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+      return 1;
     }
 
   else
-    {
-      /* never comes here */
-    }
+    return (try_decode_predefined (doc, cur, parent));
 
-  M17N_OBJECT_UNREF (plist);
+  return 0;			/* suppress compiler's warning */
+}
+
+static int
+try_decode_keyseqterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_keyseq (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_markerterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_marker (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_selectorterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_selector (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_intterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_integer (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_strterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_string (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_symterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_symbol (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  return 0;
+}
+
+static int
+try_decode_listterm (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (try_decode_list (doc, cur, parent))
+    return 1;
+  if (try_decode_varref (doc, cur, parent))
+    return 1;
+  if (try_decode_funcall (doc, cur, parent))
+    return 1;
+  return 0;
 }
 
 static void
-decode_saction (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+decode_term (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  if (xmlStrEqual (cur->name, (xmlChar *) "shift-to"))
-    {
-      xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "id");
-      MPlist *plist = mplist ();
-
-      /* +6 to skip "state-" */
-      mplist_add (plist, Msymbol, msymbol ("shift"));
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr + 6));
-      mplist_add (parent, Mplist, plist);
-      xmlFree (ptr);
-      M17N_OBJECT_UNREF (plist);
-    }
-  else if (xmlStrEqual (cur->name, (xmlChar *) "shift-back"))
-    {
-      MPlist *plist = mplist ();
-
-      mplist_add (plist, Msymbol, msymbol ("shift"));
-      mplist_add (plist, Msymbol, Mt);
-      mplist_add (parent, Mplist, plist);
-      M17N_OBJECT_UNREF (plist);
-    }
-  else
-    decode_action (doc, cur, parent);
+  if (try_decode_keyseq (doc, cur, parent))
+    return;
+  if (try_decode_marker (doc, cur, parent))
+    return;
+  if (try_decode_selector (doc, cur, parent))
+    return;
+  if (try_decode_integer (doc, cur, parent))
+    return;
+  if (try_decode_string (doc, cur, parent))
+    return;
+  if (try_decode_symbol (doc, cur, parent))
+    return;
+  if (try_decode_list (doc, cur, parent))
+    return;
+  if (try_decode_error (doc, cur, parent))
+    return;
+  if (try_decode_varref (doc, cur, parent))
+    return;
+  if (try_decode_funcall (doc, cur, parent))
+    return;
 }
-
-static void
-decode_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
-{
-  xmlChar *ptr;
-
-  if (xmlStrEqual (cur->name, (xmlChar *) "get-text"))
-    {
-      MPlist *plist = mplist ();
-      MText *mt;
-
-      mplist_add (plist, Msymbol, msymbol ("_"));
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-      mplist_add (plist, Mtext, mt);
-      M17N_OBJECT_UNREF (mt);		  
-      mplist_add (parent, Mplist, plist);
-      M17N_OBJECT_UNREF (plist);
-    }
-  else
-    {
-      MText *mt;
-
-      ptr = xmlNodeListGetString (doc, cur, 1);
-      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-      mplist_add (parent, Mtext, mt);
-      M17N_OBJECT_UNREF (mt);		  
-    }
-}
-
-/***/
 
 static void
 decode_im_declaration (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
+  xmlNodePtr backup = cur->next;
 
   /* tags */
   mplist_add (plist, Msymbol, msymbol ("input-method"));
 
   /* language */
   cur = cur->xmlChildrenNode;
-  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
+  ADD_SYMBOL (plist);
 
   /* name */
   cur = cur->next;
-  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
+  ADD_SYMBOL (plist);
   cur = cur->next;
 
   /* extra-id */
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "extra-id"))
+  if (cur && CUR_NAME ("extra-id"))
     {
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-      xmlFree (ptr);
+      ADD_SYMBOL (plist);
       cur = cur->next;
     }
 
   /* m17n-version */
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "m17n-version"))
+  if ((cur = backup) && CUR_NAME ("m17n-version"))
     {
       MPlist *plist0 = mplist ();
-      MText *mt;
 
       mplist_add (plist0, Msymbol, msymbol ("version"));
-      ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-      mplist_add (plist0, Mtext, mt);
-      M17N_OBJECT_UNREF (mt);
+      ADD_STRING (plist0);
       mplist_add (plist, Mplist, plist0);
       M17N_OBJECT_UNREF (plist0);
     }
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
+}
+
+static void
+decode_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  if (cur->xmlChildrenNode
+      && xmlStrEqual (cur->xmlChildrenNode->name, (xmlChar *) "gettext"))
+    {
+      MPlist *plist = mplist ();
+
+      cur = cur->xmlChildrenNode;
+      mplist_add (plist, Msymbol, msymbol ("_"));
+      ADD_STRING (plist);
+      mplist_add (parent, Mplist, plist);
+      M17N_OBJECT_UNREF (plist);
+    }
+  else
+      ADD_STRING (parent);
 }
 
 static void
@@ -817,7 +968,7 @@ decode_im_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   MPlist *plist = mplist ();
 
   mplist_add (plist, Msymbol, msymbol ("description"));
-  decode_description (doc, cur->xmlChildrenNode, plist);
+  decode_description (doc, cur, plist);
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
 }
@@ -825,109 +976,47 @@ decode_im_description (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 static void
 decode_title (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
   MPlist *plist = mplist ();
-  MText *mt;
 
   mplist_add (plist, Msymbol, msymbol ("title"));
-  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-  mplist_add (plist, Mtext, mt);
-  M17N_OBJECT_UNREF (mt);
+  ADD_STRING (plist);
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
 }
 
 static void
-decode_variable (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+decode_defvar (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
-  MText *mt;
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-  xmlFree (ptr);
+  ADD_SYMBOL_PROP (plist, "vname");
 
   if ((cur = cur->xmlChildrenNode))
     {
       /* description */
-      if (xmlStrEqual (cur->name, (xmlChar *) "description"))
+      if (CUR_NAME ("description"))
 	{
-	  decode_description (doc, cur->xmlChildrenNode, plist);
+	  decode_description (doc, cur, plist);
 	  cur = cur->next;
 	}
       else
 	mplist_add (plist, Msymbol, Mnil);
+    }
 
-      /* value */
-      if (cur && xmlStrEqual (cur->name, (xmlChar *) "value"))
-	{
-	  xmlChar *valuetype;
+  if (cur)
+    {
+      try_decode_integer (doc, cur, plist);
+      try_decode_string (doc, cur, plist);
+      try_decode_symbol (doc, cur, plist);
 
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  valuetype = xmlGetProp (cur, (xmlChar *) "type");
-	  if (xmlStrEqual (valuetype, (xmlChar *) "string"))
-	    {
-	      mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-	      mplist_add (plist, Mtext, mt);
-	      M17N_OBJECT_UNREF (mt);
-	    } 
-	  else if (xmlStrEqual (valuetype, (xmlChar *) "symbol"))
-	    {
-	      mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-	      xmlFree (ptr);
-	    }
-	  else			/* integer */
-	    {
-	      decode_integer (ptr, plist);
-	      xmlFree (ptr);
-	    }
-	  xmlFree (valuetype);
-	  cur = cur->next;
-	}
-
-      /* variable-value-candidate */
-      if (cur)
+      if ((cur = cur->next)) /* if exist, must be "possible-value" */
 	for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
 	  {
-	    if (xmlStrEqual (cur->name, (xmlChar *) "c-value"))
-	      {
-		xmlChar *valuetype;
-
-		ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-		valuetype = xmlGetProp (cur, (xmlChar *) "type");
-		if (xmlStrEqual (valuetype, (xmlChar *) "string"))
-		  {
-		    mt = mtext_from_data (ptr, xmlStrlen (ptr),
-					  MTEXT_FORMAT_UTF_8);
-		    mplist_add (plist, Mtext, mt);
-		    M17N_OBJECT_UNREF (mt);
-		  }			      
-		else if (xmlStrEqual (valuetype, (xmlChar *) "symbol"))
-		  {
-		    mplist_add (plist, Msymbol, msymbol ((char *) ptr));
-		    xmlFree (ptr);
-		  }
-		else		/* integer */
-		  {
-		    decode_integer (ptr, plist);
-		    xmlFree (ptr);
-		  }
-		xmlFree (valuetype);
-	      }
-	    else			/* c-range */
-	      {
-		MPlist *range = mplist ();
-
-		ptr = xmlGetProp (cur, (xmlChar *) "from");
-		decode_integer (ptr, range);
-		xmlFree (ptr);
-		ptr = xmlGetProp (cur, (xmlChar *) "to");
-		decode_integer (ptr, range);
-		xmlFree (ptr);
-		mplist_add (plist, Mplist, range);
-		M17N_OBJECT_UNREF (range);
-	      }
+	    try_decode_integer (doc, cur, plist);
+	    /* not implemented yet
+	       try_decode_range (doc, cur, plist); */
+	    try_decode_string (doc, cur, plist);
+	    try_decode_symbol (doc, cur, plist);
 	  }
     }
 
@@ -943,29 +1032,28 @@ decode_variable_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   mplist_add (plist, Msymbol, msymbol ("variable"));
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    decode_variable (doc, cur, plist);
+    decode_defvar (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
 }
 
 void
-decode_command (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+decode_defcmd (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
+  xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "cname");
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +8 to skip "command-" */
+  /* 8 for "command-" */
   mplist_add (plist, Msymbol, msymbol ((char *) ptr + 8));
   xmlFree (ptr);
 
   if ((cur = cur->xmlChildrenNode))
     {
       /* description */
-      if (xmlStrEqual (cur->name, (xmlChar *) "description"))
+      if (CUR_NAME ("description"))
 	{
-	  decode_description (doc, cur->xmlChildrenNode, plist);
+	  decode_description (doc, cur, plist);
 	  cur = cur->next;
 	}
       else
@@ -973,7 +1061,7 @@ decode_command (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 
       /* keyseq */
       for (; cur; cur = cur->next)
-	decode_keyseq (doc, cur, plist);
+	try_decode_keyseq (doc, cur, plist);
     }
 
   mplist_add (parent, Mplist, plist);
@@ -988,7 +1076,7 @@ decode_command_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   mplist_add (plist, Msymbol, msymbol ("command"));
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    decode_command (doc, cur, plist);
+    decode_defcmd (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
@@ -997,20 +1085,29 @@ decode_command_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 static void
 decode_module (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
+  xmlChar *ptr = xmlGetProp (cur, (xmlChar *) "id");
+  MSymbol module = msymbol ((char *) ptr);
+  int prefix = xmlStrlen (ptr) + 10; /* 10 for "-function-" */
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +7 to skip "module-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 7));
   xmlFree (ptr);
+  mplist_add (plist, Msymbol, module);
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
     {
-      ptr = xmlGetProp (cur, (xmlChar *) "id");
-      /* +9 to skip "function" */
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr + 9));
-      xmlFree (ptr);
+      xmlChar *ptr0 = xmlGetProp (cur, (xmlChar *) "fname");
+      MSymbol longname = msymbol ((char *) ptr0);
+      MSymbol shortname = msymbol ((char *) ptr0 + prefix);
+      MPlist *plist0 = mplist ();
+
+      xmlFree (ptr0);
+      mplist_add (plist, Msymbol, shortname);
+
+      mplist_add (plist0, Msymbol, longname);
+      mplist_add (plist0, Msymbol, module);
+      mplist_add (plist0, Msymbol, shortname);
+      mplist_add (external_name, Mplist, plist0);
+      M17N_OBJECT_UNREF (plist0);
     }
 
   mplist_add (parent, Mplist, plist);
@@ -1032,18 +1129,16 @@ decode_module_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 }
 
 static void
-decode_macro (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+decode_defmacro (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +6 to skip "macro-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 6));
-  xmlFree (ptr);
+  ADD_SYMBOL_PROP (plist, "fname");
+
+  /* no <args> are used now */
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    decode_action (doc, cur, plist);
+    decode_term (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
@@ -1057,7 +1152,7 @@ decode_macro_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   mplist_add (plist, Msymbol, msymbol ("macro"));
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    decode_macro (doc, cur, plist);
+    decode_defmacro (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
@@ -1068,27 +1163,25 @@ decode_rule (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
   MPlist *plist = mplist ();
 
-  cur = cur->xmlChildrenNode;
-  decode_keyseq (doc, cur, plist);
-  cur = cur->next;
+  cur = cur->xmlChildrenNode; 
+  if (try_decode_keyseq (doc, cur, plist))
+    ;
+  else
+    try_decode_command_reference (doc, cur, plist);
 
-  for (; cur; cur = cur->next)
-    decode_action (doc, cur, plist);
+  for (cur = cur->next; cur; cur = cur->next)
+    try_decode_funcall (doc, cur, plist);
 
   mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
-}      
+}
 
 static void
 decode_map (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +4 to skip "map-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 4));
-  xmlFree (ptr);
+  ADD_SYMBOL_PROP (plist, "mname");
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
     decode_rule (doc, cur, plist);
@@ -1103,6 +1196,7 @@ decode_map_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
   MPlist *plist = mplist ();
 
   mplist_add (plist, Msymbol, msymbol ("map"));
+
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
     decode_map (doc, cur, plist);
 
@@ -1111,53 +1205,66 @@ decode_map_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 }
 
 static void
-decode_branch (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+decode_state_hook (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
 
-  if (xmlStrEqual (cur->name, (xmlChar *) "state-hook"))
-    mplist_add (plist, Msymbol, Mt);
-  else if (xmlStrEqual (cur->name, (xmlChar *) "catch-all-branch"))
-    mplist_add (plist, Msymbol, Mnil);
-  else		/* branch */
-    {
-      ptr = xmlGetProp (cur, (xmlChar *) "branch-selecting-map");
-      /* +4 to skip "map-" */
-      mplist_add (plist, Msymbol, msymbol ((char *) ptr + 4));
-      xmlFree (ptr);
-    }
+  mplist_add (plist, Msymbol, Mt);
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    decode_saction (doc, cur, plist);
+    try_decode_funcall (doc, cur, plist);
 
-  if (mplist_length (plist))
-    mplist_add (parent, Mplist, plist);
+  mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
+}
+
+static void
+decode_catch_all_branch (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  MPlist *plist = mplist ();
+
+  mplist_add (plist, Msymbol, Mnil);
+
+  for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+    try_decode_funcall (doc, cur, plist);
+
+  mplist_add (parent, Mplist, plist);
+  M17N_OBJECT_UNREF (plist);
+}
+
+static void
+decode_branch (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
+{
+  MPlist *plist = mplist ();
+
+  ADD_SYMBOL_PROP (plist, "mname");
+
+  for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+    try_decode_funcall (doc, cur, plist);
+
+  mplist_add (parent, Mplist, plist);
   M17N_OBJECT_UNREF (plist);
 }
 
 static void
 decode_state (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 {
-  xmlChar *ptr;
   MPlist *plist = mplist ();
 
-  ptr = xmlGetProp (cur, (xmlChar *) "id");
-  /* +6 to skip "state-" */
-  mplist_add (plist, Msymbol, msymbol ((char *) ptr + 6));
-  xmlFree (ptr);
+  ADD_SYMBOL_PROP (plist, "sname");
 
-  for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
+  if ((cur = cur->xmlChildrenNode) && CUR_NAME ("title"))
     {
-      if (xmlStrEqual (cur->name, (xmlChar *) "state-title-text"))
-	{
-	  MText *mt;
+      ADD_STRING (plist);
+      cur = cur->next;
+    }
 
-	  ptr = xmlNodeListGetString (doc, cur->xmlChildrenNode, 1);
-	  mt = mtext_from_data (ptr, xmlStrlen (ptr), MTEXT_FORMAT_UTF_8);
-	  mplist_add (plist, Mtext, mt);
-	  M17N_OBJECT_UNREF (mt);
-	}
+  for (; cur; cur = cur->next)
+    {
+      if (CUR_NAME ("state-hook"))
+	decode_state_hook (doc, cur, plist);
+      else if (CUR_NAME ("catch-all-branch"))
+	decode_catch_all_branch (doc, cur, plist);
       else
 	decode_branch (doc, cur, plist);
     }
@@ -1183,31 +1290,20 @@ decode_state_list (xmlDocPtr doc, xmlNodePtr cur, MPlist *parent)
 static int
 rewrite_include (xmlNodePtr cur)
 {
-  xmlChar *ptr, *suffix, *filename, *fullname, *newvalue;
-  int len;
+  xmlChar *filename, *fullname;
 
-  ptr = xmlGetProp (cur, (xmlChar *) "href");
-  suffix = (xmlChar *) xmlStrstr (ptr, (xmlChar *) "#xmlns");
-
-  len = suffix - ptr;
-  filename = malloc (len + 1);
-  filename[0] = '\0';
-  xmlStrncat (filename, ptr, len);
+  filename = xmlGetProp (cur, (xmlChar *) "href");
   fullname = (xmlChar *) mdatabase__find_file ((char *) filename);
   if (! fullname)
     {
-      xmlFree (ptr);
-      free (filename);
+      xmlFree (filename);
       return -1;
     }
   else
     {
-      newvalue = xmlStrncatNew (fullname, suffix, -1);
-      xmlSetProp (cur, (xmlChar *) "href", newvalue);
-      xmlFree (ptr);
-      free (filename);
+      xmlSetProp (cur, (xmlChar *) "href", (xmlChar *) fullname);
+      xmlFree (filename);
       free (fullname);
-      xmlFree (newvalue);
       return 0;
     }
 }
@@ -1218,9 +1314,8 @@ prepare_include (xmlNodePtr cur)
   xmlNodePtr cur0;
 
   for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
-    if (xmlStrEqual (cur->name, (xmlChar *) "macro-list")
-	|| xmlStrEqual (cur->name, (xmlChar *) "map-list")
-	|| xmlStrEqual (cur->name, (xmlChar *) "state-list"))
+    if (CUR_NAME ("macro-list")	|| CUR_NAME ("map-list")
+	|| CUR_NAME ("state-list"))
       for (cur0 = cur->xmlChildrenNode; cur0; cur0 = cur0->next)
 	if (xmlStrEqual (cur0->name, (xmlChar *) "include"))
 	  if (rewrite_include (cur0) == -1)
@@ -1266,53 +1361,58 @@ minput__load_xml (MDatabaseInfo *db_info, char *filename)
       MERROR (MERROR_IM, NULL);
     }
 
+  external_name = mplist ();
   cur = xmlDocGetRootElement (doc)->xmlChildrenNode;
   decode_im_declaration (doc, cur, xml);
   cur = cur->next;
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "description"))
+  if (cur && CUR_NAME ("m17n-version"))
+    /* This should have been processed in decode_im_declaration (). */
+    cur = cur->next;
+
+  if (cur && CUR_NAME ("description"))
     {
       decode_im_description (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "title"))
+  if (cur && CUR_NAME ("title"))
     {
       decode_title (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "variable-list"))
+  if (cur && CUR_NAME ("variable-list"))
     {
       decode_variable_list (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "command-list"))
+  if (cur && CUR_NAME ("command-list"))
     {
       decode_command_list (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "module-list"))
+  if (cur && CUR_NAME ("module-list"))
     {
       decode_module_list (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "macro-list"))
+  if (cur && CUR_NAME ("macro-list"))
     {
       decode_macro_list (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "map-list"))
+  if (cur && CUR_NAME ("map-list"))
     {
       decode_map_list (doc, cur, xml);
       cur = cur->next;
     }
 
-  if (cur && xmlStrEqual (cur->name, (xmlChar *) "state-list"))
+  if (cur && CUR_NAME ("state-list"))
     {
       decode_state_list (doc, cur, xml);
       cur = cur->next;
