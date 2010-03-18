@@ -1,6 +1,6 @@
-This directory tree holds version 1.5.3 of the m17n library.	-*- text -*-
+This directory tree holds version 1.5.5 of the m17n library.	-*- text -*-
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
@@ -13,12 +13,15 @@ language.
 
 (1-1) From CVS working directory.
 
-Run the script "bootstrap.sh" in this directory.  It is tested that
-the script run successfully with these versions of autotools.
+Run the program "autoreconf" as below in this directory.
+  % autoreconf -f -i
 
-	libtool-1.5.22
+It is tested that the script run successfully with these versions of
+autotools.
+	libtool-2.2.4
 	automake-1.9.6
 	autoconf-2.61
+	pkg-config-0.22
 
 Then, proceed to the next step.
 
@@ -64,9 +67,11 @@ These library files are installed in /usr/local/lib:
 	libm17n-core.{a,so*,la}
 	libm17n.{a,so*,la}
 	libm17n-gui.{a,so*,la}
+	libm17n-flt.{a,so*,la}
+
+These modules are installed in /usr/local/lib/m17n/1.0:
 	libm17n-X.{a,so*,la}
 	libm17n-gd.{a,so*,la}
-	libm17n-flt.{a,so*,la}
 	libimx-anthy.{a,so*,la},
 	libimx-ispell.{a,so*,la},
 
@@ -145,7 +150,7 @@ This compiles PROX.c that uses GUI API and builds executable PROX.
 ----------------------------------------------------------------------
 Copyright information
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 

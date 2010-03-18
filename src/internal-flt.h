@@ -38,15 +38,11 @@
 #define COMBINING_CODE_ADD_X(code) (((code) >> 2) & 0x3)
 #define COMBINING_CODE_ADD_Y(code) ((code) & 0x3)
 
-#define MAKE_COMBINING_CODE_BY_CLASS(class) (0x1000000 | class)
-
-#define COMBINING_BY_CLASS_P(code) ((code) & 0x1000000)
-
-#define COMBINING_CODE_CLASS(code) ((code) & 0xFFFFFF)
-
-#define MAKE_PRECOMPUTED_COMBINDING_CODE() (0x2000000)
-
-#define COMBINING_PRECOMPUTED_P(code) ((code) & 0x2000000)
+#define PACK_OTF_TAG(TAG)		\
+  ((((TAG) & 0x7F000000) >> 3)	\
+   | (((TAG) & 0x7F0000) >> 2)	\
+   | (((TAG) & 0x7F00) >> 1)	\
+   | ((TAG) & 0x7F))
 
 extern MSymbol Mcombining;
 

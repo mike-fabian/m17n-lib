@@ -1,5 +1,5 @@
 /* m17n-core.c -- body of the CORE API.
-   Copyright (C) 2003, 2004, 2005, 2006, 2007
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -434,6 +434,27 @@ report_object_array ()
 
       fprintf (stderr, "%16s %7d %7d %7d\n", array->name,
 	       array->used, array->used - array->count, array->count);
+      if (array->count > 0)
+	{
+	  int i;
+	  for (i = 0; i < array->used && ! array->objects[i]; i++);
+
+	  if (strcmp (array->name, "M-text") == 0)
+	    {
+	      MText *mt = (MText *) array->objects[i];
+
+	      if (mt->format <= MTEXT_FORMAT_UTF_8)
+		fprintf (stderr, "\t\"%s\"\n", (char *) mt->data);
+	    }
+	  else if (strcmp (array->name, "Plist") == 0)
+	    {
+	      MPlist *plist = (MPlist *) array->objects[i];
+
+	      mdebug_dump_plist (plist, 8);
+	      fprintf (stderr, "\n");
+	    }
+	}
+
       if (array->used > 0)
 	{
 	  free (array->objects);
@@ -567,6 +588,7 @@ m17n_init_core (void)
   SET_DEBUG_FLAG ("MDEBUG_DATABASE", MDEBUG_DATABASE);
   SET_DEBUG_FLAG ("MDEBUG_FONT", MDEBUG_FONT); 
   SET_DEBUG_FLAG ("MDEBUG_FLT", MDEBUG_FLT);
+  SET_DEBUG_FLAG ("MDEBUG_FONTSET", MDEBUG_FONTSET);
   SET_DEBUG_FLAG ("MDEBUG_INPUT", MDEBUG_INPUT);
   /* for backward compatibility... */
   SET_DEBUG_FLAG ("MDEBUG_FONT_FLT", MDEBUG_FLT);

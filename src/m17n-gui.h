@@ -396,15 +396,21 @@ typedef struct
   /***ja 線幅（ピクセル単位）.  */
   unsigned width;
 
+  /* @{ */
+  /*** Colors of borders.  */
   MSymbol color_top;
   MSymbol color_bottom;
   MSymbol color_left;
   MSymbol color_right;
+  /* @} */
 
+  /* @{ */
+  /*** Margins  */
   unsigned inner_hmargin;
   unsigned inner_vmargin;
   unsigned outer_hmargin;
   unsigned outer_vmargin;
+  /* @} */
 
 } MFaceBoxProp;
 /*=*/
@@ -551,16 +557,18 @@ typedef struct
   /***ja 0 でなければ、フォント境界での水平方向のグリフの重なりを避けるためのグリフ位置の調整を無効にする。  */
   unsigned disable_overlapping_adjustment : 1;
 
-  /***en If nonzero, the values are minimum line ascent and descent
-      pixels.  */
-  /***ja 0 でなければ、値は行の ascent と descent の最小値を示す。  */
+  /***en If nonzero, the values are minimum line ascent pixels.  */
+  /***ja 0 でなければ、値は行の ascent の最小値を示す。  */
   unsigned int min_line_ascent;
+  /***en If nonzero, the values are minimum line descent pixels.  */
+  /***ja 0 でなければ、値は行の descent の最小値を示す。  */
   unsigned int min_line_descent;
 
-  /***en If nonzero, the values are maximum line ascent and descent
-      pixels.  */
-  /***ja 0 でなければ、値は行の ascent と descent の最大値を示す。  */
+  /***en If nonzero, the values are maximum line ascent pixels.  */
+  /***ja 0 でなければ、値は行の ascent の最大値を示す。  */
   unsigned int max_line_ascent;
+  /***en If nonzero, the values are maximum line descent pixels.  */
+  /***ja 0 でなければ、値は行の descent の最大値を示す。  */
   unsigned int max_line_descent;
 
   /***en If nonzero, the value specifies how many pixels each line can
@@ -643,6 +651,8 @@ typedef struct
       は、空白を語の区切りとして用いるスクリプト用として有用である。  */
   int (*line_break) (MText *mt, int pos, int from, int to, int line, int y);
 
+  /***en If nonzero, show the cursor according to \<cursor_width\>.  */
+  /***ja ゼロでなければ \<cursor_width\> にしたがってカーソルを表示する。 */
   int with_cursor;
 
   /***en Specifies the character position to display a cursor.  If it
@@ -698,7 +708,8 @@ typedef struct
        */
   int disable_caching;
 
-  /* If non-NULL, limit the drawing effect to the specified region.  */
+  /***en If non-NULL, limit the drawing effect to the specified region.  */
+  /***ja NULL でなければ表示エリアを指定された領域に限定する。 */
   MDrawRegion clip_region;
 
 } MDrawControl;
@@ -721,8 +732,14 @@ extern int mdraw_line_break_option;
     また、表示デバイスの矩形領域を表すのにも用いられる。 */
 
 typedef struct {
-  int x, y;
-  unsigned int width, height;
+  /*** X coordinates of a glyph or a text.  */
+  int x;
+  /*** Y coordinates of a glyph or a text.  */
+  int y;
+  /*** Pixel width of a glyph or a text.  */
+  unsigned int width;
+  /*** Pixel height of a glyph or a text.  */
+  unsigned int height;
 } MDrawMetric;
 
 /*=*/
@@ -741,17 +758,27 @@ typedef struct {
 
 typedef struct
 {
-  /***en Character range corresponding to the glyph.  */
-  /***ja グリフに対応する文字の範囲.  */
-  int from, to;
+  /***en Start position of character range corresponding to the glyph.  */
+  /***ja グリフに対応する文字の範囲の開始位置.  */
+  int from;
 
-  /***en Character ranges corresponding to the line of the glyph.  */
-  /***ja  グリフの列に対応する文字の範囲.  */
-  int line_from, line_to;
+  /***en End position of character range corresponding to the glyph.  */
+  /***ja グリフに対応する文字の範囲の終了位置.  */
+  int to;
 
-  /***en X/Y coordinates of the glyph.  */
-  /***ja グリフの X/Y 座標.  */
-  int x, y;
+  /***en Start position of character range corresponding to the line of the glyph.  */
+  /***ja 一行のグリフの列に対応する文字の範囲の開始位置.  */
+  int line_from;
+  /***en End position of character range corresponding to the line of the glyph.  */
+  /***ja 一行のグリフの列に対応する文字の範囲の終了位置.  */
+  int line_to;
+
+  /***en X coordinates of the glyph.  */
+  /***ja グリフの X 座標.  */
+  int x;
+  /***en Y coordinates of the glyph.  */
+  /***ja グリフの Y 座標.  */
+  int y;
 
   /***en Metric of the glyph.  */
   /***ja グリフの寸法.  */
@@ -763,20 +790,35 @@ typedef struct
       
   MFont *font;
 
-  /***en Character ranges corresponding to logically previous and next
-      glyphs.  Note that we do not need the members prev_to and
-      next_from because they must be the same as the members from and
-      to respectively.  */
-  /***ja 論理的な前後のグリフに対応する文字の範囲。メンバ prev_to と
-      next_from は、それぞれメンバ from と to と同じであるはずなので不
-      要である。  */
-  int prev_from, next_to;
+  /***en Character ranges corresponding to logically previous glyphs.
+      Note that we do not need the members prev_to because it must
+      be the same as the member \<from\>.  */
+  /***ja 論理的な前のグリフに対応する文字の範囲。メンバ prev_to は、メ
+      ンバ from と同じであるはずなので不要である。  */
+  int prev_from;
+  /***en Character ranges corresponding to logically next glyphs.
+      Note that we do not need the members next_from because it must
+      be the same as the member \<to\> respectively.  */
+  /***ja 論理的な後のグリフに対応する文字の範囲。メンバ next_from は
+      メンバ to と同じであるはずなので不要である。  */
+  int next_to;
 
-  /***en Character ranges corresponding to visually left and right
-      glyphs. */
-  /***ja 表示上の左右のグリフに対応する文字の範囲。  */
-  int left_from, left_to;
-  int right_from, right_to;
+  /***en Start position of character ranges corresponding to visually
+      left glyphs. */
+  /***ja 表示上の左のグリフに対応する文字の範囲の開始位置。  */
+  int left_from;
+  /***en End position of character ranges corresponding to visually
+      left glyphs. */
+  /***ja 表示上の左のグリフに対応する文字の範囲の終了位置。  */
+  int left_to;
+  /***en Start position of character ranges corresponding to visually
+      right glyphs. */
+  /***ja 表示上の右のグリフに対応する文字の範囲の開始位置。  */
+  int right_from;
+  /***en End position of character ranges corresponding to visually
+      left glyphs. */
+  /***ja 表示上の右のグリフに対応する文字の範囲の終了位置。  */
+  int right_to;
 
   /***en Logical width of the glyph.  Nominal distance to the next
       glyph.  */
@@ -801,9 +843,11 @@ typedef struct
 
 typedef struct
 {
+  /* @{ */
   /***en Character range corresponding to the glyph.  */
   /***ja グリフに対応する文字の範囲.  */
   int from, to;
+  /* @} */
 
   /***en Font glyph code of the glyph.  */
   /***ja フォント内のグリフコード。  */
@@ -812,15 +856,31 @@ typedef struct
   /***en Logical width of the glyph.  Nominal distance to the next
       glyph.  */
   /***ja グリフの論理的幅。次のグリフとの名目上の距離。  */
-  int x_advance, y_advance;
+  int x_advance;
+  /***en Logical height of the glyph.  Nominal distance to the next
+      glyph.  */
+  /***ja グリフの論理的高さ。次のグリフとの名目上の距離。  */
+  int y_advance;
 
-  /***en X/Y offset relative to the glyph position.  */
-  /***ja グリフの位置に対する X/Y オフセット.  */
-  int x_off, y_off;
+  /***en X offset relative to the glyph position.  */
+  /***ja グリフの位置に対する X オフセット.  */
+  int x_off;
+  /***en Y offset relative to the glyph position.  */
+  /***ja グリフの位置に対する Y オフセット.  */
+  int y_off;
 
-  /***en Metric of the glyph.  */
-  /***ja グリフの寸法.  */
-  int lbearing, rbearing, ascent, descent;
+  /***en Metric of the glyph (left-bearing).  */
+  /***ja グリフの寸法 (left-bearing).  */
+  int lbearing;
+  /***en Metric of the glyph (right-bearing).  */
+  /***ja グリフの寸法 (right-bearing).  */
+  int rbearing;
+  /***en Metric of the glyph (ascent).  */
+  /***ja グリフの寸法 (ascent).  */
+  int ascent;
+  /***en Metric of the glyph (descent).  */
+  /***ja グリフの寸法 (descent).  */
+  int descent;
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */

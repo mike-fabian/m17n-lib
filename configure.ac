@@ -1,6 +1,6 @@
 dnl configure.ac -- autoconf script for the m17n library.
 
-dnl Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+dnl Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
 dnl   National Institute of Advanced Industrial Science and Technology (AIST)
 dnl   Registration Number H15PRO112
 
@@ -23,13 +23,21 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(m17n-lib, 1.5.3, m17n-lib-bug@m17n.org)
+AC_INIT([m17n-lib],[1.6.0],[m17n-lib-bug@m17n.org])
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(src/config.h)
+AC_CONFIG_HEADERS([src/config.h])
 AM_MAINTAINER_MODE
 
-API_VERSION=3:0:3
+API_VERSION=4:0:4
 AC_SUBST(API_VERSION)
+
+# The earliest version that this release has binary compatibility
+# with.  This is used for module locations.
+M17N_BINARY_VERSION=1.0
+
+M17N_MODULE_DIR="m17n/$M17N_BINARY_VERSION"
+AC_SUBST(M17N_MODULE_DIR)
 
 AM_GNU_GETTEXT
 GETTEXTDIR="$datadir/locale"
@@ -37,9 +45,8 @@ AC_SUBST(GETTEXTDIR)
 
 dnl Checks for programs for compiling.
 AC_PROG_CC
-AC_LIBTOOL_DLOPEN
-AC_LIBLTDL_CONVENIENCE
-AM_PROG_LIBTOOL
+LT_PREREQ([2.2.4])
+LT_INIT
 
 dnl Checks for X libraries.
 AC_PATH_XTRA
@@ -86,8 +93,7 @@ AC_SUBST(M17NDIR)
 dnl Checks which levels of APIs should be compiled.
 
 AC_ARG_ENABLE(gui,
-	      AC_HELP_STRING([--with-gui],
-			     [with GUI level APIs (default is YES)]))
+	      AS_HELP_STRING([--with-gui],[with GUI level APIs (default is YES)]))
 
 AM_CONDITIONAL(WITH_GUI, test x$with_gui != xno)
 
@@ -151,8 +157,7 @@ AC_SUBST(FRIBIDI_LD_FLAGS)
 
 dnl Check for otflib usability.
 AC_ARG_WITH(libotf, 
-	    AC_HELP_STRING([--with-libotf],
-			   [with OpenType font suport (default is YES)]))
+	    AS_HELP_STRING([--with-libotf],[with OpenType font suport (default is YES)]))
 
 if test "x$with_libotf" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
@@ -173,6 +178,12 @@ if test "x$with_libotf" != "xno"; then
     AC_DEFINE(HAVE_OTF, 1, 
 	      [Define to 1 if you have OTF library and header file.])
     M17N_EXT_LIBS="$M17N_EXT_LIBS libotf"
+    AC_CHECK_LIB(otf, OTF_drive_gpos2, HAVE_OTF_DRIVE_GPOS2=yes,
+    		 HAVE_OTF_DRIVE_GPOS2=no)
+    if test "x$HAVE_OTF_DRIVE_GPOS2" = "xyes"; then
+      AC_DEFINE(HAVE_OTF_DRIVE_GPOS2, 1,
+                [Define to 1 if the OTF library has OTF_drive_gpos2().])
+    fi
   else
     CPPFLAGS="$save_CPPFLAGS"
     OTF_LD_FLAGS=
@@ -248,8 +259,7 @@ AC_SUBST(XFT2_LD_FLAGS)
 
 dnl Check for fontconfig usability.
 AC_ARG_WITH(fontconfig,
-	    AC_HELP_STRING([--with-fontconfig],
-	                   [with FontConfig library (default is YES)]))
+	    AS_HELP_STRING([--with-fontconfig],[with FontConfig library (default is YES)]))
 if test "x$with_fontconfig" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
@@ -277,8 +287,7 @@ AC_SUBST(FONTCONFIG_LD_FLAGS)
 
 dnl Check for gdlib usability.
 AC_ARG_WITH(gd, 
-	    AC_HELP_STRING([--with-gd],
-			   [suport graphic device by GD library (default is YES)]))
+	    AS_HELP_STRING([--with-gd],[suport graphic device by GD library (default is YES)]))
 
 if test "x$with_gd" != "xno"; then
   save_LIBS="$LIBS"
@@ -362,12 +371,12 @@ elif test "x$HAVE_WORDCUT" = "xyes"; then
 
   save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $WORDCUT_CFLAGS"
-  AC_TRY_CPP([#include <wordcut/wcwordcut.h>], , HAVE_WORDCUT=no)
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <wordcut/wcwordcut.h>]])],[],[HAVE_WORDCUT=no])
   if test "x$HAVE_WORDCUT" = "xno"; then
     PKG_CHECK_MODULES(GLIB_2_0, glib-2.0, HAVE_GLIB_2_0=yes, HAVE_GLIB_2_0=no)
     if test "x$HAVE_GLIB_2_0" = "xyes"; then
       CPPFLAGS="$CPPFLAGS $GLIB_2_0_CFLAGS"
-      AC_TRY_CPP([#include <wordcut/wcwordcut.h>], HAVE_WORDCUT=yes)
+      AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <wordcut/wcwordcut.h>]])],[HAVE_WORDCUT=yes],[])
     fi
   fi
   if test "x$HAVE_WORDCUT" = "xyes"; then

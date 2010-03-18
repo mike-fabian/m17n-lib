@@ -1728,7 +1728,7 @@ mtext ()
     short 単位である。
 
     $FORMAT が #MTEXT_FORMAT_UTF_32LE か #MTEXT_FORMAT_UTF_32BE ならば、
-    $DATA の内容は@c unsigned 型であり、$NITEMS は unsigned 単位である。
+    $DATA の内容は @c unsigned 型であり、$NITEMS は unsigned 単位である。
 
     割り当てられた M-text の文字列は変更できない。$DATA の内容は 
     M-text が有効な間は変更してはならない。
@@ -2456,9 +2456,9 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
 /***ja
     @brief 指定範囲の文字を破壊的に取り除く.
 
-    関数 mtext_del () は、M-text $MT の $FROM （$FROM 自体も含む）から $TO
-    （$TO 自体は含まない）までの文字を破壊的に取り除く。結果的に $MT は長さが ($TO @c
-    - $FROM) だけ縮むことになる。
+    関数 mtext_del () は、M-text $MT の $FROM （$FROM 自体も含む）から
+    $TO （$TO 自体は含まない）までの文字を破壊的に取り除く。結果的に
+    $MT は長さが ($TO @c - $FROM) だけ縮むことになる。
 
     @return
     処理が成功すれば mtext_del () は 0 を返す。そうでなければ -1 

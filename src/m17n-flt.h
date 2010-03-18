@@ -109,16 +109,20 @@ typedef struct
       fractional pixel format.  */
   /***ja 縦書き時の送り高を 26.6 fractional pixel format で表現したもの。  */
   int yadv;
+  /* @{ */
   /***en Ink metrics of the glyph expressed in 26.6 fractional pixel
       format.  */
   /***ja このグリフのインクメトリックを 26.6 fractional pixel format
       で表現したもの。  */
   int ascent, descent, lbearing, rbearing;
+  /* @} */
+  /* @{ */
   /***en Horizontal and vertical adjustments for the glyph positioning
       expressed in 26.6 fractional pixel format.  */
   /***ja グリフ位置決めの際の水平・垂直調整値を、
       26.6 fractional pixel format で表現したもの。  */
   int xoff, yoff;
+  /* @} */
   /***en Flag to tell whether the member \<code\> has already been set
       to a glyph ID in the font.  */
   /***ja メンバー \<code\> に既にグリフ ID
@@ -153,28 +157,32 @@ typedef struct
 
     The type #MFLTGlyphAdjustment is the structure to store
     information about a glyph metrics/position adjustment.  It is
-    given to the callback function #drive_otf of #MFLTFont.  */
+    given to the callback function @b drive_otf of #MFLTFont.  */
 
 /***ja
     @brief グリフ位置調整情報のための型.
 
     型 #MFLTGlyphAdjustment
     は、グリフのメトリック/位置の調整に関する情報を格納するための構造体であり、
-    #MFLTFont の callback 関数 #drive_otf に渡される。  */
+    #MFLTFont の callback 関数 @b drive_otf に渡される。  */
 
 typedef struct
 {
+  /* @{ */
   /***en Adjustments for advance width for horizontal layout and
       advance height for vertical layout expressed in 26.6 fractional
       pixel format.  */
   /***ja 水平・垂直方向の送り量の調整値を 26.6 fractional pixel format
       で表現したもの。  */
   int xadv, yadv;
+  /* @} */
+  /* @{ */
   /***en Horizontal and vertical adjustments for glyph positioning
       expressed in 26.6 fractional pixel format.  */
   /***ja グリフ位置決めための水平・垂直調整値を 26.6 fractional pixel
       format で表現したもの。  */
   int xoff, yoff;
+  /* @} */
   /***en Number of glyphs to go back for drawing a glyph.  */
   /***ja グリフ描画のために戻るべきグリフ数。  */
   short back;
@@ -245,25 +253,26 @@ typedef struct
 typedef struct
 {
   /***en Unique symbol representing the spec.  This is the same as the
-      #OTF-SPEC of the FLT.  */
+      @ref OTF-SPEC of the FLT.  */
   /***ja この仕様を表わすユニークなシンボル。
-      FLT の #OTF-SPEC と同一の値である。  */
+      FLT の @ref OTF-SPEC と同一の値である。  */
   MSymbol sym;
 
+  /* @{ */
   /***en Tags for script and language system.  */
   /***ja スクリプトおよび言語システムのタグ。  */
   unsigned int script, langsys;
+  /* @} */
 
-  /***en Array of GSUB (1st element) and GPOS (2nd element) features.
-      Each array is terminated by 0.  If an element is 0xFFFFFFFF
-      apply the previous features in that order, and apply all the
-      other features except those that appear in the following elements.
-      It may be NULL if there are no features.  */
-  /***ja GSUB フィーチャーを第1要素、GPOS フィーチャーを第2要素とする配
-      列。各配列の末尾は0で示される。もしある要素が 0xFFFFFFFFならば、
-      以前の全フィーチャーをその順序で適用し、更に以降の要素として現わ
-      れるフィチャー以外のすべてを適用する。フィーチャーが1つもない場合
-      は NULL でもよい。  */
+  /***en Array of GSUB (1st element) and GPOS (2nd element) feature
+      tag arrays.  Each array is terminated by 0.  If the first
+      element is 0xFFFFFFFF, apply all the features except those that
+      appear in the following elements.  It may be NULL if there are
+      no features.  */
+  /***ja GSUB フィーチャータグの配列を第1要素、GPOS フィーチャータグの
+      配列を第2要素とする配列。各配列の末尾は0で示される。もし最初の要
+      素が 0xFFFFFFFFならば、以降の要素として現われるフィチャー以外のす
+      べてを適用する。フィーチャーが1つもない場合は NULL でもよい。 */
   unsigned int *features[2];
 } MFLTOtfSpec;
 
@@ -273,13 +282,22 @@ typedef struct
     @brief Type of font to be used by the FLT driver.
 
     The type #MFLTFont is the structure that contains information
-    about a font used by the FLT driver.  */
+    about a font used by the FLT driver.  Usually, an application
+    should prepare a bigger structure whose first element is MFLTFont
+    and has more information about the font that is used by callback
+    funcitons, and give that structure to mflt functions by coercing
+    it to MFLTFont.  It is assured that callback functions can safely
+    coerce MFLTFont back to the original structure.  */
 
 /***ja
     @brief FLT ドライバが使うフォントの型.
 
     型 #MFLTFont は、FLTドライバが使うフォントに関する情報を格納するた
-    めの構造体である。  */
+    めの構造体である。通常アプリケーションは最初の要素が MFLTFont で、
+    残りの要素にcallback関数が利用するフォント情報を持った、より大きな
+    構造体を用意し、それを MFLTFont に coerce して mflt の各関数に渡す。
+    各callback関数は MFLTFont を元の構造体に coerce し直すことができる
+    ことが保証されている。 */
 
 typedef struct _MFLTFont
 {
@@ -291,9 +309,12 @@ typedef struct _MFLTFont
       い場合 (たとえば OpenTypeフォントの場合など) は、#Mnil でよい。 */
   MSymbol family;
 
-  /***en Horizontal and vertical font sizes in pixels per EM.  */
-  /***ja フォントの水平・垂直サイズを pixels per EM で表現したもの。  */
-  int x_ppem, y_ppem;
+  /***en Horizontal font sizes in pixels per EM.  */
+  /***ja フォントの水平サイズを pixels per EM で表現したもの。  */
+  int x_ppem;
+  /***en Vertical font sizes in pixels per EM.  */
+  /***ja フォントの垂直サイズを pixels per EM で表現したもの。  */
+  int y_ppem;
 
   /***en Callback function to get glyph IDs for glyphs between FROM
      (inclusive) and TO (exclusive) of GSTRING.  If the member \<encoded\>
@@ -376,6 +397,18 @@ extern MCharTable *mflt_coverage (MFLT *flt);
 
 extern int mflt_run (MFLTGlyphString *gstring, int from, int to,
 		     MFLTFont *font, MFLT *flt);
+
+extern int mflt_enable_new_feature;
+
+extern MSymbol (*mflt_font_id) (MFLTFont *font);
+
+extern int (*mflt_iterate_otf_feature) (MFLTFont *font,
+					MFLTOtfSpec *spec,
+					int from, int to,
+					unsigned char *table);
+
+extern int (*mflt_try_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec,
+			    MFLTGlyphString *gstring, int from, int to);
 
 /*=*/
 /*** @} */

@@ -1,8 +1,20 @@
 * NEWS -- What's new in the m17n library.			-*- outline -*-
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
+
+
+* Changes in the m17n library 1.5.5
+
+** Now libtool 2.2.4 or the later is required to build the library
+from CVS source.
+
+
+* Changes in the m17n library 1.5.4
+
+** New coding system names "Shift_JIS" and "windows-XXXX" are
+recognized.
 
 
 * Changes in the m17n library 1.5.3
@@ -182,7 +194,7 @@ library and the GD library.
 
 * Copyright information
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 

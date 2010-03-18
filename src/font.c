@@ -1685,13 +1685,16 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
 
       if (g->g.encoded)
 	continue;
-      if (! encoding->encoding_charset)
-	g->g.code = MCHAR_INVALID_CODE;
-      else if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
-	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.code);
+      if (mfont->source == MFONT_SOURCE_X && encoding->repertory_charset)
+	g->g.code = ENCODE_CHAR (encoding->repertory_charset, g->g.c);
       else
 	{
-	  unsigned code = ENCODE_CHAR (encoding->encoding_charset, g->g.code);
+	  unsigned code;
+
+	  if (encoding->encoding_charset)
+	    code = ENCODE_CHAR (encoding->encoding_charset, g->g.c);
+	  else
+	    code = g->g.code;
 
 	  if (code != MCHAR_INVALID_CODE)
 	    {
@@ -1708,9 +1711,8 @@ mfont__get_glyph_id (MFLTFont *font, MFLTGlyphString *gstring,
 			MFATAL (MERROR_FONT);
 		    }
 		}
-	      g->g.code
-		= (driver->encode_char) (rfont->frame, rfont->font, mfont,
-					 g->g.code);
+	      g->g.code = (driver->encode_char) (rfont->frame, rfont->font,
+						 mfont, code);
 	    }
 	}
       g->g.encoded = 1;
@@ -1956,7 +1958,7 @@ mfont__check_capability (MRealizedFont *rfont, MSymbol capability)
 /***ja
     @brief 開発元を指定するフォントプロパティのキー.
     
-    変数 #Mfoundry は <tt>"fonudry"</tt> 
+    変数 #Mfoundry は <tt>"foundry"</tt> 
     という名前を持つシンボルであり、フォントプロパティとフェースプロパティのキーとして用いられる。
     値は、フォントの開発元名を名前として持つシンボルである。    */
 
@@ -2395,14 +2397,14 @@ mfont_copy (MFont *font)
     If $FONT is a return value of mfont_find (), $KEY can also be one
     of the following symbols:
 
-	#Mfont_ascent, #Mfont_descent, #Mmax_advance.
+	@b Mfont_ascent, @b Mfont_descent, #Mmax_advance.
 
     @return 
     If $KEY is @c Mfoundry, @c Mfamily, @c Mweight, @c Mstyle,
     @c Mstretch, @c Madstyle, @c Mregistry, or @c Mspacing, this
     function returns the corresponding value as a symbol.  If the font
     does not have $KEY property, it returns @c Mnil.  If $KEY is @c
-    Msize, @c Mresolution, #Mfont_ascent, Mfont_descent, or
+    Msize, @c Mresolution, @b Mfont_ascent, Mfont_descent, or
     #Mmax_advance, this function returns the corresponding value as an
     integer.  If the font does not have $KEY property, it returns 0.
     If $KEY is something else, it returns @c NULL and assigns an error
@@ -3113,7 +3115,7 @@ mfont_open (MFrame *frame, MFont *font)
     @brief Encapusulate a font.
 
     The mfont_encapsulate () functions realizes a font by
-    encapusulating data $DATA or type $DATA_TYPE on #FRAME.  Currently
+    encapusulating data $DATA or type $DATA_TYPE on $FRAME.  Currently
     $DATA_TAPE is #Mfontconfig or #Mfreetype, and $DATA points to an
     object of FcPattern or FT_Face respectively.
 

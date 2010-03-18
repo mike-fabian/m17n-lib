@@ -63,7 +63,7 @@ EXTRA_DIST = \
 
 # External modules used by the above input methods.
 
-VINFO = -version-info @API_VERSION@
+moduledir = ${libdir}/@M17N_MODULE_DIR@
 
 BASICBUILDS = libmimx-anthy.la
 if WITH_GUI
@@ -71,14 +71,14 @@ BUILD_LIBS = $(BASICBUILDS) libmimx-ispell.la
 else
 BUILD_LIBS = $(BASICBUILDS)
 endif
-lib_LTLIBRARIES = $(BUILD_LIBS)
+module_LTLIBRARIES = $(BUILD_LIBS)
 
 libmimx_ispell_la_SOURCES = mimx-ispell.c
 libmimx_ispell_la_LIBADD = ${common_ldflags_gui}
-libmimx_ispell_la_LDFLAGS = -module ${VINFO}
+libmimx_ispell_la_LDFLAGS = -avoid-version -module
 libmimx_anthy_la_SOURCES = mimx-anthy.c
 libmimx_anthy_la_LIBADD = ${common_ldflags} @ANTHY_LD_FLAGS@ 
-libmimx_anthy_la_LDFLAGS = -module ${VINFO}
+libmimx_anthy_la_LDFLAGS = -avoid-version -module
 
 if MAINTAINER_MODE
 

@@ -140,6 +140,9 @@ struct MRealizedFont
      so that this object can be distingushed from MFont.  */
   MFont spec;
 
+  /* Font identifier. */
+  MSymbol id;
+
   /* Frame on which the font is realized.  */
   MFrame *frame;
 
@@ -240,6 +243,12 @@ struct MFontDriver
   int (*drive_otf) (MFLTFont *font, MFLTOtfSpec *spec,
 		    MFLTGlyphString *in, int from, int to,
 		    MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment);
+
+  int (*try_otf) (MFLTFont *font, MFLTOtfSpec *spec,
+		  MFLTGlyphString *in, int from, int to);
+
+  int (*iterate_otf_feature) (struct _MFLTFont *font, MFLTOtfSpec *spec,
+			      int from, int to, unsigned char *table);
 };
 
 /** Initialize the members of FONT.  */

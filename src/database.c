@@ -734,11 +734,11 @@ check_version (MPlist *version)
 	break;
       ver[i] = ver[i] * 10 + (*verstr - '0');
     }
-  return (ver[0] < M17NLIB_MAJOR_VERSION
+  return (ver[0] > M17NLIB_MAJOR_VERSION
 	  || (ver[0] == M17NLIB_MAJOR_VERSION
-	      && (ver[1] < M17NLIB_MINOR_VERSION
+	      && (ver[1] > M17NLIB_MINOR_VERSION
 		  || (ver[1] == M17NLIB_MINOR_VERSION
-		      && ver[2] <= M17NLIB_PATCH_LEVEL))));
+		      && ver[2] >= M17NLIB_PATCH_LEVEL))));
 }
 
 /* If LOADER == load_database, extra_info is a pointer to MDatabaseInfo.  */
@@ -1913,7 +1913,7 @@ mdatabase__validate (xmlDocPtr doc, MDatabaseInfo *db_info)
 
 /*** @addtogroup m17nCharset */
 /*** @{ */
-
+/*=*/
 /***en
     @brief The symbol @c Mcharset.
 

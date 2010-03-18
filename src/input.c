@@ -50,19 +50,19 @@
     input event to an input key by himself.  See the documentation of
     the function minput_event_to_key () for the detail.
 
-    <li> Foreign Input Method
+    <li> Foreign Input Method @anchor foreign-input-method
 
     A foreign input method has @c Mnil LANGUAGE, and its body is
     defined in an external resource (e.g. XIM of X Window System).
     For this kind of input methods, the symbol NAME must have a
-    property of key @c Minput_driver, and the value must be a pointer
+    property of key #Minput_driver, and the value must be a pointer
     to an input method driver.  Therefore, by preparing a proper
     driver, any kind of input method can be treated in the framework
     of the @c m17n @c library.
 
     For convenience, the m17n-X library provides an input method
     driver that enables the input style of OverTheSpot for XIM, and
-    stores @c Minput_driver property of the symbol @c Mxim with a
+    stores #Minput_driver property of the symbol @c Mxim with a
     pointer to the driver.  See the documentation of m17n GUI API for
     the detail.
 
@@ -106,11 +106,11 @@
     行わなくてはならない。詳細については関数 minput_event_to_key () の
     説明を参照。
 
-    <li> 外部入力メソッド
+    <li> 外部入力メソッド @anchor foreign-input-method
 
     外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外
     部のリソースとして定義される。（たとえばX Window System のXIM な
-    ど。) この種の入力メソッドでは、シンボル NAME は@c Minput_driver を
+    ど。) この種の入力メソッドでは、シンボル NAME は #Minput_driver を
     キーとするプロパティを持ち、その値は入力メソッドドライバへのポイン
     タである。このことにより、適切なドライバを準備することによって、い
     かなる種類の入力メソッドも@c m17n @c ライブラリ の枠組の中で扱う事
@@ -118,7 +118,7 @@
 
     利便性の観点から、m17n X ライブラリは XIM の OverTheSpot の入力スタ
     イルを実現する入力メソッドドライバを提供し、またシンボル @c Mxim の
-    @c Minput_driver プロパティの値としてそのドライバへのポインタを保持
+    #Minput_driver プロパティの値としてそのドライバへのポインタを保持
     している。詳細については m17n GUI API のドキュメントを参照のこと。
 
     </ul> 
@@ -166,8 +166,6 @@
 static int mdebug_flag = MDEBUG_INPUT;
 
 static int fully_initialized;
-
-static MSymbol Minput_method;
 
 /** Symbols to load an input method data.  */
 static MSymbol Mtitle, Mmacro, Mmodule, Mstate, Minclude;
@@ -545,7 +543,8 @@ marker_code (MSymbol sym, int surrounding)
 }
 
 
-/* Return a plist containing an integer value of VAR.  */
+/* Return a plist containing an integer value of VAR.  The plist must
+   not be UNREFed. */
 
 static MPlist *
 resolve_variable (MInputContextInfo *ic_info, MSymbol var)
@@ -668,7 +667,7 @@ get_following_char (MInputContext *ic, int pos)
 }
 
 static int
-surrounding_pos (MSymbol sym)
+surrounding_pos (MSymbol sym, int *pos)
 {
   char *name;
 
@@ -676,9 +675,13 @@ surrounding_pos (MSymbol sym)
     return 0;
   name = MSYMBOL_NAME (sym);
   if (name[0] == '@'
-      && (name[1] == '-' || name[1] == '+')
-      && name[2] >= '1' && name[2] <= '9')
-    return (name[1] == '-' ? - atoi (name + 2) : atoi (name + 2));
+      && (name[1] == '-' ? (name[2] >= '1' && name[2] <= '9')
+	  : name[1] == '+' ? (name[2] >= '0' && name[2] <= '9')
+	  : 0))
+    {
+      *pos = name[1] == '-' ? - atoi (name + 2) : atoi (name + 2);
+      return 1;
+    }
   return 0;
 }
 
@@ -709,12 +712,9 @@ integer_value (MInputContext *ic, MPlist *arg, int surrounding)
       if (name[2])
 	{
 	  pos = atoi (name + 1);
-	  if (pos == 0)
+	  if (pos == 0 && code == '-')
 	    return get_preceding_char (ic, 0);
-	  if (pos < 0)
-	    pos = ic->cursor_pos + pos;
-	  else
-	    pos = ic->cursor_pos + pos - 1;
+	  pos = ic->cursor_pos + pos;
 	  if (pos < 0)
 	    {
 	      if (ic->produced && mtext_len (ic->produced) + pos >= 0)
@@ -1230,9 +1230,11 @@ load_external_module (MInputMethodInfo *im_info, MPlist *plist)
     module = msymbol ((char *) MTEXT_DATA (MPLIST_MTEXT (plist)));
   else if (MPLIST_SYMBOL_P (plist))
     module = MPLIST_SYMBOL (plist);
-  module_file = alloca (strlen (MSYMBOL_NAME (module))
+  module_file = alloca (strlen (M17N_MODULE_DIR) + 1
+			+ strlen (MSYMBOL_NAME (module))
 			+ strlen (DLOPEN_SHLIB_EXT) + 1);
-  sprintf (module_file, "%s%s", MSYMBOL_NAME (module), DLOPEN_SHLIB_EXT);
+  sprintf (module_file, "%s/%s%s",
+	   M17N_MODULE_DIR, MSYMBOL_NAME (module), DLOPEN_SHLIB_EXT);
 
   handle = dlopen (module_file, RTLD_NOW);
   if (MFAILP (handle))
@@ -2743,6 +2745,8 @@ get_select_charset (MInputContextInfo * ic_info)
   return MCHARSET (sym);
 }
 
+/* The returned plist must be UNREFed.  */
+
 static MPlist *
 adjust_candidates (MPlist *plist, MCharset *charset)
 {
@@ -2845,6 +2849,8 @@ adjust_candidates (MPlist *plist, MCharset *charset)
   return plist;
 }
 
+/* The returned Plist must be UNREFed.  */
+
 static MPlist *
 get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
 {
@@ -2857,83 +2863,90 @@ get_candidate_list (MInputContextInfo *ic_info, MPlist *args)
   column = MPLIST_INTEGER (plist);
 
   plist = MPLIST_PLIST (args);
+  if (! plist)
+    return NULL;
   if (charset)
-    plist = adjust_candidates (plist, charset);
-
-  if (plist && column > 0)
     {
-      if (MPLIST_MTEXT_P (plist))
-	{
-	  MText *mt = MPLIST_MTEXT (plist);
-	  MPlist *next = MPLIST_NEXT (plist);
+      plist = adjust_candidates (plist, charset);
+      if (! plist)
+	return NULL;
+    }
+  else
+    M17N_OBJECT_REF (plist);
 
-	  if (MPLIST_TAIL_P (next))
-	    M17N_OBJECT_REF (mt);
-	  else
+  if (column == 0)
+    return plist;
+
+  if (MPLIST_MTEXT_P (plist))
+    {
+      MText *mt = MPLIST_MTEXT (plist);
+      MPlist *next = MPLIST_NEXT (plist);
+
+      if (MPLIST_TAIL_P (next))
+	M17N_OBJECT_REF (mt);
+      else
+	{
+	  mt = mtext_dup (mt);
+	  while (! MPLIST_TAIL_P (next))
 	    {
-	      mt = mtext_dup (mt);
-	      while (! MPLIST_TAIL_P (next))
-		{
-		  mt = mtext_cat (mt, MPLIST_MTEXT (next));
-		  next = MPLIST_NEXT (next);
-		}
+	      mt = mtext_cat (mt, MPLIST_MTEXT (next));
+	      next = MPLIST_NEXT (next);
 	    }
-	  if (charset)
-	    M17N_OBJECT_UNREF (plist);
-	  plist = mplist ();
-	  len = mtext_nchars (mt);
-	  if (len <= column)
-	    mplist_add (plist, Mtext, mt);
-	  else
+	}
+      M17N_OBJECT_UNREF (plist);
+      plist = mplist ();
+      len = mtext_nchars (mt);
+      if (len <= column)
+	mplist_add (plist, Mtext, mt);
+      else
+	{
+	  for (i = 0; i < len; i += column)
 	    {
-	      for (i = 0; i < len; i += column)
-		{
-		  int to = (i + column < len ? i + column : len);
-		  MText *sub = mtext_copy (mtext (), 0, mt, i, to);
+	      int to = (i + column < len ? i + column : len);
+	      MText *sub = mtext_copy (mtext (), 0, mt, i, to);
 						       
-		  mplist_add (plist, Mtext, sub);
-		  M17N_OBJECT_UNREF (sub);
-		}
+	      mplist_add (plist, Mtext, sub);
+	      M17N_OBJECT_UNREF (sub);
 	    }
-	  M17N_OBJECT_UNREF (mt);
 	}
-      else if (! MPLIST_TAIL_P (plist))
+      M17N_OBJECT_UNREF (mt);
+    }
+  else if (MPLIST_PLIST_P (plist))
+    {
+      MPlist *tail = plist;
+      MPlist *new = mplist ();
+      MPlist *this = mplist ();
+      int count = 0;
+
+      MPLIST_DO (tail, tail)
 	{
-	  MPlist *tail = plist;
-	  MPlist *new = mplist ();
-	  MPlist *this = mplist ();
-	  int count = 0;
+	  MPlist *p = MPLIST_PLIST (tail);
 
-	  MPLIST_DO (tail, tail)
+	  MPLIST_DO (p, p)
 	    {
-	      MPlist *p = MPLIST_PLIST (tail);
+	      MText *mt = MPLIST_MTEXT (p);
 
-	      MPLIST_DO (p, p)
+	      if (count == column)
 		{
-		  MText *mt = MPLIST_MTEXT (p);
-
-		  if (count == column)
-		    {
-		      mplist_add (new, Mplist, this);
-		      M17N_OBJECT_UNREF (this);
-		      this = mplist ();
-		      count = 0;
-		    }
-		  mplist_add (this, Mtext, mt);
-		  count++;
+		  mplist_add (new, Mplist, this);
+		  M17N_OBJECT_UNREF (this);
+		  this = mplist ();
+		  count = 0;
 		}
+	      mplist_add (this, Mtext, mt);
+	      count++;
 	    }
-	  mplist_add (new, Mplist, this);
-	  M17N_OBJECT_UNREF (this);
-	  mplist_set (plist, Mnil, NULL);
-	  MPLIST_DO (tail, new)
-	    {
-	      MPlist *elt = MPLIST_PLIST (tail);
-
-	      mplist_add (plist, Mplist, elt);
-	    }
-	  M17N_OBJECT_UNREF (new);
 	}
+      mplist_add (new, Mplist, this);
+      M17N_OBJECT_UNREF (this);
+      mplist_set (plist, Mnil, NULL);
+      MPLIST_DO (tail, new)
+	{
+	  MPlist *elt = MPLIST_PLIST (tail);
+
+	  mplist_add (plist, Mplist, elt);
+	}
+      M17N_OBJECT_UNREF (new);
     }
 
   return plist;
@@ -3033,18 +3046,22 @@ take_action_list (MInputContext *ic, MPlist *action_list)
       else if (name == M_candidates)
 	{
 	  MPlist *plist = get_candidate_list (ic_info, args);
+	  MPlist *pl;
 	  int len;
 
-	  if (! plist || (MPLIST_PLIST_P (plist) && MPLIST_TAIL_P (plist)))
+	  if (! plist)
 	    continue;
+	  if (MPLIST_PLIST_P (plist) && MPLIST_TAIL_P (plist))
+	    {
+	      M17N_OBJECT_UNREF (plist);
+	      continue;
+	    }
 	  if (MPLIST_MTEXT_P (plist))
 	    {
 	      preedit_insert (ic, ic->cursor_pos, NULL,
 			      mtext_ref_char (MPLIST_MTEXT (plist), 0));
 	      len = 1;
 	    }
-	  else if (MPLIST_TAIL_P (MPLIST_PLIST (plist)))
-	    continue;
 	  else
 	    {
 	      MText * mt = MPLIST_MTEXT (MPLIST_PLIST (plist));
@@ -3052,11 +3069,12 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      preedit_insert (ic, ic->cursor_pos, mt, 0);
 	      len = mtext_nchars (mt);
 	    }
-	  plist = mplist_copy (plist);
+	  pl = mplist_copy (plist);
+	  M17N_OBJECT_UNREF (plist);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
-			  Mcandidate_list, plist);
-	  M17N_OBJECT_UNREF (plist);
+			  Mcandidate_list, pl);
+	  M17N_OBJECT_UNREF (pl);
 	  mtext_put_prop (ic->preedit,
 			  ic->cursor_pos - len, ic->cursor_pos,
 			  Mcandidate_index, (void *) 0);
@@ -3156,7 +3174,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  int to;
 
 	  if (MPLIST_SYMBOL_P (args)
-	      && (pos = surrounding_pos (MPLIST_SYMBOL (args))) != 0)
+	      && surrounding_pos (MPLIST_SYMBOL (args), &pos))
 	    {
 	      to = ic->cursor_pos + pos;
 	      if (to < 0)
@@ -4127,8 +4145,19 @@ minput__char_to_key (int c)
 /*=*/
 
 /***en
-    @name Variables: Predefined symbols for callback commands.
+    @brief Symbol whose name is "input-method".
+ */
+/***ja
+    @brief "input-method" を名前として持つシンボル.
+ */
+MSymbol Minput_method;
 
+/***en
+    @name Variables: Predefined symbols for callback commands.  */
+/***ja
+    @name 変数： コールバックコマンド用定義済みシンボル.  */
+/*** @{ */ 
+/***en
     These are the predefined symbols that are used as the @c COMMAND
     argument of callback functions of an input method driver (see
     #MInputDriver::callback_list).  
@@ -4136,7 +4165,7 @@ minput__char_to_key (int c)
     Most of them do not require extra argument nor return any value;
     exceptions are these:
 
-    Minput_get_surrounding_text: When a callback function assigned for
+    @b Minput_get_surrounding_text: When a callback function assigned for
     this command is called, the first element of #MInputContext::plist
     has key #Minteger and the value specifies which portion of the
     surrounding text should be retrieved.  If the value is positive,
@@ -4158,7 +4187,7 @@ minput__char_to_key (int c)
     function should return without changing the first element of
     #MInputContext::plist.
 
-    Minput_delete_surrounding_text: When a callback function assigned
+    @b Minput_delete_surrounding_text: When a callback function assigned
     for this command is called, the first element of
     #MInputContext::plist has key #Minteger and the value specifies
     which portion of the surrounding text should be deleted in the
@@ -4166,8 +4195,6 @@ minput__char_to_key (int c)
     function must delete the specified text.  It should not alter
     #MInputContext::plist.  */ 
 /***ja
-    @name 変数： コールバックコマンド用定義済みシンボル.
-
     入力メソッドドライバのコールバック関数において @c COMMAND 
     引数として用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
 
@@ -4196,9 +4223,6 @@ minput__char_to_key (int c)
     Minput_get_surrounding_text と同様のやり方で指定する。コールバック
     関数は指定されたテキストを削除しなければならない。また
     #MInputContext::plist を変えてはならない。  */ 
-/*** @{ */ 
-/*=*/
-
 MSymbol Minput_preedit_start;
 MSymbol Minput_preedit_done;
 MSymbol Minput_preedit_draw;
@@ -4238,18 +4262,18 @@ MSymbol Minput_focus_move;
 
 /*=*/
 /***en
-    @name Variables: Predefined symbols used in input method information.
-
+    @name Variables: Predefined symbols used in input method information.  */
+/***ja
+    @name 変数: 入力メソッド情報用定義済みシンボル.  */
+/*** @{ */ 
+/*=*/
+/***en
     These are the predefined symbols describing status of input method
     command and variable, and are used in a return value of
     minput_get_command () and minput_get_variable ().  */
 /***ja
-    @name 変数: 入力メソッド情報用定義済みシンボル.
-
     入力メソッドのコマンドや変数の状態を表し、minput_get_command () と
     minput_get_variable () の戻り値として用いられる定義済みシンボル。  */
-/*** @{ */ 
-/*=*/
 MSymbol Minherited;
 MSymbol Mcustomized;
 MSymbol Mconfigured;
@@ -4318,6 +4342,10 @@ MInputDriver minput_default_driver;
 
 MInputDriver *minput_driver;
 
+/*=*/
+/***
+    The variable #Minput_driver is a symbol for a foreign input method.
+    See @ref foreign-input-method "foreign input method" for the detail.  */
 MSymbol Minput_driver;
 
 /*=*/
@@ -4446,8 +4474,8 @@ minput_close_im (MInputMethod *im)
 
     The minput_create_ic () function creates an input context object
     associated with input method $IM, and calls callback functions
-    corresponding to #Minput_preedit_start, #Minput_status_start, and
-    #Minput_status_draw in this order.
+    corresponding to @b Minput_preedit_start, @b Minput_status_start, and
+    @b Minput_status_draw in this order.
 
     @return
     If an input context is successfully created, minput_create_ic ()
@@ -4458,7 +4486,7 @@ minput_close_im (MInputMethod *im)
 
     関数 minput_create_ic () は入力メソッド $IM
     に対応する入力コンテクストオブジェクトを生成し、
-    #Minput_preedit_start, #Minput_status_start, #Minput_status_draw
+    @b Minput_preedit_start, @b Minput_status_start, @b Minput_status_draw
     に対応するコールバック関数をこの順に呼ぶ。
 
     @return
@@ -4510,8 +4538,8 @@ minput_create_ic (MInputMethod *im, void *arg)
 
     The minput_destroy_ic () function destroys the input context $IC,
     which must have been created by minput_create_ic ().  It calls
-    callback functions corresponding to #Minput_preedit_done,
-    #Minput_status_done, and #Minput_candidates_done in this order.  */
+    callback functions corresponding to @b Minput_preedit_done,
+    @b Minput_status_done, and @b Minput_candidates_done in this order.  */
 
 /***ja
     @brief 入力コンテクストを破壊する.
@@ -4519,7 +4547,7 @@ minput_create_ic (MInputMethod *im, void *arg)
     関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。
     この入力コンテクストは minput_create_ic () 
     によって作られたものでなければならない。この関数は 
-    #Minput_preedit_done, #Minput_status_done, #Minput_candidates_done 
+    @b Minput_preedit_done, @b Minput_status_done, @b Minput_candidates_done 
     に対応するコールバック関数をこの順に呼ぶ。
   */
 
@@ -4549,8 +4577,8 @@ minput_destroy_ic (MInputContext *ic)
 
     The minput_filter () function filters input key $KEY according to
     input context $IC, and calls callback functions corresponding to
-    #Minput_preedit_draw, #Minput_status_draw, and
-    #Minput_candidates_draw if the preedit text, the status, and the
+    @b Minput_preedit_draw, @b Minput_status_draw, and
+    @b Minput_candidates_draw if the preedit text, the status, and the
     current candidate are changed respectively.
 
     To make the input method commit the current preedit text (if any)
@@ -4558,14 +4586,14 @@ minput_destroy_ic (MInputContext *ic)
     $KEY.
 
     To inform the input method about the focus-out event, call this
-    function with #Minput_focus_out as $KEY.
+    function with @b Minput_focus_out as $KEY.
 
     To inform the input method about the focus-in event, call this
-    function with #Minput_focus_in as $KEY.
+    function with @b Minput_focus_in as $KEY.
 
     To inform the input method about the focus-move event (i.e. input
     spot change within the same input context), call this function
-    with #Minput_focus_move as $KEY.
+    with @b Minput_focus_move as $KEY.
 
     @return
     If $KEY is filtered out, this function returns 1.  In that case,
@@ -4578,8 +4606,8 @@ minput_destroy_ic (MInputContext *ic)
 
     関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC 
     に応じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化した時点で、それぞれ
-    #Minput_preedit_draw, #Minput_status_draw,
-    #Minput_candidates_draw に対応するコールバック関数を呼ぶ。
+    @b Minput_preedit_draw, @b Minput_status_draw,
+    @b Minput_candidates_draw に対応するコールバック関数を呼ぶ。
 
     @return 
     $KEY がフィルタされれば、この関数は 1 を返す。
@@ -4744,20 +4772,20 @@ minput_toggle (MInputContext *ic)
     @brief Reset an input context.
 
     The minput_reset_ic () function resets input context $IC by
-    calling a callback function corresponding to #Minput_reset.  It
+    calling a callback function corresponding to @b Minput_reset.  It
     resets the status of $IC to its initial one.  As the
     current preedit text is deleted without commitment, if necessary,
-    call minput_filter () with the arg @r key #Mnil to force the input
+    call minput_filter () with the arg @b key #Mnil to force the input
     method to commit the preedit in advance.  */
 
 /***ja
     @brief 入力コンテクストをリセットする.
 
-    関数 minput_reset_ic () は #Minput_reset に対応するコールバック関数
+    関数 minput_reset_ic () は @b Minput_reset に対応するコールバック関数
     を呼ぶことによって入力コンテクスト $IC をリセットする。リセットとは、
     実際には入力メソッドを初期状態に移すことである。現在入力中のテキス
     トはコミットされることなく削除されるので、アプリケーションプログラ
-    ムは、必要ならば予め minput_filter () を引数 @r key #Mnil で呼んで
+    ムは、必要ならば予め minput_filter () を引数 @b key #Mnil で呼んで
     強制的にプリエディットテキストをコミットさせること。  */
 
 void
@@ -4923,11 +4951,11 @@ minput_get_description (MSymbol language, MSymbol name)
     command has no description.
 
     @c STATUS is a symbol representing how the key assignment is decided.
-    The value is #Mnil (the default key assignment), #Mcustomized (the
+    The value is #Mnil (the default key assignment), @b Mcustomized (the
     key assignment is customized by per-user customization file), or
-    #Mconfigured (the key assignment is set by the call of
+    @b Mconfigured (the key assignment is set by the call of
     minput_config_command ()).  For a local command only, it may also
-    be #Minherited (the key assignment is inherited from the
+    be @b Minherited (the key assignment is inherited from the
     corresponding global command).
 
     @c KEYSEQ is a plist of one or more symbols representing a key
@@ -4977,11 +5005,11 @@ minput_get_description (MSymbol language, MSymbol name)
     は #Mnil である。
 
     @c STATUS はキー割り当てがどのように定められるかをあらわすシンボル
-    であり、その値は #Mnil （デフォルトの割り当て）, #Mcustomized （ユー
+    であり、その値は #Mnil （デフォルトの割り当て）, @b Mcustomized （ユー
     ザ毎のカスタマイズファイルによってカスタマイズされた割り当て）,
-    #Mconfigured （minput_config_command ()を呼ぶことによって設定される
+    @b Mconfigured （minput_config_command ()を呼ぶことによって設定される
     割り当て）のいずれかである。ローカルコマンドの場合には、
-    #Minherited （対応するグローバルコマンドからの継承による割り当て）
+    @b Minherited （対応するグローバルコマンドからの継承による割り当て）
     でもよい。
 
     @c KEYSEQ は１つ以上のシンボルからなる plist であり、各シンボルはコマ
@@ -5321,10 +5349,10 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     variable has no description.
 
     @c STATUS is a symbol representing how the value is decided.  The
-    value is #Mnil (the default value), #Mcustomized (the value is
-    customized by per-user customization file), or #Mconfigured (the
+    value is #Mnil (the default value), @b Mcustomized (the value is
+    customized by per-user customization file), or @b Mconfigured (the
     value is set by the call of minput_config_variable ()).  For a
-    local variable only, it may also be #Minherited (the value is
+    local variable only, it may also be @b Minherited (the value is
     inherited from the corresponding global variable).
 
     @c VALUE is the initial value of the variable.  If the key of this
@@ -5381,10 +5409,10 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     #Mnil である。
 
     @c STATUS は値がどのように定められるかをあらわすシンボルであり、
-    @c STATUS の値は #Mnil （デフォルトの値）, #Mcustomized （ユーザ毎の
-    カスタマイズファイルによってカスタマイズされた値）, #Mconfigured
+    @c STATUS の値は #Mnil （デフォルトの値）, @b Mcustomized （ユーザ毎の
+    カスタマイズファイルによってカスタマイズされた値）, @b Mconfigured
     （minput_config_variable ()を呼ぶことによって設定される値）のいずれ
-    かである。ローカル変数の場合には、#Minherited （対応するグローバル
+    かである。ローカル変数の場合には、@b Minherited （対応するグローバル
     変数から継承した値）でもよい。
 
     @c VALUE は変数の初期値である。この要素のキーが#Mt であれば初期値を持
@@ -6061,7 +6089,7 @@ minput_get_variables (MSymbol language, MSymbol name)
 
     @return
     If the operation was successful, 0 is returned.  Otherwise -1 is
-    returned, and #merror_code is set to #MERROR_IM.  */
+    returned, and #merror_code is set to @c MERROR_IM.  */
 /***ja
     @brief 入力メソッド変数の初期値を設定する.
 
@@ -6075,7 +6103,7 @@ minput_get_variables (MSymbol language, MSymbol name)
 
     @return
     処理が成功すれば 0 を返す。そうでなければ -1 を返し、
-    #merror_code を #MERROR_IM に設定する。  */
+    #merror_code を @c MERROR_IM に設定する。  */
 
 int
 minput_set_variable (MSymbol language, MSymbol name,
@@ -6244,7 +6272,7 @@ minput_get_commands (MSymbol language, MSymbol name)
 
     @return
     If the operation was successful, 0 is returned.  Otherwise -1 is
-    returned, and #merror_code is set to #MERROR_IM.  */
+    returned, and #merror_code is set to @c MERROR_IM.  */
 /***ja
     @brief 入力メソッドコマンドにキーシークエンスを割り当てる.
 
@@ -6265,7 +6293,7 @@ minput_get_commands (MSymbol language, MSymbol name)
 
     @return 
     処理が成功すれば 0 を返す。そうでなければ -1 を返し、
-    #merror_code を #MERROR_IM に設定する。  */
+    #merror_code を @c MERROR_IM に設定する。  */
 
 int
 minput_assign_command_keys (MSymbol language, MSymbol name,

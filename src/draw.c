@@ -238,29 +238,11 @@ visual_order (MGlyphString *gstring)
     }
 }
 
-#if 0
-static void
-reorder_combining_chars (MGlyphString *gstring, int from, int to)
+static MSymbol
+font_id (MFLTFont *font)
 {
-  MGlyph *g, *gbeg = MGLYPH (from + 1), *gend = MGLYPH (to), temp;
-  int reordered = 1;
-  
-  while (reordered)
-    {
-      reordered = 0;
-      for (g = gbeg; g != gend; g++)
-	if (COMBINING_CODE_CLASS (g->combining_code) > 0
-	    && (COMBINING_CODE_CLASS (g[-1].combining_code)
-		> COMBINING_CODE_CLASS (g->combining_code)))
-	  {
-	    reordered = 1;
-	    temp = *g;
-	    *g = g[-1];
-	    g[-1] = temp;
-	  }
-    }
+  return ((MFLTFontForRealized *) font)->rfont->id;
 }
-#endif
 
 static int
 run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
@@ -272,6 +254,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   MFLT *flt;
   int from_pos = MGLYPH (from)->g.from;
   int len = to - from;
+  int catcode;
   int i;
 
   flt = mflt_get (layouter);
@@ -289,6 +272,9 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
   font.font.drive_otf = rfont->driver->drive_otf;
   font.font.internal = NULL;
   font.rfont = rfont;
+  mflt_font_id = font_id;
+  mflt_iterate_otf_feature = rfont->driver->iterate_otf_feature;
+  mflt_try_otf = rfont->driver->try_otf;
   for (i = 0; i < 3; i++)
     {
       to = mflt_run (&flt_gstr, from, to, &font.font, flt);
@@ -300,7 +286,7 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
     }
   if (from + len != to)
     gstring->used += to - (from + len);
-  for (i = from; i < to; i++)
+  for (i = from, catcode = -1; i < to; i++)
     {
       MGlyph *g = MGLYPH (i);
 
@@ -315,6 +301,17 @@ run_flt (MGlyphString *gstring, int from, int to, MRealizedFace *rface)
       g->g.xoff >>= 6;
       g->g.yoff >>= 6;
       g->rface = rface;
+      if (catcode < 0 || g->g.from != g[-1].g.from)
+	{
+	  MSymbol category = mchar_get_prop (g->g.c, Mcategory);
+
+	  catcode = (category == McatCf
+		     ? GLYPH_CATEGORY_FORMATTER
+		     : category != Mnil && MSYMBOL_NAME (category)[0] == 'M'
+		     ? GLYPH_CATEGORY_MODIFIER
+		     : GLYPH_CATEGORY_NORMAL);
+	}
+      g->category = catcode;
     }
   return to;
 }
@@ -464,7 +461,7 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		{
 		  MSymbol category = mchar_get_prop (g[-1].g.c, Mcategory);
 
-		  if (MSYMBOL_NAME (category)[0] != 'Z')
+		  if (category != Mnil && MSYMBOL_NAME (category)[0] != 'Z')
 		    this_script = script;
 		}
 	    }
@@ -1763,6 +1760,8 @@ mdraw__init ()
   M_kinsoku_bol = msymbol ("kb");
   M_kinsoku_eol = msymbol ("ke");
 
+  mflt_enable_new_feature = 1;
+
   return 0;
 }
 
@@ -1969,7 +1968,7 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
 
     @return
     処理が成功した場合、mdraw_image_text () は 0 
-    を返す。エラーが検出された場合は -1 を返し、外部変数 #m_errro にエラーコードを設定する。
+    を返す。エラーが検出された場合は -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_image_text} @endlatexonly   */
 

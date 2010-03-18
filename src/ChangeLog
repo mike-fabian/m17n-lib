@@ -6,9 +6,286 @@
 
 	* input-xml.c (decode_saction): Add support for "shift-back".
 
+2010-03-01  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_rule): Fix checking of glyph availability.
+
 2009-02-19  TAKAHASHI Naoto  <ntakahas@m17n.org>
 
 	* input-xml.c: Added necessary M17N_OBJECT_UNREF here and there.
+
+2010-02-18  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.c (register_device_library): Preprend M17N_MODULE_DIR
+	to the module file name.
+
+	* input.c (load_external_module): Preprend M17N_MODULE_DIR to the
+	module file name.
+
+	* charset.c (load_charset): Check the return value of fgets.
+
+	* Makefile.am: Build modules dynamically loaded with
+	-avoid-version and no -version-info.
+
+2010-01-15  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (run_flt): Set mflt_try_otf to rfont->driver->try_otf.
+	(mdraw__init): Set mflt_enable_new_feature to 1.
+
+	* font-ft.c (ft_try_otf): New function.
+	(mfont__ft_driver): Set ft_try_otf.
+
+	* font.h (struct MFontDriver): New member try_otf.
+
+	* m17n-X.c (xft_driver): Set xft_try_otf.
+	(xft_try_otf): New function.
+
+	* m17n-flt.h: (mflt_enable_new_feature): Extern it.
+	(mflt_try_otf): Extern it.
+
+	* m17n-flt.c (load_category_table): If mflt_enable_new_feature is
+	zero, return NULL for such categories that require the new
+	feature.
+	(parse_otf_command): If mflt_enable_new_feature is zero, return
+	-1.
+	(load_otf_command): Fix previous change.
+	(load_flt): Check the return value of load_category_table.
+	(try_otf): Renamed from run_otf_category.  Call mflt_try_otf
+	instead of font->drive_otf.
+	(run_command): Call try_otf instead of run_otf_category.
+	(m17n_init_flt): Initialize mflt_enable_new_feature to 0,
+	mflt_try_otf to NULL.
+	(mflt_enable_new_feature): New variable.
+	(mflt_try_otf): New variable.
+
+2009-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (parse_otf_command): Handle ":otf?".
+	(run_otf_category): If not features are specified, reset category
+	codes.
+	(run_command): On copy, don't re-calculate a category code.
+
+2009-12-03  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_stages): Reset category code if category-table
+	is changed.
+	(mflt_run): Don't set category code here.
+	(decode_packed_otf_tag): If no feature is applied, re-calculate
+	category code.
+
+2009-12-02  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (mflt_find): If FONT is specified but no flt is
+	found, return NULL.
+	(run_command): Don't set ENCODED and MEASURED of separator.
+
+2009-11-30  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (load_otf_command): Check 4th char against '?'.
+	(load_command): Likewise.
+	(decode_packed_otf_tag): New arg CTX.  If CTX->in == gstring,
+	update CTX->encoded.  Caller changed.
+
+2009-11-30  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Check if OUT is null or not.
+	(ft_drive_otf): Call OTF_drive_gsub_with_log and
+	OTF_drive_gpos_with_log.  Record the applied feature in
+	g->g.internal.
+
+	* font.c (mfont__get_glyph_id): Encode g->c instead of g->code.
+
+	* internal-flt.h (MAKE_COMBINING_CODE_BY_CLASS)
+	(COMBINING_BY_CLASS_P, COMBINING_CODE_CLASS)
+	(MAKE_PRECOMPUTED_COMBINDING_CODE, COMBINING_PRECOMPUTED_P):
+	Delete externs..
+	(PACK_OTF_TAG): Extern it.
+
+	* draw.c (reorder_combining_chars): Delete it.
+
+	* m17n-flt.h (mflt_font_id): Use type MFLFont.
+	(mflt_iterate_otf_feature): Likewise.
+
+	* m17n-flt.c (enum GlyphInfoMask): New member CategoryCodeMask and
+	CombinedMask.
+	(GET_CATEGORY_CODE, SET_CATEGORY_CODE, GET_COMBINED): New macros.
+	(SET_COMBINING_CODE): Set also CombinedMask.
+	(FontLayoutFeatureTable): Delete it.
+	(FeatureCodeTable): New type.
+	(FontLayoutCategory): Type of feature_table changed.
+	(load_category_table): Adjusted for the change of
+	FontLayoutCategory.
+	(unref_category_table): Likewise.
+	(gen_otf_tag): New member shift.  Caller changed.
+	(FontLayoutContext): New member category.
+	(run_rule): Compare g->c instead of g->code.
+	(decode_packed_otf_tag): New function.
+	(run_otf): Call decode_packed_otf_tag.  Don't reset combining-code
+	here.
+	(run_otf_category): New function.
+	(run_command): Set category-code if necessary.  Call
+	run_otf_category for FontLayoutCmdTypeOTFCategory.
+	(run_stages): Set ctx->category.  Get category from glyph if
+	possible.
+	(mflt_dump_gstring): New function.
+
+2009-11-26  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (enum FontLayoutCmdType): New member
+	FontLayoutCmdTypeOTFCategory.
+	(FontLayoutFeatureTable): New type.
+	(FontLayoutCategory): New members feature_table_size and
+	feature_table.
+	(load_category_table): Handle feature_table.
+	(unref_category_table): Likewise.
+	(load_otf_command): Handle FontLayoutCmdTypeOTFCategory.
+	(load_command): Likewise.
+	(free_flt_command): Likewise.
+
+2009-11-10  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (run_flt): Update category code of each glyph.
+
+2009-11-07  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Don't accumulate anchor adjustments.
+
+2009-11-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_otf): Fix updating of g->lbearing, etc.
+
+	* font-ft.c (ft_drive_otf): Use OTF_drive_gpos2 if possible.
+
+2009-10-28  Kenichi Handa  <handa@m17n.org>
+
+	* fontset.c (mdebug_flag): New variable.
+	(mfont__lookup_fontset): Print debug info.
+
+	* m17n-core.c (m17n_init_core): Call SET_DEBUG_FLAG for
+	MDEBUG_FONTSET.
+
+	* internal.h (enum MDebugFlag): Add MDEBUG_FONTSET.
+
+	* language.c (mscript__from_otf_tag): Adjusted for the new format
+	of the database <standard script unicode>.
+
+2009-10-22  Kenichi Handa  <handa@m17n.org>
+
+	* database.c (check_version): Fix the check.
+
+	* input.c (surrounding_pos): New arg *pos.
+	(integer_value): Fix handling of "@+0".
+	(take_action_list): Adjusted for the change of surrounding_pos.
+
+2009-10-05  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.h: (mflt_iterate_otf_feature, mflt_font_id): Extern
+	them.
+
+	* m17n-flt.c (FontLayoutCategory): New typedef.
+	(FontLayoutStage): Type of the member `category' changed.
+	(struct _MFLT): Type of the member `coverage' changed.  New member
+	need_config and font_id.
+	(apply_otf_feature): New function.
+	(load_category_table): New arg FONT.  If FONT is non-NULL, call
+	apply_otf_feature.  Setup category->definition.
+	(ref_category_table): New macro.
+	(unref_category_table): New function.
+	(load_flt): Adjusted for the type change of category.
+	(free_flt_stage): New arg FLT.
+	(list_flt): Adjusted for the type change of category.
+	(run_stages): Adjusted for the type change of category.
+	(configure_category, configure_flt): New function.
+	(m17n_init_flt): Initialize mflt_iterate_otf_feature and
+	mflt_font_id to NULL.
+	(mflt_get): Skip the heading configured FLTs.
+	(mflt_find): Likewise.  If necessary, configure the found flt.
+	(mflt_run): Handle mflt_iterate_otf_feature and mflt_font_id.
+	Adjusted for the type change of category.
+	(mflt_iterate_otf_feature, mflt_font_id): New variable.
+
+	* m17n-X.c (xfont_open): Set rfont->id.
+	(xft_driver): Set xft_iterate_otf_feature.
+	(xft_open): Set rfont->id.
+	(xft_iterate_otf_feature): New function.
+
+	* font.h (struct MRealizedFont): New member id.
+	(struct MFontDriver): New member iterate_otf_feature.
+
+	* font.c (mfont__get_glyph_id): Pay attention to. mfont->source.
+
+	* font-ft.c (ft_open, ft_encapsulate): Set rfont->id.
+	(get_otf): New funcition.
+	(ft_check_otf, ft_drive_otf): Use get_otf.
+	(iterate_callback, ft_iterate_otf_feature): New functions.
+	(mfont__ft_driver): Set ft_iterate_otf_feature.
+
+	* draw.c: Docstring updated.
+	(font_id): New function.
+	(run_flt): Set mflt_font_id and mflt_iterate_otf_feature before
+	calling mflt_run.
+
+2009-10-02  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (load_flt): Check the return value of
+	load_category_table.
+
+2009-09-03  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_otf): Clear combining code for glyphs whose
+	positions are adjusted by GPOS table.
+
+2009-08-13  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.5.5 released.
+
+2009-08-13  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL):  Changed to 5.
+	(M17NLIB_VERSION_NAME): Changed to "1.5.5".
+
+2009-03-03  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Check if category not Mnil.
+
+2009-03-02  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.5.4 released.
+
+2009-02-25  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.c (report_object_array): For M-text and Plist, print
+	more information.
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Changed to 4.
+	(M17NLIB_VERSION_NAME): Changed to "1.5.4".
+
+	* input.c (get_candidate_list): Free unnecessary objects.
+	(take_action_list): Free plist.
+
+2009-02-04  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (mcoding__init): Add "Shift_JIS" as an alias of "sjis".
+
+2009-01-16  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (Mcased, Msoft_dotted, Mcase_mapping, Mblock):
+	Extern them.
+
+	* character.c (Mcased, Msoft_dotted, Mcase_mapping, Mblock): New
+	variables.
+
+2009-01-14  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c (decode_coding_iso_2022): Check invocation status
+	before updating charset0 and charset1.
+
+	* symbol.c (msymbol__canonicalize): Handle "windows-XXXX".
+
+2008-12-31  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (mflt_run): If g->encoded is set, don't clear
+	g->code.
 
 2008-10-30  Andreas Schwab <schwab@suse.de>  (tiny change)
 
@@ -4564,7 +4841,7 @@
 	* Version 1.0 released.
 
 
-Copyright (C) 2003, 2004
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 

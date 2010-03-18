@@ -1,5 +1,5 @@
 /* m17n-core.h -- header file for the CORE API of the m17n library.
-   Copyright (C) 2003, 2004, 2005, 2006
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -47,8 +47,8 @@ M17N_BEGIN_HEADER
 
 #define M17NLIB_MAJOR_VERSION 1
 #define M17NLIB_MINOR_VERSION 5
-#define M17NLIB_PATCH_LEVEL 2
-#define M17NLIB_VERSION_NAME "1.5.2"
+#define M17NLIB_PATCH_LEVEL 5
+#define M17NLIB_VERSION_NAME "1.5.5"
 
 extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()
@@ -119,6 +119,7 @@ extern enum M17NStatus m17n_status (void);
 
 typedef struct
 {
+  /*** Hidden from applications.  */
   void *filler[2];
 } M17NObjectHead;
 
@@ -311,6 +312,8 @@ extern MSymbol Mcombining_class;
 extern MSymbol Mbidi_category;
 extern MSymbol Msimple_case_folding;
 extern MSymbol Mcomplicated_case_folding;
+extern MSymbol Mcased, Msoft_dotted, Mcase_mapping;
+extern MSymbol Mblock;
 
 extern MSymbol mchar_define_property (const char *name, MSymbol type);
 
@@ -418,11 +421,17 @@ typedef struct MText MText;
 
 enum MTextFormat
   {
+    /*** US-ASCII encoding */
     MTEXT_FORMAT_US_ASCII,
+    /*** UTF-8 encoding */
     MTEXT_FORMAT_UTF_8,
+    /*** UTF-16LE encoding  */
     MTEXT_FORMAT_UTF_16LE,
+    /*** UTF-16BE encoding  */
     MTEXT_FORMAT_UTF_16BE,
+    /*** UTF-32LE encoding  */
     MTEXT_FORMAT_UTF_32LE,
+    /*** UTF-32BE encoding  */
     MTEXT_FORMAT_UTF_32BE,
     MTEXT_FORMAT_BINARY,
     MTEXT_FORMAT_MAX
@@ -581,6 +590,7 @@ extern int mtext_titlecase (MText *mt);
 
 extern int mtext_uppercase (MText *mt);
 
+/*** @ingroup m17nMtext */
 /***en
     @brief Enumeration for specifying a set of line breaking option.
 
@@ -712,7 +722,7 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     @brief デシリアライザ関数の型宣言.
 
     デシリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
-    #Msymbol_prop_deserializer であるとき、 値はこの型でなくてはならない。
+    #Mtext_prop_deserializer であるとき、 値はこの型でなくてはならない。
 
     @seealso
     Mtext_prop_deserialize (), Mtext_prop_deserializer

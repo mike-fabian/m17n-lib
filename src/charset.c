@@ -353,7 +353,8 @@ load_charset (FILE *fp, MSymbol charset_name)
       char buf[256];
 
       ungetc (c, fp);
-      fgets (buf, 256, fp);
+      if (! fgets (buf, 256, fp))
+	break;
       if (c != '#')
 	{
 	  if (sscanf (buf, "0x%x-0x%x 0x%x", &code1, &code2, &c1) == 3)
@@ -950,7 +951,7 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
 
 /***ja @brief ユニファイ型のメソッドを示すシンボル.
 
-    シンボル #Minherit は <tt>"unify"</tt> という名前を持ち、文字セットの 
+    シンボル #Munify は <tt>"unify"</tt> という名前を持ち、文字セットの 
     @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が、マップの参照とオフセットの組み合わせによって行われることを意味する。
     マップは @b Mmapfile パラメータとして与えなければならない。
     この種の各文字セットには、全文字に対して連続するコードスペースがそれぞれ割り当てられる。
@@ -985,7 +986,7 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 
     where, PARENT-CODE is a pseudo function that returns a character
     code of CODE-POINT in the parent charset, and SUBSET-OFFSET is a
-    value given by #Msubset_offset parameter.  */
+    value given by @b Msubset_offset parameter.  */
 
 /***ja @brief サブセット型のメソッドを示すシンボル.
 

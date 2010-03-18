@@ -657,12 +657,11 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
       font->type = MFONT_TYPE_FAILURE;
       return NULL;
     }
-  MDEBUG_PRINT1 (" [XFONT] o %s\n", name);
-  free (name);
   M17N_OBJECT (x_rfont, close_xfont, MERROR_FONT_X);
   x_rfont->display = display;
   x_rfont->xfont = xfont;
   MSTRUCT_CALLOC (rfont, MERROR_FONT_X);
+  rfont->id = msymbol (name);
   rfont->spec = this;
   rfont->spec.type = MFONT_TYPE_REALIZED;
   rfont->spec.source = MFONT_SOURCE_X;
@@ -688,6 +687,8 @@ xfont_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont->fontp = xfont;
   rfont->next = MPLIST_VAL (frame->realized_font_list);
   MPLIST_VAL (frame->realized_font_list) = rfont;
+  MDEBUG_PRINT1 (" [XFONT] o %s\n", name);
+  free (name);
   return rfont;
 }
 
@@ -1055,11 +1056,19 @@ static int xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 			  MFLTGlyphString *in, int from, int to,
 			  MFLTGlyphString *out,
 			  MFLTGlyphAdjustment *adjustment);
+static int xft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
+			MFLTGlyphString *in, int from, int to);
+static int xft_iterate_otf_feature (struct _MFLTFont *font, MFLTOtfSpec *spec,
+				    int from, int to, unsigned char *table);
+
 
 static MFontDriver xft_driver =
   { NULL, xft_open,
     xft_find_metric, xft_has_char, xft_encode_char, xft_render, NULL, NULL,
-    xft_check_capability, NULL, NULL, xft_check_otf, xft_drive_otf
+    xft_check_capability, NULL, NULL, xft_check_otf, xft_drive_otf, xft_try_otf,
+#ifdef HAVE_OTF
+    xft_iterate_otf_feature
+#endif	/* HAVE_OTF */
   };
 
 static void
@@ -1156,6 +1165,7 @@ xft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
   rfont_xft->info = rfont->info;
   M17N_OBJECT_REF (rfont->info);
   MSTRUCT_CALLOC (rfont, MERROR_FONT_X);
+  rfont->id = font->file;
   rfont->spec = *spec;
   rfont->spec.size = size;
   rfont->frame = frame;
@@ -1369,6 +1379,30 @@ xft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   rfont->info = rfont_xft;
   return result;
 }
+
+static int
+xft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
+	     MFLTGlyphString *in, int from, int to)
+{
+  return xft_drive_otf (font, spec, in, from, to, NULL, NULL);
+}
+
+#ifdef HAVE_OTF
+
+static int
+xft_iterate_otf_feature (struct _MFLTFont *font, MFLTOtfSpec *spec,
+			 int from, int to, unsigned char *table)
+{
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MRealizedFontXft *rfont_xft = rfont->info;
+  int result;
+      
+  rfont->info = rfont_xft->info;
+  result = mfont__ft_driver.iterate_otf_feature (font, spec, from, to, table);
+  rfont->info = rfont_xft;
+  return result;
+}
+#endif	/* HAVE_OTF */
 
 #endif	/* HAVE_XFT2 */
 
@@ -2577,7 +2611,7 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 /*** @addtogroup m17nInputMethodWin */
 
 /*** @{ */
-
+/*=*/
 /***en
     @brief Input method driver for XIM.
 
@@ -2635,9 +2669,9 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
 MInputDriver minput_xim_driver =
   { xim_open_im, xim_close_im, xim_create_ic, xim_destroy_ic,
     xim_filter, xim_lookup, NULL };
-
+/*=*/
 /*** @} */ 
-
+/*=*/
 #else  /* not HAVE_X11 */
 
 int device_open () { return -1; }

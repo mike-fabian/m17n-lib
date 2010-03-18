@@ -853,22 +853,28 @@ extern MText *mtext_toupper (MText *mt);
 
 /*** @addtogroup m17nInputMethod 
      @{ */
-
+/*=*/
 /* Struct forward declaration.  */
+/***
+    @brief See struct MInputMethod */
 typedef struct MInputMethod MInputMethod;
+/*=*/
+/***
+    @brief See struct MInputContext */
 typedef struct MInputContext MInputContext;
+/*=*/
 
 /***en
     @brief Type of input method callback functions.
 
     This is the type of callback functions called from input method
-    drivers.  #IC is a pointer to an input context, #COMMAND is a name
+    drivers.  $IC is a pointer to an input context, $COMMAND is a name
     of callback for which the function is called.   */
 /***ja
     @brief 入力メソッドコールバック関数の型宣言.
 
-    入力メソッドから呼ばれるコールバック関数の型である。#IC 
-    は入力コンテクストへのポインタ、#COMMAND は関数が呼ばれるコールバックの名前である。  */
+    入力メソッドから呼ばれるコールバック関数の型である。$IC 
+    は入力コンテクストへのポインタ、$COMMAND は関数が呼ばれるコールバックの名前である。  */
 
 typedef void (*MInputCallbackFunc) (MInputContext *ic, MSymbol command);
 /*=*/
@@ -1039,31 +1045,34 @@ typedef struct MInputDriver
       @brief List of callback functions.
 
       List of callback functions.  Keys are one of
-      #Minput_preedit_start, #Minput_preedit_draw,
-      #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
-      #Minput_status_done, #Minput_candidates_start,
-      #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, #Minput_toggle, #Minput_reset,
-      #Minput_get_surrounding_text, #Minput_delete_surrounding_text.
+      @b Minput_preedit_start, @b Minput_preedit_draw,
+      @b Minput_preedit_done, @b Minput_status_start, @b Minput_status_draw,
+      @b Minput_status_done, @b Minput_candidates_start,
+      @b Minput_candidates_draw, @b Minput_candidates_done,
+      @b Minput_set_spot, @b Minput_toggle, @b Minput_reset,
+      @b Minput_get_surrounding_text, @b Minput_delete_surrounding_text.
       Values are functions of type #MInputCallbackFunc.  */
   /***ja
       @brief コールバック関数のリスト.
 
       コールバック関数のリスト。キーは次のいずれか。
-      #Minput_preedit_start, #Minput_preedit_draw,
-      #Minput_preedit_done, #Minput_status_start, #Minput_status_draw,
-      #Minput_status_done, #Minput_candidates_start,
-      #Minput_candidates_draw, #Minput_candidates_done,
-      #Minput_set_spot, #Minput_toggle, #Minput_reset,
-      #Minput_get_surrounding_text, #Minput_delete_surrounding_text。
+      @b Minput_preedit_start, @b Minput_preedit_draw,
+      @b Minput_preedit_done, @b Minput_status_start, @b Minput_status_draw,
+      @b Minput_status_done, @b Minput_candidates_start,
+      @b Minput_candidates_draw, @b Minput_candidates_done,
+      @b Minput_set_spot, @b Minput_toggle, @b Minput_reset,
+      @b Minput_get_surrounding_text, @b Minput_delete_surrounding_text。
       値は#MInputCallbackFunc 型の関数。  */
   MPlist *callback_list;
 
 } MInputDriver;
 /*=*/
+/*** @} */
+/*=*/
 
 extern MInputDriver minput_default_driver;
 
+extern MSymbol Minput_method;
 extern MSymbol Minput_driver;
 
 extern MInputDriver *minput_driver;
@@ -1094,6 +1103,9 @@ extern MSymbol Minherited;
 extern MSymbol Mcustomized;
 extern MSymbol Mconfigured;
 
+/*** @addtogroup m17nInputMethod 
+     @{ */
+/*=*/
 /***en
     @brief Structure of input method.
 
@@ -1216,15 +1228,15 @@ struct MInputContext
   /***en The usage of the following members depends on the input
       method driver.  The descriptions below are for the driver of an
       internal input method.  They are set by the function
-      <im>->driver.filter ().  */
+      \<im\>->driver.filter ().  */
   /***ja 以下のメンバの使用法は入力メソッドドライバによって異なる。
       以下の説明は、内部入力メソッド用の入力ドライバに対するものである。
-      これらは関数 <im>->driver.filter () によって設定される。  */
+      これらは関数 \<im\>->driver.filter () によって設定される。  */
 
-  /***en Pointer to extra information that <im>->driver.create_ic ()
+  /***en Pointer to extra information that \<im\>->driver.create_ic ()
       setups.  It is used to record the internal state of the input
       context.  */
-  /***ja <im>->driver.create_ic () が設定する追加情報へのポインタ。
+  /***ja \<im\>->driver.create_ic () が設定する追加情報へのポインタ。
       入力コンテクストの内部状態を記録するために用いられる。 */
   void *info;
 
@@ -1233,21 +1245,21 @@ struct MInputContext
   /***ja 入力コンテクストの現在の状態を表す M-text  */
   MText *status;
 
-  /***en The function <im>->driver.filter () sets the value to 1 when
+  /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<status\>.  */
-  /***ja 関数 <im>->driver.filter () は、\<status\> を変えた際にこの値を 1 
+  /***ja 関数 \<im\>->driver.filter () は、\<status\> を変えた際にこの値を 1 
       に設定する。  */
   int status_changed;
 
   /***en M-text containing the current preedit text.  The function
-      <im>->driver.filter () sets the value.  */
+      \<im\>->driver.filter () sets the value.  */
   /***ja 現在の preedit テキストを含む M-text。関数 
-      <im>->driver.filter () によって設定される。  */ 
+      \<im\>->driver.filter () によって設定される。  */ 
   MText *preedit;
 
-  /***en The function <im>->driver.filter () sets the value to 1 when
+  /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<preedit\>.  */
-  /***ja 関数 <im>->driver.filter () は、\<preedit\> を変えた際にこの値を 
+  /***ja 関数 \<im\>->driver.filter () は、\<preedit\> を変えた際にこの値を 
       1 に設定する。  */
   int preedit_changed;
 
@@ -1255,9 +1267,9 @@ struct MInputContext
   /***ja \<preedit\>のカーソル位置  */
   int cursor_pos;
 
-  /***en The function <im>->driver.filter () sets the value to 1 when
+  /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<cursor_pos\>.  */
-  /***ja 関数 <im>->driver.filter () は、\<cursor_pos\> を変えた際にこの値を 
+  /***ja 関数 \<im\>->driver.filter () は、\<cursor_pos\> を変えた際にこの値を 
       1 に設定する。  */
   int cursor_pos_changed;
 
@@ -1283,45 +1295,49 @@ struct MInputContext
       */
   int candidate_index;
 
+  /* @{ */
   /***en Start and the end positions of the preedit text where
        \<candidate_list\> corresponds to.  */
   /***ja preedit テキスト中で、\<candidate_list\>に対応する最初と最後の位置。
        */
   int candidate_from, candidate_to;
+  /* @} */
 
   /***en Flag telling whether the current candidate group must be
-      shown or not.  The function <im>->driver.filter () sets the
+      shown or not.  The function \<im\>->driver.filter () sets the
       value to 1 when an input method required to show candidates, and
       sets the value to 0 otherwise.  */
   /***ja 現在の候補グループを表示するかどうかを示すフラグ。
-      関数 <im>->driver.filter () は、入力メソッドが候補の表示を要求した時この値を
+      関数 \<im\>->driver.filter () は、入力メソッドが候補の表示を要求した時この値を
       1 に、それ以外の時 0 に設定する。  */
   int candidate_show;
 
-  /***en The function <im>->driver.filter () sets the value to bitwise
+  /***en The function \<im\>->driver.filter () sets the value to bitwise
       OR of @c enum @c MInputCandidatesChanged when it changed any of
       the above members (\<candidate_XXX\>), and sets the value to 0
       otherwise.  */
-  /***ja 関数 <im>->driver.filter () は、上記のメンバ \<candidate_XXX\>
+  /***ja 関数 \<im\>->driver.filter () は、上記のメンバ \<candidate_XXX\>
       の１つでも変更した際には、この値を @c enum @c
       MInputCandidatesChanged のビット単位での論理 OR に設定する。そう
       でなければ 0 に設定する。 */
   int candidates_changed;
 
-  /***en Plist that can be freely used by <im>->driver functions.
+  /***en Plist that can be freely used by \<im\>->driver functions.
       The driver of internal input method uses it to exchange extra
       arguments and result for callback functions.  The function
-      <im>->driver.create_ic () sets this to an empty plist, and the
-      function <im>->driver.destroy_ic () frees it by using
+      \<im\>->driver.create_ic () sets this to an empty plist, and the
+      function \<im\>->driver.destroy_ic () frees it by using
       m17n_object_unref ().  */
-  /***ja <im>->driver の関数群によって自由に使用できる plist。
+  /***ja \<im\>->driver の関数群によって自由に使用できる plist。
       内部入力メソッド用ドライバはこれをコールバック関数との引数や返値
-      の受渡しに使用する。関数 <im>->driver.create_ic () はこの plist
-      を空に設定する。関数<im>->driver.destroy_ic () は
+      の受渡しに使用する。関数 \<im\>->driver.create_ic () はこの plist
+      を空に設定する。関数\<im\>->driver.destroy_ic () は
       m17n_object_unref () を用いてこの plist を解放する。  */
   MPlist *plist;
 };
 
+/*=*/
+/*** @} */
 /*=*/
 
 extern MInputMethod *minput_open_im (MSymbol language, MSymbol name,
@@ -1372,11 +1388,8 @@ extern MPlist *minput_get_variables (MSymbol language, MSymbol name);
 
 extern int minput_set_variable (MSymbol language, MSymbol name,
 				MSymbol variable, void *value);
-/*=*/
-/***     @} */
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
-
 
 M17N_END_HEADER
 
