@@ -1023,7 +1023,9 @@ parse_header_xml (xmlTextReaderPtr reader, MSymbol tags[4],
        </tags>
        ...
      </TAG0> */
-  xmlTextReaderRead (reader);	/* <TAG0 ...> */
+  do {
+    xmlTextReaderRead (reader);	/* <TAG0 ...> */
+  } while (xmlTextReaderNodeType (reader) == XML_READER_TYPE_COMMENT);
   tags[0] = msymbol ((char *) xmlTextReaderConstLocalName (reader));
   xmlTextReaderRead (reader);	/* <tags> */
   depth = xmlTextReaderDepth (reader);
