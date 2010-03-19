@@ -1,5 +1,5 @@
 /* m17n-flt.h -- header file for the FLT API of the m17n library.
-   Copyright (C) 2007
+   Copyright (C) 2007, 2008, 2009, 2010
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 

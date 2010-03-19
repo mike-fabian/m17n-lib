@@ -1,5 +1,5 @@
 # Makefile.am -- example level Makefile for the m17n library.
-# Copyright (C) 2003, 2004
+# Copyright (C) 2003, 2004, 2005, 2006, 2007, 2010
 #   National Institute of Advanced Industrial Science and Technology (AIST)
 #   Registration Number H15PRO112
 
