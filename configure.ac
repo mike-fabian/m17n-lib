@@ -23,7 +23,7 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([m17n-lib],[1.6.0],[m17n-lib-bug@m17n.org])
+AC_INIT([m17n-lib],[1.6.0pre],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
