@@ -1,3 +1,10 @@
+2010-03-27  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Change version to 2.0.0alpha.
+	(API_VERSION): Update to 5:0:0.
+	(M17N_BINARY_VERSION): Update to 2.0.
+	(M17NDIR): Set to "${datadir}/m17n/2.0".
+
 2010-02-18  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac (M17N_BINARY_VERSION): New variable.
