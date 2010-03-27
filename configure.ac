@@ -1,6 +1,6 @@
 dnl configure.ac -- autoconf script for the m17n library.
 
-dnl Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009
+dnl Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 dnl   National Institute of Advanced Industrial Science and Technology (AIST)
 dnl   Registration Number H15PRO112
 
@@ -23,18 +23,18 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([m17n-lib],[1.6.0],[m17n-lib-bug@m17n.org])
+AC_INIT([m17n-lib],[2.0.0alpha],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
 AM_MAINTAINER_MODE
 
-API_VERSION=4:0:4
+API_VERSION=5:0:0
 AC_SUBST(API_VERSION)
 
 # The earliest version that this release has binary compatibility
 # with.  This is used for module locations.
-M17N_BINARY_VERSION=1.0
+M17N_BINARY_VERSION=2.0
 
 M17N_MODULE_DIR="m17n/$M17N_BINARY_VERSION"
 AC_SUBST(M17N_MODULE_DIR)
@@ -82,12 +82,7 @@ AC_CHECK_FUNCS(strchr strdup gettimeofday)
 
 dnl Checks where the m17n database is installed.
 
-AC_CHECK_PROG(HAVE_M17N_DB, m17n-db, yes)
-if test "x$HAVE_M17N_DB" = "xyes"; then
-  M17NDIR=`m17n-db`
-else
-  M17NDIR="${datadir}/m17n"
-fi
+M17NDIR="${datadir}/m17n/2.0"
 AC_SUBST(M17NDIR)
 
 dnl Checks which levels of APIs should be compiled.
