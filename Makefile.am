@@ -24,16 +24,20 @@
 
 SUBDIRS = intl po src example
 
-bin_SCRIPTS = m17n-config
+bin_SCRIPTS = m17n-config-@M17N_BINARY_VERSION@
 
 EXTRA_DIST = m4/ChangeLog config.rpath mkinstalldirs \
-	m17n-core.pc.in m17n-shell.pc.in m17n-flt.pc.in m17n-gui.pc.in bootstrap.sh
+	m17n-core-@M17N_BINARY_VERSION@.pc.in \
+	m17n-shell-@M17N_BINARY_VERSION@.pc.in \
+	m17n-flt-@M17N_BINARY_VERSION@.pc.in \
+	m17n-gui-@M17N_BINARY_VERSION@.pc.in \
+	bootstrap.sh
 
 pkgconfigdir = ${libdir}/pkgconfig
 
-BASICDATA = m17n-core.pc m17n-shell.pc m17n-flt.pc
+BASICDATA = m17n-core-@M17N_BINARY_VERSION@.pc m17n-shell-@M17N_BINARY_VERSION@.pc m17n-flt-@M17N_BINARY_VERSION@.pc
 if WITH_GUI
-PKGDATA = $(BASICDATA) m17n-gui.pc
+PKGDATA = $(BASICDATA) m17n-gui-@M17N_BINARY_VERSION@.pc
 else
 PKGDATA = $(BASICDATA)
 endif
