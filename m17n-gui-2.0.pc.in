@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+version=@PACKAGE_VERSION@
+
+Name: m17n-gui
+Description: GUI API suport of the m17n library.
+Version: ${version}
+Requires: m17n-core-@M17N_BINARY_VERSION@ = ${version}, m17n-shell-@M17N_BINARY_VERSION@ = ${version}
+Libs: -L${libdir} -lm17n-core-@M17N_BINARY_VERSION@ -lm17n-@M17N_BINARY_VERSION@ -lm17n-gui-@M17N_BINARY_VERSION@
+Cflags: -I${includedir}
