@@ -23,7 +23,7 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([m17n-lib],[2.0.0alpha],[m17n-lib-bug@m17n.org])
+AC_INIT([m17n-lib],[2.0.0],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
@@ -35,6 +35,7 @@ AC_SUBST(API_VERSION)
 # The earliest version that this release has binary compatibility
 # with.  This is used for module locations.
 M17N_BINARY_VERSION=2.0
+AC_SUBST(M17N_BINARY_VERSION)
 
 M17N_MODULE_DIR="m17n/$M17N_BINARY_VERSION"
 AC_SUBST(M17N_MODULE_DIR)
@@ -437,11 +438,11 @@ AC_DEFINE_UNQUOTED(DLOPEN_SHLIB_EXT, "$SHLIB_EXT",
 AC_CONFIG_FILES([Makefile po/Makefile.in intl/Makefile
                  src/Makefile
                  example/Makefile
-		 m17n-config
-		 m17n-core.pc
-		 m17n-shell.pc
-		 m17n-flt.pc
-		 m17n-gui.pc
+		 m17n-config-2.0
+		 m17n-core-2.0.pc
+		 m17n-shell-2.0.pc
+		 m17n-flt-2.0.pc
+		 m17n-gui-2.0.pc
 		 ])
 
 dnl if test "x$XOM" = "xyes"; then
