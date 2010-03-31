@@ -21,16 +21,19 @@
 
 VINFO = -version-info @API_VERSION@
 
-BASICBUILDS = libm17n-core.la libm17n.la libm17n-flt.la
+BASICBUILDS = \
+	libm17n-core-@M17N_BINARY_VERSION@.la \
+	libm17n-@M17N_BINARY_VERSION@.la \
+	libm17n-flt-@M17N_BINARY_VERSION@.la
 if WITH_GUI
-BUILD_LIBS = $(BASICBUILDS) libm17n-gui.la
+BUILD_LIBS = $(BASICBUILDS) libm17n-gui-@M17N_BINARY_VERSION@.la
 else
 BUILD_LIBS = $(BASICBUILDS)
 endif
 
 lib_LTLIBRARIES = $(BUILD_LIBS)
 
-libm17n_core_la_SOURCES = \
+libm17n_core_@M17N_BINARY_VERSION@_la_SOURCES = \
 	character.h character.c \
 	chartab.h chartab.c \
 	database.h database.c \
@@ -43,26 +46,26 @@ libm17n_core_la_SOURCES = \
 	textprop.h textprop.c \
 	mtext-lbrk.c mtext-wseg.c
 
-libm17n_core_la_LIBADD = @XML2_LD_FLAGS@ @THAI_WORDSEG_LD_FLAGS@
-libm17n_core_la_LDFLAGS = -export-dynamic ${VINFO}
+libm17n_core_@M17N_BINARY_VERSION@_la_LIBADD = @XML2_LD_FLAGS@ @THAI_WORDSEG_LD_FLAGS@
+libm17n_core_@M17N_BINARY_VERSION@_la_LDFLAGS = -export-dynamic ${VINFO}
 
-libm17n_la_SOURCES = \
+libm17n_@M17N_BINARY_VERSION@_la_SOURCES = \
 	charset.h charset.c \
 	coding.h coding.c \
 	input.h input.c input-xml.c \
 	language.h language.c \
 	mlocale.h locale.c \
 	m17n.h m17n.c
-libm17n_la_LIBADD = ${top_builddir}/src/libm17n-core.la -ldl
-libm17n_la_LDFLAGS = -export-dynamic ${VINFO}
+libm17n_@M17N_BINARY_VERSION@_la_LIBADD = ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la -ldl
+libm17n_@M17N_BINARY_VERSION@_la_LDFLAGS = -export-dynamic ${VINFO}
 
 FLT_SOURCES = \
 	internal-flt.h \
 	m17n-flt.h m17n-flt.c
 
-libm17n_flt_la_SOURCES = ${FLT_SOURCES}
-libm17n_flt_la_LIBADD = ${top_builddir}/src/libm17n-core.la
-libm17n_flt_la_LDFLAGS = -export-dynamic ${VINFO}
+libm17n_flt_@M17N_BINARY_VERSION@_la_SOURCES = ${FLT_SOURCES}
+libm17n_flt_@M17N_BINARY_VERSION@_la_LIBADD = ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la
+libm17n_flt_@M17N_BINARY_VERSION@_la_LDFLAGS = -export-dynamic ${VINFO}
 
 GUI_SOURCES = \
 	face.h face.c \
@@ -79,9 +82,9 @@ OPTIONAL_LD_FLAGS = \
 	@OTF_LD_FLAGS@ \
 	@FONTCONFIG_LD_FLAGS@
 
-libm17n_gui_la_SOURCES = ${GUI_SOURCES}
-libm17n_gui_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la
-libm17n_gui_la_LDFLAGS = -export-dynamic ${VINFO}
+libm17n_gui_@M17N_BINARY_VERSION@_la_SOURCES = ${GUI_SOURCES}
+libm17n_gui_@M17N_BINARY_VERSION@_la_LIBADD = ${OPTIONAL_LD_FLAGS} ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-flt-@M17N_BINARY_VERSION@.la
+libm17n_gui_@M17N_BINARY_VERSION@_la_LDFLAGS = -export-dynamic ${VINFO}
 
 if WITH_GUI
 
@@ -90,11 +93,11 @@ module_LTLIBRARIES = libm17n-X.la libm17n-gd.la
 X_LD_FLAGS = ${X_PRE_LIBS} ${X_LIBS} @X11_LD_FLAGS@ ${X_EXTRA_LIBS}
 
 libm17n_X_la_SOURCES = m17n-X.h m17n-X.c
-libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
+libm17n_X_la_LIBADD = ${X_LD_FLAGS} @XFT2_LD_FLAGS@ ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-flt-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-gui-@M17N_BINARY_VERSION@.la
 libm17n_X_la_LDFLAGS = -avoid-version -module
 
 libm17n_gd_la_SOURCES = m17n-gd.c
-libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ @FREETYPE_LD_FLAGS@ ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
+libm17n_gd_la_LIBADD = @GD_LD_FLAGS@ @FREETYPE_LD_FLAGS@ ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-flt-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-gui-@M17N_BINARY_VERSION@.la
 libm17n_gd_la_LDFLAGS = -avoid-version -module
 
 endif
@@ -103,16 +106,18 @@ AM_CPPFLAGS = -DM17NDIR=\"@M17NDIR@\" -DM17N_MODULE_DIR=\"${libdir}/@M17N_MODULE
 
 BASICHEADERS = m17n-core.h m17n.h m17n-misc.h m17n-flt.h
 if WITH_GUI
-include_HEADERS = $(BASICHEADERS) m17n-gui.h m17n-X.h
+pkginclude_HEADERS = $(BASICHEADERS) m17n-gui.h m17n-X.h
 else
-include_HEADERS = $(BASICHEADERS)
+pkginclude_HEADERS = $(BASICHEADERS)
 endif
 
-SRC =	${libm17n_core_la_SOURCES} \
-	${libm17n_la_SOURCES} \
-	${libm17n_gui_la_SOURCES} \
-	${libm17n_X_la_SOURCES} \
-	${libm17n_gd_la_SOURCES}
+pkgincludedir=$(includedir)/m17n-@M17N_BINARY_VERSION@
+
+SRC =	${libm17n_core_@M17N_BINARY_VERSION@_la_SOURCES} \
+	${libm17n_@M17N_BINARY_VERSION@_la_SOURCES} \
+	${libm17n_gui_@M17N_BINARY_VERSION@_la_SOURCES} \
+	${libm17n_X_@M17N_BINARY_VERSION@_la_SOURCES} \
+	${libm17n_gd_@M17N_BINARY_VERSION@_la_SOURCES}
 
 TAGS: ${SRC}
 	etags ${SRC}
@@ -121,14 +126,14 @@ if MAINTAINER_MODE
 noinst_PROGRAMS = linkcore linkshell linkgui
 
 linkcore_SOURCES = linkcore.c
-linkcore_LDADD = ${top_builddir}/src/libm17n-core.la
+linkcore_LDADD = ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la
 linkcore_LDFLAGS = -static
 
 linkshell_SOURCES = linkshell.c
-linkshell_LDADD = ${top_builddir}/src/libm17n.la
+linkshell_LDADD = ${top_builddir}/src/libm17n-@M17N_BINARY_VERSION@.la
 linkshell_LDFLAGS = -static
 
 linkgui_SOURCES = linkgui.c
-linkgui_LDADD = ${top_builddir}/src/libm17n-gui.la
+linkgui_LDADD = ${top_builddir}/src/libm17n-gui-@M17N_BINARY_VERSION@.la
 linkgui_LDFLAGS = -static
 endif
