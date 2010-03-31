@@ -27,13 +27,13 @@
 
 BASICPROGS = m17n-conv
 if WITH_GUI
-bin_PROGRAMS = $(BASICPROGS) m17n-view m17n-date m17n-dump m17n-edit
+noinst_PROGRAMS = $(BASICPROGS) m17n-view m17n-date m17n-dump m17n-edit
 else
-bin_PROGRAMS = $(BASICPROGS)
+noinst_PROGRAMS = $(BASICPROGS)
 endif
 
-common_ldflags = ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la
-common_ldflags_gui = ${common_ldflags} ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
+common_ldflags = ${top_builddir}/src/libm17n-core-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-@M17N_BINARY_VERSION@.la
+common_ldflags_gui = ${common_ldflags} ${top_builddir}/src/libm17n-flt-@M17N_BINARY_VERSION@.la ${top_builddir}/src/libm17n-gui-@M17N_BINARY_VERSION@.la
 AM_CPPFLAGS=@CONFIG_FLAGS@
 
 m17n_date_SOURCES = mdate.c
@@ -79,17 +79,3 @@ libmimx_ispell_la_LDFLAGS = -avoid-version -module
 libmimx_anthy_la_SOURCES = mimx-anthy.c
 libmimx_anthy_la_LIBADD = ${common_ldflags} @ANTHY_LD_FLAGS@ 
 libmimx_anthy_la_LDFLAGS = -avoid-version -module
-
-if MAINTAINER_MODE
-
-# Special targets to test the m17n library with Purify.
-
-PURIFY=/usr/local/rational/releases/purify.sol.2002.05.00/purify
-
-purify_medit: medit ../src/.libs/libm17n-core.so ../src/.libs/libm17n.so ../src/.libs/libm17n-X.so linebreak.c
-	${PURIFY} gcc -g medit.o linebreak.o -lXaw -lXmu -L/usr/X11R6/lib -R/usr/X11R6/lib -lSM -lICE -lX11 -lXt -L../src/.libs -lm17n-core -lm17n -lm17n-X -ldl
-
-purify_mdate: mdate.o ../src/.libs/libm17n.so ../src/.libs/libm17n-X.so
-	${PURIFY} gcc -g mdate.o -lXaw -lXmu -L/usr/X11R6/lib -R/usr/X11R6/lib -lSM -lICE -lX11 -lXt -L../src/.libs -lm17n -lm17n-X -ldl
-
-endif
