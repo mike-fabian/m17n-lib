@@ -1,3 +1,25 @@
+2010-03-31  Kenichi Handa  <handa@m17n.org>
+
+	* Version 2.0.0 released.
+
+	* configure.ac: Change version to 2.0.0.
+	(M17N_BINARY_VERSION): AC_SUBST it.
+	(AC_CONFIG_FILES): Change *.pc to *-2.0.pc.
+
+	* m17n-config-2.0.in: Renamed from m17n-config.in.
+
+	* m17n-core-2.0.pc.in: Renamed from m17n-core.pc.in.
+
+	* m17n-shell-2.0.pc.in: Renamed from m17n-shell.pc.in.
+
+	* m17n-gui-2.0.pc.in: Renamed from m17n-gui.pc.in.
+
+	* m17n-flt-2.0.pc.in: Renamed from m17n-flt.pc.in.
+
+	* mkinstalldirs: Updated.
+
+	* Makefile.am: Add "-@M17N_BINARY_VERSION@" to file names.
+
 2010-03-27  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Change version to 2.0.0alpha.

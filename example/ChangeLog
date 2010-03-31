@@ -1,3 +1,9 @@
+2010-03-31  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am: Add "-@M17N_BINARY_VERSION@" to file names.  Remove
+	targets for purify.
+	(noinst_PROGRAMS): Renamed from bin_PROGRAMS.
+
 2010-02-18  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am: Build modules dynamically loaded with

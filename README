@@ -1,4 +1,4 @@
-This directory tree holds version 1.6.0 of the m17n library.	-*- text -*-
+This directory tree holds version 2.0.0 of the m17n library.	-*- text -*-
 
 Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
   National Institute of Advanced Industrial Science and Technology (AIST)
@@ -8,6 +8,8 @@ See the end for copying conditions.
 The m17n library is a multilingual text processing library for the C
 language.
 
+
+This version is still in ALPHA stage, very experimental.
 
 (1) INSTALLATION
 
@@ -64,25 +66,25 @@ Thus, these header files are installed in /usr/local/include:
 	m17n-core.h, m17n.h, m17n-gui.h, m17n-err.h, m17n-X.h, m17n-flt.h
 
 These library files are installed in /usr/local/lib:
-	libm17n-core.{a,so*,la}
-	libm17n.{a,so*,la}
-	libm17n-gui.{a,so*,la}
-	libm17n-flt.{a,so*,la}
+	libm17n-core-2.0.{a,so*,la}
+	libm17n-2.0.{a,so*,la}
+	libm17n-gui-2.0.{a,so*,la}
+	libm17n-flt-2.0.{a,so*,la}
 
-These modules are installed in /usr/local/lib/m17n/1.0:
+These modules are installed in /usr/local/lib/m17n/2.0:
 	libm17n-X.{a,so*,la}
 	libm17n-gd.{a,so*,la}
 	libimx-anthy.{a,so*,la},
 	libimx-ispell.{a,so*,la},
 
 This shell script is installed in /usr/local/bin:
-	m17n-config
+	m17n-config-2.0
 
 These pkgconfig metadata files are installed in
 /usr/local/lib/pkgconfig:
-	m17n-core.pc, m17n-shell.pc, m17n-flt.pc, m17n-gui.pc
+	m17n-core-2.0.pc, m17n-shell-2.0.pc, m17n-flt-2.0.pc, m17n-gui-2.0.pc
 
-These sample programs are installed in /usr/local/bin too:
+These sample programs are not installed.
 	m17n-conv, m17n-date, m17n-view, m17n-dump, m17n-edit
 
 If you don't need GUI libraries (libm17n-gui.so and etc.), you can

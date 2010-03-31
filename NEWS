@@ -5,6 +5,11 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 See the end for copying conditions.
 
 
+* Changes in the m17n library 2.0.0
+
+** Load XML files of m17n-db-2.0.0.
+
+
 * Changes in the m17n library 1.5.5
 
 ** Now libtool 2.2.4 or the later is required to build the library
