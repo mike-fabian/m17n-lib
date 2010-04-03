@@ -26,6 +26,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT([m17n-lib],[1.6.1],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
+AC_PROG_LIBTOOL
 AC_CONFIG_HEADERS([src/config.h])
 AM_MAINTAINER_MODE
 
@@ -45,8 +46,8 @@ AC_SUBST(GETTEXTDIR)
 
 dnl Checks for programs for compiling.
 AC_PROG_CC
-LT_PREREQ([2.2.4])
-LT_INIT
+dnl LT_PREREQ([2.2.4])
+dnl LT_INIT
 
 dnl Checks for X libraries.
 AC_PATH_XTRA
