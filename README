@@ -13,15 +13,12 @@ language.
 
 (1-1) From CVS working directory.
 
-Run the program "autoreconf" as below in this directory.
-  % autoreconf -f -i
+Run the script "bootstrap.sh" in this directory.  It is tested that
+the script runs successfully with these versions of tools.
 
-It is tested that the script run successfully with these versions of
-autotools.
-	libtool-2.2.4
-	automake-1.9.6
-	autoconf-2.61
-	pkg-config-0.22
+	        libtool automake autoconf pkg-config
+  Debian Lenny   1.5.26   1.10.1     2.61       0.22
+  Ubunto 9.10     2.2.4    1.9.6     2.61       0.22
 
 Then, proceed to the next step.
 
