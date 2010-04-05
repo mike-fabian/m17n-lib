@@ -1058,7 +1058,6 @@ ft_check_cap_otf (MFontFT *ft_info, MFontCapability *cap, FT_Face ft_face)
 	}
     }
   if (cap->features[MFONT_OTT_GSUB].nfeatures
-      && cap->features[MFONT_OTT_GSUB].tags[0]
       && (OTF_check_features
 	  (ft_info->otf, 1,
 	   cap->script_tag, cap->langsys_tag,
@@ -1066,7 +1065,6 @@ ft_check_cap_otf (MFontFT *ft_info, MFontCapability *cap, FT_Face ft_face)
 	   cap->features[MFONT_OTT_GSUB].nfeatures) != 1))
     return -1;
   if (cap->features[MFONT_OTT_GPOS].nfeatures
-      && cap->features[MFONT_OTT_GPOS].tags[0]
       && (OTF_check_features
 	  (ft_info->otf, 0,
 	   cap->script_tag, cap->langsys_tag,
