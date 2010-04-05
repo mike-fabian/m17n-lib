@@ -1,5 +1,8 @@
 2010-04-05  Kenichi Handa  <handa@m17n.org>
 
+	* font-ft.c (ft_check_cap_otf): Fix conditions to call
+	OTF_check_features.
+
 	* database.c (check_version): Fix previous change.
 
 2010-04-02  Kenichi Handa  <handa@m17n.org>
