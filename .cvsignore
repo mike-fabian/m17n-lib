@@ -17,3 +17,5 @@ INSTALL
 depcomp
 install-sh
 missing
+mkinstalldirs
+ltmain.sh
