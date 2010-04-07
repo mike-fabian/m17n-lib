@@ -1,3 +1,13 @@
+2010-04-07  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-gui.pc.in (moduledir): New variable.
+
+	* m17n-flt.pc.in (moduledir): New variable.
+
+	* m17n-shell.pc.in (moduledir): New variable.
+
+	* m17n-core.pc.in (moduledir): New variable.
+
 2010-04-06  Kenichi Handa  <handa@m17n.org>
 
 	* .cvsignore: Add mkinstalldirs, ltmain.sh.
