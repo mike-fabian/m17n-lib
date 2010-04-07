@@ -4,6 +4,8 @@ libdir=@libdir@
 includedir=@includedir@
 version=@PACKAGE_VERSION@
 
+moduledir=${exec_prefix}/lib/@M17N_MODULE_DIR@
+
 Name: m17n-flt
 Description: FLT API suport of the m17n library.
 Version: ${version}
