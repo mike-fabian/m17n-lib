@@ -12,8 +12,8 @@
 2010-04-02  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-core.h (M17NLIB_MINOR_VERSION): Changed to 6.
-	(M17NLIB_PATCH_LEVEL): Changed to 0.
-	(M17NLIB_VERSION_NAME): 1.6.0.
+	(M17NLIB_PATCH_LEVEL): Changed to 1.
+	(M17NLIB_VERSION_NAME): 1.6.1.
 
 2010-03-30  Kenichi Handa  <handa@m17n.org>
 

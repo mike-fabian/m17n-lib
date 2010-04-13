@@ -5,6 +5,21 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.6.0
+
+** Libtool 1.5.26 can be used to build the library from CVS source.
+
+
+* Changes in the m17n library 1.6.0
+
+** For handling new spec in the Unicode 5.2, these new APIs are added
+to m17n-flt.h.
+   mflt_enable_new_feature
+   mflt_iterate_otf_feature
+   mflt_font_id
+   mflt_try_otf
+
+
 * Changes in the m17n library 1.5.5
 
 ** Now libtool 2.2.4 or the later is required to build the library
