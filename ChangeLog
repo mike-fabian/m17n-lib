@@ -1,3 +1,7 @@
+2010-04-13  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.6.1 released.
+
 2010-04-07  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-gui.pc.in (moduledir): New variable.
@@ -20,6 +24,10 @@
 2010-04-02  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Version changed to 1.6.1.
+
+2010-03-30  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.6.0 released.
 
 2010-03-30  Kenichi Handa  <handa@m17n.org>
 
