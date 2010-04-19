@@ -2311,11 +2311,14 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 
 	  if (GET_COMBINED (g)
 	      || (prev_category && prev_category != ctx->stage->category))
-	    enc = (GET_ENCODED (g)
-		   ? (g->c > 0 ? (int) mchartable_lookup (table, g->c) : 1)
-		   : g->code
-		   ? (int) mchartable_lookup (table, g->code)
-		   : ' ');
+	    {
+	      enc = (GET_ENCODED (g)
+		     ? (g->c > 0 ? (int) mchartable_lookup (table, g->c) : 1)
+		     : g->code
+		     ? (int) mchartable_lookup (table, g->code)
+		     : ' ');
+	      SET_CATEGORY_CODE (g, enc);
+	    }
 	  else
 	    enc = GET_CATEGORY_CODE (g);
 	  ctx->encoded[i - from] = enc;
