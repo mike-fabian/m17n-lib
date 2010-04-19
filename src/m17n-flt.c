@@ -2317,7 +2317,8 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		     : g->code
 		     ? (int) mchartable_lookup (table, g->code)
 		     : ' ');
-	      SET_CATEGORY_CODE (g, enc);
+	      if (! GET_COMBINED (g))
+		SET_CATEGORY_CODE (g, enc);
 	    }
 	  else
 	    enc = GET_CATEGORY_CODE (g);
