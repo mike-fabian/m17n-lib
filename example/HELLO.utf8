@@ -30,7 +30,8 @@ South/South-East Asia
   Tibetan (བོད་སྐད་)			བཀྲ་ཤིས་བདེ་ལེགས༎ (ex: བསྒྲུབས, ཧཱུཾ)
   Thai (ภาษาไทย)			สวัสดีครับ, สวัสดีค่ะ
   Lao (ພາສາລາວ)			ສະບາຍດີ, ຂໍໃຫ້ໂຊກດີ
-  Myanmar (မ္ရန္‌မာ)			မင္‍ဂလာပာ
+  Myanmar (မ္ရန္‌မာ)			မင္‍ဂလာပာ (before Unicode 5.1)
+  Myanmar (မြန်မာ)			မင်္ဂလာပါ (after Unicode 5.1)
   Khmer (ភាសាខ្មែរ)			ជំរាបសួរ (ex: ក៊្ក្រឿ)
   Vietnamese (Tiếng Việt)	Chào bạn
 
