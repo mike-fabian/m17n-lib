@@ -2252,6 +2252,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   OTF_Glyph *otfg;
   char script[5], *langsys = NULL;
   char *gsub_features = NULL, *gpos_features = NULL;
+  unsigned int tag;
 
   if (len == 0)
     return from;
@@ -2306,7 +2307,6 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
     {
       OTF_Feature *features;
       MGlyph *g;
-      unsigned int tag;
 
       if (OTF_drive_gsub_with_log (otf, &otf_gstring, script, langsys,
 				   gsub_features) < 0)
@@ -2336,7 +2336,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		{
 		  tag = features[feature_idx - 1].FeatureTag;
 		  tag = PACK_OTF_TAG (tag);
-		  g->g.internal = (g->g.internal & ~0xFFFFFFF) | tag;
+		  g->g.internal = (g->g.internal & ~0x1FFFFFFF) | tag;
 		}
 	      for (j = otfg->f.index.from + 1; j <= otfg->f.index.to; j++)
 		{
@@ -2367,7 +2367,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
 		    {
 		      g = in_glyphs + (from + j);
-		      g->g.internal = (g->g.internal & ~0xFFFFFFF) | tag;
+		      g->g.internal = (g->g.internal & ~0x1FFFFFFF) | tag;
 		    }
 		}
 	    }
@@ -2406,9 +2406,11 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	      int feature_idx = otfg->positioning_type >> 4;
 
 	      if (feature_idx)
-		g->g.internal = ((g->g.internal & ~0xFFFF)
-				 | features[feature_idx - 1].FeatureTag);
-
+		{
+		  tag = features[feature_idx - 1].FeatureTag;
+		  tag = PACK_OTF_TAG (tag);
+		  g->g.internal = (g->g.internal & ~0x1FFFFFFF) | tag;
+		}
 	      switch (otfg->positioning_type & 0xF)
 		{
 		case 0:
@@ -2519,12 +2521,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		int feature_idx = otfg->positioning_type >> 4;
 
 		if (feature_idx)
-		  for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
-		    {
-		      g = in_glyphs + (from + j);
-		      g->g.internal = ((g->g.internal & ~0xFFFF)
-				       | features[feature_idx - 1].FeatureTag);
-		    }
+		  {
+		    tag = features[feature_idx - 1].FeatureTag;
+		    tag = PACK_OTF_TAG (tag);
+		    for (j = otfg->f.index.from; j <= otfg->f.index.to; j++)
+		      {
+			g = in_glyphs + (from + j);
+			g->g.internal = (g->g.internal & ~0x1FFFFFFF) | tag;
+		      }
+		  }
 	      }
 	}
     }
@@ -2536,7 +2541,7 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
   if (otf_gstring.glyphs)
     free (otf_gstring.glyphs);
 #endif	/* HAVE_OTF */
-  if ( out)
+  if (out)
     {
       if (out->allocated < out->used + len)
 	return -2;
