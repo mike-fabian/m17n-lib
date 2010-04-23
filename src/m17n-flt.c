@@ -257,9 +257,9 @@ enum GlyphInfoMask
 {
   CategoryCodeMask = 0x7F,
   CombiningCodeMask = 0xFFFFFF,
-  CombinedMask = 1 << 27,
-  LeftPaddingMask = 1 << 28,
-  RightPaddingMask = 1 << 29
+  CombinedMask = 1 << 28,
+  LeftPaddingMask = 1 << 29,
+  RightPaddingMask = 1 << 30
 };
 
 #define SET_GLYPH_INFO(g, mask, ctx, info)			\
@@ -1875,6 +1875,8 @@ decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
       unsigned int tag = g->internal & 0xFFFFFFF;
       char enc;
 
+      if (GET_COMBINED (g))
+	continue;
       if (! category)
 	{
 	  SET_CATEGORY_CODE (g, 0);
