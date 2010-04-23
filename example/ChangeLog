@@ -1,6 +1,10 @@
-2010-04-13  Kenichi Handa  <handa@m17n.org>
+2010-04-23  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.1 released.
+
+2010-04-23  Kenichi Handa  <handa@m17n.org>
+
+	* HELLO.utf8: Add Unicode 5.1 based Myanmar.
 
 2010-03-30  Kenichi Handa  <handa@m17n.org>
 

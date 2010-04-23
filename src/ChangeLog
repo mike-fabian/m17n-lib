@@ -1,6 +1,22 @@
-2010-04-13  Kenichi Handa  <handa@m17n.org>
+2010-04-23  Kenichi Handa  <handa@m17n.org>
 
-	* Version 1.6.1 released.
+ 	* Version 1.6.1 released.
+
+2010-04-23  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (enum GlyphInfoMask): Shift upper masks 1-bit left.
+	(decode_packed_otf_tag): If a glyph has combining information,
+	don't touch it.
+
+2010-04-23  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_drive_otf): Reset 28th bit of g->g.internal for
+	storing OTF feature tag.
+
+2010-04-19  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (run_stages): Update category code of glyphs if
+	category table is changed.
 
 2010-04-05  Kenichi Handa  <handa@m17n.org>
 
