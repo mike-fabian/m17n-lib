@@ -599,7 +599,7 @@ m17n_init_core (void)
     mdebug__output = NULL;
     if (env_value)
       {
-	if (strcmp (env_value, "stdout"))
+	if (strcmp (env_value, "stdout") == 0)
 	  mdebug__output = stdout;
 	else
 	  mdebug__output = fopen (env_value, "a");
