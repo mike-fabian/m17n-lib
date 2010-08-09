@@ -1,3 +1,15 @@
+2010-08-09  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (try_otf): Remove unused local vars.
+
+	* input.c (fully_initialize): Avoid compiler warning by casting.
+
+	* m17n-core.c (m17n_init_core): Fix handling of env_value.
+
+	* fontset.c (realize_fontset_elements): Fix typo (pl->plist).
+
+	* coding.c (decode_coding_iso_2022): Sanitize "if" condition.
+
 2010-04-23  Kenichi Handa  <handa@m17n.org>
 
  	* Version 1.6.1 released.
