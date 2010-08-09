@@ -1836,7 +1836,7 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 		int bytes;
 		int i;
 
-		if (! spec->flags & MCODING_ISO_DESIGNATION_CTEXT_EXT)
+		if (! (spec->flags & MCODING_ISO_DESIGNATION_CTEXT_EXT))
 		  goto invalid_byte;
 		/* Compound-text uses these escape sequences:
 
