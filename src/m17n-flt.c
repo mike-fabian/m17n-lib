@@ -2018,7 +2018,6 @@ try_otf (int depth, MFLTOtfSpec *otf_spec, int from, int to,
 	 FontLayoutContext *ctx)
 {
   MFLTFont *font = ctx->font;
-  int from_idx = ctx->out->used;
 
   if (MDEBUG_FLAG () > 2)
     MDEBUG_PRINT3 ("\n [FLT] %*s%s", depth, "", MSYMBOL_NAME (otf_spec->sym));
@@ -2054,9 +2053,6 @@ try_otf (int depth, MFLTOtfSpec *otf_spec, int from, int to,
   font->get_glyph_id (font, ctx->in, from, to);
   if (mflt_try_otf)
     {
-      int out_len;
-      int i;
-
       to = mflt_try_otf (font, otf_spec, ctx->in, from, to);
       if (to < 0)
 	return from;
