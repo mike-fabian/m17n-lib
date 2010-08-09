@@ -401,7 +401,7 @@ fully_initialize ()
 	msymbol_put (alias[j], M_key_alias, alias[j + 1]);
     }
 
-  buf3[0] = 255;
+  buf3[0] = (char) 255;
   alias[0] = alias[3] = msymbol (buf3);
   alias[1] = one_char_symbol[255] = msymbol ("M-Delete");
   alias[2] = msymbol ("A-Delete");
