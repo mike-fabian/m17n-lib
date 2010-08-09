@@ -300,13 +300,15 @@ realize_fontset_elements (MFrame *frame, MRealizedFontset *realized)
 {
   MFontset *fontset = realized->fontset;
   MPlist *per_script, *per_charset, *font_group;
-  MPlist *plist, *pl, *p;
+  MPlist *plist, *p;
 
   realized->per_script = per_script = mplist ();
   /* The actual elements of per_script are realized on demand.  */
 #if 0
   MPLIST_DO (plist, fontset->per_script)
     {
+      MPlist *pl;
+
       per_lang = mplist ();
       per_script = mplist_add (per_script, MPLIST_KEY (plist), per_lang);
       MPLIST_DO (pl, MPLIST_PLIST (plist))
@@ -321,11 +323,11 @@ realize_fontset_elements (MFrame *frame, MRealizedFontset *realized)
 #endif
 
   realized->per_charset = per_charset = mplist ();
-  MPLIST_DO (pl, fontset->per_charset)
+  MPLIST_DO (plist, fontset->per_charset)
     {
       font_group = mplist ();
       per_charset = mplist_add (per_charset, MPLIST_KEY (plist), font_group);
-      MPLIST_DO (p, MPLIST_PLIST (pl))
+      MPLIST_DO (p, MPLIST_PLIST (plist))
 	font_group = mplist_add (font_group, MPLIST_KEY (p), MPLIST_VAL (p));
     }
   realized->fallback = font_group = mplist ();
