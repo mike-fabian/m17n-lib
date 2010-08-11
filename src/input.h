@@ -89,6 +89,8 @@ typedef struct
   /** Used by minput_win_driver (input-win.c).  */
   void *win_info;
 
+  MPlist *state_hook;
+
   unsigned long tick;
 } MInputContextInfo;
 
