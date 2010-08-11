@@ -2395,6 +2395,10 @@ load_im_info (MPlist *plist, MInputMethodInfo *im_info)
 static int take_action_list (MInputContext *ic, MPlist *action_list);
 static void preedit_commit (MInputContext *ic, int need_prefix);
 
+/* Shift to the state of name STATE_NAME.  If STATE_NAME is `t', shift
+   to the previous state (if any).  If STATE_NAME is `nil', shift to
+   the initial state.  */
+
 static void
 shift_state (MInputContext *ic, MSymbol state_name)
 {
@@ -2441,7 +2445,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
     preedit_commit (ic, 0);
   mtext_cpy (ic_info->preedit_saved, ic->preedit);
   ic_info->state_pos = ic->cursor_pos;
-  if (state != orig_state)
+  if (state != orig_state || state_name == Mnil)
     {
       if (state == (MIMState *) MPLIST_VAL (im_info->states))
 	{
@@ -2458,13 +2462,7 @@ shift_state (MInputContext *ic, MSymbol state_name)
       else
 	ic->status = im_info->title;
       ic->status_changed = 1;
-      if (ic_info->map == ic_info->state->map
-	  && ic_info->map->map_actions)
-	{
-	  MDEBUG_PRINT1 ("  [IM] [%s] init-actions:",
-			 MSYMBOL_NAME (state->name));
-	  take_action_list (ic, ic_info->map->map_actions);
-	}
+      ic_info->state_hook = ic_info->map->map_actions;
     }
 }
 
@@ -3516,6 +3514,14 @@ handle_key (MInputContext *ic)
   MSymbol alias = Mnil;
   int i;
 
+  if (ic_info->state_hook)
+    {
+      MDEBUG_PRINT1 ("  [IM] [%s] init-actions:",
+		     MSYMBOL_NAME (ic_info->state->name));
+      take_action_list (ic, ic_info->state_hook);
+      ic_info->state_hook = NULL;
+    }
+
   MDEBUG_PRINT2 ("  [IM] [%s] handle `%s'", 
 		 MSYMBOL_NAME (ic_info->state->name), msymbol_name (key));
 
@@ -3606,6 +3612,7 @@ handle_key (MInputContext *ic)
 	      && ic_info->key_head < ic_info->used)
 	    {
 	      MDEBUG_PRINT (" unhandled\n");
+	      ic_info->state_hook = map->map_actions;
 	      return -1;
 	    }
 
