@@ -1,3 +1,12 @@
+2010-08-11  Kenichi Handa  <handa@m17n.org>
+
+	* input.h (MInputContextInfo): New member state_hook.
+
+	* input.c (shift_state): Just set ic_info->state_hook, instead of
+	taking state-hook actions.
+	(handle_key): Check ic_info->state_hook.  If KEY is unhandled,
+	init ic_info->state_hook.
+
 2010-08-09  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (try_otf): Remove unused local vars.
