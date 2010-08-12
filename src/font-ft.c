@@ -66,6 +66,7 @@ static FT_Library ft_library;
 
 #ifdef HAVE_OTF
 static OTF *invalid_otf = (OTF *) "";
+static OTF *get_otf (MFLTFont *font, FT_Face *ft_face);
 #endif /* HAVE_OTF */
 
 typedef struct
@@ -2091,7 +2092,7 @@ ft_encapsulate (MFrame *frame, MSymbol data_type, void *data)
   ft_rfont->ft_face = ft_face;
   ft_rfont->face_encapsulated = 1;
 
-  MDEBUG_DUMP (" [FONT-FT] encapsulating ", (char *) ft_face->family_name,);
+  MDEBUG_PRINT1 (" [FONT-FT] encapsulating %s", (char *) ft_face->family_name);
 
   MSTRUCT_CALLOC (rfont, MERROR_FONT_FT);
   rfont->id = ft_info->font.file;
@@ -2141,30 +2142,6 @@ ft_close (MRealizedFont *rfont)
   free (rfont);
 }
 
-static OTF *
-get_otf (MFLTFont *font, FT_Face *ft_face)
-{
-  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
-  MFontFT *ft_info = (MFontFT *) rfont->font;
-  MRealizedFontFT *ft_rfont = rfont->info;
-  OTF *otf = ft_info->otf;
-
-  if (! otf)
-    {
-#if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
-      otf = OTF_open_ft_face (ft_rfont->ft_face);
-#else
-      otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
-#endif
-      if (! otf || OTF_get_table (otf, "head") < 0)
-	otf = invalid_otf;
-      ft_info->otf = otf;
-    }
-  if (ft_face)
-    *ft_face = ft_rfont->ft_face;
-  return (otf == invalid_otf ? NULL : otf);
-}
-
 static int 
 ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
 {
@@ -2196,13 +2173,37 @@ ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
 	return 0;
     }
   return 1;
-#endif	/* HAVE_OTF */
  not_otf:
+#endif	/* HAVE_OTF */
   return ((! spec->features[0] || spec->features[0][0] == 0xFFFFFFFF)
 	  && (! spec->features[1] || spec->features[1][0] == 0xFFFFFFFF));
 }
 
 #ifdef HAVE_OTF
+
+static OTF *
+get_otf (MFLTFont *font, FT_Face *ft_face)
+{
+  MRealizedFont *rfont = ((MFLTFontForRealized *) font)->rfont;
+  MFontFT *ft_info = (MFontFT *) rfont->font;
+  MRealizedFontFT *ft_rfont = rfont->info;
+  OTF *otf = ft_info->otf;
+
+  if (! otf)
+    {
+#if (LIBOTF_MAJOR_VERSION > 0 || LIBOTF_MINOR_VERSION > 9 || LIBOTF_RELEASE_NUMBER > 4)
+      otf = OTF_open_ft_face (ft_rfont->ft_face);
+#else
+      otf = OTF_open (MSYMBOL_NAME (ft_info->font.file));
+#endif
+      if (! otf || OTF_get_table (otf, "head") < 0)
+	otf = invalid_otf;
+      ft_info->otf = otf;
+    }
+  if (ft_face)
+    *ft_face = ft_rfont->ft_face;
+  return (otf == invalid_otf ? NULL : otf);
+}
 
 #define DEVICE_DELTA(table, size)				\
   (((size) >= (table).StartSize && (size) <= (table).EndSize)	\
@@ -2242,8 +2243,8 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	      MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment)
 {
   int len = to - from;
-  int i, j, gidx;
 #ifdef HAVE_OTF
+  int i, j, gidx;
   MGlyph *in_glyphs = (MGlyph *) (in->glyphs);
   MGlyph *out_glyphs = out ? (MGlyph *) (out->glyphs) : NULL;
   OTF *otf;
