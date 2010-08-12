@@ -1154,7 +1154,7 @@ mfont__init ()
   default_encoding.repertory_name = Mnil;
   default_encoding.repertory_charset = NULL;
   {
-    char *path, *buf;
+    char *path, *buf = NULL;
     int bufsize;
     USE_SAFE_ALLOCA;
 
@@ -1219,7 +1219,7 @@ mfont__fini ()
 MSymbol
 mfont__id (MFont *font)
 {
-  char *buf, *p;
+  char *buf = NULL, *p;
   int i;
   int file_len = (font->file == Mnil ? 0 : MSYMBOL_NAMELEN (font->file));
   int capability_len  = (font->capability == Mnil ? 0
