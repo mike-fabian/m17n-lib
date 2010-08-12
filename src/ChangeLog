@@ -1,3 +1,15 @@
+2010-08-12  Kenichi Handa  <handa@m17n.org>
+
+	* font.c (mfont__init): Initialize buf to NULL.
+	(mfont__id): Likewise.
+
+	* font-ft.c (ft_encapsulate): Use MDEBUG_PRINT1 instead of
+	MDEBUG_DUMP.
+	(ft_check_otf): Move the label not_otf: within #ifdef HAVE_OTF.
+	(get_otf): Move the code within #ifdef HAVE_OTF.
+	(ft_drive_otf): Move declarations of some local variables within
+	#ifdef HAVE_OTF.
+
 2010-08-11  Kenichi Handa  <handa@m17n.org>
 
 	* input.h (MInputContextInfo): New member state_hook.
