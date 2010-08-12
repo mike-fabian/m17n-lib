@@ -1,3 +1,7 @@
+2010-08-12  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Fix help string for --enable-gui.
+
 2010-04-23  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.1 released.
