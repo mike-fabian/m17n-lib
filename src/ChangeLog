@@ -1,5 +1,8 @@
 2010-08-12  Kenichi Handa  <handa@m17n.org>
 
+	* character.h (STRING_CHAR_ADVANCE_UTF8): Sanitize the code.
+	(STRING_CHAR_ADVANCE_UTF16): Likewise.
+
 	* font.c (mfont__init): Initialize buf to NULL.
 	(mfont__id): Likewise.
 
