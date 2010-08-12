@@ -94,7 +94,7 @@ AC_SUBST(M17NDIR)
 dnl Checks which levels of APIs should be compiled.
 
 AC_ARG_ENABLE(gui,
-	      AS_HELP_STRING([--with-gui],[with GUI level APIs (default is YES)]))
+	      AS_HELP_STRING([--enable-gui],[enable GUI level APIs (default is YES)]))
 
 AM_CONDITIONAL(WITH_GUI, test x$with_gui != xno)
 
