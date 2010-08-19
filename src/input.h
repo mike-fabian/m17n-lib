@@ -100,6 +100,7 @@ typedef struct
 #define MINPUT_KEY_ALT_MODIFIER		(1 << 3)
 #define MINPUT_KEY_SUPER_MODIFIER	(1 << 4)
 #define MINPUT_KEY_HYPER_MODIFIER	(1 << 5)
+#define MINPUT_KEY_ALTGR_MODIFIER	(1 << 6)
 
 extern MSymbol minput__char_to_key (int c);
 
