@@ -269,7 +269,7 @@ static int update_custom_info (void);
 static MInputMethodInfo *get_im_info (MSymbol, MSymbol, MSymbol, MSymbol);
 
 
-void
+static void
 fully_initialize ()
 {
   char *key_names[32]
