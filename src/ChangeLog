@@ -1,3 +1,15 @@
+2010-08-19  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-X.c (MDisplayInfo): New member altgr_mask.
+	(find_modifier_bits): Set disp_info->altgr_mask.
+
+	* input.c (fully_initialize): Make it static.
+
+	* input.h (MINPUT_KEY_ALTGR_MODIFIER): New macro.
+
+	* input-gui.c (minput_event_to_key): Handle
+	MINPUT_KEY_ALTGR_MODIFIER.
+
 2010-08-12  Kenichi Handa  <handa@m17n.org>
 
 	* character.h (STRING_CHAR_ADVANCE_UTF8): Sanitize the code.
