@@ -684,8 +684,8 @@ MSymbol Mxim;
     cleared.
 
     If $EVENT still has modifiers, the name is preceded by "S-"
-    (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), "s-" (Super),
-    and/or "H-" (Hyper) in this order.
+    (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), "G-" (AltGr),
+    "s-" (Super), and "H-" (Hyper) in this order.
 
     For instance, if the keysym name is "a" and the event has Shift,
     Meta, and Hyper modifiers, the resulting name is "M-H-A".
@@ -712,8 +712,8 @@ MSymbol Mxim;
     0x1F とをビット単位で and 演算し、Control モディファイアは取り除かれる。
 
     それでも $EVENT にまだモディファイアがあれば、名前の前にそれぞれ
-    "S-" (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), "s-"
-    (Super), "H-" (Hyper)がこの順番で付く。
+    "S-" (Shift), "C-" (Control), "M-" (Meta), "A-" (Alt), , "G-" (AltGr),
+    "s-" (Super), "H-" (Hyper)がこの順番で付く。
     
     たとえば、keysym 名が "a" でイベントが Shift, Meta, and Hyper 
     モディファイアを持てば、得られる名前は "M-H-A" である。
@@ -734,7 +734,7 @@ minput_event_to_key (MFrame *frame, void *event)
     return key;
 
   name = msymbol_name (key);
-  str = alloca (strlen (name) + 2 * 6 + 1);
+  str = alloca (strlen (name) + 2 * 8 + 1);
   str[0] = '\0';
   if (modifiers & MINPUT_KEY_SHIFT_MODIFIER)
     strcat (str, "S-");
@@ -744,6 +744,8 @@ minput_event_to_key (MFrame *frame, void *event)
     strcat (str, "M-");
   if (modifiers & MINPUT_KEY_ALT_MODIFIER)
     strcat (str, "A-");
+  if (modifiers & MINPUT_KEY_ALTGR_MODIFIER)
+    strcat (str, "G-");
   if (modifiers & MINPUT_KEY_SUPER_MODIFIER)
     strcat (str, "s-");
   if (modifiers & MINPUT_KEY_HYPER_MODIFIER)
