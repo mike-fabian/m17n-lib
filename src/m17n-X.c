@@ -84,6 +84,7 @@ typedef struct
   int alt_mask;
   int super_mask;
   int hyper_mask;
+  int altgr_mask;
 
   Atom MULE_BASELINE_OFFSET;
   Atom AVERAGE_WIDTH;
@@ -258,6 +259,9 @@ find_modifier_bits (MDisplayInfo *disp_info)
   KeyCode super_r = XKeysymToKeycode (display, XK_Super_R);
   KeyCode hyper_l = XKeysymToKeycode (display, XK_Hyper_L);
   KeyCode hyper_r = XKeysymToKeycode (display, XK_Hyper_R);
+#ifdef XK_XKB_KEYS
+  KeyCode altgr = XKeysymToKeycode (display, XK_ISO_Level3_Shift);
+#endif
   int i, j;
 
   mods = XGetModifierMapping (display);
@@ -278,6 +282,10 @@ find_modifier_bits (MDisplayInfo *disp_info)
 	  disp_info->super_mask |= (1 << i);
 	else if (code == hyper_l || code == hyper_r)
 	  disp_info->hyper_mask |= (1 << i);
+#ifdef XK_XKB_KEYS
+	else if (code == altgr)
+	  disp_info->altgr_mask |= (1 << i);
+#endif
       }
 
   /* If meta keys are not in any modifier, use alt keys as meta
@@ -2017,6 +2025,10 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
     return Mnil;
   if (keysym >= XK_Shift_L && keysym <= XK_Hyper_R)
     return Mnil;
+#ifdef XK_XKB_KEYS
+  if ((keysym & 0xff00) == 0xfe00)
+    return Mnil;
+#endif
   if (len == 1 && keysym >= XK_space && keysym <= XK_asciitilde)
     {
       int c = keysym;
@@ -2045,7 +2057,10 @@ mwin__parse_event (MFrame *frame, void *arg, int *modifiers)
     *modifiers |= MINPUT_KEY_SUPER_MODIFIER;
   if (((XKeyEvent *) event)->state & disp_info->hyper_mask)
     *modifiers |= MINPUT_KEY_HYPER_MODIFIER;
-
+#ifdef XK_XKB_KEYS
+  if (((XKeyEvent *) event)->state & disp_info->altgr_mask)
+    *modifiers |= MINPUT_KEY_ALTGR_MODIFIER;
+#endif
   return key;
 }
 
