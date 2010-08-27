@@ -16,10 +16,11 @@ language.
 Run the script "bootstrap.sh" in this directory.  It is tested that
 the script runs successfully with these versions of tools.
 
-	        libtool automake autoconf pkg-config
-  Debian Lenny   1.5.26   1.10.1     2.61       0.22
-  Ubunto 9.10     2.2.4    1.9.6     2.61       0.22
-  Fedra 12       2.2.6b   1.11.1     2.63       0.23
+	        libtool automake autoconf gettext pkg-config
+  Debian Lenny   1.5.26   1.10.1     2.61    0.17       0.22
+  Ubunto 10.4    2.2.6b   1.11.1     2.65    0.17       0.22
+  Ubunto 9.10     2.2.4    1.9.6     2.61    0.17       0.22
+  Fedra 12       2.2.6b   1.11.1     2.63    0.17       0.23
 
 Then, proceed to the next step.
 
