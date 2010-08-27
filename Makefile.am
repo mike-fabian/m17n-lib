@@ -26,8 +26,9 @@ SUBDIRS = intl po src example
 
 bin_SCRIPTS = m17n-config
 
-EXTRA_DIST = m4/ChangeLog config.rpath mkinstalldirs \
-	m17n-core.pc.in m17n-shell.pc.in m17n-flt.pc.in m17n-gui.pc.in bootstrap.sh
+EXTRA_DIST = \
+	m17n-core.pc.in m17n-shell.pc.in m17n-flt.pc.in m17n-gui.pc.in \
+	bootstrap.sh
 
 pkgconfigdir = ${libdir}/pkgconfig
 
