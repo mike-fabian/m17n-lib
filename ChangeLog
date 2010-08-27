@@ -1,3 +1,13 @@
+2010-08-27  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Call AC_GNU_SOURCE and AM_GNU_GETTEXT_VERSION.
+	Call AC_PROG_LIBTOOL later.
+
+	* bootstrap.sh: Make po/Makevars from po/Makevars.template.
+
+	* Makefile.am (EXTRA_DIST): Remove m4/ChangeLog config.rpath
+	mkinstalldirs.
+
 2010-08-12  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac: Fix help string for --enable-gui.
