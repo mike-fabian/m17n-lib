@@ -444,7 +444,7 @@ esac
 AC_DEFINE_UNQUOTED(DLOPEN_SHLIB_EXT, "$SHLIB_EXT",
 		   [Define to loadable module extention])
 
-AC_CONFIG_FILES([Makefile po/Makefile.in intl/Makefile
+AC_CONFIG_FILES([Makefile intl/Makefile po/Makefile.in
                  src/Makefile
                  example/Makefile
 		 m17n-config
