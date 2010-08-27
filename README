@@ -22,6 +22,7 @@ the script runs successfully with these versions of tools.
   Ubunto 9.10     2.2.4    1.9.6     2.61    0.17       0.22
   Ubunto 10.4    2.2.6b   1.11.1     2.65    0.17       0.22
   Fedra 12       2.2.6b   1.11.1     2.63    0.17       0.23
+  Fedra 13       2.2.6b   1.11.1     2.65  0.18.1       0.23
 
 (*) bootstrap.sh prints lots of warning something like this:
 ------------------------------------------------------------
