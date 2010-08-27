@@ -1,6 +1,6 @@
 2010-08-27  Kenichi Handa  <handa@m17n.org>
 
-	* .cvsignore: Add ABOUT-NLS, intl, m4.
+	* .cvsignore: Add ABOUT-NLS.
 
 	* intl/*, m4/*: Delete them.
 
