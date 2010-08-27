@@ -23,6 +23,10 @@
 
 echo "Running autoreconf -v -f -i"
 autoreconf -v -f -i
+if [ ! -f po/Makevars ] ; then
+    echo "Copying po/Makevars.template to po/Makevars"
+    cp po/Makevars.template po/Makevars
+fi
 echo "The remaining steps to install this library are:"
 echo "  % ./configure"
 echo "  % make"
