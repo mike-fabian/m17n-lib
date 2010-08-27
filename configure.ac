@@ -26,7 +26,6 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT([m17n-lib],[1.6.1],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
-AC_PROG_LIBTOOL
 AC_CONFIG_HEADERS([src/config.h])
 AM_MAINTAINER_MODE
 
@@ -40,12 +39,17 @@ M17N_BINARY_VERSION=1.0
 M17N_MODULE_DIR="m17n/$M17N_BINARY_VERSION"
 AC_SUBST(M17N_MODULE_DIR)
 
-AM_GNU_GETTEXT
-GETTEXTDIR="$datadir/locale"
-AC_SUBST(GETTEXTDIR)
 
 dnl Checks for programs for compiling.
 AC_PROG_CC
+AC_GNU_SOURCE
+
+AM_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION([0.17])
+GETTEXTDIR="$datadir/locale"
+AC_SUBST(GETTEXTDIR)
+
+AC_PROG_LIBTOOL
 dnl LT_PREREQ([2.2.4])
 dnl LT_INIT
 
