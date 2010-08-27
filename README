@@ -18,9 +18,26 @@ the script runs successfully with these versions of tools.
 
 	        libtool automake autoconf gettext pkg-config
   Debian Lenny   1.5.26   1.10.1     2.61    0.17       0.22
-  Ubunto 10.4    2.2.6b   1.11.1     2.65    0.17       0.22
+  Ubunto 8.04(*) 1.5.26   1.10.1     2.61    0.17       0.22
   Ubunto 9.10     2.2.4    1.9.6     2.61    0.17       0.22
+  Ubunto 10.4    2.2.6b   1.11.1     2.65    0.17       0.22
   Fedra 12       2.2.6b   1.11.1     2.63    0.17       0.23
+
+(*) bootstrap.sh prints lots of warning something like this:
+------------------------------------------------------------
+autoreconf: running: aclocal --force -I m4
+configure.ac:47: warning: AC_COMPILE_IFELSE was called \
+before AC_USE_SYSTEM_EXTENSIONS
+../../lib/autoconf/specific.m4:389: AC_USE_SYSTEM_EXTENSIONS is expanded from...
+m4/lock.m4:29: gl_LOCK_EARLY_BODY is expanded from...
+m4/lock.m4:22: gl_LOCK_EARLY is expanded from...
+m4/lock.m4:253: gl_LOCK is expanded from...
+m4/intl.m4:186: gt_INTL_SUBDIR_CORE is expanded from...
+m4/intl.m4:25: AM_INTL_SUBDIR is expanded from...
+m4/gettext.m4:57: AM_GNU_GETTEXT is expanded from...
+configure.ac:47: the top level
+------------------------------------------------------------
+but, it seems that they can be just ignored.
 
 Then, proceed to the next step.
 
