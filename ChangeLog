@@ -1,5 +1,9 @@
 2010-08-27  Kenichi Handa  <handa@m17n.org>
 
+	* config.rpath: Delete it.
+
+	* ABOUT-NLS: Delete it.
+
 	* configure.ac: Call AC_GNU_SOURCE and AM_GNU_GETTEXT_VERSION.
 	Call AC_PROG_LIBTOOL later.
 
