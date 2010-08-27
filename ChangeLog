@@ -1,5 +1,7 @@
 2010-08-27  Kenichi Handa  <handa@m17n.org>
 
+	* intl/*, po/*, m4/*: Delete them.
+
 	* config.rpath: Delete it.
 
 	* ABOUT-NLS: Delete it.
