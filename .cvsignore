@@ -20,5 +20,3 @@ missing
 mkinstalldirs
 ltmain.sh
 ABOUT-NLS
-intl
-m4
