@@ -546,7 +546,6 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 
 	      for (g++;
 		   (g->type == GLYPH_CHAR
-		    && g->g.from != gstring->control.cursor_pos
 		    && g->rface->layouter == this->rface->layouter
 		    && (g->rface->rfont == this->rface->rfont
 			|| (g->category == GLYPH_CATEGORY_FORMATTER
