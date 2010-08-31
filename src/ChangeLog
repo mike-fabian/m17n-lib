@@ -1,3 +1,8 @@
+2010-08-31  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): Allow running flt striding over
+	the cursor position.
+
 2010-08-19  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-X.c (MDisplayInfo): New member altgr_mask.
