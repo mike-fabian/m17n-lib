@@ -483,6 +483,8 @@ compose_glyph_string (MFrame *frame, MText *mt, int from, int to,
 		    break;
 		  }
 	    }
+	  if (this_script == Minherited || this_script == Mcommon)
+	    this_script = (MSymbol) mchar_get_prop (c, Mblock);
 	}
 
       pos = g->g.from;
