@@ -1,3 +1,8 @@
+2010-09-01  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (compose_glyph_string): When the script `inherited' and
+	`common' can't be resolved, use "block" property of the character.
+
 2010-08-31  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): Allow running flt striding over
