@@ -21,6 +21,9 @@
 # Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301, USA.
 
+echo "Cleaning up old files..."
+rm -rf INSTALL aclocal.m4 autom4te.cache config.guess. config.rpath config.sub install-sh libtool ltmain.sh missing mkinstalldirs intl m4
+
 echo "Running autoreconf -v -f -i"
 autoreconf -v -f -i
 if [ ! -f po/Makevars ] ; then
