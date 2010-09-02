@@ -225,9 +225,10 @@ visual_order (MGlyphString *gstring)
   for (i = 1; i < gstring->used - 1; i++)
     {
       MGlyph *g = gstring->glyphs + i;
+      int level = g->bidi_level;
 
       for (j = i; g->g.from == gstring->glyphs[j + 1].g.from; j++);
-      if (j > i)
+      if ((level % 2) && j > i)
 	{
 	  memcpy (glyphs + i, gstring->glyphs + i,
 		  sizeof (MGlyph) * (j - i + 1));
