@@ -1,3 +1,7 @@
+2010-09-02  Kenichi Handa  <handa@m17n.org>
+
+	* bootstrap.sh: Clean old files at first.
+
 2010-08-27  Kenichi Handa  <handa@m17n.org>
 
 	* .cvsignore: Add ABOUT-NLS.
