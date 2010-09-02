@@ -1,3 +1,7 @@
+2010-09-02  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (visual_order): Reorder only RTL composed-sequence.
+
 2010-09-01  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (compose_glyph_string): When the script `inherited' and
