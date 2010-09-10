@@ -1,3 +1,12 @@
+2010-09-11  Kenichi Handa  <handa@m17n.org>
+
+	* src/charset.c, src/chartab.c, src/coding.c, src/face.c,
+	src/font.c, src/fontset.c, src/input.c, src/m17n-X.c,
+	src/m17n-core.c, src/m17n-flt.c, src/m17n-gd.c, src/m17n-gui.c,
+	src/m17n.c, src/mtext.c, src/plist.c, src/symbol.c,
+	src/textprop.c: Print debug information to mdebug__output instead
+	of stderr.
+
 2010-09-02  Kenichi Handa  <handa@m17n.org>
 
 	* draw.c (visual_order): Reorder only RTL composed-sequence.
