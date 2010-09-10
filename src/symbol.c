@@ -180,7 +180,7 @@ msymbol__free_table ()
       symbol_table[i] = NULL;
     }
   if (mdebug__flags[MDEBUG_FINI])
-    fprintf (stderr, "%16s %7d %7d %7d\n", "Symbol",
+    fprintf (mdebug__output, "%16s %7d %7d %7d\n", "Symbol",
 	     num_symbols, freed_symbols, num_symbols - freed_symbols);
   num_symbols = 0;
 }
@@ -735,9 +735,10 @@ msymbol_get_func (MSymbol symbol, MSymbol key)
 /***en
     @brief Dump a symbol.
 
-    The mdebug_dump_symbol () function prints symbol $SYMBOL in a human
-    readable way to the stderr.  $INDENT specifies how many columns to
-    indent the lines but the first one.
+    The mdebug_dump_symbol () function prints symbol $SYMBOL in a
+    human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $SYMBOL.
@@ -747,8 +748,9 @@ msymbol_get_func (MSymbol symbol, MSymbol key)
 /***ja
     @brief シンボルをダンプする.
 
-    関数 mdebug_dump_symbol () はシンボル $symbol を stderr 
-    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_symbol () はシンボル $symbol を標準エラー出力もし
+    くは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形
+    で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $SYMBOL を返す。 
@@ -774,10 +776,10 @@ mdebug_dump_symbol (MSymbol symbol, int indent)
   else
     plist = &symbol->plist, name = symbol->name;
 
-  fprintf (stderr, "%s%s", prefix, name);
+  fprintf (mdebug__output, "%s%s", prefix, name);
   while (plist && MPLIST_KEY (plist) != Mnil)
     {
-      fprintf (stderr, ":%s", MPLIST_KEY (plist)->name);
+      fprintf (mdebug__output, ":%s", MPLIST_KEY (plist)->name);
       plist = MPLIST_NEXT (plist);
     }
   return symbol;
@@ -787,8 +789,9 @@ mdebug_dump_symbol (MSymbol symbol, int indent)
     @brief Dump all symbol names.
 
     The mdebug_dump_all_symbols () function prints names of all
-    symbols to the stderr.  $INDENT specifies how many columns to
-    indent the lines but the first one.
+    symbols to the stderr or to what specified by the environment
+    variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how many columns
+    to indent the lines but the first one.
 
     @return
     This function returns #Mnil.
@@ -798,8 +801,9 @@ mdebug_dump_symbol (MSymbol symbol, int indent)
 /***ja
     @brief すべてのシンボル名をダンプする.
 
-    関数 mdebug_dump_all_symbols () は、すべてのシンボルの名前を 
-    stderr に印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_all_symbols () は、すべてのシンボルの名前を標準エ
+    ラー出力もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに印
+    刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は #Mnil を返す。 
@@ -821,17 +825,17 @@ mdebug_dump_all_symbols (int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
-  fprintf (stderr, "(symbol-list");
+  fprintf (mdebug__output, "(symbol-list");
   for (i = n = 0; i < SYMBOL_TABLE_SIZE; i++)
     if ((sym = symbol_table[i]))
       {
-	fprintf (stderr, "\n%s  (%4d", prefix, i);
+	fprintf (mdebug__output, "\n%s  (%4d", prefix, i);
 	for (; sym; sym = sym->next, n++)
-	  fprintf (stderr, " '%s'", sym->name);
-	fprintf (stderr, ")");
+	  fprintf (mdebug__output, " '%s'", sym->name);
+	fprintf (mdebug__output, ")");
       }
-  fprintf (stderr, "\n%s  (total %d)", prefix, n);
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, "\n%s  (total %d)", prefix, n);
+  fprintf (mdebug__output, ")");
   return Mnil;
 }
 

@@ -673,7 +673,7 @@ mcharset__load_from_database ()
     return 0;
   MDEBUG_PUSH_TIME ();
   def_list = (MPlist *) mdatabase_load (mdb);
-  MDEBUG_PRINT_TIME ("CHARSET", (stderr, " to load data."));
+  MDEBUG_PRINT_TIME ("CHARSET", (mdebug__output, " to load data."));
   MDEBUG_POP_TIME ();
   if (! def_list)
     return -1;
@@ -699,7 +699,7 @@ mcharset__load_from_database ()
     }
 
   M17N_OBJECT_UNREF (def_list);
-  MDEBUG_PRINT_TIME ("CHARSET", (stderr, " to parse the loaded data."));
+  MDEBUG_PRINT_TIME ("CHARSET", (mdebug__output, " to parse the loaded data."));
   MDEBUG_POP_TIME ();
   return 0;
 }

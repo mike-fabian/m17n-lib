@@ -1446,9 +1446,9 @@ mdebug_dump_font_list (MFontList *font_list)
 
   for (i = 0; i < font_list->nfonts; i++)
     {
-      fprintf (stderr, "%04X - ", font_list->fonts[i].score);
+      fprintf (mdebug__output, "%04X - ", font_list->fonts[i].score);
       mdebug_dump_font (font_list->fonts[i].font);
-      fprintf (stderr, "\n");
+      fprintf (mdebug__output, "\n");
     }
 }
 
@@ -3184,16 +3184,18 @@ mfont_close (MFont *font)
 /***en
     @brief Dump a font.
 
-    The mdebug_dump_font () function prints font $FONT in a human readable
-    way to the stderr.
+    The mdebug_dump_font () function prints font $FONT in a human
+    readable way to the stderr or to what specified by the environment
+    variable MDEBUG_OUTPUT_FILE.
 
     @return
     This function returns $FONT.  */
 /***ja
     @brief フォントをダンプする.
 
-    関数 mdebug_dump_font () はフォント $FONT を stderr 
-    に人間に可読な形で印刷する。
+    関数 mdebug_dump_font () はフォント $FONT を標準エラー出力もしくは
+    環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で出
+    力する。
 
     @return
     この関数は $FONT を返す。  */
@@ -3206,7 +3208,7 @@ mdebug_dump_font (MFont *font)
   name = xlfd_unparse_name (font, 0);
   if (name)
     {
-      fprintf (stderr, "%s", name);
+      fprintf (mdebug__output, "%s", name);
       free (name);
     }
   if (font->file != Mnil)
@@ -3218,11 +3220,11 @@ mdebug_dump_font (MFont *font)
 	if (*p == '/')
 	  lastslash = p;
       if (name)
-	fprintf (stderr, ",");
-      fprintf (stderr, "%s", lastslash + 1);
+	fprintf (mdebug__output, ",");
+      fprintf (mdebug__output, "%s", lastslash + 1);
     }
   if (font->capability != Mnil)
-    fprintf (stderr, "%s", MSYMBOL_NAME (font->capability));
+    fprintf (mdebug__output, "%s", MSYMBOL_NAME (font->capability));
   return font;
 }
 

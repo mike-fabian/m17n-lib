@@ -775,7 +775,8 @@ gd_dump_region (MDrawRegion region)
   MDrawMetric rect;
 
   gd_region_to_rect (region, &rect);
-  fprintf (stderr, "(%d %d %d %d)\n", rect.x, rect.y, rect.width, rect.height);
+  fprintf (mdebug__output, "(%d %d %d %d)\n",
+	   rect.x, rect.y, rect.width, rect.height);
 }
 
 static MDeviceDriver gd_driver =

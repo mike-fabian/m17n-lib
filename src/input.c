@@ -4011,24 +4011,24 @@ dump_im_map (MPlist *map_list, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = '\0';
 
-  fprintf (stderr, "(\"%s\" ", msymbol_name (key));
+  fprintf (mdebug__output, "(\"%s\" ", msymbol_name (key));
   if (map->map_actions)
     mdebug_dump_plist (map->map_actions, indent + 2);
   if (map->submaps)
     {
       MPLIST_DO (map_list, map->submaps)
 	{
-	  fprintf (stderr, "\n%s  ", prefix);
+	  fprintf (mdebug__output, "\n%s  ", prefix);
 	  dump_im_map (map_list, indent + 2);
 	}
     }
   if (map->branch_actions)
     {
-      fprintf (stderr, "\n%s  (branch\n%s    ", prefix, prefix);
+      fprintf (mdebug__output, "\n%s  (branch\n%s    ", prefix, prefix);
       mdebug_dump_plist (map->branch_actions, indent + 4);
-      fprintf (stderr, ")");      
+      fprintf (mdebug__output, ")");      
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
 }
 
 
@@ -4042,16 +4042,16 @@ dump_im_state (MIMState *state, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = '\0';
 
-  fprintf (stderr, "(%s", msymbol_name (state->name));
+  fprintf (mdebug__output, "(%s", msymbol_name (state->name));
   if (state->map->submaps)
     {
       MPLIST_DO (map_list, state->map->submaps)
 	{
-	  fprintf (stderr, "\n%s  ", prefix);
+	  fprintf (mdebug__output, "\n%s  ", prefix);
 	  dump_im_map (map_list, indent + 2);
 	}
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
 }
 
 
@@ -6353,16 +6353,18 @@ minput_callback (MInputContext *ic, MSymbol command)
     @brief Dump an input method.
 
     The mdebug_dump_im () function prints the input method $IM in a
-    human readable way to the stderr.  $INDENT specifies how many
-    columns to indent the lines but the first one.
+    human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $IM.  */
 /***ja
     @brief 入力メソッドをダンプする.
 
-    関数 mdebug_dump_im () は入力メソッド $IM を stderr 
-    に人間に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_im () は入力メソッド $IM を標準エラー出力もしくは
+    環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で出
+    力する。$INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $IM を返す。  */
@@ -6377,7 +6379,7 @@ mdebug_dump_im (MInputMethod *im, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = '\0';
 
-  fprintf (stderr, "(input-method %s %s ", msymbol_name (im->language),
+  fprintf (mdebug__output, "(input-method %s %s ", msymbol_name (im->language),
 	   msymbol_name (im->name));
   mdebug_dump_mtext (im_info->title, 0, 0);
   if (im->name != Mnil)
@@ -6386,11 +6388,11 @@ mdebug_dump_im (MInputMethod *im, int indent)
 
       MPLIST_DO (state, im_info->states)
 	{
-	  fprintf (stderr, "\n%s  ", prefix);
+	  fprintf (mdebug__output, "\n%s  ", prefix);
 	  dump_im_state (MPLIST_VAL (state), indent + 2);
 	}
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return im;
 }
 

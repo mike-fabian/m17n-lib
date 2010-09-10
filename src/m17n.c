@@ -55,29 +55,32 @@ m17n_init (void)
   MDEBUG_PUSH_TIME ();
   if (mcharset__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize charset module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize charset module."));
   if (mcoding__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize conv module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize conv module."));
   if (mcharset__load_from_database () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to load charset definitions."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to load charset definitions."));
   if (mcoding__load_from_database () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to load coding definitions."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to load coding definitions."));
   if (mlang__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize language module"));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize language module"));
   if (mlocale__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize locale module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize locale module."));
   if (minput__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize input module."));
 
  err:
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the shell modules."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize the shell modules."));
   MDEBUG_POP_TIME ();
 }
 
@@ -93,21 +96,26 @@ m17n_fini (void)
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
   minput__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize input module."));
   mlocale__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize locale module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize locale module."));
   mlang__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize language module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize language module."));
   mchar__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize character module."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize character module."));
   mdatabase__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize database module."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize database module."));
   mcoding__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize coding module."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize coding module."));
   mcharset__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize charset module."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize charset module."));
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the shell modules."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize the shell modules."));
   MDEBUG_POP_TIME ();
   m17n_fini_core ();
 }

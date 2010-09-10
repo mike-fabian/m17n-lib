@@ -1821,7 +1821,7 @@ mwin__dump_region (MDrawRegion region)
 {
   XRectangle rect;
   XClipBox (region, &rect);
-  fprintf (stderr, "(%d %d %d %d)\n", rect.x, rect.y, rect.width, rect.height);
+  fprintf (mdebug__output, "(%d %d %d %d)\n", rect.x, rect.y, rect.width, rect.height);
 }
 
 
@@ -1918,7 +1918,7 @@ mwin__print_event (void *arg, char *win_name)
     default: event_name = "unknown";
     }
 
-  fprintf (stderr, "%s: %s\n", win_name, event_name);
+  fprintf (mdebug__output, "%s: %s\n", win_name, event_name);
 }
 #endif
 
@@ -2077,9 +2077,9 @@ mwin__dump_gc (MFrame *frame, MRealizedFace *rface)
   for (i = 0; i <= GC_INVERSE; i++)
     {
       XGetGCValues (display, info->gc[i], valuemask, &values);
-      fprintf (stderr, "GC%d: fore/#%lX back/#%lX", i,
+      fprintf (mdebug__output, "GC%d: fore/#%lX back/#%lX", i,
 	       values.foreground, values.background);
-      fprintf (stderr, "\n");
+      fprintf (mdebug__output, "\n");
     }
 }
 

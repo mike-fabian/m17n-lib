@@ -2672,7 +2672,7 @@ m17n_init_flt (void)
   mflt_font_id = NULL;
   mflt_try_otf = NULL;
 
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the flt modules."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize the flt modules."));
   MDEBUG_POP_TIME ();
 }
 
@@ -2687,7 +2687,7 @@ m17n_fini_flt (void)
 
   MDEBUG_PUSH_TIME ();
   free_flt_list ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the flt modules."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize the flt modules."));
   MDEBUG_POP_TIME ();
   m17n_fini_core ();
 }
@@ -3113,7 +3113,7 @@ dump_flt_cmd (FontLayoutStage *stage, int id, int indent)
   prefix[indent] = 0;
 
   if (id >= 0)
-    fprintf (stderr, "0x%02X", id);
+    fprintf (mdebug__output, "0x%02X", id);
   else if (id <= CMD_ID_OFFSET_INDEX)
     {
       int idx = CMD_ID_TO_INDEX (id);
@@ -3124,57 +3124,58 @@ dump_flt_cmd (FontLayoutStage *stage, int id, int indent)
 	  FontLayoutCmdRule *rule = &cmd->body.rule;
 	  int i;
 
-	  fprintf (stderr, "(rule ");
+	  fprintf (mdebug__output, "(rule ");
 	  if (rule->src_type == SRC_REGEX)
-	    fprintf (stderr, "\"%s\"", rule->src.re.pattern);
+	    fprintf (mdebug__output, "\"%s\"", rule->src.re.pattern);
 	  else if (rule->src_type == SRC_INDEX)
-	    fprintf (stderr, "%d", rule->src.match_idx);
+	    fprintf (mdebug__output, "%d", rule->src.match_idx);
 	  else if (rule->src_type == SRC_SEQ)
-	    fprintf (stderr, "(seq)");
+	    fprintf (mdebug__output, "(seq)");
 	  else if (rule->src_type == SRC_RANGE)
-	    fprintf (stderr, "(range)");
+	    fprintf (mdebug__output, "(range)");
 	  else
-	    fprintf (stderr, "(invalid src)");
+	    fprintf (mdebug__output, "(invalid src)");
 
 	  for (i = 0; i < rule->n_cmds; i++)
 	    {
-	      fprintf (stderr, "\n%s  ", prefix);
+	      fprintf (mdebug__output, "\n%s  ", prefix);
 	      dump_flt_cmd (stage, rule->cmd_ids[i], indent + 2);
 	    }
-	  fprintf (stderr, ")");
+	  fprintf (mdebug__output, ")");
 	}
       else if (cmd->type == FontLayoutCmdTypeCond)
 	{
 	  FontLayoutCmdCond *cond = &cmd->body.cond;
 	  int i;
 
-	  fprintf (stderr, "(cond");
+	  fprintf (mdebug__output, "(cond");
 	  for (i = 0; i < cond->n_cmds; i++)
 	    {
-	      fprintf (stderr, "\n%s  ", prefix);
+	      fprintf (mdebug__output, "\n%s  ", prefix);
 	      dump_flt_cmd (stage, cond->cmd_ids[i], indent + 2);
 	    }
-	  fprintf (stderr, ")");
+	  fprintf (mdebug__output, ")");
 	}
       else if (cmd->type == FontLayoutCmdTypeOTF)
 	{
-	  fprintf (stderr, "(otf)");
+	  fprintf (mdebug__output, "(otf)");
 	}
       else
-	fprintf (stderr, "(error-command)");
+	fprintf (mdebug__output, "(error-command)");
     }
   else if (id <= CMD_ID_OFFSET_COMBINING)
-    fprintf (stderr, "cominging-code");
+    fprintf (mdebug__output, "cominging-code");
   else
-    fprintf (stderr, "(predefiend %d)", id);
+    fprintf (mdebug__output, "(predefiend %d)", id);
 }
 
 /***en
     @brief Dump a Font Layout Table.
 
     The mdebug_dump_flt () function prints the Font Layout Table $FLT
-    in a human readable way to the stderr.  $INDENT specifies how many
-    columns to indent the lines but the first one.
+    in a human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $FLT.  */
@@ -3188,22 +3189,22 @@ mdebug_dump_flt (MFLT *flt, int indent)
 
   memset (prefix, 32, indent);
   prefix[indent] = 0;
-  fprintf (stderr, "(flt");
+  fprintf (mdebug__output, "(flt");
   MPLIST_DO (plist, flt->stages)
     {
       FontLayoutStage *stage = (FontLayoutStage *) MPLIST_VAL (plist);
       int i;
 
-      fprintf (stderr, "\n%s  (stage %d", prefix, stage_idx);
+      fprintf (mdebug__output, "\n%s  (stage %d", prefix, stage_idx);
       for (i = 0; i < stage->used; i++)
 	{
-	  fprintf (stderr, "\n%s    ", prefix);
+	  fprintf (mdebug__output, "\n%s    ", prefix);
 	  dump_flt_cmd (stage, INDEX_TO_CMD_ID (i), indent + 4);
 	}
-      fprintf (stderr, ")");
+      fprintf (mdebug__output, ")");
       stage_idx++;
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return flt;
 }
 
@@ -3212,14 +3213,14 @@ mflt_dump_gstring (MFLTGlyphString *gstring)
 {
   int i;
 
-  fprintf (stderr, "(flt-gstring");
+  fprintf (mdebug__output, "(flt-gstring");
   for (i = 0; i < gstring->used; i++)
     {
       MFLTGlyph *g = GREF (gstring, i);
-      fprintf (stderr, "\n  (%02d pos:%d-%d c:%04X code:%04X cat:%c)",
+      fprintf (mdebug__output, "\n  (%02d pos:%d-%d c:%04X code:%04X cat:%c)",
 	       i, g->from, g->to, g->c, g->code, GET_CATEGORY_CODE (g));
     }
-  fprintf (stderr, ")\n");
+  fprintf (mdebug__output, ")\n");
 }
 
 /*** @} */
