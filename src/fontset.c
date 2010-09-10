@@ -1450,17 +1450,19 @@ mfontset_lookup (MFontset *fontset,
 /***en
     @brief Dump a fontset.
 
-    The mdebug_dump_fontset () function prints fontset $FONTSET in a human readable
-    way to the stderr.  $INDENT specifies how many columns to indent
-    the lines but the first one.
+    The mdebug_dump_fontset () function prints fontset $FONTSET in a
+    human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $FONTSET.  */
 /***ja
     @brief フォントセットをダンプする.
 
-    関数 mdebug_dump_face () はフォントセット $FONTSET を stderr 
-    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_face () はフォントセット $FONTSET を標準エラー出力
+    もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読
+    な形で出力する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $FONTSET を返す。  */
@@ -1474,48 +1476,50 @@ mdebug_dump_fontset (MFontset *fontset, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
-  fprintf (stderr, "(fontset %s", fontset->name->name);
+  fprintf (mdebug__output, "(fontset %s", fontset->name->name);
   if (fontset->per_script)
     MPLIST_DO (plist, fontset->per_script)
       {
-	fprintf (stderr, "\n  %s(%s", prefix, MPLIST_KEY (plist)->name);
+	fprintf (mdebug__output, "\n  %s(%s", prefix, MPLIST_KEY (plist)->name);
 	MPLIST_DO (pl, MPLIST_PLIST (plist))
 	  {
-	    fprintf (stderr, "\n    %s(%s", prefix, MPLIST_KEY (pl)->name);
+	    fprintf (mdebug__output, "\n    %s(%s", prefix,
+		     MPLIST_KEY (pl)->name);
 	    MPLIST_DO (p, MPLIST_PLIST (pl))
 	      {
-		fprintf (stderr, "\n      %s(0x%X %s ", prefix,
+		fprintf (mdebug__output, "\n      %s(0x%X %s ", prefix,
 			 (unsigned) MPLIST_VAL (p),
 			 MPLIST_KEY (p)->name);
 		mdebug_dump_font (MPLIST_VAL (p));
-		fprintf (stderr, ")");
+		fprintf (mdebug__output, ")");
 	      }
-	    fprintf (stderr, ")");
+	    fprintf (mdebug__output, ")");
 	  }
-	fprintf (stderr, ")");
+	fprintf (mdebug__output, ")");
       }
   if (fontset->per_charset)
     MPLIST_DO (pl, fontset->per_charset)
       {
-	fprintf (stderr, "\n  %s(%s", prefix, MPLIST_KEY (pl)->name);
+	fprintf (mdebug__output, "\n  %s(%s", prefix, MPLIST_KEY (pl)->name);
 	MPLIST_DO (p, MPLIST_PLIST (pl))
 	  {
-	    fprintf (stderr, "\n    %s(%s ", prefix, MPLIST_KEY (p)->name);
+	    fprintf (mdebug__output, "\n    %s(%s ", prefix,
+		     MPLIST_KEY (p)->name);
 	    mdebug_dump_font (MPLIST_VAL (p));
-	    fprintf (stderr, ")");
+	    fprintf (mdebug__output, ")");
 	  }
-	fprintf (stderr, ")");
+	fprintf (mdebug__output, ")");
       }
 
   if (fontset->fallback)
     MPLIST_DO (p, fontset->fallback)
       {
-	fprintf (stderr, "\n  %s(%s ", prefix, MPLIST_KEY (p)->name);
+	fprintf (mdebug__output, "\n  %s(%s ", prefix, MPLIST_KEY (p)->name);
 	mdebug_dump_font (MPLIST_VAL (p));
-	fprintf (stderr, ")");
+	fprintf (mdebug__output, ")");
       }
 
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return fontset;
 }
 

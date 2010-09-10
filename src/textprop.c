@@ -1127,16 +1127,16 @@ dump_interval (MInterval *interval, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
-  fprintf (stderr, "(interval %d-%d (%d)", interval->start, interval->end,
-	   interval->nprops);
+  fprintf (mdebug__output, "(interval %d-%d (%d)",
+	   interval->start, interval->end, interval->nprops);
   for (i = 0; i < interval->nprops; i++)
-    fprintf (stderr, "\n%s (%d %d/%d %d-%d 0x%x)",
+    fprintf (mdebug__output, "\n%s (%d %d/%d %d-%d 0x%x)",
 	     prefix, i,
 	     interval->stack[i]->control.ref_count,
 	     interval->stack[i]->attach_count,
 	     interval->stack[i]->start, interval->stack[i]->end,
 	     (unsigned) interval->stack[i]->val);
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
 }
 
 void
@@ -1147,31 +1147,33 @@ dump_textplist (MTextPlist *plist, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
-  fprintf (stderr, "(properties");
+  fprintf (mdebug__output, "(properties");
   if (! plist)
-    fprintf (stderr, ")\n");
+    fprintf (mdebug__output, ")\n");
   else
     {
-      fprintf (stderr, "\n");
+      fprintf (mdebug__output, "\n");
       while (plist)
 	{
 	  MInterval *interval = plist->head;
 
-	  fprintf (stderr, "%s (%s", prefix, msymbol_name (plist->key));
+	  fprintf (mdebug__output, "%s (%s", prefix, msymbol_name (plist->key));
 	  while (interval)
 	    {
-	      fprintf (stderr, " (%d %d", interval->start, interval->end);
+	      fprintf (mdebug__output, " (%d %d",
+		       interval->start, interval->end);
 	      if (interval->nprops > 0)
 		{
 		  int i;
 
 		  for (i = 0; i < interval->nprops; i++)
-		    fprintf (stderr, " 0x%x", (int) interval->stack[i]->val);
+		    fprintf (mdebug__output, " 0x%x",
+			     (int) interval->stack[i]->val);
 		}
-	      fprintf (stderr, ")");
+	      fprintf (mdebug__output, ")");
 	      interval = interval->next;
 	    }
-	  fprintf (stderr, ")\n");
+	  fprintf (mdebug__output, ")\n");
 	  xassert (check_plist (plist, 0) == 0);
 	  plist = plist->next;
 	}

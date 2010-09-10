@@ -547,18 +547,18 @@ dump_sub_chartab (MSubCharTable *table, void *default_value,
 
   if (! table->contents.tables && table->default_value == default_value)
     return;
-  fprintf (stderr, "\n%s(sub%d (U+%04X U+%04X) ",
+  fprintf (mdebug__output, "\n%s(sub%d (U+%04X U+%04X) ",
 	   prefix, depth, min_char, max_char);
   if (key == Msymbol)
     {
       if (table->default_value)
-	fprintf (stderr, "(default %s)",
+	fprintf (mdebug__output, "(default %s)",
 		 ((MSymbol) table->default_value)->name);
       else
-	fprintf (stderr, "(default nil)");
+	fprintf (mdebug__output, "(default nil)");
     }
   else
-    fprintf (stderr, "(default #x%X)", (unsigned) table->default_value);
+    fprintf (mdebug__output, "(default #x%X)", (unsigned) table->default_value);
 
   default_value = table->default_value;
   if (table->contents.tables)
@@ -575,23 +575,24 @@ dump_sub_chartab (MSubCharTable *table, void *default_value,
 	    if (val == default_value)
 	      continue;
 	    default_value = *val;
-	    fprintf (stderr, "\n%s  (U+%04X", prefix, min_char);
+	    fprintf (mdebug__output, "\n%s  (U+%04X", prefix, min_char);
 	    while (i + 1 < chartab_slots[depth]
 		   && val[1] == default_value)
 	      i++, val++, min_char++;
-	    fprintf (stderr, "-U+%04X ", min_char);
+	    fprintf (mdebug__output, "-U+%04X ", min_char);
 	    if (key == Msymbol)
 	      {
 		if (default_value)
-		  fprintf (stderr, "%s)", ((MSymbol) default_value)->name);
+		  fprintf (mdebug__output, "%s)",
+			   ((MSymbol) default_value)->name);
 		else
-		  fprintf (stderr, "nil)");
+		  fprintf (mdebug__output, "nil)");
 	      }
 	    else
-	      fprintf (stderr, " #xx%X)", (unsigned) default_value);
+	      fprintf (mdebug__output, " #xx%X)", (unsigned) default_value);
 	  }
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
 }
 
 
@@ -975,8 +976,9 @@ mchartable_map (MCharTable *table, void *ignore,
     @brief Dump a chartable.
 
     The mdebug_dump_chartab () function prints a chartable $TABLE in a
-    human readable way to the stderr.  $INDENT specifies how many
-    columns to indent the lines but the first one.
+    human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $TABLE.  */
@@ -984,8 +986,9 @@ mchartable_map (MCharTable *table, void *ignore,
 /***ja
     @brief 文字テーブルをダンプする.
 
-    関数 mdebug_dump_chartab () は文字テーブル $TABLE を stderr 
-    に人間に可読な形で印刷する。$INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_chartab () は文字テーブル $TABLE を標準エラー出力
+    もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読
+    な形で印刷する。$INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $TABLE を返す。  */
@@ -993,11 +996,11 @@ mchartable_map (MCharTable *table, void *ignore,
 MCharTable *
 mdebug_dump_chartab (MCharTable *table, int indent)
 {
-  fprintf (stderr, "(chartab (U+%04X U+%04X)",
+  fprintf (mdebug__output, "(chartab (U+%04X U+%04X)",
 	   table->min_char, table->max_char);
   dump_sub_chartab (&table->subtable, table->subtable.default_value,
 		    table->key, indent + 2);
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return table;
 }
 

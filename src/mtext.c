@@ -3582,8 +3582,9 @@ mtext_uppercase (MText *mt)
     @brief Dump an M-text.
 
     The mdebug_dump_mtext () function prints the M-text $MT in a human
-    readable way to the stderr.  $INDENT specifies how many columns to
-    indent the lines but the first one.  If $FULLP is zero, this
+    readable way to the stderr or to what specified by the environment
+    variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how many columns
+    to indent the lines but the first one.  If $FULLP is zero, this
     function prints only a character code sequence.  Otherwise, it
     prints the internal byte sequence and text properties as well.
 
@@ -3592,10 +3593,11 @@ mtext_uppercase (MText *mt)
 /***ja
     @brief M-text をダンプする.
 
-    関数 mdebug_dump_mtext () は M-text $MT を stderr 
-    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
-    $FULLP が 0 ならば、文字コード列だけを印刷する。
-    そうでなければ、内部バイト列とテキストプロパティも印刷する。
+    関数 mdebug_dump_mtext () は M-text $MT を標準エラー出力もしくは環
+    境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で印刷
+    する。 $INDENT は２行目以降のインデントを指定する。$FULLP が 0 なら
+    ば、文字コード列だけを印刷する。そうでなければ、内部バイト列とテキ
+    ストプロパティも印刷する。
 
     @return
     この関数は $MT を返す。  */
@@ -3607,23 +3609,23 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 
   if (! fullp)
     {
-      fprintf (stderr, "\"");
+      fprintf (mdebug__output, "\"");
       for (i = 0; i < mt->nchars; i++)
 	{
 	  int c = mtext_ref_char (mt, i);
 
 	  if (c == '"' || c == '\\')
-	    fprintf (stderr, "\\%c", c);
+	    fprintf (mdebug__output, "\\%c", c);
 	  else if ((c >= ' ' && c < 127) || c == '\n')
-	    fprintf (stderr, "%c", c);
+	    fprintf (mdebug__output, "%c", c);
 	  else
-	    fprintf (stderr, "\\x%02X", c);
+	    fprintf (mdebug__output, "\\x%02X", c);
 	}
-      fprintf (stderr, "\"");
+      fprintf (mdebug__output, "\"");
       return mt;
     }
 
-  fprintf (stderr,
+  fprintf (mdebug__output,
 	   "(mtext (size %d %d %d) (cache %d %d)",
 	   mt->nchars, mt->nbytes, mt->allocated,
 	   mt->cache_char_pos, mt->cache_byte_pos);
@@ -3636,11 +3638,11 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
       memset (prefix, 32, indent);
       prefix[indent] = 0;
 
-      fprintf (stderr, "\n%s (bytes \"", prefix);
+      fprintf (mdebug__output, "\n%s (bytes \"", prefix);
       for (i = 0; i < mt->nbytes; i++)
-	fprintf (stderr, "\\x%02x", mt->data[i]);
-      fprintf (stderr, "\")\n");
-      fprintf (stderr, "%s (chars \"", prefix);
+	fprintf (mdebug__output, "\\x%02x", mt->data[i]);
+      fprintf (mdebug__output, "\")\n");
+      fprintf (mdebug__output, "%s (chars \"", prefix);
       p = mt->data;
       for (i = 0; i < mt->nchars; i++)
 	{
@@ -3648,21 +3650,21 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 	  int c = STRING_CHAR_AND_BYTES (p, len);
 
 	  if (c == '"' || c == '\\')
-	    fprintf (stderr, "\\%c", c);
+	    fprintf (mdebug__output, "\\%c", c);
 	  else if (c >= ' ' && c < 127)
-	    fputc (c, stderr);
+	    fputc (c, mdebug__output);
 	  else
-	    fprintf (stderr, "\\x%X", c);
+	    fprintf (mdebug__output, "\\x%X", c);
 	  p += len;
 	}
-      fprintf (stderr, "\")");
+      fprintf (mdebug__output, "\")");
       if (mt->plist)
 	{
-	  fprintf (stderr, "\n%s ", prefix);
+	  fprintf (mdebug__output, "\n%s ", prefix);
 	  dump_textplist (mt->plist, indent + 1);
 	}
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return mt;
 }
 

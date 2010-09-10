@@ -424,15 +424,15 @@ static M17NObjectArray *object_array_root;
 static void
 report_object_array ()
 {
-  fprintf (stderr, "%16s %7s %7s %7s\n",
+  fprintf (mdebug__output, "%16s %7s %7s %7s\n",
 	   "object", "created", "freed", "alive");
-  fprintf (stderr, "%16s %7s %7s %7s\n",
+  fprintf (mdebug__output, "%16s %7s %7s %7s\n",
 	   "------", "-------", "-----", "-----");
   for (; object_array_root; object_array_root = object_array_root->next)
     {
       M17NObjectArray *array = object_array_root;
 
-      fprintf (stderr, "%16s %7d %7d %7d\n", array->name,
+      fprintf (mdebug__output, "%16s %7d %7d %7d\n", array->name,
 	       array->used, array->used - array->count, array->count);
       if (array->count > 0)
 	{
@@ -444,14 +444,14 @@ report_object_array ()
 	      MText *mt = (MText *) array->objects[i];
 
 	      if (mt->format <= MTEXT_FORMAT_UTF_8)
-		fprintf (stderr, "\t\"%s\"\n", (char *) mt->data);
+		fprintf (mdebug__output, "\t\"%s\"\n", (char *) mt->data);
 	    }
 	  else if (strcmp (array->name, "Plist") == 0)
 	    {
 	      MPlist *plist = (MPlist *) array->objects[i];
 
 	      mdebug_dump_plist (plist, 8);
-	      fprintf (stderr, "\n");
+	      fprintf (mdebug__output, "\n");
 	    }
 	}
 
@@ -498,7 +498,7 @@ mdebug__print_time ()
   gettimeofday (&tv, &tz);
   diff = ((tv.tv_sec - time_stack[time_stack_index - 1].tv_sec) * 1000000
 	  + (tv.tv_usec - time_stack[time_stack_index - 1].tv_usec));
-  fprintf (stderr, "%8ld ms.", diff);
+  fprintf (mdebug__output, "%8ld ms.", diff);
   time_stack[time_stack_index - 1] = tv;
 }
 
@@ -612,22 +612,25 @@ m17n_init_core (void)
   MDEBUG_PUSH_TIME ();
   if (msymbol__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize symbol module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize symbol module."));
   if  (mplist__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize plist module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize plist module."));
   if (mchar__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize character module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize character module."));
   if  (mchartable__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize chartable module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize chartable module."));
   if (mtext__init () < 0 || mtext__prop_init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize mtext module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize mtext module."));
   if (mdatabase__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize database module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize database module."));
 
 #if ENABLE_NLS
   bindtextdomain ("m17n-lib", GETTEXTDIR);
@@ -640,7 +643,8 @@ m17n_init_core (void)
 
  err:
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the core modules."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize the core modules."));
   MDEBUG_POP_TIME ();
 }
 
@@ -656,19 +660,19 @@ m17n_fini_core (void)
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
   mchartable__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize chartable module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize chartable module."));
   mtext__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize mtext module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize mtext module."));
   msymbol__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize symbol module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize symbol module."));
   mplist__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize plist module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize plist module."));
   /* We must call this after the aboves because it frees interval
      pools.  */
   mtext__prop_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize textprop module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize textprop module."));
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the core modules."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize the core modules."));
   MDEBUG_POP_TIME ();
   if (mdebug__flags[MDEBUG_FINI])
     report_object_array ();
@@ -1066,7 +1070,7 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     <ul>
 
     <li> Environment variables to control printing of various
-    information.
+    information to stderr.
 
     <ul>
 
@@ -1098,6 +1102,10 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     <li> MDEBUG_ALL -- Setting this variable to 1 is equivalent to
     setting all the above variables to 1.
 
+    <li> MDEBUG_OUTPUT_FILE -- If set to a file name, the above
+    debugging information is appended to the file.  If set to
+    "stdout", the information is printed to stdout.
+
     </ul>
 
     <li> Functions to print various objects in a human readable way.
@@ -1116,7 +1124,7 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
 
     <ul>
 
-    <li> さまざまな情報のプリントを制御する環境変数。
+    <li> さまざまな情報の標準エラー出力へのプリントを制御する環境変数。
 
     <ul>
 
@@ -1147,6 +1155,10 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
 
     <li> MDEBUG_ALL -- 1 ならば、上記すべての変数を 1 
     にしたのと同じ効果を持つ。
+
+    <li> MDEBUG_OUTPUT_FILE -- もしファイル名なら、上記デバッグ情報はそ
+    のファイルに追加される。もし "stdout" ならその情報は標準出力に出力
+    される。
 
     </ul>
 

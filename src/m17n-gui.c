@@ -272,19 +272,20 @@ m17n_init_win (void)
   MDEBUG_PUSH_TIME ();
   if (mfont__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize font module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize font module."));
   if (mfont__fontset_init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize fontset module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize fontset module."));
   if (mface__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize face module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize face module."));
   if (mdraw__init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize draw module."));
+  MDEBUG_PRINT_TIME ("INIT", (mdebug__output, " to initialize draw module."));
   if (minput__win_init () < 0)
     goto err;
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize input-win module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize input-win module."));
   mframe_default = NULL;
 
   register_device_library (Mx, "libm17n-X");
@@ -293,7 +294,8 @@ m17n_init_win (void)
 
  err:
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("INIT", (stderr, " to initialize the m17n GUI module."));
+  MDEBUG_PRINT_TIME ("INIT",
+		     (mdebug__output, " to initialize the m17n GUI module."));
   MDEBUG_POP_TIME ();
 }
 
@@ -309,7 +311,7 @@ m17n_fini_win (void)
 
   MDEBUG_PUSH_TIME ();
   MDEBUG_PUSH_TIME ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize device modules."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize device modules."));
   MPLIST_DO (plist, device_library_list)
     {
       MDeviceLibraryInterface *interface = MPLIST_VAL (plist);
@@ -331,18 +333,19 @@ m17n_fini_win (void)
 #endif	/* not HAVE_FREETYPE */
   M17N_OBJECT_UNREF (device_library_list);
   minput__win_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize input-gui module."));
+  MDEBUG_PRINT_TIME ("FINI",
+		     (mdebug__output, " to finalize input-gui module."));
   mdraw__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize draw module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize draw module."));
   mface__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize face module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize face module."));
   mfont__fontset_fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize fontset module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize fontset module."));
   mfont__fini ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize font module."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize font module."));
   mframe_default = NULL;
   MDEBUG_POP_TIME ();
-  MDEBUG_PRINT_TIME ("FINI", (stderr, " to finalize the gui modules."));
+  MDEBUG_PRINT_TIME ("FINI", (mdebug__output, " to finalize the gui modules."));
   MDEBUG_POP_TIME ();
   m17n_fini_flt ();
   m17n_fini ();

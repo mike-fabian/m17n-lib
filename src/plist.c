@@ -526,7 +526,7 @@ read_element (MPlist *plist, MStream *st, MPlist *keys)
     if (MT)				\
       mtext_cat_char ((MT), (C));	\
     else				\
-      putc ((C), stderr);		\
+      putc ((C), mdebug__output);	\
   } while (0);
 
 #define PUTS(MT, STR)			\
@@ -534,7 +534,7 @@ read_element (MPlist *plist, MStream *st, MPlist *keys)
     if (MT)				\
       MTEXT_CAT_ASCII ((MT), (STR));	\
     else				\
-      fputs ((STR), stderr);		\
+      fputs ((STR), mdebug__output);	\
   } while (0)
 
 
@@ -654,7 +654,7 @@ write_element (MText *mt, MPlist *plist, int indent)
 	      unsigned char *end = data + mtext__char_to_byte (this_mt, stop);
 
 	      while (beg < end)
-		putc (*beg, stderr), beg++;
+		putc (*beg, mdebug__output), beg++;
 	    }
 	  if (stop == to)
 	    break;
@@ -680,7 +680,7 @@ write_element (MText *mt, MPlist *plist, int indent)
 	  M17N_OBJECT_UNREF (this_mt);
 	}
       else
-	fprintf (stderr, "%s", str);
+	fprintf (mdebug__output, "%s", str);
     }
   else 
     {
@@ -1640,16 +1640,18 @@ mplist_deserialize (MText *mt)
     @brief Dump a property list.
 
     The mdebug_dump_plist () function prints a property list $PLIST in
-    a human readable way to the stderr.  $INDENT specifies how many
-    columns to indent the lines but the first one.
+    a human readable way to the stderr or to what specified by the
+    environment variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how
+    many columns to indent the lines but the first one.
 
     @return
     This function returns $PLIST.  */
 /***ja
     @brief プロパティリストをダンプする.
 
-    関数 mdebug_dump_plist () はプロパティリスト $PLIST を stderr 
-    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_plist () はプロパティリスト $PLIST を標準エラー出
+    力もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可
+    読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $PLIST を返す。  */
@@ -1662,14 +1664,14 @@ mdebug_dump_plist (MPlist *plist, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
 
-  fprintf (stderr, "(");
+  fprintf (mdebug__output, "(");
   MPLIST_DO (pl, plist)
     {
       if (pl != plist)
-	fprintf (stderr, "\n%s ", prefix);
+	fprintf (mdebug__output, "\n%s ", prefix);
       write_element (NULL, pl, indent + 1);
     }
-  fprintf (stderr, ")");
+  fprintf (mdebug__output, ")");
   return plist;
 }
 

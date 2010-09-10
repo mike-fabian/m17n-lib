@@ -2051,9 +2051,10 @@ mface_update (MFrame *frame, MFace *face)
 /***en
     @brief Dump a face.
 
-    The mdebug_dump_face () function prints face $FACE in a human readable
-    way to the stderr.  $INDENT specifies how many columns to indent
-    the lines but the first one.
+    The mdebug_dump_face () function prints face $FACE in a human
+    readable way to the stderr or to what specified by the environment
+    variable MDEBUG_OUTPUT_FILE.  $INDENT specifies how many columns
+    to indent the lines but the first one.
 
     @return
     This function returns $FACE.  */
@@ -2061,8 +2062,9 @@ mface_update (MFrame *frame, MFace *face)
 /***ja
     @brief フェースをダンプする.
 
-    関数 mdebug_dump_face () はフェース $FACE を stderr 
-    に人間に可読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
+    関数 mdebug_dump_face () はフェース $FACE を標準エラー出力もしくは
+    環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で印
+    刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
     この関数は $FACE を返す。  */
@@ -2076,15 +2078,17 @@ mdebug_dump_face (MFace *face, int indent)
   memset (prefix, 32, indent);
   prefix[indent] = 0;
   mfont__set_spec_from_face (&spec, face);
-  fprintf (stderr, "(face font:\"");
+  fprintf (mdebug__output, "(face font:\"");
   mdebug_dump_font (&spec);
-  fprintf (stderr, "\"\n %s  fore:%s back:%s", prefix,
+  fprintf (mdebug__output, "\"\n %s  fore:%s back:%s", prefix,
 	   msymbol_name ((MSymbol) face->property[MFACE_FOREGROUND]),
 	   msymbol_name ((MSymbol) face->property[MFACE_BACKGROUND]));
   if (face->property[MFACE_FONTSET])
-    fprintf (stderr, " non-default-fontset");
-  fprintf (stderr, " hline:%s", face->property[MFACE_HLINE] ? "yes" : "no");
-  fprintf (stderr, " box:%s)", face->property[MFACE_BOX] ? "yes" : "no");
+    fprintf (mdebug__output, " non-default-fontset");
+  fprintf (mdebug__output, " hline:%s",
+	   face->property[MFACE_HLINE] ? "yes" : "no");
+  fprintf (mdebug__output, " box:%s)",
+	   face->property[MFACE_BOX] ? "yes" : "no");
   return face;
 }
 
