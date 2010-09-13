@@ -168,12 +168,16 @@ if test "x$with_libotf" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
   AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
+  OTF_LD_FLAGS=-lotf
   if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
     CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
     OTF_LD_FLAGS="`libotf-config --libs`"
     LIBS="$LIBS $OTF_LD_FLAGS"
-  else
-    OTF_LD_FLAGS=-lotf
+  elif test "x$HAVE_PKG_CONFIG" = "xyes" ; then
+    if pkg-config libotf ; then
+      CPPFLAGS="$CPPFLAGS `pkg-config --cflags libotf`"
+      OTF_LD_FLAGS="`pkg-config --libs libotf`"
+    fi
   fi
   ## We check the availability of OTF_check_features
   ## because we need libotf-0.9.4 or the later.
