@@ -1,3 +1,7 @@
+2010-09-13  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: If libotf-config is not available, try pkg-config.
+
 2010-09-02  Kenichi Handa  <handa@m17n.org>
 
 	* bootstrap.sh: Clean old files at first.
