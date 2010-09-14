@@ -742,14 +742,29 @@ otf_store_features (char *p, char *end, unsigned *buf)
   buf[i] = 0;
 }
 
+/* SYMBOL's name	features[0] [1]	for checking	for applying
+   -------------	---------------	------------	------------
+   SCRIPT		[0]	    [0]	    any|any	   all  all
+   SCRIPT=		NULL	    [0]	   none&1	  none  all
+   SCRIPT+		[0]	   NULL	      1&none	   all  none
+   SCRIPT=F1		[F1,0]	    [0]	     F1&1	    F1  all
+   SCRIPT+F1		[0]	 [F1,0]	   none&F1	  none  F1
+   SCRIPT=F1+		[F1,0]	   NULL	     F1&none	    F1  none
+   SCRIPT=~F2		[-1,F2,0]   [0]	    ~F2&1	all~F2  all
+   SCRIPT=F1,~F2	[F1,-1,A2,0][0]	 F1&~F2&1	F1 (*1) all
+
+   (*1) Invalid specification
+ */
+
 static int
 parse_otf_command (MSymbol symbol, MFLTOtfSpec *spec)
 {
   char *str = MSYMBOL_NAME (symbol);
   char *end = str + MSYMBOL_NAMELEN (symbol);
   unsigned int script, langsys;
-  char *gsub, *gpos;
-  int gsub_count = 0, gpos_count = 0;
+  char *features[3];
+  int feature_count[2];		/* [0]:GSUB, [1]:GPOS */
+  int i;
   char *p;
 
   memset (spec, 0, sizeof (MFLTOtfSpec));
@@ -765,64 +780,51 @@ parse_otf_command (MSymbol symbol, MFLTOtfSpec *spec)
 	/* This is a spec to reset category codes.  */
 	return 0;
     }
-  script = gen_otf_tag (str, 8);
+  spec->script = gen_otf_tag (str, 8);
   str += 4;
   if (*str == '/')
     {
-      langsys = gen_otf_tag (str, 8);
+      spec->langsys = gen_otf_tag (str, 8);
       str += 4;
     }
   else
-    langsys = 0;
-  gsub = str;
+    spec->langsys = 0;
+  features[0] = str;
   if (*str != '=')
     /* Apply all GSUB features.  */
-      gsub_count = 1;
+      feature_count[0] = -1;
   else
     {
       p = str + 1;
-      str = otf_count_features (p, end, '+', &gsub_count);
+      str = otf_count_features (p, end, '+', feature_count);
       if (! str)
 	MERROR (MERROR_FLT, -1);
     }
-  gpos = str;
+  features[1] = str;
   if (*str != '+')
     /* Apply all GPOS features.  */
-    gpos_count = 1;
+    feature_count[1] = -1;
   else
     {
       p = str + 1;
-      str = otf_count_features (p, end, '\0', &gpos_count);
+      str = otf_count_features (p, end, '\0', feature_count + 1);
       if (! str)
 	MERROR (MERROR_FLT, -1);
     }
-
-  spec->script = script;
-  spec->langsys = langsys;
-  if (gsub_count > 0)
-    {
-      spec->features[0] = malloc (sizeof (int) * (gsub_count + 1));
-      if (! spec->features[0])
-	return -2;
-      if (*gsub == '=')
-	otf_store_features (gsub + 1, gpos, spec->features[0]);
-      else
-	spec->features[0][0] = 0xFFFFFFFF, spec->features[0][1] = 0;
-    }
-  if (gpos_count > 0)
-    {
-      spec->features[1] = malloc (sizeof (int) * (gpos_count + 1));
-      if (! spec->features[1])
-	{
-	  if (spec->features[0])
-	    free (spec->features[0]);
+  features[2] = str;
+  for (i = 0; i < 2; i++)
+    if (feature_count[i])
+      {
+	spec->features[i] = malloc (sizeof (int) * (feature_count[i] + 1));
+	if (! spec->features[i])
 	  return -2;
-	}
-      if (*gpos == '+')
-	otf_store_features (gpos + 1, str, spec->features[1]);
-      else
-	spec->features[1][0] = 0xFFFFFFFF, spec->features[1][1] = 0;
-    }
+	if (feature_count[i] > 0)
+	  otf_store_features (features[i] + 1, features[i + 1],
+			      spec->features[i]);
+	else
+	  spec->features[i][1] = 0;
+      }
+
   return 0;
 }
 
@@ -1882,13 +1884,14 @@ decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
 	  SET_CATEGORY_CODE (g, 0);
 	  continue;
 	}
+      enc = '\0';
       if (tag & 0xFFFFF80)
 	{
 	  int i;
 
 	  /* Clear the feature tag code.  */
 	  g->internal &= ~0xFFFFFFF;
-	  for (i = 0, enc = '\0'; i < category->feature_table.size; i++)
+	  for (i = 0; i < category->feature_table.size; i++)
 	    if (category->feature_table.tag[i] == tag)
 	      {
 		enc = category->feature_table.code[i];
@@ -1897,10 +1900,9 @@ decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
 		break;
 	      }
 	}
-      else
-	enc = '\0';
       if (! enc)
-	enc = g->c > 0 ? (int) mchartable_lookup (category->table, g->c) : 1;
+	enc = (g->c > 0 ? (int) mchartable_lookup (category->table, g->c)
+	       : g->c == 0 ? 1 : ' ');
       SET_CATEGORY_CODE (g, enc);
     }
 }
@@ -2233,12 +2235,14 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
       {
 	int i;
 
+	if (MDEBUG_FLAG () > 2)
+	  MDEBUG_PRINT2 ("\n [FLT] %*s|", depth, "");
 	i = from < to ? from : from - 1;
 	GDUP (ctx, i);
 	g = GREF (ctx->out, ctx->out->used - 1);
 	g->c = -1, g->code = 0;
 	g->xadv = g->yadv = 0;
-	SET_ENCODED (g, 0);
+	SET_ENCODED (g, 1);
 	SET_MEASURED (g, 0);
 	SET_CATEGORY_CODE (g, ' ');
 	return from;
@@ -3053,14 +3057,24 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 	{
 	  MDEBUG_PRINT ("\n [FLT]   (RESULT");
 	  if (MDEBUG_FLAG () > 1)
-	    for (i = 0; this_from < this_to; this_from++, i++)
-	      {
-		if (i > 0 && i % 4 == 0)
-		  MDEBUG_PRINT ("\n [FLT]          ");
-		g = GREF (gstring, this_from);
-		MDEBUG_PRINT4 (" (%04X %d %d %d)",
-			       g->code, g->xadv, g->xoff, g->yoff);
-	      }
+	    {
+	      int idx = -1;
+	      for (i = 0; this_from < this_to; i++, this_from++)
+		{
+		  g = GREF (gstring, this_from);
+		  if (g->from != idx)
+		    {
+		      if (i > 0)
+			MDEBUG_PRINT2 ("\n [FLT]           %02d-%02d",
+				       g->from, g->to);
+		      else
+			MDEBUG_PRINT2 (" %02d-%02d", g->from, g->to);
+		      idx = g->from;
+		    }
+		  MDEBUG_PRINT4 (" (%04X %d %d %d)",
+				 g->code, g->xadv, g->xoff, g->yoff);
+		}
+	    }
 	  else
 	    for (; this_from < this_to; this_from++)
 	      MDEBUG_PRINT1 (" %04X", GREF (gstring, this_from)->code);
