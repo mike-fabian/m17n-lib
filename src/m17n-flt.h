@@ -241,14 +241,18 @@ typedef struct
 
     The type #MFLTOtfSpec is the structure that contains information
     about the GSUB and GPOS features of a specific script and language
-    system to be applied to a glyph sequence.  */
+    system.  The information is used to select which features to
+    apply to a glyph string, or to check if a specific FLT is usable
+    for a specific font.  */
 
 /***ja
     @brief GSUB および GPOS OpenType テーブルの仕様のための型.
 
     型 #MFLTOtfSpec は、GSUB および GPOSフィーチャーの情報を格納するた
     めの構造体である。これらフィーチャーは特定のスクリプトおよび言語シ
-    ステムのものであり、グリフ列に適用される。  */
+    ステムのものである。この情報は、どのフィーチャーをグリフ列に適用す
+    るか、あるいは特定の FLT が特定のフォントに対して有効かどうかの決定
+    に使用される。  */
 
 typedef struct
 {
@@ -265,14 +269,40 @@ typedef struct
   /* @} */
 
   /***en Array of GSUB (1st element) and GPOS (2nd element) feature
-      tag arrays.  Each array is terminated by 0.  If the first
-      element is 0xFFFFFFFF, apply all the features except those that
-      appear in the following elements.  It may be NULL if there are
-      no features.  */
+      tag arrays.  Each array is terminated by 0.  It may be NULL if
+      there is no feature to specify.
+
+      (1) The case of using this information for selecting which
+      features to apply to a glyph string.  If the array is NULL,
+      apply no feature.  If the first element is 0, apply all
+      available features.  If the first element is 0xFFFFFFFF, apply
+      all available features except for what appear in the second and
+      following elements.  Otherwise, apply all listed features.
+
+      (1) The case of using this information for checking if a a font
+      can be drived by a specific FLT.  If the array is NULL, the font
+      should not have any features.  If the first elements is 0, don't
+      check the font.  Otherwize, the font should have all features
+      before 0xFFFFFFFF element (if any) and should not have any
+      features after that element.  */
   /***ja GSUB フィーチャータグの配列を第1要素、GPOS フィーチャータグの
-      配列を第2要素とする配列。各配列の末尾は0で示される。もし最初の要
-      素が 0xFFFFFFFFならば、以降の要素として現われるフィチャー以外のす
-      べてを適用する。フィーチャーが1つもない場合は NULL でもよい。 */
+      配列を第2要素とする配列。各配列の末尾は0で示される。フィーチャー
+      の指定が1つもない場合はこの配列の要素は NULL でもよい。
+
+      (1) この情報がグリフ列に適用すべきフィーチャーの選択に使われる場
+      合。もし配列自身がNULLなら、どのフィーチャーも適用しない。もし最
+      初の要素が0なら、適用可能なすべてのフィーチャーを適用する。もし最
+      初の要素が 0xFFFFFFFF なら、２番目以降のフィーチャーを除くすべて
+      の適用可能なフィーチャーを適用する。それ以外の場合リストされたす
+      べてのフィーチャーを適用する。
+
+      (2) この情報が特定の FLT が特定のフォントに有効かどうかの決定に使
+      われる場合。もし配列自身がNULLなら、フォントはフィーチャーを一つ
+      も持っていてはいけない。もし最初の要素が0なら、どんなフォントでも
+      良い。もし最初の要素が0xFFFFFFFFなら、フォントは２番目の要素以降
+      のフォントを持っていてはいけない。それ以外の場合、フォントは
+      0xFFFFFFFF 以前のすべてのフィーチャーを持ち、かつ 0xFFFFFFFF 以降
+      のフィーチャーは一つも持っていてはいけない。*/
   unsigned int *features[2];
 } MFLTOtfSpec;
 
