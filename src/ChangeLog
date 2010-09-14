@@ -1,3 +1,13 @@
+2010-09-14  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_check_otf): Fix handling of negative features.
+
+	* m17n-flt.c (parse_otf_command): Fix handling of negative
+	features.
+	(decode_packed_otf_tag): Fix updating category code.
+	(run_command): Fix `encoded' property of separator glyph.
+	(mflt_run): Improve debug info printing.
+
 2010-09-11  Kenichi Handa  <handa@m17n.org>
 
 	* src/charset.c, src/chartab.c, src/coding.c, src/face.c,
