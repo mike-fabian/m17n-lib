@@ -274,35 +274,32 @@ typedef struct
 
       (1) The case of using this information for selecting which
       features to apply to a glyph string.  If the array is NULL,
-      apply no feature.  If the first element is 0, apply all
-      available features.  If the first element is 0xFFFFFFFF, apply
-      all available features except for what appear in the second and
-      following elements.  Otherwise, apply all listed features.
+      apply no feature.  If the first element is 0xFFFFFFFF, apply all
+      available features except for what appear in the second and
+      following elements (if any).  Otherwise, apply all listed
+      features.
 
-      (1) The case of using this information for checking if a a font
+      (2) The case of using this information for checking if a a font
       can be drived by a specific FLT.  If the array is NULL, the font
-      should not have any features.  If the first elements is 0, don't
-      check the font.  Otherwize, the font should have all features
-      before 0xFFFFFFFF element (if any) and should not have any
-      features after that element.  */
+      should not have any features.  Otherwize, the font should have
+      all features before 0xFFFFFFFF element (if any) and should not
+      have any features after that element.  */
   /***ja GSUB フィーチャータグの配列を第1要素、GPOS フィーチャータグの
       配列を第2要素とする配列。各配列の末尾は0で示される。フィーチャー
       の指定が1つもない場合はこの配列の要素は NULL でもよい。
 
       (1) この情報がグリフ列に適用すべきフィーチャーの選択に使われる場
       合。もし配列自身がNULLなら、どのフィーチャーも適用しない。もし最
-      初の要素が0なら、適用可能なすべてのフィーチャーを適用する。もし最
-      初の要素が 0xFFFFFFFF なら、２番目以降のフィーチャーを除くすべて
-      の適用可能なフィーチャーを適用する。それ以外の場合リストされたす
-      べてのフィーチャーを適用する。
+      初の要素が 0xFFFFFFFF なら、２番目以降のフィーチャー（もしあれ
+      ば）を除くすべての適用可能なフィーチャーを適用する。それ以外の場
+      合リストされたすべてのフィーチャーを適用する。
 
       (2) この情報が特定の FLT が特定のフォントに有効かどうかの決定に使
       われる場合。もし配列自身がNULLなら、フォントはフィーチャーを一つ
-      も持っていてはいけない。もし最初の要素が0なら、どんなフォントでも
-      良い。もし最初の要素が0xFFFFFFFFなら、フォントは２番目の要素以降
-      のフォントを持っていてはいけない。それ以外の場合、フォントは
-      0xFFFFFFFF 以前のすべてのフィーチャーを持ち、かつ 0xFFFFFFFF 以降
-      のフィーチャーは一つも持っていてはいけない。*/
+      も持っていてはいけない。もし最初の要素が0xFFFFFFFFなら、フォント
+      は２番目の要素以降のフォントを持っていてはいけない。それ以外の場
+      合、フォントは0xFFFFFFFF 以前のすべてのフィーチャーを持ち、かつ
+      0xFFFFFFFF 以降のフィーチャーは一つも持っていてはいけない。*/
   unsigned int *features[2];
 } MFLTOtfSpec;
 
