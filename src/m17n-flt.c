@@ -742,16 +742,18 @@ otf_store_features (char *p, char *end, unsigned *buf)
   buf[i] = 0;
 }
 
-/* SYMBOL's name	features[0]    [1]	for checking	for applying
-   -------------	------------------	------------	------------
-   SCRIPT		[-1,0]	    [-1,0]	    any|any	   all  all
-   SCRIPT=		NULL	    [-1,0]	   none&1	  none  all
-   SCRIPT+		[-1,0]	      NULL	      1&none	   all  none
-   SCRIPT=F1		[F1,0]	    [-1,0]	     F1&1	    F1  all
-   SCRIPT+F1		[-1][0]	    [F1,0]	   none&F1	  none  F1
-   SCRIPT=F1+		[F1,0]	      NULL	     F1&none	    F1  none
-   SCRIPT=~F2		[-1,F2,0]   [-1,0]	    ~F2&1	all~F2  all
-   SCRIPT=F1,~F2	[F1,-1,A2,0][-1,0]	 F1&~F2&1	F1 (*1) all
+/* SYMBOL's name	features[0]		for checking	for applying
+			       features[1]      GSUB     GPOS	GSUB    GPOS
+   -------------	------------------	-------------	------------
+   SCRIPT		[-1,0]	    [-1,0]	   any | any	   all  all
+   SCRIPT=		NULL	    [-1,0]	  none & 1	  none  all
+   SCRIPT+		[-1,0]	      NULL	     1 & none	   all  none
+   SCRIPT=+		NULL	      NULL	  none & none	  none  none
+   SCRIPT=F1		[F1,0]	    [-1,0]	    F1 & 1	    F1  all
+   SCRIPT+F1		[-1][0]	    [F1,0]	     1 & F1	  none  F1
+   SCRIPT=F1+		[F1,0]	      NULL	    F1 & none	    F1  none
+   SCRIPT=~F2		[-1,F2,0]   [-1,0]	   ~F2 & 1	all~F2  all
+   SCRIPT=F1,~F2	[F1,-1,F2,0][-1,0]	F1&~F2 & 1	F1 (*1) all
 
    (*1) Invalid specification
  */
