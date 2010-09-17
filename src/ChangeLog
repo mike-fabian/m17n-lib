@@ -1,3 +1,7 @@
+2010-09-17  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (ft_check_otf): Fix previous change.
+
 2010-09-16  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (parse_otf_command): Fix previous change.
