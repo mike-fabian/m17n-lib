@@ -2147,13 +2147,18 @@ ft_close (MRealizedFont *rfont)
 static int 
 ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
 {
+#define FEATURE_NONE(IDX) (! spec->features[IDX])
+
+#define FEATURE_ANY(IDX)	\
+  (spec->features[IDX]		\
+   && spec->features[IDX][0] == 0xFFFFFFFF && spec->features[IDX][1] == 0)
+
 #ifdef HAVE_OTF
   OTF_Tag *tags;
   int i, n, negative;
   OTF *otf = get_otf (font, NULL);
   
-  if (spec->features[0] && spec->features[0][0] ==0
-      && spec->features[1] && spec->features[1][0] ==0)
+  if (FEATURE_ANY (0) && FEATURE_ANY (1))
     /* Return 1 iff any of GSUB or GPOS support the script (and language).  */
     return (otf
 	    && (OTF_check_features (otf, 0, spec->script, spec->langsys,
@@ -2162,24 +2167,25 @@ ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
 				       NULL, 0) > 0));
 
   for (i = 0; i < 2; i++)
-    if (! spec->features[i] || spec->features[i][0] != 0)
+    if (! FEATURE_ANY (i))
       {
-	int no_feature = ! otf || OTF_get_features (otf, i == 0) < 0;
-
-	if (! spec->features[i])
+	if (FEATURE_NONE (i))
 	  {
-	    if (no_feature)
-	      continue;
-	    return 0;
+	    if (otf
+		&& OTF_check_features (otf, i == 0, spec->script, spec->langsys,
+				       NULL, 0) > 0)
+	      return 0;
+	    continue;
 	  }
 	if (spec->features[i][0] == 0xFFFFFFFF)
 	  {
-	    if (no_feature)
+	    if (! otf
+		|| OTF_check_features (otf, i == 0, spec->script, spec->langsys,
+				       NULL, 0) <= 0)
 	      continue;
 	  }
-	else if (no_feature)
+	else if (! otf)
 	  return 0;
-	/* Now (! no_feature) */
 	for (n = 1; spec->features[i][n]; n++);
 	tags = alloca (sizeof (OTF_Tag) * n);
 	for (n = 0, negative = 0; spec->features[i][n]; n++)
@@ -2198,10 +2204,8 @@ ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
   return 1;
 
 #endif	/* HAVE_OTF */
-  return ((! spec->features[0] || (spec->features[0][0] == 0
-				   && spec->features[0][0] == 0xFFFFFFFF))
-	  && (! spec->features[0] || (spec->features[0][0] == 0
-				      && spec->features[0][0] == 0xFFFFFFFF)));
+  return (FEATURE_NONE (0) ? (FEATURE_NONE (1) || FEATURE_ANY (1))
+	  : (FEATURE_NONE (1) && FEATURE_ANY (0)));
 }
 
 #ifdef HAVE_OTF
