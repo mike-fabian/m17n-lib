@@ -1189,7 +1189,7 @@ struct MInputContext
       によって設定される。  */
   MText *produced;
 
-  /***en Argument given to the function minput_create_im (). */
+  /***en Argument given to the function minput_create_ic (). */
   /***ja 関数 minput_create_ic () に渡される引数。 */
   void *arg;
 
