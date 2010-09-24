@@ -26,7 +26,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT([m17n-lib],[1.6.2],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 
 API_VERSION=4:0:4
