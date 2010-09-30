@@ -1,3 +1,7 @@
+2010-09-30  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (open_im): Return -1 if the input method has no state.
+
 2010-09-17  Kenichi Handa  <handa@m17n.org>
 
 	* font-ft.c (ft_check_otf): Fix previous change.
