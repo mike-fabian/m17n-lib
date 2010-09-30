@@ -3795,7 +3795,7 @@ open_im (MInputMethod *im)
 {
   MInputMethodInfo *im_info = get_im_info (im->language, im->name, Mnil, Mnil);
 
-  if (! im_info || ! im_info->states)
+  if (! im_info || ! im_info->states || MPLIST_LENGTH (im_info->states) == 0)
     MERROR (MERROR_IM, -1);
   im->info = im_info;
 
