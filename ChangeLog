@@ -1,3 +1,7 @@
+2010-10-04  Kenichi Handa  <handa@m17n.org>
+
+	* Version 1.6.2 released.
+
 2010-09-24  Kenichi Handa  <handa@m17n.org>
 
 	* configure.ac (AC_CONFIG_HEADERS): Put config.h in the top
