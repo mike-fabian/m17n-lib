@@ -1,6 +1,10 @@
-2010-10-04  Kenichi Handa  <handa@m17n.org>
+2010-10-05  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.2 released.
+
+2010-10-05  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (INCLUDES): Set -I$(top_srcdir)/src.
 
 2010-04-23  Kenichi Handa  <handa@m17n.org>
 
