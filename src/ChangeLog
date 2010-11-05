@@ -1,3 +1,8 @@
+2010-11-05  Kenichi Handa  <handa@m17n.org>
+
+	* locale.c (make_locale): Don't call setlocale.  Just parse the
+	arg NAME.
+
 2010-10-04  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.2 released.
