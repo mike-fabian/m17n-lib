@@ -3226,6 +3226,13 @@ mdebug_dump_flt (MFLT *flt, int indent)
   return flt;
 }
 
+/***en
+    @brief Dump an MFLTGlyphString.
+
+    The mflt_dump_gstring () function prints the glyph sequence
+    $GSTRING in a human readable way to the stderr or to what
+    specified by the environment variable MDEBUG_OUTPUT_FILE.  */
+
 void
 mflt_dump_gstring (MFLTGlyphString *gstring)
 {
