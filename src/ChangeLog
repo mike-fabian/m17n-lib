@@ -1,3 +1,7 @@
+2010-12-10  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-flt.c (mflt_dump_gstring): Document it.
+
 2010-11-05  Kenichi Handa  <handa@m17n.org>
 
 	* locale.c (make_locale): Don't call setlocale.  Just parse the
