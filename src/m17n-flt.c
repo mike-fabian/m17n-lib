@@ -3107,6 +3107,13 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
   return to;
 }
 
+/***en
+    @brief Flag to control several new OTF handling commands.
+
+    If the variable mflt_enable_new_feature is nonzero, the function
+    #mflt_run () can drive a Font Layout Table that contains the new
+    OTF-related commands ":otf?" and/or OTF feature specification in a
+    category table.  */
 int mflt_enable_new_feature;
 
 int (*mflt_iterate_otf_feature) (struct _MFLTFont *font,
