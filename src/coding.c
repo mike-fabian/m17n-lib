@@ -3090,6 +3090,7 @@ mcoding__load_from_database ()
 
 /*** @} */
 #endif /* !FOR_DOXYGEN || DOXYGEN_INTERNAL_MODULE */
+
 
 /* External API */
 
@@ -3391,7 +3392,6 @@ MSymbol Mmaybe;
 MSymbol Mcoding;
 /*=*/
 /*** @} */ 
-/*=*/
 
 /***en
     @brief Define a coding system.
