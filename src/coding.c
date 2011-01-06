@@ -190,9 +190,9 @@ typedef struct {
      Unget 用バッファ */
   MText *unread;
 
-  /*en
+  /**en
     Working area. */
-  /*ja
+  /**ja
     作業領域 */
   MText *work_mt;
 
