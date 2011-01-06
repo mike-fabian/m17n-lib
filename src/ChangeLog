@@ -1,3 +1,7 @@
+2011-01-06  Kenichi Handa  <handa@m17n.org>
+
+	* coding.c: Fix comment syntax for doxygen.
+
 2010-12-13  Kenichi Handa  <handa@m17n.org>
 
 	* m17n-flt.c (mflt_enable_new_feature): Document it.
