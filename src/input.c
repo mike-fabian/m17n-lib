@@ -220,6 +220,7 @@ typedef MPlist *(*MIMExternalFunc) (MPlist *plist);
 
 typedef struct
 {
+  MSymbol name;
   void *handle;
   MPlist *func_list;		/* function name vs (MIMExternalFunc *) */
 } MIMExternalModule;
@@ -1200,13 +1201,17 @@ load_macros (MInputMethodInfo *im_info, MPlist *plist)
   return 0;
 }
 
-/* Load an external module from PLIST into IM_INFO->externals.
+/* Load an external module from PLIST, and return a pointer to
+   MIMExternalModule.
+
    PLIST has this form:
       PLIST ::= ( MODULE-NAME FUNCTION * )
-   IM_INFO->externals is a plist of MODULE-NAME vs (MIMExternalModule *).  */
+   IM_INFO->externals is a plist of MODULE-NAME vs (MIMExternalModule *).
 
-static int
-load_external_module (MInputMethodInfo *im_info, MPlist *plist)
+   On error, return NULL.  */
+
+static MIMExternalModule *
+load_external_module (MPlist *plist)
 {
   void *handle;
   MSymbol module;
@@ -1227,10 +1232,7 @@ load_external_module (MInputMethodInfo *im_info, MPlist *plist)
 
   handle = dlopen (module_file, RTLD_NOW);
   if (MFAILP (handle))
-    {
-      fprintf (stderr, "%s\n", dlerror ());
-      return -1;
-    }
+    return NULL;
   func_list = mplist ();
   MPLIST_DO (plist, MPLIST_NEXT (plist))
     {
@@ -1243,15 +1245,23 @@ load_external_module (MInputMethodInfo *im_info, MPlist *plist)
     }
 
   MSTRUCT_MALLOC (external, MERROR_IM);
+  external->name = module;
   external->handle = handle;
   external->func_list = func_list;
-  mplist_add (im_info->externals, module, external);
-  return 0;
+  return external;
 
  err_label:
-  dlclose (handle);
   M17N_OBJECT_UNREF (func_list);
-  return -1;
+  dlclose (handle);
+  return NULL;
+}
+
+static void
+unload_external_module (MIMExternalModule *external)
+{
+  dlclose (external->handle);
+  M17N_OBJECT_UNREF (external->func_list);
+  free (external);
 }
 
 static void
@@ -1380,11 +1390,7 @@ fini_im_info (MInputMethodInfo *im_info)
     {
       MPLIST_DO (plist, im_info->externals)
 	{
-	  MIMExternalModule *external = MPLIST_VAL (plist);
-
-	  dlclose (external->handle);
-	  M17N_OBJECT_UNREF (external->func_list);
-	  free (external);
+	  unload_external_module (MPLIST_VAL (plist));
 	  MPLIST_KEY (plist) = Mt;
 	}
       M17N_OBJECT_UNREF (im_info->externals);
@@ -1566,7 +1572,7 @@ update_global_info (void)
 }
 
 
-/* Return an IM_INFO for the an method specified by LANGUAGE, NAME,
+/* Return an IM_INFO for the input method specified by LANGUAGE, NAME,
    and EXTRA.  KEY, if not Mnil, tells which kind of information about
    the input method is necessary, and the returned IM_INFO may contain
    only that information.  */
@@ -2290,9 +2296,13 @@ load_im_info (MPlist *plist, MInputMethodInfo *im_info)
 	      im_info->externals = mplist ();
 	    MPLIST_DO (elt, MPLIST_NEXT (elt))
 	      {
+		MIMExternalModule *external;
+
 		if (MFAILP (MPLIST_PLIST_P (elt)))
 		  continue;
-		load_external_module (im_info, MPLIST_PLIST (elt));
+		external = load_external_module (MPLIST_PLIST (elt));
+		if (external)
+		  mplist_add (im_info->externals, external->name, external);
 	      }
 	  }
 	else if (key == Mstate)
@@ -5921,6 +5931,116 @@ minput_save_config (void)
   mdatabase__unlock (im_custom_mdb);
   M17N_OBJECT_UNREF (data);
   return (ret < 0 ? -1 : 1);
+}
+
+/***en
+    @brief List available input methods.
+
+    The minput_list () function returns a list of currently available
+    input methods whose language is $LANGUAGE.  If $LANGUAGE is #Mnil,
+    all input methods are listed.  It is assured that each input
+    method in the returned list can be successfully opened by
+    #minput_open_im () function.
+
+    @return
+    The returned value is a plist of this form:
+	((LANGUAGE-NAME INPUT-METHOD-NAME) ...)
+*/
+MPlist *
+minput_list (MSymbol language)
+{
+  MPlist *plist, *pl, *p;
+  MPlist *imlist = mplist ();
+  
+  MINPUT__INIT ();
+  plist = mdatabase_list (Minput_method, language, Mnil, Mnil);
+  if (! plist)
+    return imlist;
+  MPLIST_DO (pl, plist)
+    {
+      MDatabase *mdb = MPLIST_VAL (pl);
+      MSymbol *tag = mdatabase_tag (mdb);
+      MPlist *imdata;
+      int num_maps = 0, num_states = 0;
+
+      if (tag[2] == Mnil)
+	continue;
+      imdata = mdatabase_load (mdb);
+      if (! imdata)
+	continue;
+      MPLIST_DO (p, imdata)
+	if (MPLIST_PLIST_P (p))
+	  {
+	    /* Check these basic functionarity:
+	       All external modules (if any) are loadable.
+	       All included input method (if any) are loadable.
+	       At least one map is defined or included.
+	       At least one state is defined or included. */
+	    MPlist *elt = MPLIST_PLIST (p);
+	    MSymbol key;
+
+	    if (MFAILP (MPLIST_SYMBOL_P (elt)))
+	      break;
+	    key = MPLIST_SYMBOL (elt);
+	    if (key == Mmap)
+	      num_maps++;
+	    else if (key == Mstate)
+	      num_states++;
+	    else if (key == Mmodule)
+	      {
+		MPLIST_DO (elt, MPLIST_NEXT (elt))
+		  {
+		    MIMExternalModule *external;
+
+		    if (MFAILP (MPLIST_PLIST_P (elt)))
+		      break;
+		    external = load_external_module (MPLIST_PLIST (elt));
+		    if (MFAILP (external))
+		      break;
+		    unload_external_module (external);
+		  }
+		if (! MPLIST_TAIL_P (elt))
+		  break;
+	      }
+	    else if (key == Minclude)
+	      {
+		MInputMethodInfo *im_info;
+
+		elt = MPLIST_NEXT (elt);
+		if (MFAILP (MPLIST_PLIST_P (elt)))
+		  break;
+		im_info = get_im_info_by_tags (MPLIST_PLIST (elt));
+		if (MFAILP (im_info))
+		  break;
+		elt = MPLIST_NEXT (elt);
+		if (MFAILP (MPLIST_SYMBOL_P (elt)))
+		  break;
+		key = MPLIST_SYMBOL (elt);
+		if (key == Mmap)
+		  {
+		    if (! im_info->maps)
+		      break;
+		    num_maps++;
+		  }
+		else if (key == Mstate)
+		  {
+		    if (! im_info->states)
+		      break;
+		    num_states++;
+		  }
+	      }
+	  }
+      if (MPLIST_TAIL_P (p) && num_maps > 0 && num_states > 0)
+	{
+	  p = mplist ();
+	  mplist_add (p, Msymbol, tag[1]);
+	  mplist_add (p, Msymbol, tag[2]);
+	  mplist_add (imlist, Mplist, p);
+	  M17N_OBJECT_UNREF (p);
+	}
+      M17N_OBJECT_UNREF (imdata);
+    }
+  return imlist;
 }
 
 /*=*/
