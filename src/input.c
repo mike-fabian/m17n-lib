@@ -1,5 +1,5 @@
 /* input.c -- input method module.
-   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -5938,18 +5938,53 @@ minput_save_config (void)
 
     The minput_list () function returns a list of currently available
     input methods whose language is $LANGUAGE.  If $LANGUAGE is #Mnil,
-    all input methods are listed.  It is assured that each input
-    method in the returned list can be successfully opened by
-    #minput_open_im () function.
+    all input methods are listed.
 
     @return
     The returned value is a plist of this form:
-	((LANGUAGE-NAME INPUT-METHOD-NAME) ...)
-*/
+	((LANGUAGE-NAME INPUT-METHOD-NAME SANE) ...)
+    The third element SANE of each input method is #Mt if it can be
+    successfully used, or #Mnil if it has some problem (e.g. syntax
+    error of MIM file, unavailable external module, unavailable
+    including input method).  */
+
+#if EXAMPLE_CODE
+#include <stdio.h>
+#include <string.h>
+#include <m17n.h>
+
+int
+main (int argc, char **argv)
+{
+  MPlist *imlist, *pl;
+
+  M17N_INIT ();
+  imlist = minput_list ((argc > 1) ? msymbol (argv[1]) : Mnil);
+  for (pl = imlist; mplist_key (pl) != Mnil; pl = mplist_next (pl))
+    {
+      MPlist *p = mplist_value (pl);
+      MSymbol lang, name, sane;
+
+      lang = mplist_value (p);
+      p = mplist_next (p);
+      name = mplist_value (p);
+      p = mplist_next (p);
+      sane = mplist_value (p);
+
+      printf ("%s %s %s\n", msymbol_name (lang), msymbol_name (name),
+	      sane == Mt ? "ok" : "no");
+    }
+
+  m17n_object_unref (imlist);
+  M17N_FINI ();
+  exit (0);
+}
+#endif
+
 MPlist *
 minput_list (MSymbol language)
 {
-  MPlist *plist, *pl, *p;
+  MPlist *plist, *pl;
   MPlist *imlist = mplist ();
   
   MINPUT__INIT ();
@@ -5960,7 +5995,7 @@ minput_list (MSymbol language)
     {
       MDatabase *mdb = MPLIST_VAL (pl);
       MSymbol *tag = mdatabase_tag (mdb);
-      MPlist *imdata;
+      MPlist *imdata, *p, *elm;
       int num_maps = 0, num_states = 0;
 
       if (tag[2] == Mnil)
@@ -6030,16 +6065,18 @@ minput_list (MSymbol language)
 		  }
 	      }
 	  }
+      elm = mplist ();
+      mplist_add (elm, Msymbol, tag[1]);
+      mplist_add (elm, Msymbol, tag[2]);
       if (MPLIST_TAIL_P (p) && num_maps > 0 && num_states > 0)
-	{
-	  p = mplist ();
-	  mplist_add (p, Msymbol, tag[1]);
-	  mplist_add (p, Msymbol, tag[2]);
-	  mplist_add (imlist, Mplist, p);
-	  M17N_OBJECT_UNREF (p);
-	}
+	mplist_add (elm, Msymbol, Mt);
+      else
+	mplist_add (elm, Msymbol, Mnil);
+      mplist_push (imlist, Mplist, elm);
+      M17N_OBJECT_UNREF (elm);
       M17N_OBJECT_UNREF (imdata);
     }
+  M17N_OBJECT_UNREF (plist);
   return imlist;
 }
 
