@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-moduledir=${exec_prefix}/lib/@M17N_MODULE_DIR@
+moduledir=${libdir}/@M17N_MODULE_DIR@
 
 Name: m17n-core
 Description: Core API suport of the m17n library.
