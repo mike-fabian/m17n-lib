@@ -1,3 +1,14 @@
+2011-02-21  Daiki Ueno  <ueno@unixuser.org>  (tiny change)
+
+	* m17n-core.pc.in (moduledir): Use ${libdir} instead of
+	${exec_prefix}/lib.
+
+	* m17n-shell.pc.in (moduledir): Likewise.
+
+	* m17n-flt.pc.in (moduledir): Likewise.
+
+	* m17n-gui.pc.in (moduledir): Likewise.
+
 2011-01-12  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.2 released.
