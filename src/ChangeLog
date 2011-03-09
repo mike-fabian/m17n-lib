@@ -1,3 +1,9 @@
+2011-03-09  Kenichi Handa  <handa@m17n.org>
+
+	* input.c (take_action_list): Move the handling of candidate-list
+	change to the function filter.
+	(filter): Adjusted as above.
+
 2011-02-14  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (minput_list): Change the format of returning plist.
