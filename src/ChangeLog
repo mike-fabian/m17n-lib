@@ -1,3 +1,7 @@
+2011-06-19  Kenichi Handa  <handa@m17n.org>
+
+	* Makefile.am (libm17n_X_la_LIBADD): Add @FONTCONFIG_LD_FLAGS@.
+
 2011-03-09  Kenichi Handa  <handa@m17n.org>
 
 	* input.c (take_action_list): Move the handling of candidate-list
