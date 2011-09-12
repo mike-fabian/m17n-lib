@@ -2,6 +2,10 @@
 
 	* Version 1.6.3 released.
 
+2011-09-12  Kenichi Handa  <handa@m17n.org>
+
+	* configure.ac: Version changed to 1.6.3.
+
 2011-02-21  Daiki Ueno  <ueno@unixuser.org>  (tiny change)
 
 	* m17n-core.pc.in (moduledir): Use ${libdir} instead of
