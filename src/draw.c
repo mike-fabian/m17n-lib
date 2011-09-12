@@ -109,7 +109,7 @@ analyse_bidi_level (MGlyphString *gstring)
   MGlyph *g;
   int i;
 #ifdef HAVE_FRIBIDI
-  FriBidiCharType base = bidi_sensitive ? FRIBIDI_TYPE_RTL : FRIBIDI_TYPE_LTR;
+  FriBidiParType base = bidi_sensitive ? FRIBIDI_TYPE_RTL : FRIBIDI_TYPE_LTR;
   FriBidiChar *logical = alloca (sizeof (FriBidiChar) * len);
   FriBidiLevel *levels;
   FriBidiStrIndex *indices;
