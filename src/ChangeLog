@@ -2,6 +2,10 @@
 
 	* Version 1.6.3 released.
 
+2011-09-12  Kenichi Handa  <handa@m17n.org>
+
+	* draw.c (analyse_bidi_level): Adjust a type (FriBidiParType).
+
 2011-06-19  Kenichi Handa  <handa@m17n.org>
 
 	* Makefile.am (libm17n_X_la_LIBADD): Add @FONTCONFIG_LD_FLAGS@.
