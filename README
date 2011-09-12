@@ -1,6 +1,6 @@
-This directory tree holds version 1.6.2 of the m17n library.	-*- text -*-
+This directory tree holds version 1.6.3 of the m17n library.	-*- text -*-
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 See the end for copying conditions.
@@ -17,14 +17,8 @@ Run the script "bootstrap.sh" in this directory.  It is tested that
 the script runs successfully with these versions of tools.
 
 	        libtool automake autoconf gettext pkg-config
-  Debian Lenny   1.5.26   1.10.1     2.61    0.17       0.22
-  Debian Sid     2.2.6b   1.11.1     2.67  0.18.1       0.25
-  Ubunto 8.4(*1) 1.5.26   1.10.1     2.61    0.17       0.22
-  Ubunto 9.10     2.2.4    1.9.6     2.61    0.17       0.22
+  Ubunto 9.10    2.2.6b   1.11.1     2.66    0.17       0.22
   Ubunto 10.4    2.2.6b   1.11.1     2.65    0.17       0.22
-  Fedra 12       2.2.6b   1.11.1     2.63    0.17       0.23
-  Fedra 13       2.2.6b   1.11.1     2.65  0.18.1       0.23
-  OpenSUSE 11.3  2.2.6b   1.11.1     2.65    0.17       0.23
 
 (*1) bootstrap.sh prints lots of warning something like this:
 ------------------------------------------------------------
@@ -169,7 +163,7 @@ This compiles PROX.c that uses GUI API and builds executable PROX.
 ----------------------------------------------------------------------
 Copyright information
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 
