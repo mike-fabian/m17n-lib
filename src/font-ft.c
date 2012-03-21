@@ -371,11 +371,12 @@ fc_decode_prop (int val, FC_vs_M17N_font_prop *table, int size)
 	  break;
       i++;
     }
-  else
+  else if (val > table[i].fc_value)
     {
-      for (; i < size; i++)
-	if (val <= table[i].fc_value)
+      for (i++; i < size; i++)
+	if (val < table[i].fc_value)
 	  break;
+      i--;
     }
   return table[i].sym;
 }
