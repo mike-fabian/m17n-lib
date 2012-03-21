@@ -1,3 +1,12 @@
+2012-03-21  Kenichi Handa  <handa@m17n.org>
+
+	* font-ft.c (fc_decode_prop): Fix for the case of too large VAL.
+
+2012-02-28  Kenichi Handa  <handa@m17n.org>
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Changed to 3.
+	(M17NLIB_VERSION_NAME): Changed to "1.6.3".
+
 2011-10-11  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.3 released.
@@ -178,7 +187,7 @@
 
 	* m17n-core.h (M17NLIB_MINOR_VERSION): Changed to 6.
 	(M17NLIB_PATCH_LEVEL): Changed to 1.
-	(M17NLIB_VERSION_NAME): 1.6.1.
+	(M17NLIB_VERSION_NAME): Changed "1.6.1".
 
 2010-03-30  Kenichi Handa  <handa@m17n.org>
 
