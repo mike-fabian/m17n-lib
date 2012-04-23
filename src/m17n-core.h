@@ -1,5 +1,5 @@
 /* m17n-core.h -- header file for the CORE API of the m17n library.
-   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
 
@@ -47,8 +47,8 @@ M17N_BEGIN_HEADER
 
 #define M17NLIB_MAJOR_VERSION 1
 #define M17NLIB_MINOR_VERSION 6
-#define M17NLIB_PATCH_LEVEL 1
-#define M17NLIB_VERSION_NAME "1.6.1"
+#define M17NLIB_PATCH_LEVEL 4
+#define M17NLIB_VERSION_NAME "1.6.4"
 
 extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()
