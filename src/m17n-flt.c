@@ -2385,9 +2385,6 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 
   if (ctx->out->used > 0)
     {
-      int *g_indices;
-      int x_ppem = ctx->font->x_ppem << 6, y_ppem = ctx->font->y_ppem << 6;
-
       /* Remove separator glyphs.  */
       for (i = 0; i < ctx->out->used;)
 	{
@@ -2397,6 +2394,11 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 	  else
 	    i++;
 	}
+    }
+  if (ctx->out->used > 0)
+    {
+      int *g_indices;
+      int x_ppem = ctx->font->x_ppem << 6, y_ppem = ctx->font->y_ppem << 6;
 
       /* Get actual glyph IDs of glyphs.  */
       ctx->font->get_glyph_id (ctx->font, ctx->out, 0, ctx->out->used);
