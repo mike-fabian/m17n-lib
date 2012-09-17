@@ -1,6 +1,11 @@
-2012-08-31  Kenichi Handa  <handa@m17n.org>
+2012-09-17  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.4 released.
+
+2012-09-17  Kenichi Handa  <handa@gnu.org>
+
+	* m17n-flt.c (run_stages): After removing separator glyphs,
+	re-check ctx->out->used.
 
 2012-04-23  Kenichi Handa  <handa@m17n.org>
 
