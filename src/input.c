@@ -5037,7 +5037,7 @@ get_im_command_description (MSymbol language, MSymbol name, MSymbol command)
 {
   /* Return a description of the command COMMAND of the input method
      specified by LANGUAGE and NAME.  */
-  MPlist *cmd = minput_get_command (langauge, name, command);
+  MPlist *cmd = minput_get_command (language, name, command);
   MPlist *plist;
 
   if (! cmds)
