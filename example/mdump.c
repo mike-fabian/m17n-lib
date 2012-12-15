@@ -322,7 +322,7 @@ help_exit (char *prog, int exit_code)
   printf ("  %-13s %s", "--family FAMILY", 
 	  "Prefer a font whose family is FAMILY.\n");
   printf ("  %-13s %s", "--language LANG", 
-	  "Prefer a font specified for the langauge LANG.\n");
+	  "Prefer a font specified for the language LANG.\n");
   printf ("  %-13s %s", "-r", 
 	  "Specify that the orientation of the text is right-to-left.\n");
   printf ("  %-13s %s", "-fg FOREGROUND",
