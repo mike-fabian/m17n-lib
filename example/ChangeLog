@@ -1,3 +1,7 @@
+2012-12-15  Kenichi Handa  <handa@gnu.org>
+
+	* mdump.c (help_exit): Fix typo.
+
 2012-09-18  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.4 released.
@@ -131,7 +135,7 @@
 
 2007-05-21  Kenichi Handa  <handa@m17n.org>
 
-	* medit.c (show_cursor): Use msymbol_name (not mlangauge_name).
+	* medit.c (show_cursor): Use msymbol_name (not mlanguage_name).
 
 2007-05-16  Kenichi Handa  <handa@m17n.org>
 

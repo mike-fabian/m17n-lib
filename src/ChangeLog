@@ -1,3 +1,7 @@
+2012-12-15  Kenichi Handa  <handa@gnu.org>
+
+	* input.c [EXAMPLE_CODE] (get_im_command_description): Fix typo.
+
 2012-09-18  Kenichi Handa  <handa@m17n.org>
 
 	* Version 1.6.4 released.
@@ -1273,7 +1277,7 @@
 	(mlanguage_name_list): New arg script and territories.  Use
 	load_lang_name.
 
-	* m17n.h (mlangauge_name_list): Adjusted.
+	* m17n.h (mlanguage_name_list): Adjusted.
 
 2007-06-04  Kenichi Handa  <handa@m17n.org>
 
@@ -1334,7 +1338,7 @@
 	compatibility.
 
 	* input.c (filter): Don't check Mlanguage property of
-	ic->im->langauge.
+	ic->im->language.
 
 2007-05-18  Kenichi Handa  <handa@m17n.org>
 
@@ -3646,7 +3650,7 @@
 	* internal-gui.h (glyph_category): New enum.
 	(MGlyph): Change type of <category> to enum glyph_category.
 
-	* face.c (mface__realize): Delete args langauge and charset.
+	* face.c (mface__realize): Delete args language and charset.
 	(mface__for_chars): Fix for the case that glyphs have different
 	rfaces.
 	(mface__update_frame_face): Adjust for mface__realize change.
@@ -4274,7 +4278,7 @@
 	* fontset.c (mfont__lookup_fontset): Fix selection of font groups
 	by language.
 
-	* draw.c (compose_glyph_string): If langauge is specified, call
+	* draw.c (compose_glyph_string): If language is specified, call
 	mface__for_chars even if a text is all latin.  Fix condition for
 	setting non_ascii_found.
 
