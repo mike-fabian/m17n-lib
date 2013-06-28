@@ -358,13 +358,13 @@ main (int argc, char **argv)
 	  M17N_FINI ();
 	  exit (0);
 	}
-      else if (! strcmp (argv[i], "-f"))
+      else if (! strcmp (argv[i], "-f") && i + 1 < argc)
 	{
 	  incode = mconv_resolve_coding (msymbol (argv[++i]));
 	  if (incode == Mnil)
 	    unknown_encoding (argv[i]);
 	}
-      else if (! strcmp (argv[i], "-t"))
+      else if (! strcmp (argv[i], "-t") && i + 1 < argc)
 	{
 	  outcode = mconv_resolve_coding (msymbol (argv[++i]));
 	  if (outcode == Mnil)
