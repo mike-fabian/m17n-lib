@@ -1841,7 +1841,7 @@ mtext_ref_char (MText *mt, int pos)
       if (mt->format != MTEXT_FORMAT_UTF_16)
 	{
 	  p1[0] = SWAP_16 (*p);
-	  if (p1[0] >= 0xD800 || p1[0] < 0xDC00)
+	  if (p1[0] >= 0xD800 && p1[0] < 0xDC00)
 	    p1[1] = SWAP_16 (p[1]);
 	  p = p1;
 	}
