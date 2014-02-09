@@ -44,6 +44,8 @@ typedef struct MIMState MIMState;
 
 typedef struct MIMMap MIMMap;
 
+typedef struct MIMInputStack MIMInputStack;
+
 typedef struct
 {
   /** The current state.  */
@@ -92,6 +94,13 @@ typedef struct
   MPlist *state_hook;
 
   unsigned long tick;
+
+  /* A pushing/switching input method is recorded here by
+     take_action_list (). */
+  MPlist *pushing_or_switching;
+  /* List of pointers to MInputContext for fallback input methods.  */
+  MPlist *fallbacks;
+  MIMInputStack *stack;
 } MInputContextInfo;
 
 #define MINPUT_KEY_SHIFT_MODIFIER	(1 << 0)
