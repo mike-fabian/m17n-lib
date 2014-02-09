@@ -177,6 +177,7 @@ static MSymbol Mset, Madd, Msub, Mmul, Mdiv, Mequal, Mless, Mgreater;
 static MSymbol Mless_equal, Mgreater_equal;
 static MSymbol Mcond;
 static MSymbol Mplus, Mminus, Mstar, Mslash, Mand, Mor, Mnot;
+static MSymbol Mswitch_im, Mpush_im, Mpop_im;
 
 /** Special action symbol.  */
 static MSymbol Mat_reload;
@@ -189,6 +190,7 @@ static MSymbol Minit, Mfini;
 
 /** Symbols for variables.  */
 static MSymbol Mcandidates_group_size, Mcandidates_charset;
+static MSymbol Mfallback_input_method;
 
 /** Symbols for key events.  */
 static MSymbol one_char_symbol[256];
@@ -265,11 +267,56 @@ static MPlist *im_config_list;
    `global'.  */
 static MInputMethodInfo *global_info;
 
+/* List of fallback input methods: well-formed plist of this form:
+   ((im-lang1 im-name1) (im-lang2 im-name2) ...)
+ */
+
+static MPlist *fallback_input_methods;
+
 static int update_global_info (void);
 static int update_custom_info (void);
 static MInputMethodInfo *get_im_info (MSymbol, MSymbol, MSymbol, MSymbol);
 
 
+/* Initialize fallback_input_methods.  Called by fully_initialize ()
+   after fully_initialized is set to 1.  */
+
+static void
+prepare_fallback_input_methods ()
+{
+  MPlist *plist, *pl, *p;
+
+  fallback_input_methods = mplist ();
+  if ((plist = minput_get_variable (Mt, Mnil, Mfallback_input_method)) == NULL)
+    return;
+  plist = MPLIST_PLIST (plist);
+  plist = MPLIST_NEXT (plist);	/* skip name */
+  plist = MPLIST_NEXT (plist);	/* skip description */
+  plist = MPLIST_NEXT (plist);	/* skip status */
+  /* Now PLIST must be (((LANGUAGE NAME) ...)) */
+  if (! MPLIST_PLIST_P (plist))
+    return;
+  plist = MPLIST_PLIST (plist);
+  if (! plist)
+    return;
+  /* We store fallback input methods in reverse preference order in
+     fallback_input_methods.  */
+  MPLIST_DO (pl, plist)
+    {
+      MPlist *lang_name;
+
+      if (! MPLIST_PLIST_P (pl))
+	continue;
+      lang_name = MPLIST_PLIST (pl);
+      if (! MPLIST_SYMBOL_P (lang_name))
+	continue;
+      p = MPLIST_NEXT (lang_name);
+      if (! MPLIST_SYMBOL_P (p))
+	continue;
+      mplist_push (fallback_input_methods, Mplist, lang_name);
+    }
+}
+
 static void
 fully_initialize ()
 {
@@ -473,11 +520,15 @@ fully_initialize ()
   Mand = msymbol ("&");
   Mor = msymbol ("|");
   Mnot = msymbol ("!");
+  Mswitch_im = msymbol ("switch-im");
+  Mpush_im = msymbol ("push-im");
+  Mpop_im = msymbol ("pop-im");
 
   Mat_reload = msymbol ("-reload");
 
   Mcandidates_group_size = msymbol ("candidates-group-size");
   Mcandidates_charset = msymbol ("candidates-charset");
+  Mfallback_input_method = msymbol ("fallback-input-method");
 
   Mcandidate_list = msymbol_as_managing_key ("  candidate-list");
   Mcandidate_index = msymbol ("  candidate-index");
@@ -504,6 +555,7 @@ fully_initialize ()
   update_global_info ();
 
   fully_initialized = 1;
+  prepare_fallback_input_methods ();
 }
 
 #define MINPUT__INIT()		\
@@ -976,7 +1028,9 @@ parse_action_list (MPlist *plist, MPlist *macros)
 	    }
 	  else if (action_name == Mshow || action_name == Mhide
 		   || action_name == Mcommit || action_name == Munhandle
-		   || action_name == Mpop)
+		   || action_name == Mpop
+		   || action_name == Mpush_im || action_name == Mpop_im
+		   || action_name == Mswitch_im)
 	    ;
 	  else if (action_name == Mcond)
 	    {
@@ -1695,6 +1749,39 @@ get_im_info_by_tags (MPlist *plist)
 }
 
 
+/* Open an input method specified by LANG_NAME, create an input
+   context for it, and return the input context.  */
+
+
+static MInputContext *
+create_ic_for_im (MPlist *lang_name)
+{
+  MSymbol language, name;
+  MInputMethod *im;
+  MInputContext *ic;
+  MInputDriver *driver = minput_driver;
+
+  language = MPLIST_SYMBOL (lang_name);
+  lang_name = MPLIST_NEXT (lang_name);
+  name = MPLIST_SYMBOL (lang_name);
+  minput_driver = &minput_default_driver;
+  im = minput_open_im (language, name, NULL);
+  if (! im)
+    {
+      minput_driver = driver;
+      return NULL;
+    }
+  ic = minput_create_ic (im, NULL);
+  if (! ic)
+    {
+      minput_close_im (im);
+      minput_driver = driver;
+      return NULL;
+    }
+  minput_driver = driver;
+  return ic;
+}
+
 static int
 check_description (MPlist *plist)
 {
@@ -1925,7 +2012,7 @@ check_variable_value (MPlist *val, MPlist *global)
   MSymbol type = MPLIST_KEY (val);
   MPlist *valids = MPLIST_NEXT (val);
 
-  if (type != Minteger && type != Mtext && type != Msymbol)
+  if (type != Minteger && type != Mtext && type != Msymbol && type != Mplist)
     return 0;
   if (global)
     {
@@ -1978,7 +2065,7 @@ check_variable_value (MPlist *val, MPlist *global)
 	    break;
 	}
     }
-  else
+  else if (type == Mtext)
     {
       MText *mt = MPLIST_MTEXT (val);
 
@@ -1994,7 +2081,7 @@ check_variable_value (MPlist *val, MPlist *global)
   return (! MPLIST_TAIL_P (valids));
 }
 
-/* Load variable defitions from PLIST into IM_INFO->vars.
+/* Load variable definitions from PLIST into IM_INFO->vars.
 
    PLIST is well-formed and has this form;
      ((NAME [DESCRIPTION DEFAULT-VALUE VALID-VALUE ...])
@@ -2997,14 +3084,16 @@ regularize_action (MPlist *action_list, MInputContextInfo *ic_info)
 }
 
 /* Perform list of actions in ACTION_LIST for the current input
-   context IC.  If unhandle action was not performed, return 0.
-   Otherwise, return -1.  */
+   context IC.  If "unhandle" action was performed or an error
+   occurred, return -1.  Otherwise, return 0, 1, 2, or 3.  See the
+   comment in filter () for the detail. */
 
 static int
 take_action_list (MInputContext *ic, MPlist *action_list)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   MTextProperty *prop;
+  int result;
 
   MPLIST_DO (action_list, action_list)
     {
@@ -3297,8 +3386,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  MIMExternalFunc func = NULL;
 	  MSymbol module, func_name;
 	  MPlist *func_args, *val;
-	  int ret = 0;
 
+	  result = 0;
 	  module = MPLIST_SYMBOL (args);
 	  args = MPLIST_NEXT (args);
 	  func_name = MPLIST_SYMBOL (args);
@@ -3335,10 +3424,10 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  val = (func) (func_args);
 	  M17N_OBJECT_UNREF (func_args);
 	  if (val && ! MPLIST_TAIL_P (val))
-	    ret = take_action_list (ic, val);
+	    result = take_action_list (ic, val);
 	  M17N_OBJECT_UNREF (val);
-	  if (ret < 0)
-	    return ret;
+	  if (result != 0)
+	    return result;
 	}
       else if (name == Mshift)
 	{
@@ -3403,7 +3492,6 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	{
 	  int val1, val2;
 	  MPlist *actions1, *actions2;
-	  int ret = 0;
 
 	  val1 = resolve_expression (ic, args);
 	  args = MPLIST_NEXT (args);
@@ -3423,16 +3511,16 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      : val1 >= val2)
 	    {
 	      MDEBUG_PRINT ("ok");
-	      ret = take_action_list (ic, actions1);
+	      result = take_action_list (ic, actions1);
 	    }
 	  else
 	    {
 	      MDEBUG_PRINT ("no");
 	      if (actions2)
-		ret = take_action_list (ic, actions2);
+		result = take_action_list (ic, actions2);
 	    }
-	  if (ret < 0)
-	    return ret;
+	  if (result != 0)
+	    return result;
 	}
       else if (name == Mcond)
 	{
@@ -3449,8 +3537,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      if (resolve_expression (ic, cond) != 0)
 		{
 		  MDEBUG_PRINT1 ("(%dth)", idx);
-		  if (take_action_list (ic, MPLIST_NEXT (cond)) < 0)
-		    return -1;;
+		  result = take_action_list (ic, MPLIST_NEXT (cond));
+		  if (result != 0)
+		    return result;
 		  break;
 		}
 	    }
@@ -3464,6 +3553,23 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  preedit_commit (ic, 0);
 	  return -1;
 	}
+      else if (name == Mswitch_im)
+	{
+	  ic_info->pushing_or_switching = args;
+	  M17N_OBJECT_REF (args);
+	  return 1;
+	}
+      else if (name == Mpush_im)
+	{
+	  ic_info->pushing_or_switching = args;
+	  M17N_OBJECT_REF (args);
+	  return 2;
+	}
+      else if (name == Mpop_im)
+	{
+	  shift_state (ic, Mnil);
+	  return 3;
+	}
       else
 	{
 	  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
@@ -3472,8 +3578,9 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  if (im_info->macros
 	      && (actions = mplist_get (im_info->macros, name)))
 	    {
-	      if (take_action_list (ic, actions) < 0)
-		return -1;
+	      result = take_action_list (ic, actions);
+	      if (result != 0)
+		return result;
 	    };
 	}
     }
@@ -3482,7 +3589,8 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 
 
 /* Handle the input key KEY in the current state and map specified in
-   the input context IC.  If KEY is handled correctly, return 0.
+   the input context IC.  If KEY was handled correctly, return 0
+   (without im switching) or a positive number (with im switching).
    Otherwise, return -1.  */
 
 static int
@@ -3494,14 +3602,22 @@ handle_key (MInputContext *ic)
   MIMMap *submap = NULL;
   MSymbol key = ic_info->keys[ic_info->key_head];
   MSymbol alias = Mnil;
+  int result;
   int i;
 
   if (ic_info->state_hook)
     {
       MDEBUG_PRINT1 ("  [IM] [%s] init-actions:",
 		     MSYMBOL_NAME (ic_info->state->name));
-      take_action_list (ic, ic_info->state_hook);
+      result = take_action_list (ic, ic_info->state_hook);
+      mtext_cpy (ic_info->preedit_saved, ic->preedit);
+      ic_info->state_pos = ic->cursor_pos;
       ic_info->state_hook = NULL;
+      if (result != 0)
+	{
+	  MDEBUG_PRINT ("\n");
+	  return result;
+	}
     }
 
   MDEBUG_PRINT2 ("  [IM] [%s] handle `%s'", 
@@ -3531,10 +3647,11 @@ handle_key (MInputContext *ic)
       if (map->map_actions)
 	{
 	  MDEBUG_PRINT (" map-actions:");
-	  if (take_action_list (ic, map->map_actions) < 0)
+	  result = take_action_list (ic, map->map_actions);
+	  if (result != 0)
 	    {
 	      MDEBUG_PRINT ("\n");
-	      return -1;
+	      return result;
 	    }
 	}
       else if (map->submaps)
@@ -3556,10 +3673,11 @@ handle_key (MInputContext *ic)
 	  if (map->branch_actions)
 	    {
 	      MDEBUG_PRINT (" branch-actions:");
-	      if (take_action_list (ic, map->branch_actions) < 0)
+	      result = take_action_list (ic, map->branch_actions);
+	      if (result != 0)
 		{
 		  MDEBUG_PRINT ("\n");
-		  return -1;
+		  return result;
 		}
 	    }
 	  /* If MAP is still not the root map, shift to the current
@@ -3576,10 +3694,11 @@ handle_key (MInputContext *ic)
       if (map->branch_actions)
 	{
 	  MDEBUG_PRINT (" branch-actions:");
-	  if (take_action_list (ic, map->branch_actions) < 0)
+	  result = take_action_list (ic, map->branch_actions);
+	  if (result != 0)
 	    {
 	      MDEBUG_PRINT ("\n");
-	      return -1;
+	      return result;
 	    }
 	}
 
@@ -3616,7 +3735,78 @@ handle_key (MInputContext *ic)
   return 0;
 }
 
-/* Initialize IC->ic_info.  */
+struct MIMInputStack
+{
+  MInputMethodInfo *im_info;
+  MInputContextInfo *ic_info;
+};
+
+static void
+pop_im (MInputContext *ic)
+{
+  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  int i;
+
+  for (i = 0; i < ic_info->used; i++)
+    MLIST_APPEND1 (ic_info->stack->ic_info, keys, ic_info->keys[i], MERROR_IM);
+  ic_info->stack->ic_info->key_head = 0;
+  ic_info->stack->ic_info->state_key_head = 0;
+  ic_info->stack->ic_info->commit_key_head = 0;
+  ic_info->used = 0;
+  ic_info->key_head = ic_info->state_key_head = ic_info->commit_key_head = 0;
+
+  ic->im->info = ic_info->stack->im_info;
+  ic->info = ic_info->stack->ic_info;
+  /*ic_info = (MInputContextInfo *) ic->info;*/
+  free (ic_info->stack);
+  ic_info->stack = NULL;
+  ic->status = ((MInputMethodInfo *) (ic->im->info))->title;
+  ic->status_changed = ic->preedit_changed = ic->candidates_changed = 1;
+}
+
+static MInputContextInfo *
+push_im (MInputContext *ic, MInputContext *pushing)
+{
+  MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  MInputContextInfo *new_info;
+  MIMInputStack *stack;
+  MText *produced;
+  int i;
+
+  if (! pushing)
+    {
+      pushing = create_ic_for_im (ic_info->pushing_or_switching);
+      if (! pushing)
+	{
+	  free (stack);
+	  MERROR (MERROR_IM, NULL);
+	}
+    }
+
+  new_info = pushing->info;
+  for (i = 0; i < ic_info->used; i++)
+    MLIST_APPEND1 (new_info, keys, ic_info->keys[i], MERROR_IM);
+  new_info->key_head = 0;
+  new_info->state_key_head = 0;
+  new_info->commit_key_head = 0;
+  ic_info->used = 0;
+  ic_info->key_head = ic_info->state_key_head = ic_info->commit_key_head = 0;
+  MSTRUCT_CALLOC_SAFE (stack);
+  if (! stack)
+    MERROR (MERROR_IM, NULL);
+  stack->im_info = (MInputMethodInfo *)ic->im->info;
+  stack->ic_info = ic_info;
+  M17N_OBJECT_UNREF (ic_info->pushing_or_switching);
+  ic->im->info = pushing->im->info;
+  ic->info = pushing->info;
+  ic->status = pushing->status;
+  ic->status_changed = 1;
+  ic_info = (MInputContextInfo *) ic->info;
+  ic_info->stack = stack;
+  return ic_info;
+}
+ 
+/* Initialize IC->ic_info of which members are all zero cleared now.  */
 
 static void
 init_ic_info (MInputContext *ic)
@@ -3630,6 +3820,8 @@ init_ic_info (MInputContext *ic)
   ic_info->markers = mplist ();
 
   ic_info->vars = mplist ();
+  /* If this input method has its own setting of variables, record
+     those values in ic_info->vars.  */
   if (im_info->configured_vars)
     MPLIST_DO (plist, im_info->configured_vars)
       {
@@ -3647,8 +3839,10 @@ init_ic_info (MInputContext *ic)
 	    mplist_add (p, MPLIST_KEY (pl), MPLIST_VAL (pl));
 	  }
       }
+  /* Remember the original values.  */
   ic_info->vars_saved = mplist_copy (ic_info->vars);
 
+  /* If this input method uses external modules, initialize them.  */
   if (im_info->externals)
     {
       MPlist *func_args = mplist (), *plist;
@@ -3667,6 +3861,31 @@ init_ic_info (MInputContext *ic)
     }
 
   ic_info->preedit_saved = mtext ();
+
+  if (fallback_input_methods)
+    {
+      /* Record MInputContext of each fallback input method in
+	 ic_info->fallbacks in the preference order.  Note that the
+	 input methods in fallback_input_methods are in reverse
+	 preference order.  */
+      MPlist *fallbacks = fallback_input_methods;
+
+      /* To prevent this part being called recursively via
+	 create_ic_for_im below.  */
+      fallback_input_methods = NULL;
+      ic_info->fallbacks = mplist ();
+      MPLIST_DO (plist, fallbacks)
+	{
+	  MInputContext *fallback_ic = create_ic_for_im (MPLIST_PLIST (plist));
+
+	  if (fallback_ic)
+	    mplist_push (ic_info->fallbacks, Mt, fallback_ic);
+	}
+      fallback_input_methods = fallbacks;
+    }
+
+  /* Remember the tick of this input method to know when to
+     re-initialize ic_info.  */
   ic_info->tick = im_info->tick;
 }
 
@@ -3675,9 +3894,26 @@ init_ic_info (MInputContext *ic)
 static void
 fini_ic_info (MInputContext *ic)
 {
-  MInputMethodInfo *im_info = ic->im->info;
-  MInputContextInfo *ic_info = ic->info;
+  MInputMethodInfo *im_info;
+  MInputContextInfo *ic_info;
+  MPlist *plist;
 
+  if (((MInputContextInfo *) ic->info)->stack)
+    pop_im (ic);
+  im_info = ic->im->info;
+  ic_info = ic->info;
+  if (ic_info->fallbacks)
+    {
+      MPLIST_DO (plist, ic_info->fallbacks)
+	{
+	  MInputContext *ic = MPLIST_VAL (plist);
+	  MInputMethod *im = ic->im;
+
+	  minput_destroy_ic (ic);
+	  minput_close_im (im);
+	}
+      M17N_OBJECT_UNREF (ic_info->fallbacks);
+    }
   if (im_info->externals)
     {
       MPlist *func_args = mplist (), *plist;
@@ -3702,7 +3938,11 @@ fini_ic_info (MInputContext *ic)
   M17N_OBJECT_UNREF (ic_info->vars_saved);
   M17N_OBJECT_UNREF (ic_info->preceding_text);
   M17N_OBJECT_UNREF (ic_info->following_text);
+  M17N_OBJECT_UNREF (ic_info->pushing_or_switching);
 
+  /* Note that we can clear ic_info->fallbacks and ic_info->stack too
+     because they should be saved and restored by the caller if
+     necessary.  */
   memset (ic_info, 0, sizeof (MInputContextInfo));
 }
 
@@ -3712,6 +3952,9 @@ re_init_ic (MInputContext *ic, int reload)
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int status_changed, preedit_changed, cursor_pos_changed, candidates_changed;
+  /* Remember these now.  They are cleared by fini_ic_info ().  */
+  MPlist *fallbacks = ic_info->fallbacks;
+  MIMInputStack *stack = ic_info->stack;
 
   status_changed = ic_info->state != (MIMState *) MPLIST_VAL (im_info->states);
   preedit_changed = mtext_nchars (ic->preedit) > 0;
@@ -3757,6 +4000,9 @@ re_init_ic (MInputContext *ic, int reload)
       mplist_add (im_info->states, state->name, state);
     }
   init_ic_info (ic);
+  /* Restore them now.  */
+  ic_info->fallbacks = fallbacks;
+  ic_info->stack = stack;
   shift_state (ic, Mnil);
 
   ic->status_changed = status_changed;
@@ -3809,15 +4055,18 @@ destroy_ic (MInputContext *ic)
   free (ic->info);
 }
 
+
+/* Return 1 if KEY is for invoking COMMAND.  Otherwise, return 0.   */
+
 static int
-check_reload (MInputContext *ic, MSymbol key)
+check_command_key (MInputContext *ic, MSymbol key, MSymbol command)
 {
   MInputMethodInfo *im_info = ic->im->info;
-  MPlist *plist = resolve_command (im_info->configured_cmds, Mat_reload);
+  MPlist *plist = resolve_command (im_info->configured_cmds, command);
 
   if (! plist)
     {
-      plist = resolve_command (global_info->configured_cmds, Mat_reload);
+      plist = resolve_command (global_info->configured_cmds, command);
       if (! plist)
 	return 0;
     }
@@ -3847,12 +4096,41 @@ check_reload (MInputContext *ic, MSymbol key)
       if (alias == key)
 	break;
     }
-  if (MPLIST_TAIL_P (plist))
-    return 0;
+  return ! MPLIST_TAIL_P (plist);
+}
 
+static int
+check_reload (MInputContext *ic, MSymbol key)
+{
+  if (! check_command_key (ic, key, Mat_reload))
+    return 0;
   MDEBUG_PRINT ("\n  [IM] reload");
   re_init_ic (ic, 1);
   return 1;
+}
+
+static MInputContext *
+check_fallback (MInputContext *ic, MSymbol key)
+{
+  MInputContextInfo *ic_info = ic->info;
+  MPlist *plist;
+
+  MPLIST_DO (plist, ic_info->fallbacks)
+    {
+      MInputContext *this_ic = (MInputContext *) MPLIST_VAL (plist);
+      MInputMethodInfo *this_im_info = (MInputMethodInfo * )this_ic->im->info;
+      MIMMap *map = ((MIMState *) MPLIST_VAL (this_im_info->states))->map;
+      MIMMap *submap = mplist_get (map->submaps, key);
+      MSymbol alias = key;
+      
+      while (! submap
+	     && (alias = msymbol_get (alias, M_key_alias))
+	     && alias != key)
+	submap = mplist_get (map->submaps, alias);
+      if (submap)
+	return this_ic;
+    }
+  return NULL;
 }
 
 
@@ -3867,7 +4145,14 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 {
   MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
-  int i = 0;
+  int count = 0;
+  /* The result of handling keys.  
+     -1: Not handled, or an error occured
+      0: Handled normally without changing IM
+      1: IM switch
+      2: IM pushed
+      3: IM poped */
+  int result;
 
   if (check_reload (ic, key))
     return 0;
@@ -3879,10 +4164,11 @@ filter (MInputContext *ic, MSymbol key, void *arg)
     }
   mtext_reset (ic->produced);
   ic->status_changed = ic->preedit_changed = ic->candidates_changed = 0;
+  MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
+ repeat:
   M17N_OBJECT_UNREF (ic_info->preceding_text);
   M17N_OBJECT_UNREF (ic_info->following_text);
   ic_info->preceding_text = ic_info->following_text = NULL;
-  MLIST_APPEND1 (ic_info, keys, key, MERROR_IM);
   ic_info->key_unhandled = 0;
 
   do {
@@ -3890,8 +4176,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
     int candidate_index = ic->candidate_index;
     int candidate_show = ic->candidate_show;
     MTextProperty *prop;
-    int result = handle_key (ic);
 
+    result = handle_key (ic);
     if (ic->candidate_list)
       {
 	M17N_OBJECT_UNREF (ic->candidate_list);
@@ -3916,42 +4202,33 @@ filter (MInputContext *ic, MSymbol key, void *arg)
     if (candidate_show != ic->candidate_show)
       ic->candidates_changed |= MINPUT_CANDIDATES_SHOW_CHANGED;    
 
-    if (result < 0)
+    if (count++ == 100)
       {
-	/* KEY was not handled.  Delete it from the current key sequence.  */
-	if (ic_info->used > 0)
-	  {
-	    memmove (ic_info->keys, ic_info->keys + 1,
-		     sizeof (int) * (ic_info->used - 1));
-	    ic_info->used--;
-	    if (ic_info->state_key_head > 0)
-	      ic_info->state_key_head--;
-	    if (ic_info->commit_key_head > 0)
-	      ic_info->commit_key_head--;	      
-	  }
-	/* This forces returning 1.  */
-	ic_info->key_unhandled = 1;
-	break;
-      }
-    if (i++ == 100)
-      {
+	/* Insane number of iteration, perhaps a bug.  */
 	mdebug_hook ();
 	reset_ic (ic, Mnil);
 	ic_info->key_unhandled = 1;
 	break;
       }
     /* Break the loop if all keys were handled.  */
-  } while (ic_info->key_head < ic_info->used);
+  } while (result == 0 && ic_info->key_head < ic_info->used);
 
   /* If the current map is the root of the initial state, we should
-     produce any preedit text in ic->produced.  */
+     produce any preedit text in ic->produced, and if the current
+     input method is a pushed one, pop it.  */
   if (ic_info->map == ((MIMState *) MPLIST_VAL (im_info->states))->map)
-    preedit_commit (ic, 1);
+    {
+      preedit_commit (ic, 1);
+      if (ic_info->stack)
+	result = 3;
+    }
 
   if (mtext_nchars (ic->produced) > 0)
     {
       if (MDEBUG_FLAG ())
 	{
+	  int i;
+
 	  MDEBUG_PRINT1 ("\n  [IM] [%s] (produced",
 			 MSYMBOL_NAME (ic_info->state->name));
 	  for (i = 0; i < mtext_nchars (ic->produced); i++)
@@ -3962,6 +4239,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
 		      Mlanguage, ic->im->language);
     }
+
   if (ic_info->commit_key_head > 0)
     {
       memmove (ic_info->keys, ic_info->keys + ic_info->commit_key_head,
@@ -3971,11 +4249,58 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       ic_info->state_key_head -= ic_info->commit_key_head;
       ic_info->commit_key_head = 0;
     }
-  if (ic_info->key_unhandled)
+
+  if (result != 0)
     {
-      ic_info->used = 0;
-      ic_info->key_head = ic_info->state_key_head
-	= ic_info->commit_key_head = 0;
+      MInputContext *pushing = NULL;
+      MText *produced = ic->produced;
+
+      if (ic_info->key_head > 0)
+	{
+	  memmove (ic_info->keys, ic_info->keys + ic_info->key_head,
+		   sizeof (int) * (ic_info->used - ic_info->key_head));
+	  ic_info->used -= ic_info->key_head;
+	  ic_info->key_head = ic_info->state_key_head
+	    = ic_info->commit_key_head = 0;
+	}
+
+      M17N_OBJECT_REF (produced);
+      if (result < 0)
+	{
+	  /* KEY was not handled.  If the current input method was not
+	     the pushed one, check if it is a key for one of fallback
+	     input methods.  */
+	  if (! ic_info->stack)
+	    {
+	      pushing = check_fallback (ic, ic_info->keys[ic_info->key_head]);
+	      if (pushing)
+		result = 2;
+	    }
+	}
+      if (result < 0)
+	{
+	  ic_info->used = 0;
+	  ic_info->key_head = ic_info->state_key_head
+	    = ic_info->commit_key_head = 0;
+	  ic_info->key_unhandled = 1;
+	}
+      else if (result == 3)	/* pop */
+	{
+	  MDEBUG_PRINT ("\n  [IM] poped");
+	  pop_im (ic);
+	  if (ic_info->key_head > 0)
+	    goto repeat;
+	}
+      else if (result == 2)	/* push */
+	{
+	  MDEBUG_PRINT1 ("\n  [IM] push %s", MSYMBOL_NAME (pushing->im->name));
+	  ic_info = push_im (ic, pushing);
+	  if (ic_info)
+	    goto repeat;
+	}
+      else			/* (result == 1) switch */
+	{
+	}
     }
 
   return (! ic_info->key_unhandled && mtext_nchars (ic->produced) == 0);
@@ -4120,11 +4445,11 @@ minput__fini ()
       if (im_config_list)
 	free_im_list (im_config_list);
       M17N_OBJECT_UNREF (load_im_info_keys);
+      M17N_OBJECT_UNREF (fallback_input_methods);
     }
 
   M17N_OBJECT_UNREF (minput_default_driver.callback_list);
   M17N_OBJECT_UNREF (minput_driver->callback_list);
-
 }
 
 MSymbol
