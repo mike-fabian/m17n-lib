@@ -1,5 +1,10 @@
 2014-02-09  K. Handa  <handa@gnu.org>
 
+	* internal.h (M17N_OBJECT_UNREF): Set an object having extended
+	count to NULL if it is freed.
+
+2014-02-09  K. Handa  <handa@gnu.org>
+
 	Changes to implement fallback input methods.
 
 	* input.h (MIMInputStack): New type.
