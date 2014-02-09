@@ -1177,15 +1177,15 @@ enum MInputCandidatesChanged
 
 struct MInputContext
 {
-  /***en Backward pointer to the input method.  It is set up be the
+  /***en Backward pointer to the input method.  It is set up by the
       function minput_create_ic ().  */
   /***ja 入力メソッドへの逆ポインタ。関数 minput_create_ic () 
       によって設定される。  */ 
   MInputMethod *im;
 
   /***en M-text produced by the input method.  It is set up by the
-      function minput_lookup () .  */
-  /***ja 入力メソッドによって生成される M-text。関数 minput_lookup () 
+      function minput_filter () .  */
+  /***ja 入力メソッドによって生成される M-text。関数 minput_filter () 
       によって設定される。  */
   MText *produced;
 
