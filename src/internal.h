@@ -383,7 +383,10 @@ typedef struct
     if (object)								\
       {									\
 	if (((M17NObject *) (object))->ref_count_extended)		\
-	  m17n_object_unref (object);					\
+	  {								\
+	    if (m17n_object_unref (object) == 0)			\
+	      (object) = NULL;						\
+	  }								\
 	else if (((M17NObject *) (object))->ref_count == 0)		\
 	  break;							\
 	else								\
