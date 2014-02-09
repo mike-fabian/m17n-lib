@@ -1,3 +1,39 @@
+2014-02-09  K. Handa  <handa@gnu.org>
+
+	Changes to implement fallback input methods.
+
+	* input.h (MIMInputStack): New type.
+	(MInputContextInfo): New members pushing_or_switching, fallbacks,
+	and stack.
+
+	* input.c (MSwitch_im, Mpush_im, Mpop_im, Mfallback_input_method):
+	New variables.
+	(fallback_input_methods): New variables.
+	(prepare_fallback_input_methods): New function.
+	(fully_initialize): Initialize new variables.  Call
+	prepare_fallback_input_methods at the end.
+	(parse_action_list): Recognize Mpush_im, Mpop_im, and Mswitch_im.
+	(create_ic_for_im): New function.
+	(check_variable_value): Recognize Mplits as type.
+	(take_action_list): Handle Mpush_im, Mpop_im, and Mswitch_im.
+	(handle_key): Propagate the return value of take_action_list to
+	the caller.  Update the saved values of preedit text and cursor
+	position after running the init-actions of a state.
+	(struct MIMInputStack): New structure.
+	(pop_im, push_im): New funcitons.
+	(init_ic_info): Create contexts of fallback input methods.
+	(fini_ic_info): Free the above contexts.
+	(re_init_ic): Save and restore ic_info->fallbacks and
+	ic_info->stack.
+	(check_command_key): New function.
+	(check_reload): Call check_command_key.
+	(check_fallback): New function.
+	(filter): Handle push/pop input methods.
+	(minput__fini): Unref fallback_input_methods.
+
+	* input-gui.c (win_filter): Restore ic->info to the original value
+	before calling "filter" driver.
+
 2013-10-28  Kenichi Handa  <handa@gnu.org>
 
 	* mtext.c (mtext_ref_char): Fix the logic.
