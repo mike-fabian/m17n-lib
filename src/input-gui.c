@@ -151,7 +151,6 @@ static int
 win_filter (MInputContext *ic, MSymbol key, void *arg)
 {
   MInputGUIContextInfo *win_ic_info = (MInputGUIContextInfo *) ic->info;
-  MInputContextInfo *ic_info = (MInputContextInfo *) win_ic_info->ic_info;
   int ret;
 
   if (! ic
@@ -164,8 +163,9 @@ win_filter (MInputContext *ic, MSymbol key, void *arg)
       if (key == Mnil)
 	return 1;
     }
-  ic->info = ic_info;
+  ic->info = win_ic_info->ic_info;
   ret = (*minput_default_driver.filter) (ic, key, arg);
+  win_ic_info->ic_info = (MInputContextInfo *) ic->info;
   ic->info = win_ic_info;
   return ret;
 }
