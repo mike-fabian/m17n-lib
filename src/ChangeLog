@@ -1,3 +1,14 @@
+2014-03-07  K. Handa  <handa@gnu.org>
+
+	* input.c (prepare_fallback_input_methods): Use
+	minput_parse_im_names.
+	(re_init_ic): Do not save and restore ic_info->fallbacks.
+	(check_fallback): Check if map->submaps is NULL.
+	(minput_parse_im_names): New function.
+
+	* plist.c (read_mtext_element): Be sure that the first argument to
+	read_mtext_element is null terminated.
+
 2014-02-09  K. Handa  <handa@gnu.org>
 
 	* internal.h (M17N_OBJECT_UNREF): Set an object having extended
