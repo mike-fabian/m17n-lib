@@ -268,8 +268,8 @@ static MPlist *im_config_list;
 static MInputMethodInfo *global_info;
 
 /* List of fallback input methods: well-formed plist of this form:
-   ((im-lang1 im-name1) (im-lang2 im-name2) ...)
- */
+     ((im-lang1 im-name1) (im-lang2 im-name2) ...)
+   The elements are in reverse preference order.  */
 
 static MPlist *fallback_input_methods;
 
@@ -293,27 +293,16 @@ prepare_fallback_input_methods ()
   plist = MPLIST_NEXT (plist);	/* skip name */
   plist = MPLIST_NEXT (plist);	/* skip description */
   plist = MPLIST_NEXT (plist);	/* skip status */
-  /* Now PLIST must be (((LANGUAGE NAME) ...)) */
-  if (! MPLIST_PLIST_P (plist))
-    return;
-  plist = MPLIST_PLIST (plist);
   if (! plist)
     return;
-  /* We store fallback input methods in reverse preference order in
-     fallback_input_methods.  */
-  MPLIST_DO (pl, plist)
+  /* Now PLIST must be "LANGUAGE-NAME, ..." */
+  if (MPLIST_MTEXT_P (plist))
     {
-      MPlist *lang_name;
-
-      if (! MPLIST_PLIST_P (pl))
-	continue;
-      lang_name = MPLIST_PLIST (pl);
-      if (! MPLIST_SYMBOL_P (lang_name))
-	continue;
-      p = MPLIST_NEXT (lang_name);
-      if (! MPLIST_SYMBOL_P (p))
-	continue;
-      mplist_push (fallback_input_methods, Mplist, lang_name);
+      plist = minput_parse_im_names (MPLIST_MTEXT (plist));
+      MPLIST_DO (p, plist) 
+	if (MPLIST_KEY (p) == Mplist)
+	  mplist_push (fallback_input_methods, Mplist, MPLIST_VAL (p));
+      M17N_OBJECT_UNREF (plist);
     }
 }
 
@@ -3953,7 +3942,6 @@ re_init_ic (MInputContext *ic, int reload)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int status_changed, preedit_changed, cursor_pos_changed, candidates_changed;
   /* Remember these now.  They are cleared by fini_ic_info ().  */
-  MPlist *fallbacks = ic_info->fallbacks;
   MIMInputStack *stack = ic_info->stack;
 
   status_changed = ic_info->state != (MIMState *) MPLIST_VAL (im_info->states);
@@ -4001,7 +3989,6 @@ re_init_ic (MInputContext *ic, int reload)
     }
   init_ic_info (ic);
   /* Restore them now.  */
-  ic_info->fallbacks = fallbacks;
   ic_info->stack = stack;
   shift_state (ic, Mnil);
 
@@ -4117,12 +4104,15 @@ check_fallback (MInputContext *ic, MSymbol key)
 
   MPLIST_DO (plist, ic_info->fallbacks)
     {
+      MSymbol alias = key;
       MInputContext *this_ic = (MInputContext *) MPLIST_VAL (plist);
       MInputMethodInfo *this_im_info = (MInputMethodInfo * )this_ic->im->info;
       MIMMap *map = ((MIMState *) MPLIST_VAL (this_im_info->states))->map;
-      MIMMap *submap = mplist_get (map->submaps, key);
-      MSymbol alias = key;
+      MIMMap *submap;
       
+      if (! map->submaps)
+	continue;
+      submap = mplist_get (map->submaps, key);
       while (! submap
 	     && (alias = msymbol_get (alias, M_key_alias))
 	     && alias != key)
@@ -6795,6 +6785,104 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
   M17N_OBJECT_UNREF (keyseq);
   return ret;
 }
+
+/*=*/
+
+/***en
+    @brief Parse input method names
+
+    The minput_parse_im_names () function parses M-text $MT and returns
+    a list of input method names.  Input method names in $MT must be
+    separated by comma (",").
+
+    @return
+    The minput_parse_im_names () returns a plist of which elements are
+    plist of LANGUAGE and NAME of input methods as below:
+	((LANGUAGE1 NAME1) (LANGUAGE2 NAME2) ...)
+    Both LANGUAGEn and NAMEn are symbols.  LANGUAGEn is #Mt if the
+    corresponding input method is not limited to a specific language.
+    If a specified input method doesn't exist, the corresponding
+    element in the above plist is a sub-part of $MT for that
+    non-existing input method name.
+    For instance, if "symbol,unknown,unicode" is specified as $MT and
+    "unknown" doesn't exist, the return value is:
+	((t symbol) "unknown" (t unicode))	
+  */
+
+MPlist *
+minput_parse_im_names (MText *mt)
+{
+  int from = 0, to = mtext_len (mt), i, start = 0;
+  MPlist *plist;
+  char *buf;
+  MSymbol lang = Mt, name;
+  
+  MTABLE_MALLOC (buf, to + 1, MERROR_IM);
+  plist = mplist ();
+  for (i = from; ; i++)
+    {
+      int c = i < to ? mtext_ref_char (mt, i) : 0;
+
+      if (c >= 128)
+	c = 0;
+      if (c == '-')
+	{
+	  buf[i] = '\0';
+	  lang = msymbol (buf + from);
+	  buf[i] = '-';
+	  from = i + 1;
+	}
+      else if (c == ',' || c == 0)
+	{
+	  MInputMethodInfo *im_info;
+	  int j;
+
+	  for (j = i - 1; j >= from; j--) /* skip trailing spaces */
+	    if (buf[j] != ' ')
+	      {
+		j++;
+		break;
+	      }
+	  if (from < j)
+	    {
+	      buf[j] = '\0';
+	      name = msymbol (buf + from);
+	      im_info = get_im_info (lang, name, Mnil, Mnil);
+	      if (im_info)
+		{
+		  MPlist *p = mplist ();
+
+		  mplist_add (p, Msymbol, lang);
+		  mplist_add (p, Msymbol, name);
+		  mplist_add (plist, Mplist, p);
+		  M17N_OBJECT_UNREF (p);
+		}
+	      else
+		{
+		  MText *err = mtext__from_data (buf + start, j - start,
+						 MTEXT_FORMAT_US_ASCII, 1);
+		  
+		  mplist_add (plist, Mtext, err);
+		  M17N_OBJECT_UNREF (err);
+		}
+	    }
+	  lang = Mt;
+	  if (c == 0)
+	    break;
+	  start = from = i + 1;
+	}
+      else if (c == ' ' && from == i) /* skip heading spaces */
+	{
+	  from++;
+	  start++;
+	}
+      else
+	buf[i] = c;
+    }
+  free (buf);
+  return plist;
+}
+
 
 /*=*/
 
