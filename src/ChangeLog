@@ -1,3 +1,14 @@
+2014-03-12  K. Handa  <handa@gnu.org>
+
+	* m17n.h (minput_parse_im_names): Extern it.
+
+	* mtext.c (insert): Preserve the tailing NULL.
+
+	* input.c (create_ic_for_im): New argument `current'.  Caller
+	changed.
+	(pop_im): Reset the pushed input method.
+	(filter): Update ic_info and im_info after popping and pushing.
+
 2014-03-07  K. Handa  <handa@gnu.org>
 
 	* input.c (prepare_fallback_input_methods): Use
