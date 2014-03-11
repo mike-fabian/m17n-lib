@@ -1743,7 +1743,7 @@ get_im_info_by_tags (MPlist *plist)
 
 
 static MInputContext *
-create_ic_for_im (MPlist *lang_name)
+create_ic_for_im (MPlist *lang_name, MInputMethod *current)
 {
   MSymbol language, name;
   MInputMethod *im;
@@ -1753,6 +1753,9 @@ create_ic_for_im (MPlist *lang_name)
   language = MPLIST_SYMBOL (lang_name);
   lang_name = MPLIST_NEXT (lang_name);
   name = MPLIST_SYMBOL (lang_name);
+  if (language == current->language
+      && name == current->name)
+    return NULL;
   minput_driver = &minput_default_driver;
   im = minput_open_im (language, name, NULL);
   if (! im)
@@ -2514,7 +2517,9 @@ shift_state (MInputContext *ic, MSymbol state_name)
   if (MDEBUG_FLAG ())
     {
       if (orig_state)
-	MDEBUG_PRINT2 ("\n  [IM] [%s] (shift %s)\n",
+	MDEBUG_PRINT4 ("\n  [IM:%s-%s] [%s] (shift %s)\n",
+		       MSYMBOL_NAME (im_info->language),
+		       MSYMBOL_NAME (im_info->name),
 		       MSYMBOL_NAME (orig_state->name),
 		       MSYMBOL_NAME (state->name));
       else
@@ -2696,8 +2701,13 @@ preedit_commit (MInputContext *ic, int need_prefix)
 	  int i;
 
 	  if (need_prefix)
-	    MDEBUG_PRINT1 ("\n  [IM] [%s]",
-			   MSYMBOL_NAME (ic_info->state->name));
+	    {
+	      MInputMethodInfo *im_info = ic->im->info;
+	      MDEBUG_PRINT3 ("\n  [IM:%s-%s] [%s]",
+			     MSYMBOL_NAME (im_info->language),
+			     MSYMBOL_NAME (im_info->name),
+			     MSYMBOL_NAME (ic_info->state->name));
+	    }
 	  MDEBUG_PRINT (" (commit");
 	  for (i = 0; i < mtext_nchars (ic->preedit); i++)
 	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->preedit, i));
@@ -3596,7 +3606,9 @@ handle_key (MInputContext *ic)
 
   if (ic_info->state_hook)
     {
-      MDEBUG_PRINT1 ("  [IM] [%s] init-actions:",
+      MDEBUG_PRINT3 ("  [IM:%s-%s] [%s] init-actions:",
+		     MSYMBOL_NAME (im_info->language),
+		     MSYMBOL_NAME (im_info->name),
 		     MSYMBOL_NAME (ic_info->state->name));
       result = take_action_list (ic, ic_info->state_hook);
       mtext_cpy (ic_info->preedit_saved, ic->preedit);
@@ -3609,7 +3621,9 @@ handle_key (MInputContext *ic)
 	}
     }
 
-  MDEBUG_PRINT2 ("  [IM] [%s] handle `%s'", 
+  MDEBUG_PRINT4 ("  [IM:%s-%s] [%s] handle `%s'", 
+		 MSYMBOL_NAME (im_info->language),
+		 MSYMBOL_NAME (im_info->name),
 		 MSYMBOL_NAME (ic_info->state->name), msymbol_name (key));
 
   if (map->submaps)
@@ -3734,16 +3748,22 @@ static void
 pop_im (MInputContext *ic)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
+  MInputMethodInfo *im_info = (MInputMethodInfo *) ic->im->info;
   int i;
 
+  shift_state (ic, Mnil);
   for (i = 0; i < ic_info->used; i++)
     MLIST_APPEND1 (ic_info->stack->ic_info, keys, ic_info->keys[i], MERROR_IM);
   ic_info->stack->ic_info->key_head = 0;
   ic_info->stack->ic_info->state_key_head = 0;
   ic_info->stack->ic_info->commit_key_head = 0;
-  ic_info->used = 0;
-  ic_info->key_head = ic_info->state_key_head = ic_info->commit_key_head = 0;
+  ic_info->stack->ic_info->used = ic_info->used;
+  ic_info->used = ic_info->key_head
+    = ic_info->state_key_head = ic_info->commit_key_head = 0;
 
+  MDEBUG_PRINT2 ("\n  [IM:%s-%s] poped",
+		 MSYMBOL_NAME (im_info->language),
+		 MSYMBOL_NAME (im_info->name));
   ic->im->info = ic_info->stack->im_info;
   ic->info = ic_info->stack->ic_info;
   /*ic_info = (MInputContextInfo *) ic->info;*/
@@ -3764,7 +3784,7 @@ push_im (MInputContext *ic, MInputContext *pushing)
 
   if (! pushing)
     {
-      pushing = create_ic_for_im (ic_info->pushing_or_switching);
+      pushing = create_ic_for_im (ic_info->pushing_or_switching, ic->im);
       if (! pushing)
 	{
 	  free (stack);
@@ -3792,6 +3812,9 @@ push_im (MInputContext *ic, MInputContext *pushing)
   ic->status_changed = 1;
   ic_info = (MInputContextInfo *) ic->info;
   ic_info->stack = stack;
+  MDEBUG_PRINT2 ("\n  [IM:%s-%s] pushed", 
+		 MSYMBOL_NAME (pushing->im->language),
+		 MSYMBOL_NAME (pushing->im->name));
   return ic_info;
 }
  
@@ -3865,8 +3888,8 @@ init_ic_info (MInputContext *ic)
       ic_info->fallbacks = mplist ();
       MPLIST_DO (plist, fallbacks)
 	{
-	  MInputContext *fallback_ic = create_ic_for_im (MPLIST_PLIST (plist));
-
+	  MInputContext *fallback_ic
+	    = create_ic_for_im (MPLIST_PLIST (plist), ic->im);
 	  if (fallback_ic)
 	    mplist_push (ic_info->fallbacks, Mt, fallback_ic);
 	}
@@ -4001,7 +4024,10 @@ re_init_ic (MInputContext *ic, int reload)
 static void
 reset_ic (MInputContext *ic, MSymbol ignore)
 {
-  MDEBUG_PRINT ("\n  [IM] reset\n");
+  MInputMethodInfo *im_info = ic->im->info;
+  MDEBUG_PRINT2 ("\n  [IM:%s-%s] reset\n", 
+		 MSYMBOL_NAME (im_info->language),
+		 MSYMBOL_NAME (im_info->name));
   re_init_ic (ic, 0);
 }
 
@@ -4089,9 +4115,12 @@ check_command_key (MInputContext *ic, MSymbol key, MSymbol command)
 static int
 check_reload (MInputContext *ic, MSymbol key)
 {
+  MInputMethodInfo *im_info = ic->im->info;
   if (! check_command_key (ic, key, Mat_reload))
     return 0;
-  MDEBUG_PRINT ("\n  [IM] reload");
+  MDEBUG_PRINT2 ("\n  [IM:%s-%s] reload",
+		 MSYMBOL_NAME (im_info->language),
+		 MSYMBOL_NAME (im_info->name));
   re_init_ic (ic, 1);
   return 1;
 }
@@ -4219,7 +4248,9 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	{
 	  int i;
 
-	  MDEBUG_PRINT1 ("\n  [IM] [%s] (produced",
+	  MDEBUG_PRINT3 ("\n  [IM:%s-%s] [%s] (produced",
+			 MSYMBOL_NAME (im_info->language),
+			 MSYMBOL_NAME (im_info->name),
 			 MSYMBOL_NAME (ic_info->state->name));
 	  for (i = 0; i < mtext_nchars (ic->produced); i++)
 	    MDEBUG_PRINT1 (" U+%04X", mtext_ref_char (ic->produced, i));
@@ -4276,17 +4307,20 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	}
       else if (result == 3)	/* pop */
 	{
-	  MDEBUG_PRINT ("\n  [IM] poped");
 	  pop_im (ic);
-	  if (ic_info->key_head > 0)
+	  ic_info = ic->info;
+	  im_info = ic->im->info;
+	  if (ic_info->key_head < ic_info->used)
 	    goto repeat;
 	}
       else if (result == 2)	/* push */
 	{
-	  MDEBUG_PRINT1 ("\n  [IM] push %s", MSYMBOL_NAME (pushing->im->name));
 	  ic_info = push_im (ic, pushing);
 	  if (ic_info)
-	    goto repeat;
+	    {
+	      im_info = ic->im->info;
+	      goto repeat;
+	    }
 	}
       else			/* (result == 1) switch */
 	{
@@ -4730,8 +4764,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 
   MINPUT__INIT ();
 
-  MDEBUG_PRINT2 ("  [IM] opening (%s %s) ... ",
-		 msymbol_name (language), msymbol_name (name));
+  MDEBUG_PRINT2 ("  [IM:%s-%s] opening ... ",
+		 MSYMBOL_NAME (language), MSYMBOL_NAME (name));
   if (language)
     {
       if (name == Mnil)
@@ -4777,8 +4811,8 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
 void
 minput_close_im (MInputMethod *im)
 {
-  MDEBUG_PRINT2 ("  [IM] closing (%s %s) ... ",
-		 msymbol_name (im->name), msymbol_name (im->language));
+  MDEBUG_PRINT2 ("  [IM:%s-%s] closing ... ",
+		 MSYMBOL_NAME (im->language), MSYMBOL_NAME (im->name));
   (*im->driver.close_im) (im);
   free (im);
   MDEBUG_PRINT (" done\n");
@@ -4816,8 +4850,8 @@ minput_create_ic (MInputMethod *im, void *arg)
 {
   MInputContext *ic;
 
-  MDEBUG_PRINT2 ("  [IM] creating context (%s %s) ... ",
-		 msymbol_name (im->name), msymbol_name (im->language));
+  MDEBUG_PRINT2 ("  [IM:%s-%s] creating context ... ",
+		 MSYMBOL_NAME (im->language), MSYMBOL_NAME (im->name));
   MSTRUCT_CALLOC (ic, MERROR_IM);
   ic->im = im;
   ic->arg = arg;
@@ -4871,8 +4905,8 @@ minput_create_ic (MInputMethod *im, void *arg)
 void
 minput_destroy_ic (MInputContext *ic)
 {
-  MDEBUG_PRINT2 ("  [IM] destroying context (%s %s) ... ",
-		 msymbol_name (ic->im->name), msymbol_name (ic->im->language));
+  MDEBUG_PRINT2 ("  [IM:%s-%s] destroying context ... ",
+		 MSYMBOL_NAME (ic->im->language), MSYMBOL_NAME (ic->im->name));
   if (ic->im->driver.callback_list)
     {
       minput_callback (ic, Minput_preedit_done);
