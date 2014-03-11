@@ -283,11 +283,13 @@ insert (MText *mt1, int pos, MText *mt2, int from, int to)
       if (total_bytes + unit_bytes > mt1->allocated)
 	{
 	  mt1->allocated = total_bytes + unit_bytes;
-	  MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	  if (mt1->data)
+	    MTABLE_REALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
+	  else
+	    MTABLE_CALLOC (mt1->data, mt1->allocated, MERROR_MTEXT);
 	}
-      if (pos < mt1->nchars)
-	memmove (mt1->data + pos_byte + new_bytes, mt1->data + pos_byte,
-		 (mt1->nbytes - pos_unit + 1) * unit_bytes);
+      memmove (mt1->data + pos_byte + new_bytes, mt1->data + pos_byte,
+	       (mt1->nbytes - pos_unit + 1) * unit_bytes);
       memcpy (mt1->data + pos_byte, mt2->data + from_unit * unit_bytes,
 	      new_bytes);
     }
