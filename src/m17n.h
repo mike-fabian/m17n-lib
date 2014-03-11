@@ -1389,6 +1389,8 @@ extern MPlist *minput_get_variables (MSymbol language, MSymbol name);
 extern int minput_set_variable (MSymbol language, MSymbol name,
 				MSymbol variable, void *value);
 
+extern MPlist *minput_parse_im_names (MText *mt);
+
 extern MPlist *minput_list (MSymbol lang);
 
 extern MInputMethod *mdebug_dump_im (MInputMethod *im, int indent);
