@@ -1,3 +1,8 @@
+2014-03-23  K. Handa  <handa@gnu.org>
+
+	* input.c (filter): Do not increment the reference count of
+	ic->produced.
+
 2014-03-12  K. Handa  <handa@gnu.org>
 
 	* m17n.h (minput_parse_im_names): Extern it.
