@@ -4274,7 +4274,6 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   if (result != 0)
     {
       MInputContext *pushing = NULL;
-      MText *produced = ic->produced;
 
       if (ic_info->key_head > 0)
 	{
@@ -4285,7 +4284,6 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	    = ic_info->commit_key_head = 0;
 	}
 
-      M17N_OBJECT_REF (produced);
       if (result < 0)
 	{
 	  /* KEY was not handled.  If the current input method was not
