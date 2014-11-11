@@ -1,3 +1,9 @@
+2014-11-11  K. Handa  <handa@gnu.org>
+
+	* .gitignore: Converted from .cvsigore.
+
+	* .cvsignore: Delete it.
+
 2014-03-23  K. Handa  <handa@gnu.org>
 
 	* input.c (filter): Do not increment the reference count of

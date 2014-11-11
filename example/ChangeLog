@@ -1,3 +1,9 @@
+2014-11-11  K. Handa  <handa@gnu.org>
+
+	* .gitignore: Converted from .cvsigore.
+
+	* .cvsignore: Delete it.
+
 2013-06-28  Kenichi Handa  <handa@gnu.org>
 
 	* mconv.c (main): Fix checking of command line arguments.
