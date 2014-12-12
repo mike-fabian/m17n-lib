@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 
-API_VERSION=4:0:4
+API_VERSION=4:1:4
 AC_SUBST(API_VERSION)
 
 # The earliest version that this release has binary compatibility
