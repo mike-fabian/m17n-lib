@@ -1,3 +1,7 @@
+2015-04-05  K. Handa  <handa@gnu.org>
+
+	* m17n-config.in: Change the encoding to utf-8.
+
 2014-12-10  K. Handa  <handa@gnu.org>
 
 	* Version 1.7.0 released.

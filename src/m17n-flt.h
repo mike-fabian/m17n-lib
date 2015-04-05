@@ -72,21 +72,23 @@ extern void m17n_fini_flt (void);
     @brief Type of information about a glyph.
 
     The type #MFLTGlyph is the structure that contains information
-    about a glyph.  */
+    about a glyph.  The members @ref c and @ref encoded are the
+    members to be set appropriately before calling the functions
+    mflt_find () and mflt_run ().  And, if @ref encoded is set to 1,
+    the member @ref code should also be set.  */
 
 /***ja
     @brief グリフに関する情報の型.
 
-    型 #MFLTGlyph は、グリフに関する情報を格納する構造体である。  */
+    型 #MFLTGlyph は、グリフに関する情報を格納する構造体である。関数
+    mflt_find () と mflt_run () を呼ぶ前にはメンバー \<c\> と
+    \<encoded\> を適切に設定しておかねばならず、もし \<encoded\> を 1
+    とした場合は \<code\> も設定しておかねばならない。  */
 
 typedef struct
 {
-  /***en Character code (Unicode) of the glyph.  This is the sole
-      member to be set before calling the functions mflt_find () and
-      mflt_run ().  */
-  /***ja グリフの (Unicode における) 文字コード。関数
-      mflt_find () と mflt_run ()
-      を呼び出す前セットすべき唯一のメンバーである。  */
+  /***en Character code (Unicode) of the glyph.  */
+  /***ja グリフの (Unicode における) 文字コード。  */
   int c;
   /***en Glyph ID of the glyph in the font.  */
   /***ja フォント内におけるそのグリフの ID。  */
