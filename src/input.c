@@ -1083,7 +1083,7 @@ load_translation (MIMMap *map, MPlist *keylist, MPlist *map_actions,
       len = MPLIST_LENGTH (elt);
       if (MFAILP (len > 0))
 	return -1;
-      keyseq = (MSymbol *) alloca (sizeof (int) * len);
+      keyseq = (MSymbol *) alloca (sizeof (MSymbol) * len);
       for (i = 0; i < len; i++, elt = MPLIST_NEXT (elt))
 	{
 	  if (MPLIST_INTEGER_P (elt))
@@ -4264,7 +4264,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
   if (ic_info->commit_key_head > 0)
     {
       memmove (ic_info->keys, ic_info->keys + ic_info->commit_key_head,
-	       sizeof (int) * (ic_info->used - ic_info->commit_key_head));
+	       sizeof (MSymbol *) * (ic_info->used - ic_info->commit_key_head));
       ic_info->used -= ic_info->commit_key_head;
       ic_info->key_head -= ic_info->commit_key_head;
       ic_info->state_key_head -= ic_info->commit_key_head;
@@ -4278,7 +4278,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
       if (ic_info->key_head > 0)
 	{
 	  memmove (ic_info->keys, ic_info->keys + ic_info->key_head,
-		   sizeof (int) * (ic_info->used - ic_info->key_head));
+		   sizeof (MSymbol *) * (ic_info->used - ic_info->key_head));
 	  ic_info->used -= ic_info->key_head;
 	  ic_info->key_head = ic_info->state_key_head
 	    = ic_info->commit_key_head = 0;
