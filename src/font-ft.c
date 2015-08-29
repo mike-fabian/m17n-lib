@@ -2267,13 +2267,14 @@ adjust_anchor (OTF_Anchor *anchor, FT_Face ft_face,
 }
 #endif	/* HAVE_OTF */
 
+#ifdef HAVE_OTF
+
 static int 
 ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	      MFLTGlyphString *in, int from, int to,
 	      MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment)
 {
   int len = to - from;
-#ifdef HAVE_OTF
   int i, j, gidx;
   MGlyph *in_glyphs = (MGlyph *) (in->glyphs);
   MGlyph *out_glyphs = out ? (MGlyph *) (out->glyphs) : NULL;
@@ -2322,14 +2323,18 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	}
     }
 
-  otf_gstring.size = otf_gstring.used = len;
-  otf_gstring.glyphs = (OTF_Glyph *) malloc (sizeof (OTF_Glyph) * len);
-  memset (otf_gstring.glyphs, 0, sizeof (OTF_Glyph) * len);
+  /* Extra room from pseudo glyphs.  OTF_drive_features () may need
+     more rooms.  In that case, otf_gstring.glyphs is reallocated.  */
+  otf_gstring.size = len * 2;
+  if (! MTABLE_CALLOC_SAFE (otf_gstring.glyphs, otf_gstring.size))
+    MERROR (MERROR_MEMORY, -1);
   for (i = 0; i < len; i++)
     {
       otf_gstring.glyphs[i].c = ((MGlyph *)in->glyphs)[from + i].g.c & 0x11FFFF;
       otf_gstring.glyphs[i].glyph_id = ((MGlyph *)in->glyphs)[from + i].g.code;
+      otf_gstring.glyphs[i].positioning_type = ((MGlyph *)in->glyphs)[from + i].libotf_positioning_type;
     }
+  otf_gstring.used = len;
 
   OTF_drive_gdef (otf, &otf_gstring);
   gidx = out ? out->used : from;
@@ -2339,9 +2344,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
       OTF_Feature *features;
       MGlyph *g;
 
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+      if (OTF_drive_gsub_features (otf, &otf_gstring, script, langsys,
+				   gsub_features) < 0)
+	goto simple_copy;
+#else
       if (OTF_drive_gsub_with_log (otf, &otf_gstring, script, langsys,
 				   gsub_features) < 0)
 	goto simple_copy;
+#endif
       features = otf->gsub->FeatureList.Feature;
       if (out)
 	{
@@ -2350,9 +2361,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	  for (i = 0, otfg = otf_gstring.glyphs, g = out_glyphs + gidx;
 	       i < otf_gstring.used; i++, otfg++, g++, out->used++)
 	    {
-	      int feature_idx = otfg->positioning_type >> 4;
 	      int j;
 	      int min_from, max_to;
+	      int feature_idx;
+
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+	      feature_idx = OTF_POSITIONING_TYPE_GET_FEATURE (otfg);
+#else
+	      feature_idx = otfg->positioning_type >> 4;
+#endif
 
 	      *g = in_glyphs[from + otfg->f.index.from];
 	      min_from = g->g.from, max_to = g->g.to;
@@ -2389,8 +2406,13 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	  for (i = 0, otfg = otf_gstring.glyphs; i < otf_gstring.used;
 	       i++, otfg++)
 	    {
-	      int feature_idx = otfg->positioning_type >> 4;
+	      int feature_idx;
 
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+	      feature_idx = OTF_POSITIONING_TYPE_GET_FEATURE (otfg);
+#else
+	      feature_idx = otfg->positioning_type >> 4;
+#endif
 	      if (feature_idx)
 		{
 		  tag = features[feature_idx - 1].FeatureTag;
@@ -2417,9 +2439,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
       OTF_Feature *features;
       MGlyph *g;
 
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+      if (OTF_drive_gpos_features (otf, &otf_gstring, script, langsys,
+				   gpos_features) < 0)
+	return to;
+#else
       if (OTF_drive_gpos_with_log (otf, &otf_gstring, script, langsys,
 				   gpos_features) < 0)
 	return to;
+#endif
       features = otf->gpos->FeatureList.Feature;
       if (out)
 	{
@@ -2434,7 +2462,15 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	    {
 	      MGlyph *prev;
 	      int adjust_idx = otfg->glyph_id ? j : j - 1;
-	      int feature_idx = otfg->positioning_type >> 4;
+	      int positioning_type, feature_idx;
+
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+	      positioning_type = OTF_POSITIONING_TYPE_GET_FORMAT (otfg);
+	      feature_idx = OTF_POSITIONING_TYPE_GET_FEATURE (otfg);
+#else
+	      positioning_type = otfg->positioning_type & 0xF;
+	      feature_idx = otfg->positioning_type >> 4;
+#endif
 
 	      if (feature_idx)
 		{
@@ -2442,7 +2478,8 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		  tag = PACK_OTF_TAG (tag);
 		  g->g.internal = (g->g.internal & ~0x1FFFFFFF) | tag;
 		}
-	      switch (otfg->positioning_type & 0xF)
+
+	      switch (positioning_type)
 		{
 		case 0:
 		  break;
@@ -2491,7 +2528,18 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 		  if (! mark)
 		    break;
 		  prev = mark;
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+		  {
+		    int distance = OTF_POSITIONING_TYPE_GET_MARKDISTANCE (otfg);
 
+		    if (distance > 0)
+		      {
+			prev = g - distance;
+			if (prev < out_glyphs)
+			  prev = mark;
+		      }
+		  }
+#endif
 		label_adjust_anchor:
 		  {
 		    int base_x, base_y, mark_x, mark_y;
@@ -2549,8 +2597,13 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
 	       i++, otfg++)
 	    if (otfg->positioning_type & 0xF)
 	      {
-		int feature_idx = otfg->positioning_type >> 4;
+		int feature_idx;
 
+#ifdef OTF_POSITIONING_TYPE_GET_FORMAT
+		feature_idx = OTF_POSITIONING_TYPE_GET_FEATURE (otfg);
+#else
+		feature_idx = otfg->positioning_type >> 4;
+#endif
 		if (feature_idx)
 		  {
 		    tag = features[feature_idx - 1].FeatureTag;
@@ -2571,7 +2624,6 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
  simple_copy:
   if (otf_gstring.glyphs)
     free (otf_gstring.glyphs);
-#endif	/* HAVE_OTF */
   if (out)
     {
       if (out->allocated < out->used + len)
@@ -2583,6 +2635,29 @@ ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
     }
   return to;
 }
+
+#else  /* not HAVE_OTF */
+
+static int 
+ft_drive_otf (MFLTFont *font, MFLTOtfSpec *spec,
+	      MFLTGlyphString *in, int from, int to,
+	      MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment)
+{
+  int len = to - from;
+  if (out)
+    {
+      if (out->allocated < out->used + len)
+	return -2;
+      font->get_metrics (font, in, from, to);
+      memcpy ((MGlyph *)out->glyphs + out->used, (MGlyph *) in->glyphs + from,
+	      sizeof (MGlyph) * len);
+      out->used += len;
+    }
+  return to;
+}
+
+#endif	/* not HAVE_OTF */
+
 
 static int 
 ft_try_otf (MFLTFont *font, MFLTOtfSpec *spec,
