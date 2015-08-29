@@ -1,3 +1,15 @@
+2015-08-29  K. Handa  <handa@gnu.org>
+
+	* internal-gui.h (MGlyph): New member libotf_positioning_type.
+
+	* font-ft.c (ft_drive_otf): Define it for HAVE_OTF and not
+	HAVE_OTF separately.  Adjusted for the new libotf functions
+	OTF_drive_gsub_features and OTF_drive_gpos_features.
+
+2015-08-29  Mike FABIAN  <mfabian@redhat.com>
+
+	* input.c (load_translation, filter): Fix type (int -> MSymbol).
+
 2015-04-05  K. Handa  <handa@gnu.org>
 
 	* m17n-flt.h (MFLTGlyph): Fix documentation.
