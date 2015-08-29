@@ -132,6 +132,7 @@ typedef struct
   unsigned bidi_level : 6;
   unsigned category : 2;
   unsigned type : 3;
+  unsigned libotf_positioning_type;
 } MGlyph;
 
 struct MGlyphString
