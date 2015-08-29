@@ -23,13 +23,13 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([m17n-lib],[1.7.0],[m17n-lib-bug@m17n.org])
+AC_INIT([m17n-lib],[1.7.1],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 
-API_VERSION=4:1:4
+API_VERSION=4:2:4
 AC_SUBST(API_VERSION)
 
 # The earliest version that this release has binary compatibility
