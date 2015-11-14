@@ -10,6 +10,13 @@ See the end for copying conditions.
 The m17n library is a multilingual text processing library for the C
 language.
 
+----- Table of contents ------
+(1) INSTALLATION
+(2) DATABASE
+(3) DOCUMENTATION
+(4) USAGE
+(5) BUGS
+------------------------------
 
 (1) INSTALLATION
 
@@ -158,6 +165,10 @@ This compiles PROX.c that uses GUI API and builds executable PROX.
 
 	% gcc -o PROX `m17n-config GUI --cflags` `m17n-config GUI --libs` PROX.c
 
+
+(5) BUGS
+
+Please email bug reports to m17n-list@nongnu.org.
 
 ----------------------------------------------------------------------
 Copyright information
