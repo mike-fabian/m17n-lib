@@ -119,6 +119,7 @@ dnl augmented.
 M17N_EXT_LIBS=
 
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+AM_CONDITIONAL([HAVE_PKG_CONFIG], [test x$HAVE_PKG_CONFIG = xyes])
 
 if test "x$no_x" != "xyes"; then
   AC_DEFINE(HAVE_X11, 1, [Define to 1 if you have X11.])

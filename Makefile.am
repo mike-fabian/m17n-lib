@@ -1,5 +1,5 @@
 # Makefile.am -- top level Makefile for the m17n library.
-# Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
+# Copyright (C) 2003-2016
 #   National Institute of Advanced Industrial Science and Technology (AIST)
 #   Registration Number H15PRO112
 
@@ -24,7 +24,12 @@
 
 SUBDIRS = intl po src example
 
-bin_SCRIPTS = m17n-config
+if HAVE_PKG_CONFIG
+BINSCRIPTS =
+else
+BINSCRIPTS = m17n-config
+endif
+bin_SCRIPTS = $(BINSCRIPTS)
 
 EXTRA_DIST = \
 	m17n-core.pc.in m17n-shell.pc.in m17n-flt.pc.in m17n-gui.pc.in \

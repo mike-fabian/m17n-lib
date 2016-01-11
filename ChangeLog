@@ -1,3 +1,12 @@
+2016-01-12  K. Handa  <handa@gnu.org>
+
+	Install m17n-config only on a system that does not have pkg-config.
+
+	* configure.ac: Make HAVE_PKG_CONFIG AM_CONDITIONAL.
+
+	* Makefile.am (BINSCRIPTS): New variable set conditionally.
+	(bin_SCRIPTS): Set to the value of BINSCRIPTS.
+
 2015-08-29  K. Handa  <handa@gnu.org>
 
 	* configure.ac: Version changed to 1.7.1.
@@ -531,8 +540,7 @@
 	* Version 1.0 released.
 
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
-  2013, 2014
+Copyright (C) 2003-2016
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
 
