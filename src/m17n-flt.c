@@ -2287,7 +2287,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 
   from_pos = GREF (ctx->in, from)->from;
   to_pos = GREF (ctx->in, to - 1)->to;
-  len = to_pos - from_pos;
+  len = to_pos - from_pos + 1;
 
   buf = *(ctx->in);
   buf.glyphs = NULL;
@@ -2427,6 +2427,8 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 		int this_from;
 
 		for (i++; i < len && g_indices[i] < 0; i++);
+		if (! (i < len))
+		  break;
 		j = g_indices[i];
 		g = GREF (ctx->out, j);
 		this_from = g->from;

@@ -1,3 +1,11 @@
+2015-11-13  Paul Eggert  <eggert@cs.ucla.edu>
+
+	Fix buffer overruns in run_stages index array
+
+	* m17n-flt.c (run_stages): Fix off-by-one bug in computing array
+	length; here, TO_POS is inclusive, not exclusive.
+	Also, do not overrun buffer if g_indices[len - 1] == -1.
+
 2015-08-29  K. Handa  <handa@gnu.org>
 
 	* internal-gui.h (MGlyph): New member libotf_positioning_type.
