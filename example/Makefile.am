@@ -32,11 +32,9 @@ else
 bin_PROGRAMS = $(BASICPROGS)
 endif
 
-INCLUDES = -I$(top_srcdir)/src
-
 common_ldflags = ${top_builddir}/src/libm17n-core.la ${top_builddir}/src/libm17n.la
 common_ldflags_gui = ${common_ldflags} ${top_builddir}/src/libm17n-flt.la ${top_builddir}/src/libm17n-gui.la
-AM_CPPFLAGS=@CONFIG_FLAGS@
+AM_CPPFLAGS=-I$(top_srcdir)/src @CONFIG_FLAGS@
 
 m17n_date_SOURCES = mdate.c
 m17n_date_LDADD = ${common_ldflags}

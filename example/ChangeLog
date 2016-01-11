@@ -1,3 +1,8 @@
+2016-01-12  K. Handa  <handa@gnu.org>
+
+	* Makefile.am (INCLUDES): Delete it.  Make this value included in
+	AM_CPPFLAGS.
+
 2014-12-10  K. Handa  <handa@gnu.org>
 
 	* Version 1.7.0 released.
