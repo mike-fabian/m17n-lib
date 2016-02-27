@@ -6825,7 +6825,9 @@ minput_assign_command_keys (MSymbol language, MSymbol name,
 
     The minput_parse_im_names () function parses M-text $MT and returns
     a list of input method names.  Input method names in $MT must be
-    separated by comma (",").
+    separated by comma (",").  Input methods whose language is #Mt can
+    be specified by its name only (i.e. just "latn-post" instead of
+    "t-latn-post").
 
     @return
     The minput_parse_im_names () returns a plist of which elements are
@@ -6845,71 +6847,65 @@ MPlist *
 minput_parse_im_names (MText *mt)
 {
   int from = 0, to = mtext_len (mt), i, start = 0;
-  MPlist *plist;
+  MPlist *plist = mplist ();;
   char *buf;
-  MSymbol lang = Mt, name;
   
+  MINPUT__INIT ();
+
   MTABLE_MALLOC (buf, to + 1, MERROR_IM);
-  plist = mplist ();
-  for (i = from; ; i++)
+  i = 0;
+  while (1)
     {
-      int c = i < to ? mtext_ref_char (mt, i) : 0;
+      MSymbol lang = Mnil, name = Mnil;
+      int c;
+      int idx = 0, name_idx = 0;
+      MInputMethodInfo *im_info;
 
-      if (c >= 128)
-	c = 0;
-      if (c == '-')
+      while (i < to && ((c = mtext_ref_char (mt, i)) == ' ' || c >= 128))
+	i++;
+      if (i >= to)
+	break;
+      buf[idx++] = c;
+      i++;
+      while (i < to && ((c = mtext_ref_char (mt, i)) != ',' && c != ' ')) 
 	{
-	  buf[i] = '\0';
-	  lang = msymbol (buf + from);
-	  buf[i] = '-';
-	  from = i + 1;
-	}
-      else if (c == ',' || c == 0)
-	{
-	  MInputMethodInfo *im_info;
-	  int j;
-
-	  for (j = i - 1; j >= from; j--) /* skip trailing spaces */
-	    if (buf[j] != ' ')
-	      {
-		j++;
-		break;
-	      }
-	  if (from < j)
+	  if (c == '-' && name_idx == 0)
 	    {
-	      buf[j] = '\0';
-	      name = msymbol (buf + from);
-	      im_info = get_im_info (lang, name, Mnil, Mnil);
-	      if (im_info)
-		{
-		  MPlist *p = mplist ();
-
-		  mplist_add (p, Msymbol, lang);
-		  mplist_add (p, Msymbol, name);
-		  mplist_add (plist, Mplist, p);
-		  M17N_OBJECT_UNREF (p);
-		}
-	      else
-		{
-		  MText *err = mtext__from_data (buf + start, j - start,
-						 MTEXT_FORMAT_US_ASCII, 1);
-		  
-		  mplist_add (plist, Mtext, err);
-		  M17N_OBJECT_UNREF (err);
-		}
+	      buf[idx] = '\0';
+	      lang = msymbol (buf);
+	      name_idx = idx + 1;
 	    }
-	  lang = Mt;
-	  if (c == 0)
-	    break;
-	  start = from = i + 1;
+	  buf[idx++] = c;
+	  i++;
 	}
-      else if (c == ' ' && from == i) /* skip heading spaces */
+      buf[idx] = '\0';
+      name = msymbol (buf + name_idx);
+      if (name_idx == 0)
+	lang = Mt;
+
+      im_info = get_im_info (lang, name, Mnil, Mnil);
+      if (! im_info && lang != Mt)
 	{
-	  from++;
-	  start++;
+	  lang = Mt;
+	  name = msymbol (buf);
+	  im_info = get_im_info (lang, name, Mnil, Mnil);	  
+	}
+      if (im_info)
+	{
+	  MPlist *p = mplist ();
+
+	  mplist_add (p, Msymbol, lang);
+	  mplist_add (p, Msymbol, name);
+	  mplist_add (plist, Mplist, p);
+	  M17N_OBJECT_UNREF (p);
 	}
       else
-	buf[i] = c;
+	{
+	  MText *err = mtext__from_data (buf, idx, MTEXT_FORMAT_US_ASCII, 1);
+	  mplist_add (plist, Mtext, err);
+	  M17N_OBJECT_UNREF (err);
+	}
+      i++;
     }
   free (buf);
   return plist;
