@@ -1381,6 +1381,10 @@ new_im_info (MDatabase *mdb, MSymbol language, MSymbol name, MSymbol extra,
 
   if (name == Mnil && extra == Mnil)
     language = Mt, extra = Mglobal;
+
+  MDEBUG_PRINT3 ("loading %s-%s %s\n",
+		 msymbol_name (language), msymbol_name (name), (mdb ? "from mdb" : ""));
+
   MSTRUCT_CALLOC (im_info, MERROR_IM);
   im_info->mdb = mdb;
   im_info->language = language;
@@ -1455,6 +1459,8 @@ fini_im_info (MInputMethodInfo *im_info)
 static void
 free_im_info (MInputMethodInfo *im_info)
 {
+  MDEBUG_PRINT2 ("freeing %s-%s\n", msymbol_name (im_info->language),
+		 msymbol_name (im_info->name));
   fini_im_info (im_info);
   free (im_info);
 }
@@ -4258,7 +4264,7 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	}
 
       mtext_put_prop (ic->produced, 0, mtext_nchars (ic->produced),
-		      Mlanguage, ic->im->language);
+       		      Mlanguage, ic->im->language);
     }
 
   if (ic_info->commit_key_head > 0)
@@ -4461,9 +4467,12 @@ minput__fini ()
 {
   if (fully_initialized)
     {
+      MDEBUG_PRINT ("freeing im_info_list\n");
       free_im_list (im_info_list);
+      MDEBUG_PRINT ("freeing im_custom_list\n");
       if (im_custom_list)
 	free_im_list (im_custom_list);
+      MDEBUG_PRINT ("freeing im_config_list\n");
       if (im_config_list)
 	free_im_list (im_config_list);
       M17N_OBJECT_UNREF (load_im_info_keys);
