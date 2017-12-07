@@ -1,3 +1,19 @@
+2017-12-08  handa  <handa@gnu.org>
+
+	* m17n-core.c (report_object_array): Check `objects' member
+	before freeing it.
+	(mdebug__register_object): Initialize `array' if `objects' member
+	is null.
+
+	* internal.h (M17N_OBJECT_UNREF): Call m17n_object_unref if
+	MDEBUG_FINI is specified.
+
+	* face.c (mface__init): Prepend a space to the name of Mface.
+
+	* input.c (new_im_info): Add debug logging code.
+	(free_im_info): Likewise.
+	(minput__fini): Likewise.
+
 2016-02-28  handa  <handa@gnu.org>
 
 	* input.c (minput_parse_im_names): Fix a parsing bug of an input
