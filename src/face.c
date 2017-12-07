@@ -416,7 +416,7 @@ mface__init ()
   MFaceBoxProp *box;
 
   M17N_OBJECT_ADD_ARRAY (face_table, "Face");
-  Mface = msymbol_as_managing_key ("face");
+  Mface = msymbol_as_managing_key (" face");
   msymbol_put_func (Mface, Mtext_prop_serializer,
 		    M17N_FUNC (serialize_face));
   msymbol_put_func (Mface, Mtext_prop_deserializer,
