@@ -1,3 +1,7 @@
+2017-12-08  handa  <handa@gnu.org>
+
+	* .gitignore: Add TAGS.
+
 2016-01-12  K. Handa  <handa@gnu.org>
 
 	Install m17n-config only on a system that does not have pkg-config.
