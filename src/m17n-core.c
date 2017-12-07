@@ -455,7 +455,7 @@ report_object_array ()
 	    }
 	}
 
-      if (array->used > 0)
+      if (array->objects != NULL)
 	{
 	  free (array->objects);
 	  array->count = array->used = 0;
@@ -535,7 +535,7 @@ mdebug__add_object_array (M17NObjectArray *array, char *name)
 void
 mdebug__register_object (M17NObjectArray *array, void *object)
 {
-  if (array->used == 0)
+  if (array->objects == NULL)
     MLIST_INIT1 (array, objects, 256);
   array->count++;
   MLIST_APPEND1 (array, objects, object, MERROR_OBJECT);
