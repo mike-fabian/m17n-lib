@@ -26,3 +26,4 @@ m4/*
 po/Makevars
 po/POTFILES
 po/remove-potcdate.sed
+*/TAGS
