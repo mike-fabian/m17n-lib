@@ -382,7 +382,8 @@ typedef struct
   do {									\
     if (object)								\
       {									\
-	if (((M17NObject *) (object))->ref_count_extended)		\
+	if (((M17NObject *) (object))->ref_count_extended		\
+	    || mdebug__flags[MDEBUG_FINI])				\
 	  {								\
 	    if (m17n_object_unref (object) == 0)			\
 	      (object) = NULL;						\
