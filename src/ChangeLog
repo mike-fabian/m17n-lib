@@ -1,3 +1,8 @@
+2017-12-09  handa  <handa@gnu.org>
+
+	* font.c (mfont__set_spec_from_plist): Fix for buffer overrun (bug
+	#50091).
+
 2017-12-08  handa  <handa@gnu.org>
 
 	* m17n-core.c (report_object_array): Check `objects' member

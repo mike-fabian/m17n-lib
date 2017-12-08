@@ -1362,9 +1362,11 @@ mfont__set_spec_from_plist (MFont *spec, MPlist *plist)
   for (i = 0; ! MPLIST_TAIL_P (plist); i++, plist = MPLIST_NEXT (plist))
     {
       if (! MPLIST_SYMBOL_P (plist))
-	MERROR (MERROR_FONT, Mnil);	
+	MERROR (MERROR_FONT, Mnil);
       spec_list[i] = MPLIST_SYMBOL (plist);
     }
+  if (i == 0)
+    MERROR (MERROR_FONT, Mnil);
   registry = spec_list[i - 1];
   if (i > 1 && registry != Mnil)
     {
