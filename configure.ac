@@ -3,6 +3,7 @@ dnl configure.ac -- autoconf script for the m17n library.
 dnl Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
 dnl   National Institute of Advanced Industrial Science and Technology (AIST)
 dnl   Registration Number H15PRO112
+dnl Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 
 dnl This file is part of the m17n library.
 
@@ -23,7 +24,7 @@ dnl Boston, MA 02110-1301, USA.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([m17n-lib],[1.7.1],[m17n-lib-bug@m17n.org])
+AC_INIT([m17n-lib],[1.8.0],[m17n-lib-bug@m17n.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])

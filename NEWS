@@ -1,8 +1,14 @@
 * NEWS -- What's new in the m17n library.			-*- outline -*-
-Copyright (C) 2003-2016
+Copyright (C) 2003-2014
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
+Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
+
+
+* Changes in the m17n library 1.8.0
+
+This release is just for bug fixing.
 
 
 * Changes in the m17n library 1.7.1
@@ -237,9 +243,10 @@ library and the GD library.
 
 * Copyright information
 
-Copyright (C) 2003-2016
+Copyright (C) 2003-2014
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
+Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 
 This file is part of the m17n library.
 
