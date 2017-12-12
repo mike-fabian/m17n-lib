@@ -18,7 +18,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the m17n library; if not, write to the Free
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   02111-1307, USA.  */
+   Boston, MA 02110-1301 USA.  */
 
 /***en
     @enpage m17n-edit edit multilingual text
