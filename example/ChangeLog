@@ -1,3 +1,7 @@
+2018-02-08  K. Handa  <handa@gnu.org>
+
+	Version 1.8.0 released.
+
 2016-01-12  K. Handa  <handa@gnu.org>
 
 	* Makefile.am (INCLUDES): Delete it.  Make this value included in

@@ -46,9 +46,9 @@ M17N_BEGIN_HEADER
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
 
 #define M17NLIB_MAJOR_VERSION 1
-#define M17NLIB_MINOR_VERSION 6
-#define M17NLIB_PATCH_LEVEL 4
-#define M17NLIB_VERSION_NAME "1.6.4"
+#define M17NLIB_MINOR_VERSION 8
+#define M17NLIB_PATCH_LEVEL 0
+#define M17NLIB_VERSION_NAME "1.8.0"
 
 extern void m17n_init_core (void);
 #define M17N_INIT() m17n_init_core ()

@@ -1,3 +1,11 @@
+2018-02-08  K. Handa  <handa@gnu.org>
+
+	Version 1.8.0 released.
+
+	* m17n-core.h (M17NLIB_MINOR_VERSION): Changed to 8.
+	(M17NLIB_PATCH_LEVEL): Changed to 0.
+	(M17NLIB_VERSION_NAME): Changed "1.8.0".
+
 2017-12-09  handa  <handa@gnu.org>
 
 	* font.c (mfont__set_spec_from_plist): Fix for buffer overrun (bug
