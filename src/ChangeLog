@@ -1,3 +1,8 @@
+2018-10-22  K. Handa  <handa@gnu.org>
+
+	* chartab.c (dump_sub_chartab): Use %p directive to print a
+	pointer value.
+
 2018-02-08  K. Handa  <handa@gnu.org>
 
 	Version 1.8.0 released.

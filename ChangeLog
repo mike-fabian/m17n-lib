@@ -1,3 +1,8 @@
+2018-10-22  K. Handa  <handa@gnu.org>
+
+	* configure.ac: Do not use the program freetype-config, use
+	PKG_CHECK_MODULES for checking freetype2.
+
 2018-02-08  K. Handa  <handa@gnu.org>
 
 	Version 1.8.0 released.

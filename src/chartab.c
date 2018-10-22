@@ -558,7 +558,7 @@ dump_sub_chartab (MSubCharTable *table, void *default_value,
 	fprintf (mdebug__output, "(default nil)");
     }
   else
-    fprintf (mdebug__output, "(default #x%X)", (unsigned) table->default_value);
+    fprintf (mdebug__output, "(default #x%p)", table->default_value);
 
   default_value = table->default_value;
   if (table->contents.tables)
@@ -589,7 +589,7 @@ dump_sub_chartab (MSubCharTable *table, void *default_value,
 		  fprintf (mdebug__output, "nil)");
 	      }
 	    else
-	      fprintf (mdebug__output, " #xx%X)", (unsigned) default_value);
+	      fprintf (mdebug__output, " #x%p)", default_value);
 	  }
     }
   fprintf (mdebug__output, ")");

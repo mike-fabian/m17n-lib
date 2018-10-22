@@ -204,36 +204,26 @@ fi
 AC_SUBST(OTF_LD_FLAGS)
 
 dnl Check for Freetype2 usability.
-AC_CHECK_PROG(HAVE_FREETYPE_CONFIG, freetype-config, yes)
-if test "x$HAVE_FREETYPE_CONFIG" = "xyes"; then
-  FREETYPE_INC=`freetype-config --cflags`
-  save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $FREETYPE_INC"
-  AC_CHECK_HEADER(ft2build.h, HAVE_FREETYPE=yes,
-  			      HAVE_FREETYPE=no CPPFLAGS="$save_CPPFLAGS")
-  if test "x$HAVE_FREETYPE" = "xyes" ; then
-    save_LIBS="$LIBS"
-    LIBS="$LIBS `freetype-config --libs`"
-    AC_CHECK_LIB(freetype, FT_Init_FreeType, HAVE_FREETYPE=yes,
-    			   		     HAVE_FREETYPE=no)
-    LIBS="$save_LIBS"
-    if test "x$HAVE_FREETYPE" = "xyes"; then
-      FREETYPE_LD_FLAGS=`freetype-config --libs`
-      AC_DEFINE(HAVE_FREETYPE, 1, 
-		[Define to 1 if you have FreeType library and header file.])
-      M17N_EXT_LIBS="$M17N_EXT_LIBS freetype"
-      AC_CHECK_HEADER(freetype/ftbdf.h, HAVE_FTBDF_H=yes, HAVE_FTBDF_H=no,
-		      [#include <ft2build.h>
+PKG_CHECK_MODULES([FREETYPE], [freetype2], [HAVE_FREETYPE=yes],
+                                           [HAVE_FREETYPE=no])
+AS_IF([test "x$HAVE_FREETYPE" = "xyes"],
+  [CPPFLAGS="$CPPFLAGS $FREETYPE_CFLAGS";
+   FREETYPE_LD_FLAGS=FREETYPE_LIBS;
+   AC_DEFINE([HAVE_FREETYPE], [1],
+             [Define to 1 if you have FreeType library and header file.])
+   M17N_EXT_LIBS="$M17N_EXT_LIBS freetype";
+   AC_CHECK_HEADER([freetype/ftbdf.h], [HAVE_FTBDF_H=yes], [HAVE_FTBDF_H=no],
+                   [#include <ft2build.h>
 #include FT_FREETYPE_H])
-      if test "x$HAVE_FTBDF_H" = "xyes"; then
-        AC_DEFINE(HAVE_FTBDF_H, 1,
-		  [Define to 1 if you have freetype/ftbdf.h.])
-      fi
-      CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_FREETYPE"
-    fi
-  fi
-fi
-AC_SUBST(FREETYPE_LD_FLAGS)
+   AS_IF([test "x$HAVE_FTBDF_H" = "xyes"],
+     [AC_DEFINE([HAVE_FTBDF_H], [1],
+                [Define to 1 if you have freetype/ftbdf.h.])],
+     [])
+   CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_FREETYPE"
+  ],
+  []
+  )
+AC_SUBST([FREETYPE_LD_FLAGS])
 
 dnl Check for Xft2 usability.
 save_CPPFLAGS="$CPPFLAGS"
