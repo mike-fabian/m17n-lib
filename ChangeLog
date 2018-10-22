@@ -1,4 +1,4 @@
-2018-10-22  K. Handa  <handa@gnu.org>
+2018-10-22  Boyuan Yang  <byang@debian.org>
 
 	* configure.ac: Do not use the program freetype-config, use
 	PKG_CHECK_MODULES for checking freetype2.
