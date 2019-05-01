@@ -930,6 +930,8 @@ m17n_object_unref (void *object)
   M17NObjectRecord *record;
   unsigned *count;
 
+  if (object == null)
+    return -1;
   if (! obj->ref_count_extended)
     {
       if (! --obj->ref_count)
