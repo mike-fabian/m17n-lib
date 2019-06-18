@@ -1,3 +1,7 @@
+2019-06-18  Werner LEMBERG <wl@gnu.org>
+
+	* m17n-core.c (m17n_object_unref): Fix typo.
+
 2019-05-01  Mike FABIAN  <mfabian@redhat.com>
 
 	* m17n-core.c (m17n_object_unref): Avoid crash even if the given
