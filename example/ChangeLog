@@ -1,3 +1,7 @@
+2020-03-08  handa  <handa@gnu.org>
+
+	* mimx-ispell.c: Fix typo.
+
 2018-02-08  K. Handa  <handa@gnu.org>
 
 	Version 1.8.0 released.

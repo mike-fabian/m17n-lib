@@ -1719,7 +1719,7 @@ mtext_from_data (const void *data, int nitems, enum MTextFormat format)
     character containing that unit.
 
     The character position and unit position of the return value are
-    stored in $POS_IDX and $UNIT_DIX respectively if they are not
+    stored in $POS_IDX and $UNIT_IDX respectively if they are not
     NULL.
 
     <ul>

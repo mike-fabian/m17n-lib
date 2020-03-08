@@ -1,3 +1,7 @@
+2020-03-08  handa  <handa@gnu.org>
+
+	* mtext.c: Fix typo.
+
 2019-06-18  Werner LEMBERG <wl@gnu.org>
 
 	* m17n-core.c (m17n_object_unref): Fix typo.

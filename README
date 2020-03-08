@@ -91,8 +91,8 @@ These library files are installed in /usr/local/lib:
 These modules are installed in /usr/local/lib/m17n/1.0:
 	libm17n-X.{a,so*,la}
 	libm17n-gd.{a,so*,la}
-	libimx-anthy.{a,so*,la},
-	libimx-ispell.{a,so*,la},
+	libmimx-anthy.{a,so*,la},
+	libmimx-ispell.{a,so*,la},
 
 This shell script is installed in /usr/local/bin:
 	m17n-config
