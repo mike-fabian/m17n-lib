@@ -1,3 +1,8 @@
+2022-01-27  Helmut Grohne  <helmutg@debian.org>
+
+	* configure.ac: Use "$PKG_CONFIG" instead of directly calling
+	pkg-config.
+
 2020-03-08  handa  <handa@gnu.org>
 
 	* README: Fix typos: libimx -> libmimx

@@ -119,8 +119,8 @@ dnl augmented.
 
 M17N_EXT_LIBS=
 
-AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
-AM_CONDITIONAL([HAVE_PKG_CONFIG], [test x$HAVE_PKG_CONFIG = xyes])
+PKG_PROG_PKG_CONFIG
+AM_CONDITIONAL([HAVE_PKG_CONFIG], [test "x$PKG_CONFIG" != x])
 
 if test "x$no_x" != "xyes"; then
   AC_DEFINE(HAVE_X11, 1, [Define to 1 if you have X11.])
@@ -169,16 +169,15 @@ AC_ARG_WITH(libotf,
 if test "x$with_libotf" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
-  AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
-  OTF_LD_FLAGS=-lotf
-  if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
-    CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
-    OTF_LD_FLAGS="`libotf-config --libs`"
-    LIBS="$LIBS $OTF_LD_FLAGS"
-  elif test "x$HAVE_PKG_CONFIG" = "xyes" ; then
-    if pkg-config libotf ; then
-      CPPFLAGS="$CPPFLAGS `pkg-config --cflags libotf`"
-      OTF_LD_FLAGS="`pkg-config --libs libotf`"
+  if test "x$PKG_CONFIG" != x && $PKG_CONFIG libotf; then
+    CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags libotf`"
+    OTF_LD_FLAGS="`$PKG_CONFIG --libs libotf`"
+  else
+    AC_CHECK_PROG(HAVE_OTFLIB_CONFIG, libotf-config, yes)
+    if test "x$HAVE_OTFLIB_CONFIG" = "xyes"; then
+      CPPFLAGS="$CPPFLAGS `libotf-config --cflags`"
+      OTF_LD_FLAGS="`libotf-config --libs`"
+      LIBS="$LIBS $OTF_LD_FLAGS"
     fi
   fi
   ## We check the availability of OTF_check_features
@@ -233,10 +232,10 @@ AC_CHECK_PROG(HAVE_XFT_CONFIG, xft-config, yes)
 if test "x$HAVE_XFT_CONFIG" = "xyes"; then
   CPPFLAGS="$CPPFLAGS `xft-config --cflags`"
   XFT2_LD_FLAGS="`xft-config --libs`"
-elif test "x$HAVE_PKG_CONFIG" = "xyes" ; then
-  if pkg-config xft ; then
-    CPPFLAGS="$CPPFLAGS `pkg-config --cflags xft`"
-    XFT2_LD_FLAGS="`pkg-config --libs xft`"
+elif test "x$PKG_CONFIG" != "x" ; then
+  if $PKG_CONFIG xft ; then
+    CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags xft`"
+    XFT2_LD_FLAGS="`$PKG_CONFIG --libs xft`"
   fi
 fi
 LIBS="$LIBS $XFT2_LD_FLAGS"
@@ -265,10 +264,10 @@ if test "x$with_fontconfig" != "xno"; then
   save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
   FONTCONFIG_LD_FLAGS=-lfontconfig
-  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
-    if pkg-config --exists fontconfig; then
-      CPPFLAGS="$CPPFLAGS `pkg-config --cflags fontconfig`"
-      FONTCONFIG_LD_FLAGS="`pkg-config --libs fontconfig`"
+  if test "x$PKG_CONFIG" != "x"; then
+    if $PKG_CONFIG --exists fontconfig; then
+      CPPFLAGS="$CPPFLAGS `$PKG_CONFIG --cflags fontconfig`"
+      FONTCONFIG_LD_FLAGS="`$PKG_CONFIG --libs fontconfig`"
       LIBS="$LIBS $FONTCONFIG_LD_FLAGS"
     fi
   fi
