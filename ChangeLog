@@ -1,3 +1,7 @@
+2023-05-04  Mike FABIAN  <mfabian@redhat.com>
+
+	* configure.ac: Update with autoupdate
+
 2022-01-27  Helmut Grohne  <helmutg@debian.org>
 
 	* configure.ac: Use "$PKG_CONFIG" instead of directly calling

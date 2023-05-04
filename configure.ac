@@ -43,24 +43,22 @@ AC_SUBST(M17N_MODULE_DIR)
 
 dnl Checks for programs for compiling.
 AC_PROG_CC
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 AM_GNU_GETTEXT
 AM_GNU_GETTEXT_VERSION([0.17])
 GETTEXTDIR="$datadir/locale"
 AC_SUBST(GETTEXTDIR)
 
-AC_PROG_LIBTOOL
+LT_INIT
 dnl LT_PREREQ([2.2.4])
 dnl LT_INIT
 
 dnl Checks for X libraries.
 AC_PATH_XTRA
 
-dnl Checks for standard header files.
-AC_HEADER_STDC
 AC_HEADER_DIRENT
-AC_HEADER_TIME
+
 AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h locale.h stdlib.h \
 			  string.h strings.h sys/time.h unistd.h])
 AC_CHECK_HEADER(X11/Xaw/Command.h, HAVE_XAW=yes)
