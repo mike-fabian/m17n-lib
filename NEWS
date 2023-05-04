@@ -6,6 +6,13 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.1
+
+This release is just for bug fixing.
+
+** Add missing int in example/medit.c (Resolves: https://savannah.nongnu.org/bugs/index.php?64106)
+
+
 * Changes in the m17n library 1.8.0
 
 This release is just for bug fixing.

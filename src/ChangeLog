@@ -1,3 +1,10 @@
+2023-05-05  Mike FABIAN  <mfabian@redhat.com>
+
+	Version 1.8.1 released.
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL: Changed to 1.
+	(M17NLIB_VERSION_NAME): changed to "1.8.1"
+
 2023-05-04  Florian Weimer  <fweimer@redhat.com>
 
 	* example/medit.c: Add missing int (Savannah bug #64106)
