@@ -1,3 +1,7 @@
+2023-05-04  Florian Weimer  <fweimer@redhat.com>
+
+	* example/medit.c: Add missing int (Savannah bug #64106)
+
 2020-03-08  handa  <handa@gnu.org>
 
 	* mtext.c: Fix typo.

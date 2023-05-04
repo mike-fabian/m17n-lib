@@ -662,7 +662,7 @@ static void MenuHelpProc (Widget, XEvent *, String *, Cardinal *);
    off the current input method, otherwide turn on the input method
    input_method_table[$IDX].  */
 void
-select_input_method (idx)
+select_input_method (int idx)
 {
   int previous_input_method = current_input_method;
 
