@@ -1,6 +1,8 @@
 2023-05-04  Mike FABIAN  <mfabian@redhat.com>
 
 	* configure.ac: Update with autoupdate
+	* src/.cvsignore: Delete it
+	* m4/.cvsignore: Delete it
 
 2022-01-27  Helmut Grohne  <helmutg@debian.org>
 
