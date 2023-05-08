@@ -22,7 +22,7 @@
 # Boston, MA 02110-1301, USA.
 
 echo "Cleaning up old files..."
-rm -rf INSTALL aclocal.m4 autom4te.cache config.guess. config.rpath config.sub install-sh libtool ltmain.sh missing mkinstalldirs intl/[D-Za-z]* m4/[a-z]*
+rm -rf INSTALL aclocal.m4 autom4te.cache config.guess config.rpath config.sub install-sh libtool ltmain.sh missing mkinstalldirs intl/[D-Za-z]* m4/[a-z]*
 
 echo "Running autoreconf -v -f -i"
 autoreconf -v -f -i
