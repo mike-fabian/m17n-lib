@@ -6,6 +6,17 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.2
+
+This release is just for bug fixing.
+
+** Switch from absolute to relative paths in src/Makefile.am (Resolves: https://savannah.nongnu.org/bugs/index.php?61377)
+When using absolute paths to .la files automake does not consider them
+local libraries and fails to build in dependency order. Parallel make
+like `make -j16` or `make --shuffle` fails for most runs. Using
+relative paths fixes this problem.
+
+
 * Changes in the m17n library 1.8.1
 
 This release is just for bug fixing.
