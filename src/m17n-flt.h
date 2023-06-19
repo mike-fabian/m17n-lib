@@ -61,7 +61,7 @@ extern void m17n_fini_flt (void);
 /***en @defgroup m17nFLT FLT API
     @brief API provided by libm17n-flt.so */
 /***ja @defgroup m17nFLT FLT API
-    @brief libm17n-flt.so ���󶡤��� API */
+    @brief libm17n-flt.so が提供する API */
 /*=*/
 
 /*** @addtogroup m17nFLT */
@@ -78,75 +78,75 @@ extern void m17n_fini_flt (void);
     the member @ref code should also be set.  */
 
 /***ja
-    @brief ����դ˴ؤ������η�.
+    @brief グリフに関する情報の型.
 
-    �� #MFLTGlyph �ϡ�����դ˴ؤ��������Ǽ���빽¤�ΤǤ��롣�ؿ�
-    mflt_find () �� mflt_run () ��Ƥ����ˤϥ��С� \<c\> ��
-    \<encoded\> ��Ŭ�ڤ����ꤷ�Ƥ����ͤФʤ餺���⤷ \<encoded\> �� 1
-    �Ȥ������� \<code\> �����ꤷ�Ƥ����ͤФʤ�ʤ���  */
+    型 #MFLTGlyph は、グリフに関する情報を格納する構造体である。関数
+    mflt_find () と mflt_run () を呼ぶ前にはメンバー \<c\> と
+    \<encoded\> を適切に設定しておかねばならず、もし \<encoded\> を 1
+    とした場合は \<code\> も設定しておかねばならない。  */
 
 typedef struct
 {
   /***en Character code (Unicode) of the glyph.  */
-  /***ja ����դ� (Unicode �ˤ�����) ʸ�������ɡ�  */
+  /***ja グリフの (Unicode における) 文字コード。  */
   int c;
   /***en Glyph ID of the glyph in the font.  */
-  /***ja �ե������ˤ����뤽�Υ���դ� ID��  */
+  /***ja フォント内におけるそのグリフの ID。  */
   unsigned int code;
   /***en Starting index of the run in #MFLTGlyphString that is
       replaced by this glyph.  */
   /***ja #MFLTGlyphString
-      ����ǡ����Υ���դˤ�ä��֤�����������ʬ����Ƭ�Υ���ǥ�����  */
+      の中で、このグリフによって置き換えられる部分の先頭のインデクス。  */
   int from;
   /***en Ending index of the run in #MFLTGlyphString that is
       replaced by this glyph.  */
   /***ja #MFLTGlyphString
-      ����ǡ����Υ���դˤ�ä��֤�����������ʬ�������Υ���ǥ�����  */
+      の中で、このグリフによって置き換えられる部分の末尾のインデクス。  */
   int to;
   /***en Advance width for horizontal layout expressed in 26.6
       fractional pixel format.  */
-  /***ja ���񤭻����������� 26.6 fractional pixel format ��ɽ��������Ρ�  */
+  /***ja 横書き時の送り幅を 26.6 fractional pixel format で表現したもの。  */
   int xadv;
   /***en Advance height for vertical layout expressed in 26.6
       fractional pixel format.  */
-  /***ja �Ľ񤭻��������� 26.6 fractional pixel format ��ɽ��������Ρ�  */
+  /***ja 縦書き時の送り高を 26.6 fractional pixel format で表現したもの。  */
   int yadv;
   /* @{ */
   /***en Ink metrics of the glyph expressed in 26.6 fractional pixel
       format.  */
-  /***ja ���Υ���դΥ��󥯥�ȥ�å��� 26.6 fractional pixel format
-      ��ɽ��������Ρ�  */
+  /***ja このグリフのインクメトリックを 26.6 fractional pixel format
+      で表現したもの。  */
   int ascent, descent, lbearing, rbearing;
   /* @} */
   /* @{ */
   /***en Horizontal and vertical adjustments for the glyph positioning
       expressed in 26.6 fractional pixel format.  */
-  /***ja ����հ��ַ��κݤο�ʿ����ľĴ���ͤ�
-      26.6 fractional pixel format ��ɽ��������Ρ�  */
+  /***ja グリフ位置決めの際の水平・垂直調整値を、
+      26.6 fractional pixel format で表現したもの。  */
   int xoff, yoff;
   /* @} */
   /***en Flag to tell whether the member \<code\> has already been set
       to a glyph ID in the font.  */
-  /***ja ���С� \<code\> �˴��˥���� ID
-      �����åȤ���Ƥ��뤫�ݤ��򼨤��ե饰��  */
+  /***ja メンバー \<code\> に既にグリフ ID
+      がセットされているか否かを示すフラグ。  */
   unsigned encoded : 1;
   /***en Flag to tell if the metrics of the glyph (members \<xadv\> thru
       \<rbearing\>) are already calculated.  */
-  /***ja ���С� \<xadv\> ���� \<rbearing\>
-      �ޤǤγƥ�ȥ�å������˷׻��Ѥ��ݤ��򼨤��ե饰��  */
+  /***ja メンバー \<xadv\> から \<rbearing\>
+      までの各メトリックが既に計算済か否かを示すフラグ。  */
   unsigned measured : 1;
   /***en Flag to tell if the metrics of the glyph is adjusted,
       i.e. \<xadv\> or \<yadv\> is different from the normal size, or
       \<xoff\> or \<yoff\> is nonzero.  */
-  /***ja ����դΥ�ȥ�å���Ĵ���Ѥߤ��ݤ���
-      ���ʤ���ʲ��Τ���1�İʾ夬��Ω���Ƥ��뤳�Ȥ򼨤��ե饰��
-      \<xadv\> ��ɸ����ͤȰۤʤ롢
-      \<yadv\> ��ɸ����ͤȰۤʤ롢
-      \<xoff\> �������Ǥʤ���
-      \<yoff\> �������Ǥʤ���  */
+  /***ja グリフのメトリックが調整済みか否か、
+      すなわち以下のうち1つ以上が成立していることを示すフラグ。
+      \<xadv\> が標準の値と異なる、
+      \<yadv\> が標準の値と異なる、
+      \<xoff\> がゼロでない、
+      \<yoff\> がゼロでない。  */
   unsigned adjusted : 1;
   /***en For m17n-lib's internal use only.  */
-  /***ja m17n-lib ��������ѡ�  */
+  /***ja m17n-lib 内部作業用。  */
   unsigned internal : 30;
 
   /* Arbitrary data can follow.  */
@@ -162,11 +162,11 @@ typedef struct
     given to the callback function @b drive_otf of #MFLTFont.  */
 
 /***ja
-    @brief ����հ���Ĵ������Τ���η�.
+    @brief グリフ位置調整情報のための型.
 
-    �� #MFLTGlyphAdjustment
-    �ϡ�����դΥ�ȥ�å�/���֤�Ĵ���˴ؤ��������Ǽ���뤿��ι�¤�ΤǤ��ꡢ
-    #MFLTFont �� callback �ؿ� @b drive_otf ���Ϥ���롣  */
+    型 #MFLTGlyphAdjustment
+    は、グリフのメトリック/位置の調整に関する情報を格納するための構造体であり、
+    #MFLTFont の callback 関数 @b drive_otf に渡される。  */
 
 typedef struct
 {
@@ -174,29 +174,29 @@ typedef struct
   /***en Adjustments for advance width for horizontal layout and
       advance height for vertical layout expressed in 26.6 fractional
       pixel format.  */
-  /***ja ��ʿ����ľ�����������̤�Ĵ���ͤ� 26.6 fractional pixel format
-      ��ɽ��������Ρ�  */
+  /***ja 水平・垂直方向の送り量の調整値を 26.6 fractional pixel format
+      で表現したもの。  */
   int xadv, yadv;
   /* @} */
   /* @{ */
   /***en Horizontal and vertical adjustments for glyph positioning
       expressed in 26.6 fractional pixel format.  */
-  /***ja ����հ��ַ�᤿��ο�ʿ����ľĴ���ͤ� 26.6 fractional pixel
-      format ��ɽ��������Ρ�  */
+  /***ja グリフ位置決めための水平・垂直調整値を 26.6 fractional pixel
+      format で表現したもの。  */
   int xoff, yoff;
   /* @} */
   /***en Number of glyphs to go back for drawing a glyph.  */
-  /***ja ���������Τ�������٤�����տ���  */
+  /***ja グリフ描画のために戻るべきグリフ数。  */
   short back;
   /***en If nonzero, the member \<xadv\> and \<yadv\> are absolute, i.e.,
       they should not be added to a glyph's origianl advance width and
       height.  */
-  /***ja �󥼥��ΤȤ������С� \<xadv\> �� \<yadv\> �������ͤǤ��롣
-      ���ʤ�������ͤ򥰥��������������˲û����ƤϤʤ�ʤ���  */
+  /***ja 非ゼロのとき、メンバー \<xadv\> と \<yadv\> は絶対値である。
+      すなわちその値をグリフ本来の送り幅に加算してはならない。  */
   unsigned advance_is_absolute : 1;
   /***en Should be set to 1 iff at least one of the other members has
       a nonzero value.  */
-  /***ja ¾�Υ��С��Τ�������1�Ĥ��󥼥��ΤȤ��Τߡ�1�˥��åȤ���롣  */
+  /***ja 他のメンバーのうち最低1個が非ゼロのときのみ、1にセットされる。  */
   unsigned set : 1;
 } MFLTGlyphAdjustment;
 
@@ -209,30 +209,30 @@ typedef struct
     information about a sequence of glyphs.  */
 
 /***ja
-    @brief �������ξ���Τ���η�.
+    @brief グリフ列の情報のための型.
 
-    �� #MFLTGlyphString �ϡ��������ξ�����Ǽ���뤿��ι�¤�ΤǤ��롣  */
+    型 #MFLTGlyphString は、グリフ列の情報を格納するための構造体である。  */
 
 typedef struct
 {
   /***en The actual byte size of elements of the array pointed by the
       member #glyphs.  It must be equal to or greater than "sizeof
       (MFLTGlyph)".  */
-  /***ja ���С� #glyphs �λؤ���������Ǥ�����¥Х��ȿ���
-      �����ͤ� "sizeof (MFLTGlyph)" �ʾ�Ǥʤ���Фʤ�ʤ���  */
+  /***ja メンバー #glyphs の指す配列の要素が占める実バイト数。
+      この値は "sizeof (MFLTGlyph)" 以上でなければならない。  */
   int glyph_size;
   /***en Array of glyphs.  */
-  /***ja ����դ�����  */
+  /***ja グリフの配列。  */
   MFLTGlyph *glyphs;
   /***en Number of elements allocated in #glyphs.  */
-  /***ja #glyphs ������֤���Ƥ������Ǥο���  */
+  /***ja #glyphs 内に配置されている要素の数。  */
   int allocated;
   /***en Number of elements in #glyphs in use.  */
-  /***ja #glyphs ��ǻ���������Ǥο���  */
+  /***ja #glyphs 内で使用中の要素の数。  */
   int used;
   /***en Flag to tell if the glyphs should be drawn from right-to-left
       or not.  */
-  /***ja ����դ������麸�ؤ��������٤����ݤ��򼨤��ե饰��  */
+  /***ja グリフが右から左へと描かれるべきか否かを示すフラグ。  */
   unsigned int r2l;
 } MFLTGlyphString;
 
@@ -248,25 +248,25 @@ typedef struct
     for a specific font.  */
 
 /***ja
-    @brief GSUB ����� GPOS OpenType �ơ��֥�λ��ͤΤ���η�.
+    @brief GSUB および GPOS OpenType テーブルの仕様のための型.
 
-    �� #MFLTOtfSpec �ϡ�GSUB ����� GPOS�ե������㡼�ξ�����Ǽ���뤿
-    ��ι�¤�ΤǤ��롣�����ե������㡼������Υ�����ץȤ���Ӹ��쥷
-    ���ƥ�Τ�ΤǤ��롣���ξ���ϡ��ɤΥե������㡼�򥰥�����Ŭ�Ѥ�
-    �뤫�����뤤������� FLT ������Υե���Ȥ��Ф���ͭ�����ɤ����η���
-    �˻��Ѥ���롣  */
+    型 #MFLTOtfSpec は、GSUB および GPOSフィーチャーの情報を格納するた
+    めの構造体である。これらフィーチャーは特定のスクリプトおよび言語シ
+    ステムのものである。この情報は、どのフィーチャーをグリフ列に適用す
+    るか、あるいは特定の FLT が特定のフォントに対して有効かどうかの決定
+    に使用される。  */
 
 typedef struct
 {
   /***en Unique symbol representing the spec.  This is the same as the
       @ref OTF-SPEC of the FLT.  */
-  /***ja ���λ��ͤ�ɽ�魯��ˡ����ʥ���ܥ롣
-      FLT �� @ref OTF-SPEC ��Ʊ����ͤǤ��롣  */
+  /***ja この仕様を表わすユニークなシンボル。
+      FLT の @ref OTF-SPEC と同一の値である。  */
   MSymbol sym;
 
   /* @{ */
   /***en Tags for script and language system.  */
-  /***ja ������ץȤ���Ӹ��쥷���ƥ�Υ�����  */
+  /***ja スクリプトおよび言語システムのタグ。  */
   unsigned int script, langsys;
   /* @} */
 
@@ -286,22 +286,22 @@ typedef struct
       should not have any features.  Otherwize, the font should have
       all features before 0xFFFFFFFF element (if any) and should not
       have any features after that element.  */
-  /***ja GSUB �ե������㡼�������������1���ǡ�GPOS �ե������㡼������
-      �������2���ǤȤ������󡣳������������0�Ǽ�����롣�ե������㡼
-      �λ��꤬1�Ĥ�ʤ����Ϥ�����������Ǥ� NULL �Ǥ�褤��
+  /***ja GSUB フィーチャータグの配列を第1要素、GPOS フィーチャータグの
+      配列を第2要素とする配列。各配列の末尾は0で示される。フィーチャー
+      の指定が1つもない場合はこの配列の要素は NULL でもよい。
 
-      (1) ���ξ��󤬥�������Ŭ�Ѥ��٤��ե������㡼������˻Ȥ����
-      �硣�⤷���󼫿Ȥ�NULL�ʤ顢�ɤΥե������㡼��Ŭ�Ѥ��ʤ����⤷��
-      ������Ǥ� 0xFFFFFFFF �ʤ顢�����ܰʹߤΥե������㡼�ʤ⤷����
-      �Сˤ�������٤Ƥ�Ŭ�Ѳ�ǽ�ʥե������㡼��Ŭ�Ѥ��롣����ʳ��ξ�
-      ��ꥹ�Ȥ��줿���٤ƤΥե������㡼��Ŭ�Ѥ��롣
+      (1) この情報がグリフ列に適用すべきフィーチャーの選択に使われる場
+      合。もし配列自身がNULLなら、どのフィーチャーも適用しない。もし最
+      初の要素が 0xFFFFFFFF なら、２番目以降のフィーチャー（もしあれ
+      ば）を除くすべての適用可能なフィーチャーを適用する。それ以外の場
+      合リストされたすべてのフィーチャーを適用する。
 
-      (2) ���ξ�������� FLT ������Υե���Ȥ�ͭ�����ɤ����η���˻�
-      �����硣�⤷���󼫿Ȥ�NULL�ʤ顢�ե���Ȥϥե������㡼����
-      ����äƤ��ƤϤ����ʤ����⤷�ǽ�����Ǥ�0xFFFFFFFF�ʤ顢�ե����
-      �ϣ����ܤ����ǰʹߤΥե���Ȥ���äƤ��ƤϤ����ʤ�������ʳ��ξ�
-      �硢�ե���Ȥ�0xFFFFFFFF �����Τ��٤ƤΥե������㡼�����������
-      0xFFFFFFFF �ʹߤΥե������㡼�ϰ�Ĥ���äƤ��ƤϤ����ʤ���*/
+      (2) この情報が特定の FLT が特定のフォントに有効かどうかの決定に使
+      われる場合。もし配列自身がNULLなら、フォントはフィーチャーを一つ
+      も持っていてはいけない。もし最初の要素が0xFFFFFFFFなら、フォント
+      は２番目の要素以降のフォントを持っていてはいけない。それ以外の場
+      合、フォントは0xFFFFFFFF 以前のすべてのフィーチャーを持ち、かつ
+      0xFFFFFFFF 以降のフィーチャーは一つも持っていてはいけない。*/
   unsigned int *features[2];
 } MFLTOtfSpec;
 
@@ -319,14 +319,14 @@ typedef struct
     coerce MFLTFont back to the original structure.  */
 
 /***ja
-    @brief FLT �ɥ饤�Ф��Ȥ��ե���Ȥη�.
+    @brief FLT ドライバが使うフォントの型.
 
-    �� #MFLTFont �ϡ�FLT�ɥ饤�Ф��Ȥ��ե���Ȥ˴ؤ��������Ǽ���뤿
-    ��ι�¤�ΤǤ��롣�̾異�ץꥱ�������Ϻǽ�����Ǥ� MFLTFont �ǡ�
-    �Ĥ�����Ǥ�callback�ؿ������Ѥ���ե���Ⱦ������ä�������礭��
-    ��¤�Τ��Ѱդ�������� MFLTFont �� coerce ���� mflt �γƴؿ����Ϥ���
-    ��callback�ؿ��� MFLTFont �򸵤ι�¤�Τ� coerce ��ľ�����Ȥ��Ǥ���
-    ���Ȥ��ݾڤ���Ƥ��롣 */
+    型 #MFLTFont は、FLTドライバが使うフォントに関する情報を格納するた
+    めの構造体である。通常アプリケーションは最初の要素が MFLTFont で、
+    残りの要素にcallback関数が利用するフォント情報を持った、より大きな
+    構造体を用意し、それを MFLTFont に coerce して mflt の各関数に渡す。
+    各callback関数は MFLTFont を元の構造体に coerce し直すことができる
+    ことが保証されている。 */
 
 typedef struct _MFLTFont
 {
@@ -334,26 +334,26 @@ typedef struct _MFLTFont
      is not important in finding a Font Layout Table suitable for the
      font (for instance, in the case that the font is an OpenType
      font).  */
-  /***ja �ե���ȤΥե��ߥ꡼̾���ե���Ȥ�Ŭ���� FLT��õ���ݤ˽��פǤ�
-      ����� (���Ȥ��� OpenType�ե���Ȥξ��ʤ�) �ϡ�#Mnil �Ǥ褤�� */
+  /***ja フォントのファミリー名。フォントに適した FLTを探す際に重要でな
+      い場合 (たとえば OpenTypeフォントの場合など) は、#Mnil でよい。 */
   MSymbol family;
 
   /***en Horizontal font sizes in pixels per EM.  */
-  /***ja �ե���Ȥο�ʿ�������� pixels per EM ��ɽ��������Ρ�  */
+  /***ja フォントの水平サイズを pixels per EM で表現したもの。  */
   int x_ppem;
   /***en Vertical font sizes in pixels per EM.  */
-  /***ja �ե���Ȥο�ľ�������� pixels per EM ��ɽ��������Ρ�  */
+  /***ja フォントの垂直サイズを pixels per EM で表現したもの。  */
   int y_ppem;
 
   /***en Callback function to get glyph IDs for glyphs between FROM
      (inclusive) and TO (exclusive) of GSTRING.  If the member \<encoded\>
      of a glyph is zero, the member \<code\> of that glyph is a character
      code.  The function must convert it to the glyph ID of FONT.  */
-  /***ja GSTRING ��� FROM ���� TO ľ���ޤǤγƥ���դ��б����륰���
-      ID��������뤿��� callback �ؿ����⤷���륰��դΥ��С�
-      \<encoded\>�������ʤ�С����Υ���դΥ��С� \<code\> ��ʸ�������ɤ�
-      ���롣���δؿ��Ϥ���ʸ�������ɤ� FONT �Υ���� ID���Ѵ����ʤ��Ƥ�
-      �ʤ�ʤ���  */
+  /***ja GSTRING 内の FROM から TO 直前までの各グリフに対応するグリフ
+      IDを取得するための callback 関数。もしあるグリフのメンバー
+      \<encoded\>がゼロならば、そのグリフのメンバー \<code\> は文字コードで
+      ある。この関数はその文字コードを FONT のグリフ IDに変換しなくては
+      ならない。  */
   int (*get_glyph_id) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		       int from, int to);
 
@@ -361,11 +361,11 @@ typedef struct _MFLTFont
      (inclusive) and TO (exclusive) of GSTRING.  If the member \<measured\>
      of a glyph is zero, the function must set the members \<xadv\>, \<yadv\>,
      \<ascent\>, \<descent\>, \<lbearing\>, and \<rbearing\> of the glyph.  */
-  /***ja GSTRING ��� FROM ���� TOľ���ޤǤγƥ���դ��б������ȥ��
-      ����������뤿��� callback �ؿ����⤷���륰��դΥ��С�
-      \<measured\>�������ʤ�С����δؿ��Ϥ��Υ���դΥ��С� \<xadv\>,
-      \<yadv\>, \<ascent\>, \<descent\>, \<lbearing\>, ����� \<rbearing\>�򥻥�
-      �Ȥ��ʤ���Фʤ�ʤ���  */
+  /***ja GSTRING 内の FROM から TO直前までの各グリフに対応するメトリッ
+      クを取得するための callback 関数。もしあるグリフのメンバー
+      \<measured\>がゼロならば、この関数はそのグリフのメンバー \<xadv\>,
+      \<yadv\>, \<ascent\>, \<descent\>, \<lbearing\>, および \<rbearing\>をセッ
+      トしなければならない。  */
   int (*get_metrics) (struct _MFLTFont *font, MFLTGlyphString *gstring,
 		     int from, int to);
 
@@ -373,11 +373,11 @@ typedef struct _MFLTFont
      features for a specific script/language.  The function must
      return 1, if the font satisfies SPEC, or 0.  It must be
      NULL if the font does not have OpenType tables.  */
-  /***ja �ե���Ȥ���������Υ�����ץ�/������Ф��� GSUB/GPOS
-      OpenType�ե������㡼����Ĥ��ݤ���Ĵ�٤� callback �ؿ������δؿ�
-      �ϥե���Ȥ�SPEC ���������Ȥ��� 1 �򡢤����Ǥʤ��Ȥ��� 0���֤���
-      ����Фʤ�ʤ����ե���Ȥ� OpenType �ơ��֥������ʤ��Ȥ���NULL
-      �Ǥʤ���Фʤ�ʤ���  */
+  /***ja フォントがある特定のスクリプト/言語に対する GSUB/GPOS
+      OpenTypeフィーチャーを持つか否かを調べる callback 関数。この関数
+      はフォントがSPEC を満たすときは 1 を、そうでないときは 0を返さな
+      ければならない。フォントが OpenType テーブルを持たないときはNULL
+      でなければならない。  */
   int (*check_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec);
 
   /***en Callback function to apply OpenType features in SPEC to glyphs
@@ -385,18 +385,18 @@ typedef struct _MFLTFont
      glyphs are appended to the tail of OUT.  If OUT does not
      have a room to store all the resulting glyphs, it must return -2.
      It must be NULL if the font does not have OpenType tables.  */
-  /***ja IN ��� FROM ���� TO ľ���ޤǤγƥ���դ� SPEC��γ� OpenType
-      �ե������㡼��Ŭ�Ѥ��뤿��� callback �ؿ���Ŭ�ѷ�̤Υ�������
-      OUT ���������ɲä���롣OUT ��û���᤮�Ʒ�̤��ɲä��ڤ�ʤ����
-      �� -2 ���֤��ʤ��ƤϤʤ�ʤ����ե���Ȥ� OpenType �ơ��֥�����
-      �ʤ����� NULL�Ǥʤ���Фʤ�ʤ���  */
+  /***ja IN 内の FROM から TO 直前までの各グリフに SPEC内の各 OpenType
+      フィーチャーを適用するための callback 関数。適用結果のグリフ列は
+      OUT の末尾に追加される。OUT が短か過ぎて結果を追加し切れない場合
+      は -2 を返さなくてはならない。フォントが OpenType テーブルを持た
+      ない場合は NULLでなければならない。  */
   int (*drive_otf) (struct _MFLTFont *font, MFLTOtfSpec *spec,
 		    MFLTGlyphString *in, int from, int to,
 		    MFLTGlyphString *out, MFLTGlyphAdjustment *adjustment);
 
   /***en For m17n-lib's internal use only.  It should be initialized
       to NULL.  */
-  /***ja m17n-lib ����������ѡ�NULL �˽��Ͳ�����롣  */
+  /***ja m17n-lib の内部作業用。NULL に初値化される。  */
   void *internal;
 } MFLTFont;
 
@@ -409,10 +409,10 @@ typedef struct _MFLTFont
     concealed from application programs.  */
 
 /***ja
-    @brief FLT (Font Layout Table) �η�.
+    @brief FLT (Font Layout Table) の型.
 
-    �� #MFLT �� FLT ���֥������ȤΤ���η��Ǥ��롣
-    ����������¤�ϡ����ץꥱ�������ץ�����फ��ϱ��ä���Ƥ��롣  */
+    型 #MFLT は FLT オブジェクトのための型である。
+    この内部構造は、アプリケーションプログラムからは隠蔽されている。  */
 
 typedef struct _MFLT MFLT;
 
@@ -448,6 +448,6 @@ M17N_END_HEADER
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

@@ -436,6 +436,6 @@ mtext_line_break (MText *mt, int pos, int option, int *after)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

@@ -361,15 +361,15 @@ MSymbol Miso639_1, Miso639_2;
     mscript_list ().  */
 
 /***ja
-    @brief 3ʸ�����쥳���ɤ�ꥹ�Ȥ���.
+    @brief 3文字言語コードをリストする.
 
-    �ؿ� mlanguage_list () �ϡ������� (well-formed) plist ���֤����ƥ���
-    �� #Msymbol �Ǥ��ꡢ�ġ����ͤ� ISO639-2 ������줿3ʸ�����쥳��
-    �ɤ�̾���Ȥ��륷��ܥ�Ǥ��롣
+    関数 mlanguage_list () は、整形式 (well-formed) plist を返す。各キー
+    は #Msymbol であり、個々の値は ISO639-2 に定められた3文字言語コー
+    ドを名前とするシンボルである。
 
     @return
-    ���δؿ����֤� plist �ϡ��ƤӽФ�¦�� m17n_object_unref () ��Ȥ�
-    �Ʋ�������ɬ�פ����롣
+    この関数が返す plist は、呼び出し側が m17n_object_unref () を使っ
+    て解放する必要がある。
 
     @seealso
     mscript_list ().  */
@@ -415,22 +415,22 @@ mlanguage_list (void)
     mlanguage_name_list (), mlanguage_text ().  */
 
 /***ja
-    @brief ���쥳���ɤ�����.
+    @brief 言語コードを得る.
 
-    �ؿ� mlanguage_code () �ϡ�$LANGUAGE ���б����� ISO-639 ���쥳����
-    ��̾���Ǥ���褦�ʥ���ܥ���֤���$LANGUAGE �ϥ���ܥ�Ǥ��ꡢ����
-    ̾���ϡ�ISO639-2 3ʸ�����쥳���ɡ�ISO639-1 2ʸ�����쥳���ɡ��Ѹ�̾��
-    �Τ����줫�Ǥ��롣
+    関数 mlanguage_code () は、$LANGUAGE に対応した ISO-639 言語コード
+    が名前であるようなシンボルを返す。$LANGUAGE はシンボルであり、その
+    名前は、ISO639-2 3文字言語コード、ISO639-1 2文字言語コード、英語名、
+    のいずれかである。
 
-    $LEN ���֤������쥳���ɤμ������ꤹ�롣$LEN ��3�ξ��� 
-    ISO639-2 3ʸ�����쥳���ɤ��֤���롣2�ξ��ϡ��⤷�������Ƥ���
-    �� ISO639-1 2ʸ�����쥳���ɤ��������Ǥʤ���� #Mnil ���֤���롣0 
-    �ξ��ϡ��⤷�������Ƥ����2ʸ�������ɤ��������Ǥʤ����3ʸ������
-    �ɤ��֤���롣
+    $LEN は返される言語コードの種類を決定する。$LEN が3の場合は 
+    ISO639-2 3文字言語コードが返される。2の場合は、もし定義されていれ
+    ば ISO639-1 2文字言語コードが、そうでなければ #Mnil が返される。0 
+    の場合は、もし定義されていれば2文字コードが、そうでなければ3文字コー
+    ドが返される。
 
     @return
-    �⤷����������С����δؿ��� #Mnil �ʳ��Υ���ܥ���֤�������
-    �Ǥʤ���� #Mnil ���֤���
+    もし情報が得られれば、この関数は #Mnil 以外のシンボルを返す。そう
+    でなければ #Mnil を返す。
 
     @seealso
     mlanguage_name (), mlanguage_text ().  */
@@ -630,16 +630,16 @@ mlanguage_name_list (MSymbol language, MSymbol target,
     mlanguage_code (), mlanguage_name ().  */
 
 /***ja
-    @brief Ϳ����줿���켫�Ȥǽ񤫤줿����̾���֤�.
+    @brief 与えられた言語自身で書かれた言語名を返す.
 
-    �ؿ� mlanguage_text () �ϡ����� $LANGUAGE �ǽ񤫤줿 $LANGUAGE ��
-    ̾���� M-text �η������֤������θ������ɽŪ��ʸ�����狼�äƤ����
-    ��ϡ��֤���� M-text �γ�ʸ���ˡ������� #Mtext ���ͤ�������ɽŪ��
-    ʸ����ޤ� M-text �Ǥ���褦�ʥƥ����ȥץ��ѥƥ����ղä���롣
+    関数 mlanguage_text () は、言語 $LANGUAGE で書かれた $LANGUAGE の
+    名前を M-text の形式で返す。その言語の代表的な文字がわかっている場
+    合は、返される M-text の各文字に、キーが #Mtext で値がその代表的な
+    文字を含む M-text であるようなテキストプロパティが付加される。
 
     @return
-    �����������줿��硢���δؿ����֤� M-text ���ѹ������������
-    ���ꤷ�ƤϤ����ʤ������������ʤ��ä����� @c NULL ���֤���롣
+    求める情報が得られた場合、この関数が返す M-text を変更したり解放し
+    たりしてはいけない。情報が得られなかった場合は @c NULL が返される。
 
     @seealso
     mlanguage_code (), mlanguage_name ().  */
@@ -686,15 +686,15 @@ mlanguage_text (MSymbol language)
     mscript_language_list (), mlanguage_list ().  */
 
 /***ja
-    @brief ������ץ�̾��ꥹ�Ȥ���.
+    @brief スクリプト名をリストする.
 
-    �ؿ� mscript_list () �ϡ������� (well-formed) plist ���֤����ƥ���
-    �� #Msymbol �Ǥ��ꡢ�ġ����ͤϥ�����ץ�̾��̾���Ȥ��륷��ܥ�Ǥ�
-    �롣
+    関数 mscript_list () は、整形式 (well-formed) plist を返す。各キー
+    は #Msymbol であり、個々の値はスクリプト名を名前とするシンボルであ
+    る。
 
     @return
-    ���δؿ����֤� plist �ϡ��ƤӽФ�¦�� m17n_object_unref () ��Ȥ�
-    �Ʋ�������ɬ�פ����롣
+    この関数が返す plist は、呼び出し側が m17n_object_unref () を使っ
+    て解放する必要がある。
 
     @seealso
     mscript_language_list (), mlanguage_list ().  */
@@ -738,18 +738,18 @@ mscript_list (void)
     mscript_list (), mlanguage_list ().  */
 
 /***ja
-    @brief Ϳ����줿������ץȤ��Ѥ�������ꥹ�Ȥ���.
+    @brief 与えられたスクリプトを用いる言語をリストする.
 
-    �ؿ� mscript_language_list () �ϡ�$SCRIPT ���Ѥ�������ꥹ�Ȥ��롣
-    $SCRIPT �ϥ���ܥ�ǡ�����̾���� Unicode Character Database �˼���
-    ��Ƥ��륹����ץ�̾�򤹤٤ƾ�ʸ���ˤ�����ΤǤ��롣
+    関数 mscript_language_list () は、$SCRIPT を用いる言語をリストする。
+    $SCRIPT はシンボルで、その名前は Unicode Character Database に示さ
+    れているスクリプト名をすべて小文字にしたものである。
 
     @return 
-    ���δؿ��ϡ������� (well-formed) plist ���֤����ƥ����� 
-    #Msymbol �Ǥ��ꡢ�ġ����ͤ� ISO639-1 ������줿2ʸ�����쥳����
-    (�������Ƥ��ʤ����� ISO639-2 ������줿3ʸ�����쥳����) ��̾
-    ���Ȥ��륷��ܥ�Ǥ��롣�֤���� plist ���ѹ���������������ꤷ��
-    �Ϥʤ�ʤ���$SCRIPT ��̤�Τξ��� @c NULL ���֤���롣
+    この関数は、整形式 (well-formed) plist を返す。各キーは 
+    #Msymbol であり、個々の値は ISO639-1 に定められた2文字言語コード
+    (定義されていない場合は ISO639-2 に定められた3文字言語コード) を名
+    前とするシンボルである。返される plist は変更したり解放したりして
+    はならない。$SCRIPT が未知の場合は @c NULL が返される。
 
     @seealso
     mscript_list (), mlanguage_list ().  */
@@ -773,7 +773,7 @@ mscript_language_list (MSymbol script)
     @name Obsolete functions
 */
 /***ja
-    @name Obsolete �ʴؿ�
+    @name Obsolete な関数
 */
 /*** @{ */
 
@@ -795,15 +795,15 @@ mscript_language_list (MSymbol script)
     mlanguage_code (), mlanguage_text ().  */
 
 /***ja
-    @brief ����αѸ�̾������.
+    @brief 言語の英語名を得る.
 
-    �ؿ� mlanguage_name () �ϡ�$LANGUAGE �αѸ�̾��̾���Ȥ���褦�ʥ�
-    ��ܥ���֤���$LANGUAGE �ϥ���ܥ�Ǥ��ꡢ����̾���ϡ�ISO639-2 3ʸ
-    �����쥳���ɡ�ISO639-1 2ʸ�����쥳���ɡ��Ѹ�̾���Τ����줫�Ǥ��롣
+    関数 mlanguage_name () は、$LANGUAGE の英語名を名前とするようなシ
+    ンボルを返す。$LANGUAGE はシンボルであり、その名前は、ISO639-2 3文
+    字言語コード、ISO639-1 2文字言語コード、英語名、のいずれかである。
 
     @return
-    ���Ƥ������������ʤ顢���δؿ��� #Mnil �ʳ��Υ���ܥ����
-    ���������Ǥʤ���� #Mnil ���֤���
+    求めている情報が得られるなら、この関数は #Mnil 以外のシンボルを返
+    す。そうでなければ #Mnil を返す。
 
     @seealso
     mlanguage_code (), mlanguage_text ().  */
@@ -834,6 +834,6 @@ mlanguage_name (MSymbol language)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

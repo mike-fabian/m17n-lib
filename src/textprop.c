@@ -39,19 +39,19 @@
 
 /***ja
     @addtogroup m17nTextProperty
-    @brief �ƥ����ȥץ��ѥƥ������뤿��δؿ�.
+    @brief テキストプロパティを操作するための関数.
 
-    M-text ��γ�ʸ���ϡ�@e �ƥ����ȥץ��ѥƥ� �ȸƤФ��ץ��ѥƥ���
-    ���Ĥ��Ȥ��Ǥ��롣�ƥ����ȥץ��ѥƥ��ϡ�M-text �γ����̤��ղä���
-    �����ޤ��ޤʾ�����ݻ����Ƥ��ꡢ���ץꥱ�������ץ������Ϥ����
-    �ξ��������Ū�˰������Ȥ��Ǥ��롣M-text ���Τ�˭�٤ʾ������Ĥ�
-    �ᡢ���ץꥱ�������ץ��������δؿ�����ǲ����뤳�Ȥ��Ǥ��롣
+    M-text 内の各文字は、@e テキストプロパティ と呼ばれるプロパティを
+    持つことができる。テキストプロパティは、M-text の各部位に付加され
+    たさまざまな情報を保持しており、アプリケーションプログラムはそれら
+    の情報を統一的に扱うことができる。M-text 自体が豊富な情報を持つた
+    め、アプリケーションプログラム中の関数を簡素化することができる。
 
-    �ƥ����ȥץ��ѥƥ��� @e ���� �� @e �� ����ʤ롣�����ϥ���ܥ�Ǥ�
-    �ꡢ�ͤ� <tt>(void *)</tt> ���˥��㥹�ȤǤ����Τʤ鲿�Ǥ�褤��
-    ¾�Υ����פΥץ��ѥƥ��Ȱۤʤꡢ��ĤΥƥ����ȥץ��ѥƥ���ʣ������
-    ����Ĥ��Ȥ�������롣�֥����� K �Ǥ���ƥ����ȥץ��ѥƥ��פΤ���
-    ���ñ�ˡ�K �ץ��ѥƥ��פȸƤ֤��Ȥ����롣  */
+    テキストプロパティは @e キー と @e 値 からなる。キーはシンボルであ
+    り、値は <tt>(void *)</tt> 型にキャストできるものなら何でもよい。
+    他のタイプのプロパティと異なり、一つのテキストプロパティが複数の値
+    を持つことが許される。「キーが K であるテキストプロパティ」のこと
+    を簡単に「K プロパティ」と呼ぶことがある。  */
 
 /*=*/
 
@@ -1515,27 +1515,27 @@ mtext__adjust_plist_for_change (MText *mt, int pos, int len1, int len2)
     mtext_get_prop_values () function instead.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ��ΰ��־���ͤ�����.
+    @brief テキストプロパティの一番上の値を得る.
 
-    �ؿ� mtext_get_prop () �ϡ�M-text $MT ��ΰ��� $POS �ˤ���ʸ���Υ�
-    �����ȥץ��ѥƥ��Τ����������� $KEY �Ǥ����Τ�õ����
+    関数 mtext_get_prop () は、M-text $MT 内の位置 $POS にある文字のテ
+    キストプロパティのうち、キーが $KEY であるものを探す。
 
     @return
-    �ƥ����ȥץ��ѥƥ����ߤĤ���С�mtext_get_prop () �Ϥ��Υץ��ѥƥ�
-    ���ͤ��֤����ͤ�ʣ��¸�ߤ���Ȥ��ϡ����־���ͤ��֤������Ĥ���ʤ�
-    ��г����ѿ� #merror_code ���ѹ����뤳�Ȥʤ� @c NULL ���֤���
+    テキストプロパティがみつかれば、mtext_get_prop () はそのプロパティ
+    の値を返す。値が複数存在するときは、一番上の値を返す。見つからなけ
+    れば外部変数 #merror_code を変更することなく @c NULL を返す。
 
-    ���顼�����Ф��줿��� mtext_get_prop () �� @c NULL ���֤���������
-    �� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    エラーが検出された場合 mtext_get_prop () は @c NULL を返し、外部変
+    数 #merror_code にエラーコードを設定する。
 
-    @note ���顼�ʤ��� @c NULL ���֤��줿���ˤ���Ĥβ�ǽ�������롣
+    @note エラーなしで @c NULL が返された場合には二つの可能性がある。
 
-    @li $POS �ΰ��֤�ʸ���� $KEY �򥭡��Ȥ���ץ��ѥƥ�������ʤ���
+    @li $POS の位置の文字は $KEY をキーとするプロパティを持たない。
 
-    @li ����ʸ���Ϥ��Τ褦�ʥץ��ѥƥ�������������ͤ� @c NULL �Ǥ��롣
+    @li その文字はそのようなプロパティを持ち、その値が @c NULL である。
 
-    ������Ĥ���̤���ɬ�פ�������ˤϡ��ؿ� mtext_get_prop_values ()
-    ������˻��Ѥ��뤳�ȡ�
+    この二つを区別する必要がある場合には、関数 mtext_get_prop_values ()
+    を代わりに使用すること。
 
      @latexonly \IPAlabel{mtext_get_prop} @endlatexonly  */
 
@@ -1585,18 +1585,18 @@ mtext_get_prop (MText *mt, int pos, MSymbol key)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ����ͤ�ʣ��������.
+    @brief テキストプロパティの値を複数個得る.
 
-    �ؿ� mtext_get_prop_values () �ϡ�M-text $MT ��� $POS �Ȥ�������
-    �ˤ���ʸ���Υץ��ѥƥ��Τ����������� $KEY �Ǥ����Τ�õ�����⤷��
-    �Τ褦�ʥץ��ѥƥ������Ĥ���С����줬������ (ʣ����) �� $VALUES 
-    �λؤ������ΰ�˳�Ǽ���롣$NUM �ϳ�Ǽ�����ͤο��ξ�¤Ǥ��롣
+    関数 mtext_get_prop_values () は、M-text $MT 内で $POS という位置
+    にある文字のプロパティのうち、キーが $KEY であるものを探す。もしそ
+    のようなプロパティが見つかれば、それが持つ値 (複数可) を $VALUES 
+    の指すメモリ領域に格納する。$NUM は格納する値の数の上限である。
 
     @return
-    ��������������С�mtext_get_prop_values () �ϼºݤ˥���˳�Ǽ��
-    �줿�ͤο����֤���$POS �ΰ��֤�ʸ���� $KEY �򥭡��Ȥ���ץ��ѥƥ�
-    ������ʤ���� 0 ���֤������顼�����Ф��줿���� -1 ���֤�������
-    �ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば、mtext_get_prop_values () は実際にメモリに格納さ
+    れた値の数を返す。$POS の位置の文字が $KEY をキーとするプロパティ
+    を持たなければ 0 を返す。エラーが検出された場合は -1 を返し、外部
+    変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_get_prop_values} @endlatexonly  */
 
@@ -1663,17 +1663,17 @@ mtext_get_prop_values (MText *mt, int pos, MSymbol key,
 */
 
 /***ja
-    @brief M-text �λ��ꤷ�����֤Υƥ����ȥץ��ѥƥ��Υ����Υꥹ�Ȥ�����.
+    @brief M-text の指定した位置のテキストプロパティのキーのリストを得る.
 
-    �ؿ� mtext_get_prop_keys () �ϡ�M-text $MT ��� $POS �ΰ��֤ˤ���
-    ���٤ƤΥƥ����ȥץ��ѥƥ��Υ��������ǤȤ���������ꡢ���������
-    ���ɥ쥹�� *$KEYS �����ꤹ�롣��������Τ���˳��ݤ��줿������
-    ������Τϥ桼������Ǥ�Ǥ��롣
+    関数 mtext_get_prop_keys () は、M-text $MT 内で $POS の位置にある
+    すべてのテキストプロパティのキーを要素とする配列を作り、その配列の
+    アドレスを *$KEYS に設定する。この配列のために確保されたメモリを解
+    放するのはユーザの責任である。
 
     @return
-    ��������������� mtext_get_prop_keys () ������줿�ꥹ�Ȥ�Ĺ������
-    ���������Ǥʤ���� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ�
-    ���ꤹ�롣
+    処理が成功すれば mtext_get_prop_keys () は得られたリストの長さを返
+    す。そうでなければ -1 を返し、外部変数 #merror_code にエラーコードを
+    設定する。
 */
 
 /***
@@ -1738,11 +1738,11 @@ PROP  :  <-- OLD_VAL-><-------- VAL -------><-- OLD_VAL-->
     variable #merror_code.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ������ꤹ��.
+    @brief テキストプロパティを設定する.
 
-    �ؿ� mtext_put_prop () �ϡ�M-text $MT �� $FROM �ʴޤޤ��ˤ��� 
-    $TO �ʴޤޤ�ʤ��ˤ��ϰϤ�ʸ���ˡ������� $KEY ���ͤ� $VAL �Ǥ����
-    ���ʥƥ����ȥץ��ѥƥ������ꤹ�롣���δؿ��ˤ�ä�
+    関数 mtext_put_prop () は、M-text $MT の $FROM （含まれる）から 
+    $TO （含まれない）の範囲の文字に、キーが $KEY で値が $VAL であるよ
+    うなテキストプロパティを設定する。この関数によって
 
 
 @verbatim
@@ -1751,7 +1751,7 @@ M-text:      |<------------|-------- MT ---------|------------>|
 PROP:         <------------------ OLD_VAL -------------------->
 @endverbatim
 
-�ϼ��Τ褦�ˤʤ롣
+は次のようになる。
 
 @verbatim
                          FROM                    TO
@@ -1760,8 +1760,8 @@ PROP:          <-- OLD_VAL-><-------- VAL -------><-- OLD_VAL-->
 @endverbatim
 
     @return
-    ��������������� mtext_put_prop () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば mtext_put_prop () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_put_prop} @endlatexonly  */
 
@@ -1813,16 +1813,16 @@ mtext_put_prop (MText *mt, int from, int to, MSymbol key, void *val)
     external variable #merror_code.  */
 
 /***ja
-    @brief Ʊ�������Υƥ����ȥץ��ѥƥ���ʣ�����ꤹ��.
+    @brief 同じキーのテキストプロパティを複数設定する.
 
-    �ؿ� mtext_put_prop_values () �ϡ�M-Text $MT ��$FROM �ʴޤޤ���
-    ���� $TO �ʴޤޤ�ʤ��ˤ��ϰϤ�ʸ���ˡ��ƥ����ȥץ��ѥƥ������ꤹ
-    �롣�ƥ����ȥץ��ѥƥ��Υ����� $KEY �ˤ�äơ���(ʣ����)�� $VALUES 
-    �ˤ�äƻ��ꤵ��롣$NUM �����ꤵ����ͤθĿ��Ǥ��롣
+    関数 mtext_put_prop_values () は、M-Text $MT の$FROM （含まれる）
+    から $TO （含まれない）の範囲の文字に、テキストプロパティを設定す
+    る。テキストプロパティのキーは $KEY によって、値(複数可)は $VALUES 
+    によって指定される。$NUM は設定される値の個数である。
 
     @return
-    ��������������С�mtext_put_prop_values () �� 0 ���֤��������Ǥʤ�
-    ��� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば、mtext_put_prop_values () は 0 を返す。そうでなけ
+    れば -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_put_prop_values} @endlatexonly  */
 
@@ -1897,18 +1897,18 @@ PROP  :               <-------- VAL ------->
     variable #merror_code.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ���ץå��夹��.
+    @brief テキストプロパティをプッシュする.
 
-    �ؿ� mtext_push_prop () �ϡ������� $KEY ���ͤ� $VAL �Ǥ���ƥ�����
-    �ץ��ѥƥ���M-text $MT ��� $FROM �ʴޤޤ��ˤ��� $TO �ʴޤޤ��
-    ���ˤ��ϰϤ�ʸ���˥ץå��夹�롣���δؿ��ˤ�ä�
+    関数 mtext_push_prop () は、キーが $KEY で値が $VAL であるテキスト
+    プロパティを、M-text $MT 中の $FROM （含まれる）から $TO （含まれな
+    い）の範囲の文字にプッシュする。この関数によって
 
 @verbatim
                     FROM                    TO
 M-text: |<------------|-------- MT ---------|------------>|
 PROP  :  <------------------ OLD_VAL -------------------->
 @endverbatim
- �ϼ��Τ褦�ˤʤ롣
+ は次のようになる。
 @verbatim 
                     FROM                    TO
 M-text: |<------------|-------- MT ---------|------------>|
@@ -1917,8 +1917,8 @@ PROP  :               <-------- VAL ------->
 @endverbatim
 
     @return
-    ��������������С�mtext_push_prop () �� 0 ���֤��������Ǥʤ���� 
-    -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば、mtext_push_prop () は 0 を返す。そうでなければ 
+    -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_push_prop} @endlatexonly  */
 
@@ -2050,21 +2050,21 @@ PROP  :  <--OLD_VAL-->|                     |<--OLD_VAL-->|
     variable #merror_code.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ���ݥåפ���.
+    @brief テキストプロパティをポップする.
 
-    �ؿ� mtext_pop_prop () �ϡ������� $KEY �Ǥ���ƥ����ȥץ��ѥƥ���
-    �������־�Τ�Τ�M-text $MT �� $FROM �ʴޤޤ��ˤ��� $TO�ʴޤ�
-    ��ʤ��ˤ��ϰϤ�ʸ�������������
+    関数 mtext_pop_prop () は、キーが $KEY であるテキストプロパティの
+    うち一番上のものを、M-text $MT の $FROM （含まれる）から $TO（含ま
+    れない）の範囲の文字から取り除く。
 
-    �����ϰϤ�ʸ�������Τ褦�ʥץ��ѥƥ�������ʤ��ʤ�С����δؿ��ϲ�
-    �⤷�ʤ������δؿ��ˤ�äơ�
+    指定範囲の文字がそのようなプロパティを持たないならば、この関数は何
+    もしない。この関数によって、
 
 @verbatim
                     FROM                    TO
 M-text: |<------------|-------- MT ---------|------------>|
 PROP  :  <------------------ OLD_VAL -------------------->
 @endverbatim
- �ϰʲ��Τ褦�ˤʤ롣
+ は以下のようになる。
 @verbatim 
                     FROM                    TO
 M-text: |<------------|-------- MT ---------|------------>|
@@ -2072,8 +2072,8 @@ PROP  :  <--OLD_VAL-->|                     |<--OLD_VAL-->|
 @endverbatim
 
     @return
-    ��������������С�mtext_pop_prop () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば、mtext_pop_prop () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_pop_prop} @endlatexonly  */
 
@@ -2187,27 +2187,27 @@ mtext_pop_prop (MText *mt, int from, int to, MSymbol key)
     merror_code.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ���Ʊ���ͤ�Ȥ��ϰϤ�Ĵ�٤�.
+    @brief テキストプロパティが同じ値をとる範囲を調べる.
 
-    �ؿ� mtext_prop_range () �ϡ����ꤷ���ƥ����ȥץ��ѥƥ����ͤ�Ʊ��
-    �Ǥ���Ϣ³����ʸ�����ϰϤ�Ĵ�٤롣�ޤ� M-text $MT �� $POS �ΰ��֤�
-    ����ʸ���Υץ��ѥƥ��Τ��������� $KEY �ǻ��ꤵ�줿����ͤ򸫤Ĥ�
-    �롣�����������ʸ���� $KEY �Υץ��ѥƥ����ͤ�Ʊ���Ǥ��뤫�ɤ�����
-    Ĵ�٤롣���Ĥ����ϰϤκǽ�ȺǸ�򡢤��줾�� $FROM �� $TO �˥ݥ���
-    �Ȥ�����ѿ�����¸���롣$FROM ����¸�����ʸ���ΰ��֤ϸ��Ĥ����ϰ�
-    �˴ޤޤ�뤬��$TO �ϴޤޤ�ʤ�����$TO ������Ʊ���ͤ�Ȥ��ϰϤϽ���
-    �롣�ˤ����ϰϻ���ˡ�ϡ��ؿ� mtext_put_prop () �ʤɤȶ��̤Ǥ��롣
+    関数 mtext_prop_range () は、指定したテキストプロパティの値が同じ
+    である連続した文字の範囲を調べる。まず M-text $MT の $POS の位置に
+    ある文字のプロパティのうち、キー $KEY で指定されたもの値を見つけ
+    る。そして前後の文字も $KEY のプロパティの値が同じであるかどうかを
+    調べる。見つけた範囲の最初と最後を、それぞれ $FROM と $TO にポイン
+    トされる変数に保存する。$FROM に保存される文字の位置は見つけた範囲
+    に含まれるが、$TO は含まれない。（$TO の前で同じ値をとる範囲は終わ
+    る。）この範囲指定法は、関数 mtext_put_prop () などと共通である。
 
-    $DEEPER �� 0 �Ǥʤ���С�$KEY �Ȥ�����������ĥץ��ѥƥ��Τ�������
-    ��Τ�Τ����Ǥʤ��������å���Τ��٤ƤΤ�Τ���Ӥ���롣
+    $DEEPER が 0 でなければ、$KEY というキーを持つプロパティのうち一番
+    上のものだけでなく、スタック中のすべてのものが比較される。
 
-    $FROM �� @c NULL �ʤ�С��ϰϤλϤޤ��õ�����ʤ���$TO �� @c NULL 
-    �ʤ�С��ϰϤν����õ�����ʤ���
+    $FROM が @c NULL ならば、範囲の始まりは探索しない。$TO が @c NULL 
+    ならば、範囲の終りは探索しない。
 
     @return
-    ��������������С�mtext_prop_range () �� $KEY �ץ��ѥƥ����ͤο���
-    �֤��������Ǥʤ����-1 ���֤��� �����ѿ� #merror_code �˥��顼����
-    �ɤ����ꤹ�롣
+    処理が成功すれば、mtext_prop_range () は $KEY プロパティの値の数を
+    返す。そうでなければ-1 を返し、 外部変数 #merror_code にエラーコー
+    ドを設定する。
 
     @latexonly \IPAlabel{mtext_prop_range} @endlatexonly  */
 
@@ -2288,14 +2288,14 @@ mtext_prop_range (MText *mt, MSymbol key, int pos,
     MTextPropertyControl.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ�����������.
+    @brief テキストプロパティを生成する.
 
-    �ؿ� mtext_property () �� $KEY �򥭡���$VAL ���ͤȤ��뿷���������
-    �Ƥ�줿�ƥ����ȥץ��ѥƥ����֤������������ƥ����ȥץ��ѥƥ��Ϥ���
-    �ʤ� M-text �ˤ��ղä���Ƥ��ʤ������ʤ��ʬΥ���� (detached) ���롣
+    関数 mtext_property () は $KEY をキー、$VAL を値とする新しく割り当
+    てられたテキストプロパティを返す。生成したテキストプロパティはいか
+    なる M-text にも付加されていない、すなわち分離して (detached) いる。
 
-    $CONTROL_BITS �� 0 �Ǥ��뤫 @c enum @c MTextPropertyControl ������ 
-    OR �Ǥʤ��ƤϤʤ�ʤ���  */
+    $CONTROL_BITS は 0 であるか @c enum @c MTextPropertyControl の論理 
+    OR でなくてはならない。  */
 
 MTextProperty *
 mtext_property (MSymbol key, void *val, int control_bits)
@@ -2311,11 +2311,11 @@ mtext_property (MSymbol key, void *val, int control_bits)
     NULL is returned.  */
 
 /***ja
-    @brief ����ƥ����ȥץ��ѥƥ������ M-text ���֤�.
+    @brief あるテキストプロパティを持つ M-text を返す.
 
-    �ؿ� mtext_property_mtext () �ϡ��ƥ����ȥץ��ѥƥ�$PROP ���ղä�
-    ��Ƥ��� M-text ���֤������λ����� $PROP ��ʬΥ���Ƥ���� NULL ��
-    �֤���  */
+    関数 mtext_property_mtext () は、テキストプロパティ$PROP が付加さ
+    れている M-text を返す。その時点で $PROP が分離していれば NULL を
+    返す。  */
 
 MText *
 mtext_property_mtext (MTextProperty *prop)
@@ -2330,10 +2330,10 @@ mtext_property_mtext (MTextProperty *prop)
     text property $PROP.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ��Υ������֤�.
+    @brief テキストプロパティのキーを返す.
 
-    �ؿ� mtext_property_key () �ϡ��ƥ����ȥץ��ѥƥ� $PROP �Υ����ʥ�
-    ��ܥ�ˤ��֤���  */
+    関数 mtext_property_key () は、テキストプロパティ $PROP のキー（シ
+    ンボル）を返す。  */
 
 MSymbol
 mtext_property_key (MTextProperty *prop)
@@ -2348,10 +2348,10 @@ mtext_property_key (MTextProperty *prop)
     property $PROP.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ����ͤ��֤�.
+    @brief テキストプロパティの値を返す.
 
-    �ؿ� mtext_property_value () �ϡ��ƥ����ȥץ��ѥƥ� $PROP ���ͤ���
-    ����  */
+    関数 mtext_property_value () は、テキストプロパティ $PROP の値を返
+    す。  */
 
 void *
 mtext_property_value (MTextProperty *prop)
@@ -2368,11 +2368,11 @@ mtext_property_value (MTextProperty *prop)
     -1.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ��γ��ϰ��֤��֤�.
+    @brief テキストプロパティの開始位置を返す.
 
-    �ؿ� mtext_property_start () �ϡ��ƥ����ȥץ��ѥƥ� $PROP �γ��ϰ�
-    �֤��֤������ϰ��֤Ȥ� M-text ��� $PROP ���Ϥޤ�ʸ�����֤Ǥ��롣
-    $PROP ��ʬΥ����Ƥ���С�-1 ���֤���  */
+    関数 mtext_property_start () は、テキストプロパティ $PROP の開始位
+    置を返す。開始位置とは M-text 中で $PROP が始まる文字位置である。
+    $PROP が分離されていれば、-1 を返す。  */
 
 int
 mtext_property_start (MTextProperty *prop)
@@ -2389,11 +2389,11 @@ mtext_property_start (MTextProperty *prop)
     -1.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ��ν�λ���֤��֤�.
+    @brief テキストプロパティの終了位置を返す.
 
-    �ؿ� mtext_property_end () �ϡ��ƥ����ȥץ��ѥƥ� $PROP �ν�λ����
-    ���֤�����λ���֤Ȥ� M-text ��� $PROP ������ʸ�����֤Ǥ��롣$PROP 
-    ��ʬΥ����Ƥ���С�-1 ���֤���  */
+    関数 mtext_property_end () は、テキストプロパティ $PROP の終了位置
+    を返す。終了位置とは M-text 中で $PROP が終る文字位置である。$PROP 
+    が分離されていれば、-1 を返す。  */
 
 int
 mtext_property_end (MTextProperty *prop)
@@ -2417,18 +2417,18 @@ mtext_property_end (MTextProperty *prop)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief ���־�Υƥ����ȥץ��ѥƥ�������.
+    @brief 一番上のテキストプロパティを得る.
 
-    �ؿ� mtext_get_property () �� M-text $MT �ΰ��� $POS ��ʸ��������
-    �� $KEY �Ǥ���ƥ����ȥץ��ѥƥ�����Ĥ��ɤ�����Ĵ�٤롣
+    関数 mtext_get_property () は M-text $MT の位置 $POS の文字がキー
+    が $KEY であるテキストプロパティを持つかどうかを調べる。
 
     @return 
-    �ƥ����ȥץ��ѥƥ������Ĥ���С�mtext_get_property () �Ϥ�����֤���
-    ʣ��������ˤϡ����־�Τ�Τ��֤������Ĥ���ʤ���С������ѿ� 
-    #merror_code ���Ѥ��뤳�Ȥʤ� @c NULL ���֤���
+    テキストプロパティが見つかれば、mtext_get_property () はそれを返す。
+    複数ある場合には、一番上のものを返す。見つからなければ、外部変数 
+    #merror_code を変えることなく @c NULL を返す。
 
-    ���顼�����Ф��줿��� mtext_get_property () �� @c NULL ���֤�����
-    ���ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣    */
+    エラーが検出された場合 mtext_get_property () は @c NULL を返し、外
+    部変数 #merror_code にエラーコードを設定する。    */
 
 MTextProperty *
 mtext_get_property (MText *mt, int pos, MSymbol key)
@@ -2465,19 +2465,19 @@ mtext_get_property (MText *mt, int pos, MSymbol key)
     and assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief ʣ���Υƥ����ȥץ��ѥƥ�������.
+    @brief 複数のテキストプロパティを得る.
 
-    �ؿ� mtext_get_properties () �� M-text $MT �ΰ��� $POS ��ʸ��������
-    �� $KEY �Ǥ���ƥ����ȥץ��ѥƥ�����Ĥ��ɤ�����Ĵ�٤롣���Τ褦��
-    �ץ��ѥƥ����ߤĤ���С�$PROPS ���ؤ������ΰ����¸���롣$NUM ��
-    ��¸�����ץ��ѥƥ��ο��ξ�¤Ǥ��롣
+    関数 mtext_get_properties () は M-text $MT の位置 $POS の文字がキー
+    が $KEY であるテキストプロパティを持つかどうかを調べる。そのような
+    プロパティがみつかれば、$PROPS が指すメモリ領域に保存する。$NUM は
+    保存されるプロパティの数の上限である。
 
     @return 
-    ��������������С�mtext_get_properties () �ϼºݤ���¸�����ץ��ѥƥ�
-    �ο����֤���$POS �ΰ��֤�ʸ���������� $KEY �Ǥ���ץ��ѥƥ������
-    �ʤ���С�0 ���֤롣���顼�����Ф��줿���ˤϡ�
-    mtext_get_properties () �� -1 ���֤��������ѿ� #merror_code �˥��顼
-    �����ɤ����ꤹ�롣  */
+    処理が成功すれば、mtext_get_properties () は実際に保存したプロパティ
+    の数を返す。$POS の位置の文字がキーが $KEY であるプロパティを持た
+    なければ、0 が返る。エラーが検出された場合には、
+    mtext_get_properties () は -1 を返し、外部変数 #merror_code にエラー
+    コードを設定する。  */
 
 int
 mtext_get_properties (MText *mt, int pos, MSymbol key,
@@ -2529,15 +2529,15 @@ mtext_get_properties (MText *mt, int pos, MSymbol key,
     external variable #merror_code.  */
 
 /***ja
-    @brief  M-text�˥ƥ����ȥץ��ѥƥ����ղä���.
+    @brief  M-textにテキストプロパティを付加する.
 
-    �ؿ� mtext_attach_property () �ϡ�M-text $MT �� $FROM ���� $TO ��
-    �Ǥ��ΰ�˥ƥ����ȥץ��ѥƥ� $PROP ���ղä��롣�⤷ $PROP ������
-    M-text ���ղä���Ƥ���С�$MT ���ղä�������ʬΥ����롣
+    関数 mtext_attach_property () は、M-text $MT の $FROM から $TO ま
+    での領域にテキストプロパティ $PROP を付加する。もし $PROP が既に
+    M-text に付加されていれば、$MT に付加する前に分離される。
 
     @return 
-    ��������������С�mtext_attach_property () �� 0 ���֤��������Ǥʤ�
-    ��� -1 ���֤��Ƴ����ѿ�#merror_code �˥��顼�����ɤ����ꤹ�롣      */
+    処理に成功すれば、mtext_attach_property () は 0 を返す。そうでなけ
+    れば -1 を返して外部変数#merror_code にエラーコードを設定する。      */
 
 
 int
@@ -2580,12 +2580,12 @@ mtext_attach_property (MText *mt, int from, int to, MTextProperty *prop)
     This function always returns 0.  */
 
 /***ja
-    @brief  M-text ����ƥ����ȥץ��ѥƥ���ʬΥ����.
+    @brief  M-text からテキストプロパティを分離する.
 
-    �ؿ� mtext_detach_property () �ϥƥ����ȥץ��ѥƥ� $PROP ��ʬΥ���롣
+    関数 mtext_detach_property () はテキストプロパティ $PROP を分離する。
 
     @return
-    ���δؿ��Ͼ�� 0 ���֤���  */
+    この関数は常に 0 を返す。  */
 
 int
 mtext_detach_property (MTextProperty *prop)
@@ -2615,15 +2615,15 @@ mtext_detach_property (MTextProperty *prop)
     external variable #merror_code.  */
 
 /***ja
-    @brief M-text �˥ƥ����ȥץ��ѥƥ���ץå��夹��.
+    @brief M-text にテキストプロパティをプッシュする.
 
-    �ؿ� mtext_push_property () �ϡ��ƥ����ȥץ��ѥƥ� $PROP ��
-    M-text $MT ��� $FROM �ʴޤޤ��ˤ��� $TO �ʴޤޤ�ʤ��ˤ��ϰϤ�
-    ʸ���˥ץå��夹�롣
+    関数 mtext_push_property () は、テキストプロパティ $PROP を、
+    M-text $MT 中の $FROM （含まれる）から $TO （含まれない）の範囲の
+    文字にプッシュする。
 
     @return
-    ��������������С�mtext_push_property () �� 0 ���֤��������Ǥʤ�
-    ��� -1 ���֤��Ƴ����ѿ�#merror_code �˥��顼�����ɤ����ꤹ�롣      */
+    処理に成功すれば、mtext_push_property () は 0 を返す。そうでなけ
+    れば -1 を返して外部変数#merror_code にエラーコードを設定する。      */
 
 
 int
@@ -2727,12 +2727,12 @@ mtext_push_property (MText *mt, int from, int to, MTextProperty *prop)
   */
 
 /***ja
-    @brief ���ꥢ�饤���ؿ�����ꤹ�륷��ܥ�.
+    @brief シリアライザ関数を指定するシンボル.
 
-    �ƥ����ȥץ��ѥƥ��򥷥ꥢ�饤�����뤿��ˤϡ����Υƥ����ȥץ���
-    �ƥ��ѤΥ��ꥢ�饤���ؿ���Ϳ���ʤ��ƤϤʤ�ʤ�������Ū�ˤϡ�
-    #Mtext_prop_serializer �򥭡��Ȥ���Ŭ�ڤʥ��ꥢ�饤���ؿ��ؤΥݥ�
-    �󥿤��ͤȤ��륷��ܥ�ץ��ѥƥ�����ꤹ�롣
+    テキストプロパティをシリアライズするためには、そのテキストプロパ
+    ティ用のシリアライザ関数を与えなくてはならない。具体的には、
+    #Mtext_prop_serializer をキーとし、適切なシリアライズ関数へのポイ
+    ンタを値とするシンボルプロパティを指定する。
 
     @seealso
     mtext_serialize (), #MTextPropSerializeFunc
@@ -2752,12 +2752,12 @@ MSymbol Mtext_prop_serializer;
   */
 
 /***ja
-    @brief �ǥ��ꥢ�饤���ؿ�����ꤹ�륷��ܥ�.
+    @brief デシリアライザ関数を指定するシンボル.
 
-    �ƥ����ȥץ��ѥƥ���ǥ��ꥢ�饤�����뤿��ˤϡ����Υƥ����ȥץ�
-    �ѥƥ��ѤΥǥ��ꥢ�饤���ؿ���Ϳ���ʤ��ƤϤʤ�ʤ�������Ū�ˤϡ�
-    #Mtext_prop_deserializer �򥭡��Ȥ���Ŭ�ڤʥǥ��ꥢ�饤���ؿ��ؤ�
-    �ݥ��󥿤��ͤȤ��륷��ܥ�ץ��ѥƥ�����ꤹ�롣
+    テキストプロパティをデシリアライズするためには、そのテキストプロ
+    パティ用のデシリアライザ関数を与えなくてはならない。具体的には、
+    #Mtext_prop_deserializer をキーとし、適切なデシリアライズ関数への
+    ポインタを値とするシンボルプロパティを指定する。
 
     @seealso
     mtext_deserialize (), #MTextPropSerializeFunc
@@ -2805,20 +2805,20 @@ MSymbol Mtext_prop_deserializer;
     mtext_deserialize (), #Mtext_prop_serializer  */
 
 /***ja
-    @brief M-text ��Υƥ����ȥץ��ѥƥ��򥷥ꥢ�饤������.
+    @brief M-text 中のテキストプロパティをシリアライズする.
 
-    �ؿ� mtext_serialize () �� M-text $MT �� $FROM ���� $TO �ޤǤΥƥ�
-    ���Ȥ򥷥ꥢ�饤�����롣���ꥢ�饤��������̤� XML ������ M-text ��
-    ���롣 $PROPERTY_LIST �ϥ��ꥢ�饤�������ƥ����ȥץ��ѥƥ������
-    ���롣�оݤȤʤ�ƥ����ȥץ��ѥƥ��ϡ����Υ�����
+    関数 mtext_serialize () は M-text $MT の $FROM から $TO までのテキ
+    ストをシリアライズする。シリアライズした結果は XML 形式の M-text で
+    ある。 $PROPERTY_LIST はシリアライズされるテキストプロパティを限定
+    する。対象となるテキストプロパティは、そのキーが
 
-    @li $PROPERTY_LIST �����Ǥ��ͤȤ��Ƹ���졢����
-    @li ����ܥ�ץ��ѥƥ� #Mtext_prop_serializer �����
+    @li $PROPERTY_LIST の要素の値として現われ、かつ
+    @li シンボルプロパティ #Mtext_prop_serializer を持つ
     
-    ��ΤΤߤǤ��롣���ξ����������ƥ����ȥץ��ѥƥ��ϡ���������� 
-    XML ɽ����� "property" ���Ǥ˥��ꥢ�饤������롣
+    もののみである。この条件を満たすテキストプロパティは、生成される 
+    XML 表現中で "property" 要素にシリアライズされる。
 
-    ��������� XML �� DTD �ϰʲ����̤�:
+    生成される XML の DTD は以下の通り:
 
 @verbatim
 <!DOCTYPE mtext [
@@ -2833,13 +2833,13 @@ MSymbol Mtext_prop_deserializer;
  ]>
 @endverbatim
 
-    ���δؿ��� libxml2 �饤�֥��˰�¸���롣m17n �饤�֥�꤬libxml2 
-    ̵�������ꤵ��Ƥ����硢���δؿ��Ͼ�˼��Ԥ��롣
+    この関数は libxml2 ライブラリに依存する。m17n ライブラリがlibxml2 
+    無しに設定されている場合、この関数は常に失敗する。
 
     @return 
-    ��������������С�mtext_serialize () �� XML ������ M-text ���֤���
-    �����Ǥʤ���� @c NULL ���֤��Ƴ����ѿ�#merror_code �˥��顼������
-    �����ꤹ�롣
+    処理に成功すれば、mtext_serialize () は XML 形式で M-text を返す。
+    そうでなければ @c NULL を返して外部変数#merror_code にエラーコード
+    を設定する。
 
     @seealso
     mtext_deserialize (), #Mtext_prop_serializer  */
@@ -2964,10 +2964,10 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
     mtext_serialize (), #Mtext_prop_deserializer  */
 
 /***ja
-    @brief M-text ��Υƥ����ȥץ��ѥƥ���ǥ��ꥢ�饤������.
+    @brief M-text 中のテキストプロパティをデシリアライズする.
 
-    �ؿ� mtext_deserialize () �� M-text $MT ��ǥ��ꥢ�饤�����롣$MT
-    �ϼ��� DTD ����� XML �Ǥʤ��ƤϤʤ�ʤ���
+    関数 mtext_deserialize () は M-text $MT をデシリアライズする。$MT
+    は次の DTD を持つ XML でなくてはならない。
  
 @verbatim
 <!DOCTYPE mtext [
@@ -2982,13 +2982,13 @@ mtext_serialize (MText *mt, int from, int to, MPlist *property_list)
  ]>
 @endverbatim
 
-    ���δؿ��� libxml2 �饤�֥��˰�¸���롣m17n �饤�֥�꤬libxml2 
-    ̵�������ꤵ��Ƥ����硢���δؿ��Ͼ�˼��Ԥ��롣
+    この関数は libxml2 ライブラリに依存する。m17n ライブラリがlibxml2 
+    無しに設定されている場合、この関数は常に失敗する。
 
     @return 
-    ��������������С�mtext_serialize () ������줿 M-text ��
-    �֤��������Ǥʤ���� @c NULL ���֤��Ƴ����ѿ� #merror_code �˥��顼
-    �����ɤ����ꤹ�롣
+    処理に成功すれば、mtext_serialize () は得られた M-text を
+    返す。そうでなければ @c NULL を返して外部変数 #merror_code にエラー
+    コードを設定する。
 
     @seealso
     mtext_serialize (), #Mtext_prop_deserializer  */
@@ -3107,6 +3107,6 @@ mtext_deserialize (MText *mt)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

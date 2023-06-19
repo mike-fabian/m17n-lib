@@ -1,4 +1,4 @@
-/* mdate.c -- Show system date/time in all locales.	-*- coding: euc-jp; -*-
+/* mdate.c -- Show system date/time in all locales.	-*- coding: utf-8; -*-
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -45,27 +45,27 @@
     </ul>
 */
 /***ja
-    @japage m17n-date Æü»ş¤òÉ½¼¨¤¹¤ë
+    @japage m17n-date æ—¥æ™‚ã‚’è¡¨ç¤ºã™ã‚‹
 
-    @section m17n-date-synopsis ¥·¥Î¥×¥·¥¹
+    @section m17n-date-synopsis ã‚·ãƒãƒ—ã‚·ã‚¹
 
     m17n-date [ OPTION ... ]
 
-    @section m17n-date-description ÀâÌÀ
+    @section m17n-date-description èª¬æ˜
 
-    ¥·¥¹¥Æ¥à¤ÎÆü»ş¤ò¤µ¤Ş¤¶¤Ş¤Ê¥í¥±¡¼¥ë¤Ç¥¦¥£¥ó¥É¥¦¤ËÉ½¼¨¤¹¤ë¡£ 
+    ã‚·ã‚¹ãƒ†ãƒ ã®æ—¥æ™‚ã‚’ã•ã¾ã–ã¾ãªãƒ­ã‚±ãƒ¼ãƒ«ã§ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«è¡¨ç¤ºã™ã‚‹ã€‚ 
 
-    °Ê²¼¤Î¥ª¥×¥·¥ç¥ó¤¬ÍøÍÑ¤Ç¤­¤ë¡£ 
+    ä»¥ä¸‹ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒåˆ©ç”¨ã§ãã‚‹ã€‚ 
 
     <ul>
 
     <li> --version
 
-    ¥Ğ¡¼¥¸¥ç¥óÈÖ¹æ¤òÉ½¼¨¤¹¤ë¡£ 
+    ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ã‚’è¡¨ç¤ºã™ã‚‹ã€‚ 
 
     <li> -h, --help
 
-    ¤³¤Î¥á¥Ã¥»¡¼¥¸¤òÉ½¼¨¤¹¤ë¡£
+    ã“ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
 
     </ul>
 */

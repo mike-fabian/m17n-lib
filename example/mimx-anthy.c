@@ -1,4 +1,4 @@
-/* mimx-anthy.c -- Anthy input method external module.	-*- coding: euc-jp; -*-
+/* mimx-anthy.c -- Anthy input method external module.	-*- coding: utf-8; -*-
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -60,41 +60,41 @@
     @ref mdbIM
 */
 /***ja
-    @japage mimx-anthy ���ϥ᥽�å� <ja, anthy> �ѳ����⥸�塼��.
+    @japage mimx-anthy 入力メソッド <ja, anthy> 用外部モジュール.
 
     @section mimx-anthy-description DESCRIPTION
 
-    ��ͭ�饤�֥�� mimx-anthy.so �����ϥ᥽�å�<ja, anthy> ���Ѥ���� 
-    �볰���⥸�塼��Ǥ��ꡢ�ʲ��δؿ��� export ���Ƥ��롣
+    共有ライブラリ mimx-anthy.so は入力メソッド<ja, anthy> に用いられ 
+    る外部モジュールであり、以下の関数を export している。
 
     <ul>
     <li> init
 
-    �⥸�塼��ν������ 
+    モジュールの初期化。 
 
     <li> fini
 
-    �⥸�塼��ν�λ�� 
+    モジュールの終了。 
 
     <li> convert
 
-    ���ߤ� preedit �ƥ����� (�Ҥ餬����) �򤫤ʴ����ƥ����Ȥ��Ѵ����롣 
+    現在の preedit テキスト (ひらがな列) をかな漢字テキストに変換する。 
 
     <li> change
 
-    ���ߤΥ������Ȥθ����������Ͽ���롣 
+    現在のセグメントの候補の変遷を記録する。 
 
     <li> resize
 
-    ���ߤΥ������Ȥ�Ĺ�����ѹ����롣 
+    現在のセグメントの長さを変更する。 
 
     <li> commit
 
-    ���������Ȥκǿ��θ���򥳥ߥåȤ��롣
+    全セグメントの最新の候補をコミットする。
 
     </ul>
 
-    @section mimx-anthy-seealso ����
+    @section mimx-anthy-seealso 参照
     @ref mdbIM
 */
 

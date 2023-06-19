@@ -1,4 +1,4 @@
-/* mdump.c -- Dump text image				-*- coding: euc-jp; -*-
+/* mdump.c -- Dump text image				-*- coding: utf-8; -*-
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -133,7 +133,7 @@
     </ul>
 */
 /***ja
-    @japage m17n-dump �ƥ����Ȳ����Υ����
+    @japage m17n-dump テキスト画像のダンプ
 
     @section m17n-dump-synopsis SYNOPSIS
 
@@ -141,86 +141,86 @@
 
     @section m17n-dump-description DESCRIPTION
 
-    �ƥ����Ȥ� PNG �����Ȥ��ƥ���פ��롣 
+    テキストを PNG 画像としてダンプする。 
 
-    PNG �����ϸ��ߤΥǥ��쥯�ȥ�˺��줿 "BASE.png" �Ȥ���̾���� 
-    �ե�����˽񤭹��ޤ�롣������ BASE ��FILE �� basename �Ǥ��롣 
-    FILE ����ά�����С��ƥ����Ȥ�ɸ�����Ϥ����ɤޤ졢������ 
-    "output.png" �˥���פ���롣
+    PNG 画像は現在のディレクトリに作られた "BASE.png" という名前の 
+    ファイルに書き込まれる。ここで BASE はFILE の basename である。 
+    FILE が省略されれば、テキストは標準入力から読まれ、画像は 
+    "output.png" にダンプされる。
 
-    �ʲ��Υ��ץ�������ѤǤ��롣
+    以下のオプションが利用できる。
 
     <ul>
 
     <li> -s SIZE
 
-    SIZE �ϥե���Ȥ��礭����ݥ����ñ�̤Ǽ�������ΤǤ��롣�ǥե���
-    �Ȥ��礭���� 12 �ݥ���ȡ�
+    SIZE はフォントの大きさをポイント単位で示したものである。デフォル
+    トの大きさは 12 ポイント。
 
     <li> -d DPI
 
-    DPI �ϲ����٤򣱥����������Υɥå�ñ�̤Ǽ�������ΤǤ��롣�ǥե� 
-    ��Ȥβ����٤� 300 dpi��
+    DPI は解像度を１インチあたりのドット単位で示したものである。デフォ 
+    ルトの解像度は 300 dpi。
 
     <li> -p PAPER
 
-    PAPER �Ϥڡ��ѥ����� : a4, a4r, a5, a5r, b5, b5r, letter, WxH �ޤ�
-    �� W�� WxH �ξ�硢 W �� H �����ȹ⤵��ߥ�᡼��ñ�̤Ǽ�������Ρ�
-    W �ξ�硢 W ������ߥ�᡼��ñ�̤Ǽ�������Ρ����Υ��ץ���󤬻���
-    ����Ƥ�����ϡ� PAPER �����������������¤� �롣FILE �� 1 �ڡ���
-    ��Ǽ�ޤ�ʤ��ۤ��礭�����ϡ�"BASE.01.png", "BASE.02.png" ����̾��
-    �ΤĤ���ʣ���Υե����뤬����롣
+    PAPER はぺーパサイズ : a4, a4r, a5, a5r, b5, b5r, letter, WxH また
+    は W。 WxH の場合、 W と H は幅と高さをミリメータ単位で示したもの。
+    W の場合、 W は幅をミリメータ単位で示したもの。このオプションが指定
+    されている場合は、 PAPER が画像サイズを制限す る。FILE が 1 ページ
+    に納まらないほど大きい場合は、"BASE.01.png", "BASE.02.png" 等の名前
+    のついた複数のファイルが作られる。
 
     <li> -m MARGIN
 
-    MARGIN �Ͽ�ʿ����ľ�ޡ������ߥ�᡼��ñ�̤Ǽ�������ΤǤ��롣�� 
-    �ե���ȤΥޡ������ 20 mm��PAPER �����ꤵ��Ƥ��ʤ����̵�뤵��롣
+    MARGIN は水平、垂直マージンをミリメータ単位で示したものである。デ 
+    フォルトのマージンは 20 mm。PAPER が指定されていなければ無視される。
 
     <li> -c POS
 
-    POS �ϥ��������ʸ�����֡��ǥե���ȤǤϡ����������������ʤ���
+    POS はカーソルの文字位置。デフォルトでは、カーソルは描かれない。
 
     <li> -x
 
-    FILE �� m17n �饤�֥��Υ��ꥢ�饤����ǽ�ˤ�äƺ��줿 XML �ե� 
-    ����Ǥ��ꡢ�����������������˥ǥ��ꥢ�饤������롣
+    FILE は m17n ライブラリのシリアライズ機能によって作られた XML ファ 
+    イルであり、画像を生成する前にデシリアライズされる。
 
     <li> -w
 
-    ��ζ����ǲ��Ԥ��롣 
+    語の境界で改行する。 
 
     <li> -f FILTER
 
-    FILTER �ϥ����륳�ޥ�ɹԤ�ޤ�ʸ����Ǥ��롣���Υ��ץ���󤬻���
-    ����Ƥ���С�PNG �����ϥե�����˽񤫤��ΤǤϤʤ���FILTER �� 
-    ɸ�����ϤȤ����Ϥ���롣 FILTER �� "%s" ��ޤ�Ǥ���С������ FILE 
-    �Υ١����͡�����֤��������롣���Υץ������Υǥե���Ȥο���
-    �ȡ�FILTER �� "cat > %s.png" ����ꤷ�����ο����Ʊ��Ǥ��롣
+    FILTER はシェルコマンド行を含む文字列である。このオプションが指定
+    されていれば、PNG 画像はファイルに書かれるのではなく、FILTER に 
+    標準入力として渡される。 FILTER が "%s" を含んでいれば、それは FILE 
+    のベースネームに置き換えられる。このプログラムのデフォルトの振舞い
+    と、FILTER に "cat > %s.png" を指定した場合の振舞は同一である。
 
-    �⤷ FILTER ��ñ�� "-" �Ǥ���С� PNG ������ stdout �˽��Ϥ���롣
+    もし FILTER が単に "-" であれば、 PNG 画像は stdout に出力される。
 
     <li> -a
 
-    ����������ꥢ��������Ԥ���
+    アンチエイリアス処理を行う。
 
     <li> --family FAMILY
 
-    �ե��ߥꥣ̾�� FAMILY �Υե���Ȥ�ͥ��Ū�˻Ȥ���
+    ファミリィ名が FAMILY のフォントを優先的に使う。
 
     <li> --language LANG
 
-    ���� LANG �Ѥ˻��ꤵ�줿�ե���Ȥ�ͥ��Ū�˻Ȥ���LANG �� ISO 630 ��
-    ��ʸ�������ɡ��㡧�Ѹ�� "en" �ˤǤʤ���Фʤ�ʤ���
+    言語 LANG 用に指定されたフォントを優先的に使う。LANG は ISO 630 の
+    ２文字コード（例：英語は "en" ）でなければならない。
 
     <li> -fg FOREGROUND
 
-    �ƥ����Ȥο�����ꤹ�롣HTML 4.0 �ο���̾������� "#RRGGBB" ��ˡ��
-    ���ݡ��ȡ�
+    テキストの色を指定する。HTML 4.0 の色の名前および "#RRGGBB" 記法を
+    サポート。
 
     <li> -bg BACKGROUND
 
-    �طʤο�����ꤹ�롣���ݡ��Ȥ���Ƥ��뿧��̾���� FOREGROUND Ʊ����
-    ���������⤷ "transparent" �����ꤵ�줿���طʤ�Ʃ���ˤ��롣
+    背景の色を指定する。サポートされている色の名前は FOREGROUND 同じ。
+    ただし、もし "transparent" が指定されたら背景を透明にする。
 
     <li> -r
 
@@ -228,15 +228,15 @@
 
     <li> -q
 
-    ���ڤΥ�å�������ɽ�����ʤ��� 
+    一切のメッセージを表示しない。 
 
     <li> --version
 
-    �С�������ֹ��ɽ�����롣
+    バージョン番号を表示する。
 
     <li> -h, --help
 
-    ���Υ�å�������ɽ�����롣 
+    このメッセージを表示する。 
 
     </ul>
 */

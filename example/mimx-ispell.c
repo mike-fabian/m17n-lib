@@ -1,4 +1,4 @@
-/* mimx-ispell.c -- Ispell input method external module. -*- coding: euc-jp; -*-
+/* mimx-ispell.c -- Ispell input method external module. -*- coding: utf-8; -*-
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -51,33 +51,33 @@
     @ref mdbIM
 */
 /***ja
-    @japage mimx-ispell ���ϥ᥽�å� <en, ispell> �ѳ����⥸�塼��
+    @japage mimx-ispell 入力メソッド <en, ispell> 用外部モジュール
 
     @section mimx-ispell-description DESCRIPTION
 
-    ��ͭ�饤�֥�� mimx-ispell.so �����ϥ᥽�å� <en, ispell> ���Ѥ��� 
-    ��볰���⥸�塼��Ǥ��ꡢ�ʲ��δؿ��� export ���Ƥ��롣
+    共有ライブラリ mimx-ispell.so は入力メソッド <en, ispell> に用いら 
+    れる外部モジュールであり、以下の関数を export している。
 
     <ul>
     <li> init
 
-    �饤�֥��ν������
+    ライブラリの初期化。
 
     <li> fini
 
-    �饤�֥��ν�λ�� 
+    ライブラリの終了。 
 
     <li> ispell_word
 
-    ���ߤ� preedit �ƥ����� (��ʸ) ���֤�Ĵ�١��ְ�äƤ���и���Υ� 
-    ���Ȥ��֤���
+    現在の preedit テキスト (英文) の綴を調べ、間違っていれば候補のリ 
+    ストを返す。
 
     </ul>
 
-    ���Υץ�������m17n ���ϥ᥽�å��ѳ����⥸�塼��ν����򼨤��� 
-    ��Τ�ΤǤ��ꡢ�ºݤ����Ѥ�տޤ�����ΤǤϤʤ���
+    このプログラムはm17n 入力メソッド用外部モジュールの書き方を示すた 
+    めのものであり、実際の利用を意図したものではない。
 
-    @section mimx-ispell-seealso ����
+    @section mimx-ispell-seealso 参照
     @ref mdbIM
 */
 

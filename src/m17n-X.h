@@ -46,39 +46,39 @@ extern MSymbol Mxim;
     input method of name #Mxim.  */
 
 /***ja
-    @brief ´Ø¿ô minput_open_im () ¤Î°ú¿ô $ARG ¤Ë¤è¤Ã¤Æ»Ø¤µ¤ì¤ë¹½Â¤ÂÎ.
+    @brief é–¢æ•° minput_open_im () ã®å¼•æ•° $ARG ã«ã‚ˆã£ã¦æŒ‡ã•ã‚Œã‚‹æ§‹é€ ä½“.
 
-    #MInputXIMArgIM ·¿¤Ï¡¢´Ø¿ô minput_open_im () ¤¬Ì¾Á° #Mxim 
-    ¤ò»ı¤Ä³°ÉôÆşÎÏ¥á¥½¥Ã¥É¤òÀ¸À®¤¹¤ëºİ¤Ë°ú¿ô $ARG ¤Ë¤è¤Ã¤Æ»Ø¤µ¤ì¤ë¹½Â¤ÂÎ¤Ç¤¢¤ë¡£  */
+    #MInputXIMArgIM å‹ã¯ã€é–¢æ•° minput_open_im () ãŒåå‰ #Mxim 
+    ã‚’æŒã¤å¤–éƒ¨å…¥åŠ›ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç”Ÿæˆã™ã‚‹éš›ã«å¼•æ•° $ARG ã«ã‚ˆã£ã¦æŒ‡ã•ã‚Œã‚‹æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚  */
 
 typedef struct
 {
   /***en The meaning of the following four members are the same as
       arguments to XOpenIM ().  */
-  /***ja °Ê²¼¤Î£´¤Ä¤Î¥á¥ó¥Ğ¤Î°ÕÌ£¤Ï¡¢XOpenIM () ¤Î°ú¿ô¤Î°ÕÌ£¤ÈÆ±¤¸¤Ç¤¢¤ë.  */
+  /***ja ä»¥ä¸‹ã®ï¼”ã¤ã®ãƒ¡ãƒ³ãƒã®æ„å‘³ã¯ã€XOpenIM () ã®å¼•æ•°ã®æ„å‘³ã¨åŒã˜ã§ã‚ã‚‹.  */
 
   /***en Display of the client.  */
-  /***ja ¥¯¥é¥¤¥¢¥ó¥È¤Î¥Ç¥£¥¹¥×¥ì¥¤.  */
+  /***ja ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ãƒ‡ã‚£ã‚¹ãƒ—ãƒ¬ã‚¤.  */
   Display *display;
 
   /***en Pointer to the X resource database.  */
-  /***ja X ¥ê¥½¡¼¥¹¡¦¥Ç¡¼¥¿¥Ù¡¼¥¹¤Ø¤Î¥İ¥¤¥ó¥¿.  */
+  /***ja X ãƒªã‚½ãƒ¼ã‚¹ãƒ»ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã¸ã®ãƒã‚¤ãƒ³ã‚¿.  */
   XrmDatabase db;
 
   /***en Full class name of the application.  */
-  /***ja ¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¤Î´°Á´¤Ê¥¯¥é¥¹Ì¾.  */
+  /***ja ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®å®Œå…¨ãªã‚¯ãƒ©ã‚¹å.  */
   char *res_class;
 
   /***en Full resource name of the application.  */
-  /***ja ¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¤Î´°Á´¤Ê¥ê¥½¡¼¥¹Ì¾.  */
+  /***ja ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®å®Œå…¨ãªãƒªã‚½ãƒ¼ã‚¹å.  */
   char *res_name;
 
   /***en Locale name under which an XIM is opened.  */
-  /***ja XIM¤¬¥ª¡¼¥×¥ó¤µ¤ì¤¿¥í¥±¡¼¥ëÌ¾.  */
+  /***ja XIMãŒã‚ªãƒ¼ãƒ—ãƒ³ã•ã‚ŒãŸãƒ­ã‚±ãƒ¼ãƒ«å.  */
   char *locale;
 
   /***en Arguments to XSetLocaleModifiers ().  */
-  /***ja XSetLocaleModifiers () ¤Î°ú¿ô.  */
+  /***ja XSetLocaleModifiers () ã®å¼•æ•°.  */
   char *modifier_list;
 } MInputXIMArgIM;
 
@@ -93,10 +93,10 @@ typedef struct
     input method of name #Mxim.  */
 
 /***ja
-    @brief ´Ø¿ô minput_create_ic () ¤Î°ú¿ô $ARG ¤Ë¤è¤Ã¤Æ»Ø¤µ¤ì¤ë¹½Â¤ÂÎ.
+    @brief é–¢æ•° minput_create_ic () ã®å¼•æ•° $ARG ã«ã‚ˆã£ã¦æŒ‡ã•ã‚Œã‚‹æ§‹é€ ä½“.
 
-    #MInputXIMArgIC ·¿¤Ï¡¢´Ø¿ô minput_create_ic () ¤¬Ì¾Á° #Mxim 
-    ¤ò»ı¤Ä³°ÉôÆşÎÏ¥á¥½¥Ã¥ÉÍÑ¤Ë¸Æ¤Ğ¤ì¤ëºİ¤Ë¡¢°ú¿ô $ARG ¤Ë¤è¤Ã¤Æ»Ø¤µ¤ì¤ë¹½Â¤ÂÎ¤Ç¤¢¤ë¡£ */
+    #MInputXIMArgIC å‹ã¯ã€é–¢æ•° minput_create_ic () ãŒåå‰ #Mxim 
+    ã‚’æŒã¤å¤–éƒ¨å…¥åŠ›ãƒ¡ã‚½ãƒƒãƒ‰ç”¨ã«å‘¼ã°ã‚Œã‚‹éš›ã«ã€å¼•æ•° $ARG ã«ã‚ˆã£ã¦æŒ‡ã•ã‚Œã‚‹æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚ */
 
 typedef struct
 {
@@ -104,30 +104,30 @@ typedef struct
       XNInputStyle.  If this is zero, ( @c XIMPreeditNothing | @c
       XIMStatusNothing) is used, and \<preedit_attrs\> and
       \<status_attrs\> are set to @c NULL.  */
-  /***ja @c XCreateIC ¤Î @c XNInputStyle ¤ËÂ³¤¯°ú¿ô¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£
-      ¥¼¥í¤Ê¤é¤Ğ¡¢ ( @c XIMPreeditNothing | @c XIMStatusNothing) ¤¬ÍÑ
-      ¤¤¤é¤ì¡¢ \<preedit_attrs\> ¤È \<status_attrs\> ¤Ï @c NULL 
-      ¤ËÀßÄê¤µ¤ì¤ë¡£ */
+  /***ja @c XCreateIC ã® @c XNInputStyle ã«ç¶šãå¼•æ•°ã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚
+      ã‚¼ãƒ­ãªã‚‰ã°ã€ ( @c XIMPreeditNothing | @c XIMStatusNothing) ãŒç”¨
+      ã„ã‚‰ã‚Œã€ \<preedit_attrs\> ã¨ \<status_attrs\> ã¯ @c NULL 
+      ã«è¨­å®šã•ã‚Œã‚‹ã€‚ */
 
   XIMStyle input_style;
   /***en Used as the argument of @c XCreateIC following @c XNClientWindow.  */
-  /***ja @c XCreateIC ¤Î @c XNClientWindow ¤ËÂ³¤¯°ú¿ô¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£  */
+  /***ja @c XCreateIC ã® @c XNClientWindow ã«ç¶šãå¼•æ•°ã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚  */
 
   Window client_win;
   /***en Used as the argument of @c XCreateIC following @c XNFocusWindow.  */
-  /***ja @c XCreateIC ¤Î @c XNFocusWindow ¤ËÂ³¤¯°ú¿ô¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£  */
+  /***ja @c XCreateIC ã® @c XNFocusWindow ã«ç¶šãå¼•æ•°ã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚  */
 
   Window focus_win;
   /***en If non- @c NULL, used as the argument of @c XCreateIC following
       @c XNPreeditAttributes.  */
-  /***ja @c NULL ¤Ç¤Ê¤±¤ì¤Ğ¡¢ @c XCreateIC following ¤Î@c
-      XNPreeditAttributes ¤ËÂ³¤¯°ú¿ô¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£  */
+  /***ja @c NULL ã§ãªã‘ã‚Œã°ã€ @c XCreateIC following ã®@c
+      XNPreeditAttributes ã«ç¶šãå¼•æ•°ã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚  */
 
   XVaNestedList preedit_attrs;
   /***en If non- @c NULL, used as the argument of @c XCreateIC following
       @c XNStatusAttributes.  */ 
-  /***ja @c NULL ¤Ç¤Ê¤±¤ì¤Ğ¡¢ @c XCreateIC following ¤Î @c
-      XNStatusAttributes ¤ËÂ³¤¯°ú¿ô¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£  */
+  /***ja @c NULL ã§ãªã‘ã‚Œã°ã€ @c XCreateIC following ã® @c
+      XNStatusAttributes ã«ç¶šãå¼•æ•°ã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚  */
 
   XVaNestedList status_attrs;
 } MInputXIMArgIC;
@@ -141,6 +141,6 @@ typedef struct
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

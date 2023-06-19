@@ -42,21 +42,21 @@
 
 /***ja
     @addtogroup m17nCharacter
-    @brief ʸ�����֥������ȤȤ���˴ؤ��� API.
+    @brief 文字オブジェクトとそれに関する API.
 
-    m17n �饤�֥��� @e ʸ�� ��ʸ�������ɡ������ˤ�ɽ�����롣
-    �Ǿ���ʸ�������ɤ� @c 0 �Ǥ��ꡢ�����ʸ�������ɤϥޥ��� #MCHAR_MAX 
-    �ˤ�ä��������Ƥ��롣#MCHAR_MAX �� @c 0x3FFFFF��22�ӥåȡ�
-    �ʾ�Ǥ��뤳�Ȥ��ݾڤ���Ƥ��롣
+    m17n ライブラリは @e 文字 を文字コード（整数）で表現する。
+    最小の文字コードは @c 0 であり、最大の文字コードはマクロ #MCHAR_MAX 
+    によって定義されている。#MCHAR_MAX は @c 0x3FFFFF（22ビット）
+    以上であることが保証されている。
 
-    @c 0 ���� @c 0x10FFFF �ޤǤ�ʸ���ϡ������Ʊ���ͤ���� Unicode 
-    ��ʸ���˳�����Ƥ��Ƥ��롣
+    @c 0 から @c 0x10FFFF までの文字は、それと同じ値を持つ Unicode 
+    の文字に割り当てられている。
 
-    ��ʸ���� @e ʸ���ץ��ѥƥ� �ȸƤ֥ץ��ѥƥ��� 0 �İʾ���Ĥ��Ȥ��Ǥ��롣
-    ʸ���ץ��ѥƥ��� @e ���� �� @e �� ����ʤ롣
-    �����ϥ���ܥ�Ǥ��ꡢ�ͤ� <tt>(void *)</tt> ���˥��㥹�ȤǤ����Τʤ鲿�Ǥ�褤�� 
-    ��ʸ�� C ��ʸ���ץ��ѥƥ��Τ��������� K �Ǥ����Ρפ��ñ�ˡ�ʸ�� C 
-    �� K �ץ��ѥƥ��פȸƤ֤��Ȥ����롣  */
+    各文字は @e 文字プロパティ と呼ぶプロパティを 0 個以上持つことができる。
+    文字プロパティは @e キー と @e 値 からなる。
+    キーはシンボルであり、値は <tt>(void *)</tt> 型にキャストできるものなら何でもよい。 
+    「文字 C の文字プロパティのうちキーが K であるもの」を簡単に「文字 C 
+    の K プロパティ」と呼ぶことがある。  */
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -186,9 +186,9 @@ mchar__define_prop (MSymbol key, MSymbol type, void *mdb)
     The macro #MCHAR_MAX gives the maximum character code.  */
 
 /***ja
-    @brief ʸ�������ɤκ�����.
+    @brief 文字コードの最大値.
 
-    �ޥ��� #MCHAR_MAX ��ʸ�������ɤκ����ͤ�ɽ����  */
+    マクロ #MCHAR_MAX は文字コードの最大値を表す。  */
 
 #define MCHAR_MAX
 /*=*/
@@ -201,9 +201,9 @@ mchar__define_prop (MSymbol key, MSymbol type, void *mdb)
 
 /***ja
     @ingroup m17nCharacter
-    @name �ѿ�: ʸ���ץ��ѥƥ��Υ���
+    @name 変数: 文字プロパティのキー
 
-    �����Υ���ܥ��ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣*/
+    これらのシンボルは文字プロパティのキーとして使われる。*/
 
 /*=*/
 /*** @{ */
@@ -219,14 +219,14 @@ mchar__define_prop (MSymbol key, MSymbol type, void *mdb)
     the <em>Unicode Technical Report #24</em>.  */
 
 /***ja
-    @brief ������ץȤ�ɽ�魯����.
+    @brief スクリプトを表わすキー.
 
-    ����ܥ� #Mscript �� <tt>"script"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ�����ʸ����°���륹����ץȤ�ɽ�魯����ܥ�Ǥ��롣
+    シンボル #Mscript は <tt>"script"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、この文字の属するスクリプトを表わすシンボルである。
 
-    ������ץȤ�ɽ�魯����ܥ��̾���ϡ�<em>Unicode Technical Report
-    #24</em> �˥ꥹ�Ȥ���Ƥ����ΤΤ����줫�Ǥ��롣  */
+    スクリプトを表わすシンボルの名前は、<em>Unicode Technical Report
+    #24</em> にリストされているもののいずれかである。  */
 
 MSymbol Mscript;
 
@@ -240,11 +240,11 @@ MSymbol Mscript;
     C-string representing the name of the character.  */
 
 /***ja
-    @brief ̾����ɽ�魯����.
+    @brief 名前を表わすキー.
 
-    ����ܥ� #Mname �� <tt>"name"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϤ���ʸ����̾����ɽ�魯 C ��ʸ����Ǥ��롣  */
+    シンボル #Mname は <tt>"name"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値はその文字の名前を表わす C の文字列である。  */
 
 MSymbol Mname;
 
@@ -263,14 +263,14 @@ MSymbol Mname;
     Unicode.  */
 
 /***ja
-    @brief ���̥��ƥ����ɽ�魯����.
+    @brief 一般カテゴリを表わすキー.
 
-    ����ܥ� #Mcategory �� <tt>"category"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ��б����� <em>���̥��ƥ���</em> ��ɽ�魯����ܥ�Ǥ��롣
+    シンボル #Mcategory は <tt>"category"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する <em>一般カテゴリ</em> を表わすシンボルである。
 
-    ���̥��ƥ����ɽ�魯����ܥ��̾���ϡ�<em>General Category</em> 
-    �ξ�ά���Ȥ��� Unicode ���������Ƥ����ΤǤ��롣  */
+    一般カテゴリを表わすシンボルの名前は、<em>General Category</em> 
+    の省略形として Unicode に定義されているものである。  */
 
 MSymbol Mcategory;
 
@@ -288,14 +288,14 @@ MSymbol Mcategory;
     class is identical to the one defined in Unicode.  */
 
 /***ja
-    @brief ɸ���祯�饹��ɽ�魯����.
+    @brief 標準結合クラスを表わすキー.
 
-    ����ܥ� #Mcombining_class �� <tt>"combining-class"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ��б����� @e ɸ���祯�饹 ��ɽ�魯�����Ǥ��롣
+    シンボル #Mcombining_class は <tt>"combining-class"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する @e 標準結合クラス を表わす整数である。
 
-    ɸ���祯�饹��ɽ�魯�����ΰ�̣�ϡ�Unicode 
-    ���������Ƥ����Τ�Ʊ���Ǥ��롣  */
+    標準結合クラスを表わす整数の意味は、Unicode 
+    に定義されているものと同じである。  */
 
 MSymbol Mcombining_class;
 /*=*/
@@ -313,14 +313,14 @@ MSymbol Mcombining_class;
     Unicode.  */
 
 /***ja
-    @brief ���������ƥ����ɽ�魯����.
+    @brief 双方向カテゴリを表わすキー.
 
-    ����ܥ� #Mbidi_category �� <tt>"bidi-category"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ��б����� @e ���������ƥ��� ��ɽ�魯����ܥ�Ǥ��롣
+    シンボル #Mbidi_category は <tt>"bidi-category"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する @e 双方向カテゴリ を表わすシンボルである。
 
-    ���������ƥ����ɽ�魯����ܥ��̾���ϡ�<em>Bidirectional
-    Category</em> �η��Ȥ��� Unicode ���������Ƥ����ΤǤ��롣  */
+    双方向カテゴリを表わすシンボルの名前は、<em>Bidirectional
+    Category</em> の型として Unicode に定義されているものである。  */
 
 MSymbol Mbidi_category;
 /*=*/
@@ -340,16 +340,16 @@ MSymbol Mbidi_category;
     another property whose key is #Mcomplicated_case_folding.  */
 
 /***ja
-    @brief �б����뾮ʸ����ʸ����ɽ�魯����.
+    @brief 対応する小文字一文字を表わすキー.
 
-    ����ܥ� #Msimple_case_folding �� <tt>"simple-case-folding"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ��б����뾮ʸ����ʸ���Ǥ��ꡢ��ʸ������ʸ���ζ��̤�̵�뤷��ʸ������Ӥκݤ˻Ȥ��롣
+    シンボル #Msimple_case_folding は <tt>"simple-case-folding"</tt> 
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する小文字一文字であり、大文字／小文字の区別を無視した文字列比較の際に使われる。
 
-    ʣ���������ˡ��ɬ�פȤ���ʸ���Ǥ��ä����
-    ���̤ΰ�ʸ�����б��դ��뤳�Ȥˤ�ä���ӤǤ��ʤ����ˡ����Υץ��ѥƥ����ͤ� 
-    @c 0xFFFF �ˤʤ롣���ξ�礽��ʸ���ϡ�#Mcomplicated_case_folding
-    �Ȥ���������ʸ���ץ��ѥƥ�����ġ�  */
+    複雑な比較方法を必要とする文字であった場合
+    （別の一文字と対応付けることによって比較できない場合）、このプロパティの値は 
+    @c 0xFFFF になる。この場合その文字は、#Mcomplicated_case_folding
+    というキーの文字プロパティを持つ。  */
 
 MSymbol Msimple_case_folding;
 /*=*/
@@ -364,13 +364,13 @@ MSymbol Msimple_case_folding;
     characters to be used for comparing M-texts ignoring case.  */
 
 /***ja
-    @brief �б����뾮ʸ�������ɽ�魯����.
+    @brief 対応する小文字の列を表わすキー.
 
-    ����ܥ� #Mcomplicated_case_folding �� 
+    シンボル #Mcomplicated_case_folding は 
     <tt>"complicated-case-folding"</tt> 
-    �Ȥ���̾���������ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣
-    ���Υץ��ѥƥ����ͤϡ��б����뾮ʸ���󤫤�ʤ� M-text �Ǥ��ꡢ��ʸ������ʸ���ζ��̤�̵�뤷��ʸ������Ӥκݤ˻�
-    ���롣
+    という名前を持ち、文字プロパティのキーとして使われる。
+    このプロパティの値は、対応する小文字列からなる M-text であり、大文字／小文字の区別を無視した文字列比較の際に使
+    われる。
       */
 
 MSymbol Mcomplicated_case_folding;
@@ -387,13 +387,13 @@ MSymbol Mcomplicated_case_folding;
  */
 
 /***ja
-    @brief Case �������Ѥ������ͤΥ���.
+    @brief Case 処理に用いられる値のキー.
 
-    ����ܥ� #Mcased �ϡ�<tt>"cased"</tt> �Ȥ���̾���������ʸ���ץ���
-    �ƥ��Υ����Ȥ��ƻȤ��롣���Υץ��ѥƥ����ͤ������� 1, 2, 3 �Τ���
-    �줫�Ǥ��ꡢ���줾�� "cased", "case-ignorable", ����ξ�����̣���롣
-    �ܺ٤ˤĤ��Ƥϡ�the Unicode Standard 5.0 (Section 3.13 Default
-    Case Algorithm) ���ȡ�
+    シンボル #Mcased は、<tt>"cased"</tt> という名前を持ち、文字プロパ
+    ティのキーとして使われる。このプロパティの値は整数値 1, 2, 3 のいず
+    れかであり、それぞれ "cased", "case-ignorable", その両方を意味する。
+    詳細については、the Unicode Standard 5.0 (Section 3.13 Default
+    Case Algorithm) 参照。
  */
 MSymbol Mcased;
 
@@ -408,13 +408,13 @@ MSymbol Mcased;
     Default Case Algorithm) for the detail.  */
 
 /***ja
-    @brief Case �������Ѥ������ͤΥ���.
+    @brief Case 処理に用いられる値のキー.
 
-    ����ܥ� #Msoft_dotted �ϡ�<tt>"soft-dotted"</tt> �Ȥ���̾���������
-    ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣���Υץ��ѥƥ����ͤϡ�ʸ����
-    "Soft_Dotted"�ץ��ѥƥ�����ľ��ˤ� #Mt, �����Ǥʤ���� #Mnil ��
-    ���롣 �ܺ٤ˤĤ��Ƥϡ�the Unicode Standard 5.0 (Section 3.13
-    Default Case Algorithm) ���ȡ�
+    シンボル #Msoft_dotted は、<tt>"soft-dotted"</tt> という名前を持ち、
+    文字プロパティのキーとして使われる。このプロパティの値は、文字が
+    "Soft_Dotted"プロパティを持つ場合には #Mt, そうでなければ #Mnil で
+    ある。 詳細については、the Unicode Standard 5.0 (Section 3.13
+    Default Case Algorithm) 参照。
  */
 MSymbol Msoft_dotted;
 
@@ -429,13 +429,13 @@ MSymbol Msoft_dotted;
     (Section 5.18 Case Mappings) for the detail.  */
 
 /***ja
-    @brief Case �������Ѥ������ͤΥ���.
+    @brief Case 処理に用いられる値のキー.
 
-    ����ܥ� #Mcase_mapping �ϡ�<tt>"case-mapping"</tt> �Ȥ���̾�����
-    ����ʸ���ץ��ѥƥ��Υ����Ȥ��ƻȤ��롣���Υץ��ѥƥ����ͤϡ�����
-    �� M-text�����ʤ������ʸ���� lower, title, �� upper����ʤ� plist
-    �Ǥ��롣 �ܺ٤ˤĤ��Ƥϡ�the Unicode Standard 5.0 (Section 3.13
-    Default Case Algorithm) ���ȡ�
+    シンボル #Mcase_mapping は、<tt>"case-mapping"</tt> という名前をも
+    ち、文字プロパティのキーとして使われる。このプロパティの値は、３つ
+    の M-text、すなわちその文字の lower, title, と upperからなる plist
+    である。 詳細については、the Unicode Standard 5.0 (Section 3.13
+    Default Case Algorithm) 参照。
 */
 MSymbol Mcase_mapping;
 
@@ -448,11 +448,11 @@ MSymbol Mcase_mapping;
     symbol representing a script block of the corresponding
     character.  */
 /***ja
-    @brief ������ץȥ֥��å�̾��ɽ������.
+    @brief スクリプトブロック名を表すキー.
 
-    ����ܥ� #Mblock �ϡ�<tt>"block"</tt> �Ȥ���̾��������ʸ���ץ���
-    �ƥ��Υ����Ȥ��ƻȤ��롣���Υץ��ѥƥ����ͤϡ�����ʸ���Υ������
-    �ȥ֥��å�̾��ɽ������ܥ�Ǥ��롣*/
+    シンボル #Mblock は、<tt>"block"</tt> という名前をもち、文字プロパ
+    ティのキーとして使われる。このプロパティの値は、その文字のスクリプ
+    トブロック名を表すシンボルである。*/
 MSymbol Mblock;
 
 /*** @} */
@@ -471,16 +471,16 @@ MSymbol Mblock;
     $SYM.  Otherwise it returns #Mnil.  */
 
 /***ja
-    @brief ʸ���ץ��ѥƥ����������.
+    @brief 文字プロパティを定義する.
 
-    �ؿ� mchar_define_property () �ϡ� \<#Mchar_table, $TYPE, $SYM \>
-    �Ȥ�����������ä��ǡ����١����� m17n �������١�������õ����  
-    ������ $SYM �� $NAME �Ȥ���̾���Υ���ܥ�Ǥ��롣$TYPE ��#Mstring,
-    #Mtext, #Msymbol, #Minteger, #Mplist �Τ����줫�Ǥʤ���Фʤ�ʤ���
+    関数 mchar_define_property () は、 \<#Mchar_table, $TYPE, $SYM \>
+    というタグを持ったデータベースを m17n 言語情報ベースから探す。  
+    ここで $SYM は $NAME という名前のシンボルである。$TYPE は#Mstring,
+    #Mtext, #Msymbol, #Minteger, #Mplist のいずれかでなければならない。
 
     @return
-    ��������������� mchar_define_property () ��$SYM ���֤���
-    ���Ԥ������� #Mnil ���֤���  */
+    処理に成功すれば mchar_define_property () は$SYM を返す。
+    失敗した場合は #Mnil を返す。  */
 
 /***
     @errors
@@ -516,14 +516,14 @@ mchar_define_property (const char *name, MSymbol type)
     NULL.  */
 
 /***ja
-    @brief ʸ���ץ��ѥƥ����ͤ�����.
+    @brief 文字プロパティの値を得る.
 
-    �ؿ� mchar_get_prop () �ϡ�ʸ�� $C ��ʸ���ץ��ѥƥ��Τ��������� 
-    $KEY �Ǥ����Τ�õ����
+    関数 mchar_get_prop () は、文字 $C の文字プロパティのうちキーが 
+    $KEY であるものを探す。
 
     @return
-    ��������������� mchar_get_prop () �ϸ��Ĥ��ä��ץ��ѥƥ����ͤ��֤���
-    ���Ԥ������� @c NULL ���֤���
+    処理が成功すれば mchar_get_prop () は見つかったプロパティの値を返す。
+    失敗した場合は @c NULL を返す。
 
     @latexonly \IPAlabel{mchar_get_prop} @endlatexonly
 */
@@ -567,13 +567,13 @@ mchar_get_prop (int c, MSymbol key)
     If the operation was successful, mchar_put_prop () returns 0.
     Otherwise, it returns -1.  */
 /***ja
-    @brief ʸ���ץ��ѥƥ����ͤ����ꤹ��.
+    @brief 文字プロパティの値を設定する.
 
-    �ؿ� mchar_put_prop () �ϡ�ʸ�� $C ��ʸ���ץ��ѥƥ��Τ��������� $KEY 
-    �Ǥ����Τ�õ���������ͤȤ��� $VAL �����ꤹ�롣
+    関数 mchar_put_prop () は、文字 $C の文字プロパティのうちキーが $KEY 
+    であるものを探し、その値として $VAL を設定する。
 
     @return
-    ��������������� mchar_put_prop () ��0���֤������Ԥ�������-1���֤���  */
+    処理が成功すれば mchar_put_prop () は0を返す。失敗した場合は-1を返す。  */
 /***
     @errors
     @c MERROR_SYMBOL, @c MERROR_DB
@@ -617,16 +617,16 @@ mchar_put_prop (int c, MSymbol key, void *val)
     char-table.  Otherwise NULL is retuned.  */
 
 /***ja
-    @brief ʸ���ץ��ѥƥ���ʸ���ơ��֥������.
+    @brief 文字プロパティの文字テーブルを得る.
 
-    �ؿ� mchar_get_prop_table () �ϡ������� $KEY �Ǥ���ʸ���ץ��ѥƥ�
-    ��ޤ�ʸ���ơ��֥���֤����⤷ $TYPE �� NULL �Ǥʤ���С� $TYPE ��
-    �ؤ������ˤ���ʸ���Υץ��ѥƥ����Ǽ���롣ʸ���ץ��ѥƥ��μ���
-    �˴ؤ��Ƥ� mchar_define_property () �򸫤衣
+    関数 mchar_get_prop_table () は、キーが $KEY である文字プロパティ
+    を含む文字テーブルを返す。もし $TYPE が NULL でなければ、 $TYPE で
+    指される場所にその文字のプロパティを格納する。文字プロパティの種類
+    に関しては mchar_define_property () を見よ。
 
     @return
-    �⤷ $KEY ��������ʸ���ץ��ѥƥ��Υ����Ǥ���С�ʸ���ơ��֥뤬�֤�
-    ��롣�����Ǥʤ����� NULL ���֤���롣  */
+    もし $KEY が正当な文字プロパティのキーであれば、文字テーブルが返さ
+    れる。そうでない場合は NULL が返される。  */
 
 MCharTable *
 mchar_get_prop_table (MSymbol key, MSymbol *type)
@@ -654,6 +654,6 @@ mchar_get_prop_table (MSymbol key, MSymbol *type)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

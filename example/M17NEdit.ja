@@ -1,154 +1,154 @@
-! -*- coding: euc-jp; -*-
+! -*- coding: utf-8; -*-
 *.fontSet: -etl-fixed-medium-r-normal--24-*-*-*-*,-*-*-medium-r-normal--24-*-*-*-*
 *.international: True
-*.File.label: ¥Õ¥¡¥¤¥ë
-*.Cursor.label: ¥«¡¼¥½¥ë
-*.Bidi.label: ½ñ»úÊı¸ş
-*.LineBreak.label: ¹ÔÊ¬³ä
-*.InputMethod.label: ÆşÎÏ¥á¥½¥Ã¥É
-*.Face.label: ¥Õ¥§¡¼¥¹
-*.Lang.label: ¸À¸ì
-*.Size.label: ¥µ¥¤¥º
-*.Family.label: ¥Õ¥¡¥ß¥ê¡¼
-*.Style.label: ¥¹¥¿¥¤¥ë
-*.Color.label: ¿§
-*.Misc.label: ¤½¤ÎÂ¾
-*.Pop Face.label: ¥İ¥Ã¥×
-*Abkhazian.label:¥¢¥Ö¥Ï¥º¸ì
-*Afar.label:¥¢¥Õ¥¡¥ë¸ì
-*Afrikaans.label:¥¢¥Õ¥ê¥«¡¼¥ó¥¹¸ì
-*Albanian.label:¥¢¥ë¥Ğ¥Ë¥¢¸ì
-*Amharic.label:¥¢¥à¥Ï¥é¸ì
-*Arabic.label:¥¢¥é¥Ó¥¢¸ì
-*Armenian.label:¥¢¥ë¥á¥Ë¥¢¸ì
-*Assamese.label:¥¢¥Ã¥µ¥à¸ì
-*Aymara.label:¥¢¥¤¥Ş¥é¸ì
-*Azerbaijani.label:¥¢¥¼¥ë¥Ğ¥¤¥¸¥ã¥ó¸ì
-*Bashkir.label:¥Ğ¥·¥å¥­¡¼¥ë¸ì
-*Basque.label:¥Ğ¥¹¥¯¸ì
-*Bengali.label:¥Ù¥ó¥¬¥ë¸ì
-*Bhutani.label:¥Ö¡¼¥¿¥ó¸ì
-*Bihari.label:¥Ó¥Ï¡¼¥ë¸ì
-*Bislama.label:¥Ó¥¹¥é¥Ş¸ì
-*Breton.label:¥Ö¥ë¥È¥ó¸ì
-*Bulgarian.label:¥Ö¥ë¥¬¥ê¥¢¸ì
-*Burmese.label:¥Ó¥ë¥Ş¸ì
-*Byelorussian.label:Çò¥í¥·¥¢¸ì
-*Cambodian.label:¥«¥ó¥Ü¥¸¥¢¸ì
-*Catalan.label:¥«¥¿¥í¥Ë¥¢¸ì
-*Chinese.label:Ãæ¹ñ¸ì
-*Corsican.label:¥³¥ë¥·¥«¸ì
-*Croatian.label:¥¯¥í¥¢¥Á¥¢¸ì
-*Czech.label:¥Á¥§¥³¸ì
-*Dhivehi.label:¥Ç¥£¥Ù¥Ò¸ì
-*Danish.label:¥Ç¥ó¥Ş¡¼¥¯¸ì
-*Dutch.label:¥ª¥é¥ó¥À¸ì
-*English.label:±Ñ¸ì
-*Esperanto.label:¥¨¥¹¥Ú¥é¥ó¥È
-*Estonian.label:¥¨¥¹¥È¥Ë¥¢¸ì
-*Faeroese.label:¥Õ¥§¡¼¥í¡¼¸ì
-*Farsi.label:¥Ú¥ë¥·¥¢¸ì
-*Fiji.label:¥Õ¥£¥¸¡¼¸ì
-*Finnish.label:¥Õ¥£¥ó¥é¥ó¥É¸ì
-*French.label:¥Õ¥é¥ó¥¹¸ì
-*Frisian.label:¥Õ¥ê¥¸¥¢¸ì
-*Galician.label:¥¬¥ê¥·¥¢¸ì
-*Gaelic(Scottish).label:¥²¡¼¥ë¸ì¡Ê¥¹¥³¥Ã¥È¥é¥ó¥É¡Ë
-*Gaelic(Manx).label:¥²¡¼¥ë¸ì¡Ê¥Ş¥óÅç¡Ë
-*Georgian.label:¥°¥ë¥¸¥¢¸ì
-*German.label:¥É¥¤¥Ä¸ì
-*Greek.label:¥®¥ê¥·¥¢¸ì
-*Greenlandic.label:¥°¥ê¡¼¥ó¥é¥ó¥É¸ì
-*Guarani.label:¥ï¥é¥Ë¡¼¸ì
-*Gujarati.label:¥°¥¸¥ã¥é¡¼¥È¸ì
-*Hausa.label:¥Ï¥¦¥µ¸ì
-*Hebrew.label:¥Ø¥Ö¥é¥¤¸ì
-*Hindi.label:¥Ò¥ó¥Ç¥£¡¼¸ì
-*Hungarian.label:¥Ï¥ó¥¬¥ê¡¼¸ì
-*Icelandic.label:¥¢¥¤¥¹¥é¥ó¥É¸ì
-*Indonesian.label:¥¤¥ó¥É¥Í¥·¥¢¸ì
-*Inuktitut.label:¥¤¥Ì¥¯¥Æ¥£¥È¥Ã¥È¸ì
-*Inupiak.label:¥¤¥Ì¥Ô¥¢¥Ã¥¯¸ì
-*Irish.label:¥¢¥¤¥ë¥é¥ó¥É¸ì
-*Italian.label:¥¤¥¿¥ê¥¢¸ì
-*Japanese.label:ÆüËÜ¸ì
-*Javanese.label:¥¸¥ã¥ï¸ì
-*Kannada.label:¥«¥ó¥Ê¥À¸ì
-*Kashmiri.label:¥«¥·¥å¥ß¡¼¥ë¸ì
-*Kazakh.label:¥«¥¶¥Õ¸ì
-*Kinyarwanda.label:¥ë¥ï¥ó¥À¸ì
-*Kirghiz.label:¥­¥ë¥®¥¹¸ì
-*Kirundi.label:¥ë¥ó¥Ç¥£¸ì
-*Korean.label:Ä«Á¯¸ì
-*Kurdish.label:¥¯¥ë¥É¸ì
-*Laothian.label:¥é¥ª¸ì
-*Latin.label:¥é¥Æ¥ó¸ì
-*Latvian.label:¥é¥È¥ô¥£¥¢¸ì
-*Lingala.label:¥ê¥ó¥¬¥é¸ì
-*Lithuanian.label:¥ê¥È¥¢¥Ë¥¢¸ì
-*Macedonian.label:¥Ş¥±¥É¥Ë¥¢¸ì
-*Malagasy.label:¥Ş¥é¥¬¥·¸ì
-*Malay.label:¥à¥é¥æ¸ì
-*Malayalam.label:¥Ş¥é¥ä¡¼¥é¥à¸ì
-*Maltese.label:¥Ş¥ë¥¿¸ì
-*Maori.label:¥Ş¥ª¥ê¸ì
-*Marathi.label:¥Ş¥é¡¼¥Æ¥£¡¼¸ì
-*Moldavian.label:¥â¥ë¥À¥Ó¥¢¸ì
-*Mongolian.label:¥â¥ó¥´¥ë¸ì
-*Nauru.label:¥Ê¥¦¥ë¸ì
-*Nepali.label:¥Í¥Ñ¡¼¥ë¸ì
-*Norwegian.label:¥Î¥ë¥¦¥§¡¼¸ì
-*Occitan.label:¥×¥í¥ô¥¡¥ó¥¹¸ì
-*Oriya.label:¥ª¥ê¥ä¡¼¸ì
-*Oromo.label:¥¬¥Ã¥é¸ì
-*Pashto.label:¥Ñ¥·¥å¥È¡¼¸ì
-*Polish.label:¥İ¡¼¥é¥ó¥É¸ì
-*Portuguese.label:¥İ¥ë¥È¥¬¥ë¸ì
-*Punjabi.label:¥Ñ¥ó¥¸¥ã¡¼¥Ö¸ì
-*Quechua.label:¥±¥Á¥å¥¢¸ì
-*Rhaeto-Romance.label:¥ì¥È¡¦¥í¥Ş¥ó¥¹¸ì
-*Romanian.label:¥ë¡¼¥Ş¥Ë¥¢¸ì
-*Russian.label:¥í¥·¥¢¸ì
-*Samoan.label:¥µ¥â¥¢¸ì
-*Sangro.label:¥µ¥ó¥´¸ì
-*Sanskrit.label:¥µ¥ó¥¹¥¯¥ê¥Ã¥È
-*Serbian.label:¥»¥ë¥Ó¥¢¸ì
-*Serbo-Croatian.label:¥»¥ë¥Ó¥¢¡¦¥¯¥í¥¢¥Á¥¢¸ì
-*Sesotho.label:¥½¥È¸ì
-*Setswana.label:¥Ä¥ï¥Ê¸ì
-*Shona.label:¥·¥ç¥Ê¸ì
-*Sindhi.label:¥·¥ó¥É¸ì
-*Sinhala.label:¥·¥ó¥Ï¥é¸ì
-*Siswati.label:¥¹¥ï¥Æ¥£¸ì
-*Slovak.label:¥¹¥í¥Ğ¥­¥¢¸ì
-*Slovenian.label:¥¹¥í¥Ù¥Ë¥¢¸ì
-*Somali.label:¥½¥Ş¥ê¸ì
-*Spanish.label:¥¹¥Ú¥¤¥ó¸ì
-*Sundanese.label:¥¹¥ó¥À¸ì
-*Swahili.label:¥¹¥ï¥Ò¥ê¸ì
-*Swedish.label:¥¹¥¦¥§¡¼¥Ç¥ó¸ì
-*Tagalog.label:¥¿¥¬¥í¥°¸ì
-*Tajik.label:¥¿¥¸¥¯¸ì
-*Tamil.label:¥¿¥ß¡¼¥ë¸ì
-*Tatar.label:¥¿¥¿¡¼¥ë¸ì
-*Telugu.label:¥Æ¥ë¥°¸ì
-*Thai.label:¥¿¥¤¸ì
-*Tibetan.label:¥Á¥Ù¥Ã¥È¸ì
-*Tigrinya.label:¥Æ¥£¥°¥ê¥Ë¥¢¸ì
-*Tonga.label:¥È¥ó¥¬¸ì
-*Tsonga.label:¥Ä¥©¥ó¥¬¸ì
-*Turkish.label:¥È¥ë¥³¸ì
-*Turkmen.label:¥È¥ë¥¯¥á¥ó¸ì
-*Twi.label:¥Á¥å¥¤¸ì
-*Uighur.label:¥¦¥¤¥°¥ë¸ì
-*Ukrainian.label:¥¦¥¯¥é¥¤¥Ê¸ì
-*Urdu.label:¥¦¥ë¥É¥¥¡¼¸ì
-*Uzbek.label:¥¦¥º¥Ù¥¯¸ì
-*Vietnamese.label:¥Ù¥È¥Ê¥à¸ì
-*Volapuk.label:¥ô¥©¥é¥Ô¥å¥¯
-*Welsh.label:¥¦¥§¡¼¥ë¥º¸ì
-*Wolof.label:¥¦¥©¥í¥Õ¸ì
-*Xhosa.label:¥³¥µ¸ì
-*Yiddish.label:¥¤¥Ç¥£¥Ã¥·¥å¸ì
-*Yoruba.label:¥è¥ë¥Ğ¸ì
-*Zulu.label:¥º¡¼¥ë¡¼¸ì
+*.File.label: ãƒ•ã‚¡ã‚¤ãƒ«
+*.Cursor.label: ã‚«ãƒ¼ã‚½ãƒ«
+*.Bidi.label: æ›¸å­—æ–¹å‘
+*.LineBreak.label: è¡Œåˆ†å‰²
+*.InputMethod.label: å…¥åŠ›ãƒ¡ã‚½ãƒƒãƒ‰
+*.Face.label: ãƒ•ã‚§ãƒ¼ã‚¹
+*.Lang.label: è¨€èª
+*.Size.label: ã‚µã‚¤ã‚º
+*.Family.label: ãƒ•ã‚¡ãƒŸãƒªãƒ¼
+*.Style.label: ã‚¹ã‚¿ã‚¤ãƒ«
+*.Color.label: è‰²
+*.Misc.label: ãã®ä»–
+*.Pop Face.label: ãƒãƒƒãƒ—
+*Abkhazian.label:ã‚¢ãƒ–ãƒã‚ºèª
+*Afar.label:ã‚¢ãƒ•ã‚¡ãƒ«èª
+*Afrikaans.label:ã‚¢ãƒ•ãƒªã‚«ãƒ¼ãƒ³ã‚¹èª
+*Albanian.label:ã‚¢ãƒ«ãƒãƒ‹ã‚¢èª
+*Amharic.label:ã‚¢ãƒ ãƒãƒ©èª
+*Arabic.label:ã‚¢ãƒ©ãƒ“ã‚¢èª
+*Armenian.label:ã‚¢ãƒ«ãƒ¡ãƒ‹ã‚¢èª
+*Assamese.label:ã‚¢ãƒƒã‚µãƒ èª
+*Aymara.label:ã‚¢ã‚¤ãƒãƒ©èª
+*Azerbaijani.label:ã‚¢ã‚¼ãƒ«ãƒã‚¤ã‚¸ãƒ£ãƒ³èª
+*Bashkir.label:ãƒã‚·ãƒ¥ã‚­ãƒ¼ãƒ«èª
+*Basque.label:ãƒã‚¹ã‚¯èª
+*Bengali.label:ãƒ™ãƒ³ã‚¬ãƒ«èª
+*Bhutani.label:ãƒ–ãƒ¼ã‚¿ãƒ³èª
+*Bihari.label:ãƒ“ãƒãƒ¼ãƒ«èª
+*Bislama.label:ãƒ“ã‚¹ãƒ©ãƒèª
+*Breton.label:ãƒ–ãƒ«ãƒˆãƒ³èª
+*Bulgarian.label:ãƒ–ãƒ«ã‚¬ãƒªã‚¢èª
+*Burmese.label:ãƒ“ãƒ«ãƒèª
+*Byelorussian.label:ç™½ãƒ­ã‚·ã‚¢èª
+*Cambodian.label:ã‚«ãƒ³ãƒœã‚¸ã‚¢èª
+*Catalan.label:ã‚«ã‚¿ãƒ­ãƒ‹ã‚¢èª
+*Chinese.label:ä¸­å›½èª
+*Corsican.label:ã‚³ãƒ«ã‚·ã‚«èª
+*Croatian.label:ã‚¯ãƒ­ã‚¢ãƒã‚¢èª
+*Czech.label:ãƒã‚§ã‚³èª
+*Dhivehi.label:ãƒ‡ã‚£ãƒ™ãƒ’èª
+*Danish.label:ãƒ‡ãƒ³ãƒãƒ¼ã‚¯èª
+*Dutch.label:ã‚ªãƒ©ãƒ³ãƒ€èª
+*English.label:è‹±èª
+*Esperanto.label:ã‚¨ã‚¹ãƒšãƒ©ãƒ³ãƒˆ
+*Estonian.label:ã‚¨ã‚¹ãƒˆãƒ‹ã‚¢èª
+*Faeroese.label:ãƒ•ã‚§ãƒ¼ãƒ­ãƒ¼èª
+*Farsi.label:ãƒšãƒ«ã‚·ã‚¢èª
+*Fiji.label:ãƒ•ã‚£ã‚¸ãƒ¼èª
+*Finnish.label:ãƒ•ã‚£ãƒ³ãƒ©ãƒ³ãƒ‰èª
+*French.label:ãƒ•ãƒ©ãƒ³ã‚¹èª
+*Frisian.label:ãƒ•ãƒªã‚¸ã‚¢èª
+*Galician.label:ã‚¬ãƒªã‚·ã‚¢èª
+*Gaelic(Scottish).label:ã‚²ãƒ¼ãƒ«èªï¼ˆã‚¹ã‚³ãƒƒãƒˆãƒ©ãƒ³ãƒ‰ï¼‰
+*Gaelic(Manx).label:ã‚²ãƒ¼ãƒ«èªï¼ˆãƒãƒ³å³¶ï¼‰
+*Georgian.label:ã‚°ãƒ«ã‚¸ã‚¢èª
+*German.label:ãƒ‰ã‚¤ãƒ„èª
+*Greek.label:ã‚®ãƒªã‚·ã‚¢èª
+*Greenlandic.label:ã‚°ãƒªãƒ¼ãƒ³ãƒ©ãƒ³ãƒ‰èª
+*Guarani.label:ãƒ¯ãƒ©ãƒ‹ãƒ¼èª
+*Gujarati.label:ã‚°ã‚¸ãƒ£ãƒ©ãƒ¼ãƒˆèª
+*Hausa.label:ãƒã‚¦ã‚µèª
+*Hebrew.label:ãƒ˜ãƒ–ãƒ©ã‚¤èª
+*Hindi.label:ãƒ’ãƒ³ãƒ‡ã‚£ãƒ¼èª
+*Hungarian.label:ãƒãƒ³ã‚¬ãƒªãƒ¼èª
+*Icelandic.label:ã‚¢ã‚¤ã‚¹ãƒ©ãƒ³ãƒ‰èª
+*Indonesian.label:ã‚¤ãƒ³ãƒ‰ãƒã‚·ã‚¢èª
+*Inuktitut.label:ã‚¤ãƒŒã‚¯ãƒ†ã‚£ãƒˆãƒƒãƒˆèª
+*Inupiak.label:ã‚¤ãƒŒãƒ”ã‚¢ãƒƒã‚¯èª
+*Irish.label:ã‚¢ã‚¤ãƒ«ãƒ©ãƒ³ãƒ‰èª
+*Italian.label:ã‚¤ã‚¿ãƒªã‚¢èª
+*Japanese.label:æ—¥æœ¬èª
+*Javanese.label:ã‚¸ãƒ£ãƒ¯èª
+*Kannada.label:ã‚«ãƒ³ãƒŠãƒ€èª
+*Kashmiri.label:ã‚«ã‚·ãƒ¥ãƒŸãƒ¼ãƒ«èª
+*Kazakh.label:ã‚«ã‚¶ãƒ•èª
+*Kinyarwanda.label:ãƒ«ãƒ¯ãƒ³ãƒ€èª
+*Kirghiz.label:ã‚­ãƒ«ã‚®ã‚¹èª
+*Kirundi.label:ãƒ«ãƒ³ãƒ‡ã‚£èª
+*Korean.label:æœé®®èª
+*Kurdish.label:ã‚¯ãƒ«ãƒ‰èª
+*Laothian.label:ãƒ©ã‚ªèª
+*Latin.label:ãƒ©ãƒ†ãƒ³èª
+*Latvian.label:ãƒ©ãƒˆãƒ´ã‚£ã‚¢èª
+*Lingala.label:ãƒªãƒ³ã‚¬ãƒ©èª
+*Lithuanian.label:ãƒªãƒˆã‚¢ãƒ‹ã‚¢èª
+*Macedonian.label:ãƒã‚±ãƒ‰ãƒ‹ã‚¢èª
+*Malagasy.label:ãƒãƒ©ã‚¬ã‚·èª
+*Malay.label:ãƒ ãƒ©ãƒ¦èª
+*Malayalam.label:ãƒãƒ©ãƒ¤ãƒ¼ãƒ©ãƒ èª
+*Maltese.label:ãƒãƒ«ã‚¿èª
+*Maori.label:ãƒã‚ªãƒªèª
+*Marathi.label:ãƒãƒ©ãƒ¼ãƒ†ã‚£ãƒ¼èª
+*Moldavian.label:ãƒ¢ãƒ«ãƒ€ãƒ“ã‚¢èª
+*Mongolian.label:ãƒ¢ãƒ³ã‚´ãƒ«èª
+*Nauru.label:ãƒŠã‚¦ãƒ«èª
+*Nepali.label:ãƒãƒ‘ãƒ¼ãƒ«èª
+*Norwegian.label:ãƒãƒ«ã‚¦ã‚§ãƒ¼èª
+*Occitan.label:ãƒ—ãƒ­ãƒ´ã‚¡ãƒ³ã‚¹èª
+*Oriya.label:ã‚ªãƒªãƒ¤ãƒ¼èª
+*Oromo.label:ã‚¬ãƒƒãƒ©èª
+*Pashto.label:ãƒ‘ã‚·ãƒ¥ãƒˆãƒ¼èª
+*Polish.label:ãƒãƒ¼ãƒ©ãƒ³ãƒ‰èª
+*Portuguese.label:ãƒãƒ«ãƒˆã‚¬ãƒ«èª
+*Punjabi.label:ãƒ‘ãƒ³ã‚¸ãƒ£ãƒ¼ãƒ–èª
+*Quechua.label:ã‚±ãƒãƒ¥ã‚¢èª
+*Rhaeto-Romance.label:ãƒ¬ãƒˆãƒ»ãƒ­ãƒãƒ³ã‚¹èª
+*Romanian.label:ãƒ«ãƒ¼ãƒãƒ‹ã‚¢èª
+*Russian.label:ãƒ­ã‚·ã‚¢èª
+*Samoan.label:ã‚µãƒ¢ã‚¢èª
+*Sangro.label:ã‚µãƒ³ã‚´èª
+*Sanskrit.label:ã‚µãƒ³ã‚¹ã‚¯ãƒªãƒƒãƒˆ
+*Serbian.label:ã‚»ãƒ«ãƒ“ã‚¢èª
+*Serbo-Croatian.label:ã‚»ãƒ«ãƒ“ã‚¢ãƒ»ã‚¯ãƒ­ã‚¢ãƒã‚¢èª
+*Sesotho.label:ã‚½ãƒˆèª
+*Setswana.label:ãƒ„ãƒ¯ãƒŠèª
+*Shona.label:ã‚·ãƒ§ãƒŠèª
+*Sindhi.label:ã‚·ãƒ³ãƒ‰èª
+*Sinhala.label:ã‚·ãƒ³ãƒãƒ©èª
+*Siswati.label:ã‚¹ãƒ¯ãƒ†ã‚£èª
+*Slovak.label:ã‚¹ãƒ­ãƒã‚­ã‚¢èª
+*Slovenian.label:ã‚¹ãƒ­ãƒ™ãƒ‹ã‚¢èª
+*Somali.label:ã‚½ãƒãƒªèª
+*Spanish.label:ã‚¹ãƒšã‚¤ãƒ³èª
+*Sundanese.label:ã‚¹ãƒ³ãƒ€èª
+*Swahili.label:ã‚¹ãƒ¯ãƒ’ãƒªèª
+*Swedish.label:ã‚¹ã‚¦ã‚§ãƒ¼ãƒ‡ãƒ³èª
+*Tagalog.label:ã‚¿ã‚¬ãƒ­ã‚°èª
+*Tajik.label:ã‚¿ã‚¸ã‚¯èª
+*Tamil.label:ã‚¿ãƒŸãƒ¼ãƒ«èª
+*Tatar.label:ã‚¿ã‚¿ãƒ¼ãƒ«èª
+*Telugu.label:ãƒ†ãƒ«ã‚°èª
+*Thai.label:ã‚¿ã‚¤èª
+*Tibetan.label:ãƒãƒ™ãƒƒãƒˆèª
+*Tigrinya.label:ãƒ†ã‚£ã‚°ãƒªãƒ‹ã‚¢èª
+*Tonga.label:ãƒˆãƒ³ã‚¬èª
+*Tsonga.label:ãƒ„ã‚©ãƒ³ã‚¬èª
+*Turkish.label:ãƒˆãƒ«ã‚³èª
+*Turkmen.label:ãƒˆãƒ«ã‚¯ãƒ¡ãƒ³èª
+*Twi.label:ãƒãƒ¥ã‚¤èª
+*Uighur.label:ã‚¦ã‚¤ã‚°ãƒ«èª
+*Ukrainian.label:ã‚¦ã‚¯ãƒ©ã‚¤ãƒŠèª
+*Urdu.label:ã‚¦ãƒ«ãƒ‰ã‚¥ãƒ¼èª
+*Uzbek.label:ã‚¦ã‚ºãƒ™ã‚¯èª
+*Vietnamese.label:ãƒ™ãƒˆãƒŠãƒ èª
+*Volapuk.label:ãƒ´ã‚©ãƒ©ãƒ”ãƒ¥ã‚¯
+*Welsh.label:ã‚¦ã‚§ãƒ¼ãƒ«ã‚ºèª
+*Wolof.label:ã‚¦ã‚©ãƒ­ãƒ•èª
+*Xhosa.label:ã‚³ã‚µèª
+*Yiddish.label:ã‚¤ãƒ‡ã‚£ãƒƒã‚·ãƒ¥èª
+*Yoruba.label:ãƒ¨ãƒ«ãƒèª
+*Zulu.label:ã‚ºãƒ¼ãƒ«ãƒ¼èª

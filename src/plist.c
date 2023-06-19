@@ -56,16 +56,16 @@
 /***ja
     @addtogroup m17nPlist
 
-    @brief �ץ��ѥƥ��ꥹ�ȥ��֥������ȤȤ���˴ؤ��� API.
+    @brief プロパティリストオブジェクトとそれに関する API.
 
-    @e �ץ��ѥƥ��ꥹ�� (�ޤ��� @e plist) �� 0 
-    �İʾ�Υץ��ѥƥ��Υꥹ�ȤǤ��롣�ץ��ѥƥ��� @e ���� �� @e �� 
-    ����ʤ롣�����ϥ���ܥ�Ǥ��ꡢ�ͤ� <tt>(void *)</tt> 
-    �˥��㥹�ȤǤ����Τʤ�в��Ǥ��ɤ���
+    @e プロパティリスト (または @e plist) は 0 
+    個以上のプロパティのリストである。プロパティは @e キー と @e 値 
+    からなる。キーはシンボルであり、値は <tt>(void *)</tt> 
+    にキャストできるものならば何でも良い。
 
-    ����ץ��ѥƥ��Υ����� @e �������� �ʤ�С����� @e �� �� @e ������
-    @e ���֥������� 
-    �Ǥ��롣�ץ��ѥƥ��ꥹ�ȼ��Τ���������֥������ȤǤ��롣  */
+    あるプロパティのキーが @e 管理キー ならば、その @e 値 は @e 管理下
+    @e オブジェクト 
+    である。プロパティリスト自体も管理下オブジェクトである。  */
 
 /*=*/
 
@@ -972,10 +972,10 @@ mplist__assq (MPlist *plist, MSymbol key)
     The symbol @c Minteger has the name <tt>"integer"</tt>.  The value
     of a property whose key is @c Minteger must be an integer.  */
 /***ja
-    @brief "integer" ��̾���Ȥ��ƻ��ĥ���ܥ�.
+    @brief "integer" を名前として持つシンボル.
 
-    ����ܥ� @c Minteger �� <tt>"integer"</tt> �Ȥ���̾������ġ�������
-    @c Minteger �Ǥ���ץ��ѥƥ����ͤ������ͤǤʤ��ƤϤʤ�ʤ���  */
+    シンボル @c Minteger は <tt>"integer"</tt> という名前を持つ。キーが
+    @c Minteger であるプロパティの値は整数値でなくてはならない。  */
 
 MSymbol Minteger;
 /*=*/
@@ -987,11 +987,11 @@ MSymbol Minteger;
     managing key.  A value of a property whose key is @c Mplist must
     be a plist.  */
 /***ja
-    @brief "plist" ��̾���Ȥ��ƻ��ĥ���ܥ�.
+    @brief "plist" を名前として持つシンボル.
 
-    ����ܥ� @c Mplist �� <tt>"plist"</tt> 
-    �Ȥ���̾������ġ�����ϴ��������Ǥ��롣������ @c Mplist 
-    �Ǥ���ץ��ѥƥ����ͤ� plist �Ǥʤ��ƤϤʤ�ʤ���  */
+    シンボル @c Mplist は <tt>"plist"</tt> 
+    という名前を持つ。これは管理キーである。キーが @c Mplist 
+    であるプロパティの値は plist でなくてはならない。  */
 
 MSymbol Mplist;
 /*=*/
@@ -1004,11 +1004,11 @@ MSymbol Mplist;
     M-text.  */
 
 /***ja
-    @brief "mtext" ��̾���Ȥ��ƻ��ĥ���ܥ�.
+    @brief "mtext" を名前として持つシンボル.
 
-    ����ܥ� @c Mtext �� <tt>"mtext"</tt>
-    �Ȥ���̾������Ĵ��������Ǥ��롣������ @c Mtext 
-    �Ǥ���ץ��ѥƥ����ͤ� M-text �Ǥʤ��ƤϤʤ�ʤ���      */
+    シンボル @c Mtext は <tt>"mtext"</tt>
+    という名前を持つ管理キーである。キーが @c Mtext 
+    であるプロパティの値は M-text でなくてはならない。      */
 
 MSymbol Mtext;
 
@@ -1025,15 +1025,15 @@ MSymbol Mtext;
     @errors
     This function never fails.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�ȥ��֥������Ȥ���.
+    @brief プロパティリストオブジェクトを作る.
 
-    �ؿ� mplist () ��Ĺ�� 0 �Υץ��ѥƥ��ꥹ�ȥ��֥������Ȥ򿷤�����ä��֤���
+    関数 mplist () は長さ 0 のプロパティリストオブジェクトを新しく作って返す。
 
     @returns
-    ���δؿ��Ͽ��������줿�ץ��ѥƥ��ꥹ�ȥ��֥������Ȥ��֤���
+    この関数は新しく作られたプロパティリストオブジェクトを返す。
 
     @errors
-    ���δؿ��Ϸ褷�Ƽ��Ԥ��ʤ���     */
+    この関数は決して失敗しない。     */
 
 MPlist *
 mplist (void)
@@ -1058,16 +1058,16 @@ mplist (void)
     @errors
     This function never fails.  */ 
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ򥳥ԡ�����.
+    @brief プロパティリストをコピーする.
 
-    �ؿ� mplist_copy () �ϥץ��ѥƥ��ꥹ�� $PLIST 
-    �򥳥ԡ����롣���ԡ��Τ��٤Ƥ��ͤϥ��ԡ��� $PLIST ���ͤ�Ʊ���Ǥ��롣
+    関数 mplist_copy () はプロパティリスト $PLIST 
+    をコピーする。コピーのすべての値はコピー元 $PLIST の値と同じである。
 
     @return
-    ���δؿ��Ͽ��������줿��$PLIST �Υ��ԡ��Ǥ���ץ��ѥƥ��ꥹ�Ȥ��֤���    
+    この関数は新しく作られた、$PLIST のコピーであるプロパティリストを返す。    
 
     @errors
-    ���δؿ��Ϸ褷�Ƽ��Ԥ��ʤ���     */
+    この関数は決して失敗しない。     */
 
 MPlist *
 mplist_copy (MPlist *plist)
@@ -1104,21 +1104,21 @@ mplist_copy (MPlist *plist)
     $PLIST whose first element is the just modified or added one.
     Otherwise, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ����Υץ��ѥƥ����ͤ����ꤹ��.
+    @brief プロパティリスト中のプロパティの値を設定する.
 
-    �ؿ� mplist_put () �ϥץ��ѥƥ��ꥹ�� $PLIST ��Ϥᤫ��õ���ơ�������
-    $KEY �Ǥ���ץ��ѥƥ��򸫤Ĥ��롣���Ĥ���С������ͤ� $VALUE 
-    ���ѹ����롣���Ĥ���ʤ���С������� $KEY ���ͤ� $VALUE 
-    �Ǥ��뿷�����ץ��ѥƥ��� $PLIST ���������ɲä���롣$KEY �� $VAL
-    ���Ф������¤ˤĤ��Ƥϡ�mplist_add () �������򻲾ȡ�
+    関数 mplist_put () はプロパティリスト $PLIST を始めから探して、キーが
+    $KEY であるプロパティを見つける。見つかれば、その値を $VALUE 
+    に変更する。見つからなければ、キーが $KEY で値が $VALUE 
+    である新しいプロパティが $PLIST の末尾に追加される。$KEY と $VAL
+    に対する制限については、mplist_add () の説明を参照。
 
-    $KEY �����������ʤ�С�
-    $VAL �ϴ��������֥������ȤǤʤ��ƤϤʤ�ʤ������ξ�硢�Ť��ͤλ��ȿ��� 
-    @c NULL �Ǥʤ���� 1 ���餵�졢$VAL �λ��ȿ��� 1 ���䤵��롣
+    $KEY が管理キーならば、
+    $VAL は管理下オブジェクトでなくてはならない。この場合、古い値の参照数は 
+    @c NULL でなければ 1 減らされ、$VAL の参照数は 1 増やされる。
 
     @return 
-    ��������������� mplist_put () ���ѹ����줿���ɲä��줿���Ǥ���Ϥޤ�
-    $PLIST ����ʬ�ꥹ�Ȥ��֤��������Ǥʤ���� @c NULL ���֤���   */
+    処理が成功すれば mplist_put () は変更されたか追加された要素から始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。   */
 
 MPlist *
 mplist_put (MPlist *plist, MSymbol key, void *val)
@@ -1153,16 +1153,16 @@ mplist_put (MPlist *plist, MSymbol key, void *val)
     these two cases must be distinguished, use the mplist_find_by_key ()
     function.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ����Υץ��ѥƥ����ͤ�����.
+    @brief プロパティリスト中のプロパティの値を得る.
 
-    �ؿ� mplist_get () �ϡ��ץ��ѥƥ��ꥹ�� $PLIST ��Ϥᤫ��õ���ơ�����
-    �� $KEY �Ǥ���ץ��ѥƥ��򸫤Ĥ��롣���Ĥ���С������ͤ�
-    <tt>(void *)</tt> �����֤������Ĥ���ʤ���� @c NULL ���֤���
+    関数 mplist_get () は、プロパティリスト $PLIST を始めから探して、キー
+    が $KEY であるプロパティを見つける。見つかれば、その値を
+    <tt>(void *)</tt> 型で返す。見つからなければ @c NULL を返す。
 
-    @c NULL ���֤ä��ݤˤ���Ĥβ�ǽ��������: 
-    �嵭�Τ褦�˥ץ��ѥƥ������Ĥ���ʤ��ä����ȡ��ץ��ѥƥ������Ĥ��ꡢ�����ͤ�
-    @c NULL �Ǥ�����Ǥ��롣��������̤���ɬ�פ�������ˤϴؿ� 
-    mplist_find_by_key () ��Ȥ����ȡ�  */
+    @c NULL が返った際には二つの可能性がある: 
+    上記のようにプロパティが見つからなかった場合と、プロパティが見つかり、その値が
+    @c NULL である場合である。これらを区別する必要がある場合には関数 
+    mplist_find_by_key () を使うこと。  */
 
 /***
     @seealso
@@ -1185,11 +1185,11 @@ mplist_get (MPlist *plist, MSymbol key)
     $KEY.  $KEY must not be a managing key.  */
 
 /***ja
-    @brief �ץ��ѥƥ��ꥹ����Υץ��ѥƥ��˴ؿ��ݥ��󥿤Ǥ����ͤ����ꤹ��.
+    @brief プロパティリスト中のプロパティに関数ポインタである値を設定する.
 
-    �ؿ� mplist_put_func () �ϴؿ� mplist_put () Ʊ�͡��ץ��ѥƥ��ꥹ�� $PLIST
-    ��ǥ����� $KEY �Ǥ���ץ��ѥƥ����ͤ����ꤹ�롣â�������ͤϴؿ��ݥ���
-    $FUNC �Ǥ��롣$KEY �ϴ��������Ǥ��äƤϤʤ�ʤ���  */
+    関数 mplist_put_func () は関数 mplist_put () 同様、プロパティリスト $PLIST
+    中でキーが $KEY であるプロパティに値を設定する。但しその値は関数ポインタ
+    $FUNC である。$KEY は管理キーであってはならない。  */
 
 
 /***
@@ -1219,11 +1219,11 @@ mplist_put_func (MPlist *plist, MSymbol key, M17NFunc func)
     getting a function pointer from property list $PLIST by key $KEY.  */
 
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ���ץ��ѥƥ��δؿ��ݥ��󥿤Ǥ����ͤ�����.
+    @brief プロパティリストからプロパティの関数ポインタである値を得る.
 
-    �ؿ� mplist_get_func () �ϴؿ� mplist_get () ��Ʊ�ͤˡ��ץ��ѥƥ���
-    ���� $PLIST ��ǥ����� $KEY �Ǥ���ץ��ѥƥ����͡�â���ؿ��ݥ��󥿡�
-    �����롣 */
+    関数 mplist_get_func () は関数 mplist_get () と同様に、プロパティリ
+    スト $PLIST 中でキーが $KEY であるプロパティの値、但し関数ポインタ、
+    を得る。 */
 
 
 /***
@@ -1253,17 +1253,17 @@ mplist_get_func (MPlist *plist, MSymbol key)
     $PLIST whose first element is the just added one.  Otherwise, it
     returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�������˥ץ��ѥƥ����ɲä���.
+    @brief プロパティリスト末尾にプロパティを追加する.
 
-    �ؿ� mplist_add () �ϡ��ץ��ѥƥ��ꥹ�� $PLIST �������˥����� $KEY 
-    ���ͤ� $VAL �Ǥ���ץ��ѥƥ����ɲä��롣$KEY �ϡ�@c Mnil �ʳ���Ǥ�դΥ���ܥ�Ǥ褤��
+    関数 mplist_add () は、プロパティリスト $PLIST の末尾にキーが $KEY 
+    で値が $VAL であるプロパティを追加する。$KEY は、@c Mnil 以外の任意のシンボルでよい。
 
-    $KEY �����������ʤ�С�$VAL �ϴ��������֥������ȤǤʤ��ƤϤʤ�ʤ������ξ�硢
-    $VAL �λ��ȿ��� 1 ���䤵��롣
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。この場合、
+    $VAL の参照数は 1 増やされる。
 
     @return
-    ��������������� mplist_add () ���ɲä��줿���Ǥ���Ϥޤ� $PLIST 
-    ����ʬ�ꥹ�Ȥ��֤��������Ǥʤ���� @c NULL ���֤���  */
+    処理が成功すれば mplist_add () は追加された要素から始まる $PLIST 
+    の部分リストを返す。そうでなければ @c NULL を返す。  */
 
 MPlist *
 mplist_add (MPlist *plist, MSymbol key, void *val)
@@ -1294,17 +1294,17 @@ mplist_add (MPlist *plist, MSymbol key, void *val)
     If the operation was successful, this function returns $PLIST.
     Otherwise, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ���Ƭ�˥ץ��ѥƥ�����������.
+    @brief プロパティリストの先頭にプロパティを挿入する.
 
-    �ؿ� mplist_push () �ϥץ��ѥƥ��ꥹ�� $PLIST ����Ƭ�˥����� $KEY 
-    ���ͤ� $VAL �Ǥ��륪�֥������Ȥ��������롣
+    関数 mplist_push () はプロパティリスト $PLIST の先頭にキーが $KEY 
+    で値が $VAL であるオブジェクトを挿入する。
 
-    $KEY �����������ʤ�С�$VAL �ϴ��������֥������ȤǤʤ��ƤϤʤ�ʤ������ξ�硢
-    $VAL �λ��ȿ��� 1 ���䤵��롣
+    $KEY が管理キーならば、$VAL は管理下オブジェクトでなくてはならない。この場合、
+    $VAL の参照数は 1 増やされる。
 
     @return
-    ��������������Ф��δؿ��� $PLIST ���֤��������Ǥʤ����@c NULL 
-    ���֤���  */
+    処理が成功すればこの関数は $PLIST を返し、そうでなければ@c NULL 
+    を返す。  */
 
 MPlist *
 mplist_push (MPlist *plist, MSymbol key, void *val)
@@ -1340,14 +1340,14 @@ mplist_push (MPlist *plist, MSymbol key, void *val)
     If the operation was successful, this function return the value of
     the just popped property.  Otherwise, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ���Ƭ����ץ��ѥƥ���������.
+    @brief プロパティリストの先頭からプロパティを削除する.
 
-    �ؿ� mplist_pop () �ϥץ��ѥƥ��ꥹ�� $PLIST ����Ƭ�Υץ��ѥƥ����
-    �����롣��̤Ȥ��ơ�����2���ܤΥ������ͤ���Ƭ�Υ������ͤˤʤ롣
+    関数 mplist_pop () はプロパティリスト $PLIST の先頭のプロパティを削
+    除する。結果として、元の2番目のキーと値が先頭のキーと値になる。
 
     @return 
-    ��������������С����δؿ��Ϻ�����줿�ץ��ѥƥ����ͤ��֤��������Ǥʤ����
-    @c NULL ���֤���  */
+    処理に成功すれば、この関数は削除されたプロパティの値を返す。そうでなければ
+    @c NULL を返す。  */
 
 void *
 mplist_pop (MPlist *plist)
@@ -1384,14 +1384,14 @@ mplist_pop (MPlist *plist)
     If $KEY is @c Mnil, it returns a sublist of $PLIST whose
     first element is the last one of $PLIST.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ���椫�����Υ�������ĥץ��ѥƥ���õ��.
+    @brief プロパティリスト中から指定のキーを持つプロパティを探す.
 
-    �ؿ� mplist_find_by_key () �ϥץ��ѥƥ��ꥹ�� $PLIST 
-    ��Ϥᤫ��õ ���ơ������� $KEY 
-    �Ǥ���ץ��ѥƥ��򸫤Ĥ��롣���Ĥ���С����Υץ��ѥƥ�����Ϥޤ�
-    $PLIST ����ʬ�ꥹ�Ȥ��֤��������Ǥʤ���� @c NULL ���֤���
+    関数 mplist_find_by_key () はプロパティリスト $PLIST 
+    を始めから探 して、キーが $KEY 
+    であるプロパティを見つける。見つかれば、そのプロパティから始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。
 
-    $KEY �� @c Mnil �ʤ�С�$PLIST �κǸ�����Ǥ���Ϥޤ���ʬ�ꥹ�Ȥ��֤���  */
+    $KEY が @c Mnil ならば、$PLIST の最後の要素から始まる部分リストを返す。  */
 
 MPlist *
 mplist_find_by_key (MPlist *plist, MSymbol key)
@@ -1411,12 +1411,12 @@ mplist_find_by_key (MPlist *plist, MSymbol key)
     property is found, a sublist of $PLIST whose first element is the
     found one is returned.  Otherwise, @c NULL is returned.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ���椫�������ͤ���ĥץ��ѥƥ���õ��.
+    @brief プロパティリスト中から指定の値を持つプロパティを探す.
 
-    �ؿ� mplist_find_by_value () �ϥץ��ѥƥ��ꥹ�� $PLIST 
-    ��Ϥᤫ��õ���ơ��ͤ� $VAL 
-    �Ǥ���ץ��ѥƥ��򸫤Ĥ��롣���Ĥ���С����Υץ��ѥƥ�����Ϥޤ�
-    $PLIST ����ʬ�ꥹ�Ȥ��֤��������Ǥʤ���� @c NULL ���֤��� */
+    関数 mplist_find_by_value () はプロパティリスト $PLIST 
+    を始めから探して、値が $VAL 
+    であるプロパティを見つける。見つかれば、そのプロパティから始まる
+    $PLIST の部分リストを返す。そうでなければ @c NULL を返す。 */
 
 MPlist *
 mplist_find_by_value (MPlist *plist, void *val)
@@ -1438,11 +1438,11 @@ mplist_find_by_value (MPlist *plist, void *val)
     property list $PLIST, which begins at the second element in $PLIST.  If the
     length of $PLIST is zero, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥμ�����ʬ�ꥹ�Ȥ��֤�.
+    @brief プロパティリストの次の部分リストを返す.
 
-    �ؿ� mplist_next () �ϥץ��ѥƥ��ꥹ�� $PLIST �� 2 
-    ���ܤ����Ǥ���Ϥޤ���ʬ�ꥹ�ȤؤΥݥ��󥿤��֤���$PLIST ��Ĺ���� 0 
-    �ʤ�� @c NULL ���֤���  */
+    関数 mplist_next () はプロパティリスト $PLIST の 2 
+    番目の要素から始まる部分リストへのポインタを返す。$PLIST の長さが 0 
+    ならば @c NULL を返す。  */
 
 MPlist *
 mplist_next (MPlist *plist)
@@ -1464,14 +1464,14 @@ mplist_next (MPlist *plist)
     If the operation was successful, mplist_set () returns $PLIST.
     Otherwise, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥκǽ�Υץ��ѥƥ������ꤹ��.
+    @brief プロパティリストの最初のプロパティを設定する.
 
-    �ؿ� mplist_set () �ϥץ��ѥƥ��ꥹ�� $PLIST 
-    �κǽ�Υץ��ѥƥ��Υ������ͤ򤽤줾�� $KEY �� $VALUE �����ꤹ�롣
-    $KEY �� $VAL ���Ф������¤ˤĤ��Ƥϡ�mplist_add () �������򻲾ȡ�
+    関数 mplist_set () はプロパティリスト $PLIST 
+    の最初のプロパティのキーと値をそれぞれ $KEY と $VALUE に設定する。
+    $KEY と $VAL に対する制限については、mplist_add () の説明を参照。
 
     @return
-    ��������������� mplist_set () �� $PLIST ���֤��������Ǥʤ���� @c NULL ���֤���  */
+    処理に成功すれば mplist_set () は $PLIST を返す。そうでなければ @c NULL を返す。  */
 
 MPlist *
 mplist_set (MPlist *plist, MSymbol key, void * val)
@@ -1508,9 +1508,9 @@ mplist_set (MPlist *plist, MSymbol key, void * val)
     The mplist_length () function returns the number of properties in
     property list  $PLIST.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ�Ĺ�����֤�.
+    @brief プロパティリストの長さを返す.
 
-    �ؿ� mplist_length () �ϥץ��ѥƥ��ꥹ�� $PLIST ��Υץ��ѥƥ��ο����֤���  */
+    関数 mplist_length () はプロパティリスト $PLIST 中のプロパティの数を返す。  */
 
 int
 mplist_length (MPlist *plist)
@@ -1530,11 +1530,11 @@ mplist_length (MPlist *plist)
     in property list $PLIST.  If the length of $PLIST is zero,
     it returns @c Mnil.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ����κǽ�Υץ��ѥƥ��Υ������֤�.
+    @brief プロパティリスト中の最初のプロパティのキーを返す.
 
-    �ؿ� mplist_key () �ϡ��ץ��ѥƥ��ꥹ�� $PLIST 
-    ��κǽ�Υץ��ѥƥ��Υ������֤���$PLIST ��Ĺ���� 0 �ʤ�С� @c Mnil 
-    ���֤���  */
+    関数 mplist_key () は、プロパティリスト $PLIST 
+    中の最初のプロパティのキーを返す。$PLIST の長さが 0 ならば、 @c Mnil 
+    を返す。  */
 
 MSymbol
 mplist_key (MPlist *plist)
@@ -1551,10 +1551,10 @@ mplist_key (MPlist *plist)
     property in property list  $PLIST.  If the length of $PLIST
     is zero, it returns @c NULL.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ����κǽ�Υץ��ѥƥ����ͤ��֤�.
+    @brief プロパティリスト中の最初のプロパティの値を返す.
 
-    �ؿ� mplist_value () �ϡ��ץ��ѥƥ��ꥹ�� $PLIST ��κǽ�Υץ��ѥƥ����ͤ��֤���
-    $PLIST ��Ĺ���� 0 �ʤ�С� @c Mnil ���֤���  */
+    関数 mplist_value () は、プロパティリスト $PLIST 中の最初のプロパティの値を返す。
+    $PLIST の長さが 0 ならば、 @c Mnil を返す。  */
 
 void *
 mplist_value (MPlist *plist)
@@ -1589,29 +1589,29 @@ mplist_value (MPlist *plist)
     produces a symbol whose name is of length seven with the fourth
     character being a space.  */
 /***ja
-    @brief M-text ��ǥ��ꥢ�饤�����ƥץ��ѥƥ��ꥹ�Ȥ���.
+    @brief M-text をデシリアライズしてプロパティリストを作る.
 
-    �ؿ� mplist_deserialize () �� M-text $MT ����Ϥ��ƥץ��ѥƥ��ꥹ�Ȥ��֤���
+    関数 mplist_deserialize () は M-text $MT を解析してプロパティリストを返す。
 
-    $MT �Υ��󥿥å����ϰʲ����̤ꡣ
+    $MT のシンタックスは以下の通り。
 
     MT ::= '(' ELEMENT * ')'
 
     ELEMENT ::= SYMBOL | INTEGER | M-TEXT | PLIST
 
-    SYMBOL ::= ��������ʸ����
+    SYMBOL ::= アスキー文字列
 
     INTEGER ::= '-' ? [ '0' | .. | '9' ]+
 		| '0x' [ '0' | .. | '9' | 'A' | .. | 'F' | 'a' | .. | 'f' ]+
 
     M-TEXT ::= '"' character-sequence '"'
 
-    @c ELEMENT �γ������ϥ�����@c Msymbol, @c Minteger, @c Mtext,
-    @c Mplist �Τ����줫�������Ƥ��Ƥ��롣
+    @c ELEMENT の各選択肢はキー：@c Msymbol, @c Minteger, @c Mtext,
+    @c Mplist のいずれかを割り当てられている。
 
-    ��������ʸ������Ǥϡ��Хå�����å��� (\) ������������ʸ���Ȥ����Ѥ����롣���Ȥ���
-    <tt>abc\ def</tt> �� 4 ʸ���ܤ�����ʸ���Ǥ���Ĺ���� 7 
-    �Ǥ������̾������ĥ���ܥ���������롣   */
+    アスキー文字列内では、バックスラッシュ (\) がエスケープ文字として用いられる。たとえば
+    <tt>abc\ def</tt> は 4 文字目が空白文字であり長さが 7 
+    である持つ名前を持つシンボルを生成する。   */
 
 MPlist *
 mplist_deserialize (MText *mt)
@@ -1649,14 +1649,14 @@ mplist_deserialize (MText *mt)
     @return
     This function returns $PLIST.  */
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�Ȥ����פ���.
+    @brief プロパティリストをダンプする.
 
-    �ؿ� mdebug_dump_plist () �ϥץ��ѥƥ��ꥹ�� $PLIST ��ɸ�२�顼��
-    �Ϥ⤷���ϴĶ��ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲�
-    �ɤʷ��ǰ������롣 $INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣
+    関数 mdebug_dump_plist () はプロパティリスト $PLIST を標準エラー出
+    力もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可
+    読な形で印刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
-    ���δؿ��� $PLIST ���֤���  */
+    この関数は $PLIST を返す。  */
 MPlist *
 mdebug_dump_plist (MPlist *plist, int indent)
 {
@@ -1681,6 +1681,6 @@ mdebug_dump_plist (MPlist *plist, int indent)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

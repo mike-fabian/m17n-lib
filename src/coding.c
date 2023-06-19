@@ -37,19 +37,19 @@
 
 /***ja
     @addtogroup m17nConv
-    @brief �����ɷϥ��֥������ȤȤ���˴ؤ��� API.
+    @brief コード系オブジェクトとそれに関する API.
 
-    m17n �饤�֥��ϡ���沽ʸ������ (coded character set; CCS) 
-    ��ʸ����粽���� (character encoding scheme; CES) �� @e �����ɷ� 
-    �ȸƤ֥��֥������Ȥ�ɽ�����롣
-    ���ץꥱ�������ץ��������ȼ��˥����ɷϤ��ɲä��뤳�Ȥ�Ǥ��롣
+    m17n ライブラリは、符号化文字集合 (coded character set; CCS) 
+    の文字符合化方式 (character encoding scheme; CES) を @e コード系 
+    と呼ぶオブジェクトで表現する。
+    アプリケーションプログラムは独自にコード系を追加することもできる。
 
-    �����ɥݥ���Ȥ���ʸ�������ɤؤ��Ѵ��� @e ���󥳡��� 
-    �ȸƤӡ�ʸ�������ɤ��饳���ɥݥ���Ȥؤ��Ѵ��� @e �ǥ����� �ȸƤ֡�
+    コードポイントから文字コードへの変換を @e エンコード 
+    と呼び、文字コードからコードポイントへの変換を @e デコード と呼ぶ。
 
-    ���ץꥱ�������ץ������ϡ����ꤵ�줿�����ɷϤǥХ������ǥ����ɤ��뤳�Ȥˤ�ä�
-    M-text �����뤳�Ȥ��Ǥ��롣�ޤ��դˡ����ꤵ�줿�����ɷϤ� M-text 
-    �򥨥󥳡��ɤ����뤳�Ȥˤ�äƥХ���������뤳�Ȥ��Ǥ��롣  */
+    アプリケーションプログラムは、指定されたコード系でバイト列をデコードすることによって
+    M-text を得ることができる。また逆に、指定されたコード系で M-text 
+    をエンコードしすることによってバイト列を得ることができる。  */
 
 /*=*/
 
@@ -136,25 +136,25 @@ typedef struct {
   /**en
      Pointer to a structure of a coding system.  */
   /**ja
-     �����ɷϤ�ɽ�魯�ǡ�����¤�ؤΥݥ��� */
+     コード系を表わすデータ構造へのポインタ */
   MCodingSystem *coding;
 
   /**en
      Buffer for carryover bytes generated while decoding. */
   /**ja
-     �ǥ�������Υ���ꥣ�����С��Х����ѥХåե� */
+     デコード中のキャリィオーバーバイト用バッファ */
   unsigned char carryover[256];
 
   /**en
      Number of carryover bytes. */
   /**ja
-     ����ꥣ�����С��Х��ȿ� */
+     キャリィオーバーバイト数 */
   int carryover_bytes;
 
   /**en
      Beginning of the byte sequence bound to this converter. */
   /**ja
-     ���Υ���С����˷���դ���줿�Х��������Ƭ���� */
+     このコンバータに結び付けられたバイト列の先頭位置 */
   union {
     const unsigned char *in;
     unsigned char *out;
@@ -163,37 +163,37 @@ typedef struct {
   /**en
      Size of buf. */
   /**ja
-     buf ���礭�� */
+     buf の大きさ */
   int bufsize;
 
   /**en
      Number of bytes already consumed in buf. */
   /**ja
-     buf ��Ǥ��Ǥ˾��񤵤줿�Х��ȿ� */
+     buf 内ですでに消費されたバイト数 */
   int used;
 
   /**en
      Stream bound to this converter. */
   /**ja
-     ���Υ���С����˷���դ���줿���ȥ꡼�� */
+     このコンバータに結び付けられたストリーム */
   FILE *fp;
 
   /**en
      Which of above two is in use. */
   /**ja
-     �嵭2�ԤΤ����줬�Ȥ��Ƥ��뤫 */
+     上記2者のいずれが使われているか */
   int binding;
 
   /**en
      Buffer for unget. */
   /**ja
-     Unget �ѥХåե� */
+     Unget 用バッファ */
   MText *unread;
 
   /**en
     Working area. */
   /**ja
-    ����ΰ� */
+    作業領域 */
   MText *work_mt;
 
   int seekable;
@@ -3099,7 +3099,7 @@ mcoding__load_from_database ()
 /*=*/
 
 /***en @name Variables: Symbols representing coding systems */
-/***ja @name �ѿ�: ����Ѥߥ����ɷϤ���ꤹ�뤿��Υ���ܥ� */
+/***ja @name 変数: 定義済みコード系を指定するためのシンボル */
 /*** @{ */
 /*=*/
 
@@ -3110,10 +3110,10 @@ mcoding__load_from_database ()
     represents a coding system for the CES US-ASCII.  */
 
 /***ja
-    @brief US-ASCII �����ɷϤΥ���ܥ�.
+    @brief US-ASCII コード系のシンボル.
 
-    ����ܥ� #Mcoding_us_ascii �� <tt>"us-ascii"</tt> �Ȥ���̾���������
-    CES US-ASCII �ѤΥ����ɷϤ򼨤���
+    シンボル #Mcoding_us_ascii は <tt>"us-ascii"</tt> という名前を持ち、
+    CES US-ASCII 用のコード系を示す。
     */
 MSymbol Mcoding_us_ascii;
 /*=*/
@@ -3125,10 +3125,10 @@ MSymbol Mcoding_us_ascii;
     represents a coding system for the CES ISO-8859-1.  */
 
 /***ja
-    @brief ISO-8859-1 �����ɷϤΥ���ܥ�.
+    @brief ISO-8859-1 コード系のシンボル.
 
-    ����ܥ� #Mcoding_iso_8859_1 �� <tt>"iso-8859-1"</tt> 
-    �Ȥ���̾���������CES ISO-8859-1 �ѤΥ����ɷϤ򼨤���  */
+    シンボル #Mcoding_iso_8859_1 は <tt>"iso-8859-1"</tt> 
+    という名前を持ち、CES ISO-8859-1 用のコード系を示す。  */
 
 MSymbol Mcoding_iso_8859_1;
 /*=*/
@@ -3140,10 +3140,10 @@ MSymbol Mcoding_iso_8859_1;
     a coding system for the CES UTF-8.  */
 
 /***ja
-    @brief UTF-8 �����ɷϤΥ���ܥ�.
+    @brief UTF-8 コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_8 �� <tt>"utf-8"</tt> �Ȥ���̾���������CES
-    UTF-8 �ѤΥ����ɷϤ򼨤���
+    シンボル #Mcoding_utf_8 は <tt>"utf-8"</tt> という名前を持ち、CES
+    UTF-8 用のコード系を示す。
      */
 
 MSymbol Mcoding_utf_8;
@@ -3159,13 +3159,13 @@ MSymbol Mcoding_utf_8;
     supported by the m17n library.  */
 
 /***ja
-    @brief UTF-8-FULL �����ɷϤΥ���ܥ�.
+    @brief UTF-8-FULL コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_8_full �� <tt>"utf-8-full"</tt> 
-    �Ȥ���̾���������<tt>"UTF-8"</tt> �γ�ĥ�Ǥ��륳���ɷϤ򼨤���
-    ���Υ����ɷϤ� UTF-8 ��Ʊ�����󥳡��ǥ��󥰥��르�ꥺ����Ѥ��뤬���оݤ�
-    Unicode ʸ���ˤϸ��ꤵ��ʤ���
-    �ޤ�m17n �饤�֥�꤬�������Ƥ�ʸ���򥨥󥳡��ɤ��뤳�Ȥ��Ǥ��롣
+    シンボル #Mcoding_utf_8_full は <tt>"utf-8-full"</tt> 
+    という名前を持ち、<tt>"UTF-8"</tt> の拡張であるコード系を示す。
+    このコード系は UTF-8 と同じエンコーディングアルゴリズムを用いるが、対象は
+    Unicode 文字には限定されない。
+    またm17n ライブラリが扱う全ての文字をエンコードすることができる。
     */
 
 MSymbol Mcoding_utf_8_full;
@@ -3177,10 +3177,10 @@ MSymbol Mcoding_utf_8_full;
     The symbol #Mcoding_utf_16 has name <tt>"utf-16"</tt> and
     represents a coding system for the CES UTF-16 (RFC 2279).  */
 /***ja
-    @brief UTF-16 �����ɷϤΥ���ܥ�.
+    @brief UTF-16 コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_16 �� <tt>"utf-16"</tt> �Ȥ���̾���������
-    CES UTF-16 (RFC 2279) �ѤΥ����ɷϤ򼨤���
+    シンボル #Mcoding_utf_16 は <tt>"utf-16"</tt> という名前を持ち、
+    CES UTF-16 (RFC 2279) 用のコード系を示す。
      */
 
 MSymbol Mcoding_utf_16;
@@ -3193,10 +3193,10 @@ MSymbol Mcoding_utf_16;
     represents a coding system for the CES UTF-16BE (RFC 2279).  */
 
 /***ja
-    @brief UTF-16BE �����ɷϤΥ���ܥ�.
+    @brief UTF-16BE コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_16be �� <tt>"utf-16be"</tt> �Ȥ���̾���������
-    CES UTF-16BE (RFC 2279) �ѤΥ����ɷϤ򼨤���     */
+    シンボル #Mcoding_utf_16be は <tt>"utf-16be"</tt> という名前を持ち、
+    CES UTF-16BE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_16be;
 /*=*/
@@ -3208,10 +3208,10 @@ MSymbol Mcoding_utf_16be;
     represents a coding system for the CES UTF-16LE (RFC 2279).  */
 
 /***ja
-    @brief UTF-16LE �����ɷϤΥ���ܥ�.
+    @brief UTF-16LE コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_16le �� <tt>"utf-16le"</tt> �Ȥ���̾���������
-    CES UTF-16LE (RFC 2279) �ѤΥ����ɷϤ򼨤���     */
+    シンボル #Mcoding_utf_16le は <tt>"utf-16le"</tt> という名前を持ち、
+    CES UTF-16LE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_16le;
 /*=*/
@@ -3223,10 +3223,10 @@ MSymbol Mcoding_utf_16le;
     represents a coding system for the CES UTF-32 (RFC 2279).  */
 
 /***ja
-    @brief UTF-32 �����ɷϤΥ���ܥ�.
+    @brief UTF-32 コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_32 �� <tt>"utf-32"</tt> �Ȥ���̾���������
-    CES UTF-32 (RFC 2279) �ѤΥ����ɷϤ򼨤���     */
+    シンボル #Mcoding_utf_32 は <tt>"utf-32"</tt> という名前を持ち、
+    CES UTF-32 (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_32;
 /*=*/
@@ -3237,10 +3237,10 @@ MSymbol Mcoding_utf_32;
     The symbol #Mcoding_utf_32be has name <tt>"utf-32be"</tt> and
     represents a coding system for the CES UTF-32BE (RFC 2279).  */
 /***ja
-    @brief UTF-32BE �����ɷϤΥ���ܥ�.
+    @brief UTF-32BE コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_32be �� <tt>"utf-32be"</tt> �Ȥ���̾���������
-    CES UTF-32BE (RFC 2279) �ѤΥ����ɷϤ򼨤���     */
+    シンボル #Mcoding_utf_32be は <tt>"utf-32be"</tt> という名前を持ち、
+    CES UTF-32BE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_32be;
 /*=*/
@@ -3251,10 +3251,10 @@ MSymbol Mcoding_utf_32be;
     The symbol #Mcoding_utf_32le has name <tt>"utf-32le"</tt> and
     represents a coding system for the CES UTF-32LE (RFC 2279).  */
 /***ja
-    @brief UTF-32LE �����ɷϤΥ���ܥ�.
+    @brief UTF-32LE コード系のシンボル.
 
-    ����ܥ� #Mcoding_utf_32le �� <tt>"utf-32le"</tt> �Ȥ���̾���������
-    CES UTF-32LE (RFC 2279) �ѤΥ����ɷϤ򼨤���     */
+    シンボル #Mcoding_utf_32le は <tt>"utf-32le"</tt> という名前を持ち、
+    CES UTF-32LE (RFC 2279) 用のコード系を示す。     */
 
 MSymbol Mcoding_utf_32le;
 /*=*/
@@ -3265,10 +3265,10 @@ MSymbol Mcoding_utf_32le;
     The symbol #Mcoding_sjis has name <tt>"sjis"</tt> and represents a coding
     system for the CES Shift-JIS.  */ 
 /***ja
-    @brief SJIS �����ɷϤΥ���ܥ�.
+    @brief SJIS コード系のシンボル.
 
-    ����ܥ� #Mcoding_sjis has �� <tt>"sjis"</tt> �Ȥ���̾���������
-    CES Shift-JIS�ѤΥ����ɷϤ򼨤���  */ 
+    シンボル #Mcoding_sjis has は <tt>"sjis"</tt> という名前を持ち、
+    CES Shift-JIS用のコード系を示す。  */ 
 
 MSymbol Mcoding_sjis;
 /*** @} */ 
@@ -3277,14 +3277,14 @@ MSymbol Mcoding_sjis;
 /***en
     @name Variables: Parameter keys for mconv_define_coding ().  */
 /***ja
-    @name �ѿ�:  mconv_define_coding () �ѥѥ�᡼������  */
+    @name 変数:  mconv_define_coding () 用パラメータキー  */
 /*** @{ */
 /*=*/
 
 /***en
     Parameter key for mconv_define_coding () (which see). */ 
 /***ja
-    mconv_define_coding () �ѥѥ�᡼������ (�ܺ٤� mconv_define_coding ()����). */ 
+    mconv_define_coding () 用パラメータキー (詳細は mconv_define_coding ()参照). */ 
 MSymbol Mtype;
 MSymbol Mcharsets;
 MSymbol Mflags;
@@ -3299,7 +3299,7 @@ MSymbol Mlittle_endian;
 /***en
     @name Variables: Symbols representing coding system types.  */
 /***ja
-    @name �ѿ��� �����ɷϤΥ����פ򼨤�����ܥ�.  */
+    @name 変数： コード系のタイプを示すシンボル.  */
 /*** @{ */
 /*=*/
 
@@ -3308,9 +3308,9 @@ MSymbol Mlittle_endian;
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
-    �ؿ� mconv_define_coding () �ΰ����Ȥ����Ѥ����륳���ɷϤΥѥ�᡼��
-    #Mtype ���ͤȤʤ����륷��ܥ롣(�ܺ٤� 
-    mconv_define_coding ()����)��  */
+    関数 mconv_define_coding () の引数として用いられるコード系のパラメータ
+    #Mtype の値となり得るシンボル。(詳細は 
+    mconv_define_coding ()参照)。  */
  
 MSymbol Mutf;
 /*=*/
@@ -3322,16 +3322,16 @@ MSymbol Miso_2022;
 /***en
     @name Variables: Symbols appearing in the value of Mflags parameter.  */
 /***ja
-    @name �ѿ��� �ѥ�᡼�� Mflags ���ͤȤʤ����륷��ܥ�.  */
+    @name 変数： パラメータ Mflags の値となり得るシンボル.  */
 /*** @{ */
 /***en
     Symbols that can be a value of the @b Mflags parameter of a coding
     system used in an argument to the mconv_define_coding () function
     (which see).  */
 /***ja 
-    �ؿ� mconv_define_coding () �ΰ����Ȥ����Ѥ����륳���ɷϤΥѥ�᡼��
-    @b Mflags ���ͤȤʤ����륷��ܥ롣(�ܺ٤� 
-    mconv_define_coding ()����)��  */
+    関数 mconv_define_coding () の引数として用いられるコード系のパラメータ
+    @b Mflags の値となり得るシンボル。(詳細は 
+    mconv_define_coding ()参照)。  */
 MSymbol Mreset_at_eol;
 MSymbol Mreset_at_cntl;
 MSymbol Meight_bit;
@@ -3354,9 +3354,9 @@ MSymbol Mfull_support;
     @name Variables: Others
 
     Remaining variables.  */
-/***ja @name �ѿ�: ����¾ 
+/***ja @name 変数: その他 
 
-    �ۤ����ѿ��� */
+    ほかの変数。 */
 /*** @{ */
 /*=*/
 /***en
@@ -3366,11 +3366,11 @@ MSymbol Mfull_support;
     used a value of @b Mbom parameter of the function
     mconv_define_coding () (which see).  */
 /***ja
-    @brief "maybe"�Ȥ���̾������ĥ���ܥ�.
+    @brief "maybe"という名前を持つシンボル.
 
-    �ѿ� #Mmaybe �� <tt>"maybe"</tt> �Ȥ���̾������ġ�����ϴؿ� 
-    mconv_define_coding () �ѥ�᡼�� @b Mbom ���ͤȤ����Ѥ����롣
-    (�ܺ٤� mconv_define_coding () ����)�� */
+    変数 #Mmaybe は <tt>"maybe"</tt> という名前を持つ。これは関数 
+    mconv_define_coding () パラメータ @b Mbom の値として用いられる。
+    (詳細は mconv_define_coding () 参照)。 */
 
 MSymbol Mmaybe;
 /*=*/
@@ -3383,11 +3383,11 @@ MSymbol Mmaybe;
     <tt>"coding"</tt>.  */
 
 /***ja
-    @brief ����ܥ� @c Mcoding.
+    @brief シンボル @c Mcoding.
 
-    �ǥ����ɤ��줿 M-text �Ϥ��٤ơ�����������Ѥߥ���ܥ� @c Mcoding 
-    �Ǥ���褦�ʥƥ����ȥץ��ѥƥ�����ġ�����ܥ� @c Mcoding �� 
-    <tt>"coding"</tt> �Ȥ���̾������ġ�  */
+    デコードされた M-text はすべて、キーが定義済みシンボル @c Mcoding 
+    であるようなテキストプロパティを持つ。シンボル @c Mcoding は 
+    <tt>"coding"</tt> という名前を持つ。  */
 
 MSymbol Mcoding;
 /*=*/
@@ -3593,191 +3593,191 @@ MSymbol Mcoding;
     #Mnil and assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �����ɷϤ��������.
+    @brief コード系を定義する.
 
-    �ؿ� mconv_define_coding () �ϡ������������ɷϤ������������� 
-    $NAME �Ȥ���̾���Υ���ܥ��ͳ�ǥ��������Ǥ���褦�ˤ��롣 $PLIST 
-    �Ǥ�������륳���ɷϤΥѥ�᡼����ʲ��Τ褦�˻��ꤹ�롣
+    関数 mconv_define_coding () は、新しいコード系を定義し、それを 
+    $NAME という名前のシンボル経由でアクセスできるようにする。 $PLIST 
+    では定義するコード系のパラメータを以下のように指定する。
 
     <ul>
 
-    <li> ������ @c Mtype ���ͤ�����ܥ�λ�
+    <li> キーが @c Mtype で値がシンボルの時
 
-    �ͤϥ����ɷϤΥ����פ�ɽ����@b Mcharset, @b Mutf, @b Miso_2022, #Mnil 
-    �Τ����줫�Ǥʤ��ƤϤʤ�ʤ���
+    値はコード系のタイプを表し、@b Mcharset, @b Mutf, @b Miso_2022, #Mnil 
+    のいずれかでなくてはならない。
 
-    �����פ� @b Mcharset �ʤ�� $EXTRA_INFO ��̵�뤵��롣
+    タイプが @b Mcharset ならば $EXTRA_INFO は無視される。
 
-    �����פ� @b Mutf �ʤ�� $EXTRA_INFO �� #MCodingInfoUTF 
-    �ؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ���
+    タイプが @b Mutf ならば $EXTRA_INFO は #MCodingInfoUTF 
+    へのポインタでなくてはならない。
 
-    �����פ� @b Miso_2022�ʤ�� $EXTRA_INFO �� #MCodingInfoISO2022 
-    �ؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ���
+    タイプが @b Miso_2022ならば $EXTRA_INFO は #MCodingInfoISO2022 
+    へのポインタでなくてはならない。
 
-    �����פ� #Mnil �ʤ�С����� $RESETTER, $DECODER, $ENCODER 
-    ��Ϳ���ʤ��ƤϤʤ�ʤ���$EXTRA_INFO ��̵�뤵��롣
-    ����ʳ��ξ��ˤϤ����� @c NULL �Ǥ褯��
-    m17n �饤�֥�꤬Ŭ�ڤʥǥե�����ͤ�Ϳ���롣
+    タイプが #Mnil ならば、引数 $RESETTER, $DECODER, $ENCODER 
+    を与えなくてはならない。$EXTRA_INFO は無視される。
+    それ以外の場合にはこれらは @c NULL でよく、
+    m17n ライブラリが適切なデフォルト値を与える。
 
-    <li> ������ @b Mcharsets ���ͤ� plist �λ�
+    <li> キーが @b Mcharsets で値が plist の時
 
-    �ͤϤ��Υ����ɷϤǥ��ݡ��Ȥ����ʸ�����åȤΥꥹ�ȤǤ��롣plist�Υ�����
-    #Msymbol���ͤ�ʸ�����åȤ򼨤�����ܥ�Ǥʤ��ƤϤʤ�ʤ���
+    値はこのコード系でサポートされる文字セットのリストである。plistのキーは
+    #Msymbol、値は文字セットを示すシンボルでなくてはならない。
 
-    <li> ������ @b Mflags �ͤ� plist �λ�
+    <li> キーが @b Mflags 値が plist の時
 
-    �����פ� @b Miso_2022 �ʤ�С������ͤ�, ISO 2022 
-    ���󥿥ץ꥿�Ѥ�����ե�å��򼨤���plist �Υ����� #Msymbol 
-    �Ǥ��ꡢ�ͤϰʲ��Τ����줫�Ǥ��롣
+    タイプが @b Miso_2022 ならば、この値は, ISO 2022 
+    インタプリタ用の制御フラッグを示す。plist のキーは #Msymbol 
+    であり、値は以下のいずれかである。
 
     <ul>
 
     <li> @b Mreset_at_eol
 
-    ���Υե饰������С��޷�ʸ������λؼ���ƽФϹ����ǥꥻ�åȤ��������ξ��֤���롣
+    このフラグがあれば、図形文字集合の指示や呼出は行末でリセットされて当初の状態に戻る。
 
     <li> @b Mreset_at_cntl
 
-    ���Υե饰������С��޷�ʸ������λؼ���ƽФ�����ʸ���˽в�ä������ǥꥻ�åȤ��������ξ��֤���롣
+    このフラグがあれば、図形文字集合の指示や呼出は制御文字に出会った時点でリセットされて当初の状態に戻る。
 
     <li> @b Meight_bit
 
-    ���Υե饰������С��޷�ʸ������α�Ⱦ�̤��Ѥ����롣
+    このフラグがあれば、図形文字集合の右半面が用いられる。
 
     <li> @b Mlong_form
 
-    ���Υե饰������С�ʸ������ JISX0208.1978, GB2312, JISX0208 
-    ��ؼ�����ݤ� over-long ���������ץ������� (ESC '$' '('
-    \<final_byte\>) ���Ѥ����롣
+    このフラグがあれば、文字集合 JISX0208.1978, GB2312, JISX0208 
+    を指示する際に over-long エスケープシーケンス (ESC '$' '('
+    \<final_byte\>) が用いられる。
 
     <li> @b Mdesignation_g0
 
-    ���Υե饰�� @b Mfull_support ������С�ʸ�����åȥꥹ�Ȥ˸����ʤ�ʸ�����åȤ�
-    G0 ����˻ؼ����롣
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合に指示する。
 
     <li> @b Mdesignation_g1
 
-    ���Υե饰�� @b Mfull_support ������С�ʸ�����åȥꥹ�Ȥ˸����ʤ�ʸ�����åȤ�
-    G1 ����˻ؼ����롣
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
+    G1 集合に指示する。
 
     <li> @b Mdesignation_ctext
 
-    ���Υե饰�� @b Mfull_support ������С�ʸ�����åȥꥹ�Ȥ˸����ʤ�ʸ�����åȤ�
-    G0 ����ޤ��� G1 ����ˡ�����ѥ���ɥƥ����Ȥδ��ˤ��äƻؼ����롣
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合または G1 集合に、コンパウンドテキストの基準にそって指示する。
 
     <li> @b Mdesignation_ctext_ext
 
-    ���Υե饰�� @b Mfull_support ������С�ʸ�����åȥꥹ�Ȥ˸����ʤ�ʸ�����åȤ�
-    G0 ����ޤ��� G1 ����ˡ����뤤�ϳ�ĥ�������Ȥ˥���ѥ���ɥƥ����Ȥδ��ˤ��äƻؼ����롣
+    このフラグと @b Mfull_support があれば、文字セットリストに現われない文字セットを
+    G0 集合または G1 集合に、あるいは拡張セグメントにコンパウンドテキストの基準にそって指示する。
 
     <li> @b Mlocking_shift
 
-    ���Υե饰������С����å��󥰥��եȤ��Ѥ��롣
+    このフラグがあれば、ロッキングシフトを用いる。
 
     <li> @b Msingle_shift
 
-    ���Υե饰������С����󥰥륷�եȤ��Ѥ��롣
+    このフラグがあれば、シングルシフトを用いる。
 
     <li> @b Msingle_shift_7
 
-    ���Υե饰������С�7-bit ���󥰥륷�եȥ����� (0x19) ���Ѥ��롣   
+    このフラグがあれば、7-bit シングルシフトコード (0x19) を用いる。   
     
     <li> @b Meuc_tw_shift
 
-    ���Υե饰������С�EUC-TW �˱�ä����̤ʥ��եȤ��Ѥ��롣
+    このフラグがあれば、EUC-TW に沿った特別なシフトを用いる。
 
     <li> @b Miso_6429
 
-    �������Ǥ��Ѥ����Ƥ��ʤ���
+    現時点では用いられていない。
 
     <li> @b Mrevision_number
 
-    ���Υե饰������С�revision number �����ʸ�����åȤ�ؼ�����ݤ� 
-    revision number ���������ץ��������󥹤��Ѥ��롣
+    このフラグがあれば、revision number を持つ文字セットを指示する際に 
+    revision number エスケープシークエンスを用いる。
 
     <li> @b Mfull_support
 
-    ���Υե饰������С�the International Registry 
-    ����Ͽ����Ƥ�����ʸ�����åȤ򥵥ݡ��Ȥ��롣
+    このフラグがあれば、the International Registry 
+    に登録されている全文字セットをサポートする。
 
     </ul>
 
-    <li> ������ @b Mdesignation ���ͤ� plist �λ�
+    <li> キーが @b Mdesignation で値が plist の時
 
-    �����פ� @b Miso_2022 �ʤ�С��ͤϳ�ʸ����ɤΤ褦�˻ؼ����뤫�򼨤���
-    plist �Υ����� #Minteger���ͤϽ����graphic register��
-    �򼨤������Ǥ��롣N���ܤ����Ǥ��ͤϡ�ʸ�����åȥꥹ�Ȥ� N 
-    ���ܤ�ʸ�����åȤ��б����롣�ͤ� 0..3 �Ǥ���С�ʸ�����åȤ����Ǥ� 
-    G0..G3 �˻ؼ� ����Ƥ��롣
+    タイプが @b Miso_2022 ならば、値は各文字をどのように指示するかを示す。
+    plist のキーは #Minteger、値は集合（graphic register）
+    を示す数字である。N番目の要素の値は、文字セットリストの N 
+    番目の文字セットに対応する。値が 0..3 であれば、文字セットがすでに 
+    G0..G3 に指示 されている。
 
-    �ͤ���(-4..-1) �Ǥ���С�������֤Ǥ�ʸ�����åȤ��ɤ��ˤ�ؼ�����Ƥ��ʤ����ȡ�ɬ�פʺݤˤ�
-    G0..G3 �Τ��줾��˻ؼ����뤳�Ȥ��̣���롣
+    値が負(-4..-1) であれば、初期状態では文字セットがどこにも指示されていないこと、必要な際には
+    G0..G3 のそれぞれに指示することを意味する。
 
-    <li> ������ @b Minvocation ���ͤ� plist �λ�
+    <li> キーが @b Minvocation で値が plist の時
 
-    �����פ� @b Miso_2022 �ʤ�С��ͤϳƽ����ɤΤ褦�˸ƤӽФ����򼨤���
-    plist ��Ĺ���� 1 �ʤ��� 2 �Ǥ��롣plist �Υ����� 
-    #Minteger���ͤϽ����graphic register)�򼨤������Ǥ��롣
-    �ǽ�����Ǥ��ͤ��޷�ʸ�����纸Ⱦ�̤˸ƤӽФ���뽸��򼨤���
-    plist ��Ĺ���� 1 �ʤ�С���Ⱦ�̤ˤϲ���ƤӽФ���ʤ���
-    �����Ǥ���С����Ĥ�����Ǥ��ͤ��޷�ʸ�����籦Ⱦ�̤˸ƤӽФ���뽸��򼨤���
+    タイプが @b Miso_2022 ならば、値は各集合をどのように呼び出すかを示す。
+    plist の長さは 1 ないし 2 である。plist のキーは 
+    #Minteger、値は集合（graphic register)を示す数字である。
+    最初の要素の値が図形文字集合左半面に呼び出される集合を示す。
+    plist の長さが 1 ならば、右半面には何も呼び出されない。
+    そうでければ、２つめの要素の値が図形文字集合右半面に呼び出される集合を示す。
 
-    <li> ������ @b Mcode_unit ���ͤ������ͤλ�
+    <li> キーが @b Mcode_unit で値が整数値の時
 
-    �����פ� @b Mutf �ʤ�С��ͤϥ����ɥ�˥åȤΥӥå�Ĺ�Ǥ��ꡢ8, 16,
-    32 �Τ����줫�Ǥ��롣
+    タイプが @b Mutf ならば、値はコードユニットのビット長であり、8, 16,
+    32 のいずれかである。
 
-    <li> ������ @b Mbom ���ͤ�����ܥ�λ�
+    <li> キーが @b Mbom で値がシンボルの時
 
-    �����פ� @b Mutf �ǥ����ɥ�˥åȤΥӥå�Ĺ�� 16 �� 32�ʤ�С��ͤ�
-    BOM (Byte Order Mark) ����Ѥ��뤫�ɤ����򼨤����ͤ��ǥե�����ͤ� 
-    #Mnil �ʤ�С����Ѥ��ʤ����ͤ� #Mmaybe �ʤ�Хǥ����ɻ��� BOM 
-    �����뤫�ɤ�����Ĵ�٤롣����ʳ��ʤ�л��Ѥ��롣
+    タイプが @b Mutf でコードユニットのビット長が 16 か 32ならば、値は
+    BOM (Byte Order Mark) を使用するかどうかを示す。値がデフォルト値の 
+    #Mnil ならば、使用しない。値が #Mmaybe ならばデコード時に BOM 
+    があるかどうかを調べる。それ以外ならば使用する。
 
-    <li> ������ @b Mlittle_endian ���ͤ�����ܥ�λ� 
+    <li> キーが @b Mlittle_endian で値がシンボルの時 
 
-    �����פ� @b Mutf �ǥ����ɥ�˥åȤΥӥå�Ĺ�� 16 �� 32
-    �ʤ�С��ͤϥ��󥳡��ɤ� little endian ���ɤ����򼨤����ͤ��ǥե�����ͤ�
-    #Mnil �ʤ�� big endian �Ǥ��ꡢ�����Ǥʤ���� little endian �Ǥ��롣
+    タイプが @b Mutf でコードユニットのビット長が 16 か 32
+    ならば、値はエンコードが little endian かどうかを示す。値がデフォルト値の
+    #Mnil ならば big endian であり、そうでなければ little endian である。
 
     </ul>
 
     $RESETTER 
-    �Ϥ��Υ����ɷ��ѤΥ���С����������֤˥ꥻ�åȤ���ؿ��ؤΥݥ��󥿤Ǥ��롣
-    ���δؿ��ϥ���С������֥������ȤؤΥݥ��󥿤Ȥ�����������Ȥ롣
+    はこのコード系用のコンバータを初期状態にリセットする関数へのポインタである。
+    この関数はコンバータオブジェクトへのポインタという１引数をとる。
 
-    $DECODER �ϥХ�����򤳤Υ����ɷϤ˽��äƥǥ����ɤ���ؿ��ؤΥݥ��󥿤Ǥ��롣
-    ���δؿ��ϰʲ��Σ�������Ȥ롣
+    $DECODER はバイト列をこのコード系に従ってデコードする関数へのポインタである。
+    この関数は以下の４引数をとる。
 
-	@li �ǥ����ɤ���Х�����ؤΥݥ���
-	@li �ǥ����ɤ��٤��Х��ȿ�
-	@li �ǥ����ɷ�̤�ʸ�����ղä��� M-text �ؤΥݥ���
-	@li ����С������֥������ȤؤΥݥ���
+	@li デコードするバイト列へのポインタ
+	@li デコードすべきバイト数
+	@li デコード結果の文字を付加する M-text へのポインタ
+	@li コンバータオブジェクトへのポインタ
 
-    $DECODER �����������Ȥ��ˤ� 0 �򡢼��Ԥ����Ȥ��ˤ� -1 
-    ���֤��ʤ��ƤϤʤ�ʤ���
+    $DECODER は成功したときには 0 を、失敗したときには -1 
+    を返さなくてはならない。
 
-    $ENCODER �� M-text �򤳤Υ����ɷϤ˽��äƥ��󥳡��ɤ���ؿ��ؤΥݥ��󥿤Ǥ��롣
-    ���δؿ��ϰʲ��Σ�������Ȥ롣
+    $ENCODER は M-text をこのコード系に従ってエンコードする関数へのポインタである。
+    この関数は以下の６引数をとる。
 
-        @li ���󥳡��ɤ���M-text �ؤΥݥ���
-        @li M-text �Υ��󥳡��ɳ��ϰ���
-        @li M-text �Υ��󥳡��ɽ�λ����
-        @li ���������Х��Ȥ��ݻ���������ΰ�ؤΥݥ���
-        @li �����ΰ�Υ�����
-	@li ����С������֥������ȤؤΥݥ���
+        @li エンコードするM-text へのポインタ
+        @li M-text のエンコード開始位置
+        @li M-text のエンコード終了位置
+        @li 生成したバイトを保持するメモリ領域へのポインタ
+        @li メモリ領域のサイズ
+	@li コンバータオブジェクトへのポインタ
 
-    $ENCODER �����������Ȥ��ˤ� 0 �򡢼��Ԥ����Ȥ��ˤ� -1 
-    ���֤��ʤ��ƤϤʤ�ʤ���
+    $ENCODER は成功したときには 0 を、失敗したときには -1 
+    を返さなくてはならない。
 
-    $EXTRA_INFO �ϥ����ǥ��������ƥ�˴ؤ����ɲþ����ޤ�ǡ�����¤�ؤΥݥ��󥿤Ǥ��롣
-    ���Υǡ�����¤�η� $TYPE �˰�¸���롣
+    $EXTRA_INFO はコーディグシステムに関する追加情報を含むデータ構造へのポインタである。
+    このデータ構造の型 $TYPE に依存する。
 
     @return  
 
-    ��������������� mconv_define_coding () �� $NAME 
-    �Ȥ���̾���Υ���ܥ���֤��� ���顼�����Ф��줿���� #Mnil
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理に成功すれば mconv_define_coding () は $NAME 
+    という名前のシンボルを返す。 エラーが検出された場合は #Mnil
+    を返し、外部変数 #merror_code にエラーコードを設定する。
       */
 
 /***
@@ -3995,12 +3995,12 @@ mconv_define_coding (const char *name, MPlist *plist,
     a coding system name, and if the canonicalized name represents a
     coding system, return it.  Otherwise, return #Mnil.  */
 /***ja
-    @brief �����ɷϤ�̾�����褹��.
+    @brief コード系の名前を解決する.
 
-    �ؿ� mconv_resolve_coding () �� $SYMBOL �������ɷϤ򼨤��Ƥ���Ф�����֤���
-    �����Ǥʤ���Х����ɷϤ�̾���Ȥ��� $SYMBOL 
-    ���������������줬�����ɷϤ�ɽ���Ƥ�������������� $SYMBOL ���֤���
-    �����Ǥʤ����#Mnil ���֤���  */
+    関数 mconv_resolve_coding () は $SYMBOL がコード系を示していればそれを返す。
+    そうでなければコード系の名前として $SYMBOL 
+    を正規化し、それがコード系を表していれば正規化した $SYMBOL を返す。
+    そうでなければ#Mnil を返す。  */
 
 
 
@@ -4027,10 +4027,10 @@ mconv_resolve_coding (MSymbol symbol)
     representing a coding system, stores the pointer to the array in a
     place pointed to by $SYMBOLS, and returns the length of the array.  */
 /***ja
-    @brief �����ɷϤ�ɽ�魯����ܥ����󤹤�.
+    @brief コード系を表わすシンボルを列挙する.
 
-    �ؿ� mchar_list_codings () �ϡ������ɷϤ򼨤�����ܥ���¤٤�������ꡢ
-    $SYMBOLS �ǥݥ���Ȥ��줿���ˤ�������ؤΥݥ��󥿤��֤��������Ĺ�����֤��� */
+    関数 mchar_list_codings () は、コード系を示すシンボルを並べた配列を作り、
+    $SYMBOLS でポイントされた場所にこの配列へのポインタを置き、配列の長さを返す。 */
 
 int
 mconv_list_codings (MSymbol **symbols)
@@ -4072,20 +4072,20 @@ mconv_list_codings (MSymbol **symbols)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �Хåե��˷���դ���줿�����ɥ���С�������.
+    @brief バッファに結び付けられたコードコンバータを作る.
 
-    �ؿ� mconv_buffer_converter () �ϡ������ɷ� $NAME 
-    �ѤΥ����ɥ���С������롣���Υ����ɥ���С����ϡ�$BUF �Ǽ�������礭�� $N 
-    �Х��ȤΥХåե��ΰ�˷���դ����롣
-    ����ʹߤΥǥ����ɤ���ӥ��󥳡��ɤϡ����ΥХåե��ΰ���Ф��ƹԤʤ��롣
+    関数 mconv_buffer_converter () は、コード系 $NAME 
+    用のコードコンバータを作る。このコードコンバータは、$BUF で示される大きさ $N 
+    バイトのバッファ領域に結び付けられる。
+    これ以降のデコードおよびエンコードは、このバッファ領域に対して行なわれる。
 
-    $NAME �� #Mnil �Ǥ��äƤ�褤�����ξ��ϸ��ߤΥ������� 
-    (LC_CTYPE) �˴�Ϣ�դ���줿�����ɷϤ��Ȥ��롣
+    $NAME は #Mnil であってもよい。この場合は現在のロケール 
+    (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return
-    �⤷��������������� mconv_buffer_converter () �� �������������ɥ���С������֤���
-    �����Ǥʤ���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣
+    もし処理が成功すれば mconv_buffer_converter () は 作成したコードコンバータを返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。
 
     @latexonly \IPAlabel{mconverter} @endlatexonly  */
 
@@ -4151,20 +4151,20 @@ mconv_buffer_converter (MSymbol name, const unsigned char *buf, int n)
     #merror_code.  */
 
 /***ja
-    @brief ���ȥ꡼��˷���դ���줿�����ɥ���С�������.
+    @brief ストリームに結び付けられたコードコンバータを作る.
 
-    �ؿ� mconv_stream_converter () �ϡ������ɷ� $NAME 
-    �ѤΥ����ɥ���С������롣���Υ����ɥ���С����ϡ����ȥ꡼�� $FP 
-    �˷���դ����롣
-    ����ʹߤΥǥ����ɤ���ӥ��󥳡��ɤϡ����Υ��ȥ꡼����Ф��ƹԤʤ��롣
+    関数 mconv_stream_converter () は、コード系 $NAME 
+    用のコードコンバータを作る。このコードコンバータは、ストリーム $FP 
+    に結び付けられる。
+    これ以降のデコードおよびエンコードは、このストリームに対して行なわれる。
 
-    $NAME �� #Mnil �Ǥ��äƤ�褤�����ξ��ϸ��ߤΥ������� 
-    (LC_CTYPE) �˴�Ϣ�դ���줿�����ɷϤ��Ȥ��롣
+    $NAME は #Mnil であってもよい。この場合は現在のロケール 
+    (LC_CTYPE) に関連付けられたコード系が使われる。
 
     @return 
-    �⤷��������������С�mconv_stream_converter () 
-    �Ϻ������������ɥ���С������֤��������Ǥʤ���� @c NULL 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    もし処理が成功すれば、mconv_stream_converter () 
+    は作成したコードコンバータを返す。そうでなければ @c NULL 
+    を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mconverter} @endlatexonly  */
 
@@ -4234,15 +4234,15 @@ mconv_stream_converter (MSymbol name, FILE *fp)
     applied to $CONVERTER.  Otherwise it returns 0.  */
 
 /***ja
-    @brief �����ɥ���С�����ꥻ�åȤ���.
+    @brief コードコンバータをリセットする.
 
-    �ؿ� mconv_reset_converter () �ϥ����ɥ���С��� $CONVERTER 
-    �������֤��᤹��
+    関数 mconv_reset_converter () はコードコンバータ $CONVERTER 
+    を初期状態に戻す。
 
     @return
-    �⤷ $CONVERTER->coding �˥ꥻ�å��Ѥδؿ����������Ƥ���ʤ�С�
-    mconv_reset_converter () �Ϥ��δؿ��� $CONVERTER 
-    ��Ŭ�Ѥ�����̤��֤��������Ǥʤ����0���֤���  */
+    もし $CONVERTER->coding にリセット用の関数が定義されているならば、
+    mconv_reset_converter () はその関数に $CONVERTER 
+    を適用した結果を返し、そうでなければ0を返す。  */
 
 int
 mconv_reset_converter (MConverter *converter)
@@ -4268,10 +4268,10 @@ mconv_reset_converter (MConverter *converter)
     $CONVERTER.  */
 
 /***ja
-    @brief �����ɥ���С������������.
+    @brief コードコンバータを解放する.
 
-    �ؿ� mconv_free_converter () �ϥ����ɥ���С��� $CONVERTER 
-    ��������롣  */
+    関数 mconv_free_converter () はコードコンバータ $CONVERTER 
+    を解放する。  */
 
 void
 mconv_free_converter (MConverter *converter)
@@ -4298,14 +4298,14 @@ mconv_free_converter (MConverter *converter)
     This function always returns $CONVERTER.  */
 
 /***ja
-    @brief �����ɥ���С����˥Хåե��ΰ�����դ���.
+    @brief コードコンバータにバッファ領域を結び付ける.
 
-    �ؿ� mconv_rebind_buffer () �ϡ�$BUF �ˤ�äƻؤ��줿�礭�� $N 
-    �Х��ȤΥХåե��ΰ�򥳡��ɥ���С��� $CONVERTER �˷���դ��롣
-    ����ʹߤΥǥ����ɤ���ӥ��󥳡��ɤϡ����ο����˷���դ���줿�Хåե��ΰ���Ф��ƹԤʤ���褦�ˤʤ롣
+    関数 mconv_rebind_buffer () は、$BUF によって指された大きさ $N 
+    バイトのバッファ領域をコードコンバータ $CONVERTER に結び付ける。
+    これ以降のデコードおよびエンコードは、この新たに結び付けられたバッファ領域に対して行なわれるようになる。
 
     @return
-    ���δؿ��Ͼ�� $CONVERTER ���֤���
+    この関数は常に $CONVERTER を返す。
 
     @latexonly \IPAlabel{mconv_rebind_buffer} @endlatexonly  */
 
@@ -4338,14 +4338,14 @@ mconv_rebind_buffer (MConverter *converter, const unsigned char *buf, int n)
     This function always returns $CONVERTER.  */
 
 /***ja
-    @brief �����ɥ���С����˥��ȥ꡼������դ���.
+    @brief コードコンバータにストリームを結び付ける.
 
-    �ؿ� mconv_rebind_stream () �ϡ����ȥ꡼�� $FP �򥳡��ɥ���С��� 
-    $CONVERTER �˷���դ��롣
-    ����ʹߤΥǥ����ɤ���ӥ��󥳡��ɤϡ����ο����˷���դ���줿���ȥ꡼����Ф��ƹԤʤ���褦�ˤʤ롣
+    関数 mconv_rebind_stream () は、ストリーム $FP をコードコンバータ 
+    $CONVERTER に結び付ける。
+    これ以降のデコードおよびエンコードは、この新たに結び付けられたストリームに対して行なわれるようになる。
 
     @return
-    ���δؿ��Ͼ�� $CONVERTER ���֤���
+    この関数は常に $CONVERTER を返す。
 
     @latexonly \IPAlabel{mconv_rebind_stream} @endlatexonly  */
 
@@ -4387,16 +4387,16 @@ mconv_rebind_stream (MConverter *converter, FILE *fp)
     the external variable #merror_code.  */
 
 /***ja
-    @brief �Х������ M-text �˥ǥ����ɤ���.
+    @brief バイト列を M-text にデコードする.
 
-    �ؿ� mconv_decode () �ϡ��Х������ǥ����ɤ��Ƥ��η�̤� M-text
-    $MT ���������ɲä��롣�ǥ����ɸ��ΥХ�����ϡ�$CONVERTER 
-    �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼�फ�����롣
+    関数 mconv_decode () は、バイト列をデコードしてその結果を M-text
+    $MT の末尾に追加する。デコード元のバイト列は、$CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから取られる。
 
     @return
-    �⤷��������������С�mconv_decode () �Ϲ������줿 $MT ���֤���
-    �����Ǥʤ���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_decode () は更新された $MT を返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4529,16 +4529,16 @@ mconv_decode (MConverter *converter, MText *mt)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �����ɷϤ˴�Ť��ƥХåե��ΰ��ǥ����ɤ���.
+    @brief コード系に基づいてバッファ領域をデコードする.
 
-    �ؿ� mconv_decode_buffer () �ϡ�$BUF �ˤ�äƻؤ��줿 $N 
-    �Х��ȤΥХåե��ΰ�򡢥����ɷ� $NAME �˴�Ť��ƥǥ����ɤ��롣
-    �ǥ����ɤ�ɬ�פʥ����ɥ���С����κ����Ȳ����ϼ�ưŪ�˹Ԥʤ��롣
+    関数 mconv_decode_buffer () は、$BUF によって指された $N 
+    バイトのバッファ領域を、コード系 $NAME に基づいてデコードする。
+    デコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    �⤷��������������С�mconv_decode_buffer () ������줿 M-text ���֤���
-    �����Ǥʤ���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_decode_buffer () は得られた M-text を返す。
+    そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4580,16 +4580,16 @@ mconv_decode_buffer (MSymbol name, const unsigned char *buf, int n)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �����ɷϤ˴�Ť��ƥ��ȥ꡼�����Ϥ�ǥ����ɤ���.
+    @brief コード系に基づいてストリーム入力をデコードする.
 
-    �ؿ� mconv_decode_stream () �ϡ����ȥ꡼�� $FP 
-    �����ɤ߹��ޤ��Х��������Τ򡢥����ɷ� $NAME 
-    �˴�Ť��ƥǥ����ɤ��롣�ǥ����ɤ�ɬ�פʥ����ɥ���С����κ����Ȳ����ϼ�ưŪ�˹Ԥʤ��롣
+    関数 mconv_decode_stream () は、ストリーム $FP 
+    から読み込まれるバイト列全体を、コード系 $NAME 
+    に基づいてデコードする。デコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    �⤷��������������С�mconv_decode_stream () ������줿 M-text 
-    ���֤��������Ǥʤ���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_decode_stream () は得られた M-text 
+    を返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4630,15 +4630,15 @@ mconv_decode_stream (MSymbol name, FILE *fp)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text ��Х�����˥��󥳡��ɤ���.
+    @brief M-text をバイト列にエンコードする.
 
-    �ؿ� mconv_encode () �ϡ�M-text $MT �򥨥󥳡��ɤ��ơ������ɥ���С���
-    $CONVERTER �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼�������줿�Х������񤭹��ࡣ
+    関数 mconv_encode () は、M-text $MT をエンコードして、コードコンバータ
+    $CONVERTER に現在結び付けられているバッファ領域あるいはストリームに得られたバイト列を書き込む。
 
     @return
-    �⤷��������������С�mconv_encode () �Ͻ񤭹��ޤ줿�Х��ȿ����֤���
-    �����Ǥʤ���� -1 ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_encode () は書き込まれたバイト数を返す。
+    そうでなければ -1 を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4670,17 +4670,17 @@ mconv_encode (MConverter *converter, MText *mt)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text �ΰ�����Х�����˥��󥳡��ɤ���.
+    @brief M-text の一部をバイト列にエンコードする.
 
-    �ؿ� mconv_encode_range () �ϡ�M-text $MT �� $FROM 
-    ��$FROM ���Τ�ޤ�ˤ��� $TO ��$TO���Τϴޤޤʤ���
-    �ޤǤ��ϰϤΥƥ����Ȥ򥨥󥳡��ɤ��ơ������ɥ���С���
-    $CONVERTER �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼�������줿�Х������񤭹��ࡣ
+    関数 mconv_encode_range () は、M-text $MT の $FROM 
+    （$FROM 自体も含む）から $TO （$TO自体は含まない）
+    までの範囲のテキストをエンコードして、コードコンバータ
+    $CONVERTER に現在結び付けられているバッファ領域あるいはストリームに得られたバイト列を書き込む。
 
     @return
-    �⤷��������������С�mconv_encode_range () 
-    �Ͻ񤭹��ޤ줿�Х��ȿ����֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_encode_range () 
+    は書き込まれたバイト数を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4770,16 +4770,16 @@ mconv_encode_range (MConverter *converter, MText *mt, int from, int to)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text �򥨥󥳡��ɤ��ƥХåե��ΰ�˽񤭹���.
+    @brief M-text をエンコードしてバッファ領域に書き込む.
 
-    �ؿ� mconv_encode_buffer () ��M-text $MT �򥳡��ɷ� $NAME 
-    �˴�Ť��ƥ��󥳡��ɤ�������줿�Х������ $BUF �λؤ��Хåե��ΰ�˽񤭹��ࡣ
-    $N �Ͻ񤭹������Х��ȿ��Ǥ��롣
-    ���󥳡��ɤ�ɬ�פʥ����ɥ���С����κ����Ȳ����ϼ�ưŪ�˹Ԥʤ��롣
+    関数 mconv_encode_buffer () はM-text $MT をコード系 $NAME 
+    に基づいてエンコードし、得られたバイト列を $BUF の指すバッファ領域に書き込む。
+    $N は書き込む最大バイト数である。
+    エンコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    �⤷��������������С�mconv_encode_buffer () �Ͻ񤭹��ޤ줿�Х��ȿ����֤���
-    �����Ǥʤ����-1���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_encode_buffer () は書き込まれたバイト数を返す。
+    そうでなければ-1を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4817,16 +4817,16 @@ mconv_encode_buffer (MSymbol name, MText *mt, unsigned char *buf, int n)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text �򥨥󥳡��ɤ��ƥ��ȥ꡼��˽񤭹���.
+    @brief M-text をエンコードしてストリームに書き込む.
 
-    �ؿ� mconv_encode_stream () ��M-text $MT �򥳡��ɷ� $NAME 
-    �˴�Ť��ƥ��󥳡��ɤ�������줿�Х�����򥹥ȥ꡼�� $FP 
-    �˽񤭽Ф������󥳡��ɤ�ɬ�פʥ����ɥ���С����κ����Ȳ����ϼ�ưŪ�˹Ԥʤ��롣
+    関数 mconv_encode_stream () はM-text $MT をコード系 $NAME 
+    に基づいてエンコードし、得られたバイト列をストリーム $FP 
+    に書き出す。エンコードに必要なコードコンバータの作成と解放は自動的に行なわれる。
 
     @return
-    �⤷��������������С�mconv_encode_stream () 
-    �Ͻ񤭹��ޤ줿�Х��ȿ����֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    もし処理が成功すれば、mconv_encode_stream () 
+    は書き込まれたバイト数を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4867,18 +4867,18 @@ mconv_encode_stream (MSymbol name, MText *mt, FILE *fp)
     #merror_code.  */
 
 /***ja
-    @brief �����ɥ���С�����ͳ�ǰ�ʸ�����ɤߤ���.
+    @brief コードコンバータ経由で一文字を読みこむ.
 
-    �ؿ� mconv_getc () �ϡ������ɥ���С��� $CONVERTER 
-    �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼�फ��ʸ�������ɤ߹��ࡣ
-    �Х�����Υǥ����ɤˤ� $CONVERTER �Υǥ��������Ѥ����롣
-    $CONVERTER ���������֤�ɬ�פ˱����ƹ�������롣
+    関数 mconv_getc () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから文字を一つ読み込む。
+    バイト列のデコードには $CONVERTER のデコーダが用いられる。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    ��������������С�mconv_getc () ���ɤ߹��ޤ줿ʸ�����֤������ϸ��� 
-    EOF ��ã�������ϡ������ѿ� #merror_code ���Ѥ����� @c EOF 
-    ���֤������顼�����Ф��줿���� @c EOF ���֤���#merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mconv_getc () は読み込まれた文字を返す。入力源が 
+    EOF に達した場合は、外部変数 #merror_code を変えずに @c EOF 
+    を返す。エラーが検出された場合は @c EOF を返し、#merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4921,17 +4921,17 @@ mconv_getc (MConverter *converter)
     external variable #merror_code.  */
 
 /***ja
-    @brief �����ɥ���С����˰�ʸ���᤹.
+    @brief コードコンバータに一文字戻す.
 
-    �ؿ� mconv_ungetc () �ϡ������ɥ���С��� $CONVERTER ��ʸ�� $C 
-    �򲡤��᤹���ᤵ���ʸ���������¤Ϥʤ������θ�� mconv_getc () 
-    ��ƤӽФ����ݤˤϡ��Ǹ���ᤵ�줿ʸ�����ǽ���ɤޤ�롣�ᤵ�줿ʸ���� 
-    $CONVERTER ���������ߤ���������Ǥ��ꡢ�ºݤ����ϸ��˽񤭹��ޤ��櫓�ǤϤʤ���
-    $CONVERTER ���������֤�ɬ�פ˱����ƹ�������롣
+    関数 mconv_ungetc () は、コードコンバータ $CONVERTER に文字 $C 
+    を押し戻す。戻される文字数に制限はない。この後で mconv_getc () 
+    を呼び出した際には、最後に戻された文字が最初に読まれる。戻された文字は 
+    $CONVERTER の内部に蓄えられるだけであり、実際に入力源に書き込まれるわけではない。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    ��������������С�mconv_ungetc () �� $C ���֤��������Ǥʤ���� @c
-    EOF ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mconv_ungetc () は $C を返す。そうでなければ @c
+    EOF を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -4970,17 +4970,17 @@ mconv_ungetc (MConverter *converter, int c)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief �����ɥ���С������ͳ���ư�ʸ���񤭽Ф�.
+    @brief コードコンバータを経由して一文字書き出す.
 
-    �ؿ� mconv_putc () �ϡ������ɥ���С��� $CONVERTER 
-    �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼���ʸ�� $C 
-    ��񤭽Ф���ʸ���Υ��󥳡��ɤˤ� $CONVERTER 
-    �Υ��󥳡������Ѥ����롣�ºݤ˽񤭽Ф��줿�Х��ȿ��ϡ�$CONVERTER �Υ��С�
-    @c nbytes �˥��åȤ���롣$CONVERTER ���������֤�ɬ�פ˱����ƹ�������롣
+    関数 mconv_putc () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームに文字 $C 
+    を書き出す。文字のエンコードには $CONVERTER 
+    のエンコーダが用いられる。実際に書き出されたバイト数は、$CONVERTER のメンバー
+    @c nbytes にセットされる。$CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    ��������������С�mconv_putc () �� $C ���֤������顼�����Ф��줿����
-    @c EOF ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mconv_putc () は $C を返す。エラーが検出された場合は
+    @c EOF を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -5023,20 +5023,20 @@ mconv_putc (MConverter *converter, int c)
     #merror_code.  */
 
 /***ja
-    @brief �����ɥ���С�����Ȥäư���ɤ߹���.
+    @brief コードコンバータを使って一行読み込む.
 
-    �ؿ� mconv_gets () �ϡ������ɥ���С��� $CONVERTER 
-    �˸��߷���դ����Ƥ���Хåե��ΰ褢�뤤�ϥ��ȥ꡼�फ�� 1 �Ԥ��ɤ߹��ࡣ
-    �Х�����Υǥ����ɤˤ� $CONVERTER 
-    �Υǥ��������Ѥ����롣�ǥ����ɤ��줿ʸ����� M-text $MT 
-    ���������ɲä���롣���ΥХ�����ν�ü����ʸ�����ɲä���ʤ���
-    $CONVERTER ���������֤�ɬ�פ˱����ƹ�������롣
+    関数 mconv_gets () は、コードコンバータ $CONVERTER 
+    に現在結び付けられているバッファ領域あるいはストリームから 1 行を読み込む。
+    バイト列のデコードには $CONVERTER 
+    のデコーダが用いられる。デコードされた文字列は M-text $MT 
+    の末尾に追加される。元のバイト列の終端改行文字は追加されない。
+    $CONVERTER の内部状態は必要に応じて更新される。
 
     @return
-    ��������������С�mconv_gets () ���ѹ����줿 $MT
-    ���֤����⤷1ʸ�����ɤޤ��� EOF �������������ϡ�$MT 
-    ���ѹ������ˤ��Τޤ��֤������顼�����Ф��줿���� @c NULL ���֤���
-    #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mconv_gets () は変更された $MT
+    を返す。もし1文字も読まずに EOF に遭遇した場合は、$MT 
+    を変更せずにそのまま返す。エラーが検出された場合は @c NULL を返し、
+    #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -5073,6 +5073,6 @@ mconv_gets (MConverter *converter, MText *mt)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

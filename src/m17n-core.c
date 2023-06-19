@@ -151,127 +151,127 @@
 
 /***ja
     @addtogroup m17nIntro
-    @brief m17n �饤�֥�� ����ȥ����������.
+    @brief m17n ライブラリ イントロダクション.
 
-    @em API�Υ�٥�
+    @em APIのレベル
 
-    m17n �饤�֥��� API �ϰʲ��Σ����ʬ�व��Ƥ��롣
+    m17n ライブラリの API は以下の４種に分類されている。
 
     <ol>
-    <li> ���� API
+    <li> コア API
 
-    M-text �򰷤�����δ���Ū�ʥ⥸�塼����󶡤��롣
-    ���� API �����Ѥ��뤿��ˤϡ����ץꥱ�������ץ�������
-    <m17n-core<EM></EM>.h> �� include ���� -lm17n-core
-    �ǥ�󥯤���ʤ��ƤϤʤ�ʤ���
+    M-text を扱うための基本的なモジュールを提供する。
+    この API を利用するためには、アプリケーションプログラムは
+    <m17n-core<EM></EM>.h> を include し、 -lm17n-core
+    でリンクされなくてはならない。
 
-    <li> ������ API
+    <li> シェル API
 
-    ʸ���ץ��ѥƥ���ʸ���������������Ѵ����Τ���Υ⥸�塼����󶡤��롣
-    �����Υ⥸�塼��ϡ��ǡ����١�������ɬ�פ˱�����¿�ͤʥǡ���������ɤ��롣
-    ���� API �����Ѥ��뤿��ˤϡ����ץꥱ�������ץ�������
-    <m17n<EM></EM>.h> �� include ���� -lm17n-core -lm17n
-    �ǥ�󥯤���ʤ��ƤϤʤ�ʤ���
+    文字プロパティ、文字集合操作、コード変換等のためのモジュールを提供する。
+    これらのモジュールは、データベースから必要に応じて多様なデータをロードする。
+    この API を利用するためには、アプリケーションプログラムは
+    <m17n<EM></EM>.h> を include し、 -lm17n-core -lm17n
+    でリンクされなくてはならない。
 
-    ���� API ����Ѥ���С����� API �⼫ưŪ�˻��Ѳ�ǽ�Ȥʤ롣
+    この API を使用すれば、コア API も自動的に使用可能となる。
 
     <li> FLT API
 
-    ʸ����ɽ���� @ref mdbFLT ���Ѥ���⥸�塼����󶡤��롣���� API
-    �����Ѥ��뤿��ˤϡ����ץꥱ�������ץ������� <m17n<EM></EM>.h> 
-    �� include ���� -lm17n-core -lm17n-flt �ǥ�󥯤���ʤ��ƤϤʤ�ʤ���
+    文字列表示に @ref mdbFLT を用いるモジュールを提供する。この API
+    を利用するためには、アプリケーションプログラムは <m17n<EM></EM>.h> 
+    を include し、 -lm17n-core -lm17n-flt でリンクされなくてはならない。
 
-    ���� API ����Ѥ���С����� API �⼫ưŪ�˻��Ѳ�ǽ�Ȥʤ롣
+    この API を使用すれば、コア API も自動的に使用可能となる。
 
     <li> GUI API
 
-    ����ե��å��ǥХ������ M-text ��ɽ�����������Ϥ����ꤹ�뤿���
-    GUI �⥸�塼����󶡤��롣���� API
-    ���Τϥ���ե��å��ǥХ����Ȥ���Ω�Ǥ��뤬��
-    ¿���δؿ�������Υ���ե��å��ǥХ����Ѥ˺������줿 
-    MFrame ������˼�롣
-    �������ǥ��ݡ��Ȥ���Ƥ��륰��ե��å��ǥХ����ϡ��̥�ǥХ�����X
-    ������ɥ������ƥࡢ����� GD �饤�֥��Υ��᡼���ǡ���
-    (gdImagePtr) �Ǥ��롣
+    グラフィックデバイス上で M-text を表示したり入力したりするための
+    GUI モジュールを提供する。この API
+    自体はグラフィックデバイスとは独立であるが、
+    多くの関数は特定のグラフィックデバイス用に作成された 
+    MFrame を引数に取る。
+    現時点でサポートされているグラフィックデバイスは、ヌルデバイス、X
+    ウィンドウシステム、および GD ライブラリのイメージデータ
+    (gdImagePtr) である。
 
-    �̥�ǥХ����Υե졼���Ǥ�ɽ�������Ϥ�Ǥ��ʤ���������
-    mdraw_glyph_list () �ʤɤδؿ��ϻ��Ѳ�ǽ�Ǥ��롣
+    ヌルデバイスのフレーム上では表示も入力もできない。ただし
+    mdraw_glyph_list () などの関数は使用可能である。
 
-    X ������ɥ������ƥ�Υե졼���ǤϤ��٤Ƥ� GUI API �����ѤǤ��롣
+    X ウィンドウシステムのフレーム上ではすべての GUI API が使用できる。
 
-    GD �饤�֥��Υե졼���Ǥϡ������Ѥ� API
-    �Ϥ��٤ƻ��ѤǤ��뤬�����ϤϤǤ��ʤ���
+    GD ライブラリのフレーム上では、描画用の API
+    はすべて使用できるが、入力はできない。
 
-    ���� API ����Ѥ��뤿��ˤϡ����ץꥱ�������ץ�������
-    <m17n-gui<EM></EM>.h> �� include ����-lm17n-core -lm17n -lm17n-gui
-    �ǥ�󥯤���ʤ��ƤϤʤ�ʤ���
+    この API を使用するためには、アプリケーションプログラムは
+    <m17n-gui<EM></EM>.h> を include し、-lm17n-core -lm17n -lm17n-gui
+    でリンクされなくてはならない。
 
-    ���� API ����Ѥ���С����� API�������� API������� FLT API
-    �⼫ưŪ�˻��Ѳ�ǽ�Ȥʤ롣
+    この API を使用すれば、コア API、シェル API、および FLT API
+    も自動的に使用可能となる。
 
-    <li> ����¾�� API
+    <li> その他の API
 
-    ���顼�������ǥХå��ѤΤ���¾�δؿ����󶡤��롣���� API
-    �Ϥ�������Ǥϻ��ѤǤ������嵭��¾�� API
-    �ȶ��˻Ȥ������Ѥ��뤿��ˤϡ��嵭�Τ����줫��include
-    �ե�����˲ä��ơ� <m17n-misc<EM></EM>.h> ��include
-    ���ʤ��ƤϤʤ�ʤ���
+    エラー処理、デバッグ用のその他の関数を提供する。この API
+    はそれだけでは使用できず、上記の他の API
+    と共に使う。利用するためには、上記のいずれかのinclude
+    ファイルに加えて、 <m17n-misc<EM></EM>.h> をinclude
+    しなくてはならない。
 
     </ol>
 
-    @ref m17n-config "m17n-config(1)" ��⻲�ȡ�
+    @ref m17n-config "m17n-config(1)" 節も参照。
 
-    @em �Ķ��ѿ�
+    @em 環境変数
 
-    m17n �饤�֥��ϰʲ��δĶ��ѿ��򻲾Ȥ��롣
+    m17n ライブラリは以下の環境変数を参照する。
 
     <ul>
     <li> @c M17NDIR
 
-    m17n �ǡ����١����Υǡ������Ǽ�����ǥ��쥯�ȥ��̾�����ܺ٤� @ref
-    m17nDatabase ���ȡ�
+    m17n データベースのデータを格納したディレクトリの名前。詳細は @ref
+    m17nDatabase 参照。
 
     <li> @c MDEBUG_XXX
 
-    "MDEBUG_" �ǻϤޤ�̾������ĴĶ��ѿ��ϥǥХå�����ν��Ϥ����椹�롣
-    �ܺ٤� @ref m17nDebug ���ȡ�
+    "MDEBUG_" で始まる名前を持つ環境変数はデバッグ情報の出力を制御する。
+    詳細は @ref m17nDebug 参照。
 
     </ul>
 
-    @em API @em ��̿̾��§
+    @em API @em の命名規則
 
-    m17n �饤�֥��ϡ��ؿ����ѿ����ޥ��������� export ���롣������ 'm' 
-    �ޤ��� 'M' �Τ��Ȥ˥��֥�������̾ ("symbol"��"plist" �ʤ�)
-    �ޤ��ϥ⥸�塼��̾ (draw, input �ʤ�) ��³������ΤǤ��롣
-    M-text ���֥������Ȥ�̾���� "mmtext" �ǤϤʤ��� "mtext"
-    �ǻϤޤ뤳�Ȥ����ա�
+    m17n ライブラリは、関数、変数、マクロ、型を export する。それらは 'm' 
+    または 'M' のあとにオブジェクト名 ("symbol"、"plist" など)
+    またはモジュール名 (draw, input など) を続けたものである。
+    M-text オブジェクトの名前は "mmtext" ではなくて "mtext"
+    で始まることに注意。
     
     <ul>
 
-    <li> �ؿ� -- mobject () �ޤ��� mobject_xxx ()
+    <li> 関数 -- mobject () または mobject_xxx ()
 
-    'm' �Τ��Ȥ˾�ʸ���ǥ��֥�������̾��³����ñ��֤� '_'
-    �Ƕ��ڤ��롣���Ȥ��С�msymbol (),
-     mtext_ref_char (), mdraw_text () �ʤɡ�
+    'm' のあとに小文字でオブジェクト名が続く。単語間は '_'
+    で区切られる。たとえば、msymbol (),
+     mtext_ref_char (), mdraw_text () など。
 
-    <li> ����ܥ�Ǥʤ��ѿ� -- mobject,  �ޤ��� mobject_xxx
+    <li> シンボルでない変数 -- mobject,  または mobject_xxx
     
-    �ؿ���Ʊ��̿̾��§�˽��������Ȥ���  mface_large �ʤɡ�
+    関数と同じ命名規則に従う。たとえば  mface_large など。
 
-    <li> ����ܥ��ѿ� -- Mname
+    <li> シンボル変数 -- Mname
 
-    MSymbol ���ѿ��ϡ�'M' �θ��̾����³����ñ��֤� '_'
-    �Ƕ��ڤ��롣���Ȥ��� Mlanguage (̾���� "language"), Miso_2022
-    (̾����"iso-2022") �ʤɡ�
+    MSymbol 型変数は、'M' の後に名前が続く。単語間は '_'
+    で区切られる。たとえば Mlanguage (名前は "language"), Miso_2022
+    (名前は"iso-2022") など。
 
-    <li> �ޥ��� -- MOBJECT_XXX
+    <li> マクロ -- MOBJECT_XXX
 
-    'M' �θ����ʸ���ǥ��֥�������̾��³����ñ��֤� '_' �Ƕ��ڤ��롣
+    'M' の後に大文字でオブジェクト名が続く。単語間は '_' で区切られる。
 
-    <li> ������ -- MObject �ޤ��� MObjectXxx
+    <li> タイプ -- MObject または MObjectXxx
 
-    'M' �θ����ʸ���ǻϤޤ륪�֥�������̾��³����ñ���Ϣ³���ƽ񤫤졢
-    '_' ���Ѥ����ʤ������Ȥ��� MConverter, MInputDriver �ʤɡ�
+    'M' の後に大文字で始まるオブジェクト名が続く。単語は連続して書かれ、
+    '_' は用いられない。たとえば MConverter, MInputDriver など。
 
     </ul>
     
@@ -283,8 +283,8 @@
     The #M17NLIB_MAJOR_VERSION macro gives the major version number
     of the m17n library.  */
 /***ja
-    �ޥ��� #M17NLIB_MAJOR_VERSION �� m17n 
-    �饤�֥��Υ᥸�㡼�С�������ֹ��Ϳ����.  */
+    マクロ #M17NLIB_MAJOR_VERSION は m17n 
+    ライブラリのメジャーバージョン番号を与える.  */
 
 #define M17NLIB_MAJOR_VERSION
 
@@ -295,8 +295,8 @@
     of the m17n library.  */
 
 /***ja
-    �ޥ��� #M17NLIB_MINOR_VERSION �� m17n 
-    �饤�֥��Υޥ��ʡ��С�������ֹ��Ϳ����.  */
+    マクロ #M17NLIB_MINOR_VERSION は m17n 
+    ライブラリのマイナーバージョン番号を与える.  */
 
 #define M17NLIB_MINOR_VERSION
 
@@ -307,8 +307,8 @@
     of the m17n library.  */
 
 /***ja
-    �ޥ��� #M17NLIB_PATCH_LEVEL �� m17n 
-    �饤�֥��Υѥå���٥��ֹ��Ϳ����.  */
+    マクロ #M17NLIB_PATCH_LEVEL は m17n 
+    ライブラリのパッチレベル番号を与える.  */
 
 #define M17NLIB_PATCH_LEVEL
 
@@ -319,8 +319,8 @@
     m17n library as a string.  */
 
 /***ja
-    �ޥ��� #M17NLIB_VERSION_NAME �� m17n 
-    �饤�֥��ΥС������̾��ʸ����Ȥ���Ϳ����.  */
+    マクロ #M17NLIB_VERSION_NAME は m17n 
+    ライブラリのバージョン名を文字列として与える.  */
 
 #define M17NLIB_VERSION_NAME
 
@@ -343,16 +343,16 @@
     M17N_FINI (), m17n_status ()  */
 
 /***ja
-    @brief m17n �饤�֥�����������.
+    @brief m17n ライブラリを初期化する.
 
-    �ޥ��� M17N_INIT () �� m17n �饤�֥����������롣m17n 
-    �δؿ������Ѥ������ˡ����Υޥ�����ޤ��ƤФʤ��ƤϤʤ�ʤ���
+    マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n 
+    の関数を利用する前に、このマクロをまず呼ばなくてはならない。
     
-    ���Υޥ�����ʣ����Ƥ�Ǥ�����Ǥ��뤬�����ξ������������뤿��˥ޥ���
-    M17N_FINI () ��Ʊ������Ƥ�ɬ�פ����롣
+    このマクロを複数回呼んでも安全であるが、その場合メモリを解放するためにマクロ
+    M17N_FINI () を同じ回数呼ぶ必要がある。
 
-    �����ѿ� #merror_code �ϡ����������������� 0 �ˡ������Ǥʤ���� 
-    -1 �����ꤵ��롣  
+    外部変数 #merror_code は、初期化が成功すれば 0 に、そうでなければ 
+    -1 に設定される。  
 
     @seealso
     M17N_FINI (), m17n_status ()  */
@@ -375,14 +375,14 @@
     @seealso
     M17N_INIT (), m17n_status ()  */
 /***ja
-    @brief m17n �饤�֥���λ����. 
+    @brief m17n ライブラリを終了する. 
 
-    �ޥ��� M17N_FINI () �� m17n �饤�֥���λ���롣m17n 
-    �饤�֥�꤬�Ȥä����ƤΥ����ΰ�ϲ�������롣���٤��Υޥ������ƤФ줿�顢�ޥ���
-    M17N_INIT () �����ٸƤФ��ޤ� m17n �ؿ��ϻȤ��٤��Ǥʤ���
+    マクロ M17N_FINI () は m17n ライブラリを終了する。m17n 
+    ライブラリが使った全てのメモリ領域は解放される。一度このマクロが呼ばれたら、マクロ
+    M17N_INIT () が再度呼ばれるまで m17n 関数は使うべきでない。
 
-    �ޥ��� M17N_INIT () �� N ��ƤФ�Ƥ������ˤϡ����Υޥ����� N 
-    ��ƤФ�ƽ��ƥ��꤬��������롣
+    マクロ M17N_INIT () が N 回呼ばれていた場合には、このマクロが N 
+    回呼ばれて初めてメモリが解放される。
 
     @seealso
     M17N_INIT (), m17n_status ()  */
@@ -700,10 +700,10 @@ m17n_fini_core (void)
 	#M17N_SHELL_INITIALIZED, #M17N_GUI_INITIALIZED  */
 
 /***ja
-    @brief m17n �饤�֥��Τɤ���ʬ����������줿����𤹤�.
+    @brief m17n ライブラリのどの部分が初期化されたか報告する.
 
-    �ؿ� m17n_status () �� 
-    m17n �饤�֥��Τɤ���ʬ����������줿���˱����ơ��ʲ����ͤΤ����줫���֤���
+    関数 m17n_status () は 
+    m17n ライブラリのどの部分が初期化されたかに応じて、以下の値のいずれかを返す。
 
 	#M17N_NOT_INITIALIZED, #M17N_CORE_INITIALIZED,
 	#M17N_SHELL_INITIALIZED, #M17N_GUI_INITIALIZED  */
@@ -742,19 +742,19 @@ m17n_status (void)
     the m17n_object () for more details.  */
 /***ja
     @addtogroup m17nObject
-    @brief ���������֥������ȤȤϻ��ȿ��ˤ�äƴ�������Ƥ��륪�֥������ȤǤ���.
+    @brief 管理下オブジェクトとは参照数によって管理されているオブジェクトである.
 
-    m17n ���֥������ȤΤ��뷿�Τ�Τϡ����ȿ��ˤ�äƴ�������Ƥ��롣
-    �����Υ��֥������Ȥ� @e ���������֥������� �ȸƤФ�롣�������줿�����Ǥλ��ȿ���
-    1 �˽��������Ƥ��롣�ؿ� m17n_object_ref () �ϴ��������֥������Ȥλ��ȿ���
-    1 ���䤷���ؿ�m17n_object_unref () �� 1 ���餹�����ȿ���
-    0 �ˤʤä����������֥������Ȥϼ�ưŪ�˲�������롣
+    m17n オブジェクトのある型のものは、参照数によって管理されている。
+    それらのオブジェクトは @e 管理下オブジェクト と呼ばれる。生成された時点での参照数は
+    1 に初期化されている。関数 m17n_object_ref () は管理下オブジェクトの参照数を
+    1 増やし、関数m17n_object_unref () は 1 減らす。参照数が
+    0 になった管理下オブジェクトは自動的に解放される。
 
-    ���������������Ǥ���ץ��ѥƥ��ϡ��ͤȤ��ƴ��������֥������Ȥ������롣
-    �ؿ� msymbol_put () �� mplist_put () �ʤɤϤ����Υץ��ѥƥ������̰������롣
+    キーが管理キーであるプロパティは、値として管理下オブジェクトだけを取る。
+    関数 msymbol_put () や mplist_put () などはそれらのプロパティを特別扱いする。
 
-    ����Ѥߴ��������֥������ȥ����פ�¾�ˡ��桼����ɬ�פʴ��������֥������ȥ����פ�ʬ��������뤳�Ȥ��Ǥ��롣�ܺ٤�
-    m17n_object () �������򻲾ȡ�  */
+    定義済み管理下オブジェクトタイプの他に、ユーザは必要な管理下オブジェクトタイプを自分で定義することができる。詳細は
+    m17n_object () の説明を参照。  */
 
 /*** @{  */
 /*=*/
@@ -778,21 +778,21 @@ m17n_status (void)
     This function never fails.  */
 
 /***ja
-    @brief ���������֥������Ȥ������Ƥ�.
+    @brief 管理下オブジェクトを割り当てる.
 
-    �ؿ� m17n_object () ��$SIZE �Х��Ȥο��������������֥������Ȥ������ơ����λ��ȿ���
-    1 �Ȥ��롣 $FREER �ϻ��ȿ��� 0 
-    �ˤʤä��ݤˤ��Υ��֥������Ȥ�������뤿����Ѥ�����ؿ��Ǥ��롣$FREER
-    �� NULL�ʤ�С����֥������Ȥϴؿ� free () �ˤ�äƲ�������롣
+    関数 m17n_object () は$SIZE バイトの新しい管理下オブジェクトを割り当て、その参照数を
+    1 とする。 $FREER は参照数が 0 
+    になった際にそのオブジェクトを解放するために用いられる関数である。$FREER
+    が NULLならば、オブジェクトは関数 free () によって解放される。
 
-    ������Ƥ�줿���֥���������Ƭ�ΥХ��Ȥϡ�#M17NObjectHead 
-    �����롣�����ΰ�� m17n �饤�֥�꤬���Ѥ���Τǡ����ץꥱ�������ץ������Ͽ���ƤϤʤ�ʤ���
+    割り当てられたオブジェクト冒頭のバイトは、#M17NObjectHead 
+    が占める。この領域は m17n ライブラリが使用するので、アプリケーションプログラムは触れてはならない。
 
     @return
-    ���δؿ��Ͽ�����������Ƥ�줿���֥������Ȥ��֤���
+    この関数は新しく割り当てられたオブジェクトを返す。
 
     @errors
-    ���δؿ��ϼ��Ԥ��ʤ���    */
+    この関数は失敗しない。    */
 
 #if EXAMPLE_CODE
 typedef struct
@@ -851,17 +851,17 @@ m17n_object (int size, void (*freer) (void *))
     @errors
     This function never fails.  */
 /***ja
-    @brief ���������֥������Ȥλ��ȿ��� 1 ���䤹.
+    @brief 管理下オブジェクトの参照数を 1 増やす.
 
-    �ؿ� m17n_object_ref () �� $OBJECT 
-    �ǻؤ������������֥������Ȥλ��ȿ��� 1 ���䤹��
+    関数 m17n_object_ref () は $OBJECT 
+    で指される管理下オブジェクトの参照数を 1 増やす。
 
     @return 
-    ���δؿ��ϡ����䤷�����ȿ��� 16 �ӥåȤ����̵��������(���ʤ�� 
-    0x10000 ̤��)�ˤ����ޤ�С�������֤��������Ǥʤ���� -1 ���֤���
+    この関数は、増やした参照数が 16 ビットの符号無し整数値(すなわち 
+    0x10000 未満)におさまれば、それを返す。そうでなければ -1 を返す。
 
     @errors
-    ���δؿ��ϼ��Ԥ��ʤ���    */
+    この関数は失敗しない。    */
 
 int
 m17n_object_ref (void *object)
@@ -911,18 +911,18 @@ m17n_object_ref (void *object)
     @errors
     This function never fails.  */
 /***ja
-    @brief ���������֥������Ȥλ��ȿ��� 1 ���餹.
+    @brief 管理下オブジェクトの参照数を 1 減らす.
 
-    �ؿ� m17n_object_unref () �� $OBJECT �ǻؤ������������֥������Ȥλ��ȿ���
-    1 ���餹�����ȿ��� 0 �ˤʤ�С����֥������Ȥϲ����ؿ��ˤ�äƲ�������롣
+    関数 m17n_object_unref () は $OBJECT で指される管理下オブジェクトの参照数を
+    1 減らす。参照数が 0 になれば、オブジェクトは解放関数によって解放される。
 
     @return 
-    ���δؿ��ϡ����餷�����ȿ��� 16 �ӥåȤ����̵��������(���ʤ�� 
-    0x10000 ̤��)�ˤ����ޤ�С�������֤��������Ǥʤ���� -1 
-    ���֤����Ĥޤꡢ0 ���֤ä��褿����$OBJECT �ϲ�������Ƥ��롣
+    この関数は、減らした参照数が 16 ビットの符号無し整数値(すなわち 
+    0x10000 未満)におさまれば、それを返す。そうでなければ -1 
+    を返す。つまり、0 が返って来た場合は$OBJECT は解放されている。
 
     @errors
-    ���δؿ��ϼ��Ԥ��ʤ���    */
+    この関数は失敗しない。    */
 int
 m17n_object_unref (void *object)
 {
@@ -985,20 +985,20 @@ m17n_object_unref (void *object)
     <tt> exit ()</tt>.  */
 
 /***ja
-    @addtogroup m17nError ���顼����
-    @brief m17n �饤�֥��Υ��顼����.
+    @addtogroup m17nError エラー処理
+    @brief m17n ライブラリのエラー処理.
 
-    m17n �饤�֥��δؿ��Ǥϡ����Ĥμ���Υ��顼�����������롣
+    m17n ライブラリの関数では、２つの種類のエラーが起こり得る。
 
-    ��Ĥϰ����Υ��顼�Ǥ��롣
-    �饤�֥��δؿ��������Ǥʤ������ȤȤ�˸ƤФ줿��硢���δؿ��ϥ��顼���̣�����ͤ��֤���Ʊ���˳����ѿ� 
-    #merror_code �˥����Ǥʤ������򥻥åȤ��롣
+    一つは引数のエラーである。
+    ライブラリの関数が妥当でない引数とともに呼ばれた場合、その関数はエラーを意味する値を返し、同時に外部変数 
+    #merror_code にゼロでない整数をセットする。
 
-    �⤦��Ĥμ���ϥ�������ƥ��顼�Ǥ��롣
-    �����ƥबɬ�פ��̤Υ��������Ƥ뤳�Ȥ��Ǥ��ʤ���硢�饤�֥��ؿ��ϳ����ѿ� 
-    @c m17n_memory_full_handler ���ؤ��ؿ���Ƥ֡��ǥե���ȤǤϡ��ؿ� 
-    default_error_handle () ��ؤ��Ƥ��ꡢ���δؿ���ñ�� <tt>exit
-    ()</tt> ��Ƥ֡�
+    もう一つの種類はメモリ割当てエラーである。
+    システムが必要な量のメモリを割当てることができない場合、ライブラリ関数は外部変数 
+    @c m17n_memory_full_handler が指す関数を呼ぶ。デフォルトでは、関数 
+    default_error_handle () を指しており、この関数は単に <tt>exit
+    ()</tt> を呼ぶ。
 */
 
 /*** @{ */
@@ -1015,13 +1015,13 @@ m17n_object_unref (void *object)
     This variable initially has the value 0.  */
 
 /***ja 
-    @brief m17n �饤�֥��Υ��顼�����ɤ��ݻ����볰���ѿ�.
+    @brief m17n ライブラリのエラーコードを保持する外部変数.
 
-    �����ѿ� #merror_code �ϡ�m17n �饤�֥��Υ��顼�����ɤ��ݻ����롣
-    �饤�֥��ؿ��������Ǥʤ������ȤȤ�˸ƤФ줿�ݤˤϡ������ѿ��� 
-    @c enum #MErrorCode �ΰ�Ĥ˥��åȤ��롣
+    外部変数 #merror_code は、m17n ライブラリのエラーコードを保持する。
+    ライブラリ関数が妥当でない引数とともに呼ばれた際には、この変数を 
+    @c enum #MErrorCode の一つにセットする。
 
-    �����ѿ��ν���ͤ� 0 �Ǥ��롣  */
+    この変数の初期値は 0 である。  */
 
 int merror_code;
 
@@ -1042,19 +1042,19 @@ int merror_code;
     change this variable to point a proper function.  */
 
 /***ja 
-    @brief ��������ƥ��顼�ϥ�ɥ�.
+    @brief メモリ割当てエラーハンドラ.
 
-    �ѿ� #m17n_memory_full_handler 
-    �ϡ��饤�֥��ؿ�����������Ƥ˼��Ԥ����ݤ˸Ƥ֤٤��ؿ��ؤΥݥ��󥿤Ǥ��롣
-    $ERR �� @c enum #MErrorCode 
-    �Τ����Τ����줫�Ǥ��ꡢ�ɤΥ饤�֥��ؿ��ǥ��顼�����ä����򼨤���
+    変数 #m17n_memory_full_handler 
+    は、ライブラリ関数がメモリ割当てに失敗した際に呼ぶべき関数へのポインタである。
+    $ERR は @c enum #MErrorCode 
+    のうちのいずれかであり、どのライブラリ関数でエラーが起ったかを示す。
 
     @anchor test
 
-    �������Ǥϡ������ѿ���ñ�� <tt>exit ()</tt> �� $ERR 
-    ������Ȥ��ƸƤִؿ���ؤ��Ƥ��롣
+    初期設定では、この変数は単に <tt>exit ()</tt> を $ERR 
+    を引数として呼ぶ関数を指している。
 
-    ����Ȥϰۤʤ륨�顼������ɬ�פȤ��륢�ץꥱ�������ϡ������ѿ���Ŭ���ʴؿ������ꤹ�뤳�Ȥǡ���Ū��ã���Ǥ��롣  */
+    これとは異なるエラー処理を必要とするアプリケーションは、この変数を適当な関数に設定することで、目的を達成できる。  */
 
 void (*m17n_memory_full_handler) (enum MErrorCode err);
 
@@ -1120,54 +1120,54 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
 */
 /***ja
     @addtogroup m17nDebug
-    @brief m17n �饤�֥��桼���Τ���Υץ������ǥХå����ݡ���.
+    @brief m17n ライブラリユーザのためのプログラムデバッグサポート.
 
-    m17n �饤�֥��ϡ����Υ桼������ʬ�Υץ�������ǥХå����뤿��ˡ��ʲ��ε�ǽ�򥵥ݡ��Ȥ��Ƥ��롣
-
-    <ul>
-
-    <li> ���ޤ��ޤʾ����ɸ�२�顼���ϤؤΥץ��Ȥ����椹��Ķ��ѿ���
+    m17n ライブラリは、そのユーザが自分のプログラムをデバッグするために、以下の機能をサポートしている。
 
     <ul>
 
-    <li> MDEBUG_INIT -- 1 �ʤ�С�M17N_INIT () 
-    ���ƤФ줿�����ǡ��饤�֥��ν�����˴ؤ�������ץ��Ȥ��롣
+    <li> さまざまな情報の標準エラー出力へのプリントを制御する環境変数。
 
-    <li> MDEBUG_FINI -- 1 �ʤ�С�M17N_FINI () 
-    ���ƤФ줿�����ǡ��ޤ���������Ƥ��ʤ����֥������Ȥλ��ȿ���ץ��Ȥ��롣
+    <ul>
 
-    <li> MDEBUG_CHARSET -- 1 �ʤ�С�m17n
-    �ǡ����١�����������ɤ��줿ʸ�����åȤˤĤ��Ƥξ����ץ��Ȥ��롣
+    <li> MDEBUG_INIT -- 1 ならば、M17N_INIT () 
+    が呼ばれた時点で、ライブラリの初期化に関する情報をプリントする。
 
-    <li> MDEBUG_CODING --  1 �ʤ�С�m17n 
-    �ǡ����١�����������ɤ��줿�����ɷϤˤĤ��Ƥξ����ץ��Ȥ��롣
+    <li> MDEBUG_FINI -- 1 ならば、M17N_FINI () 
+    が呼ばれた時点で、まだ解放されていないオブジェクトの参照数をプリントする。
 
-    <li> MDEBUG_DATABASE -- 1 �ʤ�С�m17n
-    �ǡ����١�����������ɤ��줿�ǡ����ˤĤ��Ƥξ����ץ��Ȥ��롣
+    <li> MDEBUG_CHARSET -- 1 ならば、m17n
+    データベースからロードされた文字セットについての情報をプリントする。
 
-    <li> MDEBUG_FONT -- 1 �ʤ�С����򤵤�ƥ����ץ󤵤줿�ե���Ȥˤ�
-    ���Ƥξ����ץ��Ȥ��롣
+    <li> MDEBUG_CODING --  1 ならば、m17n 
+    データベースからロードされたコード系についての情報をプリントする。
 
-    <li> MDEBUG_FLT -- 1��2���⤷���� 3 �ʤ�С�Font Layout Table �Τ�
-    �Υ��ޥ�ɤ��¹��椫�ˤĤ��ƤΤ�ץ��Ȥ��롣����礭����������
-    ���������ץ��Ȥ��롣
+    <li> MDEBUG_DATABASE -- 1 ならば、m17n
+    データベースからロードされたデータについての情報をプリントする。
 
-    <li> MDEBUG_INPUT -- 1 �ʤ�С��¹�������ϥ᥽�åɤξ��֤��դ��Ƥ�
-    �����ץ��Ȥ��롣
+    <li> MDEBUG_FONT -- 1 ならば、選択されてオープンされたフォントにつ
+    いての情報をプリントする。
 
-    <li> MDEBUG_ALL -- 1 �ʤ�С��嵭���٤Ƥ��ѿ��� 1 
-    �ˤ����Τ�Ʊ�����̤���ġ�
+    <li> MDEBUG_FLT -- 1、2、もしくは 3 ならば、Font Layout Table のど
+    のコマンドが実行中かについてのをプリントする。より大きな値程より詳
+    しい情報をプリントする。
 
-    <li> MDEBUG_OUTPUT_FILE -- �⤷�ե�����̾�ʤ顢�嵭�ǥХå�����Ϥ�
-    �Υե�������ɲä���롣�⤷ "stdout" �ʤ餽�ξ����ɸ����Ϥ˽���
-    ����롣
+    <li> MDEBUG_INPUT -- 1 ならば、実行中の入力メソッドの状態に付いての
+    情報をプリントする。
+
+    <li> MDEBUG_ALL -- 1 ならば、上記すべての変数を 1 
+    にしたのと同じ効果を持つ。
+
+    <li> MDEBUG_OUTPUT_FILE -- もしファイル名なら、上記デバッグ情報はそ
+    のファイルに追加される。もし "stdout" ならその情報は標準出力に出力
+    される。
 
     </ul>
 
-    <li> ��Υ��֥������Ȥ�ʹ֤˲��ɤʷ��ǥץ��Ȥ���ؿ����ܺ٤ϴؿ�
-    mdebug_dump_XXXX () ���������ȡ�
+    <li> 種々のオブジェクトを人間に可読な形でプリントする関数。詳細は関数
+    mdebug_dump_XXXX () の説明参照。
 
-    <li> ���顼ȯ�����˸ƤФ��եå��ؿ���mdebug_hook () ���������ȡ�
+    <li> エラー発生時に呼ばれるフック関数。mdebug_hook () の説明参照。
 
     </ul>
 */
@@ -1183,10 +1183,10 @@ void (*m17n_memory_full_handler) (enum MErrorCode err);
     returns -1 without doing anything.  It is useful to set a break
     point on this function in a debugger.  */ 
 /***ja
-    @brief ���顼�κݤ˸ƤФ��եå��ؿ�.
+    @brief エラーの際に呼ばれるフック関数.
 
-    �ؿ� mdebug_hook () �ϥ��顼�������ä��ݤ˸ƤФ졢���⤻����-1 
-    ���֤����ǥХå���ǥ֥졼���ݥ���Ȥ����ꤹ�뤿����Ѥ��뤳�Ȥ��Ǥ��롣
+    関数 mdebug_hook () はエラーが起こった際に呼ばれ、何もせずに-1 
+    を返す。デバッガ内でブレークポイントを設定するために用いることができる。
     */ 
 
 int
@@ -1201,6 +1201,6 @@ mdebug_hook ()
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

@@ -299,23 +299,23 @@ typedef struct
 typedef struct
 {
   /**en Reference count of the object.  */
-  /**ja ¥ª¥Ö¥¸¥§¥¯¥È¤Î»²¾È¿ô.  */
+  /**ja ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‚ç…§æ•°.  */
   unsigned ref_count : 16;
 
   unsigned ref_count_extended : 1;
 
   /**en A flag bit used for various perpose.  */
-  /**ja ¤µ¤Ş¤¶¤Ş¤ÊÌÜÅª¤ËÍÑ¤¤¤é¤ì¤ë¥Õ¥é¥°¥Ó¥Ã¥È.  */
+  /**ja ã•ã¾ã–ã¾ãªç›®çš„ã«ç”¨ã„ã‚‰ã‚Œã‚‹ãƒ•ãƒ©ã‚°ãƒ“ãƒƒãƒˆ.  */
   unsigned flag : 15;
 
   union {
     /**en If <ref_count_extended> is zero, a function to free the
        object.  */
-    /**ja <ref_count_extended> ¤¬ 0 ¤Ê¤é¤Ğ¥ª¥Ö¥¸¥§¥¯¥È¤ò²òÊü¤¹¤ë´Ø¿ô.  */
+    /**ja <ref_count_extended> ãŒ 0 ãªã‚‰ã°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è§£æ”¾ã™ã‚‹é–¢æ•°.  */
     void (*freer) (void *);
     /**en If <ref_count_extended> is nonzero, a pointer to the
        struct M17NObjectRecord.  */
-    /**ja <ref_count_extended> ¤¬ 0 ¤Ç¤Ê¤±¤ì¤Ğ¹½Â¤ÂÎ M17NObjectRecord ¤Ø¤Î¥İ¥¤¥ó¥¿.  */
+    /**ja <ref_count_extended> ãŒ 0 ã§ãªã‘ã‚Œã°æ§‹é€ ä½“ M17NObjectRecord ã¸ã®ãƒã‚¤ãƒ³ã‚¿.  */
     M17NObjectRecord *record;
   } u;
 } M17NObject;
@@ -333,7 +333,7 @@ typedef struct
 
 /**en Increment the reference count of OBJECT if the count is not
    0.  */
-/**ja OBJECT ¤Î»²¾È¿ô¤¬ 0 ¤Ç¤Ê¤±¤ì¤Ğ 1 Áı¤ä¤¹.  */
+/**ja OBJECT ã®å‚ç…§æ•°ãŒ 0 ã§ãªã‘ã‚Œã° 1 å¢—ã‚„ã™.  */
 
 #define M17N_OBJECT_REF(object)				\
   do {							\
@@ -375,8 +375,8 @@ typedef struct
 
 /**en Decrement the reference count of OBJECT if the count is greater
       than 0.  In that case, if the count becomes 0, free OBJECT.  */
-/**ja OBJECT ¤Î»²¾È¿ô¤¬ 0 ¤è¤êÂç¤­¤±¤ì¤Ğ 1 ¸º¤é¤¹¡£¸º¤é¤·¤Æ 0 ¤Ë¤Ê¤ì¤Ğ
-      OBJECT ¤ò²òÊü¤¹¤ë.  */
+/**ja OBJECT ã®å‚ç…§æ•°ãŒ 0 ã‚ˆã‚Šå¤§ãã‘ã‚Œã° 1 æ¸›ã‚‰ã™ã€‚æ¸›ã‚‰ã—ã¦ 0 ã«ãªã‚Œã°
+      OBJECT ã‚’è§£æ”¾ã™ã‚‹.  */
 
 #define M17N_OBJECT_UNREF(object)					\
   do {									\
@@ -456,27 +456,27 @@ struct MText
   unsigned coverage : 16;
 
   /**en Number of characters in the M-text */
-  /**ja M-text Ãæ¤ÎÊ¸»ú¿ô */
+  /**ja M-text ä¸­ã®æ–‡å­—æ•° */
   int nchars;
 
   /**en Number of bytes used to represent the characters in the M-text. */
-  /**ja M-text Ãæ¤ÎÊ¸»ú¤òÉ½¤ï¤¹¤¿¤á¤ËÍÑ¤¤¤é¤ì¤ë¥Ğ¥¤¥È¿ô */
+  /**ja M-text ä¸­ã®æ–‡å­—ã‚’è¡¨ã‚ã™ãŸã‚ã«ç”¨ã„ã‚‰ã‚Œã‚‹ãƒã‚¤ãƒˆæ•° */
   int nbytes;
 
   /**en Character sequence of the M-text. */
-  /**ja M-text Ãæ¤ÎÊ¸»úÎó */
+  /**ja M-text ä¸­ã®æ–‡å­—åˆ— */
   unsigned char *data;
 
   /**en Number of bytes allocated for the @c data member. */
-  /**ja ¥á¥ó¥Ğ @c data ¤Ë³ä¤êÅö¤Æ¤é¤ì¤¿¥Ğ¥¤¥È¿ô */
+  /**ja ãƒ¡ãƒ³ãƒ @c data ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸãƒã‚¤ãƒˆæ•° */
   int allocated;
 
   /**en Pointer to the property list of the M-text. */
-  /**ja M-text ¤Î¥×¥í¥Ñ¥Æ¥£¥ê¥¹¥È¤Ø¤Î¥İ¥¤¥ó¥¿ */
+  /**ja M-text ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãƒªã‚¹ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ */
   struct MTextPlist *plist;
 
   /**en Caches of the character position and the corresponding byte position. */
-  /**ja Ê¸»ú°ÌÃÖ¤ª¤è¤ÓÂĞ±ş¤¹¤ë¥Ğ¥¤¥È°ÌÃÖ¤Î¥­¥ã¥Ã¥·¥å */
+  /**ja æ–‡å­—ä½ç½®ãŠã‚ˆã³å¯¾å¿œã™ã‚‹ãƒã‚¤ãƒˆä½ç½®ã®ã‚­ãƒ£ãƒƒã‚·ãƒ¥ */
   int cache_char_pos, cache_byte_pos;
 };
 
@@ -680,6 +680,6 @@ extern void minput__fini ();
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

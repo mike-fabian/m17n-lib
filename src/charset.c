@@ -52,29 +52,29 @@
 
 /***ja
     @addtogroup m17nCharset
-    @brief ʸ�����åȥ��֥������ȤȤ���˴ؤ��� API.
+    @brief 文字セットオブジェクトとそれに関する API.
 
-    m17n �饤�֥��ϡ���沽ʸ������ (CCS) �� @e ʸ�����å� 
-    �ȸƤ֥��֥������Ȥ�ɽ�����롣
-    m17n �饤�֥���¿������沽ʸ������򤢤餫���᥵�ݡ��Ȥ��Ƥ��뤷�����ץꥱ�������ץ�����ब�ȼ���ʸ�����åȤ��ɲä��뤳�Ȥ��ǽ�Ǥ��롣
-    ��Ĥ�ʸ����ʣ����ʸ�����åȤ�°���Ƥ�褤��
+    m17n ライブラリは、符号化文字集合 (CCS) を @e 文字セット 
+    と呼ぶオブジェクトで表現する。
+    m17n ライブラリは多くの符号化文字集合をあらかじめサポートしているし、アプリケーションプログラムが独自に文字セットを追加することも可能である。
+    一つの文字は複数の文字セットに属してもよい。
 
-    m17n �饤�֥��ϡ��ʲ��γ�ǰ����̤��Ƥ���:
+    m17n ライブラリは、以下の概念を区別している:
 
-    @li @e �����ɥݥ���� �Ȥϡ�CCS ��������θġ���ʸ�����Ф������������ͤǤ��롣
-    �����ɥݥ���Ȥ�Ϣ³���Ƥ���Ȥϸ¤�ʤ��������ɥݥ���Ȥ�
-    @c unsigned ���ˤ�ä�ɽ����롣̵���ʥ����ɥݥ���Ȥϥޥ���
-    @c MCHAR_INVALID_CODE ��ɽ����롣
+    @li @e コードポイント とは、CCS がその中の個々の文字に対して定義する数値である。
+    コードポイントは連続しているとは限らない。コードポイントは
+    @c unsigned 型によって表される。無効なコードポイントはマクロ
+    @c MCHAR_INVALID_CODE で表される。
 
-    @li @e ʸ������ǥå��� �Ȥϡ�CCS ��ǳ�ʸ���˳�����Ƥ������������줿����ǥå����Ǥ��롣
-    ʸ������ǥå����� N ��ʸ���ϡ�CCS �����ʸ���򥳡��ɥݥ���Ƚ���¤٤��Ȥ��� N ���ܤ˸����롣
-    CCS ���ʸ������ǥå�����Ϣ³���Ƥ��ꡢ0 ����Ϥޤ롣
+    @li @e 文字インデックス とは、CCS 内で各文字に割り当てられる正規化されたインデックスである。
+    文字インデックスが N の文字は、CCS 中の全文字をコードポイント順に並べたときに N 番目に現われる。
+    CCS 中の文字インデックスは連続しており、0 から始まる。
 
-    @li @e ʸ�������� �Ȥϡ�m17n �饤�֥����ˤ�����ʸ��������ɽ���Ǥ��ꡢ21 �ӥåȰʾ��Ĺ�����������դ������Ǥ��롣
+    @li @e 文字コード とは、m17n ライブラリ内における文字の内部表現であり、21 ビット以上の長さを持つ符合付き整数である。
 
-    ��ʸ�����åȥ��֥������Ȥϡ�����ʸ�����åȤ�°����ʸ���Υ����ɥݥ���Ȥ�ʸ�������ɤȤδ֤��Ѵ����ꤹ�롣
-    �����ɥݥ���Ȥ���ʸ�������ɤؤ��Ѵ��� @e �ǥ�����
-    �ȸƤӡ�ʸ�������ɤ��饳���ɥݥ���Ȥؤ��Ѵ��� @e ���󥳡��� �ȸƤ֡�  */
+    各文字セットオブジェクトは、その文字セットに属する文字のコードポイントと文字コードとの間の変換を規定する。
+    コードポイントから文字コードへの変換を @e デコード
+    と呼び、文字コードからコードポイントへの変換を @e エンコード と呼ぶ。  */
 
 
 /*=*/
@@ -721,9 +721,9 @@ mcharset__load_from_database ()
     The macro #MCHAR_INVALID_CODE gives the invalid code-point.  */
 
 /***ja
-    @brief ̵���ʥ����ɥݥ����.
+    @brief 無効なコードポイント.
 
-    �ޥ��� #MCHAR_INVALID_CODE ��̵���ʥ����ɥݥ���Ȥ򼨤���  */
+    マクロ #MCHAR_INVALID_CODE は無効なコードポイントを示す。  */
 
 #define MCHAR_INVALID_CODE
 #endif
@@ -736,9 +736,9 @@ mcharset__load_from_database ()
     Each of the following symbols represents a predefined charset.  */
 
 /***ja
-    @name �ѿ�: ʸ�����åȤ�ɽ����������Ѥߥ���ܥ�.
+    @name 変数: 文字セットを表現する定義済みシンボル.
 
-    �ʲ��γƥ���ܥ�ϡ�����Ѥ�ʸ�����åȤ�ɽ�����롣  */
+    以下の各シンボルは、定義済み文字セットを表現する。  */
 /*=*/
 /*** @{ */
 /*=*/
@@ -748,10 +748,10 @@ mcharset__load_from_database ()
     The symbol #Mcharset_ascii has name <tt>"ascii"</tt> and represents
     the charset ISO 646, USA Version X3.4-1968 (ISO-IR-6).  */
 /***ja
-    @brief ASCII ʸ�����åȤ�ɽ�����륷��ܥ�.
+    @brief ASCII 文字セットを表現するシンボル.
 
-    ����ܥ� #Mcharset_ascii �� <tt>"ascii"</tt> �Ȥ���̾��������� 
-    ISO 646, USA Version X3.4-1968 (ISO-IR-6) ʸ�����åȤ�ɽ�����롣
+    シンボル #Mcharset_ascii は <tt>"ascii"</tt> という名前を持ち、 
+    ISO 646, USA Version X3.4-1968 (ISO-IR-6) 文字セットを表現する。
      */
 
 MSymbol Mcharset_ascii;
@@ -763,10 +763,10 @@ MSymbol Mcharset_ascii;
     The symbol #Mcharset_iso_8859_1 has name <tt>"iso-8859-1"</tt>
     and represents the charset ISO/IEC 8859-1:1998.  */
 /***ja
-    @brief ISO/IEC 8859-1:1998 ʸ�����åȤ�ɽ�����륷��ܥ�.
+    @brief ISO/IEC 8859-1:1998 文字セットを表現するシンボル.
 
-    ����ܥ� #Mcharset_iso_8859_1 �� <tt>"iso-8859-1"</tt> 
-    �Ȥ���̾���������ISO/IEC 8859-1:1998 ʸ�����åȤ�ɽ�����롣
+    シンボル #Mcharset_iso_8859_1 は <tt>"iso-8859-1"</tt> 
+    という名前を持ち、ISO/IEC 8859-1:1998 文字セットを表現する。
     */
 
 MSymbol Mcharset_iso_8859_1;
@@ -777,10 +777,10 @@ MSymbol Mcharset_iso_8859_1;
     The symbol #Mcharset_unicode has name <tt>"unicode"</tt> and
     represents the charset Unicode.  */
 /***ja
-    @brief Unicode ʸ�����åȤ�ɽ�����륷��ܥ�.
+    @brief Unicode 文字セットを表現するシンボル.
 
-    ����ܥ� #Mcharset_unicode �� <tt>"unicode"</tt> 
-    �Ȥ���̾���������Unicode ʸ�����åȤ�ɽ�����롣 */
+    シンボル #Mcharset_unicode は <tt>"unicode"</tt> 
+    という名前を持ち、Unicode 文字セットを表現する。 */
 
 MSymbol Mcharset_unicode;
 
@@ -792,10 +792,10 @@ MSymbol Mcharset_unicode;
     represents the charset that contains all characters supported by
     the m17n library.  */ 
 /***ja
-    @brief ��ʸ����ޤ�ʸ�����åȤ�ɽ�����륷��ܥ�.
+    @brief 全文字を含む文字セットを表現するシンボル.
 
-    ����ܥ� #Mcharset_m17n �� <tt>"m17n"</tt> �Ȥ���̾���������
-    m17n �饤�֥�꤬�������Ƥ�ʸ����ޤ�ʸ�����åȤ�ɽ�����롣 */
+    シンボル #Mcharset_m17n は <tt>"m17n"</tt> という名前を持ち、
+    m17n ライブラリが扱う全ての文字を含む文字セットを表現する。 */
 
 MSymbol Mcharset_m17n;
 
@@ -811,13 +811,13 @@ MSymbol Mcharset_m17n;
     See @ref m17nConv for more details.  */
 
 /***ja
-    @brief �������ǥ����ɤǤ��ʤ�ʸ����ʸ�����åȤ�ɽ�����륷��ܥ�.
+    @brief 正しくデコードできない文字の文字セットを表現するシンボル.
 
-    ����ܥ� #Mcharset_binary �� <tt>"binary"</tt> 
-    �Ȥ���̾������������� (fake) ʸ�����åȤ�ɽ�����롣
-    �ǥ����ɴؿ��ϡ�M-text �Υƥ����ȥץ��ѥƥ��Ȥ��ơ�̵���ʥХ��ȡʥ��������󥹡ˤ������������֤��ղä��롣
+    シンボル #Mcharset_binary は <tt>"binary"</tt> 
+    という名前を持ち、偽の (fake) 文字セットを表現する。
+    デコード関数は、M-text のテキストプロパティとして、無効なバイト（シークエンス）に遭遇した位置を付加する。
 
-     �ܺ٤� @ref m17nConv ���ȤΤ��ȡ� */
+     詳細は @ref m17nConv 参照のこと。 */
 
 MSymbol Mcharset_binary;
 
@@ -832,10 +832,10 @@ MSymbol Mcharset_binary;
     function mchar_define_charset () (which see).  */
 
 /***ja
-    @name �ѿ�: mchar_define_charset �ѤΥѥ�᡼��������
+    @name 変数: mchar_define_charset 用のパラメータ・キー
 
-    �����ϡ��ؿ� mchar_define_charset () �ѤΥѥ�᡼���������Ȥ��ƻȤ��륷��ܥ�Ǥ��롣 
-    �ܤ����Ϥ��δؿ��β���򻲾ȤΤ��ȡ�*/
+    これらは、関数 mchar_define_charset () 用のパラメータ・キーとして使われるシンボルである。 
+    詳しくはこの関数の解説を参照のこと。*/
 /*** @{ */
 /*=*/
 
@@ -870,14 +870,14 @@ MSymbol Maliases;
     function for the details.  */
 
 /***ja
-    @name �ѿ�: ʸ�����åȤΥ᥽�åɻ���˻Ȥ��륷��ܥ�
+    @name 変数: 文字セットのメソッド指定に使われるシンボル
 
-    �����ϡ�ʸ�����åȤ� @e �᥽�å� ����ꤹ�뤿�������Ѥߥ���ܥ�Ǥ��ꡢʸ�����åȤ�
-    @b Mmethod �ѥ�᡼�����ͤȤʤ뤳�Ȥ��Ǥ��롣
-    �����ͤϴؿ� mchar_define_charset () �ΰ����Ȥ��ƻȤ��롣
+    これらは、文字セットの @e メソッド を指定するための定義済みシンボルであり、文字セットの
+    @b Mmethod パラメータの値となることができる。
+    この値は関数 mchar_define_charset () の引数として使われる。
 
-    �᥽�åɤȤϡ������ɥݥ���Ȥ�ʸ�������ɤ�����Ѵ�����ݤ������Τ��ȤǤ��롣
-    �ܤ����ϴؿ� mchar_define_charset () �β���򻲾ȤΤ��ȡ�  */
+    メソッドとは、コードポイントと文字コードを相互変換する際の方式のことである。
+    詳しくは関数 mchar_define_charset () の解説を参照のこと。  */
 /*** @{ */
 /*=*/
 /***en
@@ -896,17 +896,17 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + MIN-CHAR
     and MIN-CHAR is a value of @b Mmin_char parameter.  */
 
 /***ja
-    @brief ���ե��åȷ��Υ᥽�åɤ򼨤�����ܥ�.
+    @brief オフセット型のメソッドを示すシンボル.
 
-    ����ܥ� #Moffset �� <tt>"offset"</tt> �Ȥ���̾���������ʸ�����åȤ�
-    @b Mmethod �ѥ�᡼�����ͤȤ����Ѥ���줿���ˤϡ������ɥݥ���Ȥ�ʸ�����åȤ�ʸ�������ɤδ֤��Ѵ����ʲ��μ��˽��äƹԤ��뤳�Ȥ��̣���롣
+    シンボル #Moffset は <tt>"offset"</tt> という名前を持ち、文字セットの
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が以下の式に従って行われることを意味する。
 
 @verbatim
-ʸ�������� = �����ɥݥ���� - MIN-CODE + MIN-CHAR
+文字コード = コードポイント - MIN-CODE + MIN-CHAR
 @endverbatim
 
-    �����ǡ�MIN-CODE ��ʸ�����åȤ� @b Mmin_code �ѥ�᡼�����ͤǤ��ꡢMIN-CHAR ��
-    @b Mmin_char �ѥ�᡼�����ͤǤ��롣 */
+    ここで、MIN-CODE は文字セットの @b Mmin_code パラメータの値であり、MIN-CHAR は
+    @b Mmin_char パラメータの値である。 */
 
 MSymbol Moffset;
 /*=*/
@@ -919,11 +919,11 @@ MSymbol Moffset;
     done by map looking up.  The map must be given by @b Mmapfile
     parameter.  */
 
-/***ja @brief �ޥå׷��Υ᥽�åɤ򼨤�����ܥ�.
+/***ja @brief マップ型のメソッドを示すシンボル.
 
-    ����ܥ� #Mmap �� <tt>"map"</tt> �Ȥ���̾���������ʸ�����åȤ� 
-    @b Mmethod �ѥ�᡼�����ͤȤ����Ѥ���줿���ˤϡ������ɥݥ���Ȥ�ʸ�����åȤ�ʸ�������ɤδ֤��Ѵ����ޥåפ򻲾Ȥ��뤳�Ȥˤ�äƹԤ��뤳�Ȥ��̣���롣
-    �ޥåפ� @b Mmapfile �ѥ�᡼���Ȥ���Ϳ���ʤ���Фʤ�ʤ��� */
+    シンボル #Mmap は <tt>"map"</tt> という名前を持ち、文字セットの 
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換がマップを参照することによって行われることを意味する。
+    マップは @b Mmapfile パラメータとして与えなければならない。 */
 
 MSymbol Mmap;
 /*=*/
@@ -949,22 +949,22 @@ CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
     and LOWEST-CHAR-CODE is the lowest character code of the assigned
     code space.  */
 
-/***ja @brief ��˥ե������Υ᥽�åɤ򼨤�����ܥ�.
+/***ja @brief ユニファイ型のメソッドを示すシンボル.
 
-    ����ܥ� #Munify �� <tt>"unify"</tt> �Ȥ���̾���������ʸ�����åȤ� 
-    @b Mmethod �ѥ�᡼�����ͤȤ����Ѥ���줿���ˤϡ������ɥݥ���Ȥ�ʸ�����åȤ�ʸ�������ɤδ֤��Ѵ������ޥåפλ��Ȥȥ��ե��åȤ��Ȥ߹�碌�ˤ�äƹԤ��뤳�Ȥ��̣���롣
-    �ޥåפ� @b Mmapfile �ѥ�᡼���Ȥ���Ϳ���ʤ���Фʤ�ʤ���
-    ���μ�γ�ʸ�����åȤˤϡ���ʸ�����Ф���Ϣ³���륳���ɥ��ڡ��������줾�������Ƥ��롣
+    シンボル #Munify は <tt>"unify"</tt> という名前を持ち、文字セットの 
+    @b Mmethod パラメータの値として用いられた場合には、コードポイントと文字セットの文字コードの間の変換が、マップの参照とオフセットの組み合わせによって行われることを意味する。
+    マップは @b Mmapfile パラメータとして与えなければならない。
+    この種の各文字セットには、全文字に対して連続するコードスペースがそれぞれ割り当てられる。
 
-    �����ɥݥ���Ȥ��ޥåפ˴ޤޤ�Ƥ���С��Ѵ��ϥޥå׻��Ȥˤ�äƹԤ��롣
-    �����Ǥʤ���С��ʲ��μ��˽�����
+    コードポイントがマップに含まれていれば、変換はマップ参照によって行われる。
+    そうでなければ、以下の式に従う。
 
 @verbatim
 CHARACTER-CODE = CODE-POINT - MIN-CODE + LOWEST-CHAR-CODE
 @endverbatim
     
-    �����ǡ�MIN-CODE ��ʸ�����åȤ� @b Mmin_code �ѥ�᡼�����ͤǤ��ꡢ
-    LOWEST-CHAR-CODE �ϳ�����Ƥ�줿�����ɥ��ڡ����κǤ⾮����ʸ�������ɤǤ��롣
+    ここで、MIN-CODE は文字セットの @b Mmin_code パラメータの値であり、
+    LOWEST-CHAR-CODE は割り当てられたコードスペースの最も小さい文字コードである。
     */
 
 MSymbol Munify;
@@ -988,20 +988,20 @@ CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
     code of CODE-POINT in the parent charset, and SUBSET-OFFSET is a
     value given by @b Msubset_offset parameter.  */
 
-/***ja @brief ���֥��åȷ��Υ᥽�åɤ򼨤�����ܥ�.
+/***ja @brief サブセット型のメソッドを示すシンボル.
 
-    ����ܥ� #Msubset �� <tt>"subset"</tt> �Ȥ���̾���������ʸ�����åȤ�
-    @b Mmethod �ѥ�᡼�����ͤȤ����Ѥ���줿���ˤϡ�����ʸ�����åȤ��̤�ʸ�����åȡʿ�ʸ�����åȡˤ���ʬ����Ǥ��뤳�Ȥ��̣���롣
-    ��ʸ�����åȤ� @b Mparents �ѥ�᡼���ˤ�ä�Ϳ�����ʤ��ƤϤʤ�ʤ���
-    �����ɥݥ���Ȥ�ʸ�����åȤ�ʸ�������ɤδ֤��Ѵ��ϡ���ǰŪ�ˤϰʲ��μ��˽�����
+    シンボル #Msubset は <tt>"subset"</tt> という名前を持ち、文字セットの
+    @b Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の部分集合であることを意味する。
+    親文字セットは @b Mparents パラメータによって与えられなくてはならない。
+    コードポイントと文字セットの文字コードの間の変換は、概念的には以下の式に従う。
 
 @verbatim
 CHARACTER-CODE = PARENT-CODE (CODE-POINT) + SUBSET-OFFSET
 @endverbatim
 
-    ������ PARENT-CODE �� CODE-POINT 
-    �ο�ʸ�����å���Ǥ�ʸ�������ɤ��֤����ؿ��Ǥ��ꡢSUBSET-OFFSET �� 
-    @b Msubset_offset �ѥ�᡼����Ϳ�������ͤǤ��롣
+    ここで PARENT-CODE は CODE-POINT 
+    の親文字セット中での文字コードを返す擬関数であり、SUBSET-OFFSET は 
+    @b Msubset_offset パラメータで与えられる値である。
     */
 
 MSymbol Msubset;
@@ -1016,11 +1016,11 @@ MSymbol Msubset;
     must be given by @b Mparents parameter.  */
 
 /***ja
-    @brief �����ѡ����åȷ��Υ᥽�åɤ򼨤�����ܥ�.
+    @brief スーパーセット型のメソッドを示すシンボル.
 
-    ����ܥ� #Msuperset �� <tt>"superset"</tt> �Ȥ���̾���������ʸ�����åȤ�
-    @b Mmethod �ѥ�᡼�����ͤȤ����Ѥ���줿���ˤϡ�����ʸ�����åȤ��̤�ʸ�����åȡʿ�ʸ�����åȡˤξ�̽���Ǥ��뤳�Ȥ��̣���롣
-    ��ʸ�����åȤ� @b Mparents �ѥ�᡼���ˤ�ä�Ϳ�����ʤ��ƤϤʤ�ʤ���
+    シンボル #Msuperset は <tt>"superset"</tt> という名前を持ち、文字セットの
+    @b Mmethod パラメータの値として用いられた場合には、この文字セットが別の文字セット（親文字セット）の上位集合であることを意味する。
+    親文字セットは @b Mparents パラメータによって与えられなくてはならない。
     */
 
 MSymbol Msuperset;
@@ -1133,101 +1133,101 @@ MSymbol Msuperset;
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief ʸ�����åȤ��������.
+    @brief 文字セットを定義する.
 
-    �ؿ� mchar_define_charset () �Ͽ�����ʸ�����åȤ������������� 
-    $NAME �Ȥ���̾������ĥ���ܥ��ͳ�ǥ��������Ǥ���褦�ˤ��롣
-    $PLIST ����������ʸ�����åȤΥѥ�᡼����ʲ��Τ褦�˻��ꤹ�롣
+    関数 mchar_define_charset () は新しい文字セットを定義し、それを 
+    $NAME という名前を持つシンボル経由でアクセスできるようにする。
+    $PLIST は定義される文字セットのパラメータを以下のように指定する。
 
     <ul>
 
-    <li> ������ @b Mmethod ���ͤ�����ܥ�λ�
+    <li> キーが @b Mmethod で値がシンボルの時
 
-    �ͤϡ�#Moffset, #Mmap (�ǥե������), #Munify, #Msubset,
-    #Msuperset �Τ����줫�Ǥ��ꡢʸ�����åȤΥ����ɥݥ���Ȥ�ǥ����ɡ����󥳡��ɤ���ݤΥ᥽�åɤ���ꤹ�롣
+    値は、#Moffset, #Mmap (デフォルト値), #Munify, #Msubset,
+    #Msuperset のいずれかであり、文字セットのコードポイントをデコード／エンコードする際のメソッドを指定する。
 
-    <li> ������ @b Mdimension ���ͤ������ͤλ�
+    <li> キーが @b Mdimension で値が整数値の時
 
-    �ͤϡ�1 (�ǥե������), 2, 3, 4 
-    �Τ����줫�Ǥ��ꡢʸ�����åȤΥ����ɥݥ���Ȥμ����Ǥ��롣
+    値は、1 (デフォルト値), 2, 3, 4 
+    のいずれかであり、文字セットのコードポイントの次元である。
 
-    <li> ������ @b Mmin_range ���ͤ����������ͤλ�
+    <li> キーが @b Mmin_range で値が非負整数値の時
 
-    �ͤϥ����ɥݥ���ȤκǾ����ͤǤ��롣���ʤ���������ͤ� N 
-    ���ܤΥХ��ȤϤ���ʸ�����åȤΥ����ɥݥ���Ȥ� N ���ܤΥХ��ȤκǾ��Τ�ΤȤʤ롣
-    �ǥե�����ͤ� 0 ��
+    値はコードポイントの最小の値である。すなわち、この値の N 
+    番目のバイトはこの文字セットのコードポイントの N 番目のバイトの最小のものとなる。
+    デフォルト値は 0 。
 
-    <li> ������ @b Mmax_range ���ͤ����������ͤλ�
+    <li> キーが @b Mmax_range で値が非負整数値の時
 
-    �ͤϥ����ɥݥ���Ȥκ�����ͤǤ��롣���ʤ���������ͤ� N 
-    ���ܤΥХ��ȤϤ���ʸ�����åȤΥ����ɥݥ���Ȥ� N ���ܤΥХ��Ȥκ���Τ�ΤȤʤ롣
-    �ǥե�����ͤϡ������ɥݥ���Ȥμ����� 1, 2, 3, 4 �λ������줾��
-    0xFF, 0xFFFF, 0xFFFFFF, 0xFFFFFFFF ��
+    値はコードポイントの最大の値である。すなわち、この値の N 
+    番目のバイトはこの文字セットのコードポイントの N 番目のバイトの最大のものとなる。
+    デフォルト値は、コードポイントの次元が 1, 2, 3, 4 の時、それぞれ
+    0xFF, 0xFFFF, 0xFFFFFF, 0xFFFFFFFF 。
 
-    <li> ������ @b Mmin_code ���ͤ����������ͤλ�
+    <li> キーが @b Mmin_code で値が非負整数値の時
 
-    �ͤϤ���ʸ�����åȤκǾ��Υ����ɥݥ���ȤǤ��롣�ǥե�����ͤ� 
-    @b Mmin_range ���͡�
+    値はこの文字セットの最小のコードポイントである。デフォルト値は 
+    @b Mmin_range の値。
 
-    <li> ������ @b Mmax_code ���ͤ����������ͤλ�
+    <li> キーが @b Mmax_code で値が非負整数値の時
 
-    �ͤϤ���ʸ�����åȤκ���Υ����ɥݥ���ȤǤ��롣�ǥե�����ͤ� 
-    @b Mmax_range ���͡�
+    値はこの文字セットの最大のコードポイントである。デフォルト値は 
+    @b Mmax_range の値。
 
-    <li> ������  @b Mascii_compatible ���ͤ�����ܥ�λ�
+    <li> キーが  @b Mascii_compatible で値がシンボルの時
 
-    �ͤϤ���ʸ�����åȤ� ASCII �ߴ��Ǥ��뤫�ɤ����򼨤����ǥե�����ͤ�
-    #Mnil �Ǥ���иߴ��ǤϤʤ�������ʳ��ξ��ϸߴ��Ǥ��롣
+    値はこの文字セットが ASCII 互換であるかどうかを示す。デフォルト値の
+    #Mnil であれば互換ではなく、それ以外の場合は互換である。
 
-    <li> ������  @b Mfinal_byte ���ͤ������ͤλ�
+    <li> キーが  @b Mfinal_byte で値が整数値の時
 
-    �ͤϤ���ʸ�����åȤ� The International Registry ����Ͽ����Ƥ��� 
-    @e ��ü�Х��� �Ǥ��ꡢ0 (�ǥե������) �Ǥ��뤫 32..127 �Ǥ��롣0 
-    ����Ͽ����Ƥ��ʤ����Ȥ��̣���롣
+    値はこの文字セットの The International Registry に登録されている 
+    @e 終端バイト であり、0 (デフォルト値) であるか 32..127 である。0 
+    は登録されていないことを意味する。
 
-    <li> ������  @b Mrevision ���ͤ������ͤλ�
+    <li> キーが  @b Mrevision で値が整数値の時
 
-    �ͤ� The International Registry ����Ͽ����Ƥ��� @e revision @e
-    number �Ǥ��ꡢ0..127 �Ǥ��롣
-    ʸ�����åȤ���Ͽ����Ƥ��ʤ����ˤϤ����ͤ�̵�뤵��롣
-    0 �� revision number ��¸�ߤ��ʤ����Ȥ��̣���롣
+    値は The International Registry に登録されている @e revision @e
+    number であり、0..127 である。
+    文字セットが登録されていない場合にはこの値は無視される。
+    0 は revision number が存在しないことを意味する。
 
-    <li> ������  @b Mmin_char ���ͤ������ͤλ�
+    <li> キーが  @b Mmin_char で値が整数値の時
 
-    �ͤϤ���ʸ�����åȤκǾ���ʸ�������ɤǤ��롣�ǥե�����ͤ� 0 ��
+    値はこの文字セットの最小の文字コードである。デフォルト値は 0 。
 
-    <li> ������ @b Mmapfile ���ͤ� M-text �λ�
+    <li> キーが @b Mmapfile で値が M-text の時
 
-    �᥽�åɤ� #Mmap �� #Munify �λ����ؿ� mdatabase_define () 
-    �򤳤��ͤ���� $EXTRA_INFO �Ȥ��ƸƤ֤��Ȥˤ�äơ��ޥåԥ󥰤˴ؤ���ǡ�����
-    m17n �ǡ����١������ɲä���롣
-    ���ʤ���������ͤϥǡ����ե������̾���Ǥ��롣
+    メソッドが #Mmap か #Munify の時、関数 mdatabase_define () 
+    をこの値を引数 $EXTRA_INFO として呼ぶことによって、マッピングに関するデータが
+    m17n データベースに追加される。
+    すなわち、この値はデータファイルの名前である。
 
-    �����Ǥʤ���С����Υѥ�᡼����̵�뤵��롣
+    そうでなければ、このパラメータは無視される。
 
-    <li> ������ @b Mparents ���ͤ� plist �λ�
+    <li> キーが @b Mparents で値が plist の時
 
-    �᥽�åɤ� #Msubset �ʤ�С��ͤ�Ĺ�� 1 �� plist 
-    �Ǥ��ꡢ�����ͤϤ���ʸ�����åȤξ�̽���Ȥʤ�ʸ�����åȤ򼨤�����ܥ�Ǥ��롣
+    メソッドが #Msubset ならば、値は長さ 1 の plist 
+    であり、その値はこの文字セットの上位集合となる文字セットを示すシンボルである。
 
-    �᥽�åɤ� #Msuperset �ʤ�С��ͤ�Ĺ�� 8 �ʲ��� plist 
-    �Ǥ��ꡢ�������ͤϤ���ʸ�����åȤβ��̽���Ǥ���ʸ�����åȤ򼨤�����ܥ�Ǥ��롣
+    メソッドが #Msuperset ならば、値は長さ 8 以下の plist 
+    であり、それらの値はこの文字セットの下位集合である文字セットを示すシンボルである。
 
-    �����Ǥʤ���С����Υѥ�᡼����̵�뤵��롣
+    そうでなければ、このパラメータは無視される。
 
-    <li> ������  @b Mdefine_coding ���ͤ�����ܥ�λ�
+    <li> キーが  @b Mdefine_coding で値がシンボルの時
 
-    ʸ�����åȤμ����� 1 �ʤ�С��ͤ� #Mnil �ʳ��ξ��� #Mcharset ��
-    ��Ʊ��̾������ĥ����ɷϤ�������롣
+    文字セットの次元が 1 ならば、値が #Mnil 以外の場合に #Mcharset 型
+    で同じ名前を持つコード系を定義する。
 
-    �����Ǥʤ���С����Υѥ�᡼����̵�뤵��롣
+    そうでなければ、このパラメータは無視される。
 
     </ul>
 
     @return 
-    ��������������С�mchar_define_charset() �� $NAME 
-    �Ȥ���̾���Υ���ܥ���֤��������Ǥʤ���� #Mnil ���֤��������ѿ� 
-    #merror_code �˥��顼�����ɤ����ꤹ�롣*/
+    処理が成功すれば、mchar_define_charset() は $NAME 
+    という名前のシンボルを返す。そうでなければ #Mnil を返し、外部変数 
+    #merror_code にエラーコードを設定する。*/
 
 /***
     @errors
@@ -1348,13 +1348,13 @@ mchar_define_charset (const char *name, MPlist *plist)
     return it.  Otherwise, return #Mnil.  */
 
 /***ja
-    @brief ʸ�����å�̾���褹��.
+    @brief 文字セット名を解決する.
 
-    �ؿ� mchar_resolve_charset () �� $SYMBOL 
-    ��ʸ�����åȤ򼨤��Ƥ���Ф�����֤���
+    関数 mchar_resolve_charset () は $SYMBOL 
+    が文字セットを示していればそれを返す。
 
-    �����Ǥʤ���С�$SYMBOL ��ʸ�����å�̾�Ȥ����������������줬ʸ�����åȤ򼨤��Ƥ��Ƥ����������������Τ��֤���
-    �����Ǥʤ���С�#Mnil ���֤��� */
+    そうでなければ、$SYMBOL を文字セット名として正規化し、それが文字セットを示していていれば正規化したものを返す。
+    そうでなければ、#Mnil を返す。 */
 
 MSymbol
 mchar_resolve_charset (MSymbol symbol)
@@ -1380,11 +1380,11 @@ mchar_resolve_charset (MSymbol symbol)
     pointed to by $SYMBOLS, and returns the length of the array.  */
 
 /***ja
-    @brief ʸ�����åȤ�ɽ�魯����ܥ����󤹤�.
+    @brief 文字セットを表わすシンボルを列挙する.
 
-    �ؿ� mchar_list_charsets () 
-    �ϡ�ʸ�����åȤ򼨤�����ܥ���¤٤�������ꡢ$SYMBOLS 
-    �ǥݥ���Ȥ��줿���ˤ�������ؤΥݥ��󥿤��֤��������Ĺ�����֤��� */
+    関数 mchar_list_charsets () 
+    は、文字セットを示すシンボルを並べた配列を作り、$SYMBOLS 
+    でポイントされた場所にこの配列へのポインタを置き、配列の長さを返す。 */
 
 int
 mchar_list_charset (MSymbol **symbols)
@@ -1411,14 +1411,14 @@ mchar_list_charset (MSymbol **symbols)
     character code.  Otherwise it returns -1.  */
 
 /***ja
-    @brief �����ɥݥ���Ȥ�ǥ����ɤ���.
+    @brief コードポイントをデコードする.
 
-    �ؿ� mchar_decode () �ϡ�����ܥ� $CHARSET_NAME �Ǽ������ʸ�����å����
-    $CODE �Ȥ��������ɥݥ���Ȥ�ǥ����ɤ���ʸ�������ɤ����롣
+    関数 mchar_decode () は、シンボル $CHARSET_NAME で示される文字セット内の
+    $CODE というコードポイントをデコードして文字コードを得る。
 
     @return
-    �ǥ����ɤ���������С�mchar_decode () �ϥǥ����ɤ��줿ʸ�������ɤ��֤���
-    �����Ǥʤ���� -1 ���֤���  */
+    デコードが成功すれば、mchar_decode () はデコードされた文字コードを返す。
+    そうでなければ -1 を返す。  */
 
 /***
     @seealso
@@ -1447,14 +1447,14 @@ mchar_decode (MSymbol charset_name, unsigned code)
     code-point.  Otherwise it returns #MCHAR_INVALID_CODE.  */
 
 /***ja
-    @brief ʸ�������ɤ򥨥󥳡��ɤ���.
+    @brief 文字コードをエンコードする.
 
-    �ؿ� mchar_encode () �ϡ�ʸ�������� $C �򥨥󥳡��ɤ��ƥ���ܥ�
-    $CHARSET_NAME �Ǽ������ʸ�����å���ˤ����륳���ɥݥ���Ȥ����롣
+    関数 mchar_encode () は、文字コード $C をエンコードしてシンボル
+    $CHARSET_NAME で示される文字セット内におけるコードポイントを得る。
 
     @return
-    ���󥳡��ɤ���������С�mchar_encode () �ϥ��󡼥ɤ��줿�����ɥݥ���Ȥ��֤���
-    �����Ǥʤ���� #MCHAR_INVALID_CODE ���֤���  */
+    エンコードが成功すれば、mchar_encode () はエンードされたコードポイントを返す。
+    そうでなければ #MCHAR_INVALID_CODE を返す。  */
 
 /***
     @seealso
@@ -1490,19 +1490,19 @@ mchar_encode (MSymbol charset_name, int c)
     variable #merror_code.  */
 
 /***ja
-    @brief ���ꤷ��ʸ�����åȤΤ��٤Ƥ�ʸ�����Ф��ƴؿ���Ƥ�.
+    @brief 指定した文字セットのすべての文字に対して関数を呼ぶ.
 
-    �ؿ� mcharset_map_chars () �� $CHARSET_NAME 
-    �Ȥ���̾�������ʸ�����å���Τ��٤Ƥ�ʸ�����Ф��� $FUNC ��Ƥ֡�
-    �ƤӽФ��ϰ�ʸ����ǤϤʤ���Ϣ³����ʸ���ΤޤȤޤ�ñ�̤ǹԤʤ��롣
+    関数 mcharset_map_chars () は $CHARSET_NAME 
+    という名前を持つ文字セット中のすべての文字に対して $FUNC を呼ぶ。
+    呼び出しは一文字毎ではなく、連続した文字のまとまり単位で行なわれる。
 
-    �ؿ� $FUNC �ˤ�$FROM, $TO, $ARG �Σ��������Ϥ���롣$FROM �� $TO 
-    �� $CHARSET ���ʸ�������ɤ��ϰϤ���ꤹ�롣$ARG �� $FUNC_ARG 
-    ��Ʊ���Ǥ��롣
+    関数 $FUNC には$FROM, $TO, $ARG の３引数が渡される。$FROM と $TO 
+    は $CHARSET 中の文字コードの範囲を指定する。$ARG は $FUNC_ARG 
+    と同じである。
 
     @return
-    ��������������� mcharset_map_chars () �� 0 ���֤���
-    �����Ǥʤ���� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理に成功すれば mcharset_map_chars () は 0 を返す。
+    そうでなければ -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /*** 
     @errors
@@ -1544,6 +1544,6 @@ mchar_map_charset (MSymbol charset_name,
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

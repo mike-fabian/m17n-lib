@@ -48,12 +48,12 @@ extern void m17n_fini_win (void);
 /***en @defgroup m17nGUI GUI API
     @brief API provided by libm17n-gui.so */
 /***ja @defgroup m17nGUI GUI API
-    @brief libm17n-gui.so ¤¬Äó¶¡¤¹¤ë API */
+    @brief libm17n-gui.so ãŒæä¾›ã™ã‚‹ API */
 /*=*/
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nFrame Frame */
-/***ja @defgroup m17nFrame ¥Õ¥ì¡¼¥à */
+/***ja @defgroup m17nFrame ãƒ•ãƒ¬ãƒ¼ãƒ  */
 /*=*/
 
 /*** @ingroup m17nFrame */
@@ -70,15 +70,15 @@ extern void m17n_fini_win (void);
     @e display and @e screen in the X Window System.  */
 
 /***ja
-    @brief ¥Õ¥ì¡¼¥à¤Î·¿Àë¸À.
+    @brief ãƒ•ãƒ¬ãƒ¼ãƒ ã®å‹å®£è¨€.
 
-    #MFrame ¤Ï¡¢@e ¥Õ¥ì¡¼¥à ¥ª¥Ö¥¸¥§¥¯¥ÈÍÑ¤Î·¿¤Ç¤¢¤ë¡£
-    ¸Ä¡¹¤Î¥Õ¥ì¡¼¥à¤Ï¡¢¤½¤ì¤¬ÂĞ±ş¤¹¤ëÊªÍıÅª¤ÊÉ½¼¨¡¿ÆşÎÏ¥Ç¥Ğ¥¤¥¹¤Î³Æ¼ï¾ğÊó¤òÊİ»ı¤¹¤ë¡£
+    #MFrame ã¯ã€@e ãƒ•ãƒ¬ãƒ¼ãƒ  ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ã®å‹ã§ã‚ã‚‹ã€‚
+    å€‹ã€…ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã¯ã€ãã‚ŒãŒå¯¾å¿œã™ã‚‹ç‰©ç†çš„ãªè¡¨ç¤ºï¼å…¥åŠ›ãƒ‡ãƒã‚¤ã‚¹ã®å„ç¨®æƒ…å ±ã‚’ä¿æŒã™ã‚‹ã€‚
 
-    #MFrame ·¿¤ÎÆâÉô¹½Â¤¤Ï¡¢¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¥×¥í¥°¥é¥à¤«¤é¤Ï¸«¤¨¤Ê¤¤¡£
-    ¤Ş¤¿¤½¤ÎÆâÍÆ¤Ï»ÈÍÑ¤¹¤ë¥¦¥£¥ó¥É¥¦¥·¥¹¥Æ¥à¤Ë°ÍÂ¸¤¹¤ë¡£¤Ş¤¿ m17n-X 
-    ¥é¥¤¥Ö¥é¥ê¤Ë¤ª¤±¤ë¥Õ¥ì¡¼¥à¤Ï¡¢X ¥¦¥£¥ó¥É¥¦¤Î @e display ¤È @e screen 
-    ¤Ë´Ø¤¹¤ë¾ğÊó¤ò»ı¤Ä¡£      */
+    #MFrame å‹ã®å†…éƒ¨æ§‹é€ ã¯ã€ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‹ã‚‰ã¯è¦‹ãˆãªã„ã€‚
+    ã¾ãŸãã®å†…å®¹ã¯ä½¿ç”¨ã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚·ã‚¹ãƒ†ãƒ ã«ä¾å­˜ã™ã‚‹ã€‚ã¾ãŸ m17n-X 
+    ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã«ãŠã‘ã‚‹ãƒ•ãƒ¬ãƒ¼ãƒ ã¯ã€X ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã® @e display ã¨ @e screen 
+    ã«é–¢ã™ã‚‹æƒ…å ±ã‚’æŒã¤ã€‚      */
 
 typedef struct MFrame MFrame;
 
@@ -108,7 +108,7 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
 
 /*** @ingroup m17nGUI  */
 /***en @defgroup m17nFont Font */
-/***ja @defgroup m17nFont ¥Õ¥©¥ó¥È */
+/***ja @defgroup m17nFont ãƒ•ã‚©ãƒ³ãƒˆ */
 /*=*/
 
 /*** @ingroup m17nFont */
@@ -126,15 +126,15 @@ extern void *mframe_get_prop (MFrame *frame, MSymbol key);
     The internal structure is concealed from an application program.  */
 
 /***ja
-    @brief ¥Õ¥©¥ó¥È¤Î·¿Àë¸À.
+    @brief ãƒ•ã‚©ãƒ³ãƒˆã®å‹å®£è¨€.
 
-    #MFont ·¿¤Ï¥Õ¥©¥ó¥È»ØÄêÍÑ¤Î¹½Â¤ÂÎ¤Ç¤¢¤ê¡¢¥Õ¥©¥ó¥È¤Î¥×¥í¥Ñ¥Æ¥£¤Ç¤¢¤ë
+    #MFont å‹ã¯ãƒ•ã‚©ãƒ³ãƒˆæŒ‡å®šç”¨ã®æ§‹é€ ä½“ã§ã‚ã‚Šã€ãƒ•ã‚©ãƒ³ãƒˆã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ã‚ã‚‹
     foundry, family, weight, style, stretch, adstyle, registry,
-    size, resolution ¤Ë´Ø¤¹¤ë¾ğÊó¤ò´Ş¤à¡£
+    size, resolution ã«é–¢ã™ã‚‹æƒ…å ±ã‚’å«ã‚€ã€‚
 
-    ¤³¤Î¹½Â¤ÂÎ¤Ï¥Õ¥©¥ó¥È¥»¥Ã¥ÈÆâ¤Î¥Õ¥©¥ó¥È¤ò»ØÄê¤¹¤ëºİ¤È¡¢»ÈÍÑ²ÄÇ½¤Ê¥·¥¹¥Æ¥à¥Õ¥©¥ó¥È¤Î¾ğÊó¤ò³ÊÇ¼¤¹¤ëºİ¤ÎÎ¾Êı¤ËÍÑ¤¤¤é¤ì¤ë¡£
+    ã“ã®æ§‹é€ ä½“ã¯ãƒ•ã‚©ãƒ³ãƒˆã‚»ãƒƒãƒˆå†…ã®ãƒ•ã‚©ãƒ³ãƒˆã‚’æŒ‡å®šã™ã‚‹éš›ã¨ã€ä½¿ç”¨å¯èƒ½ãªã‚·ã‚¹ãƒ†ãƒ ãƒ•ã‚©ãƒ³ãƒˆã®æƒ…å ±ã‚’æ ¼ç´ã™ã‚‹éš›ã®ä¸¡æ–¹ã«ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚
 
-    ÆâÉô¹½Â¤¤Ï¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¥×¥í¥°¥é¥à¤«¤é¤Ï¸«¤¨¤Ê¤¤¡£  */
+    å†…éƒ¨æ§‹é€ ã¯ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‹ã‚‰ã¯è¦‹ãˆãªã„ã€‚  */
 
 /***
     @seealso
@@ -200,17 +200,17 @@ extern int mfont_set_encoding (MFont *font,
     font not greater than the #Msize property of $SPEC.  */
 
 /***ja
-    @brief ¥Õ¥©¥ó¥È¤òÃµ¤¹.
+    @brief ãƒ•ã‚©ãƒ³ãƒˆã‚’æ¢ã™.
 
-    ´Ø¿ô mfont_find () ¤Ï¡¢¥Õ¥ì¡¼¥à $FRAME ¾å¤Ç¥Õ¥©¥ó¥ÈÄêµÁ $SPEC 
-    ¤Ë¤â¤Ã¤È¤â¹çÃ×¤¹¤ë»ÈÍÑ²ÄÇ½¤Ê¥Õ¥©¥ó¥È¤Ø¤Î¥İ¥¤¥ó¥¿¤òÊÖ¤¹¡£  
+    é–¢æ•° mfont_find () ã¯ã€ãƒ•ãƒ¬ãƒ¼ãƒ  $FRAME ä¸Šã§ãƒ•ã‚©ãƒ³ãƒˆå®šç¾© $SPEC 
+    ã«ã‚‚ã£ã¨ã‚‚åˆè‡´ã™ã‚‹ä½¿ç”¨å¯èƒ½ãªãƒ•ã‚©ãƒ³ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™ã€‚  
 
-    $SCORE ¤Ï NULL ¤Ç¤¢¤ë¤«¡¢¸«¤Ä¤«¤Ã¤¿¥Õ¥©¥ó¥È¤¬ $SPEC 
-    ¤Ë¤É¤ì¤Û¤É¹ç¤Ã¤Æ¤¤¤ë¤«¤ò¼¨¤¹¥¹¥³¥¢¤òÊİÂ¸¤¹¤ë¾ì½ê¤Ø¤Î¥İ¥¤¥ó¥¿¤Ç¤¢¤ë¡£
-    ¥¹¥³¥¢¤¬¾®¤µ¤¤¤Û¤ÉÎÉ¤¯¹ç¤Ã¤Æ¤¤¤ë¤³¤È¤ò°ÕÌ£¤¹¤ë¡£
+    $SCORE ã¯ NULL ã§ã‚ã‚‹ã‹ã€è¦‹ã¤ã‹ã£ãŸãƒ•ã‚©ãƒ³ãƒˆãŒ $SPEC 
+    ã«ã©ã‚Œã»ã©åˆã£ã¦ã„ã‚‹ã‹ã‚’ç¤ºã™ã‚¹ã‚³ã‚¢ã‚’ä¿å­˜ã™ã‚‹å ´æ‰€ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã§ã‚ã‚‹ã€‚
+    ã‚¹ã‚³ã‚¢ãŒå°ã•ã„ã»ã©è‰¯ãåˆã£ã¦ã„ã‚‹ã“ã¨ã‚’æ„å‘³ã™ã‚‹ã€‚
 
-    $LIMITED_SIZE ¤¬ 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢$SPEC ¤Î¥×¥í¥Ñ¥Æ¥£ #Msize 
-    ¤è¤êÂç¤­¤¯¤Ê¤¤¥Õ¥©¥ó¥È¤À¤±¤¬Ãµ¤µ¤ì¤ë¡£
+    $LIMITED_SIZE ãŒ 0 ã§ãªã‘ã‚Œã°ã€$SPEC ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ #Msize 
+    ã‚ˆã‚Šå¤§ãããªã„ãƒ•ã‚©ãƒ³ãƒˆã ã‘ãŒæ¢ã•ã‚Œã‚‹ã€‚
 */
 
 extern MFont *mfont_find (MFrame *frame, MFont *spec,
@@ -243,7 +243,7 @@ extern int mfont_close (MFont *font);
 
 /*** @ingroup m17nGUI  */
 /***en @defgroup m17nFontset Fontset */
-/***ja @defgroup m17nFontset ¥Õ¥©¥ó¥È¥»¥Ã¥È */
+/***ja @defgroup m17nFontset ãƒ•ã‚©ãƒ³ãƒˆã‚»ãƒƒãƒˆ */
 /*=*/
 /*** @addtogroup m17nFontset
      @{   */
@@ -267,7 +267,7 @@ extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nFace Face */
-/***ja @defgroup m17nFace ¥Õ¥§¡¼¥¹ */
+/***ja @defgroup m17nFace ãƒ•ã‚§ãƒ¼ã‚¹ */
 /*=*/
 
 /*** @ingroup m17nFace */
@@ -278,10 +278,10 @@ extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
     structure is concealed from an application program.  */
 
 /***ja
-    @brief ¥Õ¥§¡¼¥¹¤Î·¿Àë¸À.
+    @brief ãƒ•ã‚§ãƒ¼ã‚¹ã®å‹å®£è¨€.
 
-    #MFace ·¿¤Ï¥Õ¥§¡¼¥¹¥ª¥Ö¥¸¥§¥¯¥È¤Î¤¿¤á¤Î¹½Â¤ÂÎ¤Ç¤¢¤ë¡£
-    ÆâÉô¹½Â¤¤Ï¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¥×¥í¥°¥é¥à¤«¤é¤Ï¸«¤¨¤Ê¤¤¡£  */
+    #MFace å‹ã¯ãƒ•ã‚§ãƒ¼ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãŸã‚ã®æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚
+    å†…éƒ¨æ§‹é€ ã¯ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‹ã‚‰ã¯è¦‹ãˆãªã„ã€‚  */
 
 typedef struct MFace MFace;
 /*=*/
@@ -345,16 +345,16 @@ extern MFace *mface_from_font (MFont *font);
     property of a face.  The value of the property must be a pointer
     to an object of this type.  */
 /***ja
-    @brief ¥Õ¥§¡¼¥¹¤Î¿åÊ¿Àş»ØÄêÍÑ·¿Àë¸À.
+    @brief ãƒ•ã‚§ãƒ¼ã‚¹ã®æ°´å¹³ç·šæŒ‡å®šç”¨å‹å®£è¨€.
 
-    #MFaceHLineProp ¤Ï¥Õ¥§¡¼¥¹¤Î #Mhline 
-    ¥×¥í¥Ñ¥Æ¥£¤Î¾ÜºÙ¤ò»ØÄê¤¹¤ë·¿¤Ç¤¢¤ë¡£¤³¤Î¥×¥í¥Ñ¥Æ¥£¤ÎÃÍ¤Ï¤³¤Î·¿¤Î¥ª¥Ö¥¸¥§¥¯¥È¤Ç¤Ê¤¯¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£
+    #MFaceHLineProp ã¯ãƒ•ã‚§ãƒ¼ã‚¹ã® #Mhline 
+    ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®è©³ç´°ã‚’æŒ‡å®šã™ã‚‹å‹ã§ã‚ã‚‹ã€‚ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ã¯ã“ã®å‹ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ãªãã¦ã¯ãªã‚‰ãªã„ã€‚
       */
 
 typedef struct
 {
   /***en Type of the horizontal line.  */
-  /***ja ¿åÊ¿Àş¤Î¥¿¥¤¥×.  */
+  /***ja æ°´å¹³ç·šã®ã‚¿ã‚¤ãƒ—.  */
   enum MFaceHLineType
     {
       MFACE_HLINE_BOTTOM,      
@@ -365,12 +365,12 @@ typedef struct
     } type;
 
   /***en Width of the line in pixels.  */
-  /***ja ÀşÉı¡Ê¥Ô¥¯¥»¥ëÃ±°Ì¡Ë.  */
+  /***ja ç·šå¹…ï¼ˆãƒ”ã‚¯ã‚»ãƒ«å˜ä½ï¼‰.  */
   unsigned width;
 
   /***en Color of the line.  If the value is Mnil, foreground color of
       a merged face is used.  */
-  /***ja Àş¤Î¿§.  Mnil ¤Ê¤é¤Ğ¡¢Åı¹ç¤·¤¿¥Õ¥§¡¼¥¹¤ÎÁ°·Ê¿§¤¬»È¤ï¤ì¤ë¡£  */
+  /***ja ç·šã®è‰².  Mnil ãªã‚‰ã°ã€çµ±åˆã—ãŸãƒ•ã‚§ãƒ¼ã‚¹ã®å‰æ™¯è‰²ãŒä½¿ã‚ã‚Œã‚‹ã€‚  */
   
   MSymbol color;
 } MFaceHLineProp;
@@ -384,16 +384,16 @@ typedef struct
     of a face.  The value of the property must be a pointer to an
     object of this type.  */
 /***ja
-    @brief ¥Õ¥§¡¼¥¹¤Î°Ï¤ßÏÈ»ØÄêÍÑ·¿Àë¸À.
+    @brief ãƒ•ã‚§ãƒ¼ã‚¹ã®å›²ã¿æ æŒ‡å®šç”¨å‹å®£è¨€.
 
-    #MFaceBoxProp ¤Ï¥Õ¥§¡¼¥¹¤Î #Mbox ¥×¥í¥Ñ¥Æ¥£¤Î¾ÜºÙ¤ò»ØÄê¤¹¤ë·¿¤Ç¤¢¤ë¡£
-    ¤³¤Î¥×¥í¥Ñ¥Æ¥£¤ÎÃÍ¤Ï¤³¤Î·¿¤Î¥ª¥Ö¥¸¥§¥¯¥È¤Ø¤Î¥İ¥¤¥ó¥¿¤Ç¤Ê¤¯¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£
+    #MFaceBoxProp ã¯ãƒ•ã‚§ãƒ¼ã‚¹ã® #Mbox ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®è©³ç´°ã‚’æŒ‡å®šã™ã‚‹å‹ã§ã‚ã‚‹ã€‚
+    ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ã¯ã“ã®å‹ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã§ãªãã¦ã¯ãªã‚‰ãªã„ã€‚
       */
 
 typedef struct
 {
   /***en Width of the box line in pixels.  */
-  /***ja ÀşÉı¡Ê¥Ô¥¯¥»¥ëÃ±°Ì¡Ë.  */
+  /***ja ç·šå¹…ï¼ˆãƒ”ã‚¯ã‚»ãƒ«å˜ä½ï¼‰.  */
   unsigned width;
 
   /* @{ */
@@ -421,9 +421,9 @@ typedef struct
 
     #MFaceHookFunc is a type of a hook function of a face.  */
 /***ja
-    @brief ¥Õ¥§¡¼¥¹¤Î¥Õ¥Ã¥¯´Ø¿ô¤Î·¿Àë¸À.
+    @brief ãƒ•ã‚§ãƒ¼ã‚¹ã®ãƒ•ãƒƒã‚¯é–¢æ•°ã®å‹å®£è¨€.
 
-    #MFaceHookFunc ¤Ï¥Õ¥§¡¼¥¹¤Î¥Õ¥Ã¥¯´Ø¿ô¤Î·¿¤Ç¤¢¤ë¡£*/
+    #MFaceHookFunc ã¯ãƒ•ã‚§ãƒ¼ã‚¹ã®ãƒ•ãƒƒã‚¯é–¢æ•°ã®å‹ã§ã‚ã‚‹ã€‚*/
 typedef void (*MFaceHookFunc) (MFace *face, void *arg, void *info);
 /*=*/
 
@@ -442,7 +442,7 @@ extern void mface_update (MFrame *frame, MFace *face);
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nDraw Drawing */
-/***ja @defgroup m17nDraw É½¼¨ */
+/***ja @defgroup m17nDraw è¡¨ç¤º */
 /*=*/
 
 /*** @ingroup m17nDraw */
@@ -456,12 +456,12 @@ extern void mface_update (MFrame *frame, MFace *face);
     that uses the m17n-X library must coerce the type @c Drawable to
     this type.  */
 /***ja 
-    @brief ¥¦¥£¥ó¥É¥¦¥·¥¹¥Æ¥à¤Ë°ÍÂ¸¤¹¤ë¡¢¥¦¥£¥ó¥É¥¦¤Î·¿Àë¸À.
+    @brief ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚·ã‚¹ãƒ†ãƒ ã«ä¾å­˜ã™ã‚‹ã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å‹å®£è¨€.
 
-    #MDrawWindow ¤Ï¥¦¥£¥ó¥É¥¦¡¢¤¹¤Ê¤ï¤Á´ö¤Ä¤«¤ÎÅÀ¤Ç¥¹¥¯¥ê¡¼¥ó¤Î¥ß¥Ë¥Á¥å¥¢¤È¤·¤ÆÆ¯¤¯¶ë·ÁÎÎ°èÍÑ¤Î·¿¤Ç¤¢¤ë¡£
+    #MDrawWindow ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã€ã™ãªã‚ã¡å¹¾ã¤ã‹ã®ç‚¹ã§ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã®ãƒŸãƒ‹ãƒãƒ¥ã‚¢ã¨ã—ã¦åƒãçŸ©å½¢é ˜åŸŸç”¨ã®å‹ã§ã‚ã‚‹ã€‚
 
-    ¼Âºİ¤Ë²¿¤ò»Ø¤¹¤«¤Ï¥¦¥£¥ó¥É¥¦¥·¥¹¥Æ¥à¤Ë°ÍÂ¸¤¹¤ë¡£ m17n X 
-    ¥é¥¤¥Ö¥é¥ê¤òÍøÍÑ¤¹¤ë¥×¥í¥°¥é¥à¤Ï @c Drawable ·¿¤ò¤³¤Î·¿¤ËÊÑ´¹¤·¤Ê¤¯¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£ */
+    å®Ÿéš›ã«ä½•ã‚’æŒ‡ã™ã‹ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚·ã‚¹ãƒ†ãƒ ã«ä¾å­˜ã™ã‚‹ã€‚ m17n X 
+    ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’åˆ©ç”¨ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ @c Drawable å‹ã‚’ã“ã®å‹ã«å¤‰æ›ã—ãªãã¦ã¯ãªã‚‰ãªã„ã€‚ */
 
 typedef void *MDrawWindow;
 /*=*/
@@ -477,12 +477,12 @@ typedef void *MDrawWindow;
     that uses the m17n-X library must coerce the type @c Region to
     this type.  */
 /***ja
-    @brief ¥¦¥£¥ó¥É¥¦¥·¥¹¥Æ¥à¤Ë°ÍÂ¸¤¹¤ë¡¢ÎÎ°è¤Î·¿Àë¸À.
+    @brief ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚·ã‚¹ãƒ†ãƒ ã«ä¾å­˜ã™ã‚‹ã€é ˜åŸŸã®å‹å®£è¨€.
 
-    #MDrawRegion ¤ÏÎÎ°è¡¢¤¹¤Ê¤ï¤Á¥¹¥¯¥ê¡¼¥ó¾å¤ÎÇ¤°Õ¤Î¥Ô¥¯¥»¥ë¤Î½¸¹ç¡ÊÅµ·¿Åª¤Ë¤Ï¶ë·ÁÎÎ°è¡ËÍÑ¤Î·¿¤Ç¤¢¤ë¡£
+    #MDrawRegion ã¯é ˜åŸŸã€ã™ãªã‚ã¡ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ä¸Šã®ä»»æ„ã®ãƒ”ã‚¯ã‚»ãƒ«ã®é›†åˆï¼ˆå…¸å‹çš„ã«ã¯çŸ©å½¢é ˜åŸŸï¼‰ç”¨ã®å‹ã§ã‚ã‚‹ã€‚
 
-    ¼Âºİ¤Ë²¿¤ò»Ø¤¹¤«¤Ï¥¦¥£¥ó¥É¥¦¥·¥¹¥Æ¥à¤Ë°ÍÂ¸¤¹¤ë¡£ m17n X 
-    ¥é¥¤¥Ö¥é¥ê¤òÍøÍÑ¤¹¤ë¥×¥í¥°¥é¥à¤Ï @c Region ·¿¤ò¤³¤Î·¿¤ËÊÑ´¹¤·¤Ê¤¯¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£  */
+    å®Ÿéš›ã«ä½•ã‚’æŒ‡ã™ã‹ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚·ã‚¹ãƒ†ãƒ ã«ä¾å­˜ã™ã‚‹ã€‚ m17n X 
+    ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’åˆ©ç”¨ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ @c Region å‹ã‚’ã“ã®å‹ã«å¤‰æ›ã—ãªãã¦ã¯ãªã‚‰ãªã„ã€‚  */
 
 typedef void *MDrawRegion;
 /*=*/
@@ -494,9 +494,9 @@ typedef void *MDrawRegion;
     The type #MDrawControl is the structure that controls how to draw
     an M-text.  */
 /***ja
-    @brief ¥Æ¥­¥¹¥ÈÉ½¼¨À©¸æ¤Î·¿Àë¸À.
+    @brief ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤ºåˆ¶å¾¡ã®å‹å®£è¨€.
 
-    #MDrawControl ·¿¤Ï¡¢M-text ¤ò¤É¤¦É½¼¨¤¹¤ë¤«¤òÀ©¸æ¤¹¤ë¹½Â¤ÂÎ¤Ç¤¢¤ë¡£
+    #MDrawControl å‹ã¯ã€M-text ã‚’ã©ã†è¡¨ç¤ºã™ã‚‹ã‹ã‚’åˆ¶å¾¡ã™ã‚‹æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚
       */
 
 
@@ -505,15 +505,15 @@ typedef struct
   /***en If nonzero, draw an M-text as image, i.e. with background
       filled with background colors of faces put on the M-text.
       Otherwise, the background is not changed.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ M-text ¤ò²èÁü¤È¤·¤Æ¡¢¤¹¤Ê¤ï¤ÁÇØ·Ê¤ò M-text 
-      ¤Î¥Õ¥§¡¼¥¹¤Ç»ØÄê¤µ¤ì¤Æ¤¤¤ëÇØ·Ê¿§¤ÇËä¤á¤ÆÉ½¼¨¤¹¤ë¡£¤½¤¦¤Ç¤Ê¤±¤ì¤ĞÇØ·Ê¤ÏÊÑ¤ï¤é¤Ê¤¤¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ M-text ã‚’ç”»åƒã¨ã—ã¦ã€ã™ãªã‚ã¡èƒŒæ™¯ã‚’ M-text 
+      ã®ãƒ•ã‚§ãƒ¼ã‚¹ã§æŒ‡å®šã•ã‚Œã¦ã„ã‚‹èƒŒæ™¯è‰²ã§åŸ‹ã‚ã¦è¡¨ç¤ºã™ã‚‹ã€‚ãã†ã§ãªã‘ã‚Œã°èƒŒæ™¯ã¯å¤‰ã‚ã‚‰ãªã„ã€‚  */
   unsigned as_image : 1;
 
   /***en If nonzero and the first glyph of each line has negative
       lbearing, shift glyphs horizontally to right so that no pixel is
       drawn to the left of the specified position.  */
-  /***ja 0 ¤Ç¤Ê¤¯¡¢³Æ¹Ô¤ÎºÇ½é¤Î¥°¥ê¥Õ¤Î lbearing 
-      ¤¬Éé¤Ê¤é¤Ğ¡¢¥°¥ê¥Õ¤ò¿åÊ¿¤Ë±¦¤Ë¤º¤é¤·¤Æ¡¢»ØÄê¤·¤¿°ÌÃÖ¤è¤êº¸¤Ë¥Ô¥¯¥»¥ë¤¬ÉÁ¤«¤ì¤Ê¤¤¤è¤¦¤Ë¤¹¤ë¡£  */
+  /***ja 0 ã§ãªãã€å„è¡Œã®æœ€åˆã®ã‚°ãƒªãƒ•ã® lbearing 
+      ãŒè² ãªã‚‰ã°ã€ã‚°ãƒªãƒ•ã‚’æ°´å¹³ã«å³ã«ãšã‚‰ã—ã¦ã€æŒ‡å®šã—ãŸä½ç½®ã‚ˆã‚Šå·¦ã«ãƒ”ã‚¯ã‚»ãƒ«ãŒæã‹ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹ã€‚  */
   unsigned align_head : 1;
 
   /***en If nonzero, draw an M-text two-dimensionally, i.e., newlines
@@ -521,70 +521,70 @@ typedef struct
       the next line.  If \<format\> is non-NULL, and the function
       returns nonzero line width, a line longer than that width is
       also broken.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢M-text ¤ò£²¼¡¸µÅª¤Ë¡¢¤¹¤Ê¤ï¤Á M-text Ãæ¤Î 
-      newline ¤Ç²ş¹Ô¤·¡¢Â³¤¯Ê¸»ú¤Ï¼¡¤Î¹Ô¤ËÉ½¼¨¤¹¤ë¡£¤â¤· \<format\> ¤¬ 
-      NULL ¤Ç¤Ê¤¯¡¢¤½¤Î´Ø¿ô¤¬ 0 ¤Ç¤Ê¤¤¹ÔÉı¤òÊÖ¤»¤Ğ¡¢¤½¤ÎÉı¤è¤êÄ¹¤¤¹Ô¤â²ş¹Ô¤µ¤ì¤ë¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€M-text ã‚’ï¼’æ¬¡å…ƒçš„ã«ã€ã™ãªã‚ã¡ M-text ä¸­ã® 
+      newline ã§æ”¹è¡Œã—ã€ç¶šãæ–‡å­—ã¯æ¬¡ã®è¡Œã«è¡¨ç¤ºã™ã‚‹ã€‚ã‚‚ã— \<format\> ãŒ 
+      NULL ã§ãªãã€ãã®é–¢æ•°ãŒ 0 ã§ãªã„è¡Œå¹…ã‚’è¿”ã›ã°ã€ãã®å¹…ã‚ˆã‚Šé•·ã„è¡Œã‚‚æ”¹è¡Œã•ã‚Œã‚‹ã€‚  */
   unsigned two_dimensional : 1;
 
   /***en If nonzero, draw an M-text to the right of a specified
       position.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢M-text ¤ò»ØÄê¤·¤¿°ÌÃÖ¤Î±¦¤ËÉ½¼¨¤¹¤ë¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€M-text ã‚’æŒ‡å®šã—ãŸä½ç½®ã®å³ã«è¡¨ç¤ºã™ã‚‹ã€‚  */
   unsigned orientation_reversed : 1;
 
   /***en If nonzero, reorder glyphs correctly for bidi text.  */ 
-  /***ja 0 ¤Ê¤±¤ì¤Ğ¡¢bidi ¥Æ¥­¥¹¥ÈÍÑ¤Ë¥°¥ê¥Õ¤òÀµ¤·¤¯À°Îó¤¹¤ë¡£  */
+  /***ja 0 ãªã‘ã‚Œã°ã€bidi ãƒ†ã‚­ã‚¹ãƒˆç”¨ã«ã‚°ãƒªãƒ•ã‚’æ­£ã—ãæ•´åˆ—ã™ã‚‹ã€‚  */
   unsigned enable_bidi : 1;
 
   /***en If nonzero, don't draw characters whose general category (in
       Unicode) is Cf (Other, format).  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢¥æ¥Ë¥³¡¼¥É¤ËÃÖ¤±¤ë°ìÈÌ¥«¥Æ¥´¥ê¤¬ Cf (Other,
-      format) ¤Ç¤¢¤ëÊ¸»ú¤òÉ½¼¨¤·¤Ê¤¤¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ãƒ¦ãƒ‹ã‚³ãƒ¼ãƒ‰ã«ç½®ã‘ã‚‹ä¸€èˆ¬ã‚«ãƒ†ã‚´ãƒªãŒ Cf (Other,
+      format) ã§ã‚ã‚‹æ–‡å­—ã‚’è¡¨ç¤ºã—ãªã„ã€‚  */
   unsigned ignore_formatting_char : 1;
 
   /***en If nonzero, draw glyphs suitable for a terminal.  Not yet
       implemented.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢Ã¼ËöÍÑ¤Î¥°¥ê¥Õ¤òÉ½¼¨¤¹¤ë¡£Ì¤¼ÂÁõ¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ç«¯æœ«ç”¨ã®ã‚°ãƒªãƒ•ã‚’è¡¨ç¤ºã™ã‚‹ã€‚æœªå®Ÿè£…ã€‚  */
   unsigned fixed_width : 1;
 
   /***en If nonzero, draw glyphs with anti-aliasing if a backend font
       driver supports it.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢¥¢¥ó¥Á¥¨¡¼¥ê¥¢¥¹¤Ç¥°¥ê¥Õ¤òÉ½¼¨¤¹¤ë¡£
-      ¡Ê¥Ğ¥Ã¥¯¥¨¥ó¥É¤Î¥Õ¥©¥ó¥È¥É¥é¥¤¥Ğ¤¬¥¢¥ó¥Á¥¨¡¼¥ê¥¢¥¹µ¡Ç½¤ò»ı¤Ä¾ì¹ç¤Î¤ß¡£¡Ë */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ã‚¢ãƒ³ãƒã‚¨ãƒ¼ãƒªã‚¢ã‚¹ã§ã‚°ãƒªãƒ•ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
+      ï¼ˆãƒãƒƒã‚¯ã‚¨ãƒ³ãƒ‰ã®ãƒ•ã‚©ãƒ³ãƒˆãƒ‰ãƒ©ã‚¤ãƒãŒã‚¢ãƒ³ãƒã‚¨ãƒ¼ãƒªã‚¢ã‚¹æ©Ÿèƒ½ã‚’æŒã¤å ´åˆã®ã¿ã€‚ï¼‰ */
   unsigned anti_alias : 1;
 
   /***en If nonzero, disable the adjustment of glyph positions to
       avoid horizontal overlapping at font boundary.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢¥Õ¥©¥ó¥È¶­³¦¤Ç¤Î¿åÊ¿Êı¸ş¤Î¥°¥ê¥Õ¤Î½Å¤Ê¤ê¤òÈò¤±¤ë¤¿¤á¤Î¥°¥ê¥Õ°ÌÃÖ¤ÎÄ´À°¤òÌµ¸ú¤Ë¤¹¤ë¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ãƒ•ã‚©ãƒ³ãƒˆå¢ƒç•Œã§ã®æ°´å¹³æ–¹å‘ã®ã‚°ãƒªãƒ•ã®é‡ãªã‚Šã‚’é¿ã‘ã‚‹ãŸã‚ã®ã‚°ãƒªãƒ•ä½ç½®ã®èª¿æ•´ã‚’ç„¡åŠ¹ã«ã™ã‚‹ã€‚  */
   unsigned disable_overlapping_adjustment : 1;
 
   /***en If nonzero, the values are minimum line ascent pixels.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¹Ô¤Î ascent ¤ÎºÇ¾®ÃÍ¤ò¼¨¤¹¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯è¡Œã® ascent ã®æœ€å°å€¤ã‚’ç¤ºã™ã€‚  */
   unsigned int min_line_ascent;
   /***en If nonzero, the values are minimum line descent pixels.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¹Ô¤Î descent ¤ÎºÇ¾®ÃÍ¤ò¼¨¤¹¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯è¡Œã® descent ã®æœ€å°å€¤ã‚’ç¤ºã™ã€‚  */
   unsigned int min_line_descent;
 
   /***en If nonzero, the values are maximum line ascent pixels.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¹Ô¤Î ascent ¤ÎºÇÂçÃÍ¤ò¼¨¤¹¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯è¡Œã® ascent ã®æœ€å¤§å€¤ã‚’ç¤ºã™ã€‚  */
   unsigned int max_line_ascent;
   /***en If nonzero, the values are maximum line descent pixels.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¹Ô¤Î descent ¤ÎºÇÂçÃÍ¤ò¼¨¤¹¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯è¡Œã® descent ã®æœ€å¤§å€¤ã‚’ç¤ºã™ã€‚  */
   unsigned int max_line_descent;
 
   /***en If nonzero, the value specifies how many pixels each line can
       occupy on the display.  The value zero means that there is no
       limit.  It is ignored if \<format\> is non-NULL.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¤³¤Î¥Ç¥£¥¹¥×¥ì¥¤¾å¤Ç³Æ¹Ô¤¬Àê¤á¤ë¤³¤È¤Î¤Ç¤­¤ë¥Ô¥¯¥»¥ë¿ô¤ò¼¨¤¹¡£
-      0 ¤Ï¸ÂÄê¤µ¤ì¤Ê¤¤¤³¤È¤ò°ÕÌ£¤¹¤ë¡£\<format\> ¤¬ NULL ¤Ç¤Ê¤±¤ì¤ĞÌµ»ë¤µ¤ì¤ë¡£   */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯ã“ã®ãƒ‡ã‚£ã‚¹ãƒ—ãƒ¬ã‚¤ä¸Šã§å„è¡ŒãŒå ã‚ã‚‹ã“ã¨ã®ã§ãã‚‹ãƒ”ã‚¯ã‚»ãƒ«æ•°ã‚’ç¤ºã™ã€‚
+      0 ã¯é™å®šã•ã‚Œãªã„ã“ã¨ã‚’æ„å‘³ã™ã‚‹ã€‚\<format\> ãŒ NULL ã§ãªã‘ã‚Œã°ç„¡è¦–ã•ã‚Œã‚‹ã€‚   */
   unsigned int max_line_width;
 
   /***en If nonzero, the value specifies the distance between tab
       stops in columns (the width of one column is the width of a
       space in the default font of the frame).  The value zero means
       8.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¥¿¥Ö¥¹¥È¥Ã¥×´Ö¤Îµ÷Î¥¤ò¥³¥é¥àÃ±°Ì
-      ¡Ê¥³¥é¥à¤Ï¥Õ¥ì¡¼¥à¤Î¥Ç¥Õ¥©¥ë¥È¥Õ¥©¥ó¥È¤Ë¤ª¤±¤ë¶õÇòÊ¸»ú¤ÎÉı¤Ç¤¢¤ë¡Ë¤Ç¼¨¤¹¡£ 
-      0 ¤Ï 8 ¤ò°ÕÌ£¤¹¤ë¡£ */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯ã‚¿ãƒ–ã‚¹ãƒˆãƒƒãƒ—é–“ã®è·é›¢ã‚’ã‚³ãƒ©ãƒ å˜ä½
+      ï¼ˆã‚³ãƒ©ãƒ ã¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ã‚©ãƒ³ãƒˆã«ãŠã‘ã‚‹ç©ºç™½æ–‡å­—ã®å¹…ã§ã‚ã‚‹ï¼‰ã§ç¤ºã™ã€‚ 
+      0 ã¯ 8 ã‚’æ„å‘³ã™ã‚‹ã€‚ */
   unsigned int tab_width;
 
   /***en If non-NULL, the value is a function that calculates the
@@ -607,21 +607,21 @@ typedef struct
       because of the width limit.
 
       This has an effect only when \<two_dimensional\> is nonzero.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï´Ø¿ô¤Ç¤¢¤ê¡¢¤½¤Î´Ø¿ô¤Ï¹ÔÈÖ¹æ LINE ¤ÈºÂÉ¸ Y 
-      ¤Ë´ğ¤Å¤¤¤Æ³Æ¹Ô¤Î¥¤¥ó¥Ç¥ó¥È¤ÈºÇÂçÉı¤ò·×»»¤·¡¢¤½¤ì¤¾¤ì¤òINDENT ¤È
-      WIDTH ¤Ç»Ø¤µ¤ì¤ë¾ì½ê¤ËÊİÂ¸¤¹¤ë¡£
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€å€¤ã¯é–¢æ•°ã§ã‚ã‚Šã€ãã®é–¢æ•°ã¯è¡Œç•ªå· LINE ã¨åº§æ¨™ Y 
+      ã«åŸºã¥ã„ã¦å„è¡Œã®ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆã¨æœ€å¤§å¹…ã‚’è¨ˆç®—ã—ã€ãã‚Œãã‚Œã‚’INDENT ã¨
+      WIDTH ã§æŒ‡ã•ã‚Œã‚‹å ´æ‰€ã«ä¿å­˜ã™ã‚‹ã€‚
 
-      ¥¤¥ó¥Ç¥ó¥È¤Ï¡¢³Æ¹Ô¤ÎºÇ½é¤Î¥°¥ê¥Õ¤ò±¦¡Ê¥á¥ó¥Ğ 
-      \<orientation_reversed\> ¤¬ 0 
-      ¤Î»ş¡Ë¤¢¤ë¤¤¤Ïº¸¡Ê¤½¤ì°Ê³°¤Î»ş¡Ë¤Ë²¿¥Ô¥¯¥»¥ë¤º¤é¤¹¤«¤ò»ØÄê¤¹¤ë¡£ÃÍ¤¬Éé¤Ê¤é¤ĞµÕÊı¸ş¤Ë¤º¤é¤¹¡£
+      ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆã¯ã€å„è¡Œã®æœ€åˆã®ã‚°ãƒªãƒ•ã‚’å³ï¼ˆãƒ¡ãƒ³ãƒ 
+      \<orientation_reversed\> ãŒ 0 
+      ã®æ™‚ï¼‰ã‚ã‚‹ã„ã¯å·¦ï¼ˆãã‚Œä»¥å¤–ã®æ™‚ï¼‰ã«ä½•ãƒ”ã‚¯ã‚»ãƒ«ãšã‚‰ã™ã‹ã‚’æŒ‡å®šã™ã‚‹ã€‚å€¤ãŒè² ãªã‚‰ã°é€†æ–¹å‘ã«ãšã‚‰ã™ã€‚
 
-      ºÇÂçÉı¤Ï¡¢³Æ¹Ô¤¬¥Ç¥£¥¹¥×¥ì¥¤¾å¤ÇÀê¤á¤ë¤³¤È¤Î¤Ç¤­¤ë¥Ô¥¯¥»¥ë¿ô¤ÎºÇÂçÃÍ¤Ç¤¢¤ë¡£ÃÍ¤¬
-      0 ¤Î¾ì¹ç¤ÏÀ©¸Â¤ò¼õ¤±¤Ê¤¤¤³¤È¤ò°ÕÌ£¤¹¤ë¡£
+      æœ€å¤§å¹…ã¯ã€å„è¡ŒãŒãƒ‡ã‚£ã‚¹ãƒ—ãƒ¬ã‚¤ä¸Šã§å ã‚ã‚‹ã“ã¨ã®ã§ãã‚‹ãƒ”ã‚¯ã‚»ãƒ«æ•°ã®æœ€å¤§å€¤ã§ã‚ã‚‹ã€‚å€¤ãŒ
+      0 ã®å ´åˆã¯åˆ¶é™ã‚’å—ã‘ãªã„ã“ã¨ã‚’æ„å‘³ã™ã‚‹ã€‚
 
-      LINE ¤È Y ¤Ï²ş¹ÔÊ¸»ú¤Ë¤è¤Ã¤Æ¹Ô¤¬²ş¤Ş¤Ã¤¿ºİ¤Ë¤Ï 0 
-      ¤Ë¥ê¥»¥Ã¥È¤µ¤ì¡¢Ä¹¤¤¹Ô¤¬ºÇÂçÉı¤ÎÀ©¸Â¤Ë¤è¤Ã¤Æ²ş¹Ô¤µ¤ì¤ë¤¿¤Ó¤Ë 1 Áı¤ä¤µ¤ì¤ë¡£
+      LINE ã¨ Y ã¯æ”¹è¡Œæ–‡å­—ã«ã‚ˆã£ã¦è¡ŒãŒæ”¹ã¾ã£ãŸéš›ã«ã¯ 0 
+      ã«ãƒªã‚»ãƒƒãƒˆã•ã‚Œã€é•·ã„è¡ŒãŒæœ€å¤§å¹…ã®åˆ¶é™ã«ã‚ˆã£ã¦æ”¹è¡Œã•ã‚Œã‚‹ãŸã³ã« 1 å¢—ã‚„ã•ã‚Œã‚‹ã€‚
 
-      ¤³¤ì¤Ï \<two_dimensional\> ¤¬ 0 ¤Ç¤Ê¤¤¾ì¹ç¤Ë¤Î¤ßÍ­¸ú¤Ç¤¢¤ë¡£  */
+      ã“ã‚Œã¯ \<two_dimensional\> ãŒ 0 ã§ãªã„å ´åˆã«ã®ã¿æœ‰åŠ¹ã§ã‚ã‚‹ã€‚  */
   void (*format) (int line, int y, int *indent, int *width);
 
   /***en If non-NULL, the value is a function that calculates a line
@@ -639,20 +639,20 @@ typedef struct
 
       The mdraw_default_line_break () function is useful for such a
       script that uses SPACE as a word separator.  */
-  /***ja NULL ¤Ç¤Ê¤±¤ì¤Ğ¡¢ÃÍ¤Ï¹Ô¤¬ºÇÂçÉıÃæ¤Ë¼ı¤Ş¤é¤Ê¤¤¾ì¹ç¤Ë¹Ô¤ò²ş¤á¤ë°ÌÃÖ¤ò·×»»¤¹¤ë´Ø¿ô¤Ç¤¢¤ë¡£
-      POS ¤ÏºÇÂçÉı¤Ë¼ı¤Ş¤ëºÇ¸å¤ÎÊ¸»ú¤Î¼¡¤ÎÊ¸»ú¤Î°ÌÃÖ¤Ç¤¢¤ë¡£FROM
-      ¤Ï¹Ô¤ÎºÇ½é¤ÎÊ¸»ú¤Î°ÌÃÖ¡¢TO 
-      ¤ÏºÇÂçÉı¤¬»ØÄê¤µ¤ì¤Æ¤¤¤Ê¤±¤ì¤Ğ¤½¤Î¹Ô¤ËÉ½¼¨¤µ¤ì¤ëºÇ¸å¤ÎÊ¸»ú¤Î°ÌÃÖ¤Ç¤¢¤ë¡£LINE 
-      ¤È Y ¤Ï \<format\> ¤Î°ú¿ô¤ÈÆ±ÍÍ¤Ç¤¢¤ë¡£
+  /***ja NULL ã§ãªã‘ã‚Œã°ã€å€¤ã¯è¡ŒãŒæœ€å¤§å¹…ä¸­ã«åã¾ã‚‰ãªã„å ´åˆã«è¡Œã‚’æ”¹ã‚ã‚‹ä½ç½®ã‚’è¨ˆç®—ã™ã‚‹é–¢æ•°ã§ã‚ã‚‹ã€‚
+      POS ã¯æœ€å¤§å¹…ã«åã¾ã‚‹æœ€å¾Œã®æ–‡å­—ã®æ¬¡ã®æ–‡å­—ã®ä½ç½®ã§ã‚ã‚‹ã€‚FROM
+      ã¯è¡Œã®æœ€åˆã®æ–‡å­—ã®ä½ç½®ã€TO 
+      ã¯æœ€å¤§å¹…ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã‘ã‚Œã°ãã®è¡Œã«è¡¨ç¤ºã•ã‚Œã‚‹æœ€å¾Œã®æ–‡å­—ã®ä½ç½®ã§ã‚ã‚‹ã€‚LINE 
+      ã¨ Y ã¯ \<format\> ã®å¼•æ•°ã¨åŒæ§˜ã§ã‚ã‚‹ã€‚
 
-      ¤³¤Î´Ø¿ô¤Ï¹Ô¤ò²ş¤á¤ëÊ¸»ú°ÌÃÖ¤òÊÖ¤µ¤Ê¤¯¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¤Ş¤¿ MT ¤òÊÑ¹¹¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£
+      ã“ã®é–¢æ•°ã¯è¡Œã‚’æ”¹ã‚ã‚‹æ–‡å­—ä½ç½®ã‚’è¿”ã•ãªãã¦ã¯ãªã‚‰ãªã„ã€‚ã¾ãŸ MT ã‚’å¤‰æ›´ã—ã¦ã¯ãªã‚‰ãªã„ã€‚
 
-      ´Ø¿ô mdraw_default_line_break ()
-      ¤Ï¡¢¶õÇò¤ò¸ì¤Î¶èÀÚ¤ê¤È¤·¤ÆÍÑ¤¤¤ë¥¹¥¯¥ê¥×¥ÈÍÑ¤È¤·¤ÆÍ­ÍÑ¤Ç¤¢¤ë¡£  */
+      é–¢æ•° mdraw_default_line_break ()
+      ã¯ã€ç©ºç™½ã‚’èªã®åŒºåˆ‡ã‚Šã¨ã—ã¦ç”¨ã„ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆç”¨ã¨ã—ã¦æœ‰ç”¨ã§ã‚ã‚‹ã€‚  */
   int (*line_break) (MText *mt, int pos, int from, int to, int line, int y);
 
   /***en If nonzero, show the cursor according to \<cursor_width\>.  */
-  /***ja ¥¼¥í¤Ç¤Ê¤±¤ì¤Ğ \<cursor_width\> ¤Ë¤·¤¿¤¬¤Ã¤Æ¥«¡¼¥½¥ë¤òÉ½¼¨¤¹¤ë¡£ */
+  /***ja ã‚¼ãƒ­ã§ãªã‘ã‚Œã° \<cursor_width\> ã«ã—ãŸãŒã£ã¦ã‚«ãƒ¼ã‚½ãƒ«ã‚’è¡¨ç¤ºã™ã‚‹ã€‚ */
   int with_cursor;
 
   /***en Specifies the character position to display a cursor.  If it
@@ -660,9 +660,9 @@ typedef struct
       displayed next to the last character of an M-text.  If the value
       is negative, even if \<cursor_width\> is nonzero, cursor is not
       displayed.  */
-  /***ja ¥«¡¼¥½¥ë¤òÉ½¼¨¤¹¤ëÊ¸»ú°ÌÃÖ¤ò¼¨¤¹¡£ºÇÂç¤ÎÊ¸»ú°ÌÃÖ¤è¤êÂç¤­¤±¤ì¤Ğ¡¢¥«¡¼¥½¥ë¤Ï 
-      M-text ¤ÎºÇ¸å¤ÎÊ¸»ú¤ÎÎÙ¤ËÉ½¼¨¤µ¤ì¤ë¡£Éé¤Ê¤é¤Ğ¡¢
-      \<cursor_width\> ¤¬ 0 ¤Ç¤Ê¤¯¤Æ¤â¥«¡¼¥½¥ë¤ÏÉ½¼¨¤µ¤ì¤Ê¤¤¡£
+  /***ja ã‚«ãƒ¼ã‚½ãƒ«ã‚’è¡¨ç¤ºã™ã‚‹æ–‡å­—ä½ç½®ã‚’ç¤ºã™ã€‚æœ€å¤§ã®æ–‡å­—ä½ç½®ã‚ˆã‚Šå¤§ãã‘ã‚Œã°ã€ã‚«ãƒ¼ã‚½ãƒ«ã¯ 
+      M-text ã®æœ€å¾Œã®æ–‡å­—ã®éš£ã«è¡¨ç¤ºã•ã‚Œã‚‹ã€‚è² ãªã‚‰ã°ã€
+      \<cursor_width\> ãŒ 0 ã§ãªãã¦ã‚‚ã‚«ãƒ¼ã‚½ãƒ«ã¯è¡¨ç¤ºã•ã‚Œãªã„ã€‚
         */
   int cursor_pos;
 
@@ -670,18 +670,18 @@ typedef struct
       \<cursor_pos\>.  If the value is positive, it is the pixel width
       of the cursor.  If the value is negative, the cursor width is
       the same as the underlining glyph(s).  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢\<cursor_pos\> ¤Ë¥«¡¼¥½¥ë¤òÉ½¼¨¤¹¤ë¡£
-      ÃÍ¤¬Àµ¤Ê¤é¤Ğ¡¢¥«¡¼¥½¥ë¤ÎÉı¤Ï¤½¤ÎÃÍ¡Ê¥Ô¥¯¥»¥ëÃ±°Ì¡Ë¤Ç¤¢¤ë¡£
-      Éé¤Ê¤é¤Ğ¡¢¥«¡¼¥½¥ë¤Î¤¢¤ë¥°¥ê¥Õ¤ÈÆ±¤¸Éı¤Ç¤¢¤ë¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€\<cursor_pos\> ã«ã‚«ãƒ¼ã‚½ãƒ«ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
+      å€¤ãŒæ­£ãªã‚‰ã°ã€ã‚«ãƒ¼ã‚½ãƒ«ã®å¹…ã¯ãã®å€¤ï¼ˆãƒ”ã‚¯ã‚»ãƒ«å˜ä½ï¼‰ã§ã‚ã‚‹ã€‚
+      è² ãªã‚‰ã°ã€ã‚«ãƒ¼ã‚½ãƒ«ã®ã‚ã‚‹ã‚°ãƒªãƒ•ã¨åŒã˜å¹…ã§ã‚ã‚‹ã€‚  */
   int cursor_width;
 
   /***en If nonzero and \<cursor_width\> is also nonzero, display double
       bar cursors; at the character position \<cursor_pos\> and at the
       logically previous character.  Both cursors have one pixel width
       with horizontal fringes at upper or lower positions.  */
-  /***ja If 0 ¤Ç¤Ê¤¯¡¢¤«¤Ä \<cursor_width\> ¤â 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢¥Ğ¡¼¥«¡¼¥½¥ë¤òÊ¸»ú°ÌÃÖ
-      \<cursor_pos\> ¤ÈÏÀÍıÅª¤Ë¤½¤ì¤ÎÁ°¤Ë¤¢¤ëÊ¸»ú¤Î£²¥ö½ê¤ËÉ½¼¨¤¹¤ë¡£
-      ÁĞÊı¤È¤â£±¥Ô¥¯¥»¥ëÉı¤Ç¡¢¾å¤«²¼¤Ë¿åÊ¿¤Î¾ş¤ê¤¬¤Ä¤¯¡£*/
+  /***ja If 0 ã§ãªãã€ã‹ã¤ \<cursor_width\> ã‚‚ 0 ã§ãªã‘ã‚Œã°ã€ãƒãƒ¼ã‚«ãƒ¼ã‚½ãƒ«ã‚’æ–‡å­—ä½ç½®
+      \<cursor_pos\> ã¨è«–ç†çš„ã«ãã‚Œã®å‰ã«ã‚ã‚‹æ–‡å­—ã®ï¼’ãƒ¶æ‰€ã«è¡¨ç¤ºã™ã‚‹ã€‚
+      åŒæ–¹ã¨ã‚‚ï¼‘ãƒ”ã‚¯ã‚»ãƒ«å¹…ã§ã€ä¸Šã‹ä¸‹ã«æ°´å¹³ã®é£¾ã‚ŠãŒã¤ãã€‚*/
   int cursor_bidi;
 
   /***en If nonzero, on drawing partial text, pixels of surrounding
@@ -693,23 +693,23 @@ typedef struct
       right half of V is erased if this member is zero.  By setting
       this member to nonzero, even with such a drawing, we can keep
       this CVC sequence correctly displayed.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢¥Æ¥­¥¹¥È¤Î°ìÉôÊ¬¤òÉ½¼¨¤¹¤ëºİ¤Ë¡¢Á°¸å¤Î¥Æ¥­¥¹¥È¤Î¤¦¤Á¤½¤ÎÉ½¼¨ÎÎ°è¤Ë¿¯Æş¤¹¤ëÉôÊ¬¤âÉ½¼¨¤¹¤ë¡£
-      ¤¿¤È¤¨¤Ğ¡¢¥¿¥¤¸ì¥Æ¥­¥¹¥È »Ò²»-Êì²»-»Ò²» 
-      ¤È¤¤¤¦¥·¡¼¥¯¥¨¥ó¥¹¤Î¤¤¤¯¤Ä¤«¤Ï¡¢Êì²»¤¬Æó¤Ä¤Î»Ò²»¤Î´Ö¤Ë¾å¤Ë¤Î¤ë¤è¤¦¤ËÉÁ¤«¤ì¤ë¡£
-      ¤³¤Î¤è¤¦¤Ê¥·¡¼¥¯¥¨¥ó¥¹¤¬¤¹¤Ç¤ËÉÁ¤«¤ì¤Æ¤ª¤ê¡¢ºÇ¸å¤Î»Ò²»¤À¤±¤òÉÁ¤­Ä¾¤¹¾ì¹ç
-      ¡Ê¤¿¤È¤¨¤Ğ¡¢¥«¡¼¥½¥ë°ÌÃÖ¤ò¹¹¿·¤¹¤ëºİ¤Ê¤É¡Ë¤³¤Î¥á¥ó¥Ğ¤¬ 0 
-      ¤Ç¤¢¤ì¤Ğ¡¢Êì²»¤Î±¦È¾Ê¬¤¬¾Ã¤µ¤ì¤Æ¤·¤Ş¤¦¡£¤³¤ì¤ò 0 °Ê³°¤Ë¤¹¤ë¤³¤È¤Ë¤è¤Ã¤Æ¡¢¤½¤Î¤è¤¦¤Êºİ¤Ë¤â
-      »Ò²»-Êì²»-»Ò²» ¤Î¥·¡¼¥¯¥¨¥ó¥¹¤òÀµ¤·¤¯É½¼¨¤·Â³¤±¤ë¤³¤È¤¬¤Ç¤­¤ë¡£  */
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€ãƒ†ã‚­ã‚¹ãƒˆã®ä¸€éƒ¨åˆ†ã‚’è¡¨ç¤ºã™ã‚‹éš›ã«ã€å‰å¾Œã®ãƒ†ã‚­ã‚¹ãƒˆã®ã†ã¡ãã®è¡¨ç¤ºé ˜åŸŸã«ä¾µå…¥ã™ã‚‹éƒ¨åˆ†ã‚‚è¡¨ç¤ºã™ã‚‹ã€‚
+      ãŸã¨ãˆã°ã€ã‚¿ã‚¤èªãƒ†ã‚­ã‚¹ãƒˆ å­éŸ³-æ¯éŸ³-å­éŸ³ 
+      ã¨ã„ã†ã‚·ãƒ¼ã‚¯ã‚¨ãƒ³ã‚¹ã®ã„ãã¤ã‹ã¯ã€æ¯éŸ³ãŒäºŒã¤ã®å­éŸ³ã®é–“ã«ä¸Šã«ã®ã‚‹ã‚ˆã†ã«æã‹ã‚Œã‚‹ã€‚
+      ã“ã®ã‚ˆã†ãªã‚·ãƒ¼ã‚¯ã‚¨ãƒ³ã‚¹ãŒã™ã§ã«æã‹ã‚Œã¦ãŠã‚Šã€æœ€å¾Œã®å­éŸ³ã ã‘ã‚’æãç›´ã™å ´åˆ
+      ï¼ˆãŸã¨ãˆã°ã€ã‚«ãƒ¼ã‚½ãƒ«ä½ç½®ã‚’æ›´æ–°ã™ã‚‹éš›ãªã©ï¼‰ã“ã®ãƒ¡ãƒ³ãƒãŒ 0 
+      ã§ã‚ã‚Œã°ã€æ¯éŸ³ã®å³åŠåˆ†ãŒæ¶ˆã•ã‚Œã¦ã—ã¾ã†ã€‚ã“ã‚Œã‚’ 0 ä»¥å¤–ã«ã™ã‚‹ã“ã¨ã«ã‚ˆã£ã¦ã€ãã®ã‚ˆã†ãªéš›ã«ã‚‚
+      å­éŸ³-æ¯éŸ³-å­éŸ³ ã®ã‚·ãƒ¼ã‚¯ã‚¨ãƒ³ã‚¹ã‚’æ­£ã—ãè¡¨ç¤ºã—ç¶šã‘ã‚‹ã“ã¨ãŒã§ãã‚‹ã€‚  */
   int partial_update;
 
   /***en If nonzero, don't cache the result of any drawing information
       of an M-text.  */
-  /***ja 0 ¤Ç¤Ê¤±¤ì¤Ğ¡¢M-text ¤ÎÉ½¼¨¤Ë´Ø¤¹¤ë¾ğÊó¤ò¥­¥ã¥Ã¥·¥å¤·¤Ê¤¤¡£
+  /***ja 0 ã§ãªã‘ã‚Œã°ã€M-text ã®è¡¨ç¤ºã«é–¢ã™ã‚‹æƒ…å ±ã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ãªã„ã€‚
        */
   int disable_caching;
 
   /***en If non-NULL, limit the drawing effect to the specified region.  */
-  /***ja NULL ¤Ç¤Ê¤±¤ì¤ĞÉ½¼¨¥¨¥ê¥¢¤ò»ØÄê¤µ¤ì¤¿ÎÎ°è¤Ë¸ÂÄê¤¹¤ë¡£ */
+  /***ja NULL ã§ãªã‘ã‚Œã°è¡¨ç¤ºã‚¨ãƒªã‚¢ã‚’æŒ‡å®šã•ã‚ŒãŸé ˜åŸŸã«é™å®šã™ã‚‹ã€‚ */
   MDrawRegion clip_region;
 
 } MDrawControl;
@@ -726,10 +726,10 @@ extern int mdraw_line_break_option;
     It is also used to represent a rectangle area of a graphic
     device.  */
 /***ja
-    @brief ¥°¥ê¥Õ¤È¥Æ¥­¥¹¥È¤ÎÀ£Ë¡¤Î·¿Àë¸À.
+    @brief ã‚°ãƒªãƒ•ã¨ãƒ†ã‚­ã‚¹ãƒˆã®å¯¸æ³•ã®å‹å®£è¨€.
 
-    #MDrawMetric ¤Ï¥°¥ê¥Õ¤ÈÉ½¼¨¤µ¤ì¤¿¥Æ¥­¥¹¥È¤ÎÀ£Ë¡ÍÑ¤Î·¿¤Ç¤¢¤ë¡£
-    ¤Ş¤¿¡¢É½¼¨¥Ç¥Ğ¥¤¥¹¤Î¶ë·ÁÎÎ°è¤òÉ½¤¹¤Î¤Ë¤âÍÑ¤¤¤é¤ì¤ë¡£ */
+    #MDrawMetric ã¯ã‚°ãƒªãƒ•ã¨è¡¨ç¤ºã•ã‚ŒãŸãƒ†ã‚­ã‚¹ãƒˆã®å¯¸æ³•ç”¨ã®å‹ã§ã‚ã‚‹ã€‚
+    ã¾ãŸã€è¡¨ç¤ºãƒ‡ãƒã‚¤ã‚¹ã®çŸ©å½¢é ˜åŸŸã‚’è¡¨ã™ã®ã«ã‚‚ç”¨ã„ã‚‰ã‚Œã‚‹ã€‚ */
 
 typedef struct {
   /*** X coordinates of a glyph or a text.  */
@@ -751,78 +751,78 @@ typedef struct {
     The type #MDrawGlyphInfo is the structure that contains
     information about a glyph.  It is used by mdraw_glyph_info ().  */
 /***ja
-    @brief ¥°¥ê¥Õ¤Ë´Ø¤¹¤ë¾ğÊó¤Î·¿Àë¸À.
+    @brief ã‚°ãƒªãƒ•ã«é–¢ã™ã‚‹æƒ…å ±ã®å‹å®£è¨€.
 
-    #MDrawGlyphInfo ·¿¤Ï¥°¥ê¥Õ¤Ë´Ø¤¹¤ë¾ğÊó¤ò´Ş¤à¹½Â¤ÂÎ¤Ç¤¢¤ë¡£
-    mdraw_glyph_info () ¤Ï¤³¤ì¤òÍÑ¤¤¤ë¡£  */
+    #MDrawGlyphInfo å‹ã¯ã‚°ãƒªãƒ•ã«é–¢ã™ã‚‹æƒ…å ±ã‚’å«ã‚€æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚
+    mdraw_glyph_info () ã¯ã“ã‚Œã‚’ç”¨ã„ã‚‹ã€‚  */
 
 typedef struct
 {
   /***en Start position of character range corresponding to the glyph.  */
-  /***ja ¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î³«»Ï°ÌÃÖ.  */
+  /***ja ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®é–‹å§‹ä½ç½®.  */
   int from;
 
   /***en End position of character range corresponding to the glyph.  */
-  /***ja ¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î½ªÎ»°ÌÃÖ.  */
+  /***ja ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®çµ‚äº†ä½ç½®.  */
   int to;
 
   /***en Start position of character range corresponding to the line of the glyph.  */
-  /***ja °ì¹Ô¤Î¥°¥ê¥Õ¤ÎÎó¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î³«»Ï°ÌÃÖ.  */
+  /***ja ä¸€è¡Œã®ã‚°ãƒªãƒ•ã®åˆ—ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®é–‹å§‹ä½ç½®.  */
   int line_from;
   /***en End position of character range corresponding to the line of the glyph.  */
-  /***ja °ì¹Ô¤Î¥°¥ê¥Õ¤ÎÎó¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î½ªÎ»°ÌÃÖ.  */
+  /***ja ä¸€è¡Œã®ã‚°ãƒªãƒ•ã®åˆ—ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®çµ‚äº†ä½ç½®.  */
   int line_to;
 
   /***en X coordinates of the glyph.  */
-  /***ja ¥°¥ê¥Õ¤Î X ºÂÉ¸.  */
+  /***ja ã‚°ãƒªãƒ•ã® X åº§æ¨™.  */
   int x;
   /***en Y coordinates of the glyph.  */
-  /***ja ¥°¥ê¥Õ¤Î Y ºÂÉ¸.  */
+  /***ja ã‚°ãƒªãƒ•ã® Y åº§æ¨™.  */
   int y;
 
   /***en Metric of the glyph.  */
-  /***ja ¥°¥ê¥Õ¤ÎÀ£Ë¡.  */
+  /***ja ã‚°ãƒªãƒ•ã®å¯¸æ³•.  */
   MDrawMetric metrics;
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
-  /***ja ¥°¥ê¥Õ¤Ë»È¤ï¤ì¤ë¥Õ¥©¥ó¥È¡£¸«¤Ä¤«¤é¤Ê¤±¤ì¤Ğ NULL¡£ */
+  /***ja ã‚°ãƒªãƒ•ã«ä½¿ã‚ã‚Œã‚‹ãƒ•ã‚©ãƒ³ãƒˆã€‚è¦‹ã¤ã‹ã‚‰ãªã‘ã‚Œã° NULLã€‚ */
       
   MFont *font;
 
   /***en Character ranges corresponding to logically previous glyphs.
       Note that we do not need the members prev_to because it must
       be the same as the member \<from\>.  */
-  /***ja ÏÀÍıÅª¤ÊÁ°¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¡£¥á¥ó¥Ğ prev_to ¤Ï¡¢¥á
-      ¥ó¥Ğ from ¤ÈÆ±¤¸¤Ç¤¢¤ë¤Ï¤º¤Ê¤Î¤ÇÉÔÍ×¤Ç¤¢¤ë¡£  */
+  /***ja è«–ç†çš„ãªå‰ã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã€‚ãƒ¡ãƒ³ãƒ prev_to ã¯ã€ãƒ¡
+      ãƒ³ãƒ from ã¨åŒã˜ã§ã‚ã‚‹ã¯ãšãªã®ã§ä¸è¦ã§ã‚ã‚‹ã€‚  */
   int prev_from;
   /***en Character ranges corresponding to logically next glyphs.
       Note that we do not need the members next_from because it must
       be the same as the member \<to\> respectively.  */
-  /***ja ÏÀÍıÅª¤Ê¸å¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¡£¥á¥ó¥Ğ next_from ¤Ï
-      ¥á¥ó¥Ğ to ¤ÈÆ±¤¸¤Ç¤¢¤ë¤Ï¤º¤Ê¤Î¤ÇÉÔÍ×¤Ç¤¢¤ë¡£  */
+  /***ja è«–ç†çš„ãªå¾Œã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã€‚ãƒ¡ãƒ³ãƒ next_from ã¯
+      ãƒ¡ãƒ³ãƒ to ã¨åŒã˜ã§ã‚ã‚‹ã¯ãšãªã®ã§ä¸è¦ã§ã‚ã‚‹ã€‚  */
   int next_to;
 
   /***en Start position of character ranges corresponding to visually
       left glyphs. */
-  /***ja É½¼¨¾å¤Îº¸¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î³«»Ï°ÌÃÖ¡£  */
+  /***ja è¡¨ç¤ºä¸Šã®å·¦ã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®é–‹å§‹ä½ç½®ã€‚  */
   int left_from;
   /***en End position of character ranges corresponding to visually
       left glyphs. */
-  /***ja É½¼¨¾å¤Îº¸¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î½ªÎ»°ÌÃÖ¡£  */
+  /***ja è¡¨ç¤ºä¸Šã®å·¦ã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®çµ‚äº†ä½ç½®ã€‚  */
   int left_to;
   /***en Start position of character ranges corresponding to visually
       right glyphs. */
-  /***ja É½¼¨¾å¤Î±¦¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î³«»Ï°ÌÃÖ¡£  */
+  /***ja è¡¨ç¤ºä¸Šã®å³ã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®é–‹å§‹ä½ç½®ã€‚  */
   int right_from;
   /***en End position of character ranges corresponding to visually
       left glyphs. */
-  /***ja É½¼¨¾å¤Î±¦¤Î¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï¤Î½ªÎ»°ÌÃÖ¡£  */
+  /***ja è¡¨ç¤ºä¸Šã®å³ã®ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›²ã®çµ‚äº†ä½ç½®ã€‚  */
   int right_to;
 
   /***en Logical width of the glyph.  Nominal distance to the next
       glyph.  */
-  /***ja ¥°¥ê¥Õ¤ÎÏÀÍıÅªÉı¡£¼¡¤Î¥°¥ê¥Õ¤È¤ÎÌ¾ÌÜ¾å¤Îµ÷Î¥¡£  */
+  /***ja ã‚°ãƒªãƒ•ã®è«–ç†çš„å¹…ã€‚æ¬¡ã®ã‚°ãƒªãƒ•ã¨ã®åç›®ä¸Šã®è·é›¢ã€‚  */
   int logical_width;
 } MDrawGlyphInfo;
 
@@ -836,68 +836,68 @@ typedef struct
     about a glyph metric and font.  It is used by the function
     mdraw_glyph_list ().  */
 /***ja
-    @brief ¥°¥ê¥Õ¤ÎÀ£Ë¡¤È¥Õ¥©¥ó¥È¤Ë´Ø¤¹¤ë¾ğÊó¤Î·¿Àë¸À.
+    @brief ã‚°ãƒªãƒ•ã®å¯¸æ³•ã¨ãƒ•ã‚©ãƒ³ãƒˆã«é–¢ã™ã‚‹æƒ…å ±ã®å‹å®£è¨€.
 
-    #MDrawGlyph ·¿¤Ï¥°¥ê¥Õ¤ÎÀ£Ë¡¤È¥Õ¥©¥ó¥È¤Ë´Ø¤¹¤ë¾ğÊó¤ò´Ş¤à¹½Â¤ÂÎ¤Ç¤¢¤ë¡£
-    mdraw_glyph_list () ¤Ï¤³¤ì¤òÍÑ¤¤¤ë¡£  */
+    #MDrawGlyph å‹ã¯ã‚°ãƒªãƒ•ã®å¯¸æ³•ã¨ãƒ•ã‚©ãƒ³ãƒˆã«é–¢ã™ã‚‹æƒ…å ±ã‚’å«ã‚€æ§‹é€ ä½“ã§ã‚ã‚‹ã€‚
+    mdraw_glyph_list () ã¯ã“ã‚Œã‚’ç”¨ã„ã‚‹ã€‚  */
 
 typedef struct
 {
   /* @{ */
   /***en Character range corresponding to the glyph.  */
-  /***ja ¥°¥ê¥Õ¤ËÂĞ±ş¤¹¤ëÊ¸»ú¤ÎÈÏ°Ï.  */
+  /***ja ã‚°ãƒªãƒ•ã«å¯¾å¿œã™ã‚‹æ–‡å­—ã®ç¯„å›².  */
   int from, to;
   /* @} */
 
   /***en Font glyph code of the glyph.  */
-  /***ja ¥Õ¥©¥ó¥ÈÆâ¤Î¥°¥ê¥Õ¥³¡¼¥É¡£  */
+  /***ja ãƒ•ã‚©ãƒ³ãƒˆå†…ã®ã‚°ãƒªãƒ•ã‚³ãƒ¼ãƒ‰ã€‚  */
   int glyph_code;
 
   /***en Logical width of the glyph.  Nominal distance to the next
       glyph.  */
-  /***ja ¥°¥ê¥Õ¤ÎÏÀÍıÅªÉı¡£¼¡¤Î¥°¥ê¥Õ¤È¤ÎÌ¾ÌÜ¾å¤Îµ÷Î¥¡£  */
+  /***ja ã‚°ãƒªãƒ•ã®è«–ç†çš„å¹…ã€‚æ¬¡ã®ã‚°ãƒªãƒ•ã¨ã®åç›®ä¸Šã®è·é›¢ã€‚  */
   int x_advance;
   /***en Logical height of the glyph.  Nominal distance to the next
       glyph.  */
-  /***ja ¥°¥ê¥Õ¤ÎÏÀÍıÅª¹â¤µ¡£¼¡¤Î¥°¥ê¥Õ¤È¤ÎÌ¾ÌÜ¾å¤Îµ÷Î¥¡£  */
+  /***ja ã‚°ãƒªãƒ•ã®è«–ç†çš„é«˜ã•ã€‚æ¬¡ã®ã‚°ãƒªãƒ•ã¨ã®åç›®ä¸Šã®è·é›¢ã€‚  */
   int y_advance;
 
   /***en X offset relative to the glyph position.  */
-  /***ja ¥°¥ê¥Õ¤Î°ÌÃÖ¤ËÂĞ¤¹¤ë X ¥ª¥Õ¥»¥Ã¥È.  */
+  /***ja ã‚°ãƒªãƒ•ã®ä½ç½®ã«å¯¾ã™ã‚‹ X ã‚ªãƒ•ã‚»ãƒƒãƒˆ.  */
   int x_off;
   /***en Y offset relative to the glyph position.  */
-  /***ja ¥°¥ê¥Õ¤Î°ÌÃÖ¤ËÂĞ¤¹¤ë Y ¥ª¥Õ¥»¥Ã¥È.  */
+  /***ja ã‚°ãƒªãƒ•ã®ä½ç½®ã«å¯¾ã™ã‚‹ Y ã‚ªãƒ•ã‚»ãƒƒãƒˆ.  */
   int y_off;
 
   /***en Metric of the glyph (left-bearing).  */
-  /***ja ¥°¥ê¥Õ¤ÎÀ£Ë¡ (left-bearing).  */
+  /***ja ã‚°ãƒªãƒ•ã®å¯¸æ³• (left-bearing).  */
   int lbearing;
   /***en Metric of the glyph (right-bearing).  */
-  /***ja ¥°¥ê¥Õ¤ÎÀ£Ë¡ (right-bearing).  */
+  /***ja ã‚°ãƒªãƒ•ã®å¯¸æ³• (right-bearing).  */
   int rbearing;
   /***en Metric of the glyph (ascent).  */
-  /***ja ¥°¥ê¥Õ¤ÎÀ£Ë¡ (ascent).  */
+  /***ja ã‚°ãƒªãƒ•ã®å¯¸æ³• (ascent).  */
   int ascent;
   /***en Metric of the glyph (descent).  */
-  /***ja ¥°¥ê¥Õ¤ÎÀ£Ë¡ (descent).  */
+  /***ja ã‚°ãƒªãƒ•ã®å¯¸æ³• (descent).  */
   int descent;
 
   /***en Font used for the glyph.  Set to NULL if no font is found for
       the glyph.  */
-  /***ja ¥°¥ê¥Õ¤Ë»È¤ï¤ì¤ë¥Õ¥©¥ó¥È¡£¸«¤Ä¤«¤é¤Ê¤±¤ì¤Ğ NULL¡£  */
+  /***ja ã‚°ãƒªãƒ•ã«ä½¿ã‚ã‚Œã‚‹ãƒ•ã‚©ãƒ³ãƒˆã€‚è¦‹ã¤ã‹ã‚‰ãªã‘ã‚Œã° NULLã€‚  */
   MFont *font;
 
   /***en Type of the font.  One of Mx, Mfreetype, Mxft.  */
-  /***ja ¥Õ¥©¥ó¥È¤Î¥¿¥¤¥×¡£Mx¡¢Mfreetype¡¢Mxft ¤Î¤¤¤º¤ì¤«¡£  */
+  /***ja ãƒ•ã‚©ãƒ³ãƒˆã®ã‚¿ã‚¤ãƒ—ã€‚Mxã€Mfreetypeã€Mxft ã®ã„ãšã‚Œã‹ã€‚  */
   MSymbol font_type;
 
   /***en Pointer to the font structure.  The actual type is
       (XFontStruct *) if \<font_type\> member is Mx, FT_Face if
       \<font_type\> member is Mfreetype, and (XftFont *) if \<font_type\>
       member is Mxft.  */
-  /***ja ¥Õ¥©¥ó¥È¤Î¹½Â¤ÂÎ¤Ø¤Î¥İ¥¤¥ó¥¿¡£¼Âºİ¤Î·¿¤Ï \<font_type\> ¥á¥ó¥Ğ¤¬
-      Mx ¤Ê¤é (XFontStruct *)¡¢ Mfreetype ¤Ê¤é FT_Face¡¢Mxft 
-      ¤Ê¤é (XftFont *)¡£ */
+  /***ja ãƒ•ã‚©ãƒ³ãƒˆã®æ§‹é€ ä½“ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€‚å®Ÿéš›ã®å‹ã¯ \<font_type\> ãƒ¡ãƒ³ãƒãŒ
+      Mx ãªã‚‰ (XFontStruct *)ã€ Mfreetype ãªã‚‰ FT_Faceã€Mxft 
+      ãªã‚‰ (XftFont *)ã€‚ */
   void *fontp;
 
 } MDrawGlyph;
@@ -912,10 +912,10 @@ typedef struct
     control the drawing of the M-text.  */
 
 /***ja
-    @brief textitem ¤Î·¿Àë¸À.
+    @brief textitem ã®å‹å®£è¨€.
 
-    #MDrawTextItem ¤Ï @e ¥Æ¥­¥¹¥È¥¢¥¤¥Æ¥à ¥ª¥Ö¥¸¥§¥¯¥ÈÍÑ¤Î·¿¤Ç¤¢¤ë¡£
-    ³Æ¥Æ¥­¥¹¥È¥¢¥¤¥Æ¥à¤Ï¡¢ 1 ¸Ä¤Î M-text ¤È¡¢¤½¤ÎÉ½¼¨¤òÀ©¸æ¤¹¤ë¤¿¤á¤Î¾ğÊó¤ò´Ş¤ó¤Ç¤¤¤ë¡£
+    #MDrawTextItem ã¯ @e ãƒ†ã‚­ã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ  ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ã®å‹ã§ã‚ã‚‹ã€‚
+    å„ãƒ†ã‚­ã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã¯ã€ 1 å€‹ã® M-text ã¨ã€ãã®è¡¨ç¤ºã‚’åˆ¶å¾¡ã™ã‚‹ãŸã‚ã®æƒ…å ±ã‚’å«ã‚“ã§ã„ã‚‹ã€‚
 
     @latexonly \IPAlabel{MTextItem} @endlatexonly  */
 
@@ -927,20 +927,20 @@ typedef struct
 
   /***en Optional change in the position (in the unit of pixel) along
       the X-axis before the M-text is drawn.  */
-  /***ja M-text É½¼¨Á°¤Ë¹Ô¤Ê¤¦X¼´Êı¸ş¤Î°ÌÃÖÄ´À° (¥Ô¥¯¥»¥ëÃ±°Ì) */
+  /***ja M-text è¡¨ç¤ºå‰ã«è¡Œãªã†Xè»¸æ–¹å‘ã®ä½ç½®èª¿æ•´ (ãƒ”ã‚¯ã‚»ãƒ«å˜ä½) */
   int delta;                     
 
   /***en Pointer to a face object.  Each property of the face, if not
       Mnil, overrides the same property of face(s) specified as a text
       property in \<mt\>.  */
-  /***ja ¥Õ¥§¡¼¥¹¥ª¥Ö¥¸¥§¥¯¥È¤Ø¤Î¥İ¥¤¥ó¥¿¡£¥Õ¥§¡¼¥¹¤Î³Æ¥×¥í¥Ñ¥Æ¥£¤Ï 
-      Mnil ¤Ç¤Ê¤±¤ì¤Ğ \<mt\> ¤Ç»ØÄê¤µ¤ì¤¿¥Õ¥§¡¼¥¹¤ÎÆ±¤¸¥×¥í¥Ñ¥Æ¥£¤ËÍ¥Àè¤¹¤ë*/
+  /***ja ãƒ•ã‚§ãƒ¼ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€‚ãƒ•ã‚§ãƒ¼ã‚¹ã®å„ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ 
+      Mnil ã§ãªã‘ã‚Œã° \<mt\> ã§æŒ‡å®šã•ã‚ŒãŸãƒ•ã‚§ãƒ¼ã‚¹ã®åŒã˜ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã«å„ªå…ˆã™ã‚‹*/
   MFace *face;
 
   /***en Pointer to a draw control object.  The M-text \<mt\> is drawn
       by mdraw_text_with_control () with this control object.  */
-  /***ja É½¼¨À©¸æ¥ª¥Ö¥¸¥§¥¯¥È¤Ø¤Î¥İ¥¤¥ó¥¿¡£ mdraw_text_with_control () 
-      ¤Ï¤³¤Î¥ª¥Ö¥¸¥§¥¯¥È¤òÍÑ¤¤¤Æ M-text \<mt\> ¤òÉ½¼¨¤¹¤ë¡£  */
+  /***ja è¡¨ç¤ºåˆ¶å¾¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€‚ mdraw_text_with_control () 
+      ã¯ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”¨ã„ã¦ M-text \<mt\> ã‚’è¡¨ç¤ºã™ã‚‹ã€‚  */
   MDrawControl *control;
 
 } MDrawTextItem;
@@ -1002,7 +1002,7 @@ extern void mdraw_clear_cache (MText *mt);
 
 /*** @ingroup m17nGUI */
 /***en @defgroup m17nInputMethodWin Input Method (GUI) */
-/***ja @defgroup m17nInputMethodWin ÆşÎÏ¥á¥½¥Ã¥É (GUI) */
+/***ja @defgroup m17nInputMethodWin å…¥åŠ›ãƒ¡ã‚½ãƒƒãƒ‰ (GUI) */
 /*=*/
 
 extern MInputDriver minput_gui_driver;
@@ -1017,23 +1017,23 @@ extern MInputDriver minput_gui_driver;
     input method.  */
 
 /***ja
-    @brief ´Ø¿ô minput_create_ic () ¤Î°ú¿ô¤Î·¿Àë¸À.
+    @brief é–¢æ•° minput_create_ic () ã®å¼•æ•°ã®å‹å®£è¨€.
 
-    #MInputGUIArgIC ¤Ï¡¢´Ø¿ô minput_create_ic () 
-    ¤¬ÆâÉôÆşÎÏ¥á¥½¥Ã¥É¤ÎÆşÎÏ¥³¥ó¥Æ¥¯¥¹¥È¤òÀ¸À®¤¹¤ëºİ¤Î¡¢°ú¿ô $ARG ÍÑ¤Î·¿¤Ç¤¢¤ë¡£  */
+    #MInputGUIArgIC ã¯ã€é–¢æ•° minput_create_ic () 
+    ãŒå†…éƒ¨å…¥åŠ›ãƒ¡ã‚½ãƒƒãƒ‰ã®å…¥åŠ›ã‚³ãƒ³ãƒ†ã‚¯ã‚¹ãƒˆã‚’ç”Ÿæˆã™ã‚‹éš›ã®ã€å¼•æ•° $ARG ç”¨ã®å‹ã§ã‚ã‚‹ã€‚  */
 
 typedef struct
 {
   /***en Frame of the client.  */
-  /***ja ¥¯¥é¥¤¥¢¥ó¥È¤Î¥Õ¥ì¡¼¥à  */
+  /***ja ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ãƒ•ãƒ¬ãƒ¼ãƒ   */
   MFrame *frame;
 
   /***en Window on which to display the preedit and status text.  */
-  /***ja preedit ¥Æ¥­¥¹¥È¤È status ¥Æ¥­¥¹¥È¤òÉ½¼¨¤¹¤ë¥¦¥£¥ó¥É¥¦  */
+  /***ja preedit ãƒ†ã‚­ã‚¹ãƒˆã¨ status ãƒ†ã‚­ã‚¹ãƒˆã‚’è¡¨ç¤ºã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦  */
   MDrawWindow client;
 
   /***en Window that the input context has a focus on.  */
-  /***ja ÆşÎÏ¥³¥ó¥Æ¥¯¥¹¥È¤¬¥Õ¥©¡¼¥«¥¹¤ò¤ª¤¤¤Æ¤¤¤ë¥¦¥£¥ó¥É¥¦  */
+  /***ja å…¥åŠ›ã‚³ãƒ³ãƒ†ã‚¯ã‚¹ãƒˆãŒãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ãŠã„ã¦ã„ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦  */
   MDrawWindow focus;
 } MInputGUIArgIC;
 
@@ -1056,6 +1056,6 @@ M17N_END_HEADER
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

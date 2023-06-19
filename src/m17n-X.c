@@ -2657,29 +2657,29 @@ xim_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     $KEY is ignored.  */
 
 /***ja
-    @brief XIM�����ϥɥ饤��.
+    @brief XIM用入力ドライバ.
 
-    �ɥ饤�� #minput_xim_driver �� #Mxim ��̾���Ȥ��ƻ��ĳ������ϥ᥽�å��ѤǤ��ꡢ
-    XIM (X Input Methods) ��Хå����饦��ɤ����ϥ��󥸥�Ȥ��ƻ��Ѥ��롣
+    ドライバ #minput_xim_driver は #Mxim を名前として持つ外部入力メソッド用であり、
+    XIM (X Input Methods) をバックグラウンドの入力エンジンとして使用する。
 
-    ����ܥ� #Mxim �Ϥ��Υɥ饤�ФؤΥݥ��󥿤��ͤȤ���ץ��ѥƥ�
-    #Minput_driver �������LANGUAGE �� #Mnil ��̾���� #Mxim 
-    �Ǥ������ϥ᥽�åɤϤ��Υɥ饤�Ф����Ѥ��롣
+    シンボル #Mxim はこのドライバへのポインタを値とするプロパティ
+    #Minput_driver を持ち、LANGUAGE が #Mnil で名前が #Mxim 
+    である入力メソッドはこのドライバを利用する。
 
-    �������äơ����������ϥ᥽�åɤǤϡ�minput_ 
-    �ǻϤޤ�̾������Ĵؿ��Υɥ饤�Ф˰�¸��������ϼ��Τ褦�ʤ�ΤǤʤ��ƤϤʤ�ʤ���
+    したがって、それらの入力メソッドでは、minput_ 
+    で始まる名前を持つ関数のドライバに依存する引数は次のようなものでなくてはならない。
 
-    �ؿ� minput_open_im () �ΰ��� $ARG �Ϲ�¤�� #MInputXIMArgIM 
-    �ؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ����ܺ٤ˤĤ��Ƥ� #MInputXIMArgIM �������򻲾ȡ�
+    関数 minput_open_im () の引数 $ARG は構造体 #MInputXIMArgIM 
+    へのポインタでなくてはならない。詳細については #MInputXIMArgIM の説明を参照。
 
-    �ؿ� minput_create_ic () �ΰ��� $ARG �Ϲ�¤�� #MInputXIMArgIC 
-    �ؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ����ܺ٤ˤĤ��Ƥ� #MInputXIMArgIC �������򻲾ȡ�
+    関数 minput_create_ic () の引数 $ARG は構造体 #MInputXIMArgIC 
+    へのポインタでなくてはならない。詳細については #MInputXIMArgIC の説明を参照。
 
-    �ؿ� minput_filter () �ΰ��� $ARG �Ϲ�¤�� @c XEvent 
-    �ؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ������� $KEY ��̵�뤵��롣
+    関数 minput_filter () の引数 $ARG は構造体 @c XEvent 
+    へのポインタでなくてはならない。引数 $KEY は無視される。
 
-    �ؿ� minput_lookup () �ΰ��� $ARG �ϴؿ� function minput_filter () 
-    �ΰ��� $ARG ��Ʊ����ΤǤʤ��ƤϤʤ�ʤ��� ���� $KEY �ϡ�̵�뤵��롣  */
+    関数 minput_lookup () の引数 $ARG は関数 function minput_filter () 
+    の引数 $ARG と同じものでなくてはならない。 引数 $KEY は、無視される。  */
 
 MInputDriver minput_xim_driver =
   { xim_open_im, xim_close_im, xim_create_ic, xim_destroy_ic,
@@ -2695,6 +2695,6 @@ int device_open () { return -1; }
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

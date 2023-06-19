@@ -1,4 +1,4 @@
-/* mconv.c -- Code converter.				-*- coding: euc-jp; -*-
+/* mconv.c -- Code converter.				-*- coding: utf-8; -*-
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H15PRO112
@@ -73,54 +73,54 @@
     </ul>
 */
 /***ja
-    @japage m17n-conv �ե�����Υ����ɤ��Ѵ�����
+    @japage m17n-conv ファイルのコードを変換する
 
     @section m17n-conv-synopsis SYNOPSIS
 
     m17n-conv [ OPTION ... ] [ INFILE [ OUTFILE ] ]
 
-    @section m17n-conv-description ����
+    @section m17n-conv-description 説明
 
-    Ϳ����줿�ե�����Υ����ɤ��̤Τ�Τ��Ѵ����롣 
+    与えられたファイルのコードを別のものに変換する。 
 
-    INFILE ����ά���줿���ϡ�ɸ�����Ϥ���Ȥ롣OUTFILE ����ά���줿 
-    ���ϡ�ɸ����Ϥؽ񤭽Ф���
+    INFILE が省略された場合は、標準入力からとる。OUTFILE が省略された 
+    場合は、標準出力へ書き出す。
 
-    �ʲ��Υ��ץ�������ѤǤ��롣
+    以下のオプションが利用できる。
 
     <ul>
 
     <li> -f FROMCODE
 
-    FROMCODE �� INFILE �Υ����ɷϤǤ��롣(�ǥե���Ȥ� UTF-8) 
+    FROMCODE は INFILE のコード系である。(デフォルトは UTF-8) 
 
     <li> -t TOCODE
 
-    TOCODE �� OUTFILE �Υ����ɷϤǤ��롣(�ǥե���Ȥ� UTF-8) 
+    TOCODE は OUTFILE のコード系である。(デフォルトは UTF-8) 
 
     <li> -k
 
-    ���顼���Ѵ�����ߤ��ʤ���
+    エラーで変換を停止しない。
 
     <li> -s
 
-    �ٹ��ɽ�����ʤ��� 
+    警告を表示しない。 
 
     <li> -v
 
-    �ʹԾ�����ɽ�����롣 
+    進行状況を表示する。 
 
     <li> -l
 
-    ���Ѳ�ǽ�ʥ����ɷϤ���󤹤롣 
+    利用可能なコード系を列挙する。 
 
     <li> --version
 
-    �С�������ֹ��ɽ�����롣 
+    バージョン番号を表示する。 
 
     <li> -h, --help
 
-    ���Υ�å�������ɽ�����롣 
+    このメッセージを表示する。 
 
     </ul>
 */

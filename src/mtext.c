@@ -49,30 +49,30 @@
 /***ja
     @addtogroup m17nMtext
 
-    @brief M-text ���֥������ȤȤ���˴ؤ��� API.
+    @brief M-text オブジェクトとそれに関する API.
 
-    m17n �饤�֥��ϡ� C-string��<tt>char *</tt> �� <tt>unsigned
-    char *</tt>�ˤǤϤʤ� @e M-text �ȸƤ֥��֥������Ȥǥƥ����Ȥ�ɽ�����롣
-    M-text ��Ĺ�� 0 �ʾ��ʸ����Ǥ��ꡢ���ʸ���������ʤ��Ȥ��� 
-    C-string���ե����롢ʸ�����������ˤ�������Ǥ��롣
+    m17n ライブラリは、 C-string（<tt>char *</tt> や <tt>unsigned
+    char *</tt>）ではなく @e M-text と呼ぶオブジェクトでテキストを表現する。
+    M-text は長さ 0 以上の文字列であり、種々の文字ソース（たとえば 
+    C-string、ファイル、文字コード等）から作成できる。
 
-    M-text �ˤϡ�C-string �ˤʤ��ʲ�����ħ�����롣     
+    M-text には、C-string にない以下の特徴がある。     
 
-    @li M-text ������¿���μ����ʸ����Ʊ���ˡ����ߤ����ơ�Ʊ���˰������Ȥ��Ǥ��롣
-    Unicode �����Ƥ�ʸ���Ϥ�����󡢤��¿����ʸ���ޤǤⰷ�����Ȥ��Ǥ��롣
-    �����¿����ƥ����Ȥ򰷤���Ǥ�ɬ�ܤε�ǽ�Ǥ��롣
+    @li M-text は非常に多くの種類の文字を、同時に、混在させて、同等に扱うことができる。
+    Unicode の全ての文字はもちろん、より多くの文字までも扱うことができる。
+    これは多言語テキストを扱う上では必須の機能である。
 
-    @li M-text ��γ�ʸ���ϡ�@e �ƥ����ȥץ��ѥƥ� 
-    �ȸƤФ��ץ��ѥƥ��������
-    �ƥ����ȥץ��ѥƥ��ˤ�äơ��ƥ����Ȥγ����̤˴ؤ����͡��ʾ����
-    M-text ����ݻ����뤳�Ȥ���ǽ�ˤʤ롣
-    ���Τ��ᡢ�����ξ���򥢥ץꥱ�������ץ�������������Ū�˰������Ȥ���ǽ�ˤʤ롣
-    �ޤ���M-text 
-    ���Τ�˭�٤ʾ������Ĥ��ᡢ���ץꥱ�������ץ��������γƴؿ�����ǲ����뤳�Ȥ��Ǥ��롣
+    @li M-text 内の各文字は、@e テキストプロパティ 
+    と呼ばれるプロパティを持ち、
+    テキストプロパティによって、テキストの各部位に関する様々な情報を
+    M-text 内に保持することが可能になる。
+    そのため、それらの情報をアプリケーションプログラム内で統一的に扱うことが可能になる。
+    また、M-text 
+    自体が豊富な情報を持つため、アプリケーションプログラム中の各関数を簡素化することができる。
 
-    �����m17n �饤�֥��ϡ� C-string 
-    �����뤿����󶡤�����δؿ���Ʊ���Τ�Τ� M-text 
-    �����뤿��˥��ݡ��Ȥ��Ƥ��롣  */
+    さらにm17n ライブラリは、 C-string 
+    を操作するために提供される種々の関数と同等のものを M-text 
+    を操作するためにサポートしている。  */
 
 /*=*/
 
@@ -1589,7 +1589,7 @@ const int MTEXT_FORMAT_UTF_32 = MTEXT_FORMAT_UTF_32LE;
 /*=*/
 
 /***en The symbol whose name is "language".  */
-/***ja "language" �Ȥ���̾������ĥ���ܥ�.  */
+/***ja "language" という名前を持つシンボル.  */
 MSymbol Mlanguage;
 
 /*=*/
@@ -1603,11 +1603,11 @@ MSymbol Mlanguage;
     function.  */
 
 /***ja
-    @brief ������M-text�������Ƥ�.
+    @brief 新しいM-textを割り当てる.
 
-    �ؿ� mtext () �ϡ�Ĺ�� 0 �ο����� M-text 
-    �������ơ�����ؤΥݥ��󥿤��֤���������Ƥ�줿 M-text �ϡ��ؿ�
-    m17n_object_unref () �ˤ�äƥ桼��������Ū�˹Ԥʤ�ʤ��¤ꡢ��������ʤ���
+    関数 mtext () は、長さ 0 の新しい M-text 
+    を割り当て、それへのポインタを返す。割り当てられた M-text は、関数
+    m17n_object_unref () によってユーザが明示的に行なわない限り、解放されない。
 
     @latexonly \IPAlabel{mtext} @endlatexonly  */
 
@@ -1658,33 +1658,33 @@ mtext ()
     pointer to the allocated M-text.  Otherwise it returns @c NULL and
     assigns an error code to the external variable #merror_code.  */
 /***ja
-    @brief ����Υǡ����򸵤˿����� M-text �������Ƥ�.
+    @brief 指定のデータを元に新しい M-text を割り当てる.
 
-    �ؿ� mtext_from_data () �ϡ����ǿ� $NITEMS ������ $DATA 
-    �ǻ��ꤵ�줿ʸ�������Ŀ����� M-text �������Ƥ롣$FORMAT �� $DATA
-    �Υե����ޥåȤ򼨤���
+    関数 mtext_from_data () は、要素数 $NITEMS の配列 $DATA 
+    で指定された文字列を持つ新しい M-text を割り当てる。$FORMAT は $DATA
+    のフォーマットを示す。
 
-    $FORMAT �� #MTEXT_FORMAT_US_ASCII �� #MTEXT_FORMAT_UTF_8 �ʤ�С�
-    $DATA �����Ƥ� @c unsigned @c char ���Ǥ��ꡢ$NITEMS 
-    �ϥХ���ñ�̤�ɽ����Ƥ��롣
+    $FORMAT が #MTEXT_FORMAT_US_ASCII か #MTEXT_FORMAT_UTF_8 ならば、
+    $DATA の内容は @c unsigned @c char 型であり、$NITEMS 
+    はバイト単位で表されている。
 
-    $FORMAT �� #MTEXT_FORMAT_UTF_16LE �� #MTEXT_FORMAT_UTF_16BE �ʤ�С�
-    $DATA �����Ƥ� @c unsigned @c short ���Ǥ��ꡢ$NITEMS �� unsigned
-    short ñ�̤Ǥ��롣
+    $FORMAT が #MTEXT_FORMAT_UTF_16LE か #MTEXT_FORMAT_UTF_16BE ならば、
+    $DATA の内容は @c unsigned @c short 型であり、$NITEMS は unsigned
+    short 単位である。
 
-    $FORMAT �� #MTEXT_FORMAT_UTF_32LE �� #MTEXT_FORMAT_UTF_32BE �ʤ�С�
-    $DATA �����Ƥ� @c unsigned ���Ǥ��ꡢ$NITEMS �� unsigned ñ�̤Ǥ��롣
+    $FORMAT が #MTEXT_FORMAT_UTF_32LE か #MTEXT_FORMAT_UTF_32BE ならば、
+    $DATA の内容は @c unsigned 型であり、$NITEMS は unsigned 単位である。
 
-    ������Ƥ�줿 M-text ��ʸ������ѹ��Ǥ��ʤ���$DATA �����Ƥ� 
-    M-text ��ͭ���ʴ֤��ѹ����ƤϤʤ�ʤ���
+    割り当てられた M-text の文字列は変更できない。$DATA の内容は 
+    M-text が有効な間は変更してはならない。
 
-    ������Ƥ�줿 M-text �ϡ��ؿ� m17n_object_unref () 
-    �ˤ�äƥ桼��������Ū�˹Ԥʤ�ʤ��¤ꡢ��������ʤ������ξ��Ǥ� $DATA �ϲ�������ʤ���
+    割り当てられた M-text は、関数 m17n_object_unref () 
+    によってユーザが明示的に行なわない限り、解放されない。その場合でも $DATA は解放されない。
 
     @return 
-    ��������������С�mtext_from_data () �ϳ�����Ƥ�줿M-text 
-    �ؤΥݥ��󥿤��֤��������Ǥʤ���� @c NULL ���֤������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mtext_from_data () は割り当てられたM-text 
+    へのポインタを返す。そうでなければ @c NULL を返し外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -1788,9 +1788,9 @@ mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
     M-text $MT.  */
 
 /***ja
-    @brief M-text ���ʸ���ο�.
+    @brief M-text 中の文字の数.
 
-    �ؿ� mtext_len () �� M-text $MT ���ʸ���ο����֤���
+    関数 mtext_len () は M-text $MT 中の文字の数を返す。
 
     @latexonly \IPAlabel{mtext_len} @endlatexonly  */
 
@@ -1810,11 +1810,11 @@ mtext_len (MText *mt)
     error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text ��λ��ꤵ�줿���֤�ʸ�����֤�.
+    @brief M-text 中の指定された位置の文字を返す.
 
-    �ؿ� mtext_ref_char () �ϡ�M-text $MT �ΰ��� $POS 
-    ��ʸ�����֤������顼�����Ф��줿���� -1 ���֤��������ѿ� #merror_code
-    �˥��顼�����ɤ����ꤹ�롣
+    関数 mtext_ref_char () は、M-text $MT の位置 $POS 
+    の文字を返す。エラーが検出された場合は -1 を返し、外部変数 #merror_code
+    にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ref_char} @endlatexonly  */
 
@@ -1872,14 +1872,14 @@ mtext_ref_char (MText *mt, int pos)
     variable #merror_code.  */
 
 /***ja
-    @brief M-text �˰�ʸ�������ꤹ��.
+    @brief M-text に一文字を設定する.
 
-    �ؿ� mtext_set_char () �ϡ��ƥ����ȥץ��ѥƥ�̵����ʸ�� $C �� 
-    M-text $MT �ΰ��� $POS �����ꤹ�롣
+    関数 mtext_set_char () は、テキストプロパティ無しの文字 $C を 
+    M-text $MT の位置 $POS に設定する。
 
     @return
-    ��������������� mtext_set_char () �� 0 ���֤������Ԥ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理に成功すれば mtext_set_char () は 0 を返す。失敗すれば -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_set_char} @endlatexonly  */
 
@@ -1977,14 +1977,14 @@ mtext_set_char (MText *mt, int pos, int c)
     $C is an invalid character, it returns @c NULL.  */
 
 /***ja
-    @brief M-text �˰�ʸ���ɲä���.
+    @brief M-text に一文字追加する.
 
-    �ؿ� mtext_cat_char () �ϡ��ƥ����ȥץ��ѥƥ�̵����ʸ�� $C �� 
-    M-text $MT ���������ɲä��롣
+    関数 mtext_cat_char () は、テキストプロパティ無しの文字 $C を 
+    M-text $MT の末尾に追加する。
 
     @return
-    ���δؿ����ѹ����줿 M-text $MT �ؤΥݥ��󥿤��֤���$C 
-    ��������ʸ���Ǥʤ����ˤ� @c NULL ���֤���  */
+    この関数は変更された M-text $MT へのポインタを返す。$C 
+    が正しい文字でない場合には @c NULL を返す。  */
 
 /***
     @seealso
@@ -2065,13 +2065,13 @@ mtext_cat_char (MText *mt, int c)
     This function returns a pointer to the created copy.  */
 
 /***ja
-    @brief M-text �Υ��ԡ�����.
+    @brief M-text のコピーを作る.
 
-    �ؿ� mtext_dup () �ϡ�M-text $MT �Υ��ԡ����롣$MT 
-    �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣
+    関数 mtext_dup () は、M-text $MT のコピーを作る。$MT 
+    のテキストプロパティはすべて継承される。
 
     @return
-    ���δؿ��Ϻ��줿���ԡ��ؤΥݥ��󥿤��֤���
+    この関数は作られたコピーへのポインタを返す。
 
      @latexonly \IPAlabel{mtext_dup} @endlatexonly  */
 
@@ -2098,13 +2098,13 @@ mtext_dup (MText *mt)
     This function returns a pointer to the resulting M-text $MT1.  */
 
 /***ja
-    @brief 2�Ĥ� M-text��Ϣ�뤹��.
+    @brief 2個の M-textを連結する.
 
-    �ؿ� mtext_cat () �ϡ� M-text $MT2 �� M-text $MT1 
-    ���������դ��ä��롣$MT2 �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT2 ���ѹ�����ʤ���
+    関数 mtext_cat () は、 M-text $MT2 を M-text $MT1 
+    の末尾に付け加える。$MT2 のテキストプロパティはすべて継承される。$MT2 は変更されない。
 
     @return
-    ���δؿ����ѹ����줿 M-text $MT1 �ؤΥݥ��󥿤��֤���
+    この関数は変更された M-text $MT1 へのポインタを返す。
 
     @latexonly \IPAlabel{mtext_cat} @endlatexonly  */
 
@@ -2140,16 +2140,16 @@ mtext_cat (MText *mt1, MText *mt2)
     #merror_code.  */
 
 /***ja
-    @brief M-text �ΰ������̤� M-text ���ղä���.
+    @brief M-text の一部を別の M-text に付加する.
 
-    �ؿ� mtext_ncat () �ϡ�M-text $MT2 �ΤϤ���� $N ʸ���� M-text
-    $MT1 ���������դ��ä��롣$MT2 �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT2
-    ��Ĺ���� $N �ʲ��ʤ�С�$MT2 �Τ��٤Ƥ�ʸ�����ղä���롣 $MT2 ���ѹ�����ʤ���
+    関数 mtext_ncat () は、M-text $MT2 のはじめの $N 文字を M-text
+    $MT1 の末尾に付け加える。$MT2 のテキストプロパティはすべて継承される。$MT2
+    の長さが $N 以下ならば、$MT2 のすべての文字が付加される。 $MT2 は変更されない。
 
     @return
-    ����������������硢mtext_ncat () ���ѹ����줿 M-text $MT1
-    �ؤΥݥ��󥿤��֤������顼�����Ф��줿���� @c NULL ���֤��������ѿ�
-    #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功した場合、mtext_ncat () は変更された M-text $MT1
+    へのポインタを返す。エラーが検出された場合は @c NULL を返し、外部変数
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ncat} @endlatexonly  */
 
@@ -2186,14 +2186,14 @@ mtext_ncat (MText *mt1, MText *mt2, int n)
     This function returns a pointer to the resulting M-text $MT1.  */
 
 /***ja
-    @brief M-text ���̤� M-text �˥��ԡ�����.
+    @brief M-text を別の M-text にコピーする.
 
-    �ؿ� mtext_cpy () �� M-text $MT2 �� M-text $MT1 �˾�񤭥��ԡ����롣
-    $MT2 �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT1 
-    ��Ĺ����ɬ�פ˱����ƿ��Ф���롣$MT2 ���ѹ�����ʤ���
+    関数 mtext_cpy () は M-text $MT2 を M-text $MT1 に上書きコピーする。
+    $MT2 のテキストプロパティはすべて継承される。$MT1 
+    の長さは必要に応じて伸ばされる。$MT2 は変更されない。
 
     @return
-    ���δؿ����ѹ����줿 M-text $MT1 �ؤΥݥ��󥿤��֤���
+    この関数は変更された M-text $MT1 へのポインタを返す。
 
     @latexonly \IPAlabel{mtext_cpy} @endlatexonly  */
 
@@ -2229,17 +2229,17 @@ mtext_cpy (MText *mt1, MText *mt2)
     #merror_code.  */
 
 /***ja
-    @brief M-text �˴ޤޤ��ǽ�β�ʸ�����򥳥ԡ�����.
+    @brief M-text に含まれる最初の何文字かをコピーする.
 
-    �ؿ� mtext_ncpy () �ϡ�M-text $MT2 �κǽ�� $N ʸ���� M-text $MT1 
-    �˾�񤭥��ԡ����롣$MT2 �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣�⤷ $MT2
-    ��Ĺ���� $N ���⾮������� $MT2 �Τ��٤Ƥ�ʸ���򥳥ԡ����롣$MT1 
-    ��Ĺ����ɬ�פ˱����ƿ��Ф���롣$MT2 ���ѹ�����ʤ���
+    関数 mtext_ncpy () は、M-text $MT2 の最初の $N 文字を M-text $MT1 
+    に上書きコピーする。$MT2 のテキストプロパティはすべて継承される。もし $MT2
+    の長さが $N よりも小さければ $MT2 のすべての文字をコピーする。$MT1 
+    の長さは必要に応じて伸ばされる。$MT2 は変更されない。
 
     @return 
-    ����������������硢mtext_ncpy () ���ѹ����줿 M-text $MT1 
-    �ؤΥݥ��󥿤��֤������顼�����Ф��줿���� @c NULL ���֤��������ѿ� 
-    #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功した場合、mtext_ncpy () は変更された M-text $MT1 
+    へのポインタを返す。エラーが検出された場合は @c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_ncpy} @endlatexonly  */
 
@@ -2279,16 +2279,16 @@ mtext_ncpy (MText *mt1, MText *mt2, int n)
     #merror_code.  */
 
 /***ja
-    @brief ��¸�� M-text �ΰ������鿷���� M-text ��Ĥ���.
+    @brief 既存の M-text の一部から新しい M-text をつくる.
 
-    �ؿ� mtext_duplicate () �ϡ�M-text $MT �� $FROM ��$FROM ���Τ�ޤ�ˤ���
-    $TO ��$TO ���Τϴޤޤʤ��ˤޤǤ���ʬ�Υ��ԡ����롣���ΤȤ� $MT 
-    �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT ���Τ�Τ��ѹ�����ʤ���
+    関数 mtext_duplicate () は、M-text $MT の $FROM （$FROM 自体も含む）から
+    $TO （$TO 自体は含まない）までの部分のコピーを作る。このとき $MT 
+    のテキストプロパティはすべて継承される。$MT そのものは変更されない。
 
     @return
-    ��������������С�mtext_duplicate () �Ϻ��줿 M-text 
-    �ؤΥݥ��󥿤��֤������顼�����Ф��줿���� @c NULL ���֤��������ѿ� 
-    #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功すれば、mtext_duplicate () は作られた M-text 
+    へのポインタを返す。エラーが検出された場合は @c NULL を返し、外部変数 
+    #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_duplicate} @endlatexonly  */
 
@@ -2328,19 +2328,19 @@ mtext_duplicate (MText *mt, int from, int to)
     an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text �˻����ϰϤ�ʸ���򥳥ԡ�����.
+    @brief M-text に指定範囲の文字をコピーする.
 
-    �ؿ� mtext_copy () �ϡ� M-text $MT2 �� $FROM ��$FROM ���Τ�ޤ�ˤ��� 
-    $TO ��$TO ���Τϴޤޤʤ��ˤޤǤ��ϰϤΥƥ����Ȥ� M-text $MT1 �ΰ��� $POS
-    �����񤭥��ԡ����롣$MT2 �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT1 
-    ��Ĺ����ɬ�פ˱����ƿ��Ф���롣$MT2 ���ѹ�����ʤ���
+    関数 mtext_copy () は、 M-text $MT2 の $FROM （$FROM 自体も含む）から 
+    $TO （$TO 自体は含まない）までの範囲のテキストを M-text $MT1 の位置 $POS
+    から上書きコピーする。$MT2 のテキストプロパティはすべて継承される。$MT1 
+    の長さは必要に応じて伸ばされる。$MT2 は変更されない。
 
     @latexonly \IPAlabel{mtext_copy} @endlatexonly
 
     @return
-    ����������������硢mtext_copy () ���ѹ����줿 $MT1 
-    �ؤΥݥ��󥿤��֤��������Ǥʤ���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功した場合、mtext_copy () は変更された $MT1 
+    へのポインタを返す。そうでなければ @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2376,15 +2376,15 @@ mtext_copy (MText *mt1, int pos, MText *mt2, int from, int to)
     variable #merror_code.  */
 
 /***ja
-    @brief �����ϰϤ�ʸ�����˲�Ū�˼�����.
+    @brief 指定範囲の文字を破壊的に取り除く.
 
-    �ؿ� mtext_del () �ϡ�M-text $MT �� $FROM ��$FROM ���Τ�ޤ�ˤ���
-    $TO ��$TO ���Τϴޤޤʤ��ˤޤǤ�ʸ�����˲�Ū�˼����������Ū��
-    $MT ��Ĺ���� ($TO @c - $FROM) �����̤ळ�Ȥˤʤ롣
+    関数 mtext_del () は、M-text $MT の $FROM （$FROM 自体も含む）から
+    $TO （$TO 自体は含まない）までの文字を破壊的に取り除く。結果的に
+    $MT は長さが ($TO @c - $FROM) だけ縮むことになる。
 
     @return
-    ��������������� mtext_del () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば mtext_del () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2444,15 +2444,15 @@ mtext_del (MText *mt, int from, int to)
     variable #merror_code.  */
 
 /***ja
-    @brief M-text ���̤� M-text ����������.
+    @brief M-text を別の M-text に挿入する.
 
-    �ؿ� mtext_ins () �� M-text $MT1 �� $POS �ΰ��֤��̤� M-text $MT2 
-    ���������롣���η�� $MT1 ��Ĺ���� $MT2 ��Ĺ��ʬ���������롣�����κݡ�$MT2
-    �Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣$MT2 ���Τ�Τ��ѹ�����ʤ���
+    関数 mtext_ins () は M-text $MT1 の $POS の位置に別の M-text $MT2 
+    を挿入する。この結果 $MT1 の長さは $MT2 の長さ分だけ増える。挿入の際、$MT2
+    のテキストプロパティはすべて継承される。$MT2 そのものは変更されない。
 
     @return
-    ��������������� mtext_ins () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば mtext_ins () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2490,17 +2490,17 @@ mtext_ins (MText *mt1, int pos, MText *mt2)
     external variable #merror_code.  */
 
 /***ja
-    @brief M-text �ΰ������̤� M-text ����������.
+    @brief M-text の一部を別の M-text に挿入する.
 
-    �ؿ� mtext_insert () �� M-text $MT1 ��� $POS �ΰ��֤ˡ��̤� 
-    M-text $MT2 �� $FROM ��$FROM ���Τ�ޤ�ˤ��� $TO ��$TO ���Τϴޤ�
-    �ʤ��ˤޤǤ�ʸ�����������롣���Ū�� $MT1 ��Ĺ���� ($TO - $FROM) 
-    �������Ӥ롣�����κݡ� $MT2 ��Υƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����
-    �롣
+    関数 mtext_insert () は M-text $MT1 中の $POS の位置に、別の 
+    M-text $MT2 の $FROM （$FROM 自体も含む）から $TO （$TO 自体は含ま
+    ない）までの文字を挿入する。結果的に $MT1 は長さが ($TO - $FROM) 
+    だけ伸びる。挿入の際、 $MT2 中のテキストプロパティはすべて継承され
+    る。
 
     @return
-    ��������������С�mtext_insert () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mtext_insert () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2535,14 +2535,14 @@ mtext_insert (MText *mt1, int pos, MText *mt2, int from, int to)
     variable #merror_code.  */
 
 /***ja
-    @brief M-text ��ʸ������������.
+    @brief M-text に文字を挿入する.
 
-    �ؿ� mtext_ins_char () �� M-text $MT �� $POS �ΰ��֤�ʸ�� $C �Υ��ԡ��� $N
-    ���������롣���η�� $MT1 ��Ĺ���� $N ���������롣
+    関数 mtext_ins_char () は M-text $MT の $POS の位置に文字 $C のコピーを $N
+    個挿入する。この結果 $MT1 の長さは $N だけ増える。
 
     @return
-    ��������������� mtext_ins_char () �� 0 ���֤��������Ǥʤ���� -1
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば mtext_ins_char () は 0 を返す。そうでなければ -1
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2643,17 +2643,17 @@ mtext_ins_char (MText *mt, int pos, int c, int n)
     external variable #merror_code.  */
 
 /***ja
-    @brief M-text �ΰ������̤� M-text �ΰ������ִ�����.
+    @brief M-text の一部を別の M-text の一部で置換する.
 
-    �ؿ� mtext_replace () �ϡ� M-text $MT1 �� $FROM1 ��$FROM1 ���Τ��
-    ��ˤ��� $TO1 ��$TO1 ���Τϴޤޤʤ��ˤޤǤ� M-text $MT2 �� 
-    $FROM2 ��$FROM2 ���Τ�ޤ�ˤ��� $TO2 ��$TO2 ���Τϴޤޤʤ��ˤ���
-    �������롣�������������줿��ʬ�ϡ��֤����������Υƥ����ȥץ��ѥƥ�
-    ���٤Ƥ�Ѿ����롣
+    関数 mtext_replace () は、 M-text $MT1 の $FROM1 （$FROM1 自体も含
+    む）から $TO1 （$TO1 自体は含まない）までを、 M-text $MT2 の 
+    $FROM2 （$FROM2 自体も含む）から $TO2 （$TO2 自体は含まない）で置
+    き換える。新しく挿入された部分は、置き換える前のテキストプロパティ
+    すべてを継承する。
 
     @return 
-    ��������������С� mtext_replace () �� 0 ���֤��������Ǥ�
-    ����� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、 mtext_replace () は 0 を返す。そうでな
+    ければ -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -2772,19 +2772,19 @@ mtext_replace (MText *mt1, int from1, int to1,
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief M-text ���ʸ����õ��.
+    @brief M-text 中で文字を探す.
 
-    �ؿ� mtext_character () �� M-text $MT ���ʸ�� $C ��õ�����⤷ 
-    $FROM �� $TO ��꾮������С�õ���ϰ��� $FROM �������������ء����� 
-    ($TO - 1) �ޤǿʤࡣ�����Ǥʤ���а��� ($FROM - 1) ������Ƭ�����ء�����
-    $TO �ޤǿʤࡣ���֤λ���˸��꤬������ϡ�$FROM �� $TO 
-    ��ξ���� 0 �����ꤵ�줿��ΤȤߤʤ���
+    関数 mtext_character () は M-text $MT 中で文字 $C を探す。もし 
+    $FROM が $TO より小さければ、探索は位置 $FROM から末尾方向へ、最大 
+    ($TO - 1) まで進む。そうでなければ位置 ($FROM - 1) から先頭方向へ、最大
+    $TO まで進む。位置の指定に誤りがある場合は、$FROM と $TO 
+    の両方に 0 が指定されたものとみなす。
 
     @return
-    �⤷ $C �����Ĥ���С�mtext_character () 
-    �Ϥ��κǽ�νи����֤��֤������Ĥ���ʤ��ä����ϳ����ѿ� #merror_code
-    ���ѹ������� -1 ���֤������顼�����Ф��줿���� -1 ���֤��������ѿ�
-    #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    もし $C が見つかれば、mtext_character () 
+    はその最初の出現位置を返す。見つからなかった場合は外部変数 #merror_code
+    を変更せずに -1 を返す。エラーが検出された場合は -1 を返し、外部変数
+    #merror_code にエラーコードを設定する。  */
 
 /***
     @seealso
@@ -2824,14 +2824,14 @@ mtext_character (MText *mt, int from, int to, int c)
     returns -1.  */
 
 /***ja
-    @brief M-text ��ǻ��ꤵ�줿ʸ�����ǽ�˸������֤��֤�.
+    @brief M-text 中で指定された文字が最初に現れる位置を返す.
 
-    �ؿ� mtext_chr () �� M-text $MT ���ʸ�� $C ��õ����õ���� $MT 
-    ����Ƭ�������������˿ʤࡣ
+    関数 mtext_chr () は M-text $MT 中で文字 $C を探す。探索は $MT 
+    の先頭から末尾方向に進む。
 
     @return
-    �⤷ $C �����Ĥ���С�mtext_chr () 
-    �Ϥ��νи����֤��֤������Ĥ���ʤ��ä����� -1 ���֤���
+    もし $C が見つかれば、mtext_chr () 
+    はその出現位置を返す。見つからなかった場合は -1 を返す。
 
     @latexonly \IPAlabel{mtext_chr} @endlatexonly  */
 
@@ -2862,14 +2862,14 @@ mtext_chr (MText *mt, int c)
     returns -1.  */
 
 /***ja
-    @brief M-text ��ǻ��ꤵ�줿ʸ�����Ǹ�˸������֤��֤�.
+    @brief M-text 中で指定された文字が最後に現れる位置を返す.
 
-    �ؿ� mtext_rchr () �� M-text $MT ���ʸ�� $C ��õ����õ���� $MT 
-    �κǸ夫����Ƭ�����ؤȸ�����˿ʤࡣ
+    関数 mtext_rchr () は M-text $MT 中で文字 $C を探す。探索は $MT 
+    の最後から先頭方向へと後向きに進む。
 
     @return
-    �⤷ $C �����Ĥ���С�mtext_rchr () 
-    �Ϥ��νи����֤��֤������Ĥ���ʤ��ä����� -1 ���֤���
+    もし $C が見つかれば、mtext_rchr () 
+    はその出現位置を返す。見つからなかった場合は -1 を返す。
 
     @latexonly \IPAlabel{mtext_rchr} @endlatexonly  */
 
@@ -2901,13 +2901,13 @@ mtext_rchr (MText *mt, int c)
     character codes.  */
 
 /***ja
-    @brief ��Ĥ� M-text ��ʸ��ñ�̤���Ӥ���.
+    @brief 二つの M-text を文字単位で比較する.
 
-    �ؿ� mtext_cmp () �ϡ� M-text $MT1 �� $MT2 ��ʸ��ñ�̤���Ӥ��롣
+    関数 mtext_cmp () は、 M-text $MT1 と $MT2 を文字単位で比較する。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 ����礭�����
-    1��$MT1 �� $MT2 ��꾮������� -1 ���֤�����Ӥ�ʸ�������ɤ˴�Ť���
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 より大きければ
+    1、$MT1 が $MT2 より小さければ -1 を返す。比較は文字コードに基づく。
 
     @latexonly \IPAlabel{mtext_cmp} @endlatexonly  */
 
@@ -2936,14 +2936,14 @@ mtext_cmp (MText *mt1, MText *mt2)
     equal to, or less than $MT2, respectively.  */
 
 /***ja
-    @brief ��Ĥ� M-text ����Ƭ��ʬ��ʸ��ñ�̤���Ӥ���.
+    @brief 二つの M-text の先頭部分を文字単位で比較する.
 
-    �ؿ� mtext_ncmp () �ϡ��ؿ� mtext_cmp () Ʊ�ͤ� M-text 
-    Ʊ�Τ���Ӥ���Ƭ������� $N ʸ���ޤǤ˴ؤ��ƹԤʤ���
+    関数 mtext_ncmp () は、関数 mtext_cmp () 同様の M-text 
+    同士の比較を先頭から最大 $N 文字までに関して行なう。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 ����礭����� 
-    1��$MT1 �� $MT2 ��꾮������� -1 ���֤���
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 より大きければ 
+    1、$MT1 が $MT2 より小さければ -1 を返す。
 
     @latexonly \IPAlabel{mtext_ncmp} @endlatexonly  */
 
@@ -2980,18 +2980,18 @@ mtext_ncmp (MText *mt1, MText *mt2, int n)
     character codes.  */
 
 /***ja
-    @brief ��Ĥ� M-text �λ��ꤷ���ΰ�Ʊ�Τ���Ӥ���.
+    @brief 二つの M-text の指定した領域同士を比較する.
 
-    �ؿ� mtext_compare () ����Ĥ� M-text $MT1 �� $MT2 
-    ��ʸ��ñ�̤���Ӥ��롣��Ӥ��оݤ� $MT1 �Τ��� $FROM1 ���� $TO1 �ޤǤȡ�$MT2 
-    �Τ��� $FROM2 ���� $TO2 �ޤǤǤ��롣$FROM1 �� $FROM2 �ϴޤޤ졢$TO1 
-    �� $TO2 �ϴޤޤ�ʤ���$FROM1 �� $TO1 �ʤ��뤤�� $FROM2 �� $TO2 
-    �ˤ�����������Ĺ�������� M-text ���̣���롣�ϰϻ���˸��꤬������ϡ�
-    $FROM1 �� $TO1 �ʤ��뤤�� $FROM2 �� $TO2 �� ξ���� 0 �����ꤵ�줿��ΤȤߤʤ���
+    関数 mtext_compare () は二つの M-text $MT1 と $MT2 
+    を文字単位で比較する。比較の対象は $MT1 のうち $FROM1 から $TO1 までと、$MT2 
+    のうち $FROM2 から $TO2 までである。$FROM1 と $FROM2 は含まれ、$TO1 
+    と $TO2 は含まれない。$FROM1 と $TO1 （あるいは $FROM2 と $TO2 
+    ）が等しい場合は長さゼロの M-text を意味する。範囲指定に誤りがある場合は、
+    $FROM1 と $TO1 （あるいは $FROM2 と $TO2 ） 両方に 0 が指定されたものとみなす。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 ����礭�����
-    1 ��$MT1 �� $MT2 ��꾮������� -1 ���֤�����Ӥ�ʸ�������ɤ˴�Ť���  */
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 より大きければ
+    1 、$MT1 が $MT2 より小さければ -1 を返す。比較は文字コードに基づく。  */
 
 /***
     @seealso
@@ -3020,10 +3020,10 @@ mtext_compare (MText *mt1, int from1, int to1, MText *mt2, int from2, int to2)
     M-text $MT2.  */
 
 /***ja
-    @brief ���뽸���ʸ���� M-text �����õ��.
+    @brief ある集合の文字を M-text の中で探す.
 
-    �ؿ� mtext_spn () �ϡ�M-text $MT1 ����Ƭ���� M-text $MT2 
-    �˴ޤޤ��ʸ�������ǤǤ��Ƥ�����ʬ��Ĺ�����֤���
+    関数 mtext_spn () は、M-text $MT1 の先頭から M-text $MT2 
+    に含まれる文字だけでできている部分の長さを返す。
 
     @latexonly \IPAlabel{mtext_spn} @endlatexonly  */
 
@@ -3046,10 +3046,10 @@ mtext_spn (MText *mt, MText *accept)
     M-text $MT1 that consists entirely of characters not in M-text $MT2.  */
 
 /***ja
-    @brief ���뽸���°���ʤ�ʸ���� M-text �����õ��.
+    @brief ある集合に属さない文字を M-text の中で探す.
 
-    �ؿ� mtext_cspn () �ϡ�M-text $MT1 ����Ƭ��ʬ�� M-text $MT2
-    �˴ޤޤ�ʤ�ʸ�������ǤǤ��Ƥ�����ʬ��Ĺ�����֤���
+    関数 mtext_cspn () は、M-text $MT1 の先頭部分で M-text $MT2
+    に含まれない文字だけでできている部分の長さを返す。
 
     @latexonly \IPAlabel{mtext_cspn} @endlatexonly  */
 
@@ -3076,14 +3076,14 @@ mtext_cspn (MText *mt, MText *reject)
     If no such character is found, it returns -1. */
 
 /***ja
-    @brief ���뽸���°��ʸ���� M-text ���椫��õ��.
+    @brief ある集合に属す文字を M-text の中から探す.
 
-    �ؿ� mtext_pbrk () �ϡ�M-text $MT1 ��� M-text $MT2 
-    ��ʸ���Τɤ줫���ǽ�˸������֤�Ĵ�٤롣
+    関数 mtext_pbrk () は、M-text $MT1 中で M-text $MT2 
+    の文字のどれかが最初に現れる位置を調べる。
 
     @return 
-    ���Ĥ��ä�ʸ���Ρ�$MT1 
-    ��ˤ�����и����֤��֤����⤷���Τ褦��ʸ�����ʤ���� -1 ���֤���
+    見つかった文字の、$MT1 
+    内における出現位置を返す。もしそのような文字がなければ -1 を返す。
 
     @latexonly \IPAlabel{mtext_pbrk} @endlatexonly  */
 
@@ -3115,19 +3115,19 @@ mtext_pbrk (MText *mt, MText *accept)
     to the external variable #merror_code. */
 
 /***ja
-    @brief M-text ��Υȡ������õ��.
+    @brief M-text 中のトークンを探す.
 
-    �ؿ� mtext_tok () �ϡ�M-text $MT ����ǰ��� $POS 
-    �ʹߺǽ�˸����ȡ������õ���������ǥȡ�����Ȥ� M-text $DELIM
-    ����˸����ʤ�ʸ����������ʤ���ʬʸ����Ǥ��롣$POS �η��� @c int �ǤϤʤ��� @c
-    int �ؤΥݥ��󥿤Ǥ��뤳�Ȥ����ա�
+    関数 mtext_tok () は、M-text $MT の中で位置 $POS 
+    以降最初に現れるトークンを探す。ここでトークンとは M-text $DELIM
+    の中に現われない文字だけからなる部分文字列である。$POS の型が @c int ではなくて @c
+    int へのポインタであることに注意。
 
     @return
-    �⤷�ȡ����󤬸��Ĥ���� mtext_tok ()�Ϥ��Υȡ����������������ʬ�� 
-    $MT �򥳥ԡ��������Υ��ԡ��ؤΥݥ��󥿤��֤������ξ�硢$POS 
-    �ϸ��Ĥ��ä��ȡ�����ν�ü�˥��åȤ���롣�ȡ����󤬸��Ĥ���ʤ��ä����ϳ����ѿ�
-    #merror_code ���Ѥ����� @c NULL ���֤������顼�����Ф��줿���� 
-    @c NULL ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    もしトークンが見つかれば mtext_tok ()はそのトークンに相当する部分の 
+    $MT をコピーし、そのコピーへのポインタを返す。この場合、$POS 
+    は見つかったトークンの終端にセットされる。トークンが見つからなかった場合は外部変数
+    #merror_code を変えずに @c NULL を返す。エラーが検出された場合は 
+    @c NULL を返し、変部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mtext_tok} @endlatexonly  */
 
@@ -3172,14 +3172,14 @@ mtext_tok (MText *mt, MText *delim, int *pos)
     returns 0.  */
 
 /***ja
-    @brief M-text ����̤� M-text ��õ��.
+    @brief M-text 中で別の M-text を探す.
 
-    �ؿ� mtext_text () �ϡ�M-text $MT1 ��ǰ��� $POS �ʹߤ˸����� 
-    M-text $MT2 �κǽ�ΰ��֤�Ĵ�٤롣�ƥ����ȥץ��ѥƥ��ΰ㤤��̵�뤵��롣
+    関数 mtext_text () は、M-text $MT1 中で位置 $POS 以降に現われる 
+    M-text $MT2 の最初の位置を調べる。テキストプロパティの違いは無視される。
 
     @return
-    $MT1 ��� $MT2 �����Ĥ���С�mtext_text() 
-    �Ϥ��κǽ�νи����֤��֤������Ĥ���ʤ����� -1 ���֤����⤷ $MT2 �����ʤ�� 0 ���֤���
+    $MT1 中に $MT2 が見つかれば、mtext_text() 
+    はその最初の出現位置を返す。見つからない場合は -1 を返す。もし $MT2 が空ならば 0 を返す。
 
     @latexonly \IPAlabel{mtext_text} @endlatexonly  */
 
@@ -3231,17 +3231,17 @@ mtext_text (MText *mt1, int pos, MText *mt2)
     returns 0.  */
 
 /***ja
-    @brief M-text ���������ΰ���̤� M-text ��õ��.
+    @brief M-text 中の特定の領域で別の M-text を探す.
 
-    �ؿ� mtext_search () �ϡ�M-text $MT1 ��� $FROM ���� $TO 
-    �ޤǤδ֤��ΰ��M-text $MT2 
-    ���ǽ�˸�������֤�Ĵ�٤롣�ƥ����ȥץ��ѥƥ��ΰ㤤��̵�뤵��롣�⤷
-    $FROM �� $TO ��꾮�������õ���ϰ��� $FROM �������������ء������Ǥʤ����
-    $TO ������Ƭ�����ؿʤࡣ
+    関数 mtext_search () は、M-text $MT1 中の $FROM から $TO 
+    までの間の領域でM-text $MT2 
+    が最初に現われる位置を調べる。テキストプロパティの違いは無視される。もし
+    $FROM が $TO より小さければ探索は位置 $FROM から末尾方向へ、そうでなければ
+    $TO から先頭方向へ進む。
 
     @return
-    $MT1 ��� $MT2 �����Ĥ���С�mtext_search() 
-    �Ϥ��κǽ�νи����֤��֤������Ĥ���ʤ����� -1 ���֤����⤷ $MT2 �����ʤ�� 0 ���֤���
+    $MT1 中に $MT2 が見つかれば、mtext_search() 
+    はその最初の出現位置を返す。見つからない場合は -1 を返す。もし $MT2 が空ならば 0 を返す。
     */
 
 int
@@ -3302,14 +3302,14 @@ mtext_search (MText *mt1, int from, int to, MText *mt2)
     equal to, or less than $MT2, respectively.  */
 
 /***ja
-    @brief ��Ĥ� M-text ����ʸ������ʸ���ζ��̤�̵�뤷����Ӥ���.
+    @brief 二つの M-text を大文字／小文字の区別を無視して比較する.
 
-    �ؿ� mtext_casecmp () �ϡ��ؿ� mtext_cmp () Ʊ�ͤ� M-text 
-    Ʊ�Τ���Ӥ���ʸ������ʸ���ζ��̤�̵�뤷�ƹԤʤ���
+    関数 mtext_casecmp () は、関数 mtext_cmp () 同様の M-text 
+    同士の比較を、大文字／小文字の区別を無視して行なう。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 
-    ����礭����� 1��$MT1 �� $MT2 ��꾮������� -1 ���֤���
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 
+    より大きければ 1、$MT1 が $MT2 より小さければ -1 を返す。
 
     @latexonly \IPAlabel{mtext_casecmp} @endlatexonly  */
 
@@ -3337,14 +3337,14 @@ mtext_casecmp (MText *mt1, MText *mt2)
     equal to, or less than $MT2, respectively.  */
 
 /***ja
-    @brief ��Ĥ� M-text ����Ƭ��ʬ����ʸ������ʸ���ζ��̤�̵�뤷����Ӥ���.
+    @brief 二つの M-text の先頭部分を大文字／小文字の区別を無視して比較する.
 
-    �ؿ� mtext_ncasecmp () �ϡ��ؿ� mtext_casecmp () Ʊ�ͤ� M-text 
-    Ʊ�Τ���Ӥ���Ƭ������� $N ʸ���ޤǤ˴ؤ��ƹԤʤ���
+    関数 mtext_ncasecmp () は、関数 mtext_casecmp () 同様の M-text 
+    同士の比較を先頭から最大 $N 文字までに関して行なう。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 
-    ����礭����� 1��$MT1 �� $MT2 ��꾮������� -1 ���֤���
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 
+    より大きければ 1、$MT1 が $MT2 より小さければ -1 を返す。
 
     @latexonly \IPAlabel{mtext_ncasecmp} @endlatexonly  */
 
@@ -3382,19 +3382,19 @@ mtext_ncasecmp (MText *mt1, MText *mt2, int n)
     character codes.  */
 
 /***ja 
-    @brief ��Ĥ� M-text �λ��ꤷ���ΰ����ʸ������ʸ���ζ��̤�̵�뤷����Ӥ���.
+    @brief 二つの M-text の指定した領域を、大文字／小文字の区別を無視して比較する.
 
-    �ؿ� mtext_compare () ����Ĥ� M-text $MT1 �� $MT2 
-    ����ʸ������ʸ���ζ��̤�̵�뤷��ʸ��ñ�̤���Ӥ��롣��Ӥ��оݤ� $MT1 
-    �� $FROM1 ���� $TO1 �ޤǡ�$MT2 �� $FROM2 ���� $TO2 �ޤǤǤ��롣
-    $FROM1 �� $FROM2 �ϴޤޤ졢$TO1 �� $TO2 �ϴޤޤ�ʤ���$FROM1 �� $TO1
-    �ʤ��뤤�� $FROM2 �� $TO2 �ˤ�����������Ĺ�������� M-text 
-    ���̣���롣�ϰϻ���˸��꤬������ϡ�$FROM1 �� $TO1 �ʤ��뤤�� 
-    $FROM2 �� $TO2 ��ξ���� 0 �����ꤵ�줿��Τȸ��ʤ���
+    関数 mtext_compare () は二つの M-text $MT1 と $MT2 
+    を、大文字／小文字の区別を無視して文字単位で比較する。比較の対象は $MT1 
+    の $FROM1 から $TO1 まで、$MT2 の $FROM2 から $TO2 までである。
+    $FROM1 と $FROM2 は含まれ、$TO1 と $TO2 は含まれない。$FROM1 と $TO1
+    （あるいは $FROM2 と $TO2 ）が等しい場合は長さゼロの M-text 
+    を意味する。範囲指定に誤りがある場合は、$FROM1 と $TO1 （あるいは 
+    $FROM2 と $TO2 ）両方に 0 が指定されたものと見なす。
 
     @return
-    ���δؿ��ϡ�$MT1 �� $MT2 ����������� 0��$MT1 �� $MT2 ����礭�����
-    1��$MT1 �� $MT2 ��꾮������� -1���֤�����Ӥ�ʸ�������ɤ˴�Ť���
+    この関数は、$MT1 と $MT2 が等しければ 0、$MT1 が $MT2 より大きければ
+    1、$MT1 が $MT2 より小さければ -1を返す。比較は文字コードに基づく。
 
   @latexonly \IPAlabel{mtext_case_compare} @endlatexonly
 */
@@ -3434,16 +3434,16 @@ mtext_case_compare (MText *mt1, int from1, int to1,
 */
 
 /***ja
-    @brief M-text ��ʸ���ˤ���.
+    @brief M-text を小文字にする.
 
-    �ؿ� mtext_lowercase () �� M-text $MT ��γ�ʸ�����˲�Ū�˾�ʸ������
-    �����롣�Ѵ��˺ݤ������ܤ���ʸ���αƶ�������뤳�Ȥ����롣$MT �˥�
-    �����ȥץ��ѥƥ� Mlanguage ���դ��Ƥ�����ϡ�������Ѵ��˱ƶ���
-    Ϳ�����롣$MT ��Ĺ�����Ѥ�뤳�Ȥ����롣��ʸ�����Ѵ��Ǥ��ʤ��ä�ʸ
-    ���Ϥ��Τޤ޻Ĥ롣�ƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣
+    関数 mtext_lowercase () は M-text $MT 中の各文字を破壊的に小文字に変
+    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
+    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
+    与えうる。$MT の長さは変わることがある。小文字に変換できなかった文
+    字はそのまま残る。テキストプロパティはすべて継承される。
 
     @return
-    ���δؿ��Ϲ������ $MT ��Ĺ�����֤���
+    この関数は更新後の $MT の長さを返す。
 */
 
 /***
@@ -3476,16 +3476,16 @@ mtext_lowercase (MText *mt)
 */
 
 /***ja
-    @brief M-text �򥿥��ȥ륱�����ˤ���.
+    @brief M-text をタイトルケースにする.
 
-    �ؿ� mtext_titlecase () �� M-text $MT ��� cased �ץ��ѥƥ������
-    �ǽ��ʸ���򥿥��ȥ륱�����ˡ������Ƥ���ʹߤ�ʸ����ʸ�����˲�Ū
-    ���Ѵ����롣$MT ��Ĺ�����Ѥ�뤳�Ȥ����롣�����ȥ륱�����ˤ��Ѵ���
-    ���ʤ��ä����Ϥ��Τޤޤ��Ѥ��ʤ����ƥ����ȥץ��ѥƥ��Ϥ��٤Ʒ�
-    ������롣
+    関数 mtext_titlecase () は M-text $MT 中で cased プロパティを持つ
+    最初の文字をタイトルケースに、そしてそれ以降の文字を小文字に破壊的
+    に変換する。$MT の長さは変わることがある。タイトルケースにに変換で
+    きなかった場合はそのままで変わらない。テキストプロパティはすべて継
+    承される。
 
     @return
-    ���δؿ��Ϲ������ $MT ��Ĺ�����֤���
+    この関数は更新後の $MT の長さを返す。
 */
 
 /***
@@ -3547,16 +3547,16 @@ mtext_titlecase (MText *mt)
 */
 
 /***ja
-    @brief M-text ����ʸ���ˤ���.
+    @brief M-text を大文字にする.
 
-    �ؿ� mtext_uppercase () �� M-text $MT ��γ�ʸ�����˲�Ū����ʸ������
-    �����롣�Ѵ��˺ݤ������ܤ���ʸ���αƶ�������뤳�Ȥ����롣$MT �˥�
-    �����ȥץ��ѥƥ� Mlanguage ���դ��Ƥ�����ϡ�������Ѵ��˱ƶ���
-    Ϳ�����롣$MT ��Ĺ�����Ѥ�뤳�Ȥ����롣��ʸ�����Ѵ��Ǥ��ʤ��ä�ʸ
-    ���Ϥ��Τޤ޻Ĥ롣�ƥ����ȥץ��ѥƥ��Ϥ��٤ƷѾ�����롣
+    関数 mtext_uppercase () は M-text $MT 中の各文字を破壊的に大文字に変
+    換する。変換に際して隣接する文字の影響を受けることがある。$MT にテ
+    キストプロパティ Mlanguage が付いている場合は、それも変換に影響を
+    与えうる。$MT の長さは変わることがある。大文字に変換できなかった文
+    字はそのまま残る。テキストプロパティはすべて継承される。
 
     @return
-    ���δؿ��Ϲ������ $MT ��Ĺ�����֤���
+    この関数は更新後の $MT の長さを返す。
 */
 
 /***
@@ -3593,16 +3593,16 @@ mtext_uppercase (MText *mt)
     @return
     This function returns $MT.  */
 /***ja
-    @brief M-text �����פ���.
+    @brief M-text をダンプする.
 
-    �ؿ� mdebug_dump_mtext () �� M-text $MT ��ɸ�२�顼���Ϥ⤷���ϴ�
-    ���ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲��ɤʷ��ǰ���
-    ���롣 $INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣$FULLP �� 0 �ʤ�
-    �С�ʸ���������������������롣�����Ǥʤ���С������Х�����ȥƥ�
-    ���ȥץ��ѥƥ���������롣
+    関数 mdebug_dump_mtext () は M-text $MT を標準エラー出力もしくは環
+    境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で印刷
+    する。 $INDENT は２行目以降のインデントを指定する。$FULLP が 0 なら
+    ば、文字コード列だけを印刷する。そうでなければ、内部バイト列とテキ
+    ストプロパティも印刷する。
 
     @return
-    ���δؿ��� $MT ���֤���  */
+    この関数は $MT を返す。  */
 
 MText *
 mdebug_dump_mtext (MText *mt, int indent, int fullp)
@@ -3674,6 +3674,6 @@ mdebug_dump_mtext (MText *mt, int indent, int fullp)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

@@ -124,6 +124,6 @@ m17n_fini (void)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

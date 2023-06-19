@@ -50,27 +50,27 @@
 
 /***ja
     @addtogroup m17nFace
-    @brief �ե������Ȥϡ�M-text �θ��ɤ������椹�륪�֥������ȤǤ���.
+    @brief フェースとは、M-text の見栄えを制御するオブジェクトである.
 
-    @e �ե����� �� #MFace ���Υ��֥������ȤǤ��ꡢM-text 
-    ��ɽ����ˡ�����椹�롣�ե������ϸ���Ĥ� @e �ե������ץ��ѥƥ� ����ġ�
-    ¾�Υץ��ѥƥ�Ʊ�ͥե������ץ��ѥƥ��ϥ������ͤ���ʤꡢ�����ϰʲ��Υ���ܥ�Τ����줫�Ǥ��롣
+    @e フェース は #MFace 型のオブジェクトであり、M-text 
+    の表示方法を制御する。フェースは固定個の @e フェースプロパティ を持つ。
+    他のプロパティ同様フェースプロパティはキーと値からなり、キーは以下のシンボルのいずれかである。
 
     #Mforeground, #Mbackground, #Mvideomode, #Mhline, #Mbox, 
     #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle, 
     #Msize, #Mfontset, #Mratio, #Mhook_func, #Mhook_arg
 
-    �֥ե����� F �Υե������ץ��ѥƥ��Τ��������� @c Mxxx 
-    �Ǥ����ΡפΤ��Ȥ��ñ�ˡ�F �� xxx �ץ��ѥƥ��פȸƤ֤��Ȥ����롣
+    「フェース F のフェースプロパティのうちキーが @c Mxxx 
+    であるもの」のことを簡単に「F の xxx プロパティ」と呼ぶことがある。
 
-    M-text ��ɽ���ؿ��ϡ��ޤ��ǽ�ˤ��� M-text ���饭��������ܥ� 
-    #Mface �Ǥ���褦�ʥƥ����ȥץ��ѥƥ���õ�������ˤ����ͤ˽��ä� 
-    M-text ��ɽ�����롣�����ͤϥե��������֥������ȤؤΥݥ��󥿤Ǥʤ���Фʤ�ʤ���
+    M-text の表示関数は、まず最初にその M-text からキーがシンボル 
+    #Mface であるようなテキストプロパティを探し、次にその値に従って 
+    M-text を表示する。この値はフェースオブジェクトへのポインタでなければならない。
 
-    M-text ����#Mface 
-    �򥭡��Ȥ���ƥ����ȥץ��ѥƥ���ʣ�����äƤ��ꡢ���Ĥ������ͤ����ͤ��ʤ��ʤ�С��ե�����������Ȥ߹�蘆����Ѥ����롣
+    M-text が、#Mface 
+    をキーとするテキストプロパティを複数持っており、かつそれらの値が衝突しないならば、フェース情報は組み合わされて用いられる。
 
-    ����ƥ�����°�����ɤΥե������ˤ�äƤ���ꤵ��Ƥ��ʤ����ϡ��ǥե���ȥե��������ͤ��Ѥ����롣  */
+    あるテキスト属性がどのフェースによっても指定されていない場合は、デフォルトフェースの値が用いられる。  */
 
 /*=*/
 
@@ -973,7 +973,7 @@ mface__update_frame_face (MFrame *frame)
 /*=*/
 
 /***en @name Variables: Keys of face property */
-/***ja @name �ѿ�: �ե������ץ��ѥƥ��Υ���  */
+/***ja @name 変数: フェースプロパティのキー  */
 /*** @{ */
 /*=*/
 
@@ -988,13 +988,13 @@ mface__update_frame_face (MFrame *frame)
     Otherwise, the foreground of an M-text is drawn by the specified
     color.  */
 /***ja
-    @brief ���ʿ�����ꤹ��ե������ץ��ѥƥ����Υ���.
+    @brief 前景色を指定するフェースプロパティーのキー.
 
-    �ѿ� #Mforeground �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣
-    �ץ��ѥƥ����ͤϡ���̾��̾���Ȥ��ƻ��ĥ���ܥ뤫 #Mnil �Ǥ��롣
+    変数 #Mforeground はフェースプロパティのキーとして用いられる。
+    プロパティの値は、色名を名前として持つシンボルか #Mnil である。
 
-    #Mnil �ξ�硢���ʿ��ϻ��ꤵ��ʤ��������Ǥʤ���� M-text 
-    �����ʤϻ��ꤵ�줿����ɽ������롣  */
+    #Mnil の場合、前景色は指定されない。そうでなければ M-text 
+    の前景は指定された色で表示される。  */
 
 MSymbol Mforeground;
 
@@ -1009,13 +1009,13 @@ MSymbol Mforeground;
     Otherwise, the background of an M-text is drawn by the specified
     color.  */
 /***ja
-    @brief �طʿ�����ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief 背景色を指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mbackground �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣
-    �ץ��ѥƥ����ͤϡ���̾��̾���Ȥ��ƻ��ĥ���ܥ뤫 #Mnil �Ǥ��롣
+    変数 #Mbackground はフェースプロパティのキーとして用いられる。
+    プロパティの値は、色名を名前として持つシンボルか #Mnil である。
 
-    #Mnil �ξ�硢�طʿ��ϻ��ꤵ��ʤ��������Ǥʤ���� M-text 
-    ���طʤϻ��ꤵ�줿����ɽ������롣  */
+    #Mnil の場合、背景色は指定されない。そうでなければ M-text 
+    の背景は指定された色で表示される。  */
 
 MSymbol Mbackground;
 
@@ -1035,17 +1035,17 @@ MSymbol Mbackground;
 
     #Mnil means that the face does not specify a video mode.  */
 /***ja
-    @brief �ӥǥ��⡼�ɤ���ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief ビデオモードを指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mvideomode �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�ץ��ѥƥ����ͤϡ�
-    @b Mnormal, @b Mreverse, #Mnil �Τ����줫�Ǥʤ��ƤϤʤ�ʤ���
+    変数 #Mvideomode はフェースプロパティのキーとして用いられる。プロパティの値は、
+    @b Mnormal, @b Mreverse, #Mnil のいずれかでなくてはならない。
 
-    @b Mnormal �ξ��ϡ�M-text 
-    ��ɸ��Υӥǥ��⡼�ɡ����ʤ����ʿ��ǡ��طʤ��طʿ��ǡˤ�ɽ�����롣
+    @b Mnormal の場合は、M-text 
+    を標準のビデオモード（前景を前景色で、背景を背景色で）で表示する。
 
-    @b Mreverse �ξ��ϥ�С����ӥǥ��⡼�ɤǡ����ʤ��طʿ��ǡ��طʤ����ʿ��ǡ�ɽ�����롣
+    @b Mreverse の場合はリバースビデオモードで（前景を背景色で、背景を前景色で）表示する。
 
-    #Mnil �ξ��ϥӥǥ��⡼�ɤϻ��ꤵ��ʤ���
+    #Mnil の場合はビデオモードは指定されない。
     */
 
 MSymbol Mvideomode;
@@ -1061,14 +1061,14 @@ MSymbol Mvideomode;
     * RATIO / 100) where FONTSIZE is a font size specified by the face
     property #Msize.  */
 /***ja
-    @brief �ե���ȤΥ���������Ψ����ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief フォントのサイズの比率を指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mratio �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�� RATIO 
-    �������ͤǤʤ��ƤϤʤ�ʤ���
+    変数 #Mratio はフェースプロパティのキーとして用いられる。値 RATIO 
+    は整数値でなくてはならない。
 
-    �ͤ�0�ʤ�С��ե���ȥ������ϻ��ꤵ��ʤ��������Ǥʤ���С�M-text 
-    ��(FONTSIZE * RATIO / 100) �Ȥ����������Υե���Ȥ�ɽ������롣
-    FONTSIZE �ϥե������ץ��ѥƥ���#Msize �ǻ��ꤵ�줿�������Ǥ��롣 */
+    値が0ならば、フォントサイズは指定されない。そうでなければ、M-text 
+    は(FONTSIZE * RATIO / 100) というサイズのフォントで表示される。
+    FONTSIZE はフェースプロパティー#Msize で指定されたサイズである。 */
 
 MSymbol Mratio;
 
@@ -1083,14 +1083,14 @@ MSymbol Mratio;
     property.  Otherwise, an M-text is drawn with a horizontal line by
     a way specified by the object that the value points to.  */
 /***ja
-    @brief ��ʿ������ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief 水平線を指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mhline �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�ͤ� 
-    #MFaceHLineProp �����֥������ȤؤΥݥ��󥿤� @c NULL �Ǥʤ��ƤϤʤ�ʤ���
+    変数 #Mhline はフェースプロパティのキーとして用いられる。値は 
+    #MFaceHLineProp 型オブジェクトへのポインタか @c NULL でなくてはならない。
 
-    �ͤ� @c NULL �ʤ�С����Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    �����Ǥʤ�����ͤ��ؤ����֥������Ȥ˻��ꤵ�줿�褦�˿�ʿ�����ղä��� M-text 
-    ��ɽ�����롣*/
+    値が @c NULL ならば、このプロパティは指定されない。
+    そうでなければ値が指すオブジェクトに指定されたように水平線を付加して M-text 
+    を表示する。*/
 
 MSymbol Mhline;
 
@@ -1104,14 +1104,14 @@ MSymbol Mhline;
     Otherwise, an M-text is drawn with a surrounding box by a way
     specified by the object that the value points to.  */
 /***ja
-    @brief �Ϥ��Ȥ���ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief 囲み枠を指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mbox �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�ͤ� 
-    #MFaceBoxProp �����֥������ȤؤΥݥ��󥿤� @c NULL �Ǥʤ��ƤϤʤ�ʤ���
+    変数 #Mbox はフェースプロパティのキーとして用いられる。値は 
+    #MFaceBoxProp 型オブジェクトへのポインタか @c NULL でなくてはならない。
 
-    �ͤ� @c NULL �ʤ�С����Υե������ϰϤ��Ȥ���ꤷ�Ƥ��ʤ���
-    �����Ǥʤ�����ͤ��ؤ����֥������Ȥ˻��ꤵ�줿�褦�˰Ϥ��Ȥ��ղä��� 
-    M-text ��ɽ�����롣*/
+    値が @c NULL ならば、このフェースは囲み枠を指定していない。
+    そうでなければ値が指すオブジェクトに指定されたように囲み枠を付加して 
+    M-text を表示する。*/
 
 MSymbol Mbox;
 
@@ -1126,14 +1126,14 @@ MSymbol Mbox;
     Otherwise, an M-text is drawn with a font selected from what
     specified in the fontset.  */
 /***ja
-    @brief �ե���ȥ��åȤ���ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief フォントセットを指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mfontset �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�ͤ� 
-    #Mfontset �����֥������ȤؤΥݥ��󥿤� @c NULL �Ǥʤ��ƤϤʤ�ʤ���
+    変数 #Mfontset はフェースプロパティのキーとして用いられる。値は 
+    #Mfontset 型オブジェクトへのポインタか @c NULL でなくてはならない。
 
-    �ͤ� @c NULL �ʤ�С��ե���ȥ��åȤϻ��ꤵ��Ƥ��ʤ���
-    �����Ǥʤ�����ͤ��ؤ����֥������Ȥ˻��ꤵ�줿�ե���ȥ��åȤ���������ե���Ȥ� 
-    M-text ��ɽ�����롣*/
+    値が @c NULL ならば、フォントセットは指定されていない。
+    そうでなければ値が指すオブジェクトに指定されたフォントセットから選んだフォントで 
+    M-text を表示する。*/
     
 MSymbol Mfontset;
 
@@ -1147,13 +1147,13 @@ MSymbol Mfontset;
     Otherwise, the specified function is called before the face is
     realized.  */
 /***ja
-    @brief �եå�����ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief フックを指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mhook_func �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣�ͤ� 
-    #MFaceHookFunc ���δؿ��� @c NULL �Ǥʤ��ƤϤʤ�ʤ���
+    変数 #Mhook_func はフェースプロパティのキーとして用いられる。値は 
+    #MFaceHookFunc 型の関数か @c NULL でなくてはならない。
 
-    �ͤ� @c NULL �ʤ�С��եå��ϻ��ꤵ��Ƥ��ʤ���
-    �����Ǥʤ���Хե�������¸��������˻��ꤵ�줿�ؿ����ƤФ�롣      */
+    値が @c NULL ならば、フックは指定されていない。
+    そうでなければフェースを実現する前に指定された関数が呼ばれる。      */
 MSymbol Mhook_func;
 
 /***en
@@ -1163,10 +1163,10 @@ MSymbol Mhook_func;
     value can be anything that is passed a hook function specified by
     the face property #Mhook_func.  */
 /***ja
-    @brief �եå��ΰ�������ꤹ�뤿��Υե������ץ��ѥƥ����Υ���.
+    @brief フックの引数を指定するためのフェースプロパティーのキー.
 
-    �ѿ� #Mhook_arg �ϥե������ץ��ѥƥ��Υ����Ȥ����Ѥ����롣
-    �ͤϲ��Ǥ�褯���ե������ץ��ѥƥ� #Mhook_func �ǻ��ꤵ���ؿ����Ϥ���롣 */
+    変数 #Mhook_arg はフェースプロパティのキーとして用いられる。
+    値は何でもよく、フェースプロパティ #Mhook_func で指定される関数に渡される。 */
 MSymbol Mhook_arg;
 
 /*** @} */
@@ -1174,13 +1174,13 @@ MSymbol Mhook_arg;
 
 /*** @ingroup m17nFace */
 /***en @name Variables: Possible values of #Mvideomode property of face */
-/***ja @name �ѿ���  �ե������� #Mvideomode �ץ��ѥƥ��β�ǽ���� */
+/***ja @name 変数：  フェースの #Mvideomode プロパティの可能な値 */
 /*** @{ */
 
 /***en
     See the documentation of the variable #Mvideomode.  */ 
 /***ja
-    �ѿ� #Mvideomode �������򻲾ȤΤ��ȡ�  */ 
+    変数 #Mvideomode の説明を参照のこと。  */ 
 MSymbol Mnormal;
 MSymbol Mreverse;
 /*** @} */
@@ -1188,7 +1188,7 @@ MSymbol Mreverse;
 
 /*** @ingroup m17nFace */
 /***en @name Variables: Predefined faces  */
-/***ja @name �ѿ�: ����Ѥߥե�����  */
+/***ja @name 変数: 定義済みフェース  */
 /*** @{ */
 /*=*/
 
@@ -1201,12 +1201,12 @@ MSymbol Mreverse;
     colors (i.e. the foreground is drawn by foreground color, and
     background is drawn by background color).  */
 /***ja
-    @brief ɸ��ӥǥ��ե�����.
+    @brief 標準ビデオフェース.
 
-    �ѿ� #mface_normal_video �� #Mvideomode �ץ��ѥƥ����ͤ� @b Mnormal 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե�������ɽ�������M-text 
-    ��ɸ��ο� (���ʤ�����ʤ����ʿ����طʤ��طʿ��ˤ�������롣  */
+    変数 #mface_normal_video は #Mvideomode プロパティの値が @b Mnormal 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースで表示されるM-text 
+    は標準の色 (すなわち前景は前景色、背景は背景色）で描かれる。  */
 
 MFace *mface_normal_video;
 
@@ -1219,12 +1219,12 @@ MFace *mface_normal_video;
     reversed colors (i.e. the foreground is drawn by background
     color, and background is drawn by foreground color).  */
 /***ja
-    @brief ��С����ӥǥ��ե�����.
+    @brief リバースビデオフェース.
 
-    �ѿ� #mface_reverse_video �� #Mvideomode �ץ��ѥƥ����ͤ� 
-    @b Mreverse �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե�������ɽ�������M-text 
-    �����ʿ����طʿ��������ؤ�ä� (���ʤ�����ʤ��طʿ����طʤ����ʿ���������롣  */
+    変数 #mface_reverse_video は #Mvideomode プロパティの値が 
+    @b Mreverse であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースで表示されるM-text 
+    は前景色と背景色が入れ替わって (すなわち前景は背景色、背景は前景色）描かれる。  */
 
 MFace *mface_reverse_video;
 
@@ -1246,20 +1246,20 @@ MFace *mface_reverse_video;
     The other properties are not specified.  An M-text that has this
     face is drawn with an underline.  */ 
 /***ja
-    @brief �����ե�����.
+    @brief 下線フェース.
 
-    �ѿ� #mface_underline �� #Mhline �ץ��ѥƥ����ͤ� #MFaceHLineProp 
-    �����֥������ȤؤΥݥ��󥿤Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣���֥������ȤΥ��Фϰʲ����̤ꡣ
+    変数 #mface_underline は #Mhline プロパテイの値が #MFaceHLineProp 
+    型オブジェクトへのポインタであるフェースを指すポインタである。オブジェクトのメンバは以下の通り。
 
 @verbatim
-    ����  ��
+    メンバ  値
     -----   -----
     type    MFACE_HLINE_UNDER
     width   1
     color   Mnil
 @endverbatim
 
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text �ϲ����դ���ɽ������롣*/ 
+    他のプロパティは指定されない。このフェースを持つ M-text は下線付きで表示される。*/ 
 
 MFace *mface_underline;
 
@@ -1271,12 +1271,12 @@ MFace *mface_underline;
     properties are not specified.  An M-text that has this face is
     drawn with a font of medium weight.  */
 /***ja
-    @brief �ߥǥ�����ե�����.
+    @brief ミディアムフェース.
 
-    �ѿ� #mface_medium �� #Mweight �ץ��ѥƥ����ͤ� "medium" 
-    �Ȥ���̾�����ĥ���ܥ�Ǥ���褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text
-    �ϡ��ߥǥ����०�����ȤΥե���Ȥ�ɽ������롣  */
+    変数 #mface_medium は #Mweight プロパテイの値が "medium" 
+    という名前をもつシンボルであるようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text
+    は、ミディアムウェイトのフォントで表示される。  */
 MFace *mface_medium;
 
 /***en
@@ -1287,12 +1287,12 @@ MFace *mface_medium;
     are not specified.  An M-text that has this face is drawn with a
     font of bold weight.  */
 /***ja
-    @brief �ܡ���ɥե�����.
+    @brief ボールドフェース.
 
-    �ѿ� #mface_bold �� #Mweight �ץ��ѥƥ����ͤ� "bold" 
-    �Ȥ���̾�����ĥ���ܥ�Ǥ���褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �ϡ��ܡ���ɥե���Ȥ�ɽ������롣    */
+    変数 #mface_bold は #Mweight プロパテイの値が "bold" 
+    という名前をもつシンボルであるようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は、ボールドフォントで表示される。    */
 
 MFace *mface_bold;
 
@@ -1304,12 +1304,12 @@ MFace *mface_bold;
     properties are not specified.  An M-text that has this face is
     drawn with a font of italic style.  */
 /***ja
-    @brief ������å��ե�����.
+    @brief イタリックフェース.
 
-    �ѿ� #mface_italic �� #Mstyle �ץ��ѥƥ����ͤ� "italic" 
-    �Ȥ���̾�����ĥ���ܥ�Ǥ���褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text
-    �ϡ�������å��Τ�ɽ������롣    */
+    変数 #mface_italic は #Mstyle プロパテイの値が "italic" 
+    という名前をもつシンボルであるようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text
+    は、イタリック体で表示される。    */
 
 MFace *mface_italic;
 
@@ -1322,13 +1322,13 @@ MFace *mface_italic;
     properties are not specified.  An M-text that has this face is
     drawn with a font of bold weight and italic style.  */
 /***ja
-    @brief �ܡ���ɥ�����å��ե�����.
+    @brief ボールドイタリックフェース.
 
-    �ѿ� #mface_bold_italic �ϡ�#Mweight �ץ��ѥƥ����ͤ� "bold" 
-    �Ȥ���̾�����ĥ���ܥ�Ǥ��ꡢ���� #Mstyle �ץ��ѥƥ����ͤ� "italic" 
-    �Ȥ���̾�����ĥ���ܥ�Ǥ���褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �ϡ��ܡ���ɥ�����å��Τ�ɽ������롣    */
+    変数 #mface_bold_italic は、#Mweight プロパテイの値が "bold" 
+    という名前をもつシンボルであり、かつ #Mstyle プロパテイの値が "italic" 
+    という名前をもつシンボルであるようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は、ボールドイタリック体で表示される。    */
 
 MFace *mface_bold_italic;
 
@@ -1340,11 +1340,11 @@ MFace *mface_bold_italic;
     An M-text that has this face is drawn with a font whose size is
     50% of a normal font.  */
 /***ja
-    @brief �Ǿ��Υե�����.
+    @brief 最小のフェース.
 
-    �ѿ� #mface_xx_small �ϡ�#Mratio �ץ��ѥƥ����ͤ� 50 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 50% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_xx_small は、#Mratio プロパティの値が 50 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 50% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_xx_small;
@@ -1357,11 +1357,11 @@ MFace *mface_xx_small;
     An M-text that has this face is drawn with a font whose size is
     66% of a normal font.  */
 /***ja
-    @brief ��꾮�����ե�����.
+    @brief より小さいフェース.
 
-    �ѿ� #mface_x_small �ϡ�#Mratio �ץ��ѥƥ����ͤ� 66 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 66% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_x_small は、#Mratio プロパティの値が 66 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 66% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_x_small;
@@ -1374,11 +1374,11 @@ MFace *mface_x_small;
     An M-text that has this face is drawn with a font whose size is
     75% of a normal font.  */
 /***ja
-    @brief �������ե�����.
+    @brief 小さいフェース.
 
-    �ѿ� #mface_small �ϡ�#Mratio �ץ��ѥƥ����ͤ� 75 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 75% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_small は、#Mratio プロパティの値が 75 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 75% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_small;
@@ -1391,11 +1391,11 @@ MFace *mface_small;
     specified.  An M-text that has this face is drawn with a font
     whose size is the same as a normal font.  */
 /***ja
-    @brief ɸ����礭���Υե�����.
+    @brief 標準の大きさのフェース.
 
-    �ѿ� #mface_normalsize �ϡ�#Mratio �ץ��ѥƥ����ͤ� 100 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ�Ʊ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_normalsize は、#Mratio プロパティの値が 100 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントと同じ大きさのフォントを用いて表示される。
      */
 
 MFace *mface_normalsize;
@@ -1408,11 +1408,11 @@ MFace *mface_normalsize;
     An M-text that has this face is drawn with a font whose size is
     120% of a normal font.  */
 /***ja
-    @brief �礭���ե�����.
+    @brief 大きいフェース.
 
-    �ѿ� #mface_large �ϡ�#Mratio �ץ��ѥƥ����ͤ� 120 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 120% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_large は、#Mratio プロパティの値が 120 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 120% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_large;
@@ -1425,11 +1425,11 @@ MFace *mface_large;
     An M-text that has this face is drawn with a font whose size is
     150% of a normal font.  */
 /***ja
-    @brief ��ä��礭���ե�����.
+    @brief もっと大きいフェース.
 
-    �ѿ� #mface_x_large �ϡ�#Mratio �ץ��ѥƥ����ͤ� 150 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 150% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_x_large は、#Mratio プロパティの値が 150 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 150% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_x_large;
@@ -1442,11 +1442,11 @@ MFace *mface_x_large;
     An M-text that has this face is drawn with a font whose size is
     200% of a normal font.  */
 /***ja
-    @brief ����Υե�����.
+    @brief 最大のフェース.
 
-    �ѿ� #mface_xx_large �ϡ�#Mratio �ץ��ѥƥ����ͤ� 200 
-    �Ǥ���ե�������ؤ��ݥ��󥿤Ǥ��롣¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ���
-    ���Υե���������� M-text ��ɸ��ե���Ȥ� 200% ���礭���Υե���Ȥ��Ѥ���ɽ������롣
+    変数 #mface_xx_large は、#Mratio プロパティの値が 200 
+    であるフェースを指すポインタである。他のプロパティは指定されない。
+    このフェースを持つ M-text は標準フォントの 200% の大きさのフォントを用いて表示される。
      */
 
 MFace *mface_xx_large;
@@ -1459,12 +1459,12 @@ MFace *mface_xx_large;
     other properties are not specified.  An M-text that has this face
     is drawn with black foreground.  */
 /***ja 
-    @brief ���ե�����.
+    @brief 黒フェース.
 
-    �ѿ� #mface_black �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "black" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ��ƹ����Ѥ���ɽ������롣     */
+    変数 #mface_black は、#Mforeground プロパティの値として "black" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として黒を用いて表示される。     */
 
 MFace *mface_black;
 
@@ -1476,12 +1476,12 @@ MFace *mface_black;
     other properties are not specified.  An M-text that has this face
     is drawn with white foreground.  */
 /***ja
-    @brief ��ե�����.
+    @brief 白フェース.
 
-    �ѿ� #mface_white �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "white" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ�������Ѥ���ɽ������롣     */
+    変数 #mface_white は、#Mforeground プロパティの値として "white" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として白を用いて表示される。     */
 
 MFace *mface_white;
 
@@ -1493,12 +1493,12 @@ MFace *mface_white;
     other properties are not specified.  An M-text that has this face
     is drawn with red foreground.  */
 /***ja
-    @brief �֥ե�����.
+    @brief 赤フェース.
 
-    �ѿ� #mface_red �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "red" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ����֤��Ѥ���ɽ������롣  */
+    変数 #mface_red は、#Mforeground プロパティの値として "red" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として赤を用いて表示される。  */
 
 MFace *mface_red;
 
@@ -1510,12 +1510,12 @@ MFace *mface_red;
     other properties are not specified.  An M-text that has this face
     is drawn with green foreground.  */
 /***ja
-    @brief �Хե�����.
+    @brief 緑フェース.
 
-    �ѿ� #mface_green �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "green" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ����Ф��Ѥ���ɽ������롣  */
+    変数 #mface_green は、#Mforeground プロパティの値として "green" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として緑を用いて表示される。  */
 
 MFace *mface_green;
 
@@ -1527,12 +1527,12 @@ MFace *mface_green;
     other properties are not specified.  An M-text that has this face
     is drawn with blue foreground.  */
 /***ja
-    @brief �ĥե�����.
+    @brief 青フェース.
 
-    �ѿ� #mface_blue �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "blue" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ����Ĥ��Ѥ���ɽ������롣  */
+    変数 #mface_blue は、#Mforeground プロパティの値として "blue" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として青を用いて表示される。  */
 
 MFace *mface_blue;
 
@@ -1544,12 +1544,12 @@ MFace *mface_blue;
     other properties are not specified.  An M-text that has this face
     is drawn with cyan foreground.  */
 /***ja
-    @brief ������ե�����.
+    @brief シアンフェース.
 
-    �ѿ� #mface_cyan �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "cyan"
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ��ƥ�������Ѥ���ɽ������롣  */
+    変数 #mface_cyan は、#Mforeground プロパティの値として "cyan"
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色としてシアンを用いて表示される。  */
 
 MFace *mface_cyan;
 
@@ -1562,12 +1562,12 @@ MFace *mface_cyan;
     is drawn with yellow foreground.  */
 
 /***ja
-    @brief ���ե�����.
+    @brief 黄フェース.
 
-    �ѿ� #mface_yellow �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� "yellow" 
-    �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ��Ʋ������Ѥ���ɽ������롣  */
+    変数 #mface_yellow は、#Mforeground プロパティの値として "yellow" 
+    という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色として黄色を用いて表示される。  */
 
 MFace *mface_yellow;
 
@@ -1580,12 +1580,12 @@ MFace *mface_yellow;
     is drawn with magenta foreground.  */
 
 /***ja
-    @brief �ޥ��󥿥ե�����.
+    @brief マゼンタフェース.
 
-    �ѿ� #mface_magenta �ϡ�#Mforeground �ץ��ѥƥ����ͤȤ��� 
-    "magenta" �Ȥ���̾���Υ���ܥ����Ĥ褦�ʥե�������ؤ��ݥ��󥿤Ǥ��롣
-    ¾�Υץ��ѥƥ��ϻ��ꤵ��ʤ������Υե���������� M-text 
-    �����ʿ��Ȥ��ƥޥ��󥿤��Ѥ���ɽ������롣  */
+    変数 #mface_magenta は、#Mforeground プロパティの値として 
+    "magenta" という名前のシンボルを持つようなフェースを指すポインタである。
+    他のプロパティは指定されない。このフェースを持つ M-text 
+    は前景色としてマゼンタを用いて表示される。  */
 
 MFace *mface_magenta;
 
@@ -1593,7 +1593,7 @@ MFace *mface_magenta;
 /*=*/
 
 /***en @name Variables: The other symbols for face handling.  */
-/***ja @name �ѿ�: �ե��������갷������Τ���¾�Υ���ܥ�  */
+/***ja @name 変数: フェースを取り扱うためのその他のシンボル  */
 /*** @{ */
 /*=*/
 
@@ -1605,12 +1605,12 @@ MFace *mface_magenta;
     of type #MFace.  This is a managing key.  */
 
 /***ja
-    @brief �ե���������ꤹ��ƥ����ȥץ��ѥƥ��Υ���.
+    @brief フェースを指定するテキストプロパティのキー.
 
-    �ѿ� #Mface �� <tt>"face"</tt> 
-    �Ȥ���̾������ĥ���ܥ�Ǥ��롣���Υ���ܥ�򥭡��Ȥ���ƥ����ȥץ��ѥƥ��ϡ�
-    #MFace ���Υ��֥������ȤؤΥݥ��󥿤�����ʤ���Фʤ�ʤ���
-    ����ϴ��������Ǥ��롣  */
+    変数 #Mface は <tt>"face"</tt> 
+    という名前を持つシンボルである。このシンボルをキーとするテキストプロパティは、
+    #MFace 型のオブジェクトへのポインタを持たなければならない。
+    これは管理キーである。  */
 
 MSymbol Mface;
 /*=*/
@@ -1627,13 +1627,13 @@ MSymbol Mface;
     This function returns a pointer to the created face.  */
 
 /***ja
-    @brief �������ե�������Ĥ���.
+    @brief 新しいフェースをつくる.
 
-    �ؿ� mface () 
-    �ϥץ��ѥƥ�����ڻ����ʤ��������ե��������֥������Ȥ��롣
+    関数 mface () 
+    はプロパティを一切持たない新しいフェースオブジェクトを作る。
 
     @return
-    ���δؿ��Ϻ�ä��ե������ؤΥݥ��󥿤��֤���  */
+    この関数は作ったフェースへのポインタを返す。  */
 
 MFace *
 mface ()
@@ -1655,10 +1655,10 @@ mface ()
     pointer to the created copy.  */
 
 /***ja
-    @brief �ե������Υ��ԡ�����.
+    @brief フェースのコピーを作る.
 
-    �ؿ� mface_copy () �ϥե����� $FACE 
-    �Υ��ԡ����ꡢ���Υ��ԡ��ؤΥݥ��󥿤��֤���  */
+    関数 mface_copy () はフェース $FACE 
+    のコピーを作り、そのコピーへのポインタを返す。  */
 
 MFace *
 mface_copy (MFace *face)
@@ -1735,13 +1735,13 @@ mface_equal (MFace *face1, MFace *face2)
     This function returns $DST.  */
 
 /***ja
-    @brief �ե����������礹��.
+    @brief フェースを統合する.
 
-    �ؿ� mface_merge () �ϡ��ե����� $SRC �Υץ��ѥƥ���ե����� $DST 
-    �����礹�롣
+    関数 mface_merge () は、フェース $SRC のプロパティをフェース $DST 
+    に統合する。
 
     @return
-    ���δؿ��� $DST ���֤���  */
+    この関数は $DST を返す。  */
 
 MFace *
 mface_merge (MFace *dst, MFace *src)
@@ -1781,10 +1781,10 @@ mface_merge (MFace *dst, MFace *src)
     reflecting the properties of $FONT in its properties.   */
 
 /***ja
-    @brief �ե���Ȥ���ե���������.
+    @brief フォントからフェースを作る.
 
-    �ؿ� mface_from_font () �ϥե���� $FONT 
-    �Υץ��ѥƥ���ץ��ѥƥ��Ȥ��ƻ��Ŀ������ե��������ꡢ������֤���  */
+    関数 mface_from_font () はフォント $FONT 
+    のプロパティをプロパティとして持つ新しいフェースを作り、それを返す。  */
 
 MFace *
 mface_from_font (MFont *font)
@@ -1821,20 +1821,20 @@ mface_from_font (MFont *font)
     #merror_code.  */
 
 /***ja
-    @brief �ե������Υץ��ѥƥ����ͤ�����.
+    @brief フェースのプロパティの値を得る.
 
-    �ؿ� mface_get_prop () �ϡ��ե����� $FACE 
-    �����ĥե������ץ��ѥƥ����⡢������ $KEY �Ǥ����Τ��ͤ��֤���
-    $KEY �ϲ����Τ����줫�Ǥʤ���Фʤ�ʤ���
+    関数 mface_get_prop () は、フェース $FACE 
+    が持つフェースプロパティの内、キーが $KEY であるものの値を返す。
+    $KEY は下記のいずれかでなければならない。
 
         #Mforeground, #Mbackground, #Mvideomode, #Mhline, #Mbox,
         #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle,
         #Msize, #Mfontset, #Mratio, #Mhook_arg
 
     @return 
-    ����ͤη��� $KEY �˰�¸���롣�嵭�Υ����������򻲾Ȥ��뤳�ȡ�
-    ���顼�����Ф��줿���� @c NULL ���֤��������ѿ� #merror_code 
-    �˥��顼�����ɤ����ꤹ�롣  */
+    戻り値の型は $KEY に依存する。上記のキーの説明を参照すること。
+    エラーが検出された場合は @c NULL を返し、外部変数 #merror_code 
+    にエラーコードを設定する。  */
 
 /***
     @seealso
@@ -1867,9 +1867,9 @@ mface_get_prop (MFace *face, MSymbol key)
     $FACE.  */
 
 /***ja
-    @brief �ե������Υեå��ؿ�������.
+    @brief フェースのフック関数を得る.
 
-    �ؿ� mface_get_hook () �ϥե����� $FACE �Υեå��ؿ����֤��� */
+    関数 mface_get_hook () はフェース $FACE のフック関数を返す。 */
 
 MFaceHookFunc
 mface_get_hook (MFace *face)
@@ -1902,24 +1902,24 @@ mface_get_hook (MFace *face)
     variable #merror_code.  */
 
 /***ja
-    @brief �ե������ץ��ѥƥ����ͤ����ꤹ��.
+    @brief フェースプロパティの値を設定する.
 
-    �ؿ� mface_put_prop () �ϡ��ե����� $FACE ��ǥ����� $KEY 
-    �Ǥ���ץ��ѥƥ����ͤ� $VAL �����ꤹ�롣$KEY 
-    �ϰʲ��Τ����줫�Ǥʤ��ƤϤʤ�ʤ���
+    関数 mface_put_prop () は、フェース $FACE 内でキーが $KEY 
+    であるプロパティの値を $VAL に設定する。$KEY 
+    は以下のいずれかでなくてはならない。
 
         #Mforeground, #Mbackground, #Mvideomode, #Mhline, #Mbox,
         #Mfoundry, #Mfamily, #Mweight, #Mstyle, #Mstretch, #Madstyle,
         #Msize, #Mfontset, #Mratio, #Mhook_func, #Mhook_arg.
 
-    �����Τ����Ρ��ե���ȴ�Ϣ�Υץ��ѥƥ� (#Mfamily ���� #Msize 
-    �ޤ�) �ϡ��ե������Υե���ȥ��å���Υե���Ȥ˴ؤ���ǥե�����ͤȤʤꡢ�ġ��Υե���Ȥ��ͤ���ꤷ�ʤ��ä������Ѥ����롣
+    これらのうちの、フォント関連のプロパティ (#Mfamily から #Msize 
+    まで) は、フェースのフォントセット中のフォントに関するデフォルト値となり、個々のフォントが値を指定しなかった場合に用いられる。
 
-    ����ͤη��� $KEY �˰�¸���롣�嵭�Υ����������򻲾Ȥ��뤳�ȡ�
+    戻り値の型は $KEY に依存する。上記のキーの説明を参照すること。
 
     @return
-    ����������������硢mface_put_prop () �� 0 ���֤������Ԥ������� 
-    -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功した場合、mface_put_prop () は 0 を返す。失敗した場合は 
+    -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @seealso
@@ -1982,10 +1982,10 @@ mface_put_prop (MFace *face, MSymbol key, void *val)
     $FACE to $FUNC.  */
 
 /***ja
-    @brief �ե������Υեå��ؿ������ꤹ��.
+    @brief フェースのフック関数を設定する.
 
-    �ؿ� mface_set_hook () �ϡ��ե����� $FACE �Υեå��ؿ���$FUNC ����
-    �ꤹ�롣  */
+    関数 mface_set_hook () は、フェース $FACE のフック関数を$FUNC に設
+    定する。  */
 
 int
 mface_put_hook (MFace *face, MFaceHookFunc func)
@@ -2016,10 +2016,10 @@ mface_put_hook (MFace *face, MFaceHookFunc func)
     calling a hook function of $FACE (if any).  */
 
 /***ja
-    @brief �ե������򹹿�����.
+    @brief フェースを更新する.
 
-    �ؿ� mface_update () �ϥե졼�� $FRAME �Υե����� $FACE �� $FACE 
-    �Υեå��ؿ���ʤ���С˸Ƥ�ǹ������롣  */
+    関数 mface_update () はフレーム $FRAME のフェース $FACE を $FACE 
+    のフック関数を（あれば）呼んで更新する。  */
 
 void
 mface_update (MFrame *frame, MFace *face)
@@ -2060,14 +2060,14 @@ mface_update (MFrame *frame, MFace *face)
     This function returns $FACE.  */
 
 /***ja
-    @brief �ե����������פ���.
+    @brief フェースをダンプする.
 
-    �ؿ� mdebug_dump_face () �ϥե����� $FACE ��ɸ�२�顼���Ϥ⤷����
-    �Ķ��ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲��ɤʷ��ǰ�
-    �����롣 $INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣
+    関数 mdebug_dump_face () はフェース $FACE を標準エラー出力もしくは
+    環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で印
+    刷する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
-    ���δؿ��� $FACE ���֤���  */
+    この関数は $FACE を返す。  */
 
 MFace *
 mdebug_dump_face (MFace *face, int indent)
@@ -2096,6 +2096,6 @@ mdebug_dump_face (MFace *face, int indent)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

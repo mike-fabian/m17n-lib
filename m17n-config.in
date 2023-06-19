@@ -92,7 +92,7 @@ esac
 exit 0
 
 cat > /dev/null <<EOF
-/*** -*- coding: euc-jp; -*- */
+/*** -*- coding: utf-8; -*- */
 /***en @page m17n-config Print compile/link options of the m17n library */
 /***ja @page m17n-config m17n ライブラリのコンパイル・リンクオプションの表示 */
 

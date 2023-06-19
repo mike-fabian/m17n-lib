@@ -40,7 +40,7 @@ M17N_BEGIN_HEADER
 /* (C1) Introduction */
 
 /***en @defgroup m17nIntro Introduction  */
-/***ja @defgroup m17nIntro �Ϥ����  */
+/***ja @defgroup m17nIntro はじめに  */
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -69,9 +69,9 @@ extern int merror_code;
     m17n_status ().  */
 
 /***ja
-    @brief  m17n �饤�֥��ξ��֤򼨤����.
+    @brief  m17n ライブラリの状態を示す列挙型.
 
-    ��� #M17NStatus �ϴؿ� m17n_status () ������ͤȤ����Ѥ����롣 */
+    列挙型 #M17NStatus は関数 m17n_status () の戻り値として用いられる。 */
 
 enum M17NStatus
   {
@@ -91,14 +91,14 @@ extern enum M17NStatus m17n_status (void);
 
 /***en @defgroup m17nCore CORE API
     @brief API provided by libm17n-core.so */
-/***ja @defgroup m17nCore ���� API
-    @brief libm17n-core.so ���󶡤��� API */
+/***ja @defgroup m17nCore コア API
+    @brief libm17n-core.so が提供する API */
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nObject Managed Object
     @brief Objects managed by the reference count */
-/***ja @defgroup m17nObject ���������֥�������
-    @brief ���Ȳ���Ǵ�������륪�֥������� */
+/***ja @defgroup m17nObject 管理下オブジェクト
+    @brief 参照回数で管理されるオブジェクト */
 /*=*/
 
 /*** @ingroup m17nObject  */
@@ -110,12 +110,12 @@ extern enum M17NStatus m17n_status (void);
     #M17NObjectHead.  Its contents are used by the m17n library, and
     application programs should never touch them.  */
 /***ja
-    @brief ���������֥������Ȥκǽ�Υ���.
+    @brief 管理下オブジェクトの最初のメンバ.
 
-    ���ץꥱ�������ץ�����ब��������¤�Τ���������֥������ȤȤ����������ݤˤϡ��ǽ�Υ��Ф� 
-    @c #M17NObjectHead ��¤�η��Ǥʤ��ƤϤʤ�ʤ���
-    @c #M17NObjectHead �����Ƥ� m17n 
-    �饤�֥�꤬���Ѥ���Τǡ����ץꥱ�������ץ������Ͽ���ƤϤʤ�ʤ���    */
+    アプリケーションプログラムが新しい構造体を管理下オブジェクトとして定義する際には、最初のメンバは 
+    @c #M17NObjectHead 構造体型でなくてはならない。
+    @c #M17NObjectHead の内容は m17n 
+    ライブラリが使用するので、アプリケーションプログラムは触れてはならない。    */
 
 typedef struct
 {
@@ -142,10 +142,10 @@ extern int m17n_object_unref (void *object);
     pointer as a value of #MSymbol property or #MPlist.  */
 
 /***ja
-    @brief �ƴؿ���.
+    @brief 汎関数型.
 
-    #M17NFunc ���ƴؿ����Ǥ��ꡢ�ؿ��ݥ��󥿤� #MSymbol �ץ��ѥƥ���
-    #MPlist ���ͤȤ������ꤹ����Ѥ��롣  */
+    #M17NFunc は汎関数型であり、関数ポインタを #MSymbol プロパティや
+    #MPlist の値として設定する際用いる。  */
 
 
 /***
@@ -164,9 +164,9 @@ typedef void (*M17NFunc) (void);
     The macro M17N_FUNC () casts a function to the type #M17NFunc.  */
 
 /***ja
-    @brief �ƴؿ����ؤΥ�å�.
+    @brief 汎関数型へのラッパ.
 
-    �ޥ��� M17N_FUNC () �ϴؿ��� #M17NFunc ���إ��㥹�Ȥ��롣  */
+    マクロ M17N_FUNC () は関数を #M17NFunc 型へキャストする。  */
 
 
 #define M17N_FUNC(func) ((M17NFunc) (func))
@@ -177,7 +177,7 @@ typedef void (*M17NFunc) (void);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nSymbol Symbol  */
-/***ja @defgroup m17nSymbol ����ܥ� */
+/***ja @defgroup m17nSymbol シンボル */
 /*=*/
 
 /***
@@ -189,10 +189,10 @@ typedef void (*M17NFunc) (void);
     structure is concealed from application programs.  */
 
 /***ja
-    @brief ����ܥ�η����.
+    @brief シンボルの型宣言.
 
-    #MSymbol �� @e ����ܥ� (symbol) ���֥������Ȥη��Ǥ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���  */
+    #MSymbol は @e シンボル (symbol) オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MSymbolStruct *MSymbol;
 
@@ -237,7 +237,7 @@ extern M17NFunc msymbol_get_func (MSymbol symbol, MSymbol key);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nPlist Property List */
-/***ja @defgroup m17nPlist �ץ��ѥƥ��ꥹ�� */
+/***ja @defgroup m17nPlist プロパティリスト */
 /*=*/
 
 /***
@@ -249,10 +249,10 @@ extern M17NFunc msymbol_get_func (MSymbol symbol, MSymbol key);
     structure is concealed from application programs.  */
 
 /***ja
-    @brief �ץ��ѥƥ��ꥹ�ȡ����֥������Ȥη����.
+    @brief プロパティリスト・オブジェクトの型宣言.
 
-    #MPlist �� @e �ץ��ѥƥ��ꥹ�� (Property list) ���֥������Ȥη��Ǥ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���  */
+    #MPlist は @e プロパティリスト (Property list) オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MPlist MPlist;
 
@@ -297,7 +297,7 @@ extern void *mplist_value (MPlist *plist);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nCharacter Character */
-/***ja @defgroup m17nCharacter ʸ�� */
+/***ja @defgroup m17nCharacter 文字 */
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -325,7 +325,7 @@ extern int mchar_put_prop (int c, MSymbol key, void *val);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nChartable Chartable */
-/***ja @defgroup m17nChartable ʸ���ơ��֥� */
+/***ja @defgroup m17nChartable 文字テーブル */
 /*=*/
 extern MSymbol Mchar_table;
 
@@ -338,10 +338,10 @@ extern MSymbol Mchar_table;
     internal structure is concealed from application programs.  */
 
 /***ja
-    @brief ʸ���ơ��֥�η����.
+    @brief 文字テーブルの型宣言.
 
-    #MCharTable �� @e ʸ���ơ��֥� (chartable) ���֥������Ȥη��Ǥ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���  */
+    #MCharTable は @e 文字テーブル (chartable) オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MCharTable MCharTable;
 /*=*/
@@ -392,10 +392,10 @@ extern MCharTable *mchar_get_prop_table (MSymbol key, MSymbol *type);
     structure is concealed from application programs.  */
 
 /***ja
-    @brief @e MText �η����.
+    @brief @e MText の型宣言.
 
-    #Mtext �� @e M-text ���֥������Ȥη��Ǥ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ��� 
+    #Mtext は @e M-text オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。 
 
     @latexonly \IPAlabel{MText} @endlatexonly
     @latexonly \IPAlabel{MText->MPlist} @endlatexonly  */
@@ -413,11 +413,11 @@ typedef struct MText MText;
     which an M-text is created.  */
 
 /***ja
-    @brief M-text �Υե����ޥåȤ���ꤹ�����.
+    @brief M-text のフォーマットを指定する列挙型.
 
-    ��� #MTextFormat �ϴؿ�
-    mtext_from_data () �ΰ����Ȥ����Ѥ���졢
-    M-text ���������븵�Ȥʤ�ǡ����Υե����ޥåȤ���ꤹ�롣  */
+    列挙型 #MTextFormat は関数
+    mtext_from_data () の引数として用いられ、
+    M-text を生成する元となるデータのフォーマットを指定する。  */
 
 enum MTextFormat
   {
@@ -445,7 +445,7 @@ extern void *mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
 /*=*/
 
 /***en @name Variables: Default Endian of UTF-16 and UTF-32 */
-/***ja @name �ѿ�: UTF-16 �� UTF-32 �Υǥե���ȤΥ���ǥ����� */
+/***ja @name 変数: UTF-16 と UTF-32 のデフォルトのエンディアン */
 /*** @{ */
 /*=*/
 
@@ -460,13 +460,13 @@ extern void *mtext_data (MText *mt, enum MTextFormat *fmt, int *nunits,
     with the most significant byte first).  */
 
 /***ja
-    @brief �ͤ� MTEXT_FORMAT_UTF_16LE �� MTEXT_FORMAT_UTF_16BE �Ǥ����ѿ�
+    @brief 値が MTEXT_FORMAT_UTF_16LE か MTEXT_FORMAT_UTF_16BE である変数
 
-    ����ѿ� #MTEXT_FORMAT_UTF_16 �ϥ�ȥ롦����ǥ����󡦥����ƥ�
-    �ʥ�ɤ� LSB (Least Significant Byte) ����ˤ��Ƴ�Ǽ�˾�Ǥ�
-    #MTEXT_FORMAT_UTF_16LE �˽�������졢�ӥå�������ǥ����󡦥����ƥ�
-    �ʥ�ɤ� MSB (Most Significant Byte) ����ˤ��Ƴ�Ǽ�˾�Ǥ�
-    #MTEXT_FORMAT_UTF_16BE �˽��������롣  */
+    大域変数 #MTEXT_FORMAT_UTF_16 はリトル・エンディアン・システム
+    （ワードを LSB (Least Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_16LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_16BE に初期化される。  */
 
 /***
     @seealso
@@ -486,13 +486,13 @@ extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
     words with the most significant byte first).  */
 
 /***ja
-    @brief �ͤ� MTEXT_FORMAT_UTF_32LE �� MTEXT_FORMAT_UTF_32BE �Ǥ����ѿ�
+    @brief 値が MTEXT_FORMAT_UTF_32LE か MTEXT_FORMAT_UTF_32BE である変数
 
-    ����ѿ� #MTEXT_FORMAT_UTF_32 �ϥ�ȥ롦����ǥ����󡦥����ƥ�
-    �ʥ�ɤ� LSB (Least Significant Byte) ����ˤ��Ƴ�Ǽ�˾�Ǥ�
-    #MTEXT_FORMAT_UTF_32LE �˽�������졢�ӥå�������ǥ����󡦥����ƥ�
-    �ʥ�ɤ� MSB (Most Significant Byte) ����ˤ��Ƴ�Ǽ�˾�Ǥ�
-    #MTEXT_FORMAT_UTF_32BE �˽��������롣  */
+    大域変数 #MTEXT_FORMAT_UTF_32 はリトル・エンディアン・システム
+    （ワードを LSB (Least Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_32LE に初期化され、ビッグ・エンディアン・システム
+    （ワードを MSB (Most Significant Byte) を先にして格納）上では
+    #MTEXT_FORMAT_UTF_32BE に初期化される。  */
 
 /***
     @seealso
@@ -622,7 +622,7 @@ extern MPlist *mplist_deserialize (MText *mt);
 /*=*/
 /*** @ingroup m17nCore */
 /***en @defgroup m17nTextProperty Text Property */
-/***ja @defgroup m17nTextProperty �ƥ����ȥץ��ѥƥ� */
+/***ja @defgroup m17nTextProperty テキストプロパティ */
 /*=*/
 /*** @ingroup m17nTextProperty */
 /***en
@@ -634,45 +634,45 @@ extern MPlist *mplist_deserialize (MText *mt);
     bit.  */
 
 /***ja
-    @brief �ƥ����ȥץ��ѥƥ������椹��ե饰�ӥå�.
+    @brief テキストプロパティを制御するフラグビット.
 
-    �ؿ� mtext_property () �ϰʲ��Υե饰�ӥåȤ�����
-    OR ������Ȥ��ƤȤ뤳�Ȥ��Ǥ��롣
-    �ե饰�ӥåȤ��������줿�ƥ����ȥץ��ѥƥ��ο��񤤤����椹�롣
-    �ܺ٤ϳƥե饰�ӥåȤ������򻲾ȡ�*/
+    関数 mtext_property () は以下のフラグビットの論理
+    OR を引数としてとることができる。
+    フラグビットは生成されたテキストプロパティの振舞いを制御する。
+    詳細は各フラグビットの説明を参照。*/
 
 enum MTextPropertyControl
   {
     /***en If this flag bit is on, an M-text inserted at the start
 	position or at the middle of the text property inherits the
 	text property.  */
-    /***ja ���ΥӥåȤ� on �ʤ�С����Υƥ����ȥץ��ѥƥ��λϤޤ������뤤����֤��������줿
-	M-text �Ϥ��Υƥ����ȥץ��ѥƥ���Ѿ����롣
+    /***ja このビットが on ならば、このテキストプロパティの始まる点あるいは中間に挿入された
+	M-text はこのテキストプロパティを継承する。
 	*/
     MTEXTPROP_FRONT_STICKY = 0x01,
 
     /***en If this flag bit is on, an M-text inserted at the end
 	position or at the middle of the text property inherits the
 	text property.  */
-    /***ja ���ΥӥåȤ� on �ʤ�С����Υƥ����ȥץ��ѥƥ��ν���������뤤����֤��������줿
-	M-text �Ϥ��Υƥ����ȥץ��ѥƥ���Ѿ����롣
+    /***ja このビットが on ならば、このテキストプロパティの終わる点あるいは中間に挿入された
+	M-text はこのテキストプロパティを継承する。
 	*/
     MTEXTPROP_REAR_STICKY = 0x02,
 
     /***en If this flag bit is on, the text property is removed if a
 	text in its region is modified.  */
-    /***ja ���ΥӥåȤ� on �ʤ�С����Υƥ����ȥץ��ѥƥ����ϰ���Υƥ����Ȥ��ѹ����줿���ƥ����ȥץ��ѥƥ��ϼ�������롣  */
+    /***ja このビットが on ならば、このテキストプロパティの範囲内のテキストが変更された場合テキストプロパティは取り除かれる。  */
     MTEXTPROP_VOLATILE_WEAK = 0x04,
 
     /***en If this flag bit is on, the text property is removed if a
 	text or the other text property in its region is modified.  */
-    /***ja ���ΥӥåȤ� on �ʤ�С����Υƥ����ȥץ��ѥƥ����ϰ���Υƥ����Ȥ��뤤���̤Υƥ����ȥץ��ѥƥ����ѹ����줿��礳�Υƥ�
-	���ȥץ��ѥƥ��ϼ�������롣*/
+    /***ja このビットが on ならば、このテキストプロパティの範囲内のテキストあるいは別のテキストプロパティが変更された場合このテキ
+	ストプロパティは取り除かれる。*/
     MTEXTPROP_VOLATILE_STRONG = 0x08,
 
     /***en If this flag bit is on, the text property is not
 	automatically merged with the others.  */
-    /***ja ���ΥӥåȤ� on �ʤ�С����Υƥ����ȥץ��ѥƥ���¾�Υץ��ѥƥ��ȼ�ưŪ�ˤϥޡ�������ʤ��� */
+    /***ja このビットが on ならば、このテキストプロパティは他のプロパティと自動的にはマージされない。 */
     MTEXTPROP_NO_MERGE = 0x10,
 
     MTEXTPROP_CONTROL_MAX = 0x1F
@@ -695,10 +695,10 @@ extern MSymbol Mtext_prop_deserializer;
     mtext_serialize (), #Mtext_prop_serializer
 */
 /***ja
-    @brief ���ꥢ�饤���ؿ��η����.
+    @brief シリアライザ関数の型宣言.
 
-    ���ꥢ�饤���ؿ��η��Ǥ��롣 ���륷��ܥ�Υץ��ѥƥ��Υ����� @c
-    #Mtext_prop_serializer �Ǥ���Ȥ��� �ͤϤ��η��Ǥʤ��ƤϤʤ�ʤ���
+    シリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
+    #Mtext_prop_serializer であるとき、 値はこの型でなくてはならない。
 
     @seealso
     mtext_serialize (), #Mtext_prop_serializer
@@ -718,10 +718,10 @@ typedef MPlist *(*MTextPropSerializeFunc) (void *val);
     mtext_deserialize (), #Mtext_prop_deserializer
 */
 /***ja
-    @brief �ǥ��ꥢ�饤���ؿ��η����.
+    @brief デシリアライザ関数の型宣言.
 
-    �ǥ��ꥢ�饤���ؿ��η��Ǥ��롣 ���륷��ܥ�Υץ��ѥƥ��Υ����� @c
-    #Mtext_prop_deserializer �Ǥ���Ȥ��� �ͤϤ��η��Ǥʤ��ƤϤʤ�ʤ���
+    デシリアライザ関数の型である。 あるシンボルのプロパティのキーが @c
+    #Mtext_prop_deserializer であるとき、 値はこの型でなくてはならない。
 
     @seealso
     Mtext_prop_deserialize (), Mtext_prop_deserializer
@@ -759,10 +759,10 @@ extern int mtext_prop_range (MText *mt, MSymbol key, int pos,
     The type #MTextProperty is for a @e text @e property objects.  Its
     internal structure is concealed from application programs.  */
 /***ja
-    @brief @c �ƥ����ȥץ��ѥƥ��η����.
+    @brief @c テキストプロパティの型宣言.
 
-    #MTextProperty �� @e �ƥ����ȥץ��ѥƥ� ���֥������Ȥη��Ǥ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���  */
+    #MTextProperty は @e テキストプロパティ オブジェクトの型である。
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 typedef struct MTextProperty MTextProperty;
 
@@ -801,7 +801,7 @@ extern MText *mtext_deserialize (MText *mt);
 
 /*** @ingroup m17nCore */
 /***en @defgroup m17nDatabase Database */
-/***ja @defgroup m17nDatabase �ǡ����١��� */
+/***ja @defgroup m17nDatabase データベース */
 /*=*/
 
 /* Directory of an application specific databases.  */
@@ -815,10 +815,10 @@ extern char *mdatabase_dir;
     The type #MDatabase is for a database object.  Its internal
     structure is concealed from an application program.  */
 /***ja 
-    @brief �ǡ����١����η����.
+    @brief データベースの型宣言.
 
-    #MDatabase ���ϥǡ����١������֥��������Ѥι�¤�ΤǤ��롣
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���
+    #MDatabase 型はデータベースオブジェクト用の構造体である。
+    内部構造はアプリケーションプログラムからは見えない。
     */
 
 typedef struct MDatabase MDatabase;
@@ -850,6 +850,6 @@ M17N_END_HEADER
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

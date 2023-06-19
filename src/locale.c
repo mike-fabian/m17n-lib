@@ -29,9 +29,9 @@
 
 /***ja
     @addtogroup m17nLocale
-    @brief �������륪�֥������ȤȤ���˴ؤ��� API.
+    @brief ロケールオブジェクトとそれに関する API.
 
-    m17n �饤�֥��ϥ��������Ϣ����� #MLocale ���Υ��֥������Ȥ�ɽ�����롣  */
+    m17n ライブラリはロケール関連情報を #MLocale 型のオブジェクトで表現する。  */
 
 /*=*/
 
@@ -299,17 +299,17 @@ mlocale__fini ()
 
 /*=*/
 /***en The symbol whose name is "territory".  */
-/***ja  "territory" �Ȥ���̾������ĥ���ܥ�. */
+/***ja  "territory" という名前を持つシンボル. */
 MSymbol Mterritory;
 
 /*=*/
 /***en The symbol whose name is "modifier".  */
-/***ja  "modifier" �Ȥ���̾������ĥ���ܥ�. */
+/***ja  "modifier" という名前を持つシンボル. */
 MSymbol Mmodifier;
 
 /*=*/
 /***en The symbol whose name is "codeset".  */
-/***ja  "codeset" �Ȥ���̾������ĥ���ܥ�. */
+/***ja  "codeset" という名前を持つシンボル. */
 MSymbol Mcodeset;
 
 /*=*/
@@ -335,22 +335,22 @@ MSymbol Mcodeset;
     Otherwise, it returns NULL.  */
 
 /***ja
-    @brief ���ߤΥ�����������ꤹ��.
+    @brief 現在のロケールを設定する.
 
-    �ؿ� mlocale_set () �ϸ��ߤΥ�������ΰ��������ꤷ�����䤤��碌���ꤹ�롣�����ǰ����Ȥ� 
-    $CATEGORY �ǻ��ꤵ�졢<tt>setlocale ()</tt> ��ͭ�����������Ȥʤ��ΤǤʤ��ƤϤʤ�ʤ���
+    関数 mlocale_set () は現在のロケールの一部を設定したり問い合わせたりする。ここで一部とは 
+    $CATEGORY で指定され、<tt>setlocale ()</tt> の有効な第一引数となるものでなくてはならない。
 
-    $LOCALE �� NULL �Ǥʤ���С����ꤷ����ʬ�Υ������뤬$LOCALE �����ꤵ��롣
-    $LOCALE �������ƥ�˥��ݡ��Ȥ���Ƥ��ʤ���С�����ϹԤ�줺�����ߤΥ���������Ѥ��ʤ���
+    $LOCALE が NULL でなければ、指定した部分のロケールが$LOCALE に設定される。
+    $LOCALE がシステムにサポートされていなければ、設定は行われず、現在のロケールは変わらない。
 
-    $LOCALE �� NULL �ʤ�С����ߤΥ�������λ��ꤷ����ʬ���䤤��碌�롣
+    $LOCALE が NULL ならば、現在のロケールの指定した部分を問い合わせる。
 
     @return 
 
-    �ƤӽФ�����������С�mlocale_set () �ϥ���������б����� opaque 
-    �������륪�֥������Ȥ��֤������������̾���ϴؿ�
-    mlocale_get_prop () �ˤ�ä����뤳�Ȥ��Ǥ��롣
-    �����Ǥʤ���� NULL ���֤���
+    呼び出しに成功すれば、mlocale_set () はロケールに対応する opaque 
+    ロケールオブジェクトを返す。ロケールの名前は関数
+    mlocale_get_prop () によって得ることができる。
+    そうでなければ NULL を返す。
      */
 
 /***
@@ -409,11 +409,11 @@ mlocale_set (int category, const char *name)
     #Mterritory, #Mcodeset, #Mmodifier, or #Mcoding.  */ 
 
 /***ja
-    @brief ��������ץ��ѥƥ����ͤ�����.
+    @brief ロケールプロパティの値を得る.
 
-    �ؿ� mlocale_get_prop () �ϡ��������� $LOCALE �� $KEY �ץ��ѥƥ����ͤ��֤���
-    $KEY �� #Mname, #Mlanguage, #Mterritory, #Mcodeset, #Mmodifier, 
-    #Mcoding �Τ����줫�Ǥ��롣 */ 
+    関数 mlocale_get_prop () は、ロケール $LOCALE の $KEY プロパティの値を返す。
+    $KEY は #Mname, #Mlanguage, #Mterritory, #Mcodeset, #Mmodifier, 
+    #Mcoding のいずれかである。 */ 
 
 MSymbol
 mlocale_get_prop (MLocale *locale, MSymbol key)
@@ -449,13 +449,13 @@ mlocale_get_prop (MLocale *locale, MSymbol key)
     strftime ().
 */
 /***ja
-    @brief ���դȻ��֤�ե����ޥåȤ���.
+    @brief 日付と時間をフォーマットする.
 
-    �ؿ� mtext_ftime () �ϻ���ǡ��� (broken-down time) $TM ��$FORMAT 
-    �ǻ��ꤵ�줿���������񤷡���̤�M-text $MT ���ղä��롣�ե����ޥåȤ� 
-    NULL �Ǥʤ���� �������� $LOCALE �ˡ��ޤ��ϸ��ߤΥ�������(LC_TIME) �˽�����
+    関数 mtext_ftime () は時刻データ (broken-down time) $TM を$FORMAT 
+    で指定された形式に清書し、結果をM-text $MT に付加する。フォーマットは 
+    NULL でなければ ロケール $LOCALE に、または現在のロケール(LC_TIME) に従う。
 
-    ���� $TM �� $FORMAT �ΰ�̣�� strftime () �ξ���Ʊ����
+    引数 $TM と $FORMAT の意味は strftime () の場合と同じ。
 
     @seealso
     strftime ().
@@ -528,15 +528,15 @@ mtext_ftime (MText *mt, const char *format, const struct tm *tm,
 
     If there is no match, the function returns NULL.  */
 /***ja
-    @brief �Ķ��ѿ�������.
+    @brief 環境変数を得る.
 
-    �ؿ� mtext_getenv () �� $NAME 
-    �ǻؤ����ʸ����ȹ��פ���ʸ�����Ķ��ѿ��Υꥹ���椫��õ����
+    関数 mtext_getenv () は $NAME 
+    で指される文字列と合致する文字列を環境変数のリスト中から探す。
 
-    ���Ĥ��ä����ˤϡ������ͤ򸽺ߤΥ�������(LC_CTYPE) �˽��ä� 
-    M-text �˥ǥ����ɤ�������M-text ���֤���
+    見つかった場合には、その値を現在のロケール(LC_CTYPE) に従って 
+    M-text にデコードし、そのM-text を返す。
 
-    ���Ĥ���ʤ���С�NULL ���֤���  */
+    見つからなければ、NULL を返す。  */
 
 MText *
 mtext_getenv (const char *name)
@@ -562,14 +562,14 @@ mtext_getenv (const char *name)
     This function returns zero on success, or -1 if an error
     occurs.  */
 /***ja
-    @brief �Ķ��ѿ����ѹ����ɲä���.
+    @brief 環境変数を変更／追加する.
 
-    �ؿ� mtext_putenv () �� M-text $MT 
-    �˽��äơ��Ķ��ѿ����ͤ��ѹ��������ɲä����ꤹ�롣���δؿ��ϡ����ߤΥ�������
-    (LC_CTYPE) �˽��ä�$MT �򥨥󥳡��ɤ������������Ȥ��ƴؿ� <tt>putenv</tt> ��Ƥ֡�
+    関数 mtext_putenv () は M-text $MT 
+    に従って、環境変数の値を変更したり追加したりする。この関数は、現在のロケール
+    (LC_CTYPE) に従って$MT をエンコードし、それを引数として関数 <tt>putenv</tt> を呼ぶ。
 
     @return
-    ���δؿ��ϡ������������ˤ� 0 �򡢥��顼��������� -1 ���֤���
+    この関数は、成功した場合には 0 を、エラーが起これば -1 を返す。
     */
 
 
@@ -604,15 +604,15 @@ mtext_putenv (MText *mt)
     this function with $MT1 or $MT2 finishes faster than the first
     call.  */
 /***ja
-    @brief ���ߤΥ���������Ѥ��ƣ��Ĥ� M-text ����Ӥ���.
+    @brief 現在のロケールを用いて２つの M-text を比較する.
 
-    �ؿ� mtext_coll () �ϣ��Ĥ� M-text $MT1 �� $MT2 
-    ����Ӥ��롣����ͤ����������, 0, ���������ͤΤ����줫�Ǥ��ꡢ���줾�� 
-    $MT1 �� $MT2 ��꾮������Ʊ�����礭�������������롣��Ӥϸ��ߤΥ������� 
-    (LC_COLLATE) �˴�Ť��ƹԤ��롣
+    関数 mtext_coll () は２つの M-text $MT1 と $MT2 
+    を比較する。戻り値は負の整数値, 0, 正の整数値のいずれかであり、それぞれ 
+    $MT1 が $MT2 より小さい、同じ、大きい場合に相当する。比較は現在のロケール 
+    (LC_COLLATE) に基づいて行われる。
 
-    ���δؿ��� M-text 
-    �Υƥ����ȥץ��ѥƥ��Ȥ��Ƽ�ưŪ�˥���å��夵����������Ѥ���Τǡ������ܰʹߤ�Ʊ����Ӥϣ����ܤ��®���¹Ԥ���롣  */
+    この関数は M-text 
+    のテキストプロパティとして自動的にキャッシュされる情報を利用するので、２度目以降の同じ比較は１度目より速く実行される。  */
 
 int
 mtext_coll (MText *mt1, MText *mt2)
@@ -633,6 +633,6 @@ mtext_coll (MText *mt1, MText *mt2)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

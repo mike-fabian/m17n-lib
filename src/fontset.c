@@ -37,17 +37,17 @@
 
 /***ja @addtogroup m17nFontset 
 
-    @brief �ե���ȥ��åȤ�ʸ������ե���Ȥؤ��б��դ���Ԥ����֥������ȤǤ���.
+    @brief フォントセットは文字からフォントへの対応付けを行うオブジェクトである.
 
-    @e �ե���ȥ��å� �� @c MFontset ���Υ��֥������ȤǤ��롣M-text 
-    ��ɽ���κݡ��ե���ȥ��åȤϰʲ��ξ�����Ѥ��� M-text 
-    ��θġ���ʸ���ˤɤΥե���Ȥ��Ѥ��뤫���뵬§��Ϳ���롣
+    @e フォントセット は @c MFontset 型のオブジェクトである。M-text 
+    の表示の際、フォントセットは以下の情報を用いて M-text 
+    中の個々の文字にどのフォントを用いるか決める規則を与える。
 
-    @li ʸ����ʸ���ץ��ѥƥ� "������ץ�"
-    @li ʸ���Υƥ����ȥץ��ѥƥ� "����"
-    @li ʸ���Υƥ����ȥץ��ѥƥ� "ʸ�����å�"
+    @li 文字の文字プロパティ "スクリプト"
+    @li 文字のテキストプロパティ "言語"
+    @li 文字のテキストプロパティ "文字セット"
 
-    �����ξ��󤬤ɤΤ褦���Ѥ����뤫�� mdraw_text () �������򻲾ȤΤ��ȡ�
+    これらの情報がどのように用いられるかは mdraw_text () の説明を参照のこと。
 
     */
 
@@ -1003,21 +1003,21 @@ mfontset__get_font (MFrame *frame, MFontset *fontset,
     This function returns a pointer to the found or newly created
     fontset.  */
 /***ja 
-    @brief �ե���ȥ��åȤ��֤�.
+    @brief フォントセットを返す.
 
-    �ؿ� mfontset () ��̾�� $NAME ����ĥե���ȥ��åȥ��֥������ȤؤΥݥ��󥿤��֤��� 
-    $NAME �� @c NULL �ʤ�С��ǥե���ȥե���ȥ��åȤؤΥݥ��󥿤��֤���
+    関数 mfontset () は名前 $NAME を持つフォントセットオブジェクトへのポインタを返す。 
+    $NAME が @c NULL ならば、デフォルトフォントセットへのポインタを返す。
 
-    $NAME �Ȥ���̾������ĥե���ȥ��åȤ��ʤ���С���������Τ�����롣���κݡ�
-    m17n �ǡ����١����� \<@c fontset, $NAME\> 
-    �Ȥ����ǡ���������С��ե���ȥ��åȤϤ��Υǡ����˱�äƽ��������롣
-    �ʤ���С����Τޤޤˤ���롣
+    $NAME という名前を持つフォントセットがなければ、新しいものが作られる。その際、
+    m17n データベースに \<@c fontset, $NAME\> 
+    というデータがあれば、フォントセットはそのデータに沿って初期化される。
+    なければ、空のままにされる。
 
-    �ޥ��� M17N_INIT () �ϥǥե���ȤΥե���ȥ��åȤ��롣���ץꥱ�������ץ�������
-    mframe () ����ƸƤ֤ޤǤδ֤ϥǥե���ȥե���ȥ��åȤ��ѹ����뤳�Ȥ��Ǥ��롣
+    マクロ M17N_INIT () はデフォルトのフォントセットを作る。アプリケーションプログラムは
+    mframe () を初めて呼ぶまでの間はデフォルトフォントセットを変更することができる。
 
     @return
-    ���δؿ��ϸ��Ĥ��ä������뤤�Ϻ�ä��ե���ȥ��åȤؤΥݥ��󥿤��֤���
+    この関数は見つかった、あるいは作ったフォントセットへのポインタを返す。
      */
 
 MFontset *
@@ -1062,9 +1062,9 @@ mfontset (char *name)
 
     The mfontset_name () function returns the name of fontset $FONTSET.  */
 /***ja
-    @brief �ե���ȥ��åȤ�̾�����֤�.
+    @brief フォントセットの名前を返す.
 
-    �ؿ� mfontset_name () �ϥե���ȥ��å� $FONTSET ��̾�����֤���  */
+    関数 mfontset_name () はフォントセット $FONTSET の名前を返す。  */
 MSymbol
 mfontset_name (MFontset *fontset)
 {
@@ -1081,12 +1081,12 @@ mfontset_name (MFontset *fontset)
     not be a name of existing fontset.  In such case, this function
     returns NULL without making a copy.  */
 /***ja
-    @brief �ե���ȥ��åȤΥ��ԡ�����.
+    @brief フォントセットのコピーを作る.
 
-    �ؿ� mfontset_copy () �ϥե���ȥ��å� $FONTSET �Υ��ԡ����äơ�̾��
-    $NAME ��Ϳ�������Υ��ԡ��ؤΥݥ��󥿤��֤���$NAME 
-    �ϴ�¸�Υե���ȥ��åȤ�̾���Ǥ��äƤϤʤ�ʤ������Τ褦�ʾ��ˤϥ��ԡ����餺��
-    NULL ���֤���  */
+    関数 mfontset_copy () はフォントセット $FONTSET のコピーを作って、名前
+    $NAME を与え、そのコピーへのポインタを返す。$NAME 
+    は既存のフォントセットの名前であってはならない。そのような場合にはコピーを作らずに
+    NULL を返す。  */
 
 MFontset *
 mfontset_copy (MFontset *fontset, char *name)
@@ -1200,40 +1200,40 @@ mfontset_copy (MFontset *fontset, char *name)
     variable #merror_code.  */
 
 /***ja
-    @brief �ե���ȥ��åȤ����Ƥ��ѹ�����.
+    @brief フォントセットの内容を変更する.
 
-    �ؿ� mfontset_modify_entry () �ϡ�$LANGUAGE �� $SCRIPT ���Ȥ߹�碌���ޤ���
-    $CHARSET ���Ф��� $FONT �Υ��ԡ���Ȥ��褦�ˡ��ե���ȥ��å� $FONTSET �����ꤹ�롣
+    関数 mfontset_modify_entry () は、$LANGUAGE と $SCRIPT の組み合わせ、または
+    $CHARSET に対して $FONT のコピーを使うように、フォントセット $FONTSET を設定する。
 
-    �ե���ȥ��å���γƥե���Ȥϡ�����Υ�����ץȤȸ���Υڥ��������ʸ�����åȡ�����ܥ�
-    @c Mnil �Τ����줫�ȴ�Ϣ�դ����Ƥ��롣Ʊ����Τȴ�Ϣ�դ���줿�ե���Ȥϥ��롼�פ������롣
+    フォントセット中の各フォントは、特定のスクリプトと言語のペア、特定の文字セット、シンボル
+    @c Mnil のいずれかと関連付けられている。同じものと関連付けられたフォントはグループを構成する。
 
-    $SCRIPT �� @c Mnil �Ǥ��뤫��������ץȤ����ꤹ�륷��ܥ�Ǥ��롣
-    ����ܥ�Ǥ�����ˤϡ�$LANGUAGE �ϸ�������ꤹ�륷��ܥ뤫 @c
-    Mnil �Ǥ��ꡢ$FONT ��the $SCRIPT / $LANGUAGE �ڥ��˴�Ϣ�դ����롣
+    $SCRIPT は @c Mnil であるか、スクリプトを特定するシンボルである。
+    シンボルである場合には、$LANGUAGE は言語を特定するシンボルか @c
+    Mnil であり、$FONT はthe $SCRIPT / $LANGUAGE ペアに関連付けられる。
 
-    $CHARSET �� @c Mnil �Ǥ��뤫��ʸ�����åȥ��֥������Ȥ�ɽ������ܥ�Ǥ��롣
-    ����ܥ�Ǥ�����ˤ� $FONT �Ϥ���ʸ�����åȤȴ�Ϣ�դ����롣
+    $CHARSET は @c Mnil であるか、文字セットオブジェクトを表すシンボルである。
+    シンボルである場合には $FONT はその文字セットと関連付けられる。
 
-    $SCRIPT �� $CHARSET �������� @c Mnil �Ǥʤ����ˤ� $FONT 
-    �Υ��ԡ������ĺ��졢���줾�� $SCRIPT / $LANGUAGE 
-    �ڥ���ʸ�����åȤ˴�Ϣ�դ����롣
+    $SCRIPT と $CHARSET の双方が @c Mnil でない場合には $FONT 
+    のコピーが２つ作られ、それぞれ $SCRIPT / $LANGUAGE 
+    ペアと文字セットに関連付けられる。
 
-    $SCRIPT �� $CHARSET �������� @c Mnil �ʤ�С� $FONT �� @c Mnil 
-    �ȴ�Ϣ�դ����롣���μ�Υե���Ȥ� @e fallback @e font �ȸƤФ�롣
+    $SCRIPT と $CHARSET の双方が @c Mnil ならば、 $FONT は @c Mnil 
+    と関連付けられる。この種のフォントは @e fallback @e font と呼ばれる。
 
-    ���� $HOW �� $FONT ��ͥ���٤���ꤹ�롣$HOW �����ʤ�С�$FONT 
-    ��Ʊ����Τȴ�Ϣ�դ���줿���롼����Ǻǹ��ͥ���٤���ġ�$HOW 
-    ����ʤ�С������ͥ���٤���ġ�$HOW �� 0 �ʤ�С�$FONT 
-    �ϴ�Ϣ�դ���줿��Τ��Ф���ͣ������Ѳ�ǽ�ʥե���ȤȤʤꡢ¾�Υե���Ȥϥ��롼�פ����������롣
+    引数 $HOW は $FONT の優先度を指定する。$HOW が正ならば、$FONT 
+    は同じものと関連付けられたグループ中で最高の優先度を持つ。$HOW 
+    が負ならば、最低の優先度を持つ。$HOW が 0 ならば、$FONT 
+    は関連付けられたものに対する唯一の利用可能なフォントとなり、他のフォントはグループから取り除かれる。
 
-    $LAYOUTER_NAME �� @c Mnil �Ǥ��뤫��@ref mdbFLT 
-    �ʥե���ȥ쥤�����ȥơ��֥�ˤ򼨤�����ܥ�Ǥ��롣����ܥ�Ǥ���С�$FONT ���Ѥ���
-    M-text ��ɽ������ݤˤϡ����Υե���ȥ쥤�����ȥơ��֥��Ȥä�ʸ���󤫤饰��ե���������������롣
+    $LAYOUTER_NAME は @c Mnil であるか、@ref mdbFLT 
+    （フォントレイアウトテーブル）を示すシンボルである。シンボルであれば、$FONT を用いて
+    M-text を表示する際には、そのフォントレイアウトテーブルを使って文字列からグリフコード列を生成する。
 
     @return 
-    ���������������Ȥ���mfontset_modify_entry () �� 0 ���֤���
-    ���Ԥ����Ȥ��� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功したとき、mfontset_modify_entry () は 0 を返す。
+    失敗したときは -1 を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -1345,47 +1345,47 @@ mfontset_modify_entry (MFontset *fontset,
     It returns a plist describing the contents of a fontset.  The
     plist should be freed by m17n_object_unref ().  */
 /***ja
-    @brief �ե���ȥ��åȤ򸡺�����.
+    @brief フォントセットを検索する.
 
-    �ؿ� mfontset_lookup () �� $FONTSET �򸡺�����$FONTSET 
-    �����ƤΤ������ꤷ��������ץȡ����졢ʸ�����åȤ��б�������ʬ��ɽ��
-    plist ���֤���
+    関数 mfontset_lookup () は $FONTSET を検索し、$FONTSET 
+    の内容のうち指定したスクリプト、言語、文字セットに対応する部分を表す
+    plist を返す。
 
-    $SCRIPT �� @c Mt �ʤ�С��֤� plist 
-    �Υ����ϥե���Ȥ����ꤵ��Ƥ��륹����ץ�̾�Υ���ܥ�Ǥ��ꡢ�ͤ�
-    NULL �Ǥ��롣
+    $SCRIPT が @c Mt ならば、返す plist 
+    のキーはフォントが指定されているスクリプト名のシンボルであり、値は
+    NULL である。
 
-    $SCRIPT ��������ץ�̾�Υ���ܥ�Ǥ���С��֤� 
-    plist �� $LANGUAGE�ˤ�ä���ޤ롣
+    $SCRIPT がスクリプト名のシンボルであれば、返す 
+    plist は $LANGUAGEによって定まる。
     
-    @li $LANGUAGE �� @c Mt �ʤ�С�plist 
-    �Υ����ϥե���Ȥ����ꤵ��Ƥ������̾�Υ���ܥ�Ǥ��ꡢ�ͤ�
-    NULL �Ǥ��롣������ @c Mt
-    �Ǥ��뤳�Ȥ⤢�ꡢ���ξ�礽�Υ�����ץȤ˥ե�����Хå��ե���Ȥ����뤳�Ȥ��̣���롣
+    @li $LANGUAGE が @c Mt ならば、plist 
+    のキーはフォントが指定されている言語名のシンボルであり、値は
+    NULL である。キーは @c Mt
+    であることもあり、その場合そのスクリプトにフォールバックフォントがあることを意味する。
 
-    @li $LANGUAGE ������̾�Υ���ܥ�ʤ�С�plist �ϻ���Υ�����ץȤȸ�����Ф���
-    @c FONT-GROUP �Ǥ��롣@c FONT-GROUP �Ȥϡ������� FLT
-    (FontLayoutTable) ̾�Υ���ܥ�Ǥ��ꡢ�ͤ� #MFont 
-    �ؤΥݥ��󥿤Ǥ���褦�� plist �Ǥ��롣�������ե���Ȥ� FLT 
-    ���б��դ����Ƥ��ʤ����ˤϡ������� @c Mt �ˤʤ롣
+    @li $LANGUAGE が言語名のシンボルならば、plist は指定のスクリプトと言語に対する
+    @c FONT-GROUP である。@c FONT-GROUP とは、キーが FLT
+    (FontLayoutTable) 名のシンボルであり、値が #MFont 
+    へのポインタであるような plist である。ただしフォントに FLT 
+    が対応付けられていない時には、キーは @c Mt になる。
 
-    @li $LANGUAGE �� @c Mnil �ʤ�С�plist �Ϥ��Υ�����ץ��ѤΥե�����Хå�
-    @c FONT-GROUP �Ǥ��롣
+    @li $LANGUAGE が @c Mnil ならば、plist はそのスクリプト用のフォールバック
+    @c FONT-GROUP である。
 
-    $SCRIPT �� @c Mnil �ʤ�С��֤� plist �ϰʲ��Τ褦����ޤ롣
+    $SCRIPT が @c Mnil ならば、返す plist は以下のように定まる。
 
-    @li $CHARSET �� @c Mt �ʤ�С�plist 
-    �Υ����ϥե���Ȥ����ꤵ��Ƥ���ʸ�����å�̾�Υ���ܥ�Ǥ��ꡢ�ͤ�
-    NULL �Ǥ��롣
+    @li $CHARSET が @c Mt ならば、plist 
+    のキーはフォントが指定されている文字セット名のシンボルであり、値は
+    NULL である。
 
-    @li $CHARSET ��ʸ�����å�̾�Υ���ܥ�ʤ�С�plist �Ϥ���ʸ�����å��Ѥ� 
-    @c FONT-GROUP �Ǥ��롣
+    @li $CHARSET が文字セット名のシンボルならば、plist はその文字セット用の 
+    @c FONT-GROUP である。
 
-    @li $CHARSET �� @c Mnil �ʤ�С�plist �ϥե�����Хå� @c FONT-GROUP �Ǥ��롣
+    @li $CHARSET が @c Mnil ならば、plist はフォールバック @c FONT-GROUP である。
 
     @return
-    ���δؿ��ϥե���ȥ��åȤ����Ƥ�ɽ�� plist ���֤���
-    plist �� m17n_object_unref () �ǲ��������٤��Ǥ��롣  */
+    この関数はフォントセットの内容を表す plist を返す。
+    plist は m17n_object_unref () で解放されるべきである。  */
 
 MPlist *
 mfontset_lookup (MFontset *fontset,
@@ -1458,14 +1458,14 @@ mfontset_lookup (MFontset *fontset,
     @return
     This function returns $FONTSET.  */
 /***ja
-    @brief �ե���ȥ��åȤ����פ���.
+    @brief フォントセットをダンプする.
 
-    �ؿ� mdebug_dump_face () �ϥե���ȥ��å� $FONTSET ��ɸ�२�顼����
-    �⤷���ϴĶ��ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲���
-    �ʷ��ǽ��Ϥ��롣 $INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣
+    関数 mdebug_dump_face () はフォントセット $FONTSET を標準エラー出力
+    もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読
+    な形で出力する。 $INDENT は２行目以降のインデントを指定する。
 
     @return
-    ���δؿ��� $FONTSET ���֤���  */
+    この関数は $FONTSET を返す。  */
 
 MFontset *
 mdebug_dump_fontset (MFontset *fontset, int indent)
@@ -1527,6 +1527,6 @@ mdebug_dump_fontset (MFontset *fontset, int indent)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

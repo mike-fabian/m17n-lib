@@ -31,11 +31,11 @@ M17N_BEGIN_HEADER
 
 /*** @defgroup m17nMisc MISC API */
 /***en @brief Miscellaneous API */
-/***ja @brief ����¾�� API */
+/***ja @brief その他の API */
 /*=*/
 /*** @ingroup m17nMisc  */
 /***en @defgroup m17nError Error Handling */
-/***ja @defgroup m17nError ���顼����  */
+/***ja @defgroup m17nError エラー処理  */
 /*=*/
 
 /*** @ingroup m17nError */
@@ -53,15 +53,15 @@ M17N_BEGIN_HEADER
     of these values as an argument.  */
 
 /***ja 
-    @brief m17n �饤�֥�ꥨ�顼�����ɤ����.
+    @brief m17n ライブラリエラーコードの列挙.
 
-    m17n �饤�֥�ꥨ�顼�����ɤ����
+    m17n ライブラリエラーコードの列挙
 
-    �饤�֥��δؿ��������Ǥʤ������ȤȤ�˸ƤФ줿���ˤϡ��ѿ� 
-    #merror_code �򤳤����ͤΤɤ줫�˥��åȤ��롣���٤ƤΥ��顼�����ɤ����������Ǥ��롣
+    ライブラリの関数が妥当でない引数とともに呼ばれた場合には、変数 
+    #merror_code をこれらの値のどれかにセットする。すべてのエラーコードは正の整数である。
 
-    ��������ƥ��顼�κݤˤϡ������ѿ� #m17n_memory_full_handler 
-    �λؤ��ؿ������������ͤΤ����Τɤ줫������Ȥ��ƸƤФ�롣
+    メモリ割当てエラーの際には、外部変数 #m17n_memory_full_handler 
+    の指す関数が、これらの値のうちのどれかを引数として呼ばれる。
     */
 
 enum MErrorCode
@@ -107,7 +107,7 @@ extern void (*m17n_memory_full_handler) (enum MErrorCode err);
 /*=*/
 /*** @ingroup m17nMisc  */
 /***en @defgroup m17nDebug Debugging */
-/***ja @defgroup m17nDebug �ǥХå����ݡ��� */
+/***ja @defgroup m17nDebug デバッグサポート */
 /*=*/
 
 extern int mdebug_hook (void);
@@ -129,6 +129,6 @@ M17N_END_HEADER
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

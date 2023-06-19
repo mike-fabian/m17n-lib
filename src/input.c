@@ -80,57 +80,57 @@
 /*=*/
 /***ja
     @addtogroup m17nInputMethod
-    @brief ���ϥ᥽�å���API.
+    @brief 入力メソッド用API.
 
-    ���ϥ᥽�åɤ�¿�ͤ�ʸ�������Ϥ��뤿��Υ��֥������ȤǤ��롣
-    ���ϥ᥽�åɤϥ���ܥ� LANGUAGE �� NAME ���Ȥˤ�äƼ��̤��졢
-    �����ȹ礻�ˤ�ä����ϥ᥽�åɥɥ饤�Ф����ꤹ�롣
-    ���ϥ᥽�åɥɥ饤�ФȤϡ��������ϥ᥽�åɤ򰷤�����δؿ��ν��ޤ�Ǥ��롣
-    ���ϥ᥽�åɤˤ������᥽�åɤȳ����᥽�åɤ�����ब���롣
+    入力メソッドは多様な文字を入力するためのオブジェクトである。
+    入力メソッドはシンボル LANGUAGE と NAME の組によって識別され、
+    この組合せによって入力メソッドドライバが決定する。
+    入力メソッドドライバとは、ある入力メソッドを扱うための関数の集まりである。
+    入力メソッドには内部メソッドと外部メソッドの二種類がある。
 
     <ul> 
-    <li> �������ϥ᥽�å�
+    <li> 内部入力メソッド
 
-    �������ϥ᥽�åɤȤ� LANGUAGE �� @c Mnil �ʳ��Τ�ΤǤ��ꡢ��������
-    ��m17n �ǡ����١�����<Minput_method, LANGUAGE, NAME> �Ȥ�����������
-    �����������Ƥ��롣���μ�����ϥ᥽�åɤ��Ф��ơ�m17n �饤�֥���
-    ��CUI �Ѥ� GUI �Ѥ��줾������ϥ᥽�åɥɥ饤�Ф򤢤餫�����������
-    ���롣�����Υɥ饤�Ф� m17n �饤�֥�꼫�Τ����Ͻ������󥸥����
-    �Ѥ��롣m17n �ǡ����١����ˤϡ�����θ������ѤǤʤ����ϥ᥽�åɤ���
-    �����뤳�Ȥ�Ǥ������Τ褦�����ϥ᥽�åɤ� LANGUAGE �� @c Mt �Ǥ��롣
+    内部入力メソッドとは LANGUAGE が @c Mnil 以外のものであり、その本体
+    はm17n データベースに<Minput_method, LANGUAGE, NAME> というタグを付
+    けて定義されている。この種の入力メソッドに対して、m17n ライブラリで
+    はCUI 用と GUI 用それぞれの入力メソッドドライバをあらかじめ定義して
+    いる。これらのドライバは m17n ライブラリ自体の入力処理エンジンを利
+    用する。m17n データベースには、特定の言語専用でない入力メソッドを定
+    義することもでき、そのような入力メソッドの LANGUAGE は @c Mt である。
 
-    �������ϥ᥽�åɤϡ��桼�������ϥ��٥�Ȥ��б���������ܥ�Ǥ�����
-    �ϥ����������롣@c m17n @c �饤�֥�� �����ϥ��٥�Ȥ����ץꥱ��
-    �����ץ������Ǥɤ�ɽ������Ƥ��뤫���Τ뤳�Ȥ��Ǥ��ʤ��Τǡ���
-    �ϥ��٥�Ȥ������ϥ����ؤ��Ѵ��ϥ��ץꥱ�������ץ�����ޤ���Ǥ��
-    �Ԥ�ʤ��ƤϤʤ�ʤ����ܺ٤ˤĤ��Ƥϴؿ� minput_event_to_key () ��
-    �����򻲾ȡ�
+    内部入力メソッドは、ユーザの入力イベントに対応したシンボルである入
+    力キーを受け取る。@c m17n @c ライブラリ は入力イベントがアプリケー
+    ションプログラムでどう表現されているかを知ることができないので、入
+    力イベントから入力キーへの変換はアプリケーションプログラマの責任で
+    行わなくてはならない。詳細については関数 minput_event_to_key () の
+    説明を参照。
 
-    <li> �������ϥ᥽�å� @anchor foreign-input-method
+    <li> 外部入力メソッド @anchor foreign-input-method
 
-    �������ϥ᥽�åɤȤ� LANGUAGE �� @c Mnil �Τ�ΤǤ��ꡢ�������Τϳ�
-    ���Υ꥽�����Ȥ����������롣�ʤ��Ȥ���X Window System ��XIM ��
-    �ɡ�) ���μ�����ϥ᥽�åɤǤϡ�����ܥ� NAME �� #Minput_driver ��
-    �����Ȥ���ץ��ѥƥ�������������ͤ����ϥ᥽�åɥɥ饤�ФؤΥݥ���
-    ���Ǥ��롣���Τ��Ȥˤ�ꡢŬ�ڤʥɥ饤�Ф�������뤳�Ȥˤ�äơ���
-    ���ʤ��������ϥ᥽�åɤ�@c m17n @c �饤�֥�� �����Ȥ���ǰ�����
-    ���Ǥ��롣
+    外部入力メソッドとは LANGUAGE が @c Mnil のものであり、その本体は外
+    部のリソースとして定義される。（たとえばX Window System のXIM な
+    ど。) この種の入力メソッドでは、シンボル NAME は #Minput_driver を
+    キーとするプロパティを持ち、その値は入力メソッドドライバへのポイン
+    タである。このことにより、適切なドライバを準備することによって、い
+    かなる種類の入力メソッドも@c m17n @c ライブラリ の枠組の中で扱う事
+    ができる。
 
-    �������δ������顢m17n X �饤�֥��� XIM �� OverTheSpot �����ϥ���
-    �����¸��������ϥ᥽�åɥɥ饤�Ф��󶡤����ޤ�����ܥ� @c Mxim ��
-    #Minput_driver �ץ��ѥƥ����ͤȤ��Ƥ��Υɥ饤�ФؤΥݥ��󥿤��ݻ�
-    ���Ƥ��롣�ܺ٤ˤĤ��Ƥ� m17n GUI API �Υɥ�����Ȥ򻲾ȤΤ��ȡ�
+    利便性の観点から、m17n X ライブラリは XIM の OverTheSpot の入力スタ
+    イルを実現する入力メソッドドライバを提供し、またシンボル @c Mxim の
+    #Minput_driver プロパティの値としてそのドライバへのポインタを保持
+    している。詳細については m17n GUI API のドキュメントを参照のこと。
 
     </ul> 
 
-    ������ή��
+    処理の流れ
 
-    ���ϥ᥽�åɽ�����ŵ��Ū�ʽ����ϰʲ��Τ褦�ˤʤ롣
+    入力メソッド処理の典型的な処理は以下のようになる。
     
-    @li ���ϥ᥽�åɤΥ����ץ�
-    @li �������ϥ᥽�åɤ����ϥ���ƥ����Ȥ�����
-    @li ���ϥ��٥�ȤΥե��륿
-    @li ���ϥ���ƥ����ȤǤ������ƥ����Ȥθ���     */
+    @li 入力メソッドのオープン
+    @li その入力メソッドの入力コンテクストの生成
+    @li 入力イベントのフィルタ
+    @li 入力コンテクストでの生成テキストの検索     */
 
 /*=*/
 
@@ -4506,14 +4506,14 @@ minput__char_to_key (int c)
     @brief Symbol whose name is "input-method".
  */
 /***ja
-    @brief "input-method" ��̾���Ȥ��ƻ��ĥ���ܥ�.
+    @brief "input-method" を名前として持つシンボル.
  */
 MSymbol Minput_method;
 
 /***en
     @name Variables: Predefined symbols for callback commands.  */
 /***ja
-    @name �ѿ��� ������Хå����ޥ��������Ѥߥ���ܥ�.  */
+    @name 変数： コールバックコマンド用定義済みシンボル.  */
 /*** @{ */ 
 /***en
     These are the predefined symbols that are used as the @c COMMAND
@@ -4553,34 +4553,34 @@ MSymbol Minput_method;
     function must delete the specified text.  It should not alter
     #MInputContext::plist.  */ 
 /***ja
-    ���ϥ᥽�åɥɥ饤�ФΥ�����Хå��ؿ��ˤ����� @c COMMAND 
-    �����Ȥ����Ѥ���������Ѥߥ���ܥ� (#MInputDriver::callback_list ����)��
+    入力メソッドドライバのコールバック関数において @c COMMAND 
+    引数として用いられる定義済みシンボル (#MInputDriver::callback_list 参照)。
 
-    �ۤȤ�ɤ��ɲäΰ�����ɬ�פȤ��ʤ����ͤ��֤��ʤ������ʲ����㳰�Ǥ��롣
+    ほとんどは追加の引数を必要としないし値を返さないが、以下は例外である。
 
-    Minput_get_surrounding_text: ���Υ��ޥ�ɤ˳�����Ƥ�줿������Х�
-    ���ؿ����ƤФ줿�ݤˤϡ� #MInputContext::plist ��������Ǥϥ����Ȥ�
-    ��#Minteger ��Ȥꡢ�����ͤϥ��饦��ǥ��󥰥ƥ����ȤΤ����ɤ���ʬ
-    ���ä���뤫����ꤹ�롣�ͤ����Ǥ���С����ߤΥ���������֤�³��
-    �ͤθĿ�ʬ��ʸ�����롣��Ǥ���С�����������֤���Ԥ����ͤ�����
-    ��ʬ��ʸ�����롣���ߥ��饦��ɥƥ����Ȥ����ݡ��Ȥ���Ƥ��뤫�ɤ�
-    �����Τꤿ�������Ǥ���С������ͤϥ����Ǥ��ɤ���
+    Minput_get_surrounding_text: このコマンドに割り当てられたコールバッ
+    ク関数が呼ばれた際には、 #MInputContext::plist の第一要素はキーとし
+    て#Minteger をとり、その値はサラウンディングテキストのうちどの部分
+    を取って来るかを指定する。値が正であれば、現在のカーソル位置に続く
+    値の個数分の文字を取る。負であれば、カーソル位置に先行する値の絶対
+    値分の文字を取る。現在サラウンドテキストがサポートされているかどう
+    かを知りたいだけであれば、この値はゼロでも良い。
 
-    ���饦��ǥ��󥰥ƥ����Ȥ����ݡ��Ȥ���Ƥ���С�������Хå��ؿ���
-    �������ǤΥ����� #Mtext �ˡ��ͤ�������M-text �����ꤷ�ʤ��ƤϤ�
-    ��ʤ����⤷�ƥ����Ȥ�Ĺ������ʬ�Ǥʤ���С����� M-text ��Ĺ������
-    �ᤵ��Ƥ���ʸ�������û�����ɤ����ǰ��ξ�� 0 �Ǥ�褤�������ץꥱ��
-    �����¦��ɬ�פǸ�ΨŪ���Ȼפ���Ĺ���Ƥ��ɤ���
+    サラウンディングテキストがサポートされていれば、コールバック関数は
+    この要素のキーを #Mtext に、値を取り込んだM-text に設定しなくてはな
+    らない。もしテキストの長さが充分でなければ、この M-text の長さは要
+    求されている文字数より短くて良い。最悪の場合 0 でもよいし、アプリケー
+    ション側で必要で効率的だと思えば長くても良い。
 
-    ���饦��ǥ��󥰥ƥ����Ȥ����ݡ��Ȥ���Ƥ��ʤ���С�������Хå���
-    ���� #MInputContext::plist ��������Ǥ��ѹ����ƤϤʤ�ʤ���
+    サラウンディングテキストがサポートされていなければ、コールバック関
+    数は #MInputContext::plist の第一要素を変更してはならない。
 
-    Minput_delete_surrounding_text: ���Υ��ޥ�ɤ˳�����Ƥ�줿������
-    �Хå��ؿ����ƤФ줿�ݤˤϡ�#MInputContext::plist ��������Ǥϡ�����
-    �Ȥ���#Minteger ��Ȥꡢ�ͤϺ������٤����饦��ǥ��󥰥ƥ����Ȥ�
-    Minput_get_surrounding_text ��Ʊ�ͤΤ�����ǻ��ꤹ�롣������Хå�
-    �ؿ��ϻ��ꤵ�줿�ƥ����Ȥ������ʤ���Фʤ�ʤ����ޤ�
-    #MInputContext::plist ���Ѥ��ƤϤʤ�ʤ���  */ 
+    Minput_delete_surrounding_text: このコマンドに割り当てられたコール
+    バック関数が呼ばれた際には、#MInputContext::plist の第一要素は、キー
+    として#Minteger をとり、値は削除するべきサラウンディングテキストを
+    Minput_get_surrounding_text と同様のやり方で指定する。コールバック
+    関数は指定されたテキストを削除しなければならない。また
+    #MInputContext::plist を変えてはならない。  */ 
 MSymbol Minput_preedit_start;
 MSymbol Minput_preedit_done;
 MSymbol Minput_preedit_draw;
@@ -4605,9 +4605,9 @@ MSymbol Minput_delete_surrounding_text;
     These are the predefined symbols that are used as the @c KEY
     argument of minput_filter ().  */ 
 /***ja
-    @name �ѿ�: ���̤����ϥ��٥��������Ѥߥ���ܥ�.
+    @name 変数: 特別な入力イベント用定義済みシンボル.
 
-    minput_filter () �� @c KEY �����Ȥ����Ѥ���������Ѥߥ���ܥ롣  */ 
+    minput_filter () の @c KEY 引数として用いられる定義済みシンボル。  */ 
 
 /*** @{ */ 
 /*=*/
@@ -4622,7 +4622,7 @@ MSymbol Minput_focus_move;
 /***en
     @name Variables: Predefined symbols used in input method information.  */
 /***ja
-    @name �ѿ�: ���ϥ᥽�åɾ���������Ѥߥ���ܥ�.  */
+    @name 変数: 入力メソッド情報用定義済みシンボル.  */
 /*** @{ */ 
 /*=*/
 /***en
@@ -4630,8 +4630,8 @@ MSymbol Minput_focus_move;
     command and variable, and are used in a return value of
     minput_get_command () and minput_get_variable ().  */
 /***ja
-    ���ϥ᥽�åɤΥ��ޥ�ɤ��ѿ��ξ��֤�ɽ����minput_get_command () ��
-    minput_get_variable () ������ͤȤ����Ѥ���������Ѥߥ���ܥ롣  */
+    入力メソッドのコマンドや変数の状態を表し、minput_get_command () と
+    minput_get_variable () の戻り値として用いられる定義済みシンボル。  */
 MSymbol Minherited;
 MSymbol Mcustomized;
 MSymbol Mconfigured;
@@ -4661,24 +4661,24 @@ MSymbol Mconfigured;
     dependent arguments $ARG of the functions whose name begins with
     "minput_" are all ignored.  */
 /***ja
-    @brief �������ϥ᥽�å��ѥǥե���ȥɥ饤��.
+    @brief 内部入力メソッド用デフォルトドライバ.
 
-    �ѿ� #minput_default_driver ���������ϥ᥽�å��ѤΥǥե���ȤΥɥ饤�Ф�ɽ����
+    変数 #minput_default_driver は内部入力メソッド用のデフォルトのドライバを表す。
 
-    ���� MInputDriver::open_im () �� m17n �ǡ����١����椫�饿�� 
+    メンバ MInputDriver::open_im () は m17n データベース中からタグ 
     \< #Minput_method, $LANGUAGE, $NAME\> 
-    �˹��פ������ϥ᥽�åɤ�õ�������������ɤ��롣
+    に合致する入力メソッドを探し、それをロードする。
 
-    ���� MInputDriver::callback_list () �� @c NULL �Ǥ��ꡢ
-    �������äơ��ץ������¦����Ǥ����ä� Ŭ�ڤʥ�����Хå��ؿ��� plist
-    �����ꤷ�ʤ��ƤϤʤ�ʤ�������ʤ��ȡ�preedit 
-    �ƥ����ȤʤɤΥե����ɥХå����󤬥桼����ɽ������ʤ���
+    メンバ MInputDriver::callback_list () は @c NULL であり、
+    したがって、プログラマ側で責任を持って 適切なコールバック関数の plist
+    に設定しなくてはならない。さもないと、preedit 
+    テキストなどのフィードバック情報がユーザに表示されない。
 
-    �ޥ��� M17N_INIT () ���ѿ� #minput_driver 
-    �򤳤Υɥ饤�ФؤΥݥ��󥿤����ꤷ�����Ƥ��������ϥ᥽�åɤ����Υɥ饤�Ф�Ȥ��褦�ˤ��롣
+    マクロ M17N_INIT () は変数 #minput_driver 
+    をこのドライバへのポインタに設定し、全ての内部入力メソッドがこのドライバを使うようにする。
 
-    �������äơ�@c minput_driver ���ǥե�����ͤΤޤޤǤ���С�minput_ 
-    �ǻϤޤ�ؿ��Υɥ饤�Ф˰�¸������� $ARG �Ϥ��٤�̵�뤵��롣  */
+    したがって、@c minput_driver がデフォルト値のままであれば、minput_ 
+    で始まる関数のドライバに依存する引数 $ARG はすべて無視される。  */
 
 MInputDriver minput_default_driver;
 /*=*/
@@ -4691,12 +4691,12 @@ MInputDriver minput_default_driver;
     M17N_INIT () initializes it to a pointer to #minput_default_driver
     if <m17n<EM></EM>.h> is included.  */ 
 /***ja
-    @brief �������ϥ᥽�å��ѥɥ饤��.
+    @brief 内部入力メソッド用ドライバ.
 
-    �ѿ� #minput_driver ���������ϥ᥽�åɤˤ�äƻ��Ѥ���Ƥ������ϥ�
-    ���åɥɥ饤�ФؤΥݥ��󥿤Ǥ��롣�ޥ��� M17N_INIT () �Ϥ��Υݥ���
-    ����#minput_default_driver (<m17n<EM></EM>.h> �� include ����Ƥ���
-    ��) �˽�������롣  */ 
+    変数 #minput_driver は内部入力メソッドによって使用されている入力メ
+    ソッドドライバへのポインタである。マクロ M17N_INIT () はこのポイン
+    タを#minput_default_driver (<m17n<EM></EM>.h> が include されている
+    時) に初期化する。  */ 
 
 MInputDriver *minput_driver;
 
@@ -4712,7 +4712,7 @@ MSymbol Minput_driver;
     @name Functions
 */
 /***ja
-    @name �ؿ�
+    @name 関数
 */
 /*** @{ */
 
@@ -4741,23 +4741,23 @@ MSymbol Minput_driver;
     $ARG is set in the member @c arg of the structure MInputMethod so
     that the driver can refer to it.  */
 /***ja
-    @brief ���ϥ᥽�åɤ򥪡��ץ󤹤�.
+    @brief 入力メソッドをオープンする.
 
-    �ؿ� minput_open_im () �ϸ��� $LANGUAGE ��̾�� $NAME 
-    �˹��פ������ϥ᥽�åɤ򥪡��ץ󤷡������˳�����Ƥ�줿���ϥ᥽�åɥ��֥������ȤؤΥݥ��󥿤��֤���
+    関数 minput_open_im () は言語 $LANGUAGE と名前 $NAME 
+    に合致する入力メソッドをオープンし、新たに割り当てられた入力メソッドオブジェクトへのポインタを返す。
     
-    ���δؿ��ϡ��ޤ����ϥ᥽�å��ѤΥɥ饤�Ф�ʲ��Τ褦�ˤ��Ʒ��ꤹ�롣
+    この関数は、まず入力メソッド用のドライバを以下のようにして決定する。
 
-    $LANGUAGE �� #Mnil �Ǥʤ���С��ѿ� #minput_driver 
-    �ǻؤ���Ƥ���ɥ饤�Ф��Ѥ��롣
+    $LANGUAGE が #Mnil でなければ、変数 #minput_driver 
+    で指されているドライバを用いる。
 
-    $LANGUAGE �� #Mnil �Ǥ��ꡢ$NAME �� #Minput_driver
-    �ץ��ѥƥ�����ľ��ˤϡ����Υץ��ѥƥ����ͤǻؤ���Ƥ������ϥɥ饤�Ф��Ѥ������ϥ᥽�åɤ򥪡��ץ󤹤롣
-    $NAME �ˤ��Τ褦�ʥץ��ѥƥ���̵���ä����� @c NULL ���֤���
+    $LANGUAGE が #Mnil であり、$NAME が #Minput_driver
+    プロパティを持つ場合には、そのプロパティの値で指されている入力ドライバを用いて入力メソッドをオープンする。
+    $NAME にそのようなプロパティが無かった場合は @c NULL を返す。
 
-    �����ǡ��ɥ饤�ФΥ��� MInputDriver::open_im () ���ƤФ�롣
+    次いで、ドライバのメンバ MInputDriver::open_im () が呼ばれる。
 
-    $ARG �Ϲ�¤�� MInputMethod �Υ��� @c arg �����ꤵ�졢�ɥ饤�Ф��黲�ȤǤ��롣
+    $ARG は構造体 MInputMethod のメンバ @c arg に設定され、ドライバから参照できる。
 
     @latexonly \IPAlabel{minput_open} @endlatexonly
 
@@ -4810,10 +4810,10 @@ minput_open_im (MSymbol language, MSymbol name, void *arg)
     must have been created by minput_open_im ().  */
 
 /***ja
-    @brief ���ϥ᥽�åɤ򥯥���������.
+    @brief 入力メソッドをクローズする.
 
-    �ؿ� minput_close_im () �ϡ����ϥ᥽�å� $IM �򥯥��������롣
-    �������ϥ᥽�å� $IM �� minput_open_im () �ˤ�äƺ��줿��ΤǤʤ���Фʤ�ʤ���  */
+    関数 minput_close_im () は、入力メソッド $IM をクローズする。
+    この入力メソッド $IM は minput_open_im () によって作られたものでなければならない。  */
 
 void
 minput_close_im (MInputMethod *im)
@@ -4840,16 +4840,16 @@ minput_close_im (MInputMethod *im)
     returns a pointer to it.  Otherwise it returns @c NULL.  */
 
 /***ja
-    @brief ���ϥ���ƥ����Ȥ���������.
+    @brief 入力コンテクストを生成する.
 
-    �ؿ� minput_create_ic () �����ϥ᥽�å� $IM
-    ���б��������ϥ���ƥ����ȥ��֥������Ȥ���������
+    関数 minput_create_ic () は入力メソッド $IM
+    に対応する入力コンテクストオブジェクトを生成し、
     @b Minput_preedit_start, @b Minput_status_start, @b Minput_status_draw
-    ���б����륳����Хå��ؿ��򤳤ν�˸Ƥ֡�
+    に対応するコールバック関数をこの順に呼ぶ。
 
     @return
-    ���ϥ���ƥ����Ȥ��������줿��硢minput_create_ic () 
-    �Ϥ������ϥ���ƥ����ȤؤΥݥ��󥿤��֤������Ԥ������� @c NULL ���֤���
+    入力コンテクストが生成された場合、minput_create_ic () 
+    はその入力コンテクストへのポインタを返す。失敗した場合は @c NULL を返す。
       */
 
 MInputContext *
@@ -4900,13 +4900,13 @@ minput_create_ic (MInputMethod *im, void *arg)
     @b Minput_status_done, and @b Minput_candidates_done in this order.  */
 
 /***ja
-    @brief ���ϥ���ƥ����Ȥ��˲�����.
+    @brief 入力コンテクストを破壊する.
 
-    �ؿ� minput_destroy_ic () �ϡ����ϥ���ƥ����� $IC ���˲����롣
-    �������ϥ���ƥ����Ȥ� minput_create_ic () 
-    �ˤ�äƺ��줿��ΤǤʤ���Фʤ�ʤ������δؿ��� 
+    関数 minput_destroy_ic () は、入力コンテクスト $IC を破壊する。
+    この入力コンテクストは minput_create_ic () 
+    によって作られたものでなければならない。この関数は 
     @b Minput_preedit_done, @b Minput_status_done, @b Minput_candidates_done 
-    ���б����륳����Хå��ؿ��򤳤ν�˸Ƥ֡�
+    に対応するコールバック関数をこの順に呼ぶ。
   */
 
 void
@@ -4960,18 +4960,18 @@ minput_destroy_ic (MInputContext *ic)
     function minput_lookup () with the same key.  */
 
 /***ja
-    @brief ���ϥ�����ե��륿����.
+    @brief 入力キーをフィルタする.
 
-    �ؿ� minput_filter () �����ϥ��� $KEY �����ϥ���ƥ����� $IC 
-    �˱����ƥե��륿����preedit �ƥ����ȡ����ơ��������������Ǥθ��䤬�Ѳ����������ǡ����줾��
+    関数 minput_filter () は入力キー $KEY を入力コンテクスト $IC 
+    に応じてフィルタし、preedit テキスト、ステータス、現時点での候補が変化した時点で、それぞれ
     @b Minput_preedit_draw, @b Minput_status_draw,
-    @b Minput_candidates_draw ���б����륳����Хå��ؿ���Ƥ֡�
+    @b Minput_candidates_draw に対応するコールバック関数を呼ぶ。
 
     @return 
-    $KEY ���ե��륿�����С����δؿ��� 1 ���֤���
-    ���ξ��ƤӽФ�¦�Ϥ��Υ�����ΤƤ�٤��Ǥ��롣
-    �����Ǥʤ���� 0 ���֤����ƤӽФ�¦�ϡ����Ȥ���Ʊ�������Ǵؿ� minput_lookup ()
-    ��Ƥ֤ʤɤ��ơ����Υ�����������롣
+    $KEY がフィルタされれば、この関数は 1 を返す。
+    この場合呼び出し側はこのキーを捨てるべきである。
+    そうでなければ 0 を返し、呼び出し側は、たとえば同じキーで関数 minput_lookup ()
+    を呼ぶなどして、このキーを処理する。
 
     @latexonly \IPAlabel{minput_filter} @endlatexonly
 */
@@ -5023,20 +5023,20 @@ minput_filter (MInputContext *ic, MSymbol key, void *arg)
     might be produced in $MT.  */
 
 /***ja
-    @brief ���ϥ���ƥ�������Υƥ����Ȥ�õ��.
+    @brief 入力コンテクスト中のテキストを探す.
 
-    �ؿ� minput_lookup () �����ϥ���ƥ����� $IC ��Υƥ����Ȥ�õ����
-    $KEY �ϴؿ� minput_filter () �ؤ�ľ���θƤӽФ����Ѥ���줿��Τ�Ʊ���Ǥʤ��ƤϤʤ�ʤ���
+    関数 minput_lookup () は入力コンテクスト $IC 中のテキストを探す。
+    $KEY は関数 minput_filter () への直前の呼び出しに用いられたものと同じでなくてはならない。
 
-    �ƥ����Ȥ����ϥ᥽�åɤˤ�ä���������Ƥ���С��ƥ����Ȥ� M-text
-    $MT ��Ϣ�뤵��롣
+    テキストが入力メソッドによって生成されていれば、テキストは M-text
+    $MT に連結される。
 
-    ���δؿ��ϡ�#MInputDriver::lookup ��Ƥ֡�
+    この関数は、#MInputDriver::lookup を呼ぶ。
 
     @return 
-    $KEY �����ϥ᥽�åɤˤ�ä�Ŭ�ڤ˽����Ǥ���С����δؿ��� 0 ���֤���
-    �����Ǥʤ���� -1 ���֤���
-    ���ξ��Ǥ� $MT �˲��餫�Υƥ����Ȥ���������Ƥ��뤳�Ȥ����롣
+    $KEY が入力メソッドによって適切に処理できれば、この関数は 0 を返す。
+    そうでなければ -1 を返す。
+    この場合でも $MT に何らかのテキストが生成されていることがある。
 
     @latexonly \IPAlabel{minput_lookup} @endlatexonly  */
 
@@ -5068,23 +5068,23 @@ minput_lookup (MInputContext *ic, MSymbol key, void *arg, MText *mt)
     information about the text around the spot.  */
 
 /***ja
-    @brief ���ϥ���ƥ����ȤΥ��ݥåȤ����ꤹ��.
+    @brief 入力コンテクストのスポットを設定する.
 
-    �ؿ� minput_set_spot () �ϡ����ϥ���ƥ����� $IC �Υ��ݥåȤ򡢺�ɸ ($X, $Y )
-    �ΰ��֤� ���⤵ $ASCENT�� $DESCENT 
-    �����ꤹ�롣 �������ͤΰ�̣�����ϥ᥽�åɥɥ饤�Ф˰�¸���롣
+    関数 minput_set_spot () は、入力コンテクスト $IC のスポットを、座標 ($X, $Y )
+    の位置に 、高さ $ASCENT、 $DESCENT 
+    で設定する。 これらの値の意味は入力メソッドドライバに依存する。
 
-    ���Ȥ��� CUI �Ķ���ư���ɥ饤�Ф� $X �� $Y 
-    �򤽤줾����ȹԤ��ֹ�Ȥ����Ѥ���$ASCENT �� $DESCENT 
-    ��̵�뤹�뤫�⤷��ʤ��� �ޤ�������ɥ������ƥ��ѤΥɥ饤�Ф�
-    $X �� $Y �򥯥饤����ȥ�����ɥ��θ�������Υ��ե��åȤ�ԥ�����ñ�̤�ɽ������ΤȤ��ư�����
-    $ASCENT �� $DESCENT �� ($X . $Y )
-    ����Υ�����Ȥȥǥ�����Ȥ�ԥ�����ñ�̤�ɽ������ΤȤ��ư������⤷��ʤ���
+    たとえば CUI 環境で動作するドライバは $X と $Y 
+    をそれぞれ列と行の番号として用い、$ASCENT と $DESCENT 
+    を無視するかもしれない。 またウィンドウシステム用のドライバは
+    $X と $Y をクライアントウィンドウの原点からのオフセットをピクセル単位で表したものとして扱い、
+    $ASCENT と $DESCENT を ($X . $Y )
+    の列のアセントとディセントをピクセル単位で表したものとして扱うかもしれない。
 
-    $FONTSIZE �ˤ� preedit �ƥ����ȤΥե���ȥ������� 1/10 �ݥ����ñ�̤ǻ��ꤹ�롣
+    $FONTSIZE には preedit テキストのフォントサイズを 1/10 ポイント単位で指定する。
 
-    $MT �� $POS �Ϥ��Υ��ݥåȤ� M-text ��ʸ�����֤Ǥ��롣$MT �� @c
-    NULL �Ǥ�褯�����ξ��ˤ����ϥ᥽�åɤϥ��ݥåȼ��դΥƥ����Ȥ˴ؤ����������뤳�Ȥ��Ǥ��ʤ���
+    $MT と $POS はそのスポットの M-text と文字位置である。$MT は @c
+    NULL でもよく、その場合には入力メソッドはスポット周辺のテキストに関する情報を得ることができない。
     */
 
 void
@@ -5110,10 +5110,10 @@ minput_set_spot (MInputContext *ic, int x, int y,
     The minput_toggle () function toggles the input method associated
     with input context $IC.  */
 /***ja
-    @brief ���ϥ᥽�åɤ����ؤ���.
+    @brief 入力メソッドを切替える.
 
-    �ؿ� minput_toggle () �����ϥ���ƥ����� $IC 
-    ���б��դ���줿���ϥ᥽�åɤ�ȥ��뤹�롣
+    関数 minput_toggle () は入力コンテクスト $IC 
+    に対応付けられた入力メソッドをトグルする。
     */
 
 void
@@ -5137,14 +5137,14 @@ minput_toggle (MInputContext *ic)
     method to commit the preedit in advance.  */
 
 /***ja
-    @brief ���ϥ���ƥ����Ȥ�ꥻ�åȤ���.
+    @brief 入力コンテクストをリセットする.
 
-    �ؿ� minput_reset_ic () �� @b Minput_reset ���б����륳����Хå��ؿ�
-    ��Ƥ֤��Ȥˤ�ä����ϥ���ƥ����� $IC ��ꥻ�åȤ��롣�ꥻ�åȤȤϡ�
-    �ºݤˤ����ϥ᥽�åɤ������֤˰ܤ����ȤǤ��롣����������Υƥ���
-    �Ȥϥ��ߥåȤ���뤳�Ȥʤ���������Τǡ����ץꥱ�������ץ�����
-    ��ϡ�ɬ�פʤ��ͽ�� minput_filter () ����� @b key #Mnil �ǸƤ��
-    ����Ū�˥ץꥨ�ǥ��åȥƥ����Ȥ򥳥ߥåȤ����뤳�ȡ�  */
+    関数 minput_reset_ic () は @b Minput_reset に対応するコールバック関数
+    を呼ぶことによって入力コンテクスト $IC をリセットする。リセットとは、
+    実際には入力メソッドを初期状態に移すことである。現在入力中のテキス
+    トはコミットされることなく削除されるので、アプリケーションプログラ
+    ムは、必要ならば予め minput_filter () を引数 @b key #Mnil で呼んで
+    強制的にプリエディットテキストをコミットさせること。  */
 
 void
 minput_reset_ic (MInputContext *ic)
@@ -5172,20 +5172,20 @@ minput_reset_ic (MInputContext *ic)
     a plist is returned.  Otherwise, NULL is returned.  The caller
     must free the plist by m17n_object_unref ().  */
 /***ja
-    @brief ���ϥ᥽�åɤΥ����ȥ�ȥ��������ѥե�����̾������.
+    @brief 入力メソッドのタイトルとアイコン用ファイル名を得る.
 
-    �ؿ� minput_get_title_icon () �ϡ� $LANGUAGE �� $NAME �ǻ��ꤵ���
-    ���ϥ᥽�åɤΥ����ȥ�ȡʤ���С˥��������ѥե������ޤ� plist ��
-    �֤���
+    関数 minput_get_title_icon () は、 $LANGUAGE と $NAME で指定される
+    入力メソッドのタイトルと（あれば）アイコン用ファイルを含む plist を
+    返す。
 
-    plist ��������Ǥϡ�#Mtext �򥭡��˻������ͤ����ϥ᥽�åɤ��̤���
-    �����ȥ��ɽ�� M-text �Ǥ��롣�������Ǥ�����С������� #Mtext �Ǥ�
-    �ꡢ�ͤϼ����ѥ�����������ե���������Хѥ���ɽ�� M-text �Ǥ��롣
+    plist の第一要素は、#Mtext をキーに持ち、値は入力メソッドを識別する
+    タイトルを表す M-text である。第二要素があれば、キーは #Mtext であ
+    り、値は識別用アイコン画像ファイルの絶対パスを表す M-text である。
 
     @return
-    ��������ϥ᥽�åɤ�¸�ߤ��������ȥ뤬�������Ƥ����
-     plist ���֤��������Ǥʤ���� NULL ���֤����ƽ�¦��
-     �ؿ� m17n_object_unref () ���Ѥ��� plist ��������ʤ��ƤϤʤ�ʤ���  */
+    指定の入力メソッドが存在し、タイトルが定義されていれば
+     plist を返す。そうでなければ NULL を返す。呼出側は
+     関数 m17n_object_unref () を用いて plist を解放しなくてはならない。  */
 
 MPlist *
 minput_get_title_icon (MSymbol language, MSymbol name)
@@ -5244,16 +5244,16 @@ minput_get_title_icon (MSymbol language, MSymbol name)
     If the input method does not have a description text, @c NULL is
     returned.  */
 /***ja
-    @brief ���ϥ᥽�åɤ������ƥ����Ȥ�����.
+    @brief 入力メソッドの説明テキストを得る.
 
-    �ؿ� minput_get_description () �ϡ�$LANGUAGE �� $NAME �ˤ�äƻ���
-    ���줿���ϥ᥽�åɤ��������� M-text ���֤���
+    関数 minput_get_description () は、$LANGUAGE と $NAME によって指定
+    された入力メソッドを説明する M-text を返す。
 
     @return
-    ���ꤵ�줿���ϥ᥽�åɤ���������ƥ����Ȥ���äƤ���С�
-    #MText �ؤΥݥ��󥿤��֤����ƤӽФ�¦�ϡ������ m17n_object_unref
-    () ���Ѥ��Ʋ������ʤ��ƤϤʤ�ʤ������ϥ᥽�åɤ������ƥ����Ȥ�̵��
-    ���@c NULL ���֤��� */
+    指定された入力メソッドが説明するテキストを持っていれば、
+    #MText へのポインタを返す。呼び出し側は、それを m17n_object_unref
+    () を用いて解放しなくてはならない。入力メソッドに説明テキストが無け
+    れば@c NULL を返す。 */
 
 MText *
 minput_get_description (MSymbol language, MSymbol name)
@@ -5333,59 +5333,59 @@ minput_get_description (MSymbol language, MSymbol name)
     Otherwise (the specified input method or the specified command
     does not exist), @c NULL is returned.  */
 /***ja
-    @brief ���ϥ᥽�åɤΥ��ޥ�ɤ˴ؤ�����������.
+    @brief 入力メソッドのコマンドに関する情報を得る.
 
-    �ؿ� minput_get_command () �ϡ�$LANGUAGE �� $NAME �ǻ��ꤵ�������
-    �᥽�åɤΥ��ޥ�� $COMMAND �˴ؤ��������֤������ϥ᥽�åɤΥ���
-    ��ɤȤϡ������������٥�ȤǤ��ꡢ���İʾ�μºݤ����ϥ�����������
-    �󥹤�������Ƥ��롣
+    関数 minput_get_command () は、$LANGUAGE と $NAME で指定される入力
+    メソッドのコマンド $COMMAND に関する情報を返す。入力メソッドのコマ
+    ンドとは、疑似キーイベントであり、１つ以上の実際の入力キーシークエ
+    ンスが割り当てられる。
 
-    ���ޥ�ɤˤϡ��������Х�ȥ�������Σ����ब���롣�������Х�ʥ��ޥ��
-    �ϥ������Х��������졢��������ʥ��ޥ�ɤϤ��������ȥ����������
-    ��Ѿ����뤳�Ȥ��Ǥ��롣�����ϥ᥽�åɤϥ�������ʥ�����������ĥ���
-    ����ʥ��ޥ�ɤ�������롣�ޤ�Ʊ̾�Υ������Х�ʥ��ޥ�ɤ�������
-    �������������ʥ��ޥ�ɤ�������뤳�Ȥ�Ǥ��롣
+    コマンドには、グローバルとローカルの２種類がある。グローバルなコマンド
+    はグローバルに定義され、ローカルなコマンドはその説明とキー割り当て
+    を継承することができる。各入力メソッドはローカルなキー割当を持つロー
+    カルなコマンドを定義する。また同名のグローバルなコマンドの定義を継
+    承するローカルなコマンドを宣言することもできる。
 
-    $LANGUAGE �� #Mt �� $NAME �� #Mnil �ξ��ϡ����δؿ��ϥ������Х륳
-    �ޥ�ɤ˴ؤ��������֤��������Ǥʤ���Х������륳�ޥ�ɤ˴ؤ����
-    �Τ��֤���
+    $LANGUAGE が #Mt で $NAME が #Mnil の場合は、この関数はグローバルコ
+    マンドに関する情報を返す。そうでなければローカルコマンドに関するも
+    のを返す。
 
-    $COMMAND �� #Mnil �ξ��ϡ����٤ƤΥ��ޥ�ɤ˴ؤ��������֤���
+    $COMMAND が #Mnil の場合は、すべてのコマンドに関する情報を返す。
 
-    ����ͤϰʲ��η����� @e well-formed plist (@ref m17nPlist) �Ǥ��롣
+    戻り値は以下の形式の @e well-formed plist (@ref m17nPlist) である。
 
 @verbatim
   ((NAME DESCRIPTION STATUS [KEYSEQ ...]) ...)
 @endverbatim
-    @c NAME �ϥ��ޥ��̾�򼨤�����ܥ�Ǥ��롣
+    @c NAME はコマンド名を示すシンボルである。
 
-    @c DESCRIPTION �ϥ��ޥ�ɤ��������� M-text �Ǥ��뤫��������̵������
-    �� #Mnil �Ǥ��롣
+    @c DESCRIPTION はコマンドを説明する M-text であるか、説明が無い場合に
+    は #Mnil である。
 
-    @c STATUS �ϥ���������Ƥ��ɤΤ褦�������뤫�򤢤�魯����ܥ�
-    �Ǥ��ꡢ�����ͤ� #Mnil �ʥǥե���Ȥγ�����ơ�, @b Mcustomized �ʥ桼
-    ����Υ������ޥ����ե�����ˤ�äƥ������ޥ������줿������ơ�,
-    @b Mconfigured ��minput_config_command ()��Ƥ֤��Ȥˤ�ä����ꤵ���
-    ������ơˤΤ����줫�Ǥ��롣�������륳�ޥ�ɤξ��ˤϡ�
-    @b Minherited ���б����륰�����Х륳�ޥ�ɤ���ηѾ��ˤ�������ơ�
-    �Ǥ�褤��
+    @c STATUS はキー割り当てがどのように定められるかをあらわすシンボル
+    であり、その値は #Mnil （デフォルトの割り当て）, @b Mcustomized （ユー
+    ザ毎のカスタマイズファイルによってカスタマイズされた割り当て）,
+    @b Mconfigured （minput_config_command ()を呼ぶことによって設定される
+    割り当て）のいずれかである。ローカルコマンドの場合には、
+    @b Minherited （対応するグローバルコマンドからの継承による割り当て）
+    でもよい。
 
-    @c KEYSEQ �ϣ��İʾ�Υ���ܥ뤫��ʤ� plist �Ǥ��ꡢ�ƥ���ܥ�ϥ���
-    ��ɤ˳�����Ƥ��Ƥ��륭�����������󥹤�ɽ����KEYSEQ ��̵�����ϡ�
-    ���Υ��ޥ�ɤϸ����ǻ�����ǽ�Ǥ��롣�ʤ��ʤ�����ޥ�ɤ�ư���
-    ư�Ǥ��륭�����������󥹤�̵������
+    @c KEYSEQ は１つ以上のシンボルからなる plist であり、各シンボルはコマ
+    ンドに割り当てられているキーシークエンスを表す。KEYSEQ が無い場合は、
+    そのコマンドは現状で使用不能である。（すなわちコマンドの動作を起
+    動できるキーシークエンスが無い。）
 
-    $COMMAND �� #Mnil �Ǥʤ���С��֤���� plist �κǽ�����Ǥϡ�
-    $COMMAND �˴ؤ�������ޤࡣ
+    $COMMAND が #Mnil でなければ、返される plist の最初の要素は、
+    $COMMAND に関する情報を含む。
 
     @return
 
-    ����줿���󤬸��Ĥ���С����Ǥʤ� plist �ؤΥݥ��󥿤��֤����ꥹ
-    �Ȥϥ饤�֥�꤬�������Ƥ���Τǡ��ƽ�¦���ѹ���������������ꤹ��
-    ���ȤϤǤ��ʤ���
+    求められた情報が見つかれば、空でない plist へのポインタを返す。リス
+    トはライブラリが管理しているので、呼出側が変更したり解放したりする
+    ことはできない。
 
-    �����Ǥʤ���С����ʤ����������ϥ᥽�åɤ䥳�ޥ�ɤ�¸�ߤ��ʤ����
-    @c NULL ���֤���  */
+    そうでなければ、すなわち指定の入力メソッドやコマンドが存在しなければ
+    @c NULL を返す。  */
 
 #if EXAMPLE_CODE
 MText *
@@ -5468,40 +5468,40 @@ minput_get_command (MSymbol language, MSymbol name, MSymbol command)
     minput_get_commands (), minput_save_config ().
 */
 /***ja
-    @brief ���ϥ᥽�åɤΥ��ޥ�ɤΥ������������󥹤����ꤹ��.
+    @brief 入力メソッドのコマンドのキーシークエンスを設定する.
 
-    �ؿ� minput_config_command () �ϥ������������󥹤Υꥹ��
-    $KEYSEQLIST ��$LANGUAGE �� $NAME �ˤ�äƻ��ꤵ������ϥ᥽�åɤ�
-    ���ޥ�� $COMMAND �˳�����Ƥ롣
+    関数 minput_config_command () はキーシークエンスのリスト
+    $KEYSEQLIST を、$LANGUAGE と $NAME によって指定される入力メソッドの
+    コマンド $COMMAND に割り当てる。
 
-    $KEYSEQLIST �����ꥹ�ȤǤʤ���С��������������󥹤Υꥹ�ȤǤ��ꡢ
-    �ƥ������������󥹤ϥ���ܥ�� plist �Ǥ��롣
+    $KEYSEQLIST が空リストでなければ、キーシークエンスのリストであり、
+    各キーシークエンスはシンボルの plist である。
 
-    $KEYSEQLIST ������ plist �ʤ�С����Υ��ޥ�ɤ�����䥫�����ޥ�����
-    ���٤ƥ���󥻥뤵�졢�ǥե���ȤΥ������������󥹤�ͭ���ˤʤ롣
+    $KEYSEQLIST が空の plist ならば、そのコマンドの設定やカスタマイズは
+    すべてキャンセルされ、デフォルトのキーシークエンスが有効になる。
 
-    $KEYSEQLIST �� NULL �Ǥ���С����Υ��ޥ�ɤ�����ϥ���󥻥뤵�졢
-    ���Υ������������󥹡ʥ桼����Υ������ޥ����ե��������¸����Ƥ�
-    ���Ρ����뤤�ϥǥե���ȤΤ�Ρˤ�ͭ���ˤʤ롣
+    $KEYSEQLIST が NULL であれば、そのコマンドの設定はキャンセルされ、
+    元のキーシークエンス（ユーザ毎のカスタマイズファイルに保存されてい
+    るもの、あるいはデフォルトのもの）が有効になる。
 
-    ��Τդ��Ĥξ��ˤϡ�$COMMAND �� #Mnil ��Ȥ뤳�Ȥ��Ǥ����������
-    �ϥ᥽�åɤ����ƤΥ��ޥ������Υ���󥻥���̣���롣
+    後のふたつの場合には、$COMMAND は #Mnil をとることができ、指定の入
+    力メソッドの全てのコマンド設定のキャンセルを意味する。
 
-    $NAME �� #Mnil �ʤ�С����δؿ��ϸġ������ϥ᥽�åɤǤϤʤ���������
-    ��ʥ��ޥ�ɤΥ���������Ƥ����ꤹ�롣
+    $NAME が #Mnil ならば、この関数は個々の入力メソッドではなくグローバ
+    ルなコマンドのキー割り当てを設定する。
 
-    ����������ϡ����ԤΥ��å����������ϥ᥽�åɤ������ץ�ʤޤ���
-    �ƥ����ץ�ˤ��줿������ͭ���ˤʤ롣����Υ��å������Ǥ�ͭ���ˤ�
-    �뤿��ˤϡ��ؿ� minput_save_config () ���Ѥ��ƥ桼����Υ������ޥ�
-    ���ե��������¸���ʤ��ƤϤʤ�ʤ���
+    これらの設定は、現行のセッション中で入力メソッドがオープン（または
+    再オープン）された時点で有効になる。将来のセッション中でも有効にす
+    るためには、関数 minput_save_config () を用いてユーザ毎のカスタマイ
+    ズファイルに保存しなくてはならない。
 
     @return
 
-    ���δؿ��ϡ���������������� 0 �򡢼��Ԥ���� -1 ���֤������ԤȤϰʲ��ξ��Ǥ��롣
+    この関数は、処理が成功すれば 0 を、失敗すれば -1 を返す。失敗とは以下の場合である。
     <ul>
-    <li>$KEYSEQLIST ��ͭ���ʷ����Ǥʤ���
-    <li>$COMMAND ����������ϥ᥽�åɤ����ѤǤ��ʤ���
-    <li>$LANGUAGE �� $NAME �ǻ��ꤵ������ϥ᥽�åɤ�¸�ߤ��ʤ���
+    <li>$KEYSEQLIST が有効な形式でない。
+    <li>$COMMAND が指定の入力メソッドで利用できない。
+    <li>$LANGUAGE と $NAME で指定される入力メソッドが存在しない。
     </ul>
 
     @seealso
@@ -5739,63 +5739,63 @@ minput_config_command (MSymbol language, MSymbol name, MSymbol command,
     Otherwise (the specified input method or the specified variable
     does not exist), @c NULL is returned.  */
 /***ja
-    @brief ���ϥ᥽�åɤ��ѿ��˴ؤ�����������.
+    @brief 入力メソッドの変数に関する情報を得る.
 
-    �ؿ� minput_get_variable () �ϡ�$LANGUAGE �� $NAME �ǻ��ꤵ�������
-    �᥽�åɤ��ѿ� $VARIABLE �˴ؤ��������֤������ϥ᥽�åɤ��ѿ��Ȥϡ�
-    ���ϥ᥽�åɤο�������椹���ΤǤ��롣
+    関数 minput_get_variable () は、$LANGUAGE と $NAME で指定される入力
+    メソッドの変数 $VARIABLE に関する情報を返す。入力メソッドの変数とは、
+    入力メソッドの振舞を制御するものである。
 
-    �ѿ��ˤϡ��������Х�ȥ�������Σ����ब���롣�������Х���ѿ��ϥ�
-    �����Х��������졢����������ѿ��Ϥ����������ͤ�Ѿ����뤳�Ȥ���
-    ���롣�����ϥ᥽�åɤϥ���������ͤ���ĥ���������ѿ���������롣
-    �ޤ�Ʊ̾�Υ������Х���ѿ��������Ѿ��������������ѿ����������
-    ���Ȥ�Ǥ��롣
+    変数には、グローバルとローカルの２種類がある。グローバルな変数はグ
+    ローバルに定義され、ローカルな変数はその説明と値を継承することがで
+    きる。各入力メソッドはローカルな値を持つローカルな変数を定義する。
+    また同名のグローバルな変数の定義を継承するローカルな変数を宣言する
+    こともできる。
 
-    $LANGUAGE �� #Mt �� $NAME �� #Mnil �ξ��ϡ����δؿ��ϥ������Х���
-    ���˴ؤ��������֤��������Ǥʤ���Х��������ѿ��˴ؤ����Τ��֤���
+    $LANGUAGE が #Mt で $NAME が #Mnil の場合は、この関数はグローバル変
+    数に関する情報を返す。そうでなければローカル変数に関するものを返す。
 
-    $VARIABLE �� #Mnil �ξ��ϡ����٤ƤΥ��ޥ�ɤ˴ؤ��������֤���
+    $VARIABLE が #Mnil の場合は、すべてのコマンドに関する情報を返す。
 
-    ����ͤϰʲ��η����� @e well-formed plist (@ref m17nPlist) �Ǥ��롣
+    戻り値は以下の形式の @e well-formed plist (@ref m17nPlist) である。
 @verbatim
   ((NAME DESCRIPTION STATUS VALUE [VALID-VALUE ...]) ...)
 @endverbatim
 
-    @c NAME ���ѿ���̾���򼨤�����ܥ�Ǥ��롣
+    @c NAME は変数の名前を示すシンボルである。
 
-    @c DESCRIPTION ���ѿ����������� M-text �Ǥ��뤫��������̵�����ˤ�
-    #Mnil �Ǥ��롣
+    @c DESCRIPTION は変数を説明する M-text であるか、説明が無い場合には
+    #Mnil である。
 
-    @c STATUS ���ͤ��ɤΤ褦�������뤫�򤢤�魯����ܥ�Ǥ��ꡢ
-    @c STATUS ���ͤ� #Mnil �ʥǥե���Ȥ��͡�, @b Mcustomized �ʥ桼�����
-    �������ޥ����ե�����ˤ�äƥ������ޥ������줿�͡�, @b Mconfigured
-    ��minput_config_variable ()��Ƥ֤��Ȥˤ�ä����ꤵ����͡ˤΤ�����
-    ���Ǥ��롣���������ѿ��ξ��ˤϡ�@b Minherited ���б����륰�����Х�
-    �ѿ�����Ѿ������͡ˤǤ�褤��
+    @c STATUS は値がどのように定められるかをあらわすシンボルであり、
+    @c STATUS の値は #Mnil （デフォルトの値）, @b Mcustomized （ユーザ毎の
+    カスタマイズファイルによってカスタマイズされた値）, @b Mconfigured
+    （minput_config_variable ()を呼ぶことによって設定される値）のいずれ
+    かである。ローカル変数の場合には、@b Minherited （対応するグローバル
+    変数から継承した値）でもよい。
 
-    @c VALUE ���ѿ��ν���ͤǤ��롣�������ǤΥ�����#Mt �Ǥ���н���ͤ��
-    ���ʤ��������Ǥʤ���С������� #Minteger, #Msymbol, #Mtext �Τ�����
-    ���Ǥ��ꡢ�ͤϤ��줾���б����뷿�Τ�ΤǤ��롣
+    @c VALUE は変数の初期値である。この要素のキーが#Mt であれば初期値を持
+    たない。そうでなければ、キーは #Minteger, #Msymbol, #Mtext のいずれ
+    かであり、値はそれぞれ対応する型のものである。
 
-    @c VALID-VALUE �Ϥ⤷����С��ѿ��μ�������ͤ���ꤹ�롣����� @c VALUE
-    ��Ʊ����(���ʤ��Ʊ�����������) �Ǥ��뤬���㳰�Ȥ��� @c VALUE ��
-    integer �ξ��� @c VALID-VALUE �ϲ�ǽ���ͤ��ϰϤ򼨤���Ĥ���������
-    �ʤ� plist �Ȥʤ뤳�Ȥ��Ǥ��롣
+    @c VALID-VALUE はもしあれば、変数の取り得る値を指定する。これは @c VALUE
+    と同じ型(すなわち同じキーを持つ) であるが、例外として @c VALUE が
+    integer の場合は @c VALID-VALUE は可能な値の範囲を示す二つの整数から
+    なる plist となることができる。
 
-    @c VALID-VALUE ���ʤ���С��ѿ��� @c VALUE ��Ʊ�����Ǥ���¤ꤤ���ʤ��ͤ�
-    �Ȥ뤳�Ȥ��Ǥ��롣
+    @c VALID-VALUE がなければ、変数は @c VALUE と同じ型である限りいかなる値も
+    とることができる。
 
-    $VARIABLE �� #Mnil �Ǥʤ���С��֤���� plist �κǽ�����Ǥ�
-    $VARIABLE �˴ؤ�������ޤࡣ
+    $VARIABLE が #Mnil でなければ、返される plist の最初の要素は
+    $VARIABLE に関する情報を含む。
 
     @return
 
-    ����줿���󤬸��Ĥ���С����Ǥʤ� plist �ؤΥݥ��󥿤��֤����ꥹ
-    �Ȥϥ饤�֥�꤬�������Ƥ���Τǡ��ƽ�¦���ѹ���������������ꤹ��
-    ���ȤϤǤ��ʤ���
+    求められた情報が見つかれば、空でない plist へのポインタを返す。リス
+    トはライブラリが管理しているので、呼出側が変更したり解放したりする
+    ことはできない。
 
-    �����Ǥʤ���С����ʤ����������ϥ᥽�åɤ��ѿ���¸�ߤ��ʤ����
-    @c NULL ���֤��� */
+    そうでなければ、すなわち指定の入力メソッドや変数が存在しなければ
+    @c NULL を返す。 */
 
 MPlist *
 minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
@@ -5858,39 +5858,39 @@ minput_get_variable (MSymbol language, MSymbol name, MSymbol variable)
     @seealso
     minput_get_variable (), minput_save_config ().  */
 /***ja
-    @brief ���ϥ᥽�åɤ��ѿ����ͤ����ꤹ��.
+    @brief 入力メソッドの変数の値を設定する.
 
-    �ؿ� minput_config_variable () ���� $VALUE ��$LANGUAGE �� $NAME
-    �ˤ�äƻ��ꤵ������ϥ᥽�åɤ��ѿ� $VARIABLE �˳�����Ƥ롣
+    関数 minput_config_variable () は値 $VALUE を、$LANGUAGE と $NAME
+    によって指定される入力メソッドの変数 $VARIABLE に割り当てる。
 
-    $VALUE �� ���ꥹ�ȤǤʤ���С������Ǥ� plist �Ǥ��ꡢ���Υ�����
-    #Minteger, #Msymbol, #Mtext �Τ����줫���ͤ��б����뷿�Τ�ΤǤ��롣
-    �����ͤ��ѿ� $VARIABLE �˳�����Ƥ��롣
+    $VALUE が 空リストでなければ、１要素の plist であり、そのキーは
+    #Minteger, #Msymbol, #Mtext のいずれか、値は対応する型のものである。
+    この値が変数 $VARIABLE に割り当てられる。
 
-    $VALUE �� ���ꥹ�ȤǤ���С��ѿ�������ȥ������ޥ���������󥻥뤵
-    �졢�ǥե�����ͤ��ѿ� $VARIABLE �˳�����Ƥ��롣
+    $VALUE が 空リストであれば、変数の設定とカスタマイズがキャンセルさ
+    れ、デフォルト値が変数 $VARIABLE に割り当てられる。
 
-    $VALUE �� NULL �Ǥ���С��ѿ�������ϥ���󥻥뤵�졢�����͡ʥ桼��
-    ��Υ������ޥ����ե���������͡��ޤ��ϥǥե���Ȥ��͡ˤ�������Ƥ��롣
+    $VALUE が NULL であれば、変数の設定はキャンセルされ、元の値（ユーザ
+    毎のカスタマイズファイル中の値、またはデフォルトの値）が割り当てられる。
 
-    ��Τդ��Ĥξ��ˤϡ�$VARIABLE �� #Mnil ��Ȥ뤳�Ȥ��Ǥ������ꤵ��
-    �����ϥ᥽�åɤ����Ƥ��ѿ�����Υ���󥻥���̣���롣
+    後のふたつの場合には、$VARIABLE は #Mnil をとることができ、指定され
+    た入力メソッドの全ての変数設定のキャンセルを意味する。
 
-    $NAME �� #Mnil �ʤ�С����δؿ��ϸġ������ϥ᥽�åɤǤϤʤ���������
-    ����ѿ����ͤ����ꤹ�롣
+    $NAME が #Mnil ならば、この関数は個々の入力メソッドではなくグローバ
+    ルな変数の値を設定する。
 
-    ����������ϡ����ԤΥ��å����������ϥ᥽�åɤ������ץ�ʤޤ���
-    �ƥ����ץ�ˤ��줿������ͭ���ˤʤ롣����Υ��å������Ǥ�ͭ���ˤ�
-    �뤿��ˤϡ��ؿ� minput_save_config () ���Ѥ��ƥ桼����Υ������ޥ�
-    ���ե��������¸���ʤ��ƤϤʤ�ʤ���
+    これらの設定は、現行のセッション中で入力メソッドがオープン（または
+    再オープン）された時点で有効になる。将来のセッション中でも有効にす
+    るためには、関数 minput_save_config () を用いてユーザ毎のカスタマイ
+    ズファイルに保存しなくてはならない。
 
     @return
 
-    ���δؿ��ϡ���������������� 0 �򡢼��Ԥ���� -1 ���֤������ԤȤϰʲ��ξ��Ǥ��롣
+    この関数は、処理が成功すれば 0 を、失敗すれば -1 を返す。失敗とは以下の場合である。
     <ul>
-    <li>$VALUE��ͭ���ʷ����Ǥʤ�����������˹��ʤ����ޤ����ͤ��ϰϳ��Ǥ��롣
-    <li>$VARIABLE ����������ϥ᥽�åɤ����ѤǤ��ʤ���
-    <li>$LANGUAGE �� $NAME �ǻ��ꤵ������ϥ᥽�åɤ�¸�ߤ��ʤ���
+    <li>$VALUEが有効な形式でない。型が定義に合わない、または値が範囲外である。
+    <li>$VARIABLE が指定の入力メソッドで利用できない。
+    <li>$LANGUAGE と $NAME で指定される入力メソッドが存在しない。
     </ul>
 
     @seealso
@@ -6051,21 +6051,21 @@ minput_config_variable (MSymbol language, MSymbol name, MSymbol variable,
     minput_save_config ()
 */
 /***ja
-    @brief �桼����Υ������ޥ����ե������̾��������.
+    @brief ユーザ毎のカスタマイズファイルの名前を得る.
     
-    �ؿ� minput_config_file () �ϡ��ؿ� minput_save_config () �������
-    ��¸����桼����Υ������ޥ����ե�����ؤ����Хѥ�̾���֤����̾�ϡ��桼��
-    �Υۡ���ǥ��쥯�ȥ�β��Υǥ��쥯�ȥ� @c ".m17n.d" �ˤ���@c
-    "config.mic" �Ȥʤ롣�֤��줿̾���Υե����뤬¸�ߤ��뤫���ɤ߽񤭤�
-    ���뤫���ݾڤ���ʤ����ؿ�minput_save_config () �����Ԥ��� -1 ����
-    �������ˤϡ����ץꥱ�������ץ������ϥե������¸�ߤ��ǧ����
-    �ʤǤ���С˽񤭹��߲�ǽ�ˤ�����minput_save_config () �����Ȥ�
-    �Ǥ��롣
+    関数 minput_config_file () は、関数 minput_save_config () が設定を
+    保存するユーザ毎のカスタマイズファイルへの絶対パス名を返す。通常は、ユーザ
+    のホームディレクトリの下のディレクトリ @c ".m17n.d" にある@c
+    "config.mic" となる。返された名前のファイルが存在するか、読み書きで
+    きるかは保証されない。関数minput_save_config () が失敗して -1 を返
+    した場合には、アプリケーションプログラムはファイルの存在を確認し、
+    （できれば）書き込み可能にし再度minput_save_config () を試すことが
+    できる。
 
     @return
 
-    ���δؿ���ʸ������֤���ʸ����ϥ饤�֥�꤬�������Ƥ���Τǡ��ƽ�
-    ¦��������������������ꤹ�뤳�ȤϤǤ��ʤ���
+    この関数は文字列を返す。文字列はライブラリが管理しているので、呼出
+    側が修正したり解放したりすることはできない。
 
     @seealso
     minput_save_config ()
@@ -6101,18 +6101,18 @@ minput_config_file ()
     @seealso
     minput_config_file ()  */
 /***ja
-    @brief �����桼����Υ������ޥ����ե��������¸����.
+    @brief 設定をユーザ毎のカスタマイズファイルに保存する.
 
-    �ؿ� minput_save_config () �ϸ��ԤΥ��å����Ǥ���ޤǤ˹Ԥä�����
-    ��桼����Υ������ޥ����ե��������¸���롣
+    関数 minput_save_config () は現行のセッションでこれまでに行った設定
+    をユーザ毎のカスタマイズファイルに保存する。
 
     @return
 
-    ��������� 1 ���֤����桼����Υ������ޥ����ե����뤬���å�����Ƥ�
-    ��� 0 ���֤������ξ�硢�ƽ�¦�Ϥ��Ф餯�Ԥäƺƻ�ԤǤ��롣����ե�
-    ���뤬�񤭹����ԲĤξ�硢-1 ���֤������ξ�硢minput_config_file
-    () ��Ƥ�ǥե�����̾������å������Ǥ���н񤭹��߲�ǽ�ˤ����ƻ��
-    �Ǥ��롣
+    成功すれば 1 を返す。ユーザ毎のカスタマイズファイルがロックされてい
+    れば 0 を返す。この場合、呼出側はしばらく待って再試行できる。設定ファ
+    イルが書き込み不可の場合、-1 を返す。この場合、minput_config_file
+    () を呼んでファイル名をチェックし、できれば書き込み可能にし、再試行
+    できる。
 
     @seealso
     minput_config_file ()  */
@@ -6445,7 +6445,7 @@ minput_list (MSymbol language)
     @name Obsolete functions
 */
 /***ja
-    @name Obsolete �ʴؿ�
+    @name Obsolete な関数
 */
 /*** @{ */
 
@@ -6503,12 +6503,12 @@ minput_list (MSymbol language)
     modify nor free it.  If the input method does not use any
     variable, @c NULL is returned.  */
 /***ja
-    @brief ���ϥ᥽�åɤ��ѿ��ꥹ�Ȥ�����.
+    @brief 入力メソッドの変数リストを得る.
 
-    �ؿ� minput_get_variables () �ϡ�$LANGUAGE �� $NAME �ˤ�äƻ��ꤵ
-    �줿���ϥ᥽�åɤο����񤤤����椹���ѿ��Υץ��ѥƥ��ꥹ��
-    (#MPlist) ���֤������Υꥹ�Ȥ� @e well-formed �Ǥ���(@ref m17nPlist) ��
-    ���η����Ǥ��롣
+    関数 minput_get_variables () は、$LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの振る舞いを制御する変数のプロパティリスト
+    (#MPlist) を返す。このリストは @e well-formed であり(@ref m17nPlist) 以
+    下の形式である。
 
 @verbatim
     (VARNAME (DOC-MTEXT DEFAULT-VALUE [ VALUE ... ] )
@@ -6516,29 +6516,29 @@ minput_list (MSymbol language)
      ...)
 @endverbatim
 
-    @c VARNAME ���ѿ���̾���򼨤�����ܥ�Ǥ��롣
+    @c VARNAME は変数の名前を示すシンボルである。
 
-    @c DOC-MTEXT ���ѿ����������� M-text �Ǥ��롣
+    @c DOC-MTEXT は変数を説明する M-text である。
 
-    @c DEFAULT-VALUE ���ѿ��Υǥե�����ͤǤ��ꡢ����ܥ롢�����⤷����
-    M-text �Ǥ��롣
+    @c DEFAULT-VALUE は変数のデフォルト値であり、シンボル、整数もしくは
+    M-text である。
 
-    @c VALUE �ϡ��⤷���ꤵ��Ƥ�����ѿ��μ�������ͤ򼨤����⤷
-    @c DEFAULT-VALUE �������ʤ顢 @c VALUE �� (@c FROM @c TO) �Ȥ�����
-    �Υꥹ�ȤǤ��ɤ������ξ�� @c FROM �� @c TO �ϲ�ǽ���ͤ��ϰϤ򼨤���
+    @c VALUE は、もし指定されていれば変数の取り得る値を示す。もし
+    @c DEFAULT-VALUE が整数なら、 @c VALUE は (@c FROM @c TO) という形
+    のリストでも良い。この場合 @c FROM と @c TO は可能な値の範囲を示す。
 
-    ��Ȥ��ơ��������ϥ᥽�åɤ����Τ褦���ѿ�����ľ���ͤ��褦��
+    例として、ある入力メソッドが次のような変数を持つ場合を考えよう。
 
-    @li name:intvar, ����:"value is an integer",
-        �����:0, �ͤ��ϰ�:0..3,10,20
+    @li name:intvar, 説明:"value is an integer",
+        初期値:0, 値の範囲:0..3,10,20
 
-    @li name:symvar, ����:"value is a symbol",
-         �����:nil, �ͤ��ϰ�:a, b, c, nil
+    @li name:symvar, 説明:"value is a symbol",
+         初期値:nil, 値の範囲:a, b, c, nil
 
-    @li name:txtvar, ����:"value is an M-text",
-        �����:empty text, �ͤ��ϰϤʤ�(�ɤ�� M-text �Ǥ��)
+    @li name:txtvar, 説明:"value is an M-text",
+        初期値:empty text, 値の範囲なし(どんな M-text でも可)
 
-    ���ξ�硢�֤����ꥹ�Ȥϰʲ��Τ褦�ˤʤ롣
+    この場合、返されるリストは以下のようになる。
 
 @verbatim
     (intvar ("value is an integer" 0 (0 3) 10 20)
@@ -6547,9 +6547,9 @@ minput_list (MSymbol language)
 @endverbatim
 
     @return 
-    ���ϥ᥽�åɤ����餫���ѿ�����Ѥ��Ƥ���� #MPlist �ؤΥݥ��󥿤��֤���
-    �֤����ץ��ѥƥ��ꥹ�Ȥϥ饤�֥��ˤ�äƴ�������Ƥ��ꡢ�ƤӽФ�¦���ѹ���������������ꤷ�ƤϤʤ�ʤ���
-    ���ϥ᥽�åɤ��ѿ�����ڻ��Ѥ��Ƥʤ���С�@c NULL ���֤���  */
+    入力メソッドが何らかの変数を使用していれば #MPlist へのポインタを返す。
+    返されるプロパティリストはライブラリによって管理されており、呼び出し側で変更したり解放したりしてはならない。
+    入力メソッドが変数を一切使用してなければ、@c NULL を返す。  */
 
 MPlist *
 minput_get_variables (MSymbol language, MSymbol name)
@@ -6596,19 +6596,19 @@ minput_get_variables (MSymbol language, MSymbol name)
     If the operation was successful, 0 is returned.  Otherwise -1 is
     returned, and #merror_code is set to @c MERROR_IM.  */
 /***ja
-    @brief ���ϥ᥽�å��ѿ��ν���ͤ����ꤹ��.
+    @brief 入力メソッド変数の初期値を設定する.
 
-    �ؿ� minput_set_variable () �ϡ�$LANGUAGE �� $NAME 
-    �ˤ�äƻ��ꤵ�줿���ϥ᥽�åɤ����ϥ᥽�å��ѿ� $VARIABLE
-    �ν���ͤ� $VALUE �����ꤹ�롣
+    関数 minput_set_variable () は、$LANGUAGE と $NAME 
+    によって指定された入力メソッドの入力メソッド変数 $VARIABLE
+    の初期値を、 $VALUE に設定する。
 
-    �ǥե���Ȥν���ͤ� 0 �Ǥ��롣
+    デフォルトの初期値は 0 である。
 
-    ��������ϡ������������ץ󤵤줿���ϥ᥽�åɤ���ͭ���Ȥʤ롣
+    この設定は、新しくオープンされた入力メソッドから有効となる。
 
     @return
-    ��������������� 0 ���֤��������Ǥʤ���� -1 ���֤���
-    #merror_code �� @c MERROR_IM �����ꤹ�롣  */
+    処理が成功すれば 0 を返す。そうでなければ -1 を返し、
+    #merror_code を @c MERROR_IM に設定する。  */
 
 int
 minput_set_variable (MSymbol language, MSymbol name,
@@ -6683,50 +6683,50 @@ minput_set_variable (MSymbol language, MSymbol name,
     As the returned plist is kept in the library, the caller must not
     modify nor free it.  */
 /***ja
-    @brief ���ϥ᥽�åɤΥ��ޥ�ɤ˴ؤ�����������.
+    @brief 入力メソッドのコマンドに関する情報を得る.
 
-    �ؿ� minput_get_commands () �ϡ� $LANGUAGE �� $NAME �ˤ�äƻ��ꤵ
-    �줿���ϥ᥽�åɤ����ϥ᥽�åɥ��ޥ�ɤ˴ؤ��������֤������ϥ᥽��
-    �ɥ��ޥ�ɤȤϡ������������٥�ȤǤ��ꡢ���줾��ˣ��İʾ�μºݤ�
-    ���ϥ������������󥹤�������Ƥ��Ƥ����Τ�ؤ���
+    関数 minput_get_commands () は、 $LANGUAGE と $NAME によって指定さ
+    れた入力メソッドの入力メソッドコマンドに関する情報を返す。入力メソッ
+    ドコマンドとは、疑似キーイベントであり、それぞれに１つ以上の実際の
+    入力キーシークエンスが割り当てられているものを指す。
 
-    ���ޥ�ɤˤϥ������Х�ȥ�������Σ����ब���롣�������Х륳�ޥ��
-    ��ʣ�������ϥ᥽�åɤˤ����ơ�Ʊ����Ū�ǡ��������Х�ʥ����������
-    ���Ѥ����롣�������륳�ޥ�ɤ���������ϥ᥽�åɤǤΤߡ���������
-    �ʥ��������ǻ��Ѥ���롣
+    コマンドにはグローバルとローカルの２種類がある。グローバルコマンド
+    は複数の入力メソッドにおいて、同じ目的で、グローバルなキー割り当て
+    で用いられる。ローカルコマンドは特定の入力メソッドでのみ、ローカル
+    なキー割当で使用される。
 
-    �ġ������ϥ᥽�åɤϥ������Х륳�ޥ�ɤΥ����������ѹ����뤳�Ȥ��
-    ���롣�������Х륳�ޥ���ѤΥ������Х륭��������Ƥϡ����Ѥ�������
-    �᥽�åɤˤ����Ƥ��Υ��ޥ���ѤΥ�������ʥ���������¸�ߤ��ʤ����
-    �ˤΤ�ͭ���Ǥ��롣
+    個々の入力メソッドはグローバルコマンドのキー割当を変更することもで
+    きる。グローバルコマンド用のグローバルキー割り当ては、使用する入力
+    メソッドにおいてそのコマンド用のローカルなキー割当が存在しない場合
+    にのみ有効である。
 
-    $NAME �� #Mnil �Ǥ���С��������Х륳�ޥ�ɤ˴ؤ��������֤�������
-    ��硢$LANGUAGE ��̵�뤵��롣
+    $NAME が #Mnil であれば、グローバルコマンドに関する情報を返す。この
+    場合、$LANGUAGE は無視される。
 
-    $NAME �� #Mnil �Ǥʤ���С�$LANGUAGE �� $NAME �ˤ�äƻ��ꤵ�����
-    �ϥ᥽�åɤ��֤����������ʥ���������Ƥ���ĥ��ޥ�ɤ˴ؤ������
-    ���֤���
+    $NAME が #Mnil でなければ、$LANGUAGE と $NAME によって指定される入
+    力メソッドに置けるローカルなキー割り当てを持つコマンドに関する情報
+    を返す。
 
     @return
-    ���ϥ᥽�åɥ��ޥ�ɤ����Ĥ���ʤ���С����δؿ��� @c NULL ���֤���
+    入力メソッドコマンドが見つからなければ、この関数は @c NULL を返す。
 
-    �����Ǥʤ���Хץ��ѥƥ��ꥹ�ȤؤΥݥ��󥿤��֤����ꥹ�Ȥγ����Ǥ�
-    �����ϸġ��Υ��ޥ�ɤ򼨤�����ܥ�Ǥ��ꡢ�ͤϲ����� COMMAND-INFO
-    �η����Υץ��ѥƥ��ꥹ�ȤǤ��롣
+    そうでなければプロパティリストへのポインタを返す。リストの各要素の
+    キーは個々のコマンドを示すシンボルであり、値は下記の COMMAND-INFO
+    の形式のプロパティリストである。
 
-    COMMAND-INFO ��������ǤΥ����� #Mtext �ޤ��� #Msymbol �Ǥ��롣����
-    �� #Mtext �ʤ顢�ͤϤ��Υ��ޥ�ɤ��������� M-text �Ǥ��롣������
-    #Msymbol �ʤ��ͤ� #Mnil �Ǥ��ꡢ���Υ��ޥ�ɤ������ƥ����Ȥ������
-    �����Ȥˤʤ롣
+    COMMAND-INFO の第一要素のキーは #Mtext または #Msymbol である。キー
+    が #Mtext なら、値はそのコマンドを説明する M-text である。キーが
+    #Msymbol なら値は #Mnil であり、このコマンドは説明テキストを持たな
+    いことになる。
 
-    ����ʳ������Ǥ�̵����С����Υ��ޥ�ɤ��Ф��ƥ������������󥹤���
-    �����Ƥ��Ƥ��ʤ����Ȥ��̣���롣�����Ǥʤ���С��Ĥ�γ����Ǥϥ�
-    ���Ȥ���#Mplist ���ͤȤ��ƥץ��ѥƥ��ꥹ�Ȥ���ġ����Υץ��ѥƥ�
-    �ꥹ�ȤΥ����� #Msymbol �Ǥ��ꡢ�ͤϸ��ߤ��Υ��ޥ�ɤ˳�����Ƥ��
-    �Ƥ������ϥ�����ɽ������ܥ�Ǥ��롣
+    それ以外の要素が無ければ、このコマンドに対してキーシークエンスが割
+    り当てられていないことを意味する。そうでなければ、残りの各要素はキ
+    ーとして#Mplist を、値としてプロパティリストを持つ。このプロパティ
+    リストのキーは #Msymbol であり、値は現在そのコマンドに割り当てられ
+    ている入力キーを表すシンボルである。
 
-    �֤����ץ��ѥƥ��ꥹ�Ȥϥ饤�֥��ˤ�äƴ�������Ƥ��ꡢ�Ƥӽ�
-    ��¦���ѹ���������������ꤷ�ƤϤʤ�ʤ���*/
+    返されるプロパティリストはライブラリによって管理されており、呼び出
+    し側で変更したり解放したりしてはならない。*/
 
 MPlist *
 minput_get_commands (MSymbol language, MSymbol name)
@@ -6779,26 +6779,26 @@ minput_get_commands (MSymbol language, MSymbol name)
     If the operation was successful, 0 is returned.  Otherwise -1 is
     returned, and #merror_code is set to @c MERROR_IM.  */
 /***ja
-    @brief ���ϥ᥽�åɥ��ޥ�ɤ˥������������󥹤������Ƥ�.
+    @brief 入力メソッドコマンドにキーシークエンスを割り当てる.
 
-    �ؿ� minput_assign_command_keys () �ϡ� $LANGUAGE �� $NAME �ˤ�ä�
-    ���ꤵ�줿���ϥ᥽�å��Ѥ����ϥ᥽�åɥ��ޥ�� $COMMAND ���Ф��ơ�
-    ���ϥ������������� $KEYSEQ �������Ƥ롣 $NAME �� #Mnil �ʤ�С�
-    $LANGUAGE �˴ط��ʤ������ϥ������������󥹤ϥ������Х�˳�����Ƥ�
-    ��롣�����Ǥʤ�С�������Ƥϥ�������Ǥ��롣
+    関数 minput_assign_command_keys () は、 $LANGUAGE と $NAME によって
+    指定された入力メソッド用の入力メソッドコマンド $COMMAND に対して、
+    入力キーシークエンス $KEYSEQ を割り当てる。 $NAME が #Mnil ならば、
+    $LANGUAGE に関係なく、入力キーシークエンスはグローバルに割り当てら
+    れる。そうでなれば、割り当てはローカルである。
 
-    $KEYSEQ �γ����Ǥϥ����Ȥ��� $Msymbol ���ͤȤ������ϥ�����ɽ����
-    ��ܥ������ʤ��ƤϤʤ�ʤ���
+    $KEYSEQ の各要素はキーとして $Msymbol を、値として入力キーを表すシ
+    ンボルを持たなくてはならない。
 
-    $KEYSEQ �� @c NULL �Ǥ�褤�����ξ�硢�������Х�⤷���ϥ��������
-    ���٤Ƥγ�����Ƥ��õ��롣
+    $KEYSEQ は @c NULL でもよい。この場合、グローバルもしくはローカルな
+    すべての割り当てが消去される。
 
-    ���γ�����Ƥϡ�������ưʹ߿����������ץ󤵤줿���ϥ᥽�åɤ���ͭ
-    ���ˤʤ롣
+    この割り当ては、割り当て以降新しくオープンされた入力メソッドから有
+    効になる。
 
     @return 
-    ��������������� 0 ���֤��������Ǥʤ���� -1 ���֤���
-    #merror_code �� @c MERROR_IM �����ꤹ�롣  */
+    処理が成功すれば 0 を返す。そうでなければ -1 を返し、
+    #merror_code を @c MERROR_IM に設定する。  */
 
 int
 minput_assign_command_keys (MSymbol language, MSymbol name,
@@ -6969,14 +6969,14 @@ minput_callback (MInputContext *ic, MSymbol command)
     @return
     This function returns $IM.  */
 /***ja
-    @brief ���ϥ᥽�åɤ����פ���.
+    @brief 入力メソッドをダンプする.
 
-    �ؿ� mdebug_dump_im () �����ϥ᥽�å� $IM ��ɸ�२�顼���Ϥ⤷����
-    �Ķ��ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲��ɤʷ��ǽ�
-    �Ϥ��롣$INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣
+    関数 mdebug_dump_im () は入力メソッド $IM を標準エラー出力もしくは
+    環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読な形で出
+    力する。$INDENT は２行目以降のインデントを指定する。
 
     @return
-    ���δؿ��� $IM ���֤���  */
+    この関数は $IM を返す。  */
 
 MInputMethod *
 mdebug_dump_im (MInputMethod *im, int indent)
@@ -7009,6 +7009,6 @@ mdebug_dump_im (MInputMethod *im, int indent)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

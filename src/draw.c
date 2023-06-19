@@ -36,15 +36,15 @@
 
 /***ja
     @addtogroup m17nDraw
-    @brief M-text �򥦥���ɥ������褹��.
+    @brief M-text をウィンドウに描画する.
 
-    m17n-gui API �ˤϡ�M-text ��ɽ�����뤿��δؿ����Ѱդ���Ƥ��롣
+    m17n-gui API には、M-text を表示するための関数が用意されている。
 
-    ɽ�����Ѥ�����ե���Ȥϡ��ե���ȥ��åȤ� face 
-    �Υץ��ѥƥ��˴�Ť��Ƽ�ưŪ�˷��ꤵ��롣�ޤ����ե���ȤΥ������俧�䲼���ʤɤθ��ɤ���
-    face �ˤ�äƷ�ޤ롣
+    表示に用いられるフォントは、フォントセットと face 
+    のプロパティに基づいて自動的に決定される。また、フォントのサイズや色や下線などの見栄えも
+    face によって決まる。
 
-    M-text ������ե����ޥåȤ�¿�ͤ���ˡ������Ǥ���Τǡ����Ϥ��󼡸��쥤�����ȵ�ǽ���¸��Ǥ��롣
+    M-text の描画フォーマットは多様な方法で制御できるので、強力な二次元レイアウト機能が実現できる。
     */
 
 /*=*/
@@ -1855,60 +1855,60 @@ mdraw__fini ()
     error is detected, it returns -1 and assigns an error code to the
     external variable #merror_code.  */
 /***ja
-    @brief ������ɥ��� M-text �����褹��.
+    @brief ウィンドウに M-text を描画する.
 
-    �ؿ� mdraw_text () �ϡ��ե졼�� $FRAME �Υ�����ɥ� $WIN �κ�ɸ 
-    ($X, $Y) �ˡ�M-text $MT �� $FROM ���� $TO �ޤǤΥƥ����Ȥ����褹�롣
+    関数 mdraw_text () は、フレーム $FRAME のウィンドウ $WIN の座標 
+    ($X, $Y) に、M-text $MT の $FROM から $TO までのテキストを描画する。
 
-    �ƥ����Ȥθ��ɤ��ʥե���ȡ��������롢���ʤɡˤϡ������� @c Mface 
-    �Ǥ���ƥ����ȥץ��ѥƥ����ͤˤ�äƷ�ޤ롣M-text 
-    �ΰ������뤤�������ˤ��Τ褦�ʥƥ����ȥץ��ѥƥ����դ��Ƥ��ʤ����ˤϡ�$FRAME 
-    �Υǥե���ȥե�������������Ѥ��롣
+    テキストの見栄え（フォント、スタイル、色など）は、キーが @c Mface 
+    であるテキストプロパティの値によって決まる。M-text 
+    の一部あるいは全部にそのようなテキストプロパティが付いていない場合には、$FRAME 
+    のデフォルトフェースを代わりに用いる。
 
-    M-text �γ�ʸ����ɽ������ե���Ȥϡ��ե������� fontset 
-    �ץ��ѥƥ����ͤΤ������顢�ʲ��Υ��르�ꥺ������Ф�롣
+    M-text の各文字を表示するフォントは、フェースの fontset 
+    プロパティの値のうちから、以下のアルゴリズムで選ばれる。
 
     <ol>
 
-    <li> ����ʸ���Υƥ����ȥץ��ѥƥ��Τ����������� @c Mcharset
-         �Ǥ����Τ��ͤ�Ĵ�٤롣�����ͤ�ʸ�����åȤ�ɽ�魯����ܥ뤫 #Mnil 
-         �Τɤ��餫�Ǥ��롣#Mnil �ʤ�С����Υ��ƥåפ˿ʤࡣ
-	 �����Ǥʤ���С�fontset 
-	 �Υޥåԥ󥰥ơ��֥�ˤ���ʸ�����å��ѤΥե���Ȥ����뤫�ɤ�����Ĵ�٤롣
-	 ̵����С����Υ��ƥåפ˿ʤࡣ
+    <li> その文字のテキストプロパティのうち、キーが @c Mcharset
+         であるものの値を調べる。この値は文字セットを表わすシンボルか #Mnil 
+         のどちらかである。#Mnil ならば、次のステップに進む。
+	 そうでなければ、fontset 
+	 のマッピングテーブルにその文字セット用のフォントがあるかどうかを調べる。
+	 無ければ、次のステップに進む。
          
-         ����ʸ�����å��ѤΥե���Ȥ��ߤĤ���С������Τ������ߤ�ʸ���ѤΥ���դ�������ե������γƥץ��ѥƥ��˺Ǥ�褯���פ����Τ�Ȥ���
-	 ���Τ褦�ʥե���Ȥ�̵����м��Υ��ƥåפ˿ʤࡣ
+         その文字セット用のフォントがみつかれば、それらのうち現在の文字用のグリフを持ち、フェースの各プロパティに最もよく合致するものを使う。
+	 そのようなフォントが無ければ次のステップに進む。
 
-    <li> ����ʸ����ʸ���ץ��ѥƥ� "script" �ʥ�����ץȡˤ�Ĵ�٤롣
-         ���Υץ��ѥƥ����Ѿ�����Ƥ���ʤ�Ф��������ʸ����ʸ���ץ��ѥƥ� "script" 
-	 ��Ĵ�٤롣����ʸ�����ʤ��ä��ꡢ����ʸ���ץ��ѥƥ�����äƤ��ʤ��ä����ˤϡ����Υ��ƥåפ˿ʤࡣ
+    <li> その文字の文字プロパティ "script" （スクリプト）を調べる。
+         そのプロパティが継承されているならばそれ以前の文字の文字プロパティ "script" 
+	 を調べる。前の文字がなかったり、その文字プロパティを持っていなかった場合には、次のステップに進む。
 
-         ����ʸ���Υƥ����ȥץ��ѥƥ��Τ����������� @c Mlanguage �Ǥ����Τ��ͤ�Ĵ�٤롣
-	 �����ͤϸ����ɽ�魯����ܥ뤫 @c Mnil �Τ����줫�Ǥ��롣
+         その文字のテキストプロパティのうち、キーが @c Mlanguage であるものの値を調べる。
+	 この値は言語を表わすシンボルか @c Mnil のいずれかである。
 
-	 ���θ���ȥ�����ץȤ��Ȥ߹�碌�� fontset
-	 �Υޥåԥ󥰥ơ��֥�ˤ��뤫�ɤ�����Ĵ�٤롣���Ĥ���ʤ���м��Υ��ƥåפ˿ʤࡣ
+	 その言語とスクリプトの組み合わせが fontset
+	 のマッピングテーブルにあるかどうかを調べる。見つからなければ次のステップに進む。
 
-	 ���Ĥ��ä��Ф����ˤϡ������Υե���ȤΤ������ߤ�ʸ���ѤΥ���դ�������ե������γƥץ��ѥƥ��˺Ǥ�褯���פ��Ƥ����Τ�Ȥ���
-	 ���Τ褦�ʥե���Ȥ�̵����м��Υ��ƥåפ˿ʤࡣ
+	 見つかったばあいには、それらのフォントのうち現在の文字用のグリフを持ち、フェースの各プロパティに最もよく合致しているものを使う。
+	 そのようなフォントが無ければ次のステップに進む。
 
-    <li> ����ʸ���Υ���դ���ĥե���Ȥ򡢥ե���ȥ��åȤ� fall-back 
-         �ơ��֥뤫��õ�����ե���Ȥ����Ĥ���Ф����Ȥ���
+    <li> その文字のグリフを持つフォントを、フォントセットの fall-back 
+         テーブルから探す。フォントが見つかればそれを使う。
 
     </ol>
 
-    �ʾ�Υ��르�ꥺ��ǥե���Ȥ����Ĥ���ʤ���С����δؿ��Ϥ���ʸ���Ȥ��ƶ��λͳѷ���ɽ�����롣
+    以上のアルゴリズムでフォントが見つからなければ、この関数はその文字として空の四角形を表示する。
 
-    ���δؿ������褹��Τϥ���դ����ʤ����Ǥ��롣�طʿ�����ꤹ��ˤϡ��ؿ�
-    mdraw_image_text () ���ؿ� mdraw_text_with_control () ��Ȥ����ȡ�
+    この関数が描画するのはグリフの前景だけである。背景色を指定するには、関数
+    mdraw_image_text () か関数 mdraw_text_with_control () を使うこと。
 
-    ���δؿ��ϡ�X ������ɥ��ˤ�����ؿ� <tt>XDrawString ()</tt>,
-    <tt>XmbDrawString ()</tt>, <tt>XwcDrawString ()</tt> ���������롣
+    この関数は、X ウィンドウにおける関数 <tt>XDrawString ()</tt>,
+    <tt>XmbDrawString ()</tt>, <tt>XwcDrawString ()</tt> に相当する。
 
     @return
-    ����������������硢mdraw_text () �� 0 �֤������顼�����Ф��줿����
-    -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功した場合、mdraw_text () は 0 返す。エラーが検出された場合は
+    -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_text} @endlatexonly  */
 
@@ -1955,22 +1955,22 @@ mdraw_text (MFrame *frame, MDrawWindow win, int x, int y,
     to the external variable #merror_code.  */
 
 /***ja
-    @brief �ǥ����ץ쥤��M-text ������Ȥ�������.
+    @brief ディスプレイにM-text を画像として描く.
   
-    �ؿ� mdraw_image_text () �ϡ��ե졼�� $FRAME �Υ�����ɥ� $WIN 
-    �κ�ɸ ($X, $Y) �ˡ�M-text $MT �� $FROM ���� $TO 
-    �ޤǤΥƥ����Ȥ�����Ȥ���������
+    関数 mdraw_image_text () は、フレーム $FRAME のウィンドウ $WIN 
+    の座標 ($X, $Y) に、M-text $MT の $FROM から $TO 
+    までのテキストを画像として描く。
 
-    �ƥ����Ȥ�������ˡ�� mdraw_text ()
-    �Ȥۤ�Ʊ���Ǥ��뤬�����δؿ��Ǥϥե������ǻ��ꤵ�줿�����طʤ����������ۤʤäƤ��롣
+    テキストの描画方法は mdraw_text ()
+    とほぼ同じであるが、この関数ではフェースで指定された色で背景も描く点が異なっている。
 
-    ���δؿ��ϡ�X ������ɥ��ˤ����� <tt>XDrawImageString ()</tt>,
+    この関数は、X ウィンドウにおける <tt>XDrawImageString ()</tt>,
     <tt>XmbDrawImageString ()</tt>, <tt>XwcDrawImageString ()</tt> 
-    ���������롣
+    に相当する。
 
     @return
-    ����������������硢mdraw_image_text () �� 0 
-    ���֤������顼�����Ф��줿���� -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    処理が成功した場合、mdraw_image_text () は 0 
+    を返す。エラーが検出された場合は -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_image_text} @endlatexonly   */
 
@@ -2013,18 +2013,18 @@ mdraw_image_text (MFrame *frame, MDrawWindow win, int x, int y,
     more detail.  */
 
 /***ja
-    @brief �ǥ����ץ쥤��M-text ��ܺ٤�����Ĥ�������.
+    @brief ディスプレイにM-text を詳細な制御つきで描く.
 
-    �ؿ� mdraw_text_with_control () �ϡ��ե졼�� $FRAME �Υ�����ɥ� 
-    $WIN �κ�ɸ ($X, $Y) �ˡ�M-text $MT �� $FROM ���� $TO �ޤǤΥƥ���
-    �Ȥ�������
+    関数 mdraw_text_with_control () は、フレーム $FRAME のウィンドウ 
+    $WIN の座標 ($X, $Y) に、M-text $MT の $FROM から $TO までのテキス
+    トを描く。
 
-    �ƥ����Ȥ�������ˡ�� mdraw_text () �Ȥۤ�Ʊ���Ǥ��뤬�����δؿ������������ѤΥ��֥�������
-    $CONTROL �λؼ��ˤ⽾�������ۤʤäƤ��롣
+    テキストの描画方法は mdraw_text () とほぼ同じであるが、この関数は描画制御用のオブジェクト
+    $CONTROL の指示にも従う点が異なっている。
 
-    ���Ȥ��� $CONTROL �� \<two_dimensional\> �������Ǥʤ���С����δؿ��� 
-    M-text ��2����Ū�����������ʤ�� M-text ��β��ԤǹԤ���ᡢ³��ʸ���ϼ��ιԤ��������ܺ٤Ϲ�¤��
-    @ MDrawControl �������򻲾Ȥ��뤳�ȡ�*/
+    たとえば $CONTROL の \<two_dimensional\> がゼロでなければ、この関数は 
+    M-text を2次元的に描く。すなわち M-text 中の改行で行を改め、続く文字は次の行に描く。詳細は構造体
+    @ MDrawControl の説明を参照すること。*/
 
 int
 mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
@@ -2073,33 +2073,33 @@ mdraw_text_with_control (MFrame *frame, MDrawWindow win, int x, int y,
 
 
 /***ja 
-    @brief �ƥ����Ȥ����ʥԥ�����ñ�̡ˤ�׻�����.
+    @brief テキストの幅（ピクセル単位）を計算する.
 
-    �ؿ� mdraw_text_extents () �ϡ��ؿ� mdraw_text_with_control () 
-    ���������楪�֥������� $CONTROL ���Ѥ��� M-text $MT �� $FROM ���� $TO 
-    �ޤǤ�ե졼�� $FRAME ��ɽ������ݤ�ɬ�פȤʤ������֤���
+    関数 mdraw_text_extents () は、関数 mdraw_text_with_control () 
+    が描画制御オブジェクト $CONTROL を用いて M-text $MT の $FROM から $TO 
+    までをフレーム $FRAME に表示する際に必要となる幅を返す。
 
-    $OVERALL_INK_RETURN �� @c NULL �Ǥʤ���С����δؿ��� M-text 
-    ��ʸ���Υ��󥯤ΥХ���ǥ��󥰥ܥå�����׻�����$OVERALL_INK_RETURN 
-    ���ؤ���¤�ΤΥ��Фˤ��η�̤����ꤹ�롣M-text �˰Ϥ��� (surrounding box)
-    ����ꤹ��ե�����������С������Х���ǥ��󥰥ܥå����˴ޤࡣ
+    $OVERALL_INK_RETURN が @c NULL でなければ、この関数は M-text 
+    の文字のインクのバウンディングボックスも計算し、$OVERALL_INK_RETURN 
+    が指す構造体のメンバにその結果を設定する。M-text に囲み枠 (surrounding box)
+    を指定するフェースがあれば、それもバウンディングボックスに含む。
 
-    $OVERALL_LOGICAL_RETURN �� @c NULL �Ǥʤ���С����δؿ��� M-text 
-    ��¾�� graphical feature �ʰϤ��Ȥʤɡ�
-    �Ȥδ֤κǾ��Υ��ڡ����򼨤��Х���ǥ��󥰥ܥå�����׻�����$OVERALL_LOGICAL_RETURN
-    ���ؤ���¤�ΤΥ��Фˤ��η�̤����ꤹ�롣
+    $OVERALL_LOGICAL_RETURN が @c NULL でなければ、この関数は M-text 
+    と他の graphical feature （囲み枠など）
+    との間の最小のスペースを示すバウンディングボックスも計算し、$OVERALL_LOGICAL_RETURN
+    が指す構造体のメンバにその結果を設定する。
 
-    $OVERALL_LINE_RETURN �� @c NULL �Ǥʤ���С����δؿ���¾�� M-text 
-    �Ȥδ֤κǾ��Υ��ڡ����򼨤��Х���ǥ��󥰥ܥå�����׻�����
-    $OVERALL_LINE_RETURN ���ؤ���¤�ΤΥ��Фˤ��η�̤����ꤹ�롣���֥�������
-    $CONTROL �Υ��� min_line_ascent, min_line_descent,
-    max_line_ascent, max_line_descent �����٤�0�λ��ˤϡ������ͤ� 
-    $OVERALL_INK_RETURN ��$OVERALL_LOGICAL_RETURN ���¤Ȥʤ롣
+    $OVERALL_LINE_RETURN が @c NULL でなければ、この関数は他の M-text 
+    との間の最小のスペースを示すバウンディングボックスも計算し、
+    $OVERALL_LINE_RETURN が指す構造体のメンバにその結果を設定する。オブジェクト
+    $CONTROL のメンバ min_line_ascent, min_line_descent,
+    max_line_ascent, max_line_descent がすべて0の時には、この値は 
+    $OVERALL_INK_RETURN と$OVERALL_LOGICAL_RETURN の和となる。
 
     @return 
-    ���δؿ���ɽ����ɬ�פʥƥ����Ȥ�����ԥ�����ñ�̤��֤���$CONTROL->two_dimensional
-    ��0�Ǥʤ����ƥ����Ȥ�ʣ���ιԤ��Ϥä����������ˤϡ�����������֤������顼������������
-    -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣
+    この関数は表示に必要なテキストの幅をピクセル単位で返す。$CONTROL->two_dimensional
+    が0でなく、テキストが複数の行に渡って描かれる場合には、最大の幅を返す。エラーが生じた場合は
+    -1 を返し、外部変数 #merror_code にエラーコードを設定する。
 
     @latexonly \IPAlabel{mdraw_text_extents} @endlatexonly  */
 
@@ -2210,27 +2210,27 @@ mdraw_text_extents (MFrame *frame,
     If $CONTROL->two_dimensional is nonzero, this function computes
     only the metrics of characters in the first line.  */
 /***ja
-    @brief  M-text �γ�ʸ����ɽ���ϰϤ�׻�����.
+    @brief  M-text の各文字の表示範囲を計算する.
 
-    �ؿ� mdraw_text_per_char_extents () �ϡ��ؿ� mdraw_text_with_control ()
-    ���������楪�֥������� $CONTROL ���Ѥ��� M-text $MT �� $FROM ���� $TO 
-    �ޤǤ�ե졼�� $FRAME ��ɽ������ݤγ�ʸ���Υ�������׻����롣
+    関数 mdraw_text_per_char_extents () は、関数 mdraw_text_with_control ()
+    が描画制御オブジェクト $CONTROL を用いて M-text $MT の $FROM から $TO 
+    までをフレーム $FRAME に表示する際の各文字のサイズを計算する。
 
-    $ARRAY_SIZE �ˤ�ä� $INK_ARRAY_RETURN ��$LOGICAL_ARRAY_RETURN 
-    �Υ���������ꤹ�롣$INK_ARRAY_RETURN ��$LOGICAL_ARRAY_RETURN 
-    �γ����Ǥϡ����줾��ʸ�������襤�󥯤�������������M-text 
-    ��ɽ��������������а��͡ˤˤ�äƽ�������롣���ꤵ�줿 $INK_ARRAY_RETURN �� 
-    $LOGICAL_ARRAY_RETURN �����Ǥο��ϡ�$NUM_CHARS_RETURN ���ᤵ��롣
+    $ARRAY_SIZE によって $INK_ARRAY_RETURN と$LOGICAL_ARRAY_RETURN 
+    のサイズを指定する。$INK_ARRAY_RETURN と$LOGICAL_ARRAY_RETURN 
+    の各要素は、それぞれ文字の描画インクと論理サイズ（M-text 
+    の表示原点からの相対位値）によって順に埋められる。設定された $INK_ARRAY_RETURN と 
+    $LOGICAL_ARRAY_RETURN の要素の数は、$NUM_CHARS_RETURN に戻される。
    
-    $ARRAY_SIZE �����٤Ƥ���ˡ���᤻�ʤ��ۤɾ��������ˤϡ��ؿ��� -1 
-    ���֤���ɬ�פ��礭���� $NUM_CHARS_RETURN ���֤��������Ǥʤ���� 0 
-    ���֤���
+    $ARRAY_SIZE がすべての寸法を戻せないほど小さい場合には、関数は -1 
+    を返し、必要な大きさを $NUM_CHARS_RETURN に返す。そうでなければ 0 
+    を返す。
 
-    �ݥ��� $OVERALL_INK_RETURN �� $OVERALL_LOGICAL_RETURN ��@c NULL 
-    �Ǥʤ���С����δؿ��ϥƥ��������ΤΥ�������׻�������̤�
-    $OVERALL_INK_RETURN �� $OVERALL_LOGICAL_RETURN �ǻؤ���빽¤�Υ��Ф���¸���롣
+    ポインタ $OVERALL_INK_RETURN と $OVERALL_LOGICAL_RETURN が@c NULL 
+    でなければ、この関数はテキスト全体のサイズも計算し、結果を
+    $OVERALL_INK_RETURN と $OVERALL_LOGICAL_RETURN で指される構造のメンバに保存する。
 
-    $CONTROL->two_dimensional ��0�Ǥʤ���С����δؿ��Ϻǽ�ιԤ�ʸ���Υ�����������׻����롣 */
+    $CONTROL->two_dimensional が0でなければ、この関数は最初の行の文字のサイズだけを計算する。 */
 
 int
 mdraw_text_per_char_extents (MFrame *frame,
@@ -2375,26 +2375,26 @@ mdraw_text_per_char_extents (MFrame *frame,
     last character drawn on the line $Y.  */
 
 /***ja
-    @brief ���ꤷ����ɸ�˺Ǥ�ᤤʸ����ʸ�����֤�����.
+    @brief 指定した座標に最も近い文字の文字位置を得る.
 
-    �ؿ� mdraw_coordinates_position () �ϡ��ؿ� 
-    mdraw_text_with_control () ���������楪�֥������� $CONTROL ���Ѥ��ơ�
-    M-text $MT �� $FROM ���� $TO �ޤǤ��ɸ (0, 0) 
-    �����Ȥ������褹��ݤˡ���ɸ ($X, $Y) 
-    �����褵���ʸ����ʸ�����֤��֤���������ʸ�����֤Ȥϡ�����
-    M-text ��ˤ����Ƥ���ʸ�����ǽ餫�鲿���ܤ��򼨤������Ǥ��롣�������ǽ��ʸ����ʸ�����֤�0�Ȥ��롣
+    関数 mdraw_coordinates_position () は、関数 
+    mdraw_text_with_control () が描画制御オブジェクト $CONTROL を用いて、
+    M-text $MT の $FROM から $TO までを座標 (0, 0) 
+    を起点として描画する際に、座標 ($X, $Y) 
+    に描画される文字の文字位置を返す。ここで文字位置とは、当該
+    M-text 中においてその文字が最初から何番目かを示す整数である。ただし最初の文字の文字位置は0とする。
 
-    $FRAME �ϥǥե���ȤΥե������ξ�������뤿��������Ѥ����롣
+    $FRAME はデフォルトのフェースの情報を得るためだけに用いられる。
 
     @return
-    ��ɸ ($X, $Y) ������ʸ���Υ���դ�ʤ�����硢 �ؿ� 
-    mdraw_coordinates_position () �Ϥ���ʸ����ʸ�����֤��֤���\n\n
-    �⤷ $Y �������ΰ�κǾ�Y��ɸ���⾮�����ʤ�� $FROM ���֤���\n\n
-    �⤷ $Y �������ΰ�κ���Y��ɸ�����礭���ʤ�� $TO ���֤���\n\n
-    �⤷ $Y �������ΰ�˾�äƤ��Ƥ��� $X �������ΰ�κǾ�X��ɸ����
-    ���������ϡ�ľ�� y = $Y ������褵���ǽ��ʸ����ʸ�����֤��֤���\n\n
-    �⤷ $Y �������ΰ�˾�äƤ��Ƥ��� $X �������ΰ�κ���X��ɸ����
-    �礭�����ϡ�ľ�� y = $Y ������褵���Ǹ��ʸ����ʸ�����֤��֤��� */
+    座標 ($X, $Y) がある文字のグリフで覆われる場合、 関数 
+    mdraw_coordinates_position () はその文字の文字位置を返す。\n\n
+    もし $Y が描画領域の最小Y座標よりも小さいならば $FROM を返す。\n\n
+    もし $Y が描画領域の最大Y座標よりも大きいならば $TO を返す。\n\n
+    もし $Y が描画領域に乗っていてかつ $X が描画領域の最小X座標よりも
+    小さい場合は、直線 y = $Y 上に描画される最初の文字の文字位置を返す。\n\n
+    もし $Y が描画領域に乗っていてかつ $X が描画領域の最大X座標よりも
+    大きい場合は、直線 y = $Y 上に描画される最後の文字の文字位置を返す。 */
 
 int
 mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
@@ -2471,14 +2471,14 @@ mdraw_coordinates_position (MFrame *frame, MText *mt, int from, int to,
 
     The information is stored in the members of $INFO.  */
 /***ja
-    @brief ����դ˴ؤ�������׻�����.
+    @brief グリフに関する情報を計算する.
 
-    �ؿ� mdraw_glyph_info () �ϡ��ؿ� mdraw_text_with_control () 
-    ���� �����楪�֥������� $CONTROL ���Ѥ���M-text $MT �� $FROM ���� $TO 
-    �ޤǤ�ե졼�� $FRAME �����褷����硢M-text ��ʸ������ $POS 
-    ��ʸ����ʤ������դ˴ؤ�������׻����롣
+    関数 mdraw_glyph_info () は、関数 mdraw_text_with_control () 
+    が描 画制御オブジェクト $CONTROL を用いてM-text $MT の $FROM から $TO 
+    までをフレーム $FRAME に描画した場合、M-text の文字位置 $POS 
+    の文字を覆うグリフに関する情報を計算する。
 
-    �����$INFO �Υ��Ф��ݻ�����롣  */
+    情報は$INFO のメンバに保持される。  */
 
 /***
     @seealso
@@ -2672,19 +2672,19 @@ mdraw_glyph_info (MFrame *frame, MText *mt, int from, int pos,
     by $NUM_GLYPHS_RETURN, and returns -1.  */
 
 /***ja
-    @brief �������˴ؤ�������׻�����.
+    @brief グリフ列に関する情報を計算する.
 
-    �ؿ� mdraw_glyph_list () �ϡ��ؿ� mdraw_text_with_control () 
-    ���������楪�֥������� $CONTROL ���Ѥ���M-text $MT �� $FROM ���� $TO
-    �ޤǤ�ե졼�� $FRAME �����褷�����Ρ��ƥ���դξ���� $GLYPHS 
-    ���ؤ�����˳�Ǽ���롣 $ARRAY_SIZE �Ϥ�������Υ������Ǥ��롣
+    関数 mdraw_glyph_list () は、関数 mdraw_text_with_control () 
+    が描画制御オブジェクト $CONTROL を用いてM-text $MT の $FROM から $TO
+    までをフレーム $FRAME に描画した場合の、各グリフの情報を $GLYPHS 
+    が指す配列に格納する。 $ARRAY_SIZE はその配列のサイズである。
 
-    �⤷ $ARRAY_SIZE �����٤ƤΥ���դˤĤ��Ƥξ�����Ǽ����Τ˽�ʬ�Ǥ���С�
-    $NUM_GLYPHS_RETURN ���ؤ����˼ºݤ���᤿���Ǥο������ꤷ 0 ���֤���
+    もし $ARRAY_SIZE がすべてのグリフについての情報を格納するのに十分であれば、
+    $NUM_GLYPHS_RETURN が指す場所に実際に埋めた要素の数を設定し 0 を返す。
 
     
-    �����Ǥʤ���С�$NUM_GLYPHS_RETURN ���ؤ�����ɬ�פ�����Υ����������ꤷ��
-    -1 ���֤���
+    そうでなければ、$NUM_GLYPHS_RETURN が指す場所に必要な配列のサイズを設定し、
+    -1 を返す。
     */
 
 /***
@@ -2778,11 +2778,11 @@ mdraw_glyph_list (MFrame *frame, MText *mt, int from, int to,
     textitems in the array.  */
 
 /***ja
-    @brief textitem ��ɽ������.
+    @brief textitem を表示する.
 
-    �ؿ� mdraw_text_items () �ϡ���İʾ�Υƥ����ȥ����ƥ�򡢥ե졼��
-    $FRAME �Υ�����ɥ� $WIN �κ�ɸ ($X, $Y) ��ɽ�����롣$ITEMS 
-    ��ɽ�����٤��ƥ����ȥ����ƥ������Ǥ��ꡢ$NITEMS �Ϥ��θĿ��Ǥ��롣
+    関数 mdraw_text_items () は、一個以上のテキストアイテムを、フレーム
+    $FRAME のウィンドウ $WIN の座標 ($X, $Y) に表示する。$ITEMS 
+    は表示すべきテキストアイテムの配列であり、$NITEMS はその個数である。
 
     @latexonly \IPAlabel{mdraw_text_items} @endlatexonly  */
 
@@ -2844,18 +2844,18 @@ int mdraw_line_break_option;
 */
 
 /***ja 
-      @brief ���԰��֤�׻�����.
+      @brief 改行位置を計算する.
 
-      �ؿ� mdraw_default_line_break () �ϡ��Ԥ���������˼��ޤ�ʤ����β��԰��֤򡢹��ֹ�
-      $LINE �Ⱥ�ɸ $Y �˴�Ť��Ʒ׻����롣
-      $POS �Ϻ������˼��ޤ�Ǹ��ʸ���μ���ʸ���ΰ��֤Ǥ��롣
-      $FROM �Ϥ��ιԤκǽ��ʸ���ΰ��֡�$TO 
-      �Ϻ����������ꤵ��Ƥ��ʤ���Ф��ιԤ�ɽ�������Ǹ��ʸ���ΰ��֤Ǥ��롣
-      $LINE �� $Y �ϲ���ʸ���ˤ�äƹԤ����ޤä��ݤˤ� 0
-      �˥ꥻ�åȤ��졢�������ˤ�äƹԤ����ޤä����ˤ� 1 �Ť����䤵��롣
+      関数 mdraw_default_line_break () は、行が最大幅中に収まらない場合の改行位置を、行番号
+      $LINE と座標 $Y に基づいて計算する。
+      $POS は最大幅に収まる最後の文字の次の文字の位置である。
+      $FROM はその行の最初の文字の位置、$TO 
+      は最大幅が指定されていなければその行に表示される最後の文字の位置である。
+      $LINE と $Y は改行文字によって行が改まった際には 0
+      にリセットされ、最大幅によって行が改まった場合には 1 づつ増やされる。
 
       @return 
-      ���δؿ��ϲ��Ԥ���ʸ�����֤��֤���
+      この関数は改行する文字位置を返す。
 */
 
 int
@@ -2892,19 +2892,19 @@ mdraw_default_line_break (MText *mt, int pos,
     the members of the structure pointed to by $OVERALL_RETURN.  */
 
 /***ja
-    @brief M-text ��ʸ�����ɽ���ϰϾ��������.
+    @brief M-text の文字毎の表示範囲情報を得る.
 
-    �ؿ� mdraw_per_char_extents () �ϡ�M-text $MT 
-    ��γ�ʸ����ɽ���ϰϤ�׻����롣���η׻����Ѥ���ե���Ȥϡ�
-    $MT �Υƥ����ȥץ��ѥƥ��ǻ��ꤵ�줿�ե������ȡ��ե졼�� $FRAME
-    �Υǥե���ȥե������ˤ�äƷ�ޤ롣$ARRAY_RETURN �γ����Ǥϡ�$MT
-    ��γ�ʸ����ɽ���ϰϾ���ˤ�äƽ�������롣ɽ���ϰϾ���Ȥϡ�
-    ɽ��������������а��֤ȳ�ʸ��������Ĺ�����Ǥ��롣$ARRAY_RETURN 
-    �����ǿ��ϡ�M-text ���ʸ�����ʾ�Ǥʤ���Фʤ�ʤ���
+    関数 mdraw_per_char_extents () は、M-text $MT 
+    中の各文字の表示範囲を計算する。この計算に用いるフォントは、
+    $MT のテキストプロパティで指定されたフェースと、フレーム $FRAME
+    のデフォルトフェースによって決まる。$ARRAY_RETURN の各要素は、$MT
+    中の各文字の表示範囲情報によって順に埋められる。表示範囲情報とは、
+    表示原点からの相対位置と各文字の占める長方形である。$ARRAY_RETURN 
+    の要素数は、M-text 中の文字数以上でなければならない。
 
-    �ݥ��� $OVERALL_RETURN �� @c NULL 
-    �Ǥʤ����ϡ��ƥ��������Τ�ɽ���ϰϾ����׻��������η�̤� 
-    $OVERALL_RETURN �λؤ���¤�Τ˳�Ǽ���롣
+    ポインタ $OVERALL_RETURN が @c NULL 
+    でない場合は、テキスト全体の表示範囲情報も計算し、その結果を 
+    $OVERALL_RETURN の指す構造体に格納する。
 
     @latexonly \IPAlabel{mdraw_per_char_extents} @endlatexonly  */
 
@@ -2930,12 +2930,12 @@ mdraw_per_char_extents (MFrame *frame, MText *mt,
     @seealso
     MDrawControl */
 /***ja 
-    @brief ����å�������ä�.
+    @brief キャッシュ情報を消す.
 
-    �ؿ� mdraw_clear_cache () ������ؿ��ˤ�ä� M-text $MT 
-    ���ղä��줿����å������򤹤٤ƾõ�롣MDrawControl �� `format' 
-    ���뤤�� `line_break' 
-    ���дؿ��ο��񤤤��Ѥ�ä����ˤϥ���å����õ�ʤ��ƤϤʤ�ʤ���
+    関数 mdraw_clear_cache () は描画関数によって M-text $MT 
+    に付加されたキャッシュ情報をすべて消去する。MDrawControl の `format' 
+    あるいは `line_break' 
+    メンバ関数の振舞いが変わった場合にはキャッシュを消去しなくてはならない。
 
     @seealso
     MDrawControl */
@@ -2950,6 +2950,6 @@ mdraw_clear_cache (MText *mt)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

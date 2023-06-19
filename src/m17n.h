@@ -62,8 +62,8 @@ extern void m17n_fini (void);
 
 /***en @defgroup m17nShell SHELL API
     @brief API provided by libm17n.so */
-/***ja @defgroup m17nShell ������ API
-    @brief libm17n.so ���󶡤��� API */
+/***ja @defgroup m17nShell シェル API
+    @brief libm17n.so が提供する API */
 /*=*/
 
 /*
@@ -77,7 +77,7 @@ extern void m17n_fini (void);
 
 /*** @ingroup m17nShell */
 /***en @defgroup m17nCharset Charset */
-/***ja @defgroup m17nCharset ʸ�����å� */
+/***ja @defgroup m17nCharset 文字セット */
 /*=*/
 
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -136,7 +136,7 @@ extern int mchar_map_charset (MSymbol charset_name,
 /*=*/
 /*** @ingroup m17nShell */
 /***en @defgroup m17nConv Code Conversion */
-/***ja @defgroup m17nConv �������Ѵ� */
+/***ja @defgroup m17nConv コード変換 */
 /*=*/
 
 /* Predefined coding systems */
@@ -194,35 +194,35 @@ extern MSymbol Mmaybe;
     One of these values is set in @c MConverter-\>result.   */
 
 /***ja
-    @brief �������Ѵ��η�̤򼨤�������.
+    @brief コード変換の結果を示すコード.
 
-    �������ͤΤ�����Ĥ� @c MConverter-\>result �����ꤵ��롣  */
+    これらの値のうち一つが @c MConverter-\>result に設定される。  */
 
 enum MConversionResult
   {
     /***en Code conversion is successful. */
-    /***ja �������Ѵ�������. */
+    /***ja コード変換は成功. */
     MCONVERSION_RESULT_SUCCESS,
 
     /***en On decoding, the source contains an invalid byte. */
-    /***ja �ǥ����ɻ����������������ʥХ��Ȥ��ޤޤ�Ƥ���. */
+    /***ja デコード時、ソースに不正なバイトが含まれている. */
     MCONVERSION_RESULT_INVALID_BYTE,
 
     /***en On encoding, the source contains a character that cannot be
 	encoded by the specified coding system. */
-    /***ja ���󥳡��ɻ�������Υ����ɷϤǥ��󥳡��ɤǤ��ʤ�ʸ�����������˴ޤޤ�Ƥ���. */
+    /***ja エンコード時、指定のコード系でエンコードできない文字がソースに含まれている. */
     MCONVERSION_RESULT_INVALID_CHAR,
 
     /***en On decoding, the source ends with an incomplete byte sequence. */
-    /***ja �ǥ����ɻ����Դ����ʥХ�����ǥ�����������äƤ��롣*/
+    /***ja デコード時、不完全なバイト列でソースが終わっている。*/
     MCONVERSION_RESULT_INSUFFICIENT_SRC,
 
     /***en On encoding, the destination is too short to store the result. */
-    /***ja ���󥳡��ɻ�����̤��Ǽ�����ΰ褬û�������롣 */
+    /***ja エンコード時、結果を格納する領域が短かすぎる。 */
     MCONVERSION_RESULT_INSUFFICIENT_DST,
 
     /***en An I/O error occurred in the conversion.  */
-    /***ja �������Ѵ���� I/O ���顼�������ä���  */
+    /***ja コード変換中に I/O エラーが起こった。  */
     MCONVERSION_RESULT_IO_ERROR
   };
 /*=*/
@@ -235,9 +235,9 @@ enum MConversionResult
     are to control the conversion.  */
 
 /***ja
-    @brief �������Ѵ����Ѥ����빽¤��.
+    @brief コード変換に用いられる構造体.
 
-    �������Ѵ����Ѥ����빽¤�Ρ��ǽ�Σ��ĤΥ��Ф��Ѵ������椹�롣
+    コード変換に用いられる構造体。最初の３つのメンバは変換を制御する。
 
     @latexonly \IPAlabel{MConverter} @endlatexonly  
 */
@@ -261,18 +261,18 @@ typedef struct
       with "<M+XXXXXX>" (otherwise).  */
 
   /***ja 
-      ��̩���Ѵ���ɬ�פǤʤ������ͤ� 0 �ʳ��ˤ��롣
-      �ǥե���ȤǤϡ��Ѵ��ϸ�̩�Ǥ��롣
+      厳密な変換が必要でない場合に値を 0 以外にする。
+      デフォルトでは、変換は厳密である。
 
-      �Ѵ�����̩�Ȥϡ��ǥ����ɤκݤˤϺǽ�������ʥХ��Ȥǥ���С������ߤޤ뤳�ȡ�
-      ���󥳡��ɤκݤˤ��Ѵ�����륳���ɷϤǥ��ݡ��Ȥ���ʤ��ǽ��ʸ���ǥ���С������ߤޤ뤳�Ȥ�ؤ���
-      �����ξ�硢@c MConverter-\>result �Ϥ��줾�� @c
-      MCONVERSION_RESULT_INVALID_BYTE ��@c
-      MCONVERSION_RESULT_INVALID_CHAR �Ȥʤ롣
+      変換が厳密とは、デコードの際には最初の不正なバイトでコンバータが止まること、
+      エンコードの際には変換されるコード系でサポートされない最初の文字でコンバータが止まることを指す。
+      これらの場合、@c MConverter-\>result はそれぞれ @c
+      MCONVERSION_RESULT_INVALID_BYTE か@c
+      MCONVERSION_RESULT_INVALID_CHAR となる。
 
-      �Ѵ�����̩�Ǥʤ����ˤϡ��ǥ����ɤκݤ������ʥХ��ȤϤ��ΥХ��ȤΤޤ޻Ĥ롣
-      �ޤ����󥳡��ɤκݤˤϡ�������ʸ���� Unicode ʸ���ξ��ˤ� "<U+XXXX>"
-      �ˡ������Ǥʤ����ˤ� "<M+XXXXXX>" ���֤��������롣  */
+      変換が厳密でない場合には、デコードの際の不正なバイトはそのバイトのまま残る。
+      またエンコードの際には、不正な文字が Unicode 文字の場合には "<U+XXXX>"
+      に、そうでない場合には "<M+XXXXXX>" に置き換えられる。  */
 
   int lenient;
 
@@ -304,22 +304,22 @@ typedef struct
 
 /***ja 
 
-     �Х�����ν�ü�Υ֥��å���ǥ����ɤ���ݡ��ޤ���ʸ����ν�ü�Υ֥��å��򥨥󥳡��ɤ���ݤϡ��ͤ�
-     0 �ʳ��ˤ��롣�����ͤϰʲ��Τ褦���Ѵ��˱ƶ����롣
+     バイト列の終端のブロックをデコードする際、または文字列の終端のブロックをエンコードする際は、値を
+     0 以外にする。この値は以下のように変換に影響する。
 
-     �ǥ����ǥ��󥰤κݤ˺Ǹ�ο��Х��Ȥ��������Х��ȥ��������󥹤��������ˤ�û�������硧
+     デコーディングの際に最後の数バイトが正しいバイトシークエンスを形成するには短すぎる場合：
 
-       �ͤ� 0 �Ǥʤ���С��Ѵ��Ϥ��Υ��������󥹤κǽ�ΥХ��Ȥˤ����ơ����顼
-       (MCONVERSION_RESULT_INVALID_BYTE) �ǽ��롣
+       値が 0 でなければ、変換はそのシークエンスの最初のバイトにおいて、エラー
+       (MCONVERSION_RESULT_INVALID_BYTE) で終る。
 
-       �ͤ� 0 �ʤ�С��Ѵ����������ƽ��롣
-       ����ο��Х��Ȥϥ���꡼�����ФȤ��ƥ���С������ݻ����졢�Ѵ���³����Ԥ��ݤ��Ѵ�����Х�����������դ����롣
+       値が 0 ならば、変換は成功して終る。
+       問題の数バイトはキャリーオーバとしてコンバータに保持され、変換の続きを行う際に変換するバイト列の前に付けられる。
 
-     ���󥳡��ǥ��󥰤κݤ˥����ɷϤ�ʸ̮��¸�ξ�硢
+     エンコーディングの際にコード系が文脈依存の場合、
 
-       �ͤ� 0 �Ǥʤ���С�����ƥ����Ȥ�ǽ���᤹����ΥХ����󤬥�������ʸ���Ȥ������ʤ��Ѵ��η����������뤳�Ȥ����롣
+       値が 0 でなければ、コンテキストを最初に戻すためのバイト列がソースの文字とかかわりなく変換の結果生成されることがある。
 
-       �ͤ� 0 �ʤ�С����Τ褦�ʥХ��������������ʤ���
+       値が 0 ならば、そのようなバイト列は生成されない。
 
 	 */
 
@@ -329,7 +329,7 @@ typedef struct
       If the value is nonzero, it specifies at most how many
       characters to convert.  */
   /***ja
-      0 �Ǥʤ���С��Ѵ����������ʸ��������ꤹ�롣
+      0 でなければ、変換される最大の文字数を指定する。
       */
 
   unsigned at_most;
@@ -338,12 +338,12 @@ typedef struct
       The following three members are to report the result of the
       conversion.  */
   /***ja
-      �ʲ��Σ��ĤΥ��Ф��Ѵ��η�̤�ɽ������Τ�ΤǤ��롣  */
+      以下の３つのメンバは変換の結果を表すためのものである。  */
 
   /***en
       Number of characters most recently decoded or encoded. */
   /***ja
-      �Ƕ�˥ǥ�����/���󥳡��ɤ��줿ʸ������ */
+      最近にデコード/エンコードされた文字数。 */
 
   int nchars;
 
@@ -351,7 +351,7 @@ typedef struct
       Number of bytes recently decoded or encoded. */
 
   /***ja
-      �Ƕ�˥ǥ�����/���󥳡��ɤ��줿�Х��ȿ��� */
+      最近にデコード/エンコードされたバイト数。 */
 
   int nbytes;
 
@@ -359,7 +359,7 @@ typedef struct
       Result code of the conversion. */
 
   /***ja
-      �������Ѵ��η�̤򼨤������ɡ� */
+      コード変換の結果を示すコード。 */
 
   enum MConversionResult result;
 
@@ -370,8 +370,8 @@ typedef struct
       and at least 256 bytes of memory space can be used.  */
 
   /***ja
-      �������Ѵ��ξ����˴ؤ����ξ������Ƥϥ����ɷϤΥ����פˤ�äưۤʤ롣
-      @c status �ϤɤΤ褦�ʷ��ؤΥ��㥹�Ȥ��Ф��Ƥ�����ʤ褦�˥��ꥢ�饤�󤵤�Ƥ��ꡢ�ޤ�����256�Х��ȤΥ����ΰ褬�Ȥ���褦�ˤʤäƤ��롣  */
+      コード変換の状況に関する種々の情報。内容はコード系のタイプによって異なる。
+      @c status はどのような型へのキャストに対しても安全なようにメモリアラインされており、また最低256バイトのメモリ領域が使えるようになっている。  */
 
   union {
     void *ptr;
@@ -382,7 +382,7 @@ typedef struct
   /***en
       This member is for internally use only.  An application program
       should never touch it.  */
-  /***ja ���Υ��Ф�����Ū�˻��Ѥ��졢���ץꥱ�������ץ������Ͽ���ƤϤʤ�ʤ��� */
+  /***ja このメンバは内部的に使用され、アプリケーションプログラムは触れてはならない。 */
   void *internal_info;
 } MConverter;
 /*=*/
@@ -391,7 +391,7 @@ typedef struct
 /***en 
     @brief Types of coding system.  */
 /***ja 
-    @brief �����ɷϤΥ�����.  */
+    @brief コード系のタイプ.  */
 
 enum MCodingType
   {
@@ -404,9 +404,9 @@ enum MCodingType
 	routines of this type.  */
 
     /***ja
-	���Υ����פΥ����ɷϤ�ʸ�����åȤ�ľ�ܥ��ݡ��Ȥ��롣
-	��ʸ�����åȤμ����Ȥϡ�����ʸ�����åȤǰ�ʸ����ɽ�����뤿���ɬ�פʥХ��ȿ��Ǥ��ꡢ�Х������ʸ���Υ����ɥݥ���Ȥ�ľ��ɽ����
-	m17n �饤�֥��Ϥ��Υ������ѤΥǥե���ȤΥ��󥳡��ɡ��ǥ����ɥ롼�ƥ�����󶡤��롣  */
+	このタイプのコード系は文字セットを直接サポートする。
+	各文字セットの次元とは、その文字セットで一文字を表現するために必要なバイト数であり、バイト列は文字のコードポイントを直接表す。
+	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_CHARSET,
 
@@ -417,8 +417,8 @@ enum MCodingType
 	routines of this type.  */
 
     /***ja
-	���Υ����פΥ����ɷϤϡ�UTF �� (UTF-8, UTF-16, UTF-32) �ΥХ�����򥵥ݡ��Ȥ��롣
-	m17n �饤�֥��Ϥ��Υ������ѤΥǥե���ȤΥ��󥳡��ɡ��ǥ����ɥ롼�ƥ�����󶡤��롣  */
+	このタイプのコード系は、UTF 系 (UTF-8, UTF-16, UTF-32) のバイト列をサポートする。
+	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_UTF,
 
@@ -430,9 +430,9 @@ enum MCodingType
 	this type.  */
 
     /***ja 
-        ���Υ����פΥ����ɷϤϡ�ISO-2022 �ϤΥХ�����򥵥ݡ��Ȥ��롣
-	�ƥ����ɷϤι�¤�ξܺ٤� @c MCodingInfoISO2022 �ǻ��ꤵ��롣
-	m17n �饤�֥��Ϥ��Υ������ѤΥǥե���ȤΥ��󥳡��ɡ��ǥ����ɥ롼�ƥ�����󶡤��롣  */
+        このタイプのコード系は、ISO-2022 系のバイト列をサポートする。
+	各コード系の構造の詳細は @c MCodingInfoISO2022 で指定される。
+	m17n ライブラリはこのタイプ用のデフォルトのエンコード／デコードルーティンを提供する。  */
 
     MCODING_TYPE_ISO_2022,
 
@@ -444,8 +444,8 @@ enum MCodingType
 	application program.  */
 
     /***ja
-	���Υ����פΥ����ɷϤϡ�����¾�ι�¤�ΥХ�����Τ���Τ�ΤǤ��롣
-	m17n �饤�֥��Ϥ��Υ������ѤΥ��󥳡��ɡ��ǥ����ɥ롼�ƥ�����󶡤��ʤ��Τǡ����ץꥱ�������ץ������¦�ǽ�������ɬ�פ����롣  */
+	このタイプのコード系は、その他の構造のバイト列のためのものである。
+	m17n ライブラリはこのタイプ用のエンコード／デコードルーティンを提供しないので、アプリケーションプログラム側で準備する必要がある。  */
 
     MCODING_TYPE_MISC
   };
@@ -455,29 +455,29 @@ enum MCodingType
 /***en 
     @brief  Bit-masks to specify the detail of coding system whose type is MCODING_TYPE_ISO_2022.  */
 /***ja 
-    @brief MCODING_TYPE_ISO_2022 �����פΥ����ɷϤξܺ٤�ɽ�魯�ӥåȥޥ���.  */
+    @brief MCODING_TYPE_ISO_2022 タイプのコード系の詳細を表わすビットマスク.  */
 
 enum MCodingFlagISO2022
   {
     /***en
 	On encoding, reset the invocation and designation status to
 	initial at end of line.  */
-    /***ja ���󥳡��ɤκݡ������ǸƤӽФ� (invocation) �Ȼؼ�
-	(designation) �ξ��֤����ͤ��᤹��   */
+    /***ja エンコードの際、行末で呼び出し (invocation) と指示
+	(designation) の状態を初期値に戻す。   */
     MCODING_ISO_RESET_AT_EOL =		0x1,
 
     /***en
 	On encoding, reset the invocation and designation status to
 	initial before any control codes.  */
     /***ja
-	���󥳡��ɤκݡ����٤Ƥ�����ʸ�������ǡ��ƤӽФ�
-	(invocation) �Ȼؼ� (designation) �ξ��֤����ͤ��᤹��        */
+	エンコードの際、すべての制御文字の前で、呼び出し
+	(invocation) と指示 (designation) の状態を初期値に戻す。        */
     MCODING_ISO_RESET_AT_CNTL =		0x2,
 
     /***en
 	Use the right graphic plane.  */
     /***ja
-	�޷�ʸ������α�¦��Ȥ���  */
+	図形文字集合の右側を使う。  */
     MCODING_ISO_EIGHT_BIT =		0x4,
 
     /***en
@@ -485,7 +485,7 @@ enum MCodingFlagISO2022
 	for charsets JISX0208-1978, GB2312, and JISX0208-1983.  */
     /***ja
 	JISX0208-1978, GB2312, JISX0208-1983 
-	��ʸ��������Ф���ؼ����������󥹤Ȥ��ơ���ɸ���4�Х��ȷ������Ѥ��롣 */
+	の文字集合に対する指示シークエンスとして、非標準の4バイト形式を用いる。 */
 
     MCODING_ISO_LONG_FORM =		0x8,
 
@@ -493,24 +493,24 @@ enum MCodingFlagISO2022
 	On encoding, unless explicitly specified, designate charsets
 	to G0.  */
     /***ja 
-        ���󥳡��ɤκݡ��ä˻��ꤵ��ʤ��¤ꡢʸ������� G0 
-	�˻ؼ����롣*/
+        エンコードの際、特に指定されない限り、文字集合を G0 
+	に指示する。*/
     MCODING_ISO_DESIGNATION_G0 =		0x10,
 
     /***en
 	On encoding, unless explicitly specified, designate charsets
 	except for ASCII to G1.  */
     /***ja
-	���󥳡��ɤκݡ��ä˻��ꤵ��ʤ��¤ꡢASCII �ʳ���ʸ������� 
-	G1 �˻ؼ����롣*/
+	エンコードの際、特に指定されない限り、ASCII 以外の文字集合を 
+	G1 に指示する。*/
     MCODING_ISO_DESIGNATION_G1 =		0x20,
 
     /***en
 	On encoding, unless explicitly specified, designate 94-chars
 	charsets to G0, 96-chars charsets to G1.  */
     /***ja
-	���󥳡��ɤκݡ��ä˻��ꤵ��ʤ��¤ꡢ94ʸ������� G0 
-	�ˡ�96ʸ������� G1 �˻ؼ����롣*/
+	エンコードの際、特に指定されない限り、94文字集合を G0 
+	に、96文字集合を G1 に指示する。*/
     MCODING_ISO_DESIGNATION_CTEXT =	0x40,
 
     /***en
@@ -519,55 +519,55 @@ enum MCodingFlagISO2022
 	ESC % G ... ESC % @@ .  On decoding, handle those escape
 	sequences.  */
     /***ja
-	���󥳡��ɤκݡ�ISO-2022 �˹��פ��ʤ�ʸ������� ESC % / ... 
-	�ǥ��󥳡��ɤ��롣���ݡ��Ȥ���Ƥ��ʤ� Unicode ʸ���� ESC % G ...
-	ESC % @@ �ǥ��󥳡��ɤ��롣
-	�ǥ����ɤκݡ������Υ��������ס��������󥹤��᤹�롣  */
+	エンコードの際、ISO-2022 に合致しない文字集合を ESC % / ... 
+	でエンコードする。サポートされていない Unicode 文字は ESC % G ...
+	ESC % @@ でエンコードする。
+	デコードの際、これらのエスケープ・シーケンスを解釈する。  */
     MCODING_ISO_DESIGNATION_CTEXT_EXT =	0x80,
 
     /***en
 	Use locking shift.  */
     /***ja
-	���å��󥰥��եȤ�Ȥ���  */
+	ロッキングシフトを使う。  */
     MCODING_ISO_LOCKING_SHIFT =	0x100,
 
     /***en
 	Use single shift (SS2 (0x8E or ESC N), SS3 (0x8F or ESC O)).  */
     /***ja
-	���󥰥륷�ե� (SS2 (0x8E or ESC N), SS3 (0x8F or ESC O)) ��Ȥ���  */
+	シングルシフト (SS2 (0x8E or ESC N), SS3 (0x8F or ESC O)) を使う。  */
     MCODING_ISO_SINGLE_SHIFT =	0x200,
 
     /***en
 	Use 7-bit single shift 2 (SS2 (0x19)).  */
     /***ja
-	7�ӥåȥ��󥰥륷�ե� 2 (SS2 (0x19)) ��Ȥ���  */
+	7ビットシングルシフト 2 (SS2 (0x19)) を使う。  */
     MCODING_ISO_SINGLE_SHIFT_7 =	0x400,
 
     /***en
 	Use EUC-TW like special shifting.  */
     /***ja
-	EUC-TW �������̤ʥ��եȤ�Ȥ���  */
+	EUC-TW 風の特別なシフトを使う。  */
     MCODING_ISO_EUC_TW_SHIFT =	0x800,
 
     /***en
 	Use ISO-6429 escape sequences to indicate direction.
 	Not yet implemented.  */
     /***ja
-	ISO-6429 �Υ��������ץ��������󥹤�������ؼ����롣̤������ */
+	ISO-6429 のエスケープシークエンスで方向を指示する。未実装。 */
     MCODING_ISO_ISO6429 =		0x1000,
 
     /***en
 	On encoding, if a charset has revision number, produce escape
 	sequences to specify the number.  */
     /***ja
-	���󥳡��ɤκݡ�ʸ�����åȤ� revision number 
-	������Ф����ɽ�魯���������ץ��������󥹤��������롣        */
+	エンコードの際、文字セットに revision number 
+	があればそれを表わすエスケープシークエンスを生成する。        */
     MCODING_ISO_REVISION_NUMBER =	0x2000,
 
     /***en
 	Support all ISO-2022 charsets.  */
     /***ja
-	ISO-2022 ����ʸ������򥵥ݡ��Ȥ��롣  */
+	ISO-2022 の全文字集合をサポートする。  */
     MCODING_ISO_FULL_SUPPORT =		0x3000,
 
     MCODING_ISO_FLAG_MAX
@@ -582,9 +582,9 @@ enum MCodingFlagISO2022
     MCODING_TYPE_ISO_2022.  */
 
 /***ja 
-    @brief #MCODING_TYPE_ISO_2022 �����פΥ����ɷϤ�ɬ�פ��ղþ����ѹ�¤��.
+    @brief #MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用構造体.
 
-    MCODING_TYPE_ISO_2022 �����פΥ����ɷϤ�ɬ�פ��ղþ����Ѥ��ݻ����뤿��ι�¤�Ρ�
+    MCODING_TYPE_ISO_2022 タイプのコード系で必要な付加情報用を保持するための構造体。
 
     @latexonly \IPAlabel{MCodingInfoISO2022} @endlatexonly  */
 
@@ -596,9 +596,9 @@ typedef struct
       means no code extension element is invoked to that plane.  */
 
   /***ja
-      �ƿ޷�ʸ���ΰ� (Graphic Left �� Graphic Right) �˸ƤӽФ���Ƥ��롢
-      ISO2022 ����ĥ���Ǥ��ֹ�Υơ��֥롣-1 
-      �Ϥ����ΰ�ˤɤ�����ĥ���Ǥ�ƤӽФ���Ƥ��ʤ����Ȥ򼨤���   */
+      各図形文字領域 (Graphic Left と Graphic Right) に呼び出されている、
+      ISO2022 符合拡張要素の番号のテーブル。-1 
+      はその領域にどの符合拡張要素も呼び出されていないことを示す。   */
 
   int initial_invocation[2];
 
@@ -617,16 +617,16 @@ typedef struct
       register.  */
 
   /***ja
-      ����ĥ���ǤΥơ��֥롣N���ܤ����Ǥϡ�$CHARSET_NAMES �� N 
-      ���ܤ�ʸ�����åȤ��б����롣$CHARSET_NAMES �ϴؿ� 
-      mconv_define_coding () �ΰ����Ȥʤ롣
+      符合拡張要素のテーブル。N番目の要素は、$CHARSET_NAMES の N 
+      番目の文字セットに対応する。$CHARSET_NAMES は関数 
+      mconv_define_coding () の引数となる。
 
-      �ͤ� 0..3 ���ä��顢�б�����ʸ�����åȤ� G0..G3 
-      �Τ��줾��˻ؼ����뤳�ȡ��ޤ�������֤Ǥ��Ǥ� G0..G3
-      �˻ؼ�����Ƥ��뤳�Ȥ��̣���롣
+      値が 0..3 だったら、対応する文字セットを G0..G3 
+      のそれぞれに指示すること、また初期状態ですでに G0..G3
+      に指示されていることを意味する。
 
-      �ͤ� -4..-1 ���ä��顢�б�����ʸ�����åȤ� G0..G3 
-      �Τ��줾��˻ؼ����뤳�ȡ�������������֤ǤϤɤ��ˤ�ؼ�����Ƥ��ʤ����Ȥ��̣���롣
+      値が -4..-1 だったら、対応する文字セットを G0..G3 
+      のそれぞれに指示すること、しかし初期状態ではどこにも指示されていないことを意味する。
         */
 
   char designations[32];
@@ -635,7 +635,7 @@ typedef struct
       Bitwise OR of @c enum @c MCodingFlagISO2022 .  */
 
   /***ja
-      @c enum @c MCodingFlagISO2022 �Υӥå�ñ�̤Ǥ����� OR  */
+      @c enum @c MCodingFlagISO2022 のビット単位での論理 OR  */
 
   unsigned flags;
 
@@ -648,7 +648,7 @@ typedef struct
     */
 
 /***ja
-    @brief #MCODING_TYPE_UTF �����פΥ����ɷϤ�ɬ�פ��ղþ����Ѥι�¤��.
+    @brief #MCODING_TYPE_UTF タイプのコード系で必要な付加情報用の構造体.
 
     @latexonly \IPApage{MCodingInfoUTF} @endlatexonly
 
@@ -659,7 +659,7 @@ typedef struct
   /***en
       Specify bits of a code unit.  The value must be 8, 16, or 32.  */
   /***ja
-      ������Ĺ�ʥӥåȿ��ˤλ��ꡣ�ͤ� 8, 16, 32 �Τ����줫��  */
+      コード長（ビット数）の指定。値は 8, 16, 32 のいずれか。  */
   int code_unit_bits;
 
   /***en
@@ -682,20 +682,20 @@ typedef struct
       If \<code_unit_bits\> is 8, the value has no meaning.  */
 
   /***ja
-      ��Ƭ�� BOM (�Х��ȥ��������ޡ���) �μ�갷������ꤹ�롣�ͤ� 0,
-      1, 2 �Τ����줫�Ǥ��ꡢ���줾��ΰ�̣�ϰʲ��Τ褦�ˤʤ롣
+      先頭の BOM (バイトオーダーマーク) の取り扱いを指定する。値は 0,
+      1, 2 のいずれかであり、それぞれの意味は以下のようになる。
 
-      0: �ǥ����ɤκݤ˺ǽ�� 2 �Х��Ȥ�Ĵ�٤롣�⤷���줬 BOM 
-      �Ǥ���С�����ǥ�����򤽤��Ƚ�ꤹ�롣�����Ǥʤ���С����� @c
-      endian �˽��äƥ���ǥ��������ꤹ�롣���󥳡��ɤκݤˤ� @c
-      endian �˽��ä��Х��������Ƭ�� BOM �դ��������롣
+      0: デコードの際に最初の 2 バイトを調べる。もしそれが BOM 
+      であれば、エンディアンをそれで判定する。そうでなければ、メンバ @c
+      endian に従ってエンディアンを決定する。エンコードの際には @c
+      endian に従ったバイト列を先頭に BOM 付で生成する。
 
-      1: �ǥ����ɤκݡ��ǽ�� 2 �Х��Ȥ� BOM �Ȥ��ư��鷺������ǥ������
-      @c endian ��Ƚ�ꤹ�롣���󥳡��ɤκݤˤϡ�BOM ����Ϥ�����
-      @c endian �˱������Х�������������롣
+      1: デコードの際、最初の 2 バイトを BOM として扱わず、エンディアンは
+      @c endian で判定する。エンコードの際には、BOM を出力せず、
+      @c endian に応じたバイト列を生成する。
 
-      2: �ǥ����ɤκݤ˺ǽ��2�Х��Ȥ� BOM�Ȥ��ư���������˽��äƥ���ǥ������Ƚ�ꤹ�롣
-      ���󥳡��ɤκݤˤ� @c endian �˱������Х��������Ƭ�� BOM �դ����������롣  */
+      2: デコードの際に最初の2バイトを BOMとして扱い、それに従ってエンディアンを判定する。
+      エンコードの際には @c endian に応じたバイト列を先頭に BOM 付きで生成する。  */
   int bom;
 
   /***en
@@ -704,10 +704,10 @@ typedef struct
 
       If \<code_unit_bits\> is 8, the value has no meaning.  */
   /***ja
-      ����ǥ�����Υ����פ���ꤹ�롣�ͤ� 0 �� 1 �Ǥ��ꡢ0 
-      �ʤ�Х�ȥ륨��ǥ�����1 �ʤ�Хӥå�����ǥ�����Ǥ��롣
+      エンディアンのタイプを指定する。値は 0 か 1 であり、0 
+      ならばリトルエンディアン、1 ならばビッグエンディアンである。
 
-      \<code_unit_bits\> �� 8 �ξ��ˤϡ������ͤϰ�̣������ʤ���
+      \<code_unit_bits\> が 8 の場合には、この値は意味を持たない。
   */
   int endian;
 } MCodingInfoUTF;
@@ -769,7 +769,7 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
 /*=*/
 /*** @ingroup m17nShell */
 /***en @defgroup m17nLocale Locale */
-/***ja @defgroup m17nLocale �������� */
+/***ja @defgroup m17nLocale ロケール */
 /*=*/
 
 /*** @ingroup m17nLocale */
@@ -784,12 +784,12 @@ extern MText *mconv_gets (MConverter *converter, MText *mt);
     internal structure is concealed from application programs.  */
 
 /***ja
-    @brief @c MLocale ��¤��.
+    @brief @c MLocale 構造体.
 
-    @c MLocale ��¤�Τϡ����������̾�������졢�ϰ衢��ǥ��ե������������ɥ��åȡ�������б����륳���ɷϤ˴ؤ��������ݻ����뤿����Ѥ����롣
+    @c MLocale 構造体は、ロケールの名前、言語、地域、モディファイア、コードセット、および対応するコード系に関する情報を保持するために用いられる。
 
-    ���ι�¤�Τ����Ƥϼ����˰�¸���롣 
-    ������¤�ϥ��ץꥱ�������ץ�����फ��ϸ����ʤ���  */
+    この構造体の内容は実装に依存する。 
+    内部構造はアプリケーションプログラムからは見えない。  */
 
 /***
     @seealso
@@ -848,7 +848,7 @@ extern MText *mtext_toupper (MText *mt);
 /*=*/
 /*** @ingroup m17nShell */
 /***en @defgroup m17nInputMethod Input Method (basic) */
-/***ja @defgroup m17nInputMethod ���ϥ᥽�å� (������ʬ) */
+/***ja @defgroup m17nInputMethod 入力メソッド (基本部分) */
 /*=*/
 
 /*** @addtogroup m17nInputMethod 
@@ -871,10 +871,10 @@ typedef struct MInputContext MInputContext;
     drivers.  $IC is a pointer to an input context, $COMMAND is a name
     of callback for which the function is called.   */
 /***ja
-    @brief ���ϥ᥽�åɥ�����Хå��ؿ��η����.
+    @brief 入力メソッドコールバック関数の型宣言.
 
-    ���ϥ᥽�åɤ���ƤФ�륳����Хå��ؿ��η��Ǥ��롣$IC 
-    �����ϥ���ƥ����ȤؤΥݥ��󥿡�$COMMAND �ϴؿ����ƤФ�륳����Хå���̾���Ǥ��롣  */
+    入力メソッドから呼ばれるコールバック関数の型である。$IC 
+    は入力コンテクストへのポインタ、$COMMAND は関数が呼ばれるコールバックの名前である。  */
 
 typedef void (*MInputCallbackFunc) (MInputContext *ic, MSymbol command);
 /*=*/
@@ -886,9 +886,9 @@ typedef void (*MInputCallbackFunc) (MInputContext *ic, MSymbol command);
     contains several functions to handle an input method.  */
 
 /***ja
-    @brief ���ϥɥ饤���ѹ�¤��.
+    @brief 入力ドライバ用構造体.
 
-    @c MInputDriver �ϡ����ϥ᥽�åɤ��갷���ؿ���ޤ����ϥ᥽�åɥɥ饤�Фι�¤�Τη��Ǥ��롣  */
+    @c MInputDriver は、入力メソッドを取り扱う関数を含む入力メソッドドライバの構造体の型である。  */
 
 typedef struct MInputDriver
 {
@@ -902,13 +902,13 @@ typedef struct MInputDriver
       information that is referred by the other driver functions.  */
 
   /***ja
-      @brief ���ϥ᥽�åɤ򥪡��ץ󤹤�.
+      @brief 入力メソッドをオープンする.
 
-      ���δؿ��ϡ����ϥ᥽�å� $IM �򥪡��ץ󤹤롣$IM �� \<info\> 
-      �ʳ��������С������åȤ��줿��ǡ��ؿ� minput_open_im () 
-      ����ƤФ�롣$IM �򥪡��ץ�Ǥ���� 0 �򡢤Ǥ��ʤ���� -1���֤���
-      ���δؿ��� $IM->info 
-      �����ꤷ�ơ�¾�Υɥ饤�дؿ����黲�Ȥ���������ݻ����뤳�Ȥ��Ǥ��롣
+      この関数は、入力メソッド $IM をオープンする。$IM の \<info\> 
+      以外の全メンバーがセットされた後で、関数 minput_open_im () 
+      から呼ばれる。$IM をオープンできれば 0 を、できなければ -1を返す。
+      この関数は $IM->info 
+      を設定して、他のドライバ関数から参照される情報を保持することができる。
       */
 
   int (*open_im) (MInputMethod *im);
@@ -923,13 +923,13 @@ typedef struct MInputDriver
       touched.  */
 
   /***ja
-      @brief ���ϥ᥽�åɤ򥯥���������.
+      @brief 入力メソッドをクローズする.
 
-      ���δؿ��ϡ����ϥ᥽�å� $IM �򥯥��������롣�ؿ� 
-      minput_close_im () ����ƤФ�롣
-      ���ϥ᥽�åɤΥ������������٤ƽ�λ���������ǡ����δؿ���$IM->info 
-      �˳�����Ƥ��Ƥ�������(�����)���٤Ƴ������롣
-      ��������$IM ��¾�Υ��Ф˱ƶ���Ϳ���ƤϤʤ�ʤ���
+      この関数は、入力メソッド $IM をクローズする。関数 
+      minput_close_im () から呼ばれる。
+      入力メソッドのクローズがすべて終了した時点で、この関数は$IM->info 
+      に割り当てられているメモリを(あれば)すべて開放する。
+      ただし、$IM の他のメンバに影響を与えてはならない。
         */
 
   void (*close_im) (MInputMethod *im);
@@ -945,13 +945,13 @@ typedef struct MInputDriver
       functions.  */
 
   /***ja
-      @brief ���ϥ���ƥ����Ȥ���������.
+      @brief 入力コンテクストを生成する.
 
-      ���δؿ������ϥ���ƥ����� $IC ���������롣
-      $IC �� \<info\> �ʳ��������С������åȤ��줿��ǡ��ؿ�
-      minput_create_ic () ����ƤФ�롣
-      $IC �������Ǥ���� 0 �򡢤Ǥ��ʤ���� -1 ���֤���
-      ���δؿ��� $IC->info �����ꤷ�ơ�¾�Υɥ饤�дؿ����黲�Ȥ���������ݻ����뤳�Ȥ��Ǥ��롣  */
+      この関数は入力コンテクスト $IC を生成する。
+      $IC の \<info\> 以外の全メンバーがセットされた後で、関数
+      minput_create_ic () から呼ばれる。
+      $IC を生成できれば 0 を、できなければ -1 を返す。
+      この関数は $IC->info を設定して、他のドライバ関数から参照される情報を保持することができる。  */
 
 
   int (*create_ic) (MInputContext *ic);
@@ -966,12 +966,12 @@ typedef struct MInputDriver
       should not be touched.  */
 
   /***ja
-      @brief ���ϥ���ƥ����Ȥ��˲�����.
+      @brief 入力コンテクストを破壊する.
 
-      �ؿ� minput_destroy_ic () ����ƤФ졢���ϥ���ƥ����� $IC 
-      ���˲����롣���ϥ���ƥ����Ȥ��˲������٤ƽ�λ���������ǡ�$IC->info 
-      �˳�����Ƥ��Ƥ�������(�����)���٤Ƴ������롣��������$IC 
-      ��¾�Υ��Ф˱ƶ���Ϳ���ƤϤʤ�ʤ���  */
+      関数 minput_destroy_ic () から呼ばれ、入力コンテクスト $IC 
+      を破壊する。入力コンテクストの破壊がすべて終了した時点で、$IC->info 
+      に割り当てられているメモリを(あれば)すべて開放する。ただし、$IC 
+      の他のメンバに影響を与えてはならない。  */
 
   void (*destroy_ic) (MInputContext *ic);
 
@@ -995,22 +995,22 @@ typedef struct MInputDriver
       minput_gui_driver for instance.  */
 
   /***ja
-      @brief ���ϥ�����ե��륿����.
+      @brief 入力キーをフィルタする.
 
-      �ؿ� minput_filter () ����ƤФ졢���ϥ�����ե��륿���롣���� 
-      $KEY, $ARG �ϴؿ� minput_filter () �Τ�Τ�Ʊ����
+      関数 minput_filter () から呼ばれ、入力キーをフィルタする。引数 
+      $KEY, $ARG は関数 minput_filter () のものと同じ。
 
-      ���δؿ��� $KEY ���������$IC ���������֤򹹿����롣 $KEY 
-      �����ϥ᥽�åɤ˵ۼ�����ƥƥ����Ȥ���������ʤ��ä����ˤϡ� 
-      1 ���֤��������Ǥʤ���� 0 ���֤���
+      この関数は $KEY を処理し、$IC の内部状態を更新する。 $KEY 
+      が入力メソッドに吸収されてテキストが生成されなかった場合には、 
+      1 を返す。そうでなければ 0 を返す。
 
-      ���� \<callback\> ��ɬ�פǤ���С�$IC->status, $IC->preedit,
+      メンバ \<callback\> に必要であれば、$IC->status, $IC->preedit,
       $IC->cursor_pos, $IC->ncandidates, $IC->candidates,
-      $IC->produced �򹹿��Ǥ��롣
+      $IC->produced を更新できる。
 
-      $ARG �ΰ�̣�����ϥ᥽�åɥɥ饤�Ф˰�¸���롣��� @c
-      minput_default_driver �ޤ��� @c minput_gui_driver 
-      �������򻲾ȤΤ��ȡ� */
+      $ARG の意味は入力メソッドドライバに依存する。例は @c
+      minput_default_driver または @c minput_gui_driver 
+      の説明を参照のこと。 */
 
   int (*filter) (MInputContext *ic, MSymbol key, void *arg);
 
@@ -1028,16 +1028,16 @@ typedef struct MInputDriver
       minput_gui_driver for instance.  */
 
   /***ja
-      @brief ���ϥ���ƥ����Ȥ����������ƥ����Ȥγ���.
+      @brief 入力コンテクストで生成されるテキストの獲得.
 
-      �ؿ� minput_lookup () ����ƤФ졢���ϥ���ƥ����� $IC 
-      �����������ƥ����Ȥ򸡺����롣���ϥ��� $KEY 
-      �ˤ�ä����������ƥ����Ȥ�����С�M-text $MT ���ɲä��롣 $KEY
-      �����ϥ᥽�å� $IC �ˤ�ä����������������� 0 ���֤��������Ǥʤ���� 1 ���֤���
+      関数 minput_lookup () から呼ばれ、入力コンテクスト $IC 
+      で生成されるテキストを検索する。入力キー $KEY 
+      によって生成されるテキストがあれば、M-text $MT に追加する。 $KEY
+      が入力メソッド $IC によって正しく処理されれば 0 を返す。そうでなければ 1 を返す。
 
-      $ARG �ΰ�̣�����ϥ᥽�åɥɥ饤�Ф˰�¸���롣��� @c
-      minput_default_driver �ޤ��� @c minput_gui_driver �������򻲾Ȥ�
-      ���ȡ� */
+      $ARG の意味は入力メソッドドライバに依存する。例は @c
+      minput_default_driver または @c minput_gui_driver の説明を参照の
+      こと。 */
 
   int (*lookup) (MInputContext *ic, MSymbol key, void *arg, MText *mt);
 
@@ -1053,16 +1053,16 @@ typedef struct MInputDriver
       @b Minput_get_surrounding_text, @b Minput_delete_surrounding_text.
       Values are functions of type #MInputCallbackFunc.  */
   /***ja
-      @brief ������Хå��ؿ��Υꥹ��.
+      @brief コールバック関数のリスト.
 
-      ������Хå��ؿ��Υꥹ�ȡ������ϼ��Τ����줫��
+      コールバック関数のリスト。キーは次のいずれか。
       @b Minput_preedit_start, @b Minput_preedit_draw,
       @b Minput_preedit_done, @b Minput_status_start, @b Minput_status_draw,
       @b Minput_status_done, @b Minput_candidates_start,
       @b Minput_candidates_draw, @b Minput_candidates_done,
       @b Minput_set_spot, @b Minput_toggle, @b Minput_reset,
-      @b Minput_get_surrounding_text, @b Minput_delete_surrounding_text��
-      �ͤ�#MInputCallbackFunc ���δؿ���  */
+      @b Minput_get_surrounding_text, @b Minput_delete_surrounding_text。
+      値は#MInputCallbackFunc 型の関数。  */
   MPlist *callback_list;
 
 } MInputDriver;
@@ -1112,36 +1112,36 @@ extern MSymbol Mconfigured;
     The type @c MInputMethod is the structure of input method
     objects.  */
 /***ja
-    @brief ���ϥ᥽�åɤι�¤��.
+    @brief 入力メソッドの構造体.
 
-    @c MInputMethod �ϡ����ϥ᥽�åɥ��֥��������Ѥι�¤�Τη��Ǥ��롣  */
+    @c MInputMethod は、入力メソッドオブジェクト用の構造体の型である。  */
 
 struct MInputMethod
 {
   /***en Which language this input method is for.  The value is @c
       Mnil if the input method is foreign.  */
-  /***ja �ɤθ����Ѥ����ϥ᥽�åɤ���
-      ���ϥ᥽�åɤ������Τ�ΤǤ�������ͤ� @c Mnil ��  */
+  /***ja どの言語用の入力メソッドか。
+      入力メソッドが外部のものである場合の値は @c Mnil 。  */
   MSymbol language;
 
   /***en Name of the input method.  If the input method is foreign, it
       must has a property of key @c Minput_driver and the value must be a
       pointer to a proper input method driver.  */
-  /***ja ���ϥ᥽�åɤ�̾���������᥽�åɤǤ�����ˤϡ�@c
-      Minput_driver �򥭡��Ȥ���ץ��ѥƥ�������������ͤ�Ŭ�ڤ����ϥ᥽�åɥɥ饤�ФؤΥݥ��󥿤Ǥʤ��ƤϤʤ�ʤ���*/
+  /***ja 入力メソッドの名前。外部メソッドである場合には、@c
+      Minput_driver をキーとするプロパティを持ち、その値は適切な入力メソッドドライバへのポインタでなくてはならない。*/
   MSymbol name;
 
   /***en Input method driver of the input method.  */
-  /***ja �������ϥ᥽�å��Ѥ����ϥ᥽�åɥɥ饤�С�  */
+  /***ja その入力メソッド用の入力メソッドドライバ。  */
   MInputDriver driver;
 
   /***en The argument given to minput_open_im (). */
-  /***ja minput_open_im () ���Ϥ���������  */
+  /***ja minput_open_im () に渡される引数。  */
   void *arg;
 
   /***en Pointer to extra information that \<driver\>.open_im ()
       setups. */
-  /***ja \<driver\>.open_im () �����ꤹ���ɲþ���ؤΥݥ��󥿡� */
+  /***ja \<driver\>.open_im () が設定する追加情報へのポインタ。 */
   void *info;
 };
 
@@ -1151,7 +1151,7 @@ struct MInputMethod
     @brief Bit-masks to specify how candidates of input method is changed.  */
 
 /***ja
-    @brief ���ϥ᥽�åɤ����ϸ��䤬�ɤ��ѹ����줿���򼨤��ӥåȥޥ���.  */
+    @brief 入力メソッドの入力候補がどう変更されたかを示すビットマスク.  */
 
 enum MInputCandidatesChanged
   {
@@ -1171,57 +1171,57 @@ enum MInputCandidatesChanged
     objects.  */
 
 /***ja
-    @brief ���ϥ���ƥ������ѹ�¤��.
+    @brief 入力コンテクスト用構造体.
 
-    @c MInputContext �ϡ����ϥ���ƥ����ȥ��֥��������Ѥι�¤�Τη��Ǥ��롣  */
+    @c MInputContext は、入力コンテクストオブジェクト用の構造体の型である。  */
 
 struct MInputContext
 {
   /***en Backward pointer to the input method.  It is set up by the
       function minput_create_ic ().  */
-  /***ja ���ϥ᥽�åɤؤεեݥ��󥿡��ؿ� minput_create_ic () 
-      �ˤ�ä����ꤵ��롣  */ 
+  /***ja 入力メソッドへの逆ポインタ。関数 minput_create_ic () 
+      によって設定される。  */ 
   MInputMethod *im;
 
   /***en M-text produced by the input method.  It is set up by the
       function minput_filter () .  */
-  /***ja ���ϥ᥽�åɤˤ�ä���������� M-text���ؿ� minput_filter () 
-      �ˤ�ä����ꤵ��롣  */
+  /***ja 入力メソッドによって生成される M-text。関数 minput_filter () 
+      によって設定される。  */
   MText *produced;
 
   /***en Argument given to the function minput_create_ic (). */
-  /***ja �ؿ� minput_create_ic () ���Ϥ��������� */
+  /***ja 関数 minput_create_ic () に渡される引数。 */
   void *arg;
 
   /***en Flag telling whether the input context is currently active or
       inactive.  The value is set to 1 (active) when the input context
       is created.  It is toggled by the function minput_toggle ().  */
-  /***ja ���ϥ���ƥ����Ȥ������ƥ��֤��ɤ����򼨤��ե饰��
-      ���ϥ���ƥ����Ȥ��������줿�����Ǥ��ͤ� 1 �ʥ����ƥ��֡ˤǤ��ꡢ�ؿ� 
-      minput_toggle () �ˤ�äƥȥ��뤵��롣  */
+  /***ja 入力コンテクストがアクティブかどうかを示すフラグ。
+      入力コンテクストが生成された時点では値は 1 （アクティブ）であり、関数 
+      minput_toggle () によってトグルされる。  */
   int active;
 
   /***en Spot location and size of the input context.  */
-  /***ja ���ϥ���ƥ����ȤΥ��ݥåȤΰ��֤��礭��.  */
+  /***ja 入力コンテクストのスポットの位置と大きさ.  */
   struct {
     /***en X and Y coordinate of the spot.  */
-    /***ja ���ݥåȤ� X, Y ��ɸ.  */
+    /***ja スポットの X, Y 座標.  */
     int x, y;
 
     /***en Ascent and descent pixels of the line of the spot.  */
-    /***ja ���ݥåȤΥ�����Ȥȥǥ�����ȤΥԥ������.  */
+    /***ja スポットのアセントとディセントのピクセル数.  */
     int ascent, descent;
 
     /***en Font size for preedit text in 1/10 point.  */
-    /***ja preedit �ƥ������ѤΥե���ȥ����� (1/10 �ݥ����ñ��).  */
+    /***ja preedit テキスト用のフォントサイズ (1/10 ポイント単位).  */
     int fontsize;
 
     /***en M-text at the spot, or NULL.  */
-    /***ja ���ݥåȾ�� M-text���ޤ��� NULL.  */
+    /***ja スポット上の M-text、または NULL.  */
     MText *mt;
 
     /***en Character position in \<mt\> at the spot.  */
-    /***ja \<mt\> �ˤ����륹�ݥåȤ�ʸ������.  */
+    /***ja \<mt\> におけるスポットの文字位置.  */
     int pos;
   } spot;
 
@@ -1229,48 +1229,48 @@ struct MInputContext
       method driver.  The descriptions below are for the driver of an
       internal input method.  They are set by the function
       \<im\>->driver.filter ().  */
-  /***ja �ʲ��Υ��Фλ���ˡ�����ϥ᥽�åɥɥ饤�Фˤ�äưۤʤ롣
-      �ʲ��������ϡ��������ϥ᥽�å��Ѥ����ϥɥ饤�Ф��Ф����ΤǤ��롣
-      �����ϴؿ� \<im\>->driver.filter () �ˤ�ä����ꤵ��롣  */
+  /***ja 以下のメンバの使用法は入力メソッドドライバによって異なる。
+      以下の説明は、内部入力メソッド用の入力ドライバに対するものである。
+      これらは関数 \<im\>->driver.filter () によって設定される。  */
 
   /***en Pointer to extra information that \<im\>->driver.create_ic ()
       setups.  It is used to record the internal state of the input
       context.  */
-  /***ja \<im\>->driver.create_ic () �����ꤹ���ɲþ���ؤΥݥ��󥿡�
-      ���ϥ���ƥ����Ȥ��������֤�Ͽ���뤿����Ѥ����롣 */
+  /***ja \<im\>->driver.create_ic () が設定する追加情報へのポインタ。
+      入力コンテクストの内部状態を記録するために用いられる。 */
   void *info;
 
   /***en M-text describing the current status of the input
       context.  */
-  /***ja ���ϥ���ƥ����Ȥθ��ߤξ��֤�ɽ�� M-text  */
+  /***ja 入力コンテクストの現在の状態を表す M-text  */
   MText *status;
 
   /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<status\>.  */
-  /***ja �ؿ� \<im\>->driver.filter () �ϡ�\<status\> ���Ѥ����ݤˤ����ͤ� 1 
-      �����ꤹ�롣  */
+  /***ja 関数 \<im\>->driver.filter () は、\<status\> を変えた際にこの値を 1 
+      に設定する。  */
   int status_changed;
 
   /***en M-text containing the current preedit text.  The function
       \<im\>->driver.filter () sets the value.  */
-  /***ja ���ߤ� preedit �ƥ����Ȥ�ޤ� M-text���ؿ� 
-      \<im\>->driver.filter () �ˤ�ä����ꤵ��롣  */ 
+  /***ja 現在の preedit テキストを含む M-text。関数 
+      \<im\>->driver.filter () によって設定される。  */ 
   MText *preedit;
 
   /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<preedit\>.  */
-  /***ja �ؿ� \<im\>->driver.filter () �ϡ�\<preedit\> ���Ѥ����ݤˤ����ͤ� 
-      1 �����ꤹ�롣  */
+  /***ja 関数 \<im\>->driver.filter () は、\<preedit\> を変えた際にこの値を 
+      1 に設定する。  */
   int preedit_changed;
 
   /***en Cursor position of \<preedit\>.  */
-  /***ja \<preedit\>�Υ����������  */
+  /***ja \<preedit\>のカーソル位置  */
   int cursor_pos;
 
   /***en The function \<im\>->driver.filter () sets the value to 1 when
       it changes \<cursor_pos\>.  */
-  /***ja �ؿ� \<im\>->driver.filter () �ϡ�\<cursor_pos\> ���Ѥ����ݤˤ����ͤ� 
-      1 �����ꤹ�롣  */
+  /***ja 関数 \<im\>->driver.filter () は、\<cursor_pos\> を変えた際にこの値を 
+      1 に設定する。  */
   int cursor_pos_changed;
 
   /***en Plist of the current candidate groups.  Each element is an
@@ -1278,10 +1278,10 @@ struct MInputContext
       candidates in that group are characters in the M-text.  If it is
       a plist (i.e. the key is Mplist), each element is an M-text, and
       candidates in that group are those M-texts.  */
-  /***ja ���ߤθ��䥰�롼�פ� Plist �������Ǥ� M-text �� plist �Ǥ��롣
-      ���Ǥ� M-text �ξ��ʥ����� Mtext �Ǥ�����ˤˤϡ����Υ��롼�פθ���Ϥ��� 
-      M-text ��γ�ʸ���Ǥ��롣 ���Ǥ� plist �ξ��ʥ����� Mplist
-      �Ǥ�����ˤˤϡ����Υꥹ�Ȥγ����Ǥ� M-text �Ǥ��ꡢ����餬���Υ��롼�פθ���Ȥʤ롣  */
+  /***ja 現在の候補グループの Plist 。各要素は M-text か plist である。
+      要素が M-text の場合（キーが Mtext である場合）には、そのグループの候補はその 
+      M-text 中の各文字である。 要素が plist の場合（キーが Mplist
+      である場合）には、そのリストの各要素は M-text であり、それらがそのグループの候補となる。  */
   MPlist *candidate_list;
 
   /***en Index number of the currently selected candidate in all the
@@ -1289,16 +1289,16 @@ struct MInputContext
       number is 8, and the first candidate group contains 7
       candidates, the currently selected candidate is the second element of the
       second candidate group.  */
-  /***ja �������򤵤�Ƥ�����䤬��������ǲ����ܤ���򼨤�����ǥå�����
-      �ǽ�θ���Υ���ǥå����� 0���ǽ�θ��䥰�롼�פ˼��Ĥθ��䤬�ޤޤ�Ƥ��ꡢ�����ͤ�
-      8 �ʤ�С����ߤθ���������ܤθ��䥰�롼�פ������ܤ����ǤȤ������Ȥˤʤ롣
+  /***ja 現在選択されている候補が全候補中で何番目かをを示すインデックス。
+      最初の候補のインデックスは 0。最初の候補グループに七つの候補が含まれており、この値が
+      8 ならば、現在の候補は二番目の候補グループの二番目の要素ということになる。
       */
   int candidate_index;
 
   /* @{ */
   /***en Start and the end positions of the preedit text where
        \<candidate_list\> corresponds to.  */
-  /***ja preedit �ƥ�������ǡ�\<candidate_list\>���б�����ǽ�ȺǸ�ΰ��֡�
+  /***ja preedit テキスト中で、\<candidate_list\>に対応する最初と最後の位置。
        */
   int candidate_from, candidate_to;
   /* @} */
@@ -1307,19 +1307,19 @@ struct MInputContext
       shown or not.  The function \<im\>->driver.filter () sets the
       value to 1 when an input method required to show candidates, and
       sets the value to 0 otherwise.  */
-  /***ja ���ߤθ��䥰�롼�פ�ɽ�����뤫�ɤ����򼨤��ե饰��
-      �ؿ� \<im\>->driver.filter () �ϡ����ϥ᥽�åɤ������ɽ�����׵ᤷ���������ͤ�
-      1 �ˡ�����ʳ��λ� 0 �����ꤹ�롣  */
+  /***ja 現在の候補グループを表示するかどうかを示すフラグ。
+      関数 \<im\>->driver.filter () は、入力メソッドが候補の表示を要求した時この値を
+      1 に、それ以外の時 0 に設定する。  */
   int candidate_show;
 
   /***en The function \<im\>->driver.filter () sets the value to bitwise
       OR of @c enum @c MInputCandidatesChanged when it changed any of
       the above members (\<candidate_XXX\>), and sets the value to 0
       otherwise.  */
-  /***ja �ؿ� \<im\>->driver.filter () �ϡ��嵭�Υ��� \<candidate_XXX\>
-      �Σ��ĤǤ��ѹ������ݤˤϡ������ͤ� @c enum @c
-      MInputCandidatesChanged �Υӥå�ñ�̤Ǥ����� OR �����ꤹ�롣����
-      �Ǥʤ���� 0 �����ꤹ�롣 */
+  /***ja 関数 \<im\>->driver.filter () は、上記のメンバ \<candidate_XXX\>
+      の１つでも変更した際には、この値を @c enum @c
+      MInputCandidatesChanged のビット単位での論理 OR に設定する。そう
+      でなければ 0 に設定する。 */
   int candidates_changed;
 
   /***en Plist that can be freely used by \<im\>->driver functions.
@@ -1328,11 +1328,11 @@ struct MInputContext
       \<im\>->driver.create_ic () sets this to an empty plist, and the
       function \<im\>->driver.destroy_ic () frees it by using
       m17n_object_unref ().  */
-  /***ja \<im\>->driver �δؿ����ˤ�äƼ�ͳ�˻��ѤǤ��� plist��
-      �������ϥ᥽�å��ѥɥ饤�ФϤ���򥳡���Хå��ؿ��Ȥΰ���������
-      �μ��Ϥ��˻��Ѥ��롣�ؿ� \<im\>->driver.create_ic () �Ϥ��� plist
-      ��������ꤹ�롣�ؿ�\<im\>->driver.destroy_ic () ��
-      m17n_object_unref () ���Ѥ��Ƥ��� plist ��������롣  */
+  /***ja \<im\>->driver の関数群によって自由に使用できる plist。
+      内部入力メソッド用ドライバはこれをコールバック関数との引数や返値
+      の受渡しに使用する。関数 \<im\>->driver.create_ic () はこの plist
+      を空に設定する。関数\<im\>->driver.destroy_ic () は
+      m17n_object_unref () を用いてこの plist を解放する。  */
   MPlist *plist;
 };
 
@@ -1401,6 +1401,6 @@ M17N_END_HEADER
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

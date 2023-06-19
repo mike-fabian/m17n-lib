@@ -71,48 +71,48 @@
 
 /***ja
     @addtogroup m17nDatabase
-    @brief m17n �ǡ����١����ˤȤ���˴ؤ��� API.
+    @brief m17n データベースにとそれに関する API.
 
-    m17n �饤�֥���ɬ�פ˱�����ưŪ�� @e m17n @e �ǡ����١��� 
-    ��������������롣�ޤ����ץꥱ�������ץ������⡢�ȼ��Υǡ����� 
-    m17n �ǡ����١������ɲä��������ưŪ�˼������뤳�Ȥ��Ǥ��롣
-    ���ץꥱ�������ץ�����ब�ȼ��Υǡ������ɲá���������ˤϡ��ѿ� 
-    #mdatabase_dir �ˤ��Υ��ץꥱ��������ͭ�Υǥ��쥯�ȥ�򥻥åȤ���
-    ������˥ǡ������Ǽ���롣�桼�������Υǡ����򥪡��С��饤�Ȥ�����
-    �Ȥ��ϡ��Ķ��ѿ� "M17NDIR" �ǻ��ꤵ���ǥ��쥯�ȥ�ʻ��ꤵ��Ƥ���
-    ���Ȥ��� "~/.m17n.d" �Ȥ����ǥ��쥯�ȥ�ˤ��̤Υǡ������֤���
+    m17n ライブラリは必要に応じて動的に @e m17n @e データベース 
+    から情報を取得する。またアプリケーションプログラムも、独自のデータを 
+    m17n データベースに追加し、それを動的に取得することができる。
+    アプリケーションプログラムが独自のデータを追加・取得するには、変数 
+    #mdatabase_dir にそのアプリケーション固有のディレクトリをセットし、
+    その中にデータを格納する。ユーザがそのデータをオーバーライトしたい
+    ときは、環境変数 "M17NDIR" で指定されるディレクトリ（指定されていな
+    いときは "~/.m17n.d" というディレクトリ）に別のデータを置く。
 
     m17n 
-    �ǡ����١����ˤ�ʣ����¿�ͤʥǡ������ޤޤ�Ƥ��ꡢ�ƥǡ�����
-    TAG0, TAG1, TAG2, TAG3�ʤ��٤ƥ���ܥ�ˤΣ��ĤΥ����ˤ�äƼ��̤���롣
+    データベースには複数の多様なデータが含まれており、各データは
+    TAG0, TAG1, TAG2, TAG3（すべてシンボル）の４つのタグによって識別される。
 
-    TAG0 �ˤ�äơ��ǡ����١�����Υǡ����Υ����פϼ��Τ褦�˻��ꤵ��롣
-
-    @li 
-    TAG0 �� #Mchar_table �Ǥ���ǡ����� @e chartable������ 
-    �ȸƤФ졢��ʸ���˴ؤ��������󶡤��롣���ξ��
-    TAG1 �Ͼ���μ������ꤹ�륷��ܥ�Ǥ��ꡢ#Msymbol, #Minteger, #Mstring,
-    #Mtext, #Mplist �Τ����줫�Ǥ��롣TAG2 �� TAG3 ��Ǥ�դΥ���ܥ�Ǥ褤��
+    TAG0 によって、データベース内のデータのタイプは次のように指定される。
 
     @li 
-    TAG0 �� #Mcharset �Ǥ���ǡ����� @e charset������ 
-    �ȸƤФ졢ʸ�����å��ѤΥǥ����ɡ����󥳡��ɥޥåפ��󶡤��롣���ξ�� TAG1
-    ��ʸ�����åȤΥ���ܥ�Ǥʤ���Фʤ�ʤ���TAG2 �� TAG3
-    ��Ǥ�դΥ���ܥ�Ǥ褤��
+    TAG0 が #Mchar_table であるデータは @e chartableタイプ 
+    と呼ばれ、各文字に関する情報を提供する。この場合
+    TAG1 は情報の種類を指定するシンボルであり、#Msymbol, #Minteger, #Mstring,
+    #Mtext, #Mplist のいずれかである。TAG2 と TAG3 は任意のシンボルでよい。
+
+    @li 
+    TAG0 が #Mcharset であるデータは @e charsetタイプ 
+    と呼ばれ、文字セット用のデコード／エンコードマップを提供する。この場合 TAG1
+    は文字セットのシンボルでなければならない。TAG2 と TAG3
+    は任意のシンボルでよい。
 
     @li
-    TAG0 �� #Mchar_table �Ǥ� #Mcharset �Ǥ�ʤ���硢���Υǡ����� @e
-    plist������ �Ǥ��롣�ܺ٤˴ؤ��Ƥϴؿ� mdatabase_load () 
-    �������򻲾ȤΤ��ȡ����ξ�� TAG1��TAG2��TAG3 ��Ǥ�դΥ���ܥ�Ǥ褤��
+    TAG0 が #Mchar_table でも #Mcharset でもない場合、そのデータは @e
+    plistタイプ である。詳細に関しては関数 mdatabase_load () 
+    の説明を参照のこと。この場合 TAG1、TAG2、TAG3 は任意のシンボルでよい。
 
-    ����Υ�������ĥǡ����١����� \<TAG0, TAG1, TAG2, TAG3\> 
-    �Ȥ���������ɽ����
+    特定のタグを持つデータベースを \<TAG0, TAG1, TAG2, TAG3\> 
+    という形式で表す。
 
-    ���ץꥱ�������ץ������ϡ��ޤ��ؿ� mdatabase_find () 
-    ��Ȥäƥǡ����١����˴ؤ��������ݻ����륪�֥������ȡ�#MDatabase
-    ���ˤؤΥݥ��󥿤����롣��������������顢 mdatabase_load () 
-    �ˤ�äƼºݤ˥ǡ����١���������ɤ��롣��¤�� #MDatabase 
-    ���Ȥ��ɤ���������Ƥ��뤫�ϡ����ץꥱ�������ץ�����फ��ϸ����ʤ���
+    アプリケーションプログラムは、まず関数 mdatabase_find () 
+    を使ってデータベースに関する情報を保持するオブジェクト（#MDatabase
+    型）へのポインタを得る。それに成功したら、 mdatabase_load () 
+    によって実際にデータベースをロードする。構造体 #MDatabase 
+    自身がどう実装されているかは、アプリケーションプログラムからは見えない。
 
     @latexonly \IPAlabel{database} @endlatexonly
 */
@@ -1237,11 +1237,11 @@ mdatabase__props (MDatabase *mdb)
     <tt>"charset"</tt>.  */
 
 /***ja
-    @brief ����ܥ� @c Mcharset.
+    @brief シンボル @c Mcharset.
 
-    �ǥ����ɤ��줿 M-text �ϡ������� @c Mcharset
-    �Ǥ���褦�ʥƥ����ȥץ��ѥƥ�����ġ�
-    ����ܥ� @c Mcharset �� <tt>"charset"</tt> �Ȥ���̾������ġ�  */
+    デコードされた M-text は、キーが @c Mcharset
+    であるようなテキストプロパティを持つ。
+    シンボル @c Mcharset は <tt>"charset"</tt> という名前を持つ。  */
 
 MSymbol Mcharset;
 /*=*/
@@ -1264,15 +1264,15 @@ MSymbol Mcharset;
 
     The default value is NULL.  */
 /***ja
-    @brief ���ץꥱ��������ͭ�Υǡ����ѥǥ��쥯�ȥ�.
+    @brief アプリケーション固有のデータ用ディレクトリ.
 
-    ���ץꥱ�������ץ�����ब�����Υץ�������ͭ�Υǡ����� m17n 
-    �ǡ����١������񤭤���ǡ������󶡤�����ˤϡ��ޥ��� M17N_INIT () 
-    ��Ƥ����ˤ����ѿ���ǡ����ե������ޤ�ǥ��쥯�ȥ�̾�˥��åȤ��ʤ��ƤϤʤ�ʤ����ǥ��쥯�ȥ�ˤ�
-    "mdb.dir" �ե�����򤪤����Ȥ��Ǥ��롣����"mdb.dir"�ե�����ˤϡ� 
-    @ref mdbDir "mdbDir(5)" ����������Ƥ���ե����ޥåȤǥǡ�������Υꥹ�Ȥ򵭽Ҥ��롣
+    アプリケーションプログラムが、そのプログラム固有のデータや m17n 
+    データベースを上書きするデータを提供する場合には、マクロ M17N_INIT () 
+    を呼ぶ前にこの変数をデータファイルを含むディレクトリ名にセットしなくてはならない。ディレクトリには
+    "mdb.dir" ファイルをおくことができる。その"mdb.dir"ファイルには、 
+    @ref mdbDir "mdbDir(5)" で説明されているフォーマットでデータ定義のリストを記述する。
 
-    �ǥե���Ȥ��ͤ� NULL �Ǥ��롣  */
+    デフォルトの値は NULL である。  */
 
 char *mdatabase_dir;
 
@@ -1285,11 +1285,11 @@ char *mdatabase_dir;
     the data.  If such a data is not found, it returns @c NULL.  */
 
 /***ja
-    @brief �ǡ����١�����Υǡ�����õ��.
+    @brief データベース中のデータを探す.
 
-    �ؿ� mdatabase_find () �ϡ� m17n �������١������ $TAG0 ���� 
-    $TAG3 �ޤǤΥ�������ĥǡ�����õ��������ؤΥݥ��󥿤��֤������Τ褦�ʥǡ������ʤ����
-    @c NULL ���֤���
+    関数 mdatabase_find () は、 m17n 言語情報ベース中で $TAG0 から 
+    $TAG3 までのタグを持つデータを探し、それへのポインタを返す。そのようなデータがなければ
+    @c NULL を返す。
 
     @latexonly \IPAlabel{mdatabase_find} @endlatexonly  */
 
@@ -1313,12 +1313,12 @@ mdatabase_find (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     any tag.  Each element of the plist has key #Mt and value a
     pointer to type #MDatabase.  */
 /***ja
-    @brief m17n �ǡ����١����Υǡ����ꥹ�Ȥ��֤�.
+    @brief m17n データベースのデータリストを返す.
 
-    �ؿ� mdatabase_list () �� m17n �ǡ����١����椫�� $TAG0 ����$TAG3 
-    �ޤǤΥ�������ĥǡ�����õ�������Υꥹ�Ȥ�plist �Ȥ����֤��� $TAGn �� #Mnil
-    �Ǥ��ä����ˤϡ�Ǥ�դΥ����˥ޥå�����磻��ɥ����ɤȤ��Ƽ�갷���롣�֤����
-    plist �γ����Ǥϥ��� �Ȥ��� #Mt ���ͤȤ��� #MDatabase ���ؤΥݥ��󥿤���ġ�  */
+    関数 mdatabase_list () は m17n データベース中から $TAG0 から$TAG3 
+    までのタグを持つデータを探し、そのリストをplist として返す。 $TAGn が #Mnil
+    であった場合には、任意のタグにマッチするワイルドカードとして取り扱われる。返される
+    plist の各要素はキー として #Mt を、値として #MDatabase 型へのポインタを持つ。  */
 
 MPlist *
 mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
@@ -1410,22 +1410,22 @@ mdatabase_list (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3)
     mdatabase_load ().  Otherwise, it returns @c NULL.  */
 
 /***ja
-    @brief m17n �ǡ����١����Υǡ������������.
+    @brief m17n データベースのデータを定義する.
 
-    �ؿ� mdatabase_define () �� $TAG0 ���� $TAG3 �ޤǤΥ���������ղþ��� 
-    $EXTRA_INFO ����ĥǡ�����������롣
+    関数 mdatabase_define () は $TAG0 から $TAG3 までのタグおよび付加情報 
+    $EXTRA_INFO を持つデータを定義する。
 
-    $LOADER �Ϥ��Υǡ����Υ����ɤ��Ѥ�����ؿ��ؤΥݥ��󥿤Ǥ��롣���δؿ���
-    mdatabase_load () ���� $TAGS �� $EXTRA_INFO �Ȥ�����Ĥΰ����դ��ǸƤӽФ���롣������ 
-    $TAGS �� $TAG0 ���� $TAG3 �ޤǤ�����Ǥ��롣
+    $LOADER はそのデータのロードに用いられる関数へのポインタである。この関数は
+    mdatabase_load () から $TAGS と $EXTRA_INFO という二つの引数付きで呼び出される。ここで 
+    $TAGS は $TAG0 から $TAG3 までの配列である。
 
-    �⤷ $LOADER �� @c NULL �ʤ顢m17n �饤�֥��ɸ��Υ��������Ȥ��롣���ξ��ˤ�
-    $EXTRA_INFO �ϥǡ�����ޤ�ե�����̾�Ǥʤ��ƤϤʤ�ʤ���
+    もし $LOADER が @c NULL なら、m17n ライブラリ標準のローダが使われる。この場合には
+    $EXTRA_INFO はデータを含むファイル名でなくてはならない。
 
     @return
-    ��������������� mdatabase_define () 
-    ��������줿�ǡ����١����ؤΥݥ��󥿤��֤������Υݥ��󥿤ϴؿ� mdatabase_load () 
-    �ΰ����Ȥ����Ѥ��뤳�Ȥ��Ǥ��롣�����Ǥʤ���� @c NULL ���֤���
+    処理に成功すれば mdatabase_define () 
+    は定義されたデータベースへのポインタを返す。このポインタは関数 mdatabase_load () 
+    の引数として用いることができる。そうでなければ @c NULL を返す。
 
     @latexonly \IPAlabel{mdatabase_define} @endlatexonly  */
 
@@ -1476,24 +1476,24 @@ mdatabase_define (MSymbol tag0, MSymbol tag1, MSymbol tag2, MSymbol tag3,
 
 
 /***ja
-    @brief �ǡ����١�������ǡ���������ɤ���.
+    @brief データベースからデータをロードする.
 
-    �ؿ� mdatabase_load () �� $MDB 
-    ���ؤ��ǡ���������ɤ���������Ȥ��֤����֤�����Τϥǡ����Υ����פˤ�äưۤʤ롣
+    関数 mdatabase_load () は $MDB 
+    が指すデータをロードし、その中身を返す。返されるものはデータのタイプによって異なる。
 
-    �ǡ����� @e plist������ �ʤ�С� @e plist �ؤΥݥ��󥿤��֤���
+    データが @e plistタイプ ならば、 @e plist へのポインタを返す。
 
-    �ǡ����� @e chartable������ �ʤ��ʸ���ơ��֥���֤���
-    ʸ���ơ��֥�Υǥե�����ͤϡ��ǡ�������2�����ˤ�äưʲ��Τ褦�˷�ޤ롣
+    データが @e chartableタイプ ならば文字テーブルを返す。
+    文字テーブルのデフォルト値は、データの第2タグによって以下のように決まる。
 
-    @li ������ #Msymbol �ʤ顢�ǥե�����ͤ� #Mnil
-    @li ������ #Minteger �ʤ顢�ǥե�����ͤ� -1
-    @li ����ʳ��ʤ顢�ǥե�����ͤ� @c NULL
+    @li タグが #Msymbol なら、デフォルト値は #Mnil
+    @li タグが #Minteger なら、デフォルト値は -1
+    @li それ以外なら、デフォルト値は @c NULL
 
-    �ǡ����� @e charset������ �ʤ��Ĺ�� 2 �� plist ���֤��ʥ����϶���#Mt �ˡ�
-    �ǽ�����Ǥ��ͤϥ����ɥݥ���Ȥ��б�����ʸ�������ɤ˥ޥåפ�������������Ǥ��롣
-    �����ܤ����Ǥ��ͤϵդΥޥåפ򤹤�ʸ���ơ��֥�Ǥ��롣
-    ����ʸ�����åȤ�ͽ���������Ƥ��ʤ���Фʤ�ʤ���
+    データが @e charsetタイプ ならば長さ 2 の plist を返す（キーは共に#Mt ）。
+    最初の要素の値はコードポイントを対応する文字コードにマップする整数の配列である。
+    ２番目の要素の値は逆のマップをする文字テーブルである。
+    この文字セットは予め定義されていなければならない。
 
     @latexonly \IPAlabel{mdatabase_load} @endlatexonly
   */
@@ -1517,10 +1517,10 @@ mdatabase_load (MDatabase *mdb)
     four.  */
 
 /***ja
-    @brief �ǡ����Υ���������.
+    @brief データのタグを得る.
 
-    �ؿ� mdatabase_tag () �ϡ��ǡ��� $MDB �Υ����ʥ���ܥ�ˤ�������֤��������Ĺ����
-    4 �Ǥ��롣
+    関数 mdatabase_tag () は、データ $MDB のタグ（シンボル）の配列を返す。配列の長さは
+    4 である。
 
     @latexonly \IPAlabel{mdatabase_tag} @endlatexonly  */
 
@@ -1534,6 +1534,6 @@ mdatabase_tag (MDatabase *mdb)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */

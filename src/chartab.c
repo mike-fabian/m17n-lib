@@ -42,21 +42,21 @@
     A chartable is a managed object.  */
 
 /***ja
-    @addtogroup m17nChartable ʸ���ơ��֥�
+    @addtogroup m17nChartable 文字テーブル
 
-    @brief ʸ���ơ��֥�Ȥ���˴ؤ��� API.
+    @brief 文字テーブルとそれに関する API.
 
-    m17n �饤�֥�꤬����ʸ���ζ��֤Ϲ���Ǥ��뤿�ᡢʸ����ξ����ñ�������˳�Ǽ���褦�Ȥ���ȡ���������ϵ���ˤʤꤹ���������Ū�Ǥ��롣
-    �������̾�ɬ�פȤʤ�ʸ���ˤĤ��Ƥξ���ϡ�����������ϰϤ�ʸ���ˤΤ��դ��Ƥ��뤳�Ȥ�¿����
-    ��ʸ���˴ؤ��ƾ��󤬤�����ˤ⡢Ϣ³����ʸ�������ɤ����ʸ����Ʊ���������Ĥ��Ȥ�¿����
+    m17n ライブラリが扱う文字の空間は広大であるため、文字毎の情報を単純な配列に格納しようとすると、その配列は巨大になりすぎ、非実用的である。
+    しかし通常必要となる文字についての情報は、ある特定の範囲の文字にのみ付いていることが多い。
+    全文字に関して情報がある場合にも、連続した文字コードを持つ文字は同じ情報を持つことが多い。
 
-    ���Τ褦�ʷ��������Ѥ���ʸ���Ȥ����ղþ�����ΨŪ�˳�Ǽ���뤿��ˡ�
-    m17n �饤�֥��� @e ʸ���ơ��֥� (chartable) �ȸƤ֥��֥������Ȥ��Ѥ��롣
-    ʸ���ơ��֥������ǤϤʤ��������ץꥱ�������ץ�������ʸ���ơ��֥������ΰ��Ȥ��ư������Ȥ��Ǥ��롣
-    ����ʸ���ˤĤ��Ƥ�����ξ���ϡ����ξ�������ʸ���ơ��֥�򤽤�ʸ���Υ����ɤǰ�������
-    �������롣  
+    このような傾向を利用して文字とその付加情報を効率的に格納するために、
+    m17n ライブラリは @e 文字テーブル (chartable) と呼ぶオブジェクトを用いる。
+    文字テーブルは配列ではないが、アプリケーションプログラムは文字テーブルを配列の一種として扱うことができる。
+    ある文字についての特定の情報は、その情報を持つ文字テーブルをその文字のコードで引くこと
+    で得られる。  
 
-    ʸ���ơ��֥�ϴ��������֥������ȤǤ��롣 */
+    文字テーブルは管理下オブジェクトである。 */
 
 /*=*/
 #if !defined (FOR_DOXYGEN) || defined (DOXYGEN_INTERNAL_MODULE)
@@ -632,9 +632,9 @@ mchartable__lookup (MCharTable *table, int c, int *next_c, int default_p)
     The symbol @c Mchar_table has the name <tt>"char-table"</tt>.  */
 
 /***ja
-    @brief "char-table" �Ȥ���̾������ĥ���ܥ�.
+    @brief "char-table" という名前を持つシンボル.
 
-    ����ܥ� @c Mchar_table ��̾�� <tt>"char-table"</tt> ����ġ�
+    シンボル @c Mchar_table は名前 <tt>"char-table"</tt> を持つ。
     */
 
 MSymbol Mchar_table;
@@ -655,16 +655,16 @@ MSymbol Mchar_table;
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief ������ʸ���ơ��֥����.
+    @brief 新しい文字テーブルを作る.
 
-    �ؿ� mchartable () �ϥ����� $KEY �����ǤΥǥե�����ͤ� 
-    $DEFAULT_VALUE �Ǥ��뿷����ʸ���ơ��֥���롣�⤷ $KEY 
-    �����������Ǥ���С����Υơ��֥�����Ǥϡʥǥե�����ͤ�ޤ�ơ˴��������֥������Ȥ� 
-    NULL �Τ����줫�Ǥ��롣
+    関数 mchartable () はキーが $KEY で要素のデフォルト値が 
+    $DEFAULT_VALUE である新しい文字テーブルを作る。もし $KEY 
+    が管理キーであれば、このテーブルの要素は（デフォルト値を含めて）管理下オブジェクトか 
+    NULL のいずれかである。
 
     @return
-    ��������������� mchartable () �Ϻ������줿ʸ���ơ��֥�ؤΥݥ��󥿤��֤���
-    ���Ԥ������� @c NULL ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば mchartable () は作成された文字テーブルへのポインタを返す。
+    失敗した場合は @c NULL を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 MCharTable *
 mchartable (MSymbol key, void *default_value)
@@ -728,12 +728,12 @@ mchartable_max_char (MCharTable *table)
     assigns an error code to the external variable #merror_code.  */
 
 /***ja
-    @brief ʸ���ơ��֥����ʸ���˳�����Ƥ�줿�ͤ��֤�.
+    @brief 文字テーブル中で文字に割り当てられた値を返す.
 
-    �ؿ� mchartable_lookup () ��ʸ���ơ��֥� $TABLE ���ʸ�� $C 
-    �˳�����Ƥ�줿�ͤ��֤���$C ���Ф�������Ū���ͤ��ʤ���С�$TABLE 
-    �Υǥե�����ͤ��֤���$C ��������ʸ���Ǥʤ���С�mchartable_lookup () �� 
-    @c NULL ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    関数 mchartable_lookup () は文字テーブル $TABLE 中で文字 $C 
+    に割り当てられた値を返す。$C に対する明示的な値がなければ、$TABLE 
+    のデフォルト値を返す。$C が妥当な文字でなければ、mchartable_lookup () は 
+    @c NULL を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -766,14 +766,14 @@ mchartable_lookup (MCharTable *table, int c)
     variable #merror_code.  */
 
 /***ja
-    @brief ʸ���ơ��֥���Ǥ�ʸ�����ͤ����ꤹ��.
+    @brief 文字テーブル中での文字の値を設定する.
 
-    �ؿ� mchartable_set () �ϡ�ʸ���ơ��֥� $TABLE ���ʸ�� $C 
-    ���� $VAL �������Ƥ롣
+    関数 mchartable_set () は、文字テーブル $TABLE 中の文字 $C 
+    に値 $VAL を割り当てる。
 
     @return
-    ��������������С�mchartable_set () �� 0 ���֤��������Ǥʤ���� -1 
-    ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣  */
+    処理が成功すれば、mchartable_set () は 0 を返す。そうでなければ -1 
+    を返し、外部変数 #merror_code にエラーコードを設定する。  */
 
 /***
     @errors
@@ -839,16 +839,16 @@ mchartable_set (MCharTable *table, int c, void *val)
     mchartable_set_range () returns immediately without an error.  */
 
 /***ja
-    @brief �����ϰϤ�ʸ�����ͤ����ꤹ��.
+    @brief 指定範囲の文字に値を設定する.
 
-    �ؿ� mchartable_set_range () �ϡ�ʸ���ơ��֥� $TABLE ��� $FROM 
-    ���� $TO �ޤǡ�ξü��ޤ�ˤ�ʸ���ˡ��ͤȤ��� $VAL �����ꤹ�롣
+    関数 mchartable_set_range () は、文字テーブル $TABLE 中の $FROM 
+    から $TO まで（両端を含む）の文字に、値として $VAL を設定する。
 
     @return
-    ��������������� mchartable_set_range () �� 0 ���֤��������Ǥʤ���� 
-    -1 ���֤��������ѿ� #merror_code �˥��顼�����ɤ����ꤹ�롣$FROM �� 
-    $TO ����礭���Ȥ��ˤϡ� mchartable_set_range () 
-    �ϲ��⤻�������顼�ⵯ�����ʤ���  */
+    処理が成功すれば mchartable_set_range () は 0 を返す。そうでなければ 
+    -1 を返し、外部変数 #merror_code にエラーコードを設定する。$FROM が 
+    $TO より大きいときには、 mchartable_set_range () 
+    は何もせず、エラーも起こさない。  */
 
 /***
     @errors
@@ -892,12 +892,12 @@ mchartable_set_range (MCharTable *table, int from, int to, void *val)
     to -1.  */
 
 /***ja
-    @brief �ͤ��ǥե���ȤȰۤʤ�ʸ����õ��.
+    @brief 値がデフォルトと異なる文字を探す.
 
-    �ؿ� mchartable_range () ��ʸ���ơ��֥� $TABLE ��ǡ�$TABLE 
-    �Υǥե�����Ͱʳ����ͤ���ĺǽ�ȺǸ��ʸ����õ�������줾��� $FROM 
-    �� $TO �����ꤹ�롣���٤Ƥ�ʸ�����ͤȤ��ƥǥե�����ͤ�ȤäƤ�����ˤ�
-    $FROM �� $TO �� -1�����ꤹ�롣  */
+    関数 mchartable_range () は文字テーブル $TABLE 中で、$TABLE 
+    のデフォルト値以外の値を持つ最初と最後の文字を探し、それぞれを $FROM 
+    と $TO に設定する。すべての文字が値としてデフォルト値をとっている場合には
+    $FROM と $TO を -1に設定する。  */
 
 void
 mchartable_range (MCharTable *table, int *from, int *to)
@@ -936,24 +936,24 @@ mchartable_range (MCharTable *table, int *from, int *to)
     This function always returns 0.  */
 
 /***ja
-    @brief ʸ���ơ��֥����ʸ�����Ф��ƻ���δؿ���Ƥ�.
+    @brief 文字テーブル中の文字に対して指定の関数を呼ぶ.
 
-    �ؿ� mchartable_map () �ϡ�ʸ���ơ��֥� $TABLE ���ʸ�����Ф��ƴؿ�
-    $FUNC ��Ƥ֡�������$TABLE ��Ǥ��ͤ� $IGNORE 
-    �Ǥ���ʸ���ˤĤ��Ƥϴؿ��ƤӽФ���Ԥʤ�ʤ���$IGNORE ��ʸ�����ͤ���Ӥ� 
-    @c == �ǹԤʤ��Τǡ�ʸ�����ƥ���ݥ��󥿤�Ȥ��ݤˤ����դ��פ��롣
+    関数 mchartable_map () は、文字テーブル $TABLE 中の文字に対して関数
+    $FUNC を呼ぶ。ただし$TABLE 中でも値が $IGNORE 
+    である文字については関数呼び出しを行なわない。$IGNORE と文字の値の比較は 
+    @c == で行なうので、文字列リテラルやポインタを使う際には注意を要する。
 
-    mchartable_map () �ϡ���ʸ�����Ȥ� $FUNC 
-    ��Ƥ֤ΤǤϤʤ����ؿ��ƤӽФ��β�����Ŭ�����褦�Ȥ��롣
-    ���ʤ����Ϣ³����ʸ����Ʊ���ͤ���äƤ������ˤϡ�����ʸ���ΤޤȤޤ����ΤˤĤ��ư��٤δؿ��Ƥӽ�
-    �������Ԥʤ�ʤ���
+    mchartable_map () は、一文字ごとに $FUNC 
+    を呼ぶのではなく、関数呼び出しの回数を最適化しようとする。
+    すなわち、連続した文字が同じ値を持っていた場合には、その文字のまとまり全体について一度の関数呼び出
+    ししか行なわない。
 
-    ʸ���ΤޤȤޤ���礭���ˤ�����餺��$FUNC �� $FROM, $TO, $VAL, $ARG 
-    �Σ������ǸƤФ�롣$FROM �� $TO ��ξü��ޤ�ˤ� $VAL 
-    ���ͤȤ��ƻ���ʸ�����ϰϤ򼨤���$ARG �� $FUNC_ARG ���Τ�ΤǤ��롣
+    文字のまとまりの大きさにかかわらず、$FUNC は $FROM, $TO, $VAL, $ARG 
+    の４引数で呼ばれる。$FROM と $TO （両端を含む）は $VAL 
+    を値として持つ文字の範囲を示し、$ARG は $FUNC_ARG そのものである。
 
     @return
-    ���δؿ��Ͼ��0���֤���  */
+    この関数は常に0を返す。  */
 
 int
 mchartable_map (MCharTable *table, void *ignore,
@@ -984,14 +984,14 @@ mchartable_map (MCharTable *table, void *ignore,
     This function returns $TABLE.  */
 
 /***ja
-    @brief ʸ���ơ��֥�����פ���.
+    @brief 文字テーブルをダンプする.
 
-    �ؿ� mdebug_dump_chartab () ��ʸ���ơ��֥� $TABLE ��ɸ�२�顼����
-    �⤷���ϴĶ��ѿ� MDEBUG_DUMP_FONT �ǻ��ꤵ�줿�ե�����˿ʹ֤˲���
-    �ʷ��ǰ������롣$INDENT �ϣ����ܰʹߤΥ���ǥ�Ȥ���ꤹ�롣
+    関数 mdebug_dump_chartab () は文字テーブル $TABLE を標準エラー出力
+    もしくは環境変数 MDEBUG_DUMP_FONT で指定されたファイルに人間に可読
+    な形で印刷する。$INDENT は２行目以降のインデントを指定する。
 
     @return
-    ���δؿ��� $TABLE ���֤���  */
+    この関数は $TABLE を返す。  */
 
 MCharTable *
 mdebug_dump_chartab (MCharTable *table, int indent)
@@ -1008,6 +1008,6 @@ mdebug_dump_chartab (MCharTable *table, int indent)
 
 /*
   Local Variables:
-  coding: euc-japan
+  coding: utf-8
   End:
 */
