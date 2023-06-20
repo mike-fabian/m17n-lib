@@ -342,6 +342,11 @@ mscript__from_otf_tag (MSymbol otf_tag)
 
 /* External API */
 
+/*** @addtogroup m17nLocale */
+/*** @{ */
+/*=*/
+
+
 MSymbol Miso639_1, Miso639_2;
 
 /*=*/
@@ -831,6 +836,7 @@ mlanguage_name (MSymbol language)
 }
 
 /*=*/
+/*** @} */
 
 /*
   Local Variables:
