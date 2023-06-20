@@ -1,3 +1,9 @@
+2023-06-21  K. Handa  <handa@gnu.org>
+
+	* *.[ch]: Change encoding of all source files from EUC-JP to UTF-8.
+
+	* m17n-core.h, language.c: Fix doxygen tag.
+
 2023-05-09  Mike FABIAN  <mfabian@redhat.com>
 
 	Version 1.8.2 released.
