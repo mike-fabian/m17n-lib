@@ -500,10 +500,6 @@ extern const enum MTextFormat MTEXT_FORMAT_UTF_16;
 
 extern const int MTEXT_FORMAT_UTF_32;
 
-/*=*/
-/*** @} */
-/*=*/
-
 extern MText *mtext_from_data (const void *data, int nitems,
 			       enum MTextFormat format);
 
