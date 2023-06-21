@@ -3094,9 +3094,8 @@ mcoding__load_from_database ()
 
 /* External API */
 
-/*** @addtogroup m17nConv */
-/*** @{ */
-/*=*/
+/*** @addtogroup m17nConv
+     @{ */
 
 /***en @name Variables: Symbols representing coding systems */
 /***ja @name 変数: 定義済みコード系を指定するためのシンボル */

@@ -965,6 +965,8 @@ m17n_object_unref (void *object)
 
 /*** @} */
 
+/*=*/
+
 /***en
     @addtogroup m17nError Error Handling
     @brief Error handling of the m17n library.

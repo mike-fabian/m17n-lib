@@ -64,8 +64,8 @@ extern void m17n_fini_flt (void);
     @brief libm17n-flt.so が提供する API */
 /*=*/
 
-/*** @addtogroup m17nFLT */
-/*** @{ */
+/*** @addtogroup m17nFLT
+     @{ */
 /*=*/
 
 /***en

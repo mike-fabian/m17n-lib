@@ -1,3 +1,9 @@
+2023-06-22  K. Handa  <handa@gnu.org>
+
+	* charset.c, chartab.c, coding.c, database.c, draw.c, face.c,
+	input.c, m17n-core.c, m17n-core.h, m17n-flt.h, m17n-gui.h,
+	symbol.h: Fix doxygen tags.
+
 2023-06-21  K. Handa  <handa@gnu.org>
 
 	* *.[ch]: Change encoding of all source files from EUC-JP to UTF-8.

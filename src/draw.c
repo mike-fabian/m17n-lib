@@ -21,7 +21,7 @@
    Boston, MA 02110-1301 USA.  */
 
 /***en
-    @addtogroup m17nDraw
+    @addtogroup m17nDraw Drawing
     @brief Drawing M-texts on a window.
 
     The m17n GUI API provides functions to draw M-texts.
@@ -35,7 +35,7 @@
     facility.  */
 
 /***ja
-    @addtogroup m17nDraw
+    @addtogroup m17nDraw Drawing
     @brief M-text をウィンドウに描画する.
 
     m17n-gui API には、M-text を表示するための関数が用意されている。
@@ -1780,8 +1780,8 @@ mdraw__fini ()
 
 
 /* External API */
-/*** @addtogroup m17nDraw */
-/*** @{ */
+/*** @addtogroup m17nDraw
+     @{ */
 
 /*=*/
 /***en

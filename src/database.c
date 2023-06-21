@@ -1226,9 +1226,8 @@ mdatabase__props (MDatabase *mdb)
 
 /* External API */
 
-/*** @addtogroup m17nCharset */
-/*** @{ */
-/*=*/
+/*** @addtogroup m17nCharset
+     @{ */
 /***en
     @brief The symbol @c Mcharset.
 
@@ -1248,10 +1247,9 @@ MSymbol Mcharset;
 /*** @} */
 /*=*/
 
-/*** @addtogroup m17nDatabase */
-/*** @{ */
+/*** @addtogroup m17nDatabase
+     @{ */
 
-/*=*/
 /***en
     @brief Directory for application specific data.
 

@@ -710,8 +710,8 @@ mcharset__load_from_database ()
 
 /* External API */
 
-/*** @addtogroup m17nCharset */
-/*** @{ */
+/*** @addtogroup m17nCharset
+     @{ */
 /*=*/
 
 #ifdef FOR_DOXYGEN

@@ -6951,6 +6951,7 @@ minput_callback (MInputContext *ic, MSymbol command)
 }
 
 /*** @} */ 
+/*=*/
 /*** @} */
 /*=*/
 /*** @addtogroup m17nDebug */

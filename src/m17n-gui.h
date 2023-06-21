@@ -269,7 +269,6 @@ extern MPlist *mfontset_lookup (MFontset *fontset, MSymbol script,
 /***en @defgroup m17nFace Face */
 /***ja @defgroup m17nFace フェース */
 /*=*/
-
 /*** @ingroup m17nFace */
 /***en
     @brief Type of faces.

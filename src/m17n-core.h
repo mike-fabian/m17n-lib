@@ -194,7 +194,7 @@ typedef void (*M17NFunc) (void);
     #MSymbol は @e シンボル (symbol) オブジェクトの型である。
     内部構造はアプリケーションプログラムからは見えない。  */
 
-typedef struct MSymbolStruct *MSymbol;
+typedef struct MSymbol *MSymbol;
 
 /*=*/
 

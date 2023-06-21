@@ -622,9 +622,8 @@ mchartable__lookup (MCharTable *table, int c, int *next_c, int default_p)
 
 /* External API */
 
-/*** @addtogroup m17nChartable */
-/*** @{ */
-/*=*/
+/*** @addtogroup m17nChartable
+     @{ */
 
 /***en
     @brief Symbol whose name is "char-table".
