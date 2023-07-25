@@ -6,6 +6,13 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.3
+
+This release is just for bug fixing.
+
+** Fixes to be able to create m17n-docs-1.8.3: Fix doxygen tags, change all EUC-JP files to UTF-8
+
+
 * Changes in the m17n library 1.8.2
 
 This release is just for bug fixing.

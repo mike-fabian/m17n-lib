@@ -1,3 +1,10 @@
+2023-07-25  Mike FABIAN  <mfabian@redhat.com>
+
+	Version 1.8.3 released.
+
+	* m17n-core.h (M17NLIB_PATCH_LEVEL): Changed to 3.
+	(M17NLIB_VERSION_NAME): changed to "1.8.3"
+
 2023-06-22  K. Handa  <handa@gnu.org>
 
 	* charset.c, chartab.c, coding.c, database.c, draw.c, face.c,
