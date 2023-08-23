@@ -4,6 +4,7 @@ autoscan.log
 configure
 configure.scan
 *.gz
+*.gz.sig
 autom4te.cache
 config.*
 libtool
