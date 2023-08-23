@@ -1260,7 +1260,7 @@ mfont__id (MFont *font)
   return id;
 }
 
-/** Return 1 iff FONT matches SPEC.  */
+/** Return 1 if FONT matches SPEC.  */
 
 int
 mfont__match_p (MFont *font, MFont *spec, int prop)

@@ -68,7 +68,7 @@ struct MCharset
 
   /** Nonzero means there is no gap in code points of the charset.  If
       <dimension> is 1, <no_code_gap> is always 1.  Otherwise,
-      <no_code_gap> is 1 iff <code_range>[4N] is zero and
+      <no_code_gap> is 1 if <code_range>[4N] is zero and
       <code_range>[4N+1] is 256 for N = 0..<dimension>-2.  If
       <no_code_gap> is nonzero, "char-index" is "code-point" -
       <min_code>.  */

@@ -155,7 +155,7 @@ struct MRealizedFont
      carry the infomation.  */
   MSymbol layouter;
 
-  /* 1 iff the font is opend by encapsulating client-side font data.  */
+  /* 1 if the font is opend by encapsulating client-side font data.  */
   int encapsulating;
 
   /* Extra information set by MRealizedFont::driver->open.  If

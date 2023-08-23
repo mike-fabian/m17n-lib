@@ -388,7 +388,7 @@ encode_unsupporeted_char (int c, unsigned char *dst, unsigned char *dst_end,
 
 /** Finish decoding of bytes at SOURCE (ending at SRC_END) into NCHARS
     characters by CONVERTER into M-text MT.  SRC is a pointer to the
-    not-yet processed bytes.  ERROR is 1 iff an invalid byte was
+    not-yet processed bytes.  ERROR is 1 if an invalid byte was
     found.  */
 
 static int

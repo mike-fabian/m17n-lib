@@ -27,7 +27,7 @@
 
 struct MSymbolStruct
 {
-  /** 1 iff a value of property (including text-property) whose key is
+  /** 1 if a value of property (including text-property) whose key is
       the symbol is a managed object.  */
   unsigned managing_key : 1;
 

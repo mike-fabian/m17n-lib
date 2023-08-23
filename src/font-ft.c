@@ -697,7 +697,7 @@ ft_init_font_list (void)
   SAFE_FREE (path);
 }
 
-/* Return 1 iff the font pointed by FT_INFO has all characters in
+/* Return 1 if the font pointed by FT_INFO has all characters in
    CHAR_LIST.  */
 
 static int
@@ -2160,7 +2160,7 @@ ft_check_otf (MFLTFont *font, MFLTOtfSpec *spec)
   OTF *otf = get_otf (font, NULL);
   
   if (FEATURE_ANY (0) && FEATURE_ANY (1))
-    /* Return 1 iff any of GSUB or GPOS support the script (and language).  */
+    /* Return 1 if any of GSUB or GPOS support the script (and language).  */
     return (otf
 	    && (OTF_check_features (otf, 0, spec->script, spec->langsys,
 				    NULL, 0) > 0

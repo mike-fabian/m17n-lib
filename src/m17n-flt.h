@@ -194,7 +194,7 @@ typedef struct
   /***ja 非ゼロのとき、メンバー \<xadv\> と \<yadv\> は絶対値である。
       すなわちその値をグリフ本来の送り幅に加算してはならない。  */
   unsigned advance_is_absolute : 1;
-  /***en Should be set to 1 iff at least one of the other members has
+  /***en Should be set to 1 if at least one of the other members has
       a nonzero value.  */
   /***ja 他のメンバーのうち最低1個が非ゼロのときのみ、1にセットされる。  */
   unsigned set : 1;
