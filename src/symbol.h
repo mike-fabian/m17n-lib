@@ -25,7 +25,7 @@
 
 #include "plist.h"
 
-struct MSymbol
+struct MSymbolStruct
 {
   /** 1 iff a value of property (including text-property) whose key is
       the symbol is a managed object.  */
