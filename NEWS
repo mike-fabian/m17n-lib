@@ -6,6 +6,13 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.4
+
+This release is just for bug fixing.
+
+** Fix “typedef in m17n-core.h causing error when compiling with C++ code” (Resolves: https://savannah.nongnu.org/bugs/index.php?64566)
+
+
 * Changes in the m17n library 1.8.3
 
 This release is just for bug fixing.

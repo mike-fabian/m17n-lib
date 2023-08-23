@@ -1,3 +1,11 @@
+2023-08-23  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.4 released.
+	* src/m17n-core.h: (M17NLIB_PATCH_LEVEL): Changed to 4.
+	(M17NLIB_VERSION_NAME): changed to "1.8.4"
+	* src/m17n-core.h: Fix “typedef in m17n-core.h causing error when compiling with C++ code”
+	* src/symbol.h: Fix “typedef in m17n-core.h causing error when compiling with C++ code”
+
 2023-07-25  Mike FABIAN  <mfabian@redhat.com>
 
 	Version 1.8.3 released.

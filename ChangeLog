@@ -1,3 +1,8 @@
+2023-08-23  Mike FABIAN  <mfabian@redhat.com>
+
+	* configure.ac: Version changed to 1.8.4
+	* NEWS: Update for release.
+
 2023-07-25  Mike FABIAN  <mfabian@redhat.com>
 
 	Version 1.8.3 released
