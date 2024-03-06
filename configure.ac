@@ -358,7 +358,7 @@ dnl In addition, set THAI_WORDSEG_LD_FLAGS to a proper value.
 PKG_CHECK_MODULES(LIBTHAI, libthai, HAVE_LIBTHAI=yes, HAVE_LIBTHAI=no)
 PKG_CHECK_MODULES(WORDCUT, wordcut, HAVE_WORDCUT=yes, HAVE_WORDCUT=no)
 
-if test "x$HAVE_LIBTHAI" == "xyes"; then
+if test "x$HAVE_LIBTHAI" = "xyes"; then
 
   AC_DEFINE(HAVE_LIBTHAI, 1, [Define if you have libthai])
   THAI_WORDSEG_LD_FLAGS="$LIBTHAI_LIBS"
