@@ -77,6 +77,7 @@ libmimx_ispell_la_SOURCES = mimx-ispell.c
 libmimx_ispell_la_LIBADD = ${common_ldflags_gui}
 libmimx_ispell_la_LDFLAGS = -avoid-version -module
 libmimx_anthy_la_SOURCES = mimx-anthy.c
+libmimx_anthy_la_CFLAGS = @ANTHY_LD_CFLAGS@ 
 libmimx_anthy_la_LIBADD = ${common_ldflags} @ANTHY_LD_FLAGS@ 
 libmimx_anthy_la_LDFLAGS = -avoid-version -module
 

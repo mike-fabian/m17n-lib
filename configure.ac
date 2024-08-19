@@ -332,14 +332,20 @@ AC_SUBST(XML2_LD_FLAGS)
 
 dnl Check for Anthy usability.
 
-PKG_CHECK_MODULES(ANTHY, anthy, HAVE_ANTHY=yes, HAVE_ANTHY=no)
+PKG_CHECK_MODULES(ANTHY, anthy-unicode,
+                  HAVE_ANTHY=yes,
+                  PKG_CHECK_MODULES(ANTHY, anthy,
+                                    HAVE_ANTHY=yes,
+                                    HAVE_ANTHY=no))
 if test "x$HAVE_ANTHY" = "xyes"; then
   AC_DEFINE(HAVE_ANTHY, 1,
 	   [Define to 1 if you have Anthy library and header file])
   M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
+  ANTHY_LD_CFLAGS="$ANTHY_CFLAGS"
   ANTHY_LD_FLAGS="$ANTHY_LIBS"
   CONFIG_FLAGS="$CONFIG_FLAGS -DHAVE_ANTHY"
 fi
+AC_SUBST(ANTHY_LD_CFLAGS)
 AC_SUBST(ANTHY_LD_FLAGS)
 
 dnl Check for Ispell usability.
