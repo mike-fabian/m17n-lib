@@ -1861,7 +1861,7 @@ QuitProc (Widget w, XtPointer client_data, XtPointer call_data)
 }
 
 MText *
-read_file ()
+read_file (const char *filename)
 {
   FILE *fp = fopen (filename, "r");
 
