@@ -1,3 +1,9 @@
+2025-02-12  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.5 released.
+	* Makefile.am: Enable anthy-unicode, thanks to Takao Fujiwara <tfujiwar@redhat.com>
+	* mimx-anthy.c: Use UTF-8 instead of EUC-JP
+
 2023-08-23  Mike FABIAN  <mfabian@redhat.com>
 
 	* Version 1.8.4 released.

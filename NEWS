@@ -6,6 +6,16 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.5
+
+This release is just for bug fixing.
+
+** Enable anthy-unicode (Resolves: https://savannah.nongnu.org/bugs/?66109) (by Takao Fujiwara <tfujiwar@redhat.com>)
+** Use UTF-8 instead of EUC-JP in example/mimx-anthy.c (Fixes encoding problems for ibus-m17n and ibus-typing-booster)
+** configure.ac: fix incorrect bashism (by Eli Schwartz <eschwartz93@gmail.com>)
+** Fix build on Fedora rawhide (Fedora 42)
+
+
 * Changes in the m17n library 1.8.4
 
 This release is just for bug fixing.
