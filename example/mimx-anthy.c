@@ -129,15 +129,16 @@ new_context (MInputContext *ic)
 {
   AnthyContext *context;
   anthy_context_t ac;
-  MSymbol euc_jp = msymbol ("euc-jp");
+  MSymbol utf_8 = msymbol ("utf-8");
   /* Rebound to an actual buffer just before being used.  */
-  MConverter *converter = mconv_buffer_converter (euc_jp, NULL, 0);
+  MConverter *converter = mconv_buffer_converter (utf_8, NULL, 0);
 
   if (! converter)
     return NULL;
   ac = anthy_create_context ();
   if (! ac)
     return NULL;
+  anthy_context_set_encoding(ac, ANTHY_UTF8_ENCODING);
   context = calloc (1, sizeof (AnthyContext));
   context->ic = ic;
   context->ac = ac;
