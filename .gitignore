@@ -17,6 +17,7 @@ Makefile
 INSTALL
 depcomp
 install-sh
+install-sh~
 missing
 mkinstalldirs
 ltmain.sh
