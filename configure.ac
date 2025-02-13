@@ -332,19 +332,12 @@ AC_SUBST(XML2_LD_FLAGS)
 
 dnl Check for Anthy usability.
 
-ANTHY_CFLAGS=""
-ANTHY_LIBS=""
-
-PKG_CHECK_MODULES(ANTHY_UNICODE, anthy-unicode,
+PKG_CHECK_MODULES(ANTHY, anthy-unicode,
                   [HAVE_ANTHY=yes
-                   M17N_EXT_LIBS="$M17N_EXT_LIBS anthy-unicode"
-                   ANTHY_CFLAGS="$ANTHY_UNICODE_CFLAGS"
-                   ANTHY_LIBS="$ANTHY_UNICODE_LIBS"],
-                  [PKG_CHECK_MODULES(ANTHY_LEGACY, anthy,
+                   M17N_EXT_LIBS="$M17N_EXT_LIBS anthy-unicode"],
+                  [PKG_CHECK_MODULES(ANTHY, anthy,
                                      [HAVE_ANTHY=yes
-                                      M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"
-                                      ANTHY_CFLAGS="$ANTHY_LEGACY_CFLAGS"
-                                      ANTHY_LIBS="$ANTHY_LEGACY_LIBS"],
+                                      M17N_EXT_LIBS="$M17N_EXT_LIBS anthy"],
                                      [HAVE_ANTHY=no])])
 
 if test "x$HAVE_ANTHY" = "xyes"; then
