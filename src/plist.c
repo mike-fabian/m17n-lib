@@ -272,17 +272,25 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 		{
 		  nbytes *= 2;
 		  buf = malloc (nbytes);
+                  if (!buf)
+                    {
+                      MEMORY_FULL (MERROR_MTEXT);
+                    }
 		  memcpy (buf, buffer, i);
 		}
 	      else
 		{
 		  nbytes += READ_MTEXT_BUF_SIZE;
 		  buf = realloc (buf, nbytes);
+                  if (!buf)
+                    {
+                      MEMORY_FULL (MERROR_MTEXT);
+                    }
 		}
 	    }
 
 	  if (is_char)
-	    i += CHAR_STRING_UTF8 (c, buf);
+	    i += CHAR_STRING_UTF8 (c, buf + i);
 	  else
 	    buf[i++] = c;
 	}

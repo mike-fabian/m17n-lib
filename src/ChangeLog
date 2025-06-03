@@ -1,3 +1,8 @@
+2025-06-07  David Mandelberg  <david@mandelberg.org>
+
+	* plist.c: Increment buffer index correctly in read_mtext_element ()
+	Resolves: https://savannah.nongnu.org/bugs/index.php?67107
+
 2025-06-04  K. Handa  <handa@gnu.org>
 
 	* input.c (regularize_action): Fix previous change.
