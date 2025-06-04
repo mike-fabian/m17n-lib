@@ -3054,7 +3054,12 @@ regularize_action (MPlist *action_list, MInputContextInfo *ic_info)
       if (MPLIST_TAIL_P (p))
 	return NULL;
       action = MPLIST_NEXT (MPLIST_PLIST (p));
-      mplist_set (action_list, MPLIST_KEY (action), MPLIST_VAL (action));
+      /* We should not set the element of action_list to the resolved
+	 value.  If the variable is resolved to a symbol, that symbol
+	 may be a variable that is resolved next time to the different
+	 value.
+	mplist_set (action_list, MPLIST_KEY (action), MPLIST_VAL (action));
+      */
     }
 
   if (MPLIST_PLIST_P (action_list))
