@@ -3060,6 +3060,7 @@ regularize_action (MPlist *action_list, MInputContextInfo *ic_info)
 	 value.
 	mplist_set (action_list, MPLIST_KEY (action), MPLIST_VAL (action));
       */
+      action_list = action;
     }
 
   if (MPLIST_PLIST_P (action_list))
