@@ -2,7 +2,7 @@
 
 	* input.c (regularize_action): Fix previous change.
 
-	2025-06-04  K. Handa  <handa@gnu.org>
+2025-06-04  K. Handa  <handa@gnu.org>
 
 	* input.c (regularize_action): Do not update the element of
 	action_list if the element is a symbol that is defined as a
