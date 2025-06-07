@@ -1,6 +1,7 @@
 *.o
 *.lo
 *.la
+m17n-input-test
 m17n-conv
 m17n-date
 m17n-dump
