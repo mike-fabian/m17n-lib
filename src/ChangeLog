@@ -1,3 +1,9 @@
+2025-06-07  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.6 released.
+	* src/m17n-core.h: (M17NLIB_PATCH_LEVEL): Changed to 6
+	* src/m17n-core.h: (M17NLIB_VERSION_NAME): Changed to "1.8.6"
+
 2025-06-07  David Mandelberg  <david@mandelberg.org>
 
 	* plist.c: Increment buffer index correctly in read_mtext_element ()

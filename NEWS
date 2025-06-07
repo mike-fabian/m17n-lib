@@ -6,6 +6,17 @@ Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
 
 
+* Changes in the m17n library 1.8.6
+
+This release is just for bug fixing.
+
+** Add m17n-input-test program (Thanks to David Mandelberg <david@mandelberg.org>)
+** input.c (regularize_action): Do not update the element of action_list if the element is a symbol that is defined as a variable.
+** Increment buffer index correctly in read_mtext_element () (Resolves: https://savannah.nongnu.org/bugs/index.php?67107)
+Thanks to David Mandelberg <david@mandelberg.org>
+** Simplify configure check for anthy/anthy-unicode
+
+
 * Changes in the m17n library 1.8.5
 
 This release is just for bug fixing.
