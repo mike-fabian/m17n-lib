@@ -1,3 +1,8 @@
+2025-06-07  David Mandelberg  <david@mandelberg.org>
+
+	* Makefile.am: Add minputtest
+	* minputtest.c: New program to test input methods
+
 2025-02-12  Mike FABIAN  <mfabian@redhat.com>
 
 	* Version 1.8.5 released.

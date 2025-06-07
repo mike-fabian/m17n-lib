@@ -25,7 +25,7 @@
 ## Note: Source files have preifx "m" but executables have prefix
 ## "m17n-" to avoid confliction of program names.
 
-BASICPROGS = m17n-conv
+BASICPROGS = m17n-conv m17n-input-test
 if WITH_GUI
 bin_PROGRAMS = $(BASICPROGS) m17n-view m17n-date m17n-dump m17n-edit
 else
@@ -52,6 +52,9 @@ m17n_view_LDADD = ${X_LD_FLAGS} ${common_ldflags_gui}
 
 m17n_dump_SOURCES = mdump.c
 m17n_dump_LDADD = @GD_LD_FLAGS@ ${common_ldflags_gui}
+
+m17n_input_test_SOURCES = minputtest.c
+m17n_input_test_LDADD = ${common_ldflags}
 
 # Input method data files.
 
