@@ -8,6 +8,11 @@
 	* input.c (re_init_ic): Restore ic_info->stack in a safe way.
 	(filter): Update ic_info after calling reset_ic.
 
+2026-09-19  Qijia Liu  <liumeo@pku.edu.cn>
+
+	* input.c (handle_key): Preserve a state hook installed while
+	running the previous state's hook.
+
 2025-06-07  Mike FABIAN  <mfabian@redhat.com>
 
 	* Version 1.8.6 released.
