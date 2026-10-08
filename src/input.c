@@ -3977,8 +3977,10 @@ re_init_ic (MInputContext *ic, int reload)
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
   int status_changed, preedit_changed, cursor_pos_changed, candidates_changed;
   /* Remember these now.  They are cleared by fini_ic_info ().  */
-  MIMInputStack *stack = ic_info->stack;
+  MIMInputStack *stack = NULL;
 
+  if (ic_info->stack != NULL)
+    stack = ic_info->stack->ic_info->stack;
   status_changed = ic_info->state != (MIMState *) MPLIST_VAL (im_info->states);
   preedit_changed = mtext_nchars (ic->preedit) > 0;
   cursor_pos_changed = ic->cursor_pos > 0;
@@ -4009,6 +4011,9 @@ re_init_ic (MInputContext *ic, int reload)
   ic->plist = mplist ();
 
   fini_ic_info (ic);
+  /* Re-sync these variables.  */
+  im_info = (MInputMethodInfo *) ic->im->info;
+  ic_info = (MInputContextInfo *) ic->info;
   if (reload)
     reload_im_info (im_info);
   if (! im_info->states)
@@ -4238,6 +4243,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	/* Insane number of iteration, perhaps a bug.  */
 	mdebug_hook ();
 	reset_ic (ic, Mnil);
+	/* reset_ic() will change ic->info. */
+	ic_info = (MInputContextInfo *) ic->info;
 	ic_info->key_unhandled = 1;
 	break;
       }
