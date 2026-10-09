@@ -1,3 +1,8 @@
+2026-10-09  Chamod Anuradha <chamodanu12@gmail.com>
+
+	* coding.c (decode_coding_iso_2022):
+	Avoid uninitialized buffer on invalid UTF-8 lead bytes.
+
 2026-10-09  K. Handa  <handa@gnu.org>
 
 	* plist.c (read_mtext_element): Avoid SIGSEGV on invalid utf-8 bytes.
