@@ -225,8 +225,8 @@ read_hexadesimal (MStream *st)
 }
 
 
-/** Read an M-text element from ST, and add it to LIST.  Return a list
-    for the next element.  */
+/** Read an M-text element from ST, and add it to PLIST if SKIP is nonzero.
+    Return a list for the next element. */
 
 #define READ_MTEXT_BUF_SIZE 256
 
@@ -302,6 +302,12 @@ read_mtext_element (MPlist *plist, MStream *st, int skip)
 
       buf[i] = 0;
       mt = mtext__from_data (buf, i, MTEXT_FORMAT_UTF_8, (buf == buffer));
+      if (mt == NULL)
+	{
+	  /* BUF contains invalid UTF-8 bytes.  */
+	  sprintf (buf, "-- invalid UTF-8 bytes  --");
+	  mt = mtext__from_data (buf, strlen (buf), MTEXT_FORMAT_UTF_8, buf == buffer);
+	}
       if (buf != buffer)
 	mt->allocated = nbytes;
       MPLIST_SET_ADVANCE (plist, Mtext, mt);
