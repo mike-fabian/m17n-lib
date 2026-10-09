@@ -430,7 +430,7 @@ count_utf_8_chars (const void *data, int nitems)
       if (! CHAR_HEAD_P_UTF8 (p))
 	return -1;
       n = CHAR_UNITS_BY_HEAD_UTF8 (*p);
-      if (p + n > pend)
+      if (n <= 0 || p + n > pend)
 	return -1;
       for (i = 1; i < n; i++)
 	if (CHAR_HEAD_P_UTF8 (p + i))
