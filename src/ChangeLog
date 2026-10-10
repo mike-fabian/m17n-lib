@@ -1,3 +1,9 @@
+2026-10-10  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.7 released
+	* src/m17n-core.h: (M17NLIB_PATCH_LEVEL): Changed to 7
+	* src/m17n-core.h: (M17NLIB_VERSION_NAME): Changed to "1.8.7"
+
 2026-10-09  Chamod Anuradha <chamodanu12@gmail.com>
 
 	* coding.c (decode_coding_iso_2022):
