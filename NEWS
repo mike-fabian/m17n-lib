@@ -10,7 +10,7 @@ See the end for copying conditions.
 
 This release is just for bug fixing.
 
-** Avoid uninitialized buffer on invalid UTF-8 lead bytes (Thanks to Chamod Anuradha <chamodanu12@gmail.com>)
+** Avoid uninitialized buffer on invalid UTF-8 lead bytes (Thanks to Chamod Anuradha Denipitiya <chamodanu12@gmail.com>)
 ** Fix crash when using zh-zhuyin (Thanks to Qijia Liu <liumeo@pku.edu.cn>)
 (See: https://lists.nongnu.org/archive/html/m17n-list/2026-09/msg00000.html)
 ** fix "Heap Use-After-Free" bug
