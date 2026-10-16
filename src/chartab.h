@@ -23,6 +23,15 @@
 #ifndef _M17N_CHARTAB_H_
 #define _M17N_CHARTAB_H_
 
+#define MCHARTABLE_LOOKUP_INT(TABLE, C)	\
+  (int)(uintptr_t) mchartable_lookup ((TABLE), (C))
+#define MCHARTABLE_LOOKUP_UNSIGNED(TABLE, C)	\
+  (unsigned)(uintptr_t) mchartable_lookup ((TABLE), (C))
+#define MCHARTABLE__LOOKUP_INT(TABLE, C, NEXT_C, DEFAULT_P)	\
+  (int)(uintptr_t) mchartable__lookup ((TABLE), (C), (NEXT_C), (DEFAULT_P))
+#define MCHARTABLE__LOOKUP_UNSIGNED(TABLE, C, NEXT_C, DEFAULT_P)	\
+  (unsigned)(uintptr_t) mchartable__lookup ((TABLE), (C), (NEXT_C), (DEFAULT_P))
+
 extern void *mchartable__lookup (MCharTable *table, int c,
 				 int *next_c, int default_p);
 

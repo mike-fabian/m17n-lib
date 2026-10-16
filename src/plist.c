@@ -73,6 +73,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -451,7 +452,7 @@ read_integer_element (MPlist *plist, MStream *st, int c, int skip)
     num = read_decimal (st, c);
 
   if (! skip)
-    MPLIST_SET_ADVANCE (plist, Minteger, (void *) num);
+    MPLIST_SET_ADVANCE (plist, Minteger, (void *)(intptr_t) num);
   return plist;
 }
 
@@ -704,7 +705,7 @@ write_element (MText *mt, MPlist *plist, int indent)
 
       write_symbol (mt, MPLIST_KEY (plist));
       PUTC (mt, ':');
-      sprintf (buf, "%04X", (unsigned) MPLIST_VAL (plist));
+      sprintf (buf, "%04X", MPLIST_UNSIGNED (plist));
       PUTS (mt, buf);
     }
 }

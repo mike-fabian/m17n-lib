@@ -289,7 +289,7 @@ load_chartable (FILE *fp, MSymbol type)
 	  n = read_number (buf, &i);
 	  if (n < 0)
 	    goto label_error;
-	  val = (void *) (n * positive);
+	  val = (void *)(intptr_t) (n * positive);
 	}
       else if (type == Mtext)
 	{

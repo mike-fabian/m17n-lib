@@ -87,6 +87,7 @@
 
 #ifndef FOR_DOXYGEN
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -442,9 +443,9 @@ set_input_method_spot ()
     for (i = n - 1; i >= 0; i--)
       {
 	if (! size)
-	  size = (int) mface_get_prop (faces[i], Msize);
+	  size = (int)(intptr_t) mface_get_prop (faces[i], Msize);
 	if (! ratio)
-	  ratio = (int) mface_get_prop (faces[i], Mratio);
+	  ratio = (int)(intptr_t) mface_get_prop (faces[i], Mratio);
       }
   if (! size)
     size = default_font_size;
@@ -810,7 +811,7 @@ show_cursor (XtPointer client_data)
       buf[0] = '\0';
       if (cursor.font)
 	{
-	  int size = (int) mfont_get_prop (cursor.font, Msize);
+	  int size = (int)(intptr_t) mfont_get_prop (cursor.font, Msize);
 	  MSymbol family = mfont_get_prop (cursor.font, Mfamily);
 	  MSymbol weight = mfont_get_prop (cursor.font, Mweight);
 	  MSymbol style = mfont_get_prop (cursor.font, Mstyle);
@@ -1475,7 +1476,7 @@ ScrollProc (Widget w, XtPointer client_data, XtPointer position)
   int height;
   int cursor_pos = cursor.from;
 
-  if (((int) position) < 0)
+  if (((int)(intptr_t) position) < 0)
     {
       /* Scroll down.  */
       int pos;
@@ -1590,7 +1591,7 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 
   if (saved_input_method > -3)
     {
-      InputMethodProc (w, (XtPointer) saved_input_method, NULL);
+      InputMethodProc (w, (XtPointer)(uintptr_t) saved_input_method, NULL);
       saved_input_method = -3;
     }
 
@@ -1767,7 +1768,7 @@ KeyProc (Widget w, XEvent *event, String *str, Cardinal *num)
 		   && unicode_input_method >= 0)
 	    {
 	      saved_input_method = current_input_method;
-	      InputMethodProc (w, (XtPointer) unicode_input_method, NULL);
+	      InputMethodProc (w, (XtPointer)(uintptr_t) unicode_input_method, NULL);
 	      minput_filter (current_input_context, msymbol ("C-u"), NULL);
 	    }
 	  else
@@ -1830,7 +1831,7 @@ SerializeProc (Widget w, XtPointer client_data, XtPointer call_data)
   hide_cursor ();
   if (SELECTEDP ())
     mtext_detach_property (selection);
-  serialized = (int) client_data;
+  serialized = (int)(intptr_t) client_data;
   if (! serialized)
     new = mtext_deserialize (mt);
   else
@@ -1877,7 +1878,7 @@ read_file (const char *filename)
 void
 BidiProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int data = (int) client_data;
+  int data = (int)(intptr_t) client_data;
   int i;
 
   if (data == 0)
@@ -1906,7 +1907,7 @@ BidiProc (Widget w, XtPointer client_data, XtPointer call_data)
 void
 LineBreakProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int data = (int) client_data;
+  int data = (int)(intptr_t) client_data;
   int i;
 
   if (data == 0)
@@ -1951,7 +1952,7 @@ FilterProc (Widget w, XtPointer client_data, XtPointer call_data)
 void
 CursorProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int data = (int) client_data;
+  int data = (int)(intptr_t) client_data;
   int i, from, to;
 
   switch (data)
@@ -1994,7 +1995,7 @@ CursorProc (Widget w, XtPointer client_data, XtPointer call_data)
 static void
 InputMethodProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int idx = (int) client_data;
+  int idx = (int)(intptr_t) client_data;
 
   if (idx == -2 ? (! auto_input_method && current_input_method < 0)
       : idx == -1 ? auto_input_method
@@ -2030,7 +2031,7 @@ MPlist *default_face_list;
 void
 FaceProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int idx = (int) client_data;
+  int idx = (int)(intptr_t) client_data;
   int from, to;
   int old_y1;
 
@@ -2135,7 +2136,7 @@ LangProc (Widget w, XtPointer client_data, XtPointer call_data)
 void
 DumpImageProc (Widget w, XtPointer client_data, XtPointer call_data)
 {
-  int narrowed = (int) client_data;
+  int narrowed = (int)(intptr_t) client_data;
   FILE *mdump;
   int from, to;
   MConverter *converter;
@@ -2195,7 +2196,7 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
 {
   if (command == Minput_get_surrounding_text)
     {
-      int len = (int) mplist_value (ic->plist);
+      int len = (int)(intptr_t) mplist_value (ic->plist);
       int pos;
       MText *surround;
 
@@ -2220,7 +2221,7 @@ surrounding_text_handler (MInputContext *ic, MSymbol command)
     }
   else if (command == Minput_delete_surrounding_text)
     {
-      int len = (int) mplist_value (ic->plist);      
+      int len = (int)(intptr_t) mplist_value (ic->plist);      
 
       if (len < 0)
 	{
@@ -2430,7 +2431,7 @@ FileDialogProc (Widget w, XtPointer client_data, XtPointer call_data)
   char *label;
 
   XtPopdown (FileShellWidget);
-  if ((int) client_data == 1)
+  if ((int)(intptr_t) client_data == 1)
     return;
   XtSetArg (arg[0], XtNlabel, &label);
   XtGetValues (FileDialogWidget, arg, 1);
@@ -2465,7 +2466,7 @@ FileDialogProc (Widget w, XtPointer client_data, XtPointer call_data)
 
 #define SetMenu(MENU, TYPE, NAME1, NAME2, PROC, DATA, STATUS)		 \
   ((MENU).type = (TYPE), (MENU).name1 = (NAME1), (MENU).name2 = (NAME2), \
-   (MENU).proc = (PROC), (MENU).client_data = (XtPointer) (DATA),	 \
+   (MENU).proc = (PROC), (MENU).client_data = (XtPointer)(uintptr_t) (DATA), \
    (MENU).status = (STATUS))
 
 
@@ -2787,7 +2788,7 @@ main (int argc, char **argv)
 	    m17n_object_unref (fontset);
 	  }
 	if (fontsize > 0)
-	  mface_put_prop (face, Msize, (void *) fontsize);
+	  mface_put_prop (face, Msize, (void *)(uintptr_t) fontsize);
 	mplist_add (plist, Mface, face);
 	m17n_object_unref (face);
       }
@@ -2803,12 +2804,12 @@ main (int argc, char **argv)
 		    mface_get_prop (face_default, Mfontset));
 
     font = (MFont *) mframe_get_prop (frame, Mfont);
-    default_font_size = (int) mfont_get_prop (font, Msize);
+    default_font_size = (int)(intptr_t) mfont_get_prop (font, Msize);
   }
 
-  font_width = (int) mframe_get_prop (frame, Mfont_width);
-  font_ascent = (int) mframe_get_prop (frame, Mfont_ascent);
-  font_descent = (int) mframe_get_prop (frame, Mfont_descent);
+  font_width = (int)(intptr_t) mframe_get_prop (frame, Mfont_width);
+  font_ascent = (int)(intptr_t) mframe_get_prop (frame, Mfont_ascent);
+  font_descent = (int)(intptr_t) mframe_get_prop (frame, Mfont_descent);
   win_width = font_width * col;
   win_height = (font_ascent + font_descent) * row;
 

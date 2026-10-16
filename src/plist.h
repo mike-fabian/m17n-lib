@@ -71,7 +71,8 @@ struct MPlist
 #define MPLIST_SYMBOL(plist) ((MSymbol) MPLIST_VAL (plist))
 #define MPLIST_STRING(plist) ((char *) MPLIST_VAL (plist))
 #define MPLIST_MTEXT(plist) ((MText *) MPLIST_VAL (plist))
-#define MPLIST_INTEGER(plist) ((int) MPLIST_VAL (plist))
+#define MPLIST_INTEGER(plist) ((int)(intptr_t) MPLIST_VAL (plist))
+#define MPLIST_UNSIGNED(plist) ((unsigned)(uintptr_t) MPLIST_VAL (plist))
 #define MPLIST_PLIST(plist) ((MPlist *) MPLIST_VAL (plist))
 
 #define MPLIST_FIND(plist, key)						\
@@ -97,6 +98,10 @@ struct MPlist
 #define MPLIST_PUT_PLIST(PLIST, KEY, VAL) \
   MPLIST_SET_NESTED_P (mplist_put ((PLIST), (KEY), (VAL)))
 
+#define MPLIST_GET_INT(PLIST, KEY) \
+  (int)(intptr_t) mplist_get ((PLIST), (KEY))
+#define MPLIST_GET_UNSIGNED(PLIST, KEY) \
+  (unsigned)(uintptr_t) mplist_get ((PLIST), (KEY))
 
 extern unsigned char hex_mnemonic[256];
 extern unsigned char escape_mnemonic[256];

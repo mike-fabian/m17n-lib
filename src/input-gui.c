@@ -56,6 +56,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -302,7 +303,7 @@ win_callback (MInputContext *ic, MSymbol command)
 	}
       win_ic_info->preedit.control.cursor_pos = ic->cursor_pos;
       if (ic->spot.fontsize)
-	mface_put_prop (face, Msize, (void *) ic->spot.fontsize);
+	mface_put_prop (face, Msize, (void *)(uintptr_t) ic->spot.fontsize);
       mface_merge (face, mface_underline);
       mtext_push_prop (ic->preedit, 0, mtext_nchars (ic->preedit),
 		       Mface, face);

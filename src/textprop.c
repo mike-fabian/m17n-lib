@@ -60,6 +60,7 @@
      @{ */
 
 #include <config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1135,7 +1136,7 @@ dump_interval (MInterval *interval, int indent)
 	     interval->stack[i]->control.ref_count,
 	     interval->stack[i]->attach_count,
 	     interval->stack[i]->start, interval->stack[i]->end,
-	     (unsigned) interval->stack[i]->val);
+	     (unsigned)(uintptr_t) interval->stack[i]->val);
   fprintf (mdebug__output, ")");
 }
 
@@ -1168,7 +1169,7 @@ dump_textplist (MTextPlist *plist, int indent)
 
 		  for (i = 0; i < interval->nprops; i++)
 		    fprintf (mdebug__output, " 0x%x",
-			     (int) interval->stack[i]->val);
+			     (int)(intptr_t) interval->stack[i]->val);
 		}
 	      fprintf (mdebug__output, ")");
 	      interval = interval->next;

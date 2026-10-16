@@ -325,6 +325,7 @@
 
 #include "config.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -454,14 +455,14 @@ MFontPropertyTable mfont__property_table[MFONT_REGISTRY + 1];
 #define FONT_PROPERTY_NUMERIC(symbol, n)	\
   ((symbol) == Mnil				\
    ? 0						\
-   : ((int) msymbol_get ((symbol), mfont__property_table[(n)].property)))
+   : (MSYMBOL_GET_INT ((symbol), mfont__property_table[(n)].property)))
 
 
 /** Set the numeric value of SYMBOL as the Nth font property to NUMERIC.  */
 
 #define SET_FONT_PROPERTY_NUMERIC(symbol, n, numeric)		\
   msymbol_put((symbol), mfont__property_table[(n)].property,	\
-	      (void *) (numeric))
+	      (void *)(uintptr_t) (numeric))
 
 
 /* Font selector.  */
@@ -841,7 +842,7 @@ xlfd_unparse_name (MFont *font, int full_xlfd)
       > 513)
     return NULL;
 
-  resy = (int) mfont_get_prop (font, Mresolution);
+  resy = (int)(intptr_t) mfont_get_prop (font, Mresolution);
   size = font->size;
   if (size >= 0)
     {
@@ -1117,7 +1118,7 @@ mfont__init ()
 	  if (sym == Mnil)
 	    return -1;
 	  if (msymbol_put (sym, mfont__property_table[i].property,
-			   (void *) (j + 1)) < 0)
+			   (void *)(uintptr_t) (j + 1)) < 0)
 	    return -1;
 	  MLIST_APPEND1 (&mfont__property_table[i], names, sym,
 			 MERROR_FONT);
@@ -1341,7 +1342,7 @@ mfont__set_spec_from_face (MFont *spec, MFace *face)
   spec->property[MFONT_REGISTRY] = 0;
   spec->property[MFONT_RESY] = 0;
   spec->multiple_sizes = 0;
-  spec->size = (int) (face->property[MFACE_SIZE]);
+  spec->size = (int)(intptr_t) (face->property[MFACE_SIZE]);
   spec->type = MFONT_TYPE_SPEC;
   spec->source = MFONT_SOURCE_UNDECIDED;
   spec->file = spec->capability = Mnil;
@@ -1478,7 +1479,7 @@ mfont__list (MFrame *frame, MFont *spec, MFont *request, int max_size)
 
   pl = msymbol_get (id, M_font_list);
   if (pl)
-    num = (int) msymbol_get (id, M_font_list_len);
+    num = MSYMBOL_GET_INT (id, M_font_list_len);
   else
     {
       pl = mplist ();
@@ -1495,7 +1496,7 @@ mfont__list (MFrame *frame, MFont *spec, MFont *request, int max_size)
 	}
       msymbol_put (id, M_font_list, pl);
       M17N_OBJECT_UNREF (pl);
-      msymbol_put (id, M_font_list_len, (void *) num);
+      msymbol_put (id, M_font_list_len, (void *)(uintptr_t) num);
     }
   
   if (num == 0)
@@ -2456,12 +2457,12 @@ mfont_get_prop (MFont *font, MSymbol key)
   if (key == Msize)
     {
       int size = font->size;
-      return (void *) size;
+      return (void *)(uintptr_t) size;
     }
   if (key == Mresolution)
     {
       int resy = font->property[MFONT_RESY];
-      return (void *) resy;
+      return (void *)(uintptr_t) resy;
     }
   if (key == Mlanguage || key == Mscript || key == Motf)
     {
@@ -2486,11 +2487,11 @@ mfont_get_prop (MFont *font, MSymbol key)
   if (rfont)
     {
       if (key == Mfont_ascent)
-	return (void *) rfont->ascent;
+	return (void *)(uintptr_t) rfont->ascent;
       if (key == Mfont_descent)
-	return (void *) rfont->descent;
+	return (void *)(uintptr_t) rfont->descent;
       if (key == Mmax_advance)
-	return (void *) rfont->max_advance;
+	return (void *)(uintptr_t) rfont->max_advance;
     }
   MERROR (MERROR_FONT, NULL);
 }
@@ -2544,12 +2545,12 @@ mfont_put_prop (MFont *font, MSymbol key, void *val)
     mfont__set_property (font, MFONT_REGISTRY, (MSymbol) val);
   else if (key == Msize)
     {
-      int size = (int) val;
+      int size = (int)(intptr_t) val;
       font->size = size;
     }
   else if (key == Mresolution)
     {
-      unsigned resy = (unsigned) val;
+      unsigned resy = (unsigned)(uintptr_t) val;
       font->property[MFONT_RESY] = resy;
     }
   else if (key == Mlanguage || key == Mscript || key == Motf)

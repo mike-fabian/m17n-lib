@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -204,7 +205,7 @@ ft_get_charmaps (FT_Face ft_face)
 	       && ft_face->charmaps[i]->encoding_id == 0)
 	{
 	  registry = M1_0;
-	  mplist_add (plist, Mapple_roman, (void *) i);
+	  mplist_add (plist, Mapple_roman, (void *)(uintptr_t) i);
 	}
       if (registry == Mnil)
 	{
@@ -215,22 +216,22 @@ ft_get_charmaps (FT_Face ft_face)
 		   ft_face->charmaps[i]->encoding_id);
 	  registry = msymbol (registry_buf);
 	}
-      mplist_add (plist, registry, (void *) i);
+      mplist_add (plist, registry, (void *)(uintptr_t) i);
     }
   if (unicode_full >= 0)
-    mplist_add (plist, Municode_full, (void *) unicode_full);
+    mplist_add (plist, Municode_full, (void *)(uintptr_t) unicode_full);
   if (unicode_bmp >= 0)
     {
       int i;
 
-      mplist_add (plist, Municode_bmp, (void *) unicode_bmp);
+      mplist_add (plist, Municode_bmp, (void *)(uintptr_t) unicode_bmp);
       FT_Set_Charmap (ft_face, ft_face->charmaps[unicode_bmp]);
       for (i = 0x21; i < 0x7F && FT_Get_Char_Index (ft_face, i) > 0; i++);
       if (i == 0x7F)
 	{
 	  for (i = 0xC0; i < 0x100 && FT_Get_Char_Index (ft_face, i) > 0; i++);
 	  if (i == 0x100)
-	    mplist_add (plist, Miso8859_1, (void *) unicode_bmp);
+	    mplist_add (plist, Miso8859_1, (void *)(uintptr_t) unicode_bmp);
 	}
     }
 
@@ -1521,7 +1522,7 @@ ft_open (MFrame *frame, MFont *font, MFont *spec, MRealizedFont *rfont)
       MDEBUG_PRINT1 ("  no (%s)\n", MSYMBOL_NAME (registry));
       return NULL;
     }
-  charmap_index = (int) MPLIST_VAL (plist);
+  charmap_index = MPLIST_INTEGER (plist);
   if ((charmap_index >= 0
        && FT_Set_Charmap (ft_face, ft_face->charmaps[charmap_index]))
       || FT_Set_Pixel_Sizes (ft_face, 0, size / 10))

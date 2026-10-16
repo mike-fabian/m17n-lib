@@ -58,6 +58,7 @@
      @{ */
 
 #include <config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -3844,7 +3845,7 @@ mconv_define_coding (const char *name, MPlist *plist,
       if (! coding->resetter)
 	coding->resetter = reset_coding_utf;
 
-      info->code_unit_bits = (int) mplist_get (plist, Mcode_unit);
+      info->code_unit_bits = MPLIST_GET_INT (plist, Mcode_unit);
       if (info->code_unit_bits == 8)
 	{
 	  if (! coding->decoder)

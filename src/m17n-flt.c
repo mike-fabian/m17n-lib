@@ -44,6 +44,7 @@
 
 #include "config.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +56,7 @@
 #include "m17n-flt.h"
 #include "m17n-misc.h"
 #include "internal.h"
+#include "chartab.h"
 #include "mtext.h"
 #include "symbol.h"
 #include "plist.h"
@@ -513,7 +515,7 @@ apply_otf_feature (MFLTFont *font, MFLTOtfSpec *spec,
     return;
   for (i = to - from; i >= 0; i--)
     if (buf[i])
-      mchartable_set (table, from + i, (void *) category);
+      mchartable_set (table, from + i, (void *)(uintptr_t) category);
 }
 
 static unsigned int gen_otf_tag (char *p, int shift);
@@ -605,9 +607,9 @@ load_category_table (MPlist *plist, MFLTFont *font)
 	MERROR_GOTO (MERROR_FLT, end);
 
       if (from == to)
-	mchartable_set (table, from, (void *) category_code);
+	mchartable_set (table, from, (void *)(uintptr_t) category_code);
       else
-	mchartable_set_range (table, from, to, (void *) category_code);
+	mchartable_set_range (table, from, to, (void *)(uintptr_t) category_code);
     }
 
  end:
@@ -1905,7 +1907,7 @@ decode_packed_otf_tag (FontLayoutContext *ctx, MFLTGlyphString *gstring,
 	      }
 	}
       if (! enc)
-	enc = (g->c > 0 ? (int) mchartable_lookup (category->table, g->c)
+	enc = (g->c > 0 ? MCHARTABLE_LOOKUP_INT (category->table, g->c)
 	       : g->c == 0 ? 1 : ' ');
       SET_CATEGORY_CODE (g, enc);
     }
@@ -2041,10 +2043,10 @@ try_otf (int depth, MFLTOtfSpec *otf_spec, int from, int to,
 	  if (! GET_COMBINED (g))
 	    {
 	      char enc = (GET_ENCODED (g)
-			  ? (g->c > 0 ? (int) mchartable_lookup (table, g->c)
+			  ? (g->c > 0 ? MCHARTABLE_LOOKUP_INT (table, g->c)
 			     : 1)
 			  : g->code
-			  ? (int) mchartable_lookup (table, g->code)
+			  ? MCHARTABLE_LOOKUP_INT (table, g->code)
 			  : ' ');
 	      SET_CATEGORY_CODE (g, enc);
 	      ctx->encoded[i - ctx->encoded_offset] = enc;
@@ -2126,9 +2128,9 @@ run_command (int depth, int id, int from, int to, FontLayoutContext *ctx)
       else if (table)
 	{
 	  enc = (GET_ENCODED (g)
-		 ? (g->c > 0 ? (int) mchartable_lookup (table, g->c) : 1)
+		 ? (g->c > 0 ? MCHARTABLE_LOOKUP_INT (table, g->c) : 1)
 		 : g->code
-		 ? (int) mchartable_lookup (table, g->code)
+		 ? MCHARTABLE_LOOKUP_INT (table, g->code)
 		 : ' ');
 	  SET_CATEGORY_CODE (g, enc);
 	}
@@ -2319,9 +2321,9 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 	      || (prev_category && prev_category != ctx->stage->category))
 	    {
 	      enc = (GET_ENCODED (g)
-		     ? (g->c > 0 ? (int) mchartable_lookup (table, g->c) : 1)
+		     ? (g->c > 0 ? MCHARTABLE_LOOKUP_INT (table, g->c) : 1)
 		     : g->code
-		     ? (int) mchartable_lookup (table, g->code)
+		     ? MCHARTABLE_LOOKUP_INT (table, g->code)
 		     : ' ');
 	      if (! GET_COMBINED (g))
 		SET_CATEGORY_CODE (g, enc);
@@ -2549,7 +2551,7 @@ run_stages (MFLTGlyphString *gstring, int from, int to,
 static void
 setup_combining_coverage (int from, int to, void *val, void *arg)
 {
-  int combining_class = (int) val;
+  int combining_class = (int)(intptr_t) val;
   int category = 0;
 
   if (combining_class < 200)
@@ -2570,7 +2572,7 @@ setup_combining_coverage (int from, int to, void *val, void *arg)
     category = 's';
   else if (combining_class == 240)
     category = 't';
-  mchartable_set_range ((MCharTable *) arg, from, to, (void *) category);
+  mchartable_set_range ((MCharTable *) arg, from, to, (void *)(uintptr_t) category);
 }
 
 static void
@@ -3020,7 +3022,7 @@ mflt_run (MFLTGlyphString *gstring, int from, int to,
 	{
 	  char enc;
 	  g = GREF (gstring, this_to);
-	  enc = (int) mchartable_lookup (flt->coverage->table, g->c);
+	  enc = MCHARTABLE_LOOKUP_INT (flt->coverage->table, g->c);
 	  if (! enc)
 	    break;
 	  SET_CATEGORY_CODE (g, enc);

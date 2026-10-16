@@ -78,6 +78,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -88,6 +89,7 @@
 #include "m17n-misc.h"
 #include "internal.h"
 #include "charset.h"
+#include "chartab.h"
 #include "symbol.h"
 #include "plist.h"
 #include "mtext.h"
@@ -202,8 +204,8 @@ serialize_hline (MPlist *plist, MFaceHLineProp *hline)
     {
       MPlist *pl = mplist ();
 
-      mplist_add (pl, Minteger, (void *) hline->type);
-      mplist_add (pl, Minteger, (void *) hline->width);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) hline->type);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) hline->width);
       mplist_add (pl, Msymbol, hline->color);
       plist = mplist_add (plist, Mplist, pl);
       M17N_OBJECT_UNREF (pl);
@@ -218,11 +220,11 @@ serialize_box (MPlist *plist, MFaceBoxProp *box)
     {
       MPlist *pl = mplist ();
 
-      mplist_add (pl, Minteger, (void *) box->width);
-      mplist_add (pl, Minteger, (void *) box->inner_hmargin);
-      mplist_add (pl, Minteger, (void *) box->inner_vmargin);
-      mplist_add (pl, Minteger, (void *) box->outer_hmargin);
-      mplist_add (pl, Minteger, (void *) box->outer_vmargin);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) box->width);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) box->inner_hmargin);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) box->inner_vmargin);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) box->outer_hmargin);
+      mplist_add (pl, Minteger, (void *)(uintptr_t) box->outer_vmargin);
       mplist_add (pl, Msymbol, box->color_top);
       mplist_add (pl, Msymbol, box->color_bottom);
       mplist_add (pl, Msymbol, box->color_left);
@@ -357,7 +359,7 @@ deserialize_face (MPlist *plist)
       if (! MPLIST_SYMBOL_P (plist))
 	break;
       key = MPLIST_SYMBOL (plist);
-      index = (int) msymbol_get (key, M_face_prop_index) - 1;
+      index = MSYMBOL_GET_INT (key, M_face_prop_index) - 1;
       plist = MPLIST_NEXT (plist);
       if (MPLIST_TAIL_P (plist))
 	break;
@@ -462,7 +464,7 @@ mface__init ()
     for (i = 0; i < MFACE_PROPERTY_MAX; i++)
       /* We add one to distinguish it from no-property.  */
       msymbol_put (*mface_prop_data[i].key, M_face_prop_index,
-		   (void *) (mface_prop_data[i].index + 1));
+		   (void *)(uintptr_t) (mface_prop_data[i].index + 1));
   }
 
   hline_prop_list = mplist ();
@@ -637,26 +639,26 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
 	  if (font->size < 0)
 	    font->size = ((double) (- font->size)) * frame->dpi / 72.27 + 0.5;
 	  font_size = font->size;
-	  merged_face.property[MFACE_SIZE] = (void *) font_size;
+	  merged_face.property[MFACE_SIZE] = (void *)(uintptr_t) font_size;
 	  merged_face.property[MFACE_RATIO] = (void *) 0;
 	}
     }
 
   if (! font || ! font->size)
     {
-      double font_size = (int) merged_face.property[MFACE_SIZE];
+      double font_size = (int)(intptr_t) merged_face.property[MFACE_SIZE];
       int ifont_size;
 
       if (font_size < 0)
 	font_size = - font_size * frame->dpi / 72.27;
       if (merged_face.property[MFACE_RATIO]
-	  && (int) merged_face.property[MFACE_RATIO] != 100)
+	  && (int)(intptr_t) merged_face.property[MFACE_RATIO] != 100)
 	{
-	  font_size *= (int) merged_face.property[MFACE_RATIO];
+	  font_size *= (int)(intptr_t) merged_face.property[MFACE_RATIO];
 	  font_size /= 100;
 	}
       ifont_size = font_size + 0.5;
-      merged_face.property[MFACE_SIZE] = (void *) ifont_size;
+      merged_face.property[MFACE_SIZE] = (void *)(uintptr_t) ifont_size;
       merged_face.property[MFACE_RATIO] = (void *) 0;
     }
 
@@ -682,7 +684,7 @@ mface__realize (MFrame *frame, MFace **faces, int num, int size, MFont *font)
       else if (font->type == MFONT_TYPE_OBJECT)
 	{
 	  MFONT_INIT (&spec);
-	  spec.size = (int) merged_face.property[MFONT_SIZE];
+	  spec.size = (int)(intptr_t) merged_face.property[MFONT_SIZE];
 	  if (font->property[MFONT_REGISTRY])
 	    spec.property[MFONT_REGISTRY] = font->property[MFONT_REGISTRY];
 	  else
@@ -850,8 +852,8 @@ mface__for_chars (MSymbol script, MSymbol language, MSymbol charset,
 		  if (! flt
 		      || ((coverage = mflt_coverage (flt))
 			  && ! (from_g->g.code
-				= (unsigned) mchartable_lookup (coverage,
-								from_g->g.c))))
+				= MCHARTABLE_LOOKUP_UNSIGNED (coverage,
+							      from_g->g.c))))
 		    {
 		      from_g->rface = rface;
 		      from_g->g.code = mfont__encode_char (rfont->frame, 
@@ -1846,7 +1848,7 @@ mface_from_font (MFont *font)
 void *
 mface_get_prop (MFace *face, MSymbol key)
 {
-  int index = (int) msymbol_get (key, M_face_prop_index) - 1;
+  int index = MSYMBOL_GET_INT (key, M_face_prop_index) - 1;
 
   if (index < 0)
     {
@@ -1931,7 +1933,7 @@ mface_get_hook (MFace *face)
 int
 mface_put_prop (MFace *face, MSymbol key, void *val)
 {
-  int index = (int) msymbol_get (key, M_face_prop_index) - 1;
+  int index = MSYMBOL_GET_INT (key, M_face_prop_index) - 1;
   MPlist *plist;
 
   if (key == Mhook_func)

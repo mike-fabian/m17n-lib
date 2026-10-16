@@ -1,3 +1,21 @@
+2026-10-16  K. Handa  <handa@gnu.org>
+
+	The following changes are to suppress unecessary compiler warnings
+	about casting between int and pointer.
+
+	* symbol.h (MSYMBOL_GET_INT): New macro.
+
+	* plist.h (MPLIST_INTEGER, MPLIST_UNSIGNED, MPLIST_GET_INT)
+	(MPLIST_GET_UNSIGNED): New macros.
+
+	* chartab.h (MCHARTABLE_LOOKUP_INT, MCHARTABLE_LOOKUP_UNSIGNED)
+	(MCHARTABLE__LOOKUP_INT, MCHARTABLE__LOOKUP_UNSIGNED): New macros.
+
+	* charset.c, charset.h, coding.c, database.c, draw.c, face.c, font-ft.c,
+	font.c, fontset.c, input-gui.c, input.c, m17n-X.c, m17n-flt.c,
+	m17n-gui.c, mtext.c, plist.c, textprop.c: Include <stdint.ht>.
+	Add (intptr_t) or (uintptr_t) casting.  Use new macros listed above.
+
 2026-10-09  K. Handa  <handa@gnu.org>
 
 	* plist.c (read_mtext_element): Avoid SIGSEGV on invalid utf-8 bytes.
@@ -4652,7 +4670,7 @@
 
 2004-05-27  Kenichi Handa  <handa@m17n.org>
 
-	The following chanages are to make device dependent functions
+	The following changes are to make device dependent functions
 	accessible only from MDeviceDriver structure, and to add GD and
 	null device drivers.  Font drivers get also device dependent.
 

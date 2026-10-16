@@ -138,6 +138,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -601,7 +602,7 @@ get_surrounding_text (MInputContext *ic, int len)
 {
   MText *mt = NULL;
 
-  mplist_push (ic->plist, Minteger, (void *) len);
+  mplist_push (ic->plist, Minteger, (void *)(uintptr_t) len);
   if (minput_callback (ic, Minput_get_surrounding_text) >= 0
       && MPLIST_MTEXT_P (ic->plist))
     mt = MPLIST_MTEXT (ic->plist);
@@ -614,7 +615,7 @@ delete_surrounding_text (MInputContext *ic, int pos)
 {
   MInputContextInfo *ic_info = (MInputContextInfo *) ic->info;
 
-  mplist_push (ic->plist, Minteger, (void *) pos);
+  mplist_push (ic->plist, Minteger, (void *)(uintptr_t) pos);
   minput_callback (ic, Minput_delete_surrounding_text);
   mplist_pop (ic->plist);
   if (pos < 0)
@@ -2613,7 +2614,7 @@ adjust_markers (MInputContext *ic, int from, int to, int ins)
     {
       MPLIST_DO (markers, ic_info->markers)
 	if (MPLIST_INTEGER (markers) > from)
-	  MPLIST_VAL (markers) = (void *) (MPLIST_INTEGER (markers) + ins);
+	  MPLIST_VAL (markers) = (void *)(uintptr_t) (MPLIST_INTEGER (markers) + ins);
       if (ic->cursor_pos >= from)
 	ic->cursor_pos += ins;
     }
@@ -2623,9 +2624,9 @@ adjust_markers (MInputContext *ic, int from, int to, int ins)
 	{
 	  if (MPLIST_INTEGER (markers) >= to)
 	    MPLIST_VAL (markers)
-	      = (void *) (MPLIST_INTEGER (markers) + ins - (to - from));
+	      = (void *)(uintptr_t) (MPLIST_INTEGER (markers) + ins - (to - from));
 	  else if (MPLIST_INTEGER (markers) > from)
-	    MPLIST_VAL (markers) = (void *) from;
+	    MPLIST_VAL (markers) = (void *)(uintptr_t) from;
 	}
       if (ic->cursor_pos >= to)
 	ic->cursor_pos += ins - (to - from);
@@ -2775,7 +2776,7 @@ new_index (MInputContext *ic, int current, int limit, MSymbol sym, MText *mt)
 	    : code - '0');
   if (! ic)  
     return 0;
-  return (int) mplist_get (((MInputContextInfo *) ic->info)->markers, sym);
+  return MPLIST_GET_INT (((MInputContextInfo *) ic->info)->markers, sym);
 }
 
 static void
@@ -2810,7 +2811,7 @@ update_candidate (MInputContext *ic, MTextProperty *prop, int idx)
     }
   mtext_put_prop (ic->preedit, from, to, Mcandidate_list, candidate_list);
   M17N_OBJECT_UNREF (candidate_list);
-  mtext_put_prop (ic->preedit, from, to, Mcandidate_index, (void *) idx);
+  mtext_put_prop (ic->preedit, from, to, Mcandidate_index, (void *)(uintptr_t) idx);
   ic->cursor_pos = to;
 }
 
@@ -3179,7 +3180,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	      || ! (prop = mtext_get_property (ic->preedit, pos - 1,
 					       Mcandidate_list)))
 	    continue;
-	  idx = (int) mtext_get_prop (ic->preedit, pos - 1, Mcandidate_index);
+	  idx = (int)(intptr_t) mtext_get_prop (ic->preedit, pos - 1, Mcandidate_index);
 	  group = find_candidates_group (mtext_property_value (prop), idx,
 					 &start, &end, &gindex);
 	  if (MPLIST_SYMBOL_P (args))
@@ -3321,7 +3322,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	  if (code < 0)
 	    {
 	      mplist_put (ic_info->markers, MPLIST_SYMBOL (args),
-			  (void *) ic->cursor_pos);
+			  (void *)(uintptr_t) ic->cursor_pos);
 	      MDEBUG_PRINT1 ("(%d)", ic->cursor_pos);
 	    }
 	}
@@ -3427,7 +3428,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 		  code = new_index (ic, ic->cursor_pos, 
 				    mtext_nchars (ic->preedit),
 				    MPLIST_SYMBOL (args), ic->preedit);
-		  mplist_add (func_args, Minteger, (void *) code);
+		  mplist_add (func_args, Minteger, (void *)(uintptr_t) code);
 		}
 	      else
 		mplist_add (func_args, MPLIST_KEY (args), MPLIST_VAL (args));
@@ -3496,7 +3497,7 @@ take_action_list (MInputContext *ic, MPlist *action_list)
 	    val1 /= val2, op = "/=";
 	  MDEBUG_PRINT4 ("(%s %s 0x%X(%d))",
 			 MSYMBOL_NAME (sym), op, val1, val1);
-	  mplist_set (value, Minteger, (void *) val1);
+	  mplist_set (value, Minteger, (void *)(uintptr_t) val1);
 	}
       else if (name == Mequal || name == Mless || name == Mgreater
 	       || name == Mless_equal || name == Mgreater_equal)
@@ -4226,8 +4227,8 @@ filter (MInputContext *ic, MSymbol key, void *arg)
 	ic->candidate_list = mtext_property_value (prop);
 	M17N_OBJECT_REF (ic->candidate_list);
 	ic->candidate_index
-	  = (int) mtext_get_prop (ic->preedit, ic->cursor_pos - 1,
-				  Mcandidate_index);
+	  = (int)(intptr_t) mtext_get_prop (ic->preedit, ic->cursor_pos - 1,
+					    Mcandidate_index);
 	ic->candidate_from = mtext_property_start (prop);
 	ic->candidate_to = mtext_property_end (prop);
       }

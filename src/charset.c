@@ -83,6 +83,7 @@
      @{ */
 
 #include <config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -379,12 +380,12 @@ load_charset (FILE *fp, MSymbol charset_name)
 	  if (idx1 >= 0 && idx2 >= 0)
 	    {
 	      decoder[idx1] = c1;
-	      mchartable_set (encoder, c1, (void *) code1);
+	      mchartable_set (encoder, c1, (void *)(intptr_t) code1);
 	      for (idx1++, c1++; idx1 <= idx2; idx1++, c1++)
 		{
 		  code1 = INDEX_TO_CODE_POINT (charset, idx1);
 		  decoder[idx1] = c1;
-		  mchartable_set (encoder, c1, (void *) code1);
+		  mchartable_set (encoder, c1, (void *)(intptr_t) code1);
 		}
 	      found++;
 	    }
@@ -644,7 +645,7 @@ mcharset__encode_char (MCharset *charset, int c)
     return MCHAR_INVALID_CODE;
 
   if (charset->method == Mmap)
-    return (unsigned) mchartable_lookup (charset->encoder, c);
+    return MCHARTABLE_LOOKUP_UNSIGNED (charset->encoder, c);
 
   if (charset->method == Munify)
     {
@@ -653,7 +654,7 @@ mcharset__encode_char (MCharset *charset, int c)
 	  c -= charset->unified_max - 1;
 	  return INDEX_TO_CODE_POINT (charset, c);
 	}
-      return (unsigned) mchartable_lookup (charset->encoder, c);
+      return MCHARTABLE_LOOKUP_UNSIGNED (charset->encoder, c);
     }
 
   /* Now charset->method should be Moffset */
@@ -1259,13 +1260,13 @@ mchar_define_charset (const char *name, MPlist *plist)
 	MERROR (MERROR_CHARSET, Mnil);
       mdatabase_define (Mcharset, sym, Mnil, Mnil, NULL, mapfile->data);
     }
-  if (! (charset->dimension = (int) mplist_get (plist, Mdimension)))
+  if (! (charset->dimension = MPLIST_GET_INT (plist, Mdimension)))
     charset->dimension = 1;
 
-  min_range = (unsigned) mplist_get (plist, Mmin_range);
+  min_range = MPLIST_GET_UNSIGNED (plist, Mmin_range);
   if ((pl = mplist_find_by_key (plist, Mmax_range)))
     {
-      max_range = (unsigned) MPLIST_VAL (pl);
+      max_range = (unsigned) MPLIST_INTEGER (pl);
       if (max_range >= 0x1000000)
 	charset->dimension = 4;
       else if (max_range >= 0x10000 && charset->dimension < 3)
@@ -1288,15 +1289,15 @@ mchar_define_charset (const char *name, MPlist *plist)
       charset->code_range[i * 4] = min_range & 0xFF;
       charset->code_range[i * 4 + 1] = max_range & 0xFF;
     }
-  if ((charset->min_code = (int) mplist_get (plist, Mmin_code)) < min_range)
+  if ((charset->min_code = MPLIST_GET_INT (plist, Mmin_code)) < min_range)
     charset->min_code = min_range;
-  if ((charset->max_code = (int) mplist_get (plist, Mmax_code)) > max_range)
+  if ((charset->max_code = MPLIST_GET_INT (plist, Mmax_code)) > max_range)
     charset->max_code = max_range;
   charset->ascii_compatible
     = (MSymbol) mplist_get (plist, Mascii_compatible) != Mnil;
-  charset->final_byte = (int) mplist_get (plist, Mfinal_byte);
-  charset->revision = (int) mplist_get (plist, Mrevision);
-  charset->min_char = (int) mplist_get (plist, Mmin_char);
+  charset->final_byte = MPLIST_GET_INT (plist, Mfinal_byte);
+  charset->revision = MPLIST_GET_INT (plist, Mrevision);
+  charset->min_char = MPLIST_GET_INT (plist, Mmin_char);
   pl = (MPlist *) mplist_get (plist, Mparents);
   charset->nparents = pl ? mplist_length (pl) : 0;
   if (charset->nparents > 8)
@@ -1312,7 +1313,7 @@ mchar_define_charset (const char *name, MPlist *plist)
 	MERROR (MERROR_CHARSET, Mnil);
     }
 
-  charset->subset_offset = (int) mplist_get (plist, Msubset_offset);
+  charset->subset_offset = MPLIST_GET_INT (plist, Msubset_offset);
 
   msymbol_put (sym, Mcharset, charset);
   charset = make_charset (charset);
@@ -1524,11 +1525,11 @@ mchar_map_charset (MSymbol charset_name,
       int c = charset->min_char;
       int next_c;
 
-      if ((int) mchartable__lookup (charset->encoder, c, &next_c, 1) < 0)
+      if (MCHARTABLE__LOOKUP_INT (charset->encoder, c, &next_c, 1) < 0)
 	c = next_c;
       while (c <= charset->max_char)
 	{
-	  if ((int) mchartable__lookup (charset->encoder, c, &next_c, 1) >= 0)
+	  if (MCHARTABLE__LOOKUP_INT (charset->encoder, c, &next_c, 1) >= 0)
 	    (*func) (c, next_c - 1, func_arg);	  
 	  c = next_c;
 	}

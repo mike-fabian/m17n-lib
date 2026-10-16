@@ -28,6 +28,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -1438,7 +1439,7 @@ mwin__device_get_prop (MFrame *frame, MSymbol key)
   if (key == Mcolormap)
     return (void *) device->cmap;
   if (key == Mdepth)
-    return (void *) device->depth;
+    return (void *)(uintptr_t) device->depth;
   return NULL;
 }
 
@@ -2196,7 +2197,7 @@ device_open (MFrame *frame, MPlist *param)
       else if (key == Mdrawable)
 	drawable = (Drawable) mplist_value (plist);
       else if (key == Mdepth)
-	depth = (unsigned) mplist_value (plist);
+	depth = (unsigned)(uintptr_t) mplist_value (plist);
       else if (key == Mwidget)
 	widget = (Widget) mplist_value (plist);
       else if (key == Mcolormap)

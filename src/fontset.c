@@ -57,6 +57,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,6 +71,7 @@
 #include "plist.h"
 #include "character.h"
 #include "charset.h"
+#include "chartab.h"
 #include "internal-gui.h"
 #include "font.h"
 #include "fontset.h"
@@ -627,7 +629,7 @@ try_font_list (MFrame *frame, MFontList *font_list, MFont *request,
 	      int c = g[j].type == GLYPH_CHAR ? g[j].g.c : ' ';
 
 	      g[j].g.code = (coverage
-			     ? (unsigned ) mchartable_lookup (coverage, c)
+			     ? MCHARTABLE_LOOKUP_UNSIGNED (coverage, c)
 			     : mfont__encode_char (frame, (MFont *) rfont,
 						   &font_list->object, c));
 	    }
@@ -1488,7 +1490,7 @@ mdebug_dump_fontset (MFontset *fontset, int indent)
 	    MPLIST_DO (p, MPLIST_PLIST (pl))
 	      {
 		fprintf (mdebug__output, "\n      %s(0x%X %s ", prefix,
-			 (unsigned) MPLIST_VAL (p),
+			 MPLIST_UNSIGNED (p),
 			 MPLIST_KEY (p)->name);
 		mdebug_dump_font (MPLIST_VAL (p));
 		fprintf (mdebug__output, ")");

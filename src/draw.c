@@ -53,6 +53,7 @@
 /*** @addtogroup m17nInternal
      @{ */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1710,13 +1711,13 @@ dump_gstring (MGlyphString *gstring, int indent, int type)
   for (g = first_g; g < last_g; g++)
     {
       fprintf (stderr,
-	       "\n%s  (%02d %s pos:%d-%d c:%04X code:%04X face:%x w:%02d bidi:%d",
+	       "\n%s  (%02ld %s pos:%d-%d c:%04X code:%04X face:%x w:%02d bidi:%d",
 	       prefix,
 	       g - first_g,
 	       (g->type == GLYPH_SPACE ? "SPC": g->type == GLYPH_PAD ? "PAD"
 		: g->type == GLYPH_ANCHOR ? "ANC"
 		: g->type == GLYPH_BOX ? "BOX" : "CHR"),
-	       g->g.from, g->g.to, g->g.c, g->g.code, (unsigned) g->rface,
+	       g->g.from, g->g.to, g->g.c, g->g.code, (unsigned)(uintptr_t) g->rface,
 	       g->g.xadv, g->bidi_level);
       if (g->g.xoff || g->g.yoff)
 	fprintf (stderr, " off:%d,%d", g->g.xoff, g->g.yoff);

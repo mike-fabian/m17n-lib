@@ -215,7 +215,7 @@ extern MPlist *mcharset__cache;
    ? MCHAR_INVALID_CODE						\
    : (charset)->method == Moffset				\
    ? (c) - (charset)->min_char + (charset)->min_code		\
-   : (unsigned) mchartable_lookup ((charset)->encoder, (c)))
+   : (unsigned)(uintptr_t) mchartable_lookup ((charset)->encoder, (c)))
 
 
 extern MCharset *mcharset__ascii;

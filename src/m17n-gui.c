@@ -60,6 +60,7 @@
 
 #include "config.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -211,7 +212,7 @@ null_device_open (MFrame *frame, MPlist *param)
 
   frame->device = NULL;
   frame->device_type = 0;
-  frame->dpi = (int) mplist_get (param, Mresolution);
+  frame->dpi = MPLIST_GET_INT (param, Mresolution);
   if (frame->dpi == 0)
     frame->dpi = 100;
   frame->driver = &null_driver;
@@ -791,11 +792,11 @@ mframe_get_prop (MFrame *frame, MSymbol key)
   if (key == Mfont)
     return frame->font;
   if (key == Mfont_width)
-    return (void *) (frame->average_width);
+    return (void *)(uintptr_t) (frame->average_width);
   if (key == Mfont_ascent)
-    return (void *) (frame->ascent);
+    return (void *)(uintptr_t) (frame->ascent);
   if (key == Mfont_descent)
-    return (void *) (frame->descent);
+    return (void *)(uintptr_t) (frame->descent);
   return (*frame->driver->get_prop) (frame, key);
 }
 

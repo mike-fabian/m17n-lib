@@ -81,6 +81,7 @@
      @{ */
 
 #include <config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,7 @@
 #include "internal.h"
 #include "textprop.h"
 #include "character.h"
+#include "chartab.h"
 #include "mtext.h"
 #include "plist.h"
 
@@ -637,7 +639,7 @@ next_char_from_it (struct casecmp_iterator *it)
     }
 
   c = mtext_ref_char (it->mt, it->pos);
-  c1 = (int) mchar_get_prop (c, Msimple_case_folding);
+  c1 = (int)(uintptr_t) mchar_get_prop (c, Msimple_case_folding);
   if (c1 == 0xFFFF)
     {
       it->folded
@@ -836,7 +838,7 @@ lowercase_precheck (MText *mt, int pos, int end)
     {
       c = mtext_ref_char (mt, pos);
 
-      if ((int) mchartable_lookup (tricky_chars, c) == 1)
+      if ((int)(uintptr_t) mchartable_lookup (tricky_chars, c) == 1)
       {
 	if (c == 0x03A3)
 	  return 1;
@@ -866,7 +868,7 @@ final_sigma (MText *mt, int pos)
 
   for (i = pos - 1; i >= 0; i--)
     {
-      c = (int) mchartable_lookup (cased, mtext_ref_char (mt, i));
+      c = MCHARTABLE_LOOKUP_INT (cased, mtext_ref_char (mt, i));
       if (c == -1)
 	c = 0;
       if (c & CASED)
@@ -880,7 +882,7 @@ final_sigma (MText *mt, int pos)
 
   for (i = pos + 1; i < len; i++)
     {
-      c = (int) mchartable_lookup (cased, mtext_ref_char (mt, i));
+      c = MCHARTABLE_LOOKUP_INT (cased, mtext_ref_char (mt, i));
       if (c == -1)
 	c = 0;
       if (c & CASED)
@@ -902,7 +904,7 @@ after_soft_dotted (MText *mt, int i)
       c = mtext_ref_char (mt, i);
       if ((MSymbol) mchartable_lookup (soft_dotted, c) == Mt)
 	return 1;
-      class = (int) mchartable_lookup (combining_class, c);
+      class = MCHARTABLE_LOOKUP_INT (combining_class, c);
       if (class == 0 || class == 230)
 	return 0;
     }
@@ -917,8 +919,7 @@ more_above (MText *mt, int i)
 
   for (i++; i < len; i++)
     {
-      class = (int) mchartable_lookup (combining_class,
-				       mtext_ref_char (mt, i));
+      class = MCHARTABLE_LOOKUP_INT (combining_class, mtext_ref_char (mt, i));
       if (class == 230)
 	return 1;
       if (class == 0)
@@ -938,7 +939,7 @@ before_dot (MText *mt, int i)
       c = mtext_ref_char (mt, i);
       if (c == 0x0307)
 	return 1;
-      class = (int) mchartable_lookup (combining_class, c);
+      class = MCHARTABLE_LOOKUP_INT (combining_class, c);
       if (class == 230 || class == 0)
 	return 0;
     }
@@ -956,7 +957,7 @@ after_i (MText *mt, int i)
       c = mtext_ref_char (mt, i);
       if (c == (int) 'I')
 	return 1;
-      class = (int) mchartable_lookup (combining_class, c);
+      class = MCHARTABLE_LOOKUP_INT (combining_class, c);
       if (class == 230 || class == 0)
 	return 0;
     }
@@ -3503,7 +3504,7 @@ mtext_titlecase (MText *mt)
   /* Find 1st cased character. */
   for (from = 0; from < len; from++)
     {
-      int csd = (int) mchartable_lookup (cased, mtext_ref_char (mt, from));
+      int csd = MCHARTABLE_LOOKUP_INT (cased, mtext_ref_char (mt, from));
 
       if (csd > 0 && csd & CASED)
 	break;
@@ -3518,7 +3519,7 @@ mtext_titlecase (MText *mt)
   /* Go through following combining characters. */
   for (to = from + 1;
        (to < len
-	&& ((int) mchartable_lookup (combining_class, mtext_ref_char (mt, to))
+	&& (MCHARTABLE_LOOKUP_INT (combining_class, mtext_ref_char (mt, to))
 	    > 0));
        to++);
 

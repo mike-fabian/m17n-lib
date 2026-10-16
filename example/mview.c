@@ -99,6 +99,7 @@
 */
 #ifndef FOR_DOXYGEN
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -345,7 +346,7 @@ main (int argc, char **argv)
     MFace *face = mface ();
 
     if (fontsize)
-      mface_put_prop (face, Msize, (void *) fontsize);
+      mface_put_prop (face, Msize, (void *)(uintptr_t) fontsize);
     mplist_put (param, Mwidget, shell);
     mplist_put (param, Mface, face);
     frame = mframe (param);
@@ -367,10 +368,10 @@ main (int argc, char **argv)
   quit = XtCreateManagedWidget ("quit", commandWidgetClass, form, arg, 5);
   XtAddCallback (quit, XtNcallback, QuitProc, NULL);
 
-  viewport_width = (int) mframe_get_prop (frame, Mfont_width) * 80;
+  viewport_width = (int)(intptr_t) mframe_get_prop (frame, Mfont_width) * 80;
   viewport_height
-    = ((int) mframe_get_prop (frame, Mfont_ascent)
-       + (int) mframe_get_prop (frame, Mfont_descent)) * 24;
+    = ((int)(intptr_t) mframe_get_prop (frame, Mfont_ascent)
+       + (int)(intptr_t) mframe_get_prop (frame, Mfont_descent)) * 24;
   XtSetArg (arg[0], XtNallowVert, True);
   XtSetArg (arg[1], XtNforceBars, False);
   XtSetArg (arg[2], XtNfromVert, quit);
