@@ -1,5 +1,10 @@
 2026-10-16  K. Handa  <handa@gnu.org>
 
+	* mtext-wseg.c (thai_wordseg_propertize): Use th_brk_find_breaks()
+	instead of deprecated th_brk().
+
+2026-10-16  K. Handa  <handa@gnu.org>
+
 	The following changes are to suppress unecessary compiler warnings
 	about casting between int and pointer.
 
