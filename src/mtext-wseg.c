@@ -126,7 +126,7 @@ thai_wordseg_propertize (MText *mt, int pos, int from, int to,
 {
   int len = to - from;
   int *breaks = alloca ((sizeof (int)) * len);
-  int count = th_brk ((thchar_t *) tis, breaks, len);
+  int count = th_brk_find_breaks (NULL, (thchar_t *) tis, breaks, len);
   MTextProperty *prop = NULL;
 
   if (count == 0)
