@@ -100,6 +100,7 @@
 
 #ifndef FOR_DOXYGEN
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <m17n.h>
@@ -221,7 +222,7 @@ make_candidate_list (AnthyContext *context, int n)
       mconv_rebind_buffer (context->converter,
 			   (unsigned char *) buf, strlen (buf));
       mt = mconv_decode (context->converter, mtext ());
-      mtext_put_prop (mt, 0, mtext_len (mt), Msegment, (void *) (n + 1));
+      mtext_put_prop (mt, 0, mtext_len (mt), Msegment, (void *)(intptr_t) (n + 1));
       mplist_add (pl, Mtext, mt);
       m17n_object_unref (mt);
       if (i % 5 == 4)
@@ -315,7 +316,7 @@ change (MPlist *args)
     return NULL;
   if (! ic->candidate_list || ic->cursor_pos == 0)
     return NULL;
-  segment = (int) mtext_get_prop (ic->preedit, ic->cursor_pos - 1, Msegment);
+  segment = (int)(intptr_t) mtext_get_prop (ic->preedit, ic->cursor_pos - 1, Msegment);
   if (segment == 0)
     return NULL;
   segment--;
@@ -338,7 +339,7 @@ resize (MPlist *args)
     return NULL;
   if (! ic->candidate_list || ic->cursor_pos == 0)
     return NULL;
-  segment = (int) mtext_get_prop (ic->preedit, ic->cursor_pos - 1, Msegment);
+  segment = (int)(intptr_t) mtext_get_prop (ic->preedit, ic->cursor_pos - 1, Msegment);
   if (segment == 0)
     return NULL;
   segment--;

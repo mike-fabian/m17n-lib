@@ -28,6 +28,7 @@
 
 #if defined (HAVE_FREETYPE) && defined (HAVE_GD)
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -126,7 +127,7 @@ read_rgb_txt ()
       if (buf[len - 1] == '\n')
 	buf[len - 1] = '\0';
       b |= (r << 16) | (g << 8);
-      msymbol_put (msymbol (buf), M_rgb, (void *) b);
+      msymbol_put (msymbol (buf), M_rgb, (void *)(intptr_t) b);
     }
   fclose (fp);
 }
@@ -187,7 +188,7 @@ parse_color (MSymbol sym)
 	  }
       }
     else
-      return (int) msymbol_get (sym, M_rgb);
+      return (int)(intptr_t) msymbol_get (sym, M_rgb);
   } while (0);
 
   return ((r << 16) | (g << 8) | b);
@@ -858,7 +859,7 @@ device_open (MFrame *frame, MPlist *param)
 
   frame->device = NULL;
   frame->device_type = MDEVICE_SUPPORT_OUTPUT;
-  frame->dpi = (int) mplist_get (param, Mresolution);
+  frame->dpi = (int)(intptr_t) mplist_get (param, Mresolution);
   if (frame->dpi == 0)
     frame->dpi = 100;
   frame->driver = &gd_driver;

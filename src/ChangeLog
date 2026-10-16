@@ -1,3 +1,7 @@
+2026-10-16  Mike FABIAN  <mfabian@redhat.com>
+
+	* m17n-gd.c:  Include <stdint.ht>. Add (intptr_t) casting.
+
 2026-10-16  K. Handa  <handa@gnu.org>
 
 	* m17n-core.c (M17N_INIT, error_code): Fix documentation error.

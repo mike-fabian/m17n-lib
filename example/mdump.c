@@ -243,6 +243,7 @@
 
 #ifndef FOR_DOXYGEN
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -665,7 +666,7 @@ main (int argc, char **argv)
     MFace *face = mface ();
 
     mface_put_prop (face, Mfontset, fontset);
-    mface_put_prop (face, Msize, (void *) (fontsize * dpi / 100));
+    mface_put_prop (face, Msize, (void *)(intptr_t) (fontsize * dpi / 100));
     if (family_name)
       {
 	char *p;
@@ -737,7 +738,7 @@ main (int argc, char **argv)
       int rgb_value = 0;
 
       if (fg)
-	rgb_value = (int) msymbol_get (fg, msymbol ("  rgb"));
+        rgb_value = (int)(intptr_t) msymbol_get (fg, msymbol ("  rgb"));
       if (rgb_value == 0xFFFFFF)
 	bg_rgb = gdImageColorAllocate (image, 0, 0, 0);
       else
@@ -753,7 +754,7 @@ main (int argc, char **argv)
       MSymbol bg = mface_get_prop (face, Mbackground);
       if (bg)
 	{
-	  int rgb_value = (int) msymbol_get (bg, msymbol ("  rgb"));
+          int rgb_value = (int)(intptr_t) msymbol_get (bg, msymbol ("  rgb"));
 	  bg_rgb = gdImageColorAllocate (image, rgb_value >> 16, 
 					 (rgb_value >> 8) & 255, 
 					 rgb_value & 255);
