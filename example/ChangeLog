@@ -1,5 +1,10 @@
 2026-10-16  K. Handa  <handa@gnu.org>
 
+	* mimx-ispell.c (ispell_word): Use snprintf instead of sprintf.
+	Check the return value of fgets.
+
+2026-10-16  K. Handa  <handa@gnu.org>
+
 	* mview.c, medit.c: Include <stdint.ht>.  Add (intptr_t) or
 	(uintptr_t) casting.
 
