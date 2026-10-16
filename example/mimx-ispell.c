@@ -166,16 +166,27 @@ ispell_word (MPlist *args)
     return add_action (actions, msymbol ("shift"), Msymbol, init_state);
 
   buf[nbytes] = '\0';
-  sprintf (command, "echo %s | ispell -a -m", (char *) buf);
+  i = snprintf (command, sizeof (command),
+		"echo %s | ispell -a -m", (char *) buf);
+  if (i >= sizeof (command))
+    return add_action (actions, msymbol ("shift"), Msymbol, init_state);    
   ispell = popen (command, "r");
   if (! ispell)
     return add_action (actions, msymbol ("shift"), Msymbol, init_state);
 
   /* Skip the heading line.  */
-  fgets (p, 256, ispell);
+  if (fgets (p, 256, ispell) == NULL)
+    {
+      pclose (ispell);
+      return add_action (actions, msymbol ("shift"), Msymbol, init_state);
+    }
   /* Read just 256 bytes, thus candidates listed after the first 256
      bytes are just ignored.  */
-  fgets (p, 256, ispell);
+  if (fgets (p, 256, ispell) == NULL)
+    {
+      pclose (ispell);
+      return add_action (actions, msymbol ("shift"), Msymbol, init_state);
+    }
   pclose (ispell);
   p[strlen (p) - 1] = '\0';
   if (*p != '&' && *p != '#')
