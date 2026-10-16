@@ -23,6 +23,17 @@
 	m17n-gui.c, mtext.c, plist.c, textprop.c: Include <stdint.ht>.
 	Add (intptr_t) or (uintptr_t) casting.  Use new macros listed above.
 
+2026-10-10  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.7 released
+	* src/m17n-core.h: (M17NLIB_PATCH_LEVEL): Changed to 7
+	* src/m17n-core.h: (M17NLIB_VERSION_NAME): Changed to "1.8.7"
+
+2026-10-09  Chamod Anuradha <chamodanu12@gmail.com>
+
+	* coding.c (decode_coding_iso_2022):
+	Avoid uninitialized buffer on invalid UTF-8 lead bytes.
+
 2026-10-09  K. Handa  <handa@gnu.org>
 
 	* plist.c (read_mtext_element): Avoid SIGSEGV on invalid utf-8 bytes.
@@ -32,6 +43,11 @@
 
 	* input.c (re_init_ic): Restore ic_info->stack in a safe way.
 	(filter): Update ic_info after calling reset_ic.
+
+2026-09-19  Qijia Liu  <liumeo@pku.edu.cn>
+
+	* input.c (handle_key): Preserve a state hook installed while
+	running the previous state's hook.
 
 2025-06-07  Mike FABIAN  <mfabian@redhat.com>
 

@@ -1586,6 +1586,10 @@ decode_coding_iso_2022 (const unsigned char *source, int src_bytes, MText *mt,
 	  int bytes = CHAR_BYTES_BY_HEAD (c1);
 	  int i;
 	  
+	  if (bytes == 0) /* 0xFE or 0xFF: invalid UTF-8 lead byte */
+	    {
+	      goto invalid_byte;
+	    }
 	  buf[0] = c1;
 	  for (i = 1; i < bytes; i++)
 	    {

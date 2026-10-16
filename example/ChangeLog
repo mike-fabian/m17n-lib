@@ -8,6 +8,10 @@
 	* mview.c, medit.c: Include <stdint.ht>.  Add (intptr_t) or
 	(uintptr_t) casting.
 
+2026-10-10  Mike FABIAN  <mfabian@redhat.com>
+
+	* Version 1.8.7 released.
+
 2025-06-07  Mike FABIAN  <mfabian@redhat.com>
 
 	* Version 1.8.6 released.

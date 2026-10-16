@@ -3619,14 +3619,19 @@ handle_key (MInputContext *ic)
 
   if (ic_info->state_hook)
     {
+      MPlist *state_hook = ic_info->state_hook;
+
+      /* Consuming the current hook may shift to another state and install
+         that state's hook.  Clear it before running the actions so that a
+         newly installed hook is not discarded afterwards.  */
+      ic_info->state_hook = NULL;
       MDEBUG_PRINT3 ("  [IM:%s-%s] [%s] init-actions:",
 		     MSYMBOL_NAME (im_info->language),
 		     MSYMBOL_NAME (im_info->name),
 		     MSYMBOL_NAME (ic_info->state->name));
-      result = take_action_list (ic, ic_info->state_hook);
+      result = take_action_list (ic, state_hook);
       mtext_cpy (ic_info->preedit_saved, ic->preedit);
       ic_info->state_pos = ic->cursor_pos;
-      ic_info->state_hook = NULL;
       if (result != 0)
 	{
 	  MDEBUG_PRINT ("\n");

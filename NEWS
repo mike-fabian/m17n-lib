@@ -2,8 +2,20 @@
 Copyright (C) 2003-2014
   National Institute of Advanced Industrial Science and Technology (AIST)
   Registration Number H15PRO112
-Copyright (C) 2015, 2016, 2017  K. Handa  <handa@gnu.org>
+Copyright (C) 2015, 2016, 2017, 2018-2026  K. Handa  <handa@gnu.org>
 See the end for copying conditions.
+
+
+* Changes in the m17n library 1.8.7
+
+This release is just for bug fixing.
+
+** Avoid uninitialized buffer on invalid UTF-8 lead bytes (Thanks to Chamod Anuradha <chamodanu12@gmail.com>)
+** Fix crash when using zh-zhuyin (Thanks to Qijia Liu <liumeo@pku.edu.cn>)
+(See: https://lists.nongnu.org/archive/html/m17n-list/2026-09/msg00000.html)
+** fix "Heap Use-After-Free" bug
+** fix "Parser NULL-pointer Dereference" bug
+** fix "Parser Infinite Loop" bug
 
 
 * Changes in the m17n library 1.8.6
