@@ -329,33 +329,34 @@
 /***en
     @brief Initialize the m17n library.
 
-    The macro M17N_INIT () initializes the m17n library.  This macro
-    must be called before any m17n functions are used.
+    The macro M17N_INIT() initializes the m17n library and must be
+    called before any m17n library functions are used.
 
-    It is safe to call this macro multiple times, but in that case,
-    the macro M17N_FINI () must be called the same times to free the
-    memory.
+    This macro may be called multiple times. However, each call to
+    M17N_INIT() must be matched by a corresponding call to M17N_FINI()
+    to release the resources allocated by the library.
 
-    If the initialization was successful, the external variable
-    #merror_code is set to 0.  Otherwise it is set to -1.
+    If initialization succeeds, the external variable #merror_code is
+    set to 0. Otherwise, it is set to a nonzero value.
 
     @seealso
-    M17N_FINI (), m17n_status ()  */
+    M17N_FINI (), m17n_status (), merror_code  */
 
 /***ja
     @brief m17n ライブラリを初期化する.
 
-    マクロ M17N_INIT () は m17n ライブラリを初期化する。m17n 
-    の関数を利用する前に、このマクロをまず呼ばなくてはならない。
+    マクロ M17N_INIT() は m17n ライブラリを初期化する。m17n ライブラリ
+    の関数を利用する前には、このマクロをまず呼ばなくてはならない。
     
-    このマクロを複数回呼んでも安全であるが、その場合メモリを解放するためにマクロ
-    M17N_FINI () を同じ回数呼ぶ必要がある。
+    このマクロを複数回呼んでも良いが、その場合ライブラリによって割り当
+    てられたリソースを解放するためには、マクロM17N_FINI () を同じ回数呼ぶ
+    必要がある。
 
     外部変数 #merror_code は、初期化が成功すれば 0 に、そうでなければ 
-    -1 に設定される。  
+    0 以外の値に設定される。  
 
     @seealso
-    M17N_FINI (), m17n_status ()  */
+    M17N_FINI (), m17n_status (), merror_code  */
 
 #define M17N_INIT()
 
@@ -1007,23 +1008,26 @@ m17n_object_unref (void *object)
 
 /*=*/
 
-/***en 
-    @brief External variable to hold error code of the m17n library.
+/***en
+    @brief External variable holding the error code of the m17n library.
 
-    The external variable #merror_code holds an error code of the
-    m17n library.  When a library function is called with an invalid
-    argument, it sets this variable to one of @c enum #MErrorCode.
+    The external variable #merror_code stores an error code reported
+    by the m17n library. When a library function is called with an
+    invalid argument, or when an internal library error occurs, such
+    as an initialization failure, this variable is set to one of the
+    values defined in @c enum #MErrorCode.
 
-    This variable initially has the value 0.  */
+    This variable is initially set to MERROR_NONE (i.e. 0).  */
 
 /***ja 
     @brief m17n ライブラリのエラーコードを保持する外部変数.
 
-    外部変数 #merror_code は、m17n ライブラリのエラーコードを保持する。
-    ライブラリ関数が妥当でない引数とともに呼ばれた際には、この変数を 
-    @c enum #MErrorCode の一つにセットする。
+    外部変数 #merror_code は、m17n ライブラリが報告するエラーコードを
+    保持する。ライブラリ関数が妥当でない引数とともに呼ばれた際には、あ
+    るいはライブライリの初期化の失敗などの内部エラーの際には、この変数
+    は @c enum #MErrorCode の一つにセットされる。
 
-    この変数の初期値は 0 である。  */
+    この変数の初期値は MERROR_NODE (つまり 0) である。  */
 
 int merror_code;
 

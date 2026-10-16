@@ -1,5 +1,7 @@
 2026-10-16  K. Handa  <handa@gnu.org>
 
+	* m17n-core.c (M17N_INIT, error_code): Fix documentation error.
+
 	* mtext-wseg.c (thai_wordseg_propertize): Use th_brk_find_breaks()
 	instead of deprecated th_brk().
 
